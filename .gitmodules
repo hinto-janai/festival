@@ -1,0 +1,6 @@
+[submodule "external/egui"]
+	path = external/egui
+	url = git@github.com:hinto-janaiyo/egui.git
+[submodule "external/fast_image_resize"]
+	path = external/fast_image_resize
+	url = git@github.com:hinto-janaiyo/fast_image_resize.git
