@@ -1,0 +1,7 @@
+#!/usr/bin/bash
+
+SELF=$(readlink -f "$0")
+HERE="${SELF%/*}"
+EXEC="${HERE}/usr/bin/festival"
+
+exec "${EXEC}" "$@"

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Festival
+GenericName=Music Player
+Comment=Minimal music player
+Exec=festival
+Icon=256
+Type=Application
+Categories=AudioVideo;Audio;Player;

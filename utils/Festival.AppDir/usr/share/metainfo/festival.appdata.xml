@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.hinto_janai.festival</id>
+  
+  <name>Festival</name>
+  <summary>Music player</summary>
+  
+  <metadata_license>MIT</metadata_license>
+  <project_license>MIT</project_license>
+  
+  <recommends>
+    <display_length compare="ge">1280</display_length>
+  </recommends>
+  
+  <description>
+    <p>
+      Music player for Windows, macOS, and Linux.
+    </p>
+  </description>
+  
+  <launchable type="desktop-id">festival.desktop</launchable>
+</component>
