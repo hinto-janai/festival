@@ -25,8 +25,8 @@ rolock = { path = "lib/rolock" }
 ### External patched libraries `external/`
 egui              = { path = "external/egui/crates/egui",        features = ["default_fonts"], default-features = false }
 eframe            = { path = "external/egui/crates/eframe",      features = ["wgpu"],          default-features = false }
-egui_extras       = { path = "external/egui/crates/egui_extras", features = ["image"]                                   }
-fast_image_resize = { path = "external/fast_image_resize"                                                               }
+egui_extras       = { path = "external/egui/crates/egui_extras", features = ["image"] }
+fast_image_resize = { path = "external/fast_image_resize" }
 
 ### Regular libraries
 anyhow = "1.0.69"
@@ -35,22 +35,22 @@ chrono = "0.4.23"
 clap = { version = "4.1.6", features = ["derive"] }
 #egui-notify = "0.5.1"
 env_logger = "0.10.0"
-#id3 = "1.6.0"
 #figment = { version = "0.10.8", features = ["toml"] }
+#id3 = "1.6.0"
 image = { version = "0.24.5", features = ["png", "jpeg"] }
+lazy_static = "1.4.0"
 #lofty = "0.11.0"
 log = "0.4.17"
-strum = { version = "0.24.1", features = ["derive"] }
-strum_macros = "0.24.3"
-#rodio = "0.16.0"
-#symphonia = "0.5.2"
-#strsim = "0.10.0"
 #num-format = "0.4.4"
 #rand = "0.8.5"
 #regex = "1.7.1"
 #rfd = "0.11.1"
-serde = { version = "1.0.152", features = ["derive"] }
+#rodio = "0.16.0"
 serde_bytes = "0.11.9"
-lazy_static = "1.4.0"
+serde = { version = "1.0.152", features = ["derive"] }
 #souvlaki = "0.5.3"
+#strsim = "0.10.0"
+strum_macros = "0.24.3"
+strum = { version = "0.24.1", features = ["derive"] }
+#symphonia = "0.5.2"
 #walkdir = "2.3.2"
