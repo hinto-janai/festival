@@ -37,7 +37,7 @@ pub const PLAYLIST_VERSION: u8 = 1;
 
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
-mod test {
+mod tests {
 	use crate::constants::*;
 
 	#[test]

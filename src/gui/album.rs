@@ -17,7 +17,8 @@ pub fn show_tab_album(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 		ui.add_space(height/40.0);
 		ui.set_max_width(height/3.0);
 		Frame::window(&ctx.style()).rounding(Rounding::none()).inner_margin(1.0).show(ui, |ui| {
-			self.img.vec[2].1.show_size(ui, Vec2::new(height/3.0, height/3.0));
+			let size = height / 2.5;
+			self.img.vec[2].1.show_size(ui, Vec2::new(size, size));
 		});
 
 		ui.heading("祝祭");
@@ -48,7 +49,7 @@ pub fn show_tab_album(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 
 //---------------------------------------------------------------------------------------------------- TESTS
 //#[cfg(test)]
-//mod test {
+//mod tests {
 //  #[test]
 //  fn _() {
 //  }

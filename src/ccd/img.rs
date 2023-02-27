@@ -58,20 +58,25 @@ pub fn art_from_raw(bytes: &[u8], resizer: &mut fir::Resizer) -> Result<egui_ext
 	// `.buffer()` must be called on `fir::Image`
 	// before passing it to the next function.
 	// It's cheap, it just returns a `&[u8]`.
-	Ok(color_img_to_retained(rgb_bytes_to_color_img(resize_dyn_image(bytes_to_dyn_image(bytes)?, resizer)?.buffer())))
+	Ok(color_img_to_retained(
+		rgb_bytes_to_color_img(
+			resize_dyn_image(
+				bytes_to_dyn_image(bytes)?, resizer)?.buffer()
+			)
+		)
+	)
 }
 
 #[inline(always)]
 pub fn art_from_known(bytes: &[u8]) -> egui_extras::image::RetainedImage {
-	color_img_to_retained(rgb_bytes_to_color_img(bytes))
+	color_img_to_retained(
+		rgb_bytes_to_color_img(bytes)
+	)
 }
 
 //-------------------------- Real functions.
 #[inline(always)]
 pub fn bytes_to_dyn_image(bytes: &[u8]) -> Result<image::DynamicImage, anyhow::Error> {
-	// TODO:
-	// This function needs to be inlined internally.
-	// Fork `image` and inline.
 	match image::load_from_memory(bytes) {
 		Ok(img) => Ok(img),
 		Err(e)  => bail!(e),
@@ -98,18 +103,12 @@ pub fn resize_dyn_image(img: image::DynamicImage, resizer: &mut fir::Resizer) ->
 	// Convert image to RGB, then into a `fir::Image`.
 	// `.to_rgb8()` is expensive and copies.
 	// `.into_raw()` is cheap and returns the inner `Vec`.
-	// TODO:
-	// This function needs to be inlined internally.
-	// Fork `fast_image_resize` and inline.
-	// It also has safety checks I can get rid of.
 	let old_img = Image::from_vec_u8(width, height, img.to_rgb8().into_raw(), PixelType::U8x3)?;
 
 	// Create the image we'll resize into.
-	// TODO: Inline.
 	let mut new_img = Image::new(ALBUM_ART_MAX_SIZE_NUM, ALBUM_ART_MAX_SIZE_NUM, PixelType::U8x3);
 
 	// Resize old into new.
-	// TODO: Inline + Get rid of `match`, we know the input.
 	if let Err(e) = resizer.resize(&old_img.view(), &mut new_img.view_mut()) {
 		bail!(e);
 	}
@@ -131,16 +130,41 @@ pub fn rgb_bytes_to_color_img(bytes: &[u8]) -> egui::ColorImage {
 
 #[inline(always)]
 pub fn color_img_to_retained(img: egui::ColorImage) -> egui_extras::image::RetainedImage {
-	// TODO:
-	// This function needs to be inlined internally.
-	// Fork `egui_extras` and inline.
 	egui_extras::image::RetainedImage::from_color_image("", img)
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod test {
-//  #[test]
-//  fn __TEST__() {
-//  }
-//}
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	const IMG_BYTES: &[u8] = include_bytes!("../../images/icon/1024.png");
+
+	#[test]
+	// Makes sure we can take in random image bytes,
+	// resize with `fir`, and transform into an `egui` image.
+	fn _art_from_raw() {
+		let mut resizer = super::create_resizer();
+		art_from_raw(IMG_BYTES, &mut resizer).unwrap();
+	}
+
+	#[test]
+	// Make sure known image bytes can be converted to an `egui` image.
+	fn _art_from_known() {
+		// Resizer.
+		let mut resizer = super::create_resizer();
+
+		// Bytes -> DynamicImage.
+		let dyn_img = bytes_to_dyn_image(IMG_BYTES).unwrap();
+
+		// DynamicImage -> FIR Image.
+		let fir_img = resize_dyn_image(dyn_img, &mut resizer).unwrap();
+		assert!(fir_img.width()  == ALBUM_ART_MAX_SIZE_NUM);
+		assert!(fir_img.height() == ALBUM_ART_MAX_SIZE_NUM);
+
+		// Bytes of FIR Image should be in perfect `3` chunks (RGB).
+		assert!(fir_img.buffer().len() % 3 == 0);
+
+		let _ = art_from_known(&fir_img.buffer());
+	}
+}

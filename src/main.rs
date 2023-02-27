@@ -1,5 +1,4 @@
 mod cli;
-mod state;
 mod gui;
 mod collection;
 mod constants;

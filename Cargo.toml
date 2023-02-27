@@ -5,9 +5,9 @@ edition = "2021"
 authors = ["hinto-janai <hinto.janai@protonmail.com>"]
 description = "Music player"
 homepage = "https://festival.io"
-documentation = "https://github.com/hinto-janai/festival"
+documentation = "https://github.com/hinto-janai/festival/src/README.md"
 repository = "https://github.com/hinto-janai/festival"
-keywords = ["music", "audio", "player"]
+keywords = ["music", "audio", "player", "festival"]
 build = "build.rs"
 license = "MIT"
 
@@ -26,7 +26,8 @@ rolock = { path = "lib/rolock" }
 egui              = { path = "external/egui/crates/egui",        features = ["default_fonts"], default-features = false }
 eframe            = { path = "external/egui/crates/eframe",      features = ["wgpu"],          default-features = false }
 egui_extras       = { path = "external/egui/crates/egui_extras", features = ["image"] }
-fast_image_resize = { path = "external/fast_image_resize" }
+#image             = { path = "external/image", features = ["png", "jpeg"] }
+#fast_image_resize = { path = "external/fast_image_resize" }
 
 ### Regular libraries
 anyhow = "1.0.69"
@@ -35,9 +36,10 @@ chrono = "0.4.23"
 clap = { version = "4.1.6", features = ["derive"] }
 #egui-notify = "0.5.1"
 env_logger = "0.10.0"
+fast_image_resize = "2.5.0"
 #figment = { version = "0.10.8", features = ["toml"] }
 #id3 = "1.6.0"
-image = { version = "0.24.5", features = ["png", "jpeg"] }
+image = { version = "0.24.5", features = ["jpeg", "png"], default-features = false }
 lazy_static = "1.4.0"
 #lofty = "0.11.0"
 log = "0.4.17"

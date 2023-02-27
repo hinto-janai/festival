@@ -94,7 +94,7 @@ pub(crate) use fail;
 
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
-mod test {
+mod tests {
 	#[test]
 	fn lock() {
 		use std::sync::{Arc,Mutex};
