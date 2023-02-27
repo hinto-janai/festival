@@ -22,8 +22,8 @@ use fir::{
 use std::num::NonZeroU32;
 
 //---------------------------------------------------------------------------------------------------- Album Art Constants.
-// 900x900 pixels.
-pub const ALBUM_ART_MAX_SIZE: u32 = 900;
+// 600x600 pixels.
+pub const ALBUM_ART_MAX_SIZE: u32 = 600;
 // `unsafe` invariant: The constant above can't be `0`.
 pub const ALBUM_ART_MAX_SIZE_NUM: NonZeroU32 = unsafe { NonZeroU32::new_unchecked(ALBUM_ART_MAX_SIZE) };
 pub const ALBUM_ART_MAX_SIZE_ARRAY: [usize; 2] = [ALBUM_ART_MAX_SIZE as usize; 2];
