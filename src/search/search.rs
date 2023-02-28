@@ -1,8 +1,11 @@
 //---------------------------------------------------------------------------------------------------- Use
 //use anyhow::{anyhow,bail,ensure};
 use log::{info,error,warn,trace,debug};
-//use serde::{Serialize,Deserialize};
-use crate::macros::*;
+use crate::macros::{
+	ok_debug,
+	recv,
+	send,
+};
 use crate::collection::{
 	Collection,
 	key::CollectionKeychain,
@@ -112,12 +115,16 @@ impl Search {
 			// Block, wait for signal.
 			let msg = recv!(self.from_kernel);
 
-			// Match message.
+			// Match message and do action.
 			use KernelToSearch::*;
 			match msg {
 				Search(input)      => Self::msg_search(&mut self, input),
-				DropCollection     => Self::msg_drop(&mut self),
-				CollectionArc(ptr) => Self::msg_ptr(&mut self),
+				DropCollection     => self = Self::msg_drop(self),
+
+				// Other messages shouldn't be received here, e.g:
+				// `DropCollection` should _always_ be first before `CollectionArc`.
+				// Something buggy is happening if we randomly get a new `CollectionArc`.
+				CollectionArc(_) => error!("Message: Incorrect message received - CollectionArc"),
 			}
 		}
 	}
@@ -132,10 +139,27 @@ impl Search {
 	}
 
 	#[inline(always)]
-	fn msg_drop(&mut self) {}
+	fn msg_drop(mut self) -> Self {
+		// Drop pointer.
+		drop(self.collection);
 
-	#[inline(always)]
-	fn msg_ptr(&mut self) {}
+		// Hang until we get the new one.
+		debug!("Search: Dropped Collection, waiting...");
+
+		// Ignore messages until it's a pointer.
+		// (Kernel should only be sending a pointer at this point anyway).
+		loop {
+			let msg = recv!(self.from_kernel);
+
+			if let KernelToSearch::CollectionArc(arc) = msg {
+				ok_debug!("Search: New Collection");
+				self.collection = arc;
+				return self
+			}
+
+			error!("Message: Incorrect message received");
+		}
+	}
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

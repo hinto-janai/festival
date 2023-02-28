@@ -70,7 +70,7 @@ macro_rules! fail {
 }
 pub(crate) use fail;
 
-// | mass_panic | Logs an error message and terminates all threads           | error!(...); std::process::exit(111)                       |
+// Logs an error message and terminates all threads
 macro_rules! mass_panic {
 	($($tts:tt)*) => {{
 		// Log.
@@ -99,7 +99,7 @@ pub(crate) use mass_panic;
 macro_rules! send {
 	($channel:expr, $($msg:tt)*) => {{
 		if let Err(e) = $channel.send($($msg)*) {
-			mass_panic!(e);
+			crate::macros::mass_panic!(e);
 		}
 	}}
 }
@@ -110,7 +110,7 @@ macro_rules! recv {
 	($channel:expr) => {
 		match $channel.recv() {
 			Ok(msg) => msg,
-			Err(e)  => mass_panic!(e),
+			Err(e)  => crate::macros::mass_panic!(e),
 		}
 	}
 }
