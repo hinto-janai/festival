@@ -60,10 +60,10 @@ impl<T> RoLock<T> {
 		(rw, ro)
 	}
 
-	/// This calls [`RwLock::read`] followed by `.expect()`.
+	/// This calls [`RwLock::read`].
 	#[inline(always)]
-	pub fn read(&self) -> RwLockReadGuard<'_, T> {
-		self.0.read().expect("Failed to lock RoLock")
+	pub fn read(&self) -> Result<RwLockReadGuard<'_, T>, PoisonError<RwLockReadGuard<'_, T>>> {
+		self.0.read()
 	}
 
 	/// This calls [`RwLock::try_read()`].
@@ -94,10 +94,10 @@ impl<T> From<&Arc<RwLock<T>>> for RoLock<T> {
 	}
 }
 
-/// Allows direct printing of inner value.
-impl<T: std::fmt::Display> std::fmt::Display for RoLock<T> {
-	#[inline(always)]
-	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		write!(f, "{}", self.read())
-	}
-}
+// Allows direct printing of inner value.
+//impl<T: std::fmt::Display> std::fmt::Display for RoLock<T> {
+//	#[inline(always)]
+//	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//		write!(f, "{}", self.read())
+//	}
+//}
