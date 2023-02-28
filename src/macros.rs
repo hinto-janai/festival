@@ -1,18 +1,24 @@
-// Read a `RwLock` or `RoLock` and `.expect()`
-macro_rules! lock_read {
-	($lock:expr) => {
-		$lock.read().expect("Failed to read lock: {}", $lock)
-	};
+// Read a `RwLock/RoLock` or `mass_panic!()` (exit all threads).
+macro_rules! read_lock {
+	($lock:expr) => {{
+		match $lock.read() {
+			Ok(lock) => lock,
+			Err(e)   => crate::macros::mass_panic!(e),
+		}
+	}};
 }
-pub(crate) use lock_read;
+pub(crate) use read_lock;
 
-// Write a `RwLock` or `RoLock` and `.expect()`
-macro_rules! lock_write {
-	($lock:expr) => {
-		$lock.write().expect("Failed to write lock: {}", $lock)
-	};
+// Write to a `RwLock/RoLock` or `mass_panic!()` (exit all threads).
+macro_rules! write_lock {
+	($lock:expr) => {{
+		match $lock.write() {
+			Ok(lock) => lock,
+			Err(e)   => crate::macros::mass_panic!(e),
+		}
+	}};
 }
-pub(crate) use lock_write;
+pub(crate) use write_lock;
 
 // Sleep the current thread for `x` milliseconds
 macro_rules! sleep {
