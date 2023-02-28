@@ -1,46 +1,20 @@
-// | MACRO   | PURPOSE                                                  | EQUIVALENT CODE                                            |
-// |---------|----------------------------------------------------------|------------------------------------------------------------|
-// | lock    | Lock an [Arc<Mutex>]                                     | a.lock().unwrap()                                          |
-// | lock2   | Lock a field inside a struct, both Arc<Mutex>            | a.lock().unwrap().b.lock().unwrap()                        |
-// | arc_mut | Create a new [Arc<Mutex>]                                | std::sync::Arc::new(std::sync::Mutex::new(my_value))       |
-// | sleep   | Sleep the current thread for x milliseconds              | std::thread::sleep(std::time::Duration::from_millis(1000)) |
-// | flip    | Flip a bool in place                                     | my_bool = !my_bool                                         |
-// | ok      | FORWARDS input to info!() appended with green "... OK"   | info!("{} {}", my_msg, "... OK")                           |
-// | skip    | FORWARDS input to info!() appended with white "... SKIP" | info!("{} {}", my_msg, "... SKIP")                         |
-// | fail    | FORWARDS input to error!() appended with red "... FAIL"  | error!("{} {}", my_msg, "... FAIL")                        |
-//
-// [lock2!()] works like this: "lock2!(my_struct, my_field)"
-// and expects it be a [Struct]-[field] relationship, e.g:
-// ```
-// let struct = Arc::new(Mutex::new(Struct {
-//     field: Arc::new(Mutex::new(true)),
-// }));
-// assert!(*lock2!(struct, field) == true);
-// ```
-//
-// The equivalent code is: "struct.lock().unwrap().field.lock().unwrap()"
-
-macro_rules! lock {
-	($arc_mutex:expr) => {
-		$arc_mutex.lock().expect("Failed to lock Mutex")
+// Read a `RwLock` or `RoLock` and `.expect()`
+macro_rules! lock_read {
+	($lock:expr) => {
+		$lock.read().expect("Failed to read lock: {}", $lock)
 	};
 }
-pub(crate) use lock;
+pub(crate) use lock_read;
 
-macro_rules! lock2 {
-	($arc_mutex:expr, $arc_mutex_two:ident) => {
-		$arc_mutex.lock().expect("Failed to lock Mutex").$arc_mutex_two.lock().expect("Failed to lock Mutex")
+// Write a `RwLock` or `RoLock` and `.expect()`
+macro_rules! lock_write {
+	($lock:expr) => {
+		$lock.write().expect("Failed to write lock: {}", $lock)
 	};
 }
-pub(crate) use lock2;
+pub(crate) use lock_write;
 
-macro_rules! arc_mut {
-	($arc_mutex:expr) => {
-		std::sync::Arc::new(std::sync::Mutex::new($arc_mutex))
-	};
-}
-pub(crate) use arc_mut;
-
+// Sleep the current thread for `x` milliseconds
 macro_rules! sleep {
     ($millis:expr) => {
 		std::thread::sleep(std::time::Duration::from_millis($millis))
@@ -48,6 +22,7 @@ macro_rules! sleep {
 }
 pub(crate) use sleep;
 
+// Flip a bool in place
 macro_rules! flip {
 	($b:expr) => {
 		match $b {
@@ -57,73 +32,93 @@ macro_rules! flip {
 }
 pub(crate) use flip;
 
+// FORWARDS input to log macros, appended with green "... OK"
 macro_rules! ok {
 	($($tts:tt)*) => {
-			log::info!("{} {} {}{}{}", $($tts)*, "...", "\x1b[1;92m", "OK", "\x1b[0m");
-		}
+		log::info!("{} {} {}{}{}", $($tts)*, "...", "\x1b[1;92m", "OK", "\x1b[0m");
 	}
+}
 pub(crate) use ok;
 
 macro_rules! ok_debug {
 	($($tts:tt)*) => {
 			log::debug!("{} {} {}{}{}", $($tts)*, "...", "\x1b[1;92m", "OK", "\x1b[0m");
-		}
 	}
+}
 pub(crate) use ok_debug;
 
 macro_rules! ok_trace {
 	($($tts:tt)*) => {
 			log::trace!("{} {} {}{}{}", $($tts)*, "...", "\x1b[1;92m", "OK", "\x1b[0m");
-		}
 	}
+}
 pub(crate) use ok_trace;
 
+// FORWARDS input to info!() appended with white "... SKIP"
 macro_rules! skip {
 	($($tts:tt)*) => {
-			log::info!("{} {} {}{}{}", $($tts)*, "...", "\x1b[1;97m", "SKIP", "\x1b[0m");
-		}
+		log::info!("{} {} {}{}{}", $($tts)*, "...", "\x1b[1;97m", "SKIP", "\x1b[0m");
 	}
+}
 pub(crate) use skip;
 
+// FORWARDS input to error!() appended with red "... FAIL"
 macro_rules! fail {
 	($($tts:tt)*) => {
-			log::error!("{} {} {}{}{}", $($tts)*, "...", "\x1b[1;91m", "FAIL", "\x1b[0m");
+		log::error!("{} {} {}{}{}", $($tts)*, "...", "\x1b[1;91m", "FAIL", "\x1b[0m");
+	}
+}
+pub(crate) use fail;
+
+// | mass_panic | Logs an error message and terminates all threads           | error!(...); std::process::exit(111)                       |
+macro_rules! mass_panic {
+	($($tts:tt)*) => {{
+		// Log.
+		log::error!("");
+		log::error!("");
+		log::error!("");
+		log::error!("----- THREAD PANIC -----");
+		log::error!("{}", $($tts)*);
+		log::error!("{}", $($tts)*);
+		log::error!("{}", $($tts)*);
+		log::error!("{}", $($tts)*);
+		log::error!("{}", $($tts)*);
+		log::error!("{}", $($tts)*);
+		log::error!("----- THREAD PANIC -----");
+		log::error!("");
+		log::error!("");
+		log::error!("");
+
+		// Exit all threads.
+		std::process::exit(111)
+	}}
+}
+pub(crate) use mass_panic;
+
+// Send a message through a channel, `mass_panic!` on failure
+macro_rules! send {
+	($channel:expr, $($msg:tt)*) => {{
+		if let Err(e) = $channel.send($($msg)*) {
+			mass_panic!(e);
+		}
+	}}
+}
+pub(crate) use send;
+
+// Receive a message through a channel, `mass_panic!` on failure
+macro_rules! recv {
+	($channel:expr) => {
+		match $channel.recv() {
+			Ok(msg) => msg,
+			Err(e)  => mass_panic!(e),
 		}
 	}
-pub(crate) use fail;
+}
+pub(crate) use recv;
 
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
 mod tests {
-	#[test]
-	fn lock() {
-		use std::sync::{Arc,Mutex};
-		let arc_mutex = Arc::new(Mutex::new(false));
-		*lock!(arc_mutex) = true;
-		assert!(*lock!(arc_mutex) == true);
-	}
-
-	#[test]
-	fn lock2() {
-		struct Ab {
-			a: Arc<Mutex<bool>>,
-		}
-		use std::sync::{Arc,Mutex};
-		let arc_mutex = Arc::new(Mutex::new(
-			Ab {
-				a: Arc::new(Mutex::new(false)),
-			}
-		));
-		*lock2!(arc_mutex,a) = true;
-		assert!(*lock2!(arc_mutex,a) == true);
-	}
-
-	#[test]
-	fn arc_mut() {
-		let a = arc_mut!(false);
-		assert!(*lock!(a) == false);
-	}
-
 	#[test]
 	fn flip() {
 		let mut b = true;
