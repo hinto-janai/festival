@@ -118,8 +118,8 @@ impl Search {
 			// Match message and do action.
 			use KernelToSearch::*;
 			match msg {
-				Search(input)      => Self::msg_search(&mut self, input),
-				DropCollection     => self = Self::msg_drop(self),
+				Search(input)      => self.msg_search(input),
+				DropCollection     => self = self.msg_drop(),
 
 				// Other messages shouldn't be received here, e.g:
 				// `DropCollection` should _always_ be first before `CollectionArc`.
