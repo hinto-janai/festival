@@ -7,6 +7,7 @@ mod macros;
 mod kernel;
 mod ccd;
 mod search;
+mod audio;
 
 fn main() {
 	// Handle CLI arguments.

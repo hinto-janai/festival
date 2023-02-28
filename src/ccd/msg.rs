@@ -14,7 +14,7 @@ use crate::collection::{
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
 pub enum CCDToKernel {
-	PathUpdate(String),        // This is current `Path` I'm working on.
+	PathUpdate(String),        // This is the current `Path` I'm working on.
 	ArtistUpdate(String),      // This is the current `Artist` I'm working on.
 	AlbumUpdate(String),       // This is the current `Album` I'm working on.
 	SongUpdate(String),        // This is the current `Song` I'm working on.

@@ -1,44 +1,79 @@
 //---------------------------------------------------------------------------------------------------- Use
 //use anyhow::{anyhow,bail,ensure};
-//use log::{info,error,warn,trace,debug};
+use log::{info,error,warn,trace,debug};
 //use serde::{Serialize,Deserialize};
 //use crate::macros::*;
 //use disk::prelude::*;
 //use disk::{};
 //use std::{};
-//use std::sync::{Arc,Mutex,RwLock};
+use crate::macros::{
+	ok_debug,
+	recv,
+	send,
+};
+use crate::collection::{
+	Collection,
+	key::CollectionKeychain,
+	key::ArtistKey,
+	key::AlbumKey,
+	key::SongKey,
+};
+use crate::kernel::PlayerState;
+use std::sync::Arc;
+use rolock::RoLock;
+use super::msg::{
+	AudioToKernel,
+	KernelToAudio,
+};
 
-//---------------------------------------------------------------------------------------------------- __NAME__
-//__DISK__file!(__NAME__, Dir::Data, "", "", "");
-//#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
-//struct __NAME__ {
-//	__FIELD__: __TYPE__,
-//}
+//---------------------------------------------------------------------------------------------------- Audio
+struct Audio {
+	collection:   Arc<Collection>,                          // Pointer to `Collection`
+	player_state: Arc<RoLock<PlayerState>>,                 // Read-Only lock to the `PlayerState`
+	to_kernel:    std::sync::mpsc::Sender<AudioToKernel>,   // Channel TO `Kernel`
+	from_kernel:  std::sync::mpsc::Receiver<KernelToAudio>, // Channel FROM `Kernel`
+}
 
-//enum __NAME__ {
-//	__VARIANT__,
-//}
+impl Audio {
+	// Kernel starts `Audio` with this.
+	pub fn init(
+		collection: Arc<Collection>,
+		player_state: Arc<RoLock<PlayerState>>,
+		to_kernel: std::sync::mpsc::Sender<AudioToKernel>,
+		from_kernel: std::sync::mpsc::Receiver<KernelToAudio>,
+	) {
+		// Init data.
+		let audio = Self {
+			collection,
+			player_state,
+			to_kernel,
+			from_kernel,
+		};
 
-//impl __NAME__ {
-//#[inline(always)]
-//fn new() -> Self {
-//	Self {
-//		__NEW__
-//	}
-//}
-//}
+		// Start `main()`.
+		Self::main(audio);
+	}
+}
 
-//impl std::default::Default for __NAME__ {
-//	fn default() -> Self {
-//		Self::new()
-//	}
-//}
+//---------------------------------------------------------------------------------------------------- Main Audio loop.
+impl Audio {
+	#[inline(always)]
+	fn main(mut self) {
+		ok_debug!("Audio");
 
-//impl std::fmt::Display for __NAME__ {
-//	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-//		write!(f, "{:?}", self)
-//	}
-//}
+		// Block, wait for signal.
+		let msg = recv!(self.from_kernel);
+
+		// Match message and do action.
+		use KernelToAudio::*;
+		match msg {
+			_ => self.msg_new(),
+		}
+	}
+
+	#[inline(always)]
+	fn msg_new(&mut self) { /* create new collection */ }
+}
 
 
 //---------------------------------------------------------------------------------------------------- TESTS

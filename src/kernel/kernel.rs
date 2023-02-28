@@ -5,22 +5,23 @@ use serde::{Serialize,Deserialize};
 //use crate::macros::*;
 //use disk::prelude::*;
 //use disk::{};
-//use std::{};
+use std::sync::{Arc,RwLock};
+use super::player_state::PlayerState;
 
 //---------------------------------------------------------------------------------------------------- Kernel
 //__DISK__file!(Kernel, Dir::Data, "", "", "");
-#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
 struct Kernel {
+	player_state: Arc<RwLock<PlayerState>>,
 }
 
-//impl Kernel {
-//#[inline(always)]
-//fn new() -> Self {
-//	Self {
-//		__NEW__
-//	}
-//}
-//}
+impl Kernel {
+	#[inline(always)]
+	fn new() -> Self {
+		Self {
+			player_state: Arc::new(RwLock::new(PlayerState::new())),
+		}
+	}
+}
 
 //impl std::default::Default for Kernel {
 //	fn default() -> Self {
