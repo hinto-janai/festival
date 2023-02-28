@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------------------------------- Use
 //use anyhow::{bail,ensure,Error};
-//use log::{info,error,warn,trace,debug};
+use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
 use super::{
 	album::Album,
@@ -53,10 +53,22 @@ impl Collection {
 			sort_release: vec![],
 			sort_title: vec![],
 
-			timestamp: std::time::Instant::now().elapsed().as_secs(),
+			timestamp: 0,
 			count_artist: 0,
 			count_album: 0,
 			count_song: 0,
+		}
+	}
+
+	// Get current timestamp as UNIX time.
+	fn timestamp_now() -> u64 {
+		let now = std::time::SystemTime::now();
+		match now.duration_since(std::time::SystemTime::UNIX_EPOCH) {
+			Ok(ts) => ts.as_secs(),
+			Err(e) => {
+				warn!("Failed to get timestamp, returning UNIX_EPOCH (0)");
+				0
+			}
 		}
 	}
 
