@@ -29,12 +29,6 @@ pub const COLLECTION_VERSION: u8 = 1;
 // Current major version of the `State`.
 pub const STATE_VERSION: u8 = 1;
 
-// Current major version of the `Queue`.
-pub const QUEUE_VERSION: u8 = 1;
-
-// Current major version of the `Playlist`.
-pub const PLAYLIST_VERSION: u8 = 1;
-
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
 mod tests {

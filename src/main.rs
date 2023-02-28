@@ -6,6 +6,7 @@ mod logger;
 mod macros;
 mod kernel;
 mod ccd;
+mod search;
 
 fn main() {
 	// Handle CLI arguments.

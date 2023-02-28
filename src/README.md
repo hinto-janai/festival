@@ -42,6 +42,7 @@ These are top-level files for miscellaneous stuff:
 ### HashMap vs Pointers (Rc) vs Indicies
 ### Sorting pointer/indicies vs actual vec
 ### Invalid pointers and indicies
+### Keys and Keychain
 ### Queues and playlists
 ### CCD (Collector Constructor Destructor)
 #### Fast Image Resizing

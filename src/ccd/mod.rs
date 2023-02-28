@@ -1,3 +1,5 @@
-pub mod ccd;
+mod ccd;
+pub use ccd::*;
+
 pub mod img;
 pub mod thread;
