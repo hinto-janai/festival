@@ -32,6 +32,7 @@ pub struct Album {
 //	pub compilation: bool,
 //	pub img: bytes::Bytes,
 //	pub rank: u8,
+	pub key: usize,
 }
 
 impl Album {

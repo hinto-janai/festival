@@ -47,6 +47,12 @@ macro_rules! impl_common {
 				Self(index as usize)
 			}
 		}
+		impl From<usize> for $type {
+			#[inline(always)]
+			fn from(index: usize) -> Self {
+				Self(index)
+			}
+		}
 		impl std::default::Default for $type {
 			#[inline(always)]
 			fn default() -> Self {
@@ -117,6 +123,25 @@ where
 			artist: ArtistKey(tuple.0.into() as usize),
 			album: AlbumKey(tuple.1.into() as usize),
 			song: SongKey(tuple.2.into() as usize),
+		}
+	}
+}
+
+//---------------------------------------------------------------------------------------------------- CollectionKeychain
+#[derive(Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
+pub struct CollectionKeychain {
+	pub artists: Vec<ArtistKey>,
+	pub albums: Vec<AlbumKey>,
+	pub songs: Vec<SongKey>,
+}
+
+impl CollectionKeychain {
+	#[inline(always)]
+	pub const fn new() -> Self {
+		Self {
+			artists: vec![],
+			albums: vec![],
+			songs: vec![],
 		}
 	}
 }

@@ -15,6 +15,7 @@ pub struct Song {
 	pub img: Vec<u8>,
 //	pub runtime_human: HumanTime,
 	pub artist: String,
+	pub key: usize,
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

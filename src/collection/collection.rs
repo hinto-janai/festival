@@ -22,9 +22,22 @@ use crate::constants::{
 bincode_file!(Collection, Dir::Data, FESTIVAL, "", "collection", FESTIVAL_HEADER, COLLECTION_VERSION);
 #[derive(Serialize,Deserialize)]
 pub struct Collection {
-	artists: Vec<Artist>,
-	albums: Vec<Album>,
-	songs: Vec<Song>,
+	// The actual (meta)data.
+	pub artists: Vec<Artist>,
+	pub albums: Vec<Album>,
+	pub songs: Vec<Song>,
+
+	// Pre-computed and sorted keys.
+	pub sort_artist_release: Vec<CollectionKey>,
+	pub sort_artist_title: Vec<CollectionKey>,
+	pub sort_release: Vec<CollectionKey>,
+	pub sort_title: Vec<CollectionKey>,
+
+	// Metadata about the `Collection` itself.
+	pub timestamp: u64,      // Creation date as UNIX time.
+	pub count_artist: usize, // How many artists?
+	pub count_album: usize,  // How many albums?
+	pub count_song: usize,   // How many songs?
 }
 
 impl Collection {
@@ -34,6 +47,16 @@ impl Collection {
 			artists: vec![],
 			albums: vec![],
 			songs: vec![],
+
+			sort_artist_release: vec![],
+			sort_artist_title: vec![],
+			sort_release: vec![],
+			sort_title: vec![],
+
+			timestamp: std::time::Instant::now().elapsed().as_secs(),
+			count_artist: 0,
+			count_album: 0,
+			count_song: 0,
 		}
 	}
 
