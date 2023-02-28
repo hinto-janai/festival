@@ -10,7 +10,7 @@ use egui::{
 
 //----------------------------------------------------------------------------------------------------
 //#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
-impl super::app::App {
+impl super::Gui {
 #[inline(always)]
 pub fn show_tab_album(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
 	ui.vertical_centered(|ui| {

@@ -13,10 +13,10 @@ fn main() {
 	// Handle CLI arguments.
 	crate::cli::Cli::handle_args();
 
-	// Run eframe+egui app.
+	// Run eframe+egui GUI.
 	eframe::run_native(
 		crate::constants::FESTIVAL_NAME_VER,
-		gui::app::App::options(),
-		Box::new(|cc| Box::new(gui::app::App::new(cc)))
+		gui::Gui::options(),
+		Box::new(|cc| Box::new(gui::Gui::new(cc)))
 	);
 }

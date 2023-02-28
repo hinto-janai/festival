@@ -1,8 +1,9 @@
-pub mod album;
-pub mod app;
-pub mod artist;
-pub mod queue;
-pub mod search;
-pub mod settings;
-pub mod constants;
-pub mod tab;
+mod album;
+mod gui;
+pub use gui::*;
+mod artist;
+mod queue;
+mod search;
+mod settings;
+mod constants;
+mod tab;

@@ -49,8 +49,8 @@ impl Img {
 	}
 }
 
-//---------------------------------------------------------------------------------------------------- App struct. This hold ALL data.
-pub struct App {
+//---------------------------------------------------------------------------------------------------- Gui struct. This hold ALL data.
+pub struct Gui {
 	// TODO: tmp data.
 	pub img: Img,
 	pub v: f32,
@@ -62,17 +62,17 @@ pub struct App {
 	pub tab: super::tab::Tab, // This should be in [State]
 }
 
-//---------------------------------------------------------------------------------------------------- App Init.
-// Instead of having [App::new()] be 1000s of lines long,
+//---------------------------------------------------------------------------------------------------- Gui Init.
+// Instead of having [Gui::new()] be 1000s of lines long,
 // these private functions will be separate stuff.
-impl App {
+impl Gui {
 	#[inline(always)]
 	fn init_style() -> egui::Style {
 		let style = Style {
 			..Default::default()
 		};
 
-		ok_debug!("App Init | Style");
+		ok_debug!("Gui Init | Style");
 		style
 	}
 
@@ -83,7 +83,7 @@ impl App {
 			..Visuals::dark()
 		};
 
-		ok_debug!("App Init | Visuals");
+		ok_debug!("Gui Init | Visuals");
 		visuals
 	}
 
@@ -115,13 +115,13 @@ impl App {
 				.push(i.to_string());
 		}
 
-		ok_debug!("App Init | Fonts");
+		ok_debug!("Gui Init | Fonts");
 		fonts
 	}
 }
 
 //---------------------------------------------------------------------------------------------------- egui/eframe options & init
-impl App {
+impl Gui {
 	#[inline(always)]
 	// Sets the initial options for native rendering with eframe
 	pub fn options() -> eframe::NativeOptions {
@@ -151,7 +151,7 @@ impl App {
 
 	#[inline(always)]
 	pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
-		info!("App Init starting...");
+		info!("Gui Init starting...");
 
 		let mut app = Self {
 			img: Img::new(),
@@ -186,13 +186,13 @@ impl App {
 		cc.egui_ctx.set_fonts(Self::init_fonts());
 
 		// Done.
-		ok!("App Init");
+		ok!("Gui Init");
 		app
 	}
 }
 
-//---------------------------------------------------------------------------------------------------- Update
-impl eframe::App for App {
+//---------------------------------------------------------------------------------------------------- Main GUI event loop.
+impl eframe::App for Gui {
 	fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
 		// Determine if there is a diff in settings.
 //		let diff = self.settings != self.og;
@@ -227,7 +227,7 @@ impl eframe::App for App {
 }
 
 //---------------------------------------------------------------------------------------------------- Bottom Panel
-impl App {
+impl Gui {
 #[inline(always)]
 fn show_bottom(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
 	TopBottomPanel::bottom("bottom").resizable(false).show(ctx, |ui| {
@@ -258,7 +258,7 @@ fn show_bottom(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width:
 }}
 
 //---------------------------------------------------------------------------------------------------- Left Panel
-impl App {
+impl Gui {
 #[inline(always)]
 fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
 	SidePanel::left("left").resizable(false).show(ctx, |ui| {
@@ -299,7 +299,7 @@ fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f
 }}
 
 //---------------------------------------------------------------------------------------------------- Right Panel
-impl App {
+impl Gui {
 #[inline(always)]
 fn show_right(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
 	SidePanel::right("right").resizable(false).show(ctx, |ui| {
@@ -340,7 +340,7 @@ fn show_right(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: 
 }}
 
 //---------------------------------------------------------------------------------------------------- Central Panel
-impl App {
+impl Gui {
 #[inline(always)]
 fn show_central(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
 	CentralPanel::default().show(ctx, |ui| {
