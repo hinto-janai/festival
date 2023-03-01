@@ -27,19 +27,19 @@ use super::msg::{
 };
 
 //---------------------------------------------------------------------------------------------------- Audio
-struct Audio {
-	collection:   Arc<Collection>,                          // Pointer to `Collection`
-	player_state: Arc<RoLock<PlayerState>>,                 // Read-Only lock to the `PlayerState`
-	to_kernel:    std::sync::mpsc::Sender<AudioToKernel>,   // Channel TO `Kernel`
-	from_kernel:  std::sync::mpsc::Receiver<KernelToAudio>, // Channel FROM `Kernel`
+pub struct Audio {
+	collection:   Arc<Collection>,                             // Pointer to `Collection`
+	player_state: RoLock<PlayerState>,                         // Read-Only lock to the `PlayerState`
+	to_kernel:    crossbeam_channel::Sender<AudioToKernel>,   // Channel TO `Kernel`
+	from_kernel:  std::sync::mpsc::Receiver<KernelToAudio>,    // Channel FROM `Kernel`
 }
 
 impl Audio {
 	// Kernel starts `Audio` with this.
 	pub fn init(
 		collection: Arc<Collection>,
-		player_state: Arc<RoLock<PlayerState>>,
-		to_kernel: std::sync::mpsc::Sender<AudioToKernel>,
+		player_state: RoLock<PlayerState>,
+		to_kernel: crossbeam_channel::Sender<AudioToKernel>,
 		from_kernel: std::sync::mpsc::Receiver<KernelToAudio>,
 	) {
 		// Init data.
@@ -72,7 +72,7 @@ impl Audio {
 	}
 
 	#[inline(always)]
-	fn msg_new(&mut self) { /* create new collection */ }
+	fn msg_new(&mut self) { /* TODO: create new collection */ }
 }
 
 

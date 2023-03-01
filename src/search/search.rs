@@ -24,11 +24,11 @@ use super::msg::{
 
 //---------------------------------------------------------------------------------------------------- Search thread.
 // This represents the `Search` thread.
-struct Search {
-	cache:       HashMap<String, CollectionKeychain>,        // Search index cache
-	collection:  Arc<Collection>,                            // Pointer to `Collection`
-	to_kernel:   crossbeam::channel::Sender<SearchToKernel>, // Channel TO `Kernel`
-	from_kernel: std::sync::mpsc::Receiver<KernelToSearch>,  // Channel FROM `Kernel`
+pub struct Search {
+	cache:       HashMap<String, CollectionKeychain>,       // Search index cache
+	collection:  Arc<Collection>,                           // Pointer to `Collection`
+	to_kernel:   crossbeam_channel::Sender<SearchToKernel>, // Channel TO `Kernel`
+	from_kernel: std::sync::mpsc::Receiver<KernelToSearch>, // Channel FROM `Kernel`
 }
 
 //---------------------------------------------------------------------------------------------------- Search functions.
@@ -36,7 +36,7 @@ impl Search {
 	// Kernel starts `Search` with this.
 	pub fn init(
 		collection: Arc<Collection>,
-		to_kernel: crossbeam::channel::Sender<SearchToKernel>,
+		to_kernel: crossbeam_channel::Sender<SearchToKernel>,
 		from_kernel: std::sync::mpsc::Receiver<KernelToSearch>,
 	) {
 		// Init data.

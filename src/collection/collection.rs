@@ -42,7 +42,8 @@ pub struct Collection {
 
 impl Collection {
 	#[inline(always)]
-	pub fn new() -> Self {
+	// Creates a "dummy" struct, aka, empty.
+	pub fn dummy() -> Self {
 		Self {
 			artists: vec![],
 			albums: vec![],

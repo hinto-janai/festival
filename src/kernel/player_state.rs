@@ -18,7 +18,7 @@ pub struct PlayerState {
 
 impl PlayerState {
 	#[inline(always)]
-	pub fn new() -> Self {
+	pub fn dummy() -> Self {
 		Self {
 			playlists: false,
 			queue: false,

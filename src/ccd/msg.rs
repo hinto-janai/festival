@@ -13,7 +13,7 @@ use crate::collection::{
 };
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
-pub enum CCDToKernel {
+pub enum CcdToKernel {
 	PathUpdate(String),        // This is the current `Path` I'm working on.
 	ArtistUpdate(String),      // This is the current `Artist` I'm working on.
 	AlbumUpdate(String),       // This is the current `Album` I'm working on.
@@ -23,9 +23,10 @@ pub enum CCDToKernel {
 	Failed,                    // Creating new or converting `Collection` has failed.
 }
 
-pub enum KernelToCCD {
+pub enum KernelToCcd {
 	NewCollection(Arc<Collection>), // Start work on a new `Collection`, here's the _old_ `Collection` pointer.
 	ConvertImg(Collection),         // Convert an existing `Collection` image bytes into usable `egui` images.
+	Die,                            // You can rest now.
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

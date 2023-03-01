@@ -22,6 +22,7 @@ use egui::widgets::{
 use strum::{
 	IntoEnumIterator,
 };
+use super::{GuiToKernel, KernelToGui};
 
 //---------------------------------------------------------------------------------------------------- TODO
 // TODO: tmp data
@@ -49,7 +50,7 @@ impl Img {
 	}
 }
 
-//---------------------------------------------------------------------------------------------------- Gui struct. This hold ALL data.
+//---------------------------------------------------------------------------------------------------- GUI struct. This hold ALL data.
 pub struct Gui {
 	// TODO: tmp data.
 	pub img: Img,
@@ -62,7 +63,7 @@ pub struct Gui {
 	pub tab: super::tab::Tab, // This should be in [State]
 }
 
-//---------------------------------------------------------------------------------------------------- Gui Init.
+//---------------------------------------------------------------------------------------------------- GUI Init.
 // Instead of having [Gui::new()] be 1000s of lines long,
 // these private functions will be separate stuff.
 impl Gui {
@@ -72,7 +73,7 @@ impl Gui {
 			..Default::default()
 		};
 
-		ok_debug!("Gui Init | Style");
+		ok_debug!("GUI Init | Style");
 		style
 	}
 
@@ -83,7 +84,7 @@ impl Gui {
 			..Visuals::dark()
 		};
 
-		ok_debug!("Gui Init | Visuals");
+		ok_debug!("GUI Init | Visuals");
 		visuals
 	}
 
@@ -115,7 +116,7 @@ impl Gui {
 				.push(i.to_string());
 		}
 
-		ok_debug!("Gui Init | Fonts");
+		ok_debug!("GUI Init | Fonts");
 		fonts
 	}
 }
@@ -150,8 +151,12 @@ impl Gui {
 	}
 
 	#[inline(always)]
-	pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
-		info!("Gui Init starting...");
+	pub fn init(
+		cc: &eframe::CreationContext<'_>,
+		to_kernel: crossbeam_channel::Sender<GuiToKernel>,
+		from_kernel: std::sync::mpsc::Receiver<KernelToGui>,
+	) -> Self {
+		info!("GUI Init starting...");
 
 		let mut app = Self {
 			img: Img::new(),
@@ -186,7 +191,7 @@ impl Gui {
 		cc.egui_ctx.set_fonts(Self::init_fonts());
 
 		// Done.
-		ok!("Gui Init");
+		ok!("GUI Init");
 		app
 	}
 }
