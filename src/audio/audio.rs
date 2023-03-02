@@ -25,13 +25,14 @@ use super::msg::{
 	AudioToKernel,
 	KernelToAudio,
 };
+use crossbeam_channel::{Sender,Receiver};
 
 //---------------------------------------------------------------------------------------------------- Audio
 pub struct Audio {
-	collection:  Arc<Collection>,                          // Pointer to `Collection`
-	state:       RoLock<State>,                            // Read-Only lock to the `State`
-	to_kernel:   crossbeam_channel::Sender<AudioToKernel>, // Channel TO `Kernel`
-	from_kernel: std::sync::mpsc::Receiver<KernelToAudio>, // Channel FROM `Kernel`
+	collection:  Arc<Collection>,         // Pointer to `Collection`
+	state:       RoLock<State>,           // Read-Only lock to the `State`
+	to_kernel:   Sender<AudioToKernel>,   // Channel TO `Kernel`
+	from_kernel: Receiver<KernelToAudio>, // Channel FROM `Kernel`
 }
 
 impl Audio {
@@ -39,8 +40,8 @@ impl Audio {
 	pub fn init(
 		collection: Arc<Collection>,
 		state: RoLock<State>,
-		to_kernel: crossbeam_channel::Sender<AudioToKernel>,
-		from_kernel: std::sync::mpsc::Receiver<KernelToAudio>,
+		to_kernel: Sender<AudioToKernel>,
+		from_kernel: Receiver<KernelToAudio>,
 	) {
 		// Init data.
 		let audio = Self {

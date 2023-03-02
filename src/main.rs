@@ -14,7 +14,7 @@ fn main() {
 	cli::Cli::handle_args();
 
 	// Create `Kernel` <-> `GUI` channels.
-	let (kernel_to_gui, gui_recv)    = std::sync::mpsc::channel::<crate::gui::KernelToGui>();
+	let (kernel_to_gui, gui_recv)    = crossbeam_channel::unbounded::<crate::gui::KernelToGui>();
 	let (gui_to_kernel, kernel_recv) = crossbeam_channel::unbounded::<crate::gui::GuiToKernel>();
 
 	// Spawn `Kernel`.

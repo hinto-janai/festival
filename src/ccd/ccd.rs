@@ -23,7 +23,7 @@ use super::msg::{
 	CcdToKernel,
 	KernelToCcd,
 };
-
+use crossbeam_channel::{Sender,Receiver};
 
 
 
@@ -43,7 +43,7 @@ pub struct Ccd;
 //---------------------------------------------------------------------------------------------------- CCD `ConvertImg` function.
 impl Ccd {
 	#[inline(always)]
-	pub fn convert_img(to_kernel: std::sync::mpsc::Sender<CcdToKernel>) {
+	pub fn convert_img(to_kernel: Sender<CcdToKernel>) {
 		ok_debug!("CCD - Purpose in life: ConvertImg");
 
 		/* TODO: convert img bytes */
@@ -51,8 +51,8 @@ impl Ccd {
 
 //---------------------------------------------------------------------------------------------------- CCD `NewCollection` function.
 	pub fn new_collection(
-		to_kernel: std::sync::mpsc::Sender<CcdToKernel>,
-		from_kernel: std::sync::mpsc::Receiver<KernelToCcd>,
+		to_kernel: Sender<CcdToKernel>,
+		from_kernel: Receiver<KernelToCcd>,
 	) {
 		/* TODO: create new collection */
 		ok_debug!("CCD - Purpose in life: NewCollection");

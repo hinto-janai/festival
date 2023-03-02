@@ -21,23 +21,24 @@ use super::msg::{
 	SearchToKernel,
 	KernelToSearch,
 };
+use crossbeam_channel::{Sender,Receiver};
 
 //---------------------------------------------------------------------------------------------------- Search thread.
 // This represents the `Search` thread.
 pub struct Search {
-	cache:       HashMap<String, CollectionKeychain>,       // Search index cache
-	collection:  Arc<Collection>,                           // Pointer to `Collection`
-	to_kernel:   crossbeam_channel::Sender<SearchToKernel>, // Channel TO `Kernel`
-	from_kernel: std::sync::mpsc::Receiver<KernelToSearch>, // Channel FROM `Kernel`
+	cache:       HashMap<String, CollectionKeychain>, // Search index cache
+	collection:  Arc<Collection>,                     // Pointer to `Collection`
+	to_kernel:   Sender<SearchToKernel>,              // Channel TO `Kernel`
+	from_kernel: Receiver<KernelToSearch>,            // Channel FROM `Kernel`
 }
 
 //---------------------------------------------------------------------------------------------------- Search functions.
 impl Search {
 	// Kernel starts `Search` with this.
 	pub fn init(
-		collection: Arc<Collection>,
-		to_kernel: crossbeam_channel::Sender<SearchToKernel>,
-		from_kernel: std::sync::mpsc::Receiver<KernelToSearch>,
+		collection:  Arc<Collection>,
+		to_kernel:   Sender<SearchToKernel>,
+		from_kernel: Receiver<KernelToSearch>,
 	) {
 		// Init data.
 		let search = Self {

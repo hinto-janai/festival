@@ -23,6 +23,7 @@ use strum::{
 	IntoEnumIterator,
 };
 use super::{GuiToKernel, KernelToGui};
+use crossbeam_channel::{Sender,Receiver};
 
 //---------------------------------------------------------------------------------------------------- TODO
 // TODO: tmp data
@@ -152,9 +153,9 @@ impl Gui {
 
 	#[inline(always)]
 	pub fn init(
-		cc: &eframe::CreationContext<'_>,
-		to_kernel: crossbeam_channel::Sender<GuiToKernel>,
-		from_kernel: std::sync::mpsc::Receiver<KernelToGui>,
+		cc:          &eframe::CreationContext<'_>,
+		to_kernel:   Sender<GuiToKernel>,
+		from_kernel: Receiver<KernelToGui>,
 	) -> Self {
 		info!("GUI Init starting...");
 

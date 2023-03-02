@@ -21,21 +21,22 @@ use crate::{
 	audio::{KernelToAudio, AudioToKernel, Audio},
 	collection::Collection,
 };
+use crossbeam_channel::{Sender,Receiver};
 
 //---------------------------------------------------------------------------------------------------- Kernel
 pub struct Kernel {
 
 	// GUI Channels.
-	to_gui: std::sync::mpsc::Sender<KernelToGui>,
-	from_gui: crossbeam_channel::Receiver<GuiToKernel>,
+	to_gui: Sender<KernelToGui>,
+	from_gui: Receiver<GuiToKernel>,
 
 	// Search Channels.
-	to_search: std::sync::mpsc::Sender<KernelToSearch>,
-	from_search: crossbeam_channel::Receiver<SearchToKernel>,
+	to_search: Sender<KernelToSearch>,
+	from_search: Receiver<SearchToKernel>,
 
 	// Audio Channels.
-	to_audio: std::sync::mpsc::Sender<KernelToAudio>,
-	from_audio: crossbeam_channel::Receiver<AudioToKernel>,
+	to_audio: Sender<KernelToAudio>,
+	from_audio: Receiver<AudioToKernel>,
 
 	// Data.
 	collection: Arc<Collection>,
@@ -63,10 +64,7 @@ impl Kernel {
 	//-------------------------------------------------- bios()
 	#[inline(always)]
 	// `main()` starts `Kernel` with this.
-	pub fn bios(
-		to_gui:   std::sync::mpsc::Sender<KernelToGui>,
-		from_gui: crossbeam_channel::Receiver<GuiToKernel>
-	) {
+	pub fn bios(to_gui: Sender<KernelToGui>, from_gui: Receiver<GuiToKernel>) {
 		debug!("Kernel [1/12] ... entering bios()");
 
 		// Attempt to load `Collection` from file.
@@ -82,17 +80,13 @@ impl Kernel {
 
 	//-------------------------------------------------- boot_loader()
 	#[inline(always)]
-	fn boot_loader(
-		collection: Collection,
-		to_gui:     std::sync::mpsc::Sender<KernelToGui>,
-		from_gui:   crossbeam_channel::Receiver<GuiToKernel>
-	) {
+	fn boot_loader(collection: Collection, to_gui: Sender<KernelToGui>, from_gui: Receiver<GuiToKernel>) {
 		debug!("Kernel [2/12] ... entering boot_loader()");
 
 		// We successfully loaded `Collection`.
 		// Create `CCD` channel + thread and make it convert images.
 		debug!("Kernel [3/12] ... spawning CCD");
-		let (ccd_send, from_ccd) = std::sync::mpsc::channel::<CcdToKernel>();
+		let (ccd_send, from_ccd) = crossbeam_channel::unbounded::<CcdToKernel>();
 		std::thread::spawn(move || Ccd::convert_img(ccd_send));
 
 		// Before hanging on `CCD`, read `State` file.
@@ -120,8 +114,8 @@ impl Kernel {
 	fn kernel(
 		collection: Collection,
 		state:      Result<State, anyhow::Error>,
-		to_gui:     std::sync::mpsc::Sender<KernelToGui>,
-		from_gui:   crossbeam_channel::Receiver<GuiToKernel>,
+		to_gui:     Sender<KernelToGui>,
+		from_gui:   Receiver<GuiToKernel>,
 	) {
 		/* TODO: initialize and sanitize collection & misc data */
 		debug!("Kernel [6/12] ... entering kernel()");
@@ -135,8 +129,8 @@ impl Kernel {
 	fn init(
 		collection: Option<Collection>,
 		state:      Option<State>,
-		to_gui:     std::sync::mpsc::Sender<KernelToGui>,
-		from_gui:   crossbeam_channel::Receiver<GuiToKernel>,
+		to_gui:     Sender<KernelToGui>,
+		from_gui:   Receiver<GuiToKernel>
 	) {
 		debug!("Kernel [7/12] ... entering init()");
 
@@ -153,8 +147,8 @@ impl Kernel {
 		};
 
 		// Create `To` channels.
-		let (to_search, search_recv) = std::sync::mpsc::channel::<KernelToSearch>();
-		let (to_audio,  audio_recv)  = std::sync::mpsc::channel::<KernelToAudio>();
+		let (to_search, search_recv) = crossbeam_channel::unbounded::<KernelToSearch>();
+		let (to_audio,  audio_recv)  = crossbeam_channel::unbounded::<KernelToAudio>();
 
 		// Create `From` channels.
 		let (search_send, from_search) = crossbeam_channel::unbounded::<SearchToKernel>();
