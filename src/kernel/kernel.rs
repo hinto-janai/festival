@@ -24,6 +24,7 @@ use crate::{
 
 //---------------------------------------------------------------------------------------------------- Kernel
 pub struct Kernel {
+
 	// GUI Channels.
 	to_gui: std::sync::mpsc::Sender<KernelToGui>,
 	from_gui: crossbeam_channel::Receiver<GuiToKernel>,
@@ -192,9 +193,32 @@ impl Kernel {
 //---------------------------------------------------------------------------------------------------- Main Kernel loop (userspace)
 impl Kernel {
 	#[inline(always)]
-	fn userspace(self) {
-		/* TODO: loop and forward signals */
+	fn userspace(mut self) {
+		// Array of our channels we can `select` from.
+		let mut select = crossbeam_channel::Select::new();
+		let gui        = select.recv(&self.from_gui);
+		let search     = select.recv(&self.from_search);
+		let audio      = select.recv(&self.from_audio);
+
+		// 1) Hang until message is ready.
+		// 2) Receive the message and pass to appropriate function.
+		// 3) Loop.
+		loop {
+			match select.ready() {
+				i if i == gui    => self.msg_gui(recv!(self.from_gui)),
+				i if i == search => self.msg_search(recv!(self.from_search)),
+				i if i == audio  => self.msg_audio(recv!(self.from_audio)),
+				_ => unreachable!(),
+			}
+		}
 	}
+
+	#[inline(always)]
+	fn msg_gui(&self, msg: GuiToKernel) {}
+	#[inline(always)]
+	fn msg_search(&self, msg: SearchToKernel) {}
+	#[inline(always)]
+	fn msg_audio(&self, msg: AudioToKernel) {}
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
