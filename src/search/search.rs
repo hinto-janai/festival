@@ -8,10 +8,10 @@ use crate::macros::{
 };
 use crate::collection::{
 	Collection,
-	key::CollectionKeychain,
-	key::ArtistKey,
-	key::AlbumKey,
-	key::SongKey,
+	CollectionKeychain,
+	ArtistKey,
+	AlbumKey,
+	SongKey,
 };
 use std::{
 	sync::Arc,

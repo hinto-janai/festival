@@ -13,12 +13,12 @@ use crate::macros::{
 };
 use crate::collection::{
 	Collection,
-	key::CollectionKeychain,
-	key::ArtistKey,
-	key::AlbumKey,
-	key::SongKey,
+	CollectionKeychain,
+	ArtistKey,
+	AlbumKey,
+	SongKey,
 };
-use crate::kernel::PlayerState;
+use crate::kernel::State;
 use std::sync::Arc;
 use rolock::RoLock;
 use super::msg::{
@@ -28,24 +28,24 @@ use super::msg::{
 
 //---------------------------------------------------------------------------------------------------- Audio
 pub struct Audio {
-	collection:   Arc<Collection>,                             // Pointer to `Collection`
-	player_state: RoLock<PlayerState>,                         // Read-Only lock to the `PlayerState`
-	to_kernel:    crossbeam_channel::Sender<AudioToKernel>,   // Channel TO `Kernel`
-	from_kernel:  std::sync::mpsc::Receiver<KernelToAudio>,    // Channel FROM `Kernel`
+	collection:  Arc<Collection>,                          // Pointer to `Collection`
+	state:       RoLock<State>,                            // Read-Only lock to the `State`
+	to_kernel:   crossbeam_channel::Sender<AudioToKernel>, // Channel TO `Kernel`
+	from_kernel: std::sync::mpsc::Receiver<KernelToAudio>, // Channel FROM `Kernel`
 }
 
 impl Audio {
 	// Kernel starts `Audio` with this.
 	pub fn init(
 		collection: Arc<Collection>,
-		player_state: RoLock<PlayerState>,
+		state: RoLock<State>,
 		to_kernel: crossbeam_channel::Sender<AudioToKernel>,
 		from_kernel: std::sync::mpsc::Receiver<KernelToAudio>,
 	) {
 		// Init data.
 		let audio = Self {
 			collection,
-			player_state,
+			state,
 			to_kernel,
 			from_kernel,
 		};

@@ -9,9 +9,11 @@
 use std::sync::Arc;
 use crate::collection::{
 	Collection,
-	key::CollectionKeychain,
-	key::QueueKey,
+	CollectionKeychain,
+	QueueKey,
 };
+use crate::kernel::State;
+use rolock::RoLock;
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
 pub enum AudioToKernel {
@@ -33,6 +35,7 @@ pub enum KernelToAudio {
 	// Collection.
 	DropCollection,                 // Drop your pointer.
 	NewCollection(Arc<Collection>), // Here's a new `Collection` pointer.
+	NewState(RoLock<State>),        // Here's a new `State` pointer.
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

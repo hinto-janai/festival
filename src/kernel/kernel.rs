@@ -6,7 +6,7 @@ use serde::{Serialize,Deserialize};
 //use disk::prelude::*;
 //use disk::{};
 use std::sync::{Arc,RwLock};
-use super::player_state::PlayerState;
+use super::state::State;
 use rolock::RoLock;
 use crate::macros::{
 	ok_debug,
@@ -28,10 +28,6 @@ pub struct Kernel {
 	to_gui: std::sync::mpsc::Sender<KernelToGui>,
 	from_gui: crossbeam_channel::Receiver<GuiToKernel>,
 
-	// CCD Channels.
-	to_ccd: std::sync::mpsc::Sender<KernelToCcd>,
-	from_ccd: crossbeam_channel::Receiver<CcdToKernel>,
-
 	// Search Channels.
 	to_search: std::sync::mpsc::Sender<KernelToSearch>,
 	from_search: crossbeam_channel::Receiver<SearchToKernel>,
@@ -40,107 +36,157 @@ pub struct Kernel {
 	to_audio: std::sync::mpsc::Sender<KernelToAudio>,
 	from_audio: crossbeam_channel::Receiver<AudioToKernel>,
 
-	// Audio Playback State.
-	player_state: Arc<RwLock<PlayerState>>,
-
-	// Collection.
+	// Data.
 	collection: Arc<Collection>,
+	state: Arc<RwLock<State>>,
 }
 
 // `Kernel` boot process:
 //
-// `bios()` -> `boot_loader()` -> `kernel()` -> `init()` -> `userspace()`
+// `bios()` ---> `boot_loader()` ---> `kernel()` ---> `init()` ---> `userspace()`
+//          |                                          |
+//          |--- (bios error occured, skip to init) ---|
+//
+//
 //
 // Ignore the fact that the name of this thing is `Kernel` and it kinda makes sense.
 //
 // What these phases actually do:
-// `bios()`        | Enumerate threads and channels.
-// `boot_loader()` | Load vital data into memory, e.g: `Collection`
-// `kernel()`      | Transform data, run safety checks on data.
-// `init()`        | Signal all threads OK and initialize everything else.
+// `bios()`        | Attempt to read `collection.bincode`. Skip to `init()` with default data on failure.
+// `boot_loader()` | Wait on `CCD` to transform `Collection`, load other data.
+// `kernel()`      | Run safety checks on data.
+// `init()`        | Spawn all threads and initialize everything else.
 // `userspace()`   | Main loop.
 
 impl Kernel {
+	//-------------------------------------------------- bios()
 	#[inline(always)]
 	// `main()` starts `Kernel` with this.
 	pub fn bios(
-		to_gui: std::sync::mpsc::Sender<KernelToGui>,
+		to_gui:   std::sync::mpsc::Sender<KernelToGui>,
 		from_gui: crossbeam_channel::Receiver<GuiToKernel>
 	) {
-		debug!("Kernel [/] ... entering bios()");
-		debug!("Kernel [/] ... creating channels");
+		debug!("Kernel [1/12] ... entering bios()");
+
+		// Attempt to load `Collection` from file.
+		match Collection::from_file() {
+			// If success, continue to `boot_loader` to convert
+			// bytes to actual usable `egui` images.
+			Ok(collection) => Self::boot_loader(collection, to_gui, from_gui),
+
+			// Else, straight to `init` with default flag set.
+			Err(e) => Self::init(None, None, to_gui, from_gui),
+		}
+	}
+
+	//-------------------------------------------------- boot_loader()
+	#[inline(always)]
+	fn boot_loader(
+		collection: Collection,
+		to_gui:     std::sync::mpsc::Sender<KernelToGui>,
+		from_gui:   crossbeam_channel::Receiver<GuiToKernel>
+	) {
+		debug!("Kernel [2/12] ... entering boot_loader()");
+
+		// We successfully loaded `Collection`.
+		// Create `CCD` channel + thread and make it convert images.
+		debug!("Kernel [3/12] ... spawning CCD");
+		let (ccd_send, from_ccd) = std::sync::mpsc::channel::<CcdToKernel>();
+		std::thread::spawn(move || Ccd::convert_img(ccd_send));
+
+		// Before hanging on `CCD`, read `State` file.
+		// Note: This is a `Result`.
+		debug!("Kernel [4/12] ... reading State");
+		let state = State::from_file();
+
+		// Wait for `Collection` to be returned by `CCD`.
+		debug!("Kernel [5/12] ... waiting on CCD");
+		let collection = loop {
+			use CcdToKernel::*;
+			match recv!(from_ccd) {
+				NewCollection(collection) => break collection,
+				Failed(string)            => (), // TODO: Forward to `GUI`.
+				Update(string)            => (), // TODO: Forward to `GUI`.
+			}
+		};
+
+		// Continue to `kernel` to verify data.
+		Self::kernel(collection, state, to_gui, from_gui);
+	}
+
+	//-------------------------------------------------- kernel()
+	#[inline(always)]
+	fn kernel(
+		collection: Collection,
+		state:      Result<State, anyhow::Error>,
+		to_gui:     std::sync::mpsc::Sender<KernelToGui>,
+		from_gui:   crossbeam_channel::Receiver<GuiToKernel>,
+	) {
+		/* TODO: initialize and sanitize collection & misc data */
+		debug!("Kernel [6/12] ... entering kernel()");
+		let state = state.unwrap();
+
+		Self::init(Some(collection), Some(state), to_gui, from_gui);
+	}
+
+	//-------------------------------------------------- init()
+	#[inline(always)]
+	fn init(
+		collection: Option<Collection>,
+		state:      Option<State>,
+		to_gui:     std::sync::mpsc::Sender<KernelToGui>,
+		from_gui:   crossbeam_channel::Receiver<GuiToKernel>,
+	) {
+		debug!("Kernel [7/12] ... entering init()");
+
+		// Handle potentially missing `Collection`.
+		let collection = match collection {
+			Some(c) => { debug!("Kernel [8/12] ... Collection found"); Arc::new(c) },
+			None    => { debug!("Kernel [8/12] ... Collection NOT found, returning default"); Arc::new(Collection::new()) },
+		};
+
+		// Handle potentially missing `State`.
+		let state = match state {
+			Some(s) => { debug!("Kernel [9/12] ... State found"); Arc::new(RwLock::new(s)) },
+			None    => { debug!("Kernel [9/12] ... State NOT found, returning default"); Arc::new(RwLock::new(State::new())) },
+		};
 
 		// Create `To` channels.
-		let (to_ccd,    ccd_recv)    = std::sync::mpsc::channel::<KernelToCcd>();
 		let (to_search, search_recv) = std::sync::mpsc::channel::<KernelToSearch>();
 		let (to_audio,  audio_recv)  = std::sync::mpsc::channel::<KernelToAudio>();
 
 		// Create `From` channels.
-		let (ccd_send,    from_ccd)    = crossbeam_channel::unbounded::<CcdToKernel>();
 		let (search_send, from_search) = crossbeam_channel::unbounded::<SearchToKernel>();
 		let (audio_send,  from_audio)  = crossbeam_channel::unbounded::<AudioToKernel>();
 
-		// Create temporary "dummy" `Kernel`.
+		// Create `Kernel`.
 		let kernel = Self {
 			// Channels.
 			to_gui, from_gui,
-			to_ccd, from_ccd,
 			to_search, from_search,
 			to_audio, from_audio,
 
-			// Create temporary "dummy" `PlayerState`.
-			player_state: Arc::new(RwLock::new(PlayerState::dummy())),
-			// Create temporary "dummy" `Collection`.
-			collection: Arc::new(Collection::dummy()),
+			// Data.
+			collection, state,
 		};
 
-		// Spawn everyone :)
-		// CCD.
-		debug!("Kernel ... spawning CCD");
-		let ptr = Arc::clone(&kernel.collection);
-		std::thread::spawn(move || Ccd::init(ptr, ccd_send, ccd_recv));
+		// Spawn `Search`.
+		debug!("Kernel [10/12] ... spawning Search");
+		let collection = Arc::clone(&kernel.collection);
+		std::thread::spawn(move || Search::init(collection, search_send, search_recv));
 
-		// Search.
-		debug!("Kernel ... spawning Search");
-		let ptr = Arc::clone(&kernel.collection);
-		std::thread::spawn(move || Search::init(ptr, search_send, search_recv));
+		// Spawn `Audio`.
+		debug!("Kernel [11/12] ... spawning Audio");
+		let collection = Arc::clone(&kernel.collection);
+		let state      = RoLock::new(&kernel.state);
+		std::thread::spawn(move || Audio::init(collection, state, audio_send, audio_recv));
 
-		// Audio.
-		debug!("Kernel ... spawning Audio");
-		let ptr    = Arc::clone(&kernel.collection);
-		let rolock = RoLock::new(&kernel.player_state);
-		std::thread::spawn(move || Audio::init(ptr, rolock, audio_send, audio_recv));
-
-		// Threads are enumerated.
-		// Now we have a few options on what to do.
-		// AKA: `boot_loader` phase.
-		Self::boot_loader(kernel);
+		// We're done, enter main `userspace` loop.
+		ok_debug!("Kernel [12/12] ... BOOT PROCESS");
+		debug!("Kernel: entering userspace()");
+		Self::userspace(kernel);
 	}
 
-	#[inline(always)]
-	fn boot_loader(self) {
-		// We need to load the real `Collection` into memory.
-		// `CCD` is waiting on the other end for a signal.
-		debug!("Kernel ... entering boot_loader()");
-
-		// Load from file... if it exists... or if we can.
-		let maybe_collection = Collection::from_file();
-
-		// If success, continue to `kernel` to convert
-		// bytes to actual usable `egui` images.
-		if let Ok(c) = maybe_collection {
-			Self::kernel(self, c);
-		// Else, `init`.
-		} else if let Err(e) = maybe_collection {
-			Self::init(self);
-		}
-	}
-
-	#[inline(always)]
-	fn kernel(self, collection: Collection) { /* TODO: initialize and sanitize collection & misc data */ }
-
-	#[inline(always)]
-	fn init(self) { /* TODO: send an OK to all threads and enter userspace */ }
 }
 
 //---------------------------------------------------------------------------------------------------- Main Kernel loop (userspace)

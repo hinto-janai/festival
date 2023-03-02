@@ -9,7 +9,7 @@
 use std::sync::Arc;
 use crate::collection::{
 	Collection,
-	key::CollectionKeychain,
+	CollectionKeychain,
 };
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.

@@ -9,9 +9,11 @@
 use std::sync::Arc;
 use crate::collection::{
 	Collection,
-	key::CollectionKeychain,
-	key::QueueKey,
+	CollectionKeychain,
+	QueueKey,
 };
+use crate::kernel::State;
+use rolock::RoLock;
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
 pub enum GuiToKernel {
@@ -36,6 +38,7 @@ pub enum GuiToKernel {
 pub enum KernelToGui {
 	DropCollection,                 // Drop your pointer.
 	NewCollection(Arc<Collection>), // Here's a new `Collection` pointer.
+	NewState(RoLock<State>),        // Here's a new `State` pointer.
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

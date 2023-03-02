@@ -35,6 +35,7 @@ pub struct Collection {
 
 	// Metadata about the `Collection` itself.
 	pub timestamp: u64,      // Creation date as UNIX time.
+	pub empty: bool,         // Is this `Collection` empty?
 	pub count_artist: usize, // How many artists?
 	pub count_album: usize,  // How many albums?
 	pub count_song: usize,   // How many songs?
@@ -42,8 +43,8 @@ pub struct Collection {
 
 impl Collection {
 	#[inline(always)]
-	// Creates a "dummy" struct, aka, empty.
-	pub fn dummy() -> Self {
+	// Creates an empty struct.
+	pub fn new() -> Self {
 		Self {
 			artists: vec![],
 			albums: vec![],
@@ -55,6 +56,7 @@ impl Collection {
 			sort_title: vec![],
 
 			timestamp: 0,
+			empty: true,
 			count_artist: 0,
 			count_album: 0,
 			count_song: 0,

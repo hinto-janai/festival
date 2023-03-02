@@ -1,9 +1,20 @@
 mod collection;
 pub use collection::*;
 
-pub mod album;
-pub mod artist;
-pub mod song;
-pub mod sort;
-pub mod key;
-pub mod slice;
+mod album;
+pub use album::*;
+
+mod artist;
+pub use artist::*;
+
+mod song;
+pub use song::*;
+
+mod sort;
+pub use sort::*;
+
+mod key;
+pub use key::*;
+
+mod slice;
+pub use slice::*;

@@ -29,6 +29,12 @@ impl CollectionSlice {
 		Self(VecDeque::with_capacity(20))
 	}
 
+	#[inline(always)]
+	// Create an empty "dummy" struct.
+	pub fn dummy() -> Self {
+		Self(VecDeque::new())
+	}
+
 	// Allows using `VecDeque` methods.
 	#[inline(always)]
 	pub fn inner(&self) -> &VecDeque<CollectionKey> {

@@ -9,24 +9,34 @@
 use std::sync::Arc;
 use crate::collection::{
 	Collection,
-	key::CollectionKeychain,
+	CollectionKeychain,
 };
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
 pub enum CcdToKernel {
-	PathUpdate(String),        // This is the current `Path` I'm working on.
-	ArtistUpdate(String),      // This is the current `Artist` I'm working on.
-	AlbumUpdate(String),       // This is the current `Album` I'm working on.
-	SongUpdate(String),        // This is the current `Song` I'm working on.
-	PercentUpdate(String),     // This is the current `%` of work I've done so far (out of 100).
 	NewCollection(Collection), // Here's the new `Collection`.
-	Failed,                    // Creating new or converting `Collection` has failed.
+	Failed(String),            // Creating new or converting `Collection` has failed.
+	Update(String),            // This is the current `Path/Artist/Album/Song` I'm working on and the `%` of work done.
 }
 
 pub enum KernelToCcd {
-	NewCollection(Arc<Collection>), // Start work on a new `Collection`, here's the _old_ `Collection` pointer.
-	ConvertImg(Collection),         // Convert an existing `Collection` image bytes into usable `egui` images.
-	Die,                            // You can rest now.
+	Die, // You can rest now.
+
+	// Since the rest of `CCD` stuff are one-shot operations, there's no
+	// need for `Kernel` to have a channel since it can just start `CCD`
+	// with a function specific to whatever job it needs to do:
+	//
+	// `Kernel` will need to send multiple messages only in one case: When creating a new `Collection`:
+	//
+	// 1. `Kernel` ---- "Create a new Collection, here's the old pointer" ---> `CCD`
+	// 3. `Kernel` <---            "Here's the new Collection"            ---- `CCD`
+	// 4. `Kernel` ---- "Okay, I've dropped my pointer, you can die now." ---> `CCD`
+	//
+	// `CCD` needs to know for sure `Kernel` has dropped the old `Collection`
+	// before it drops its own since that determines who actually destructs it.
+
+//	NewCollection(Arc<Collection>),
+//	ConvertImg(Collection),
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
