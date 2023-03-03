@@ -51,6 +51,7 @@ These are top-level files for miscellaneous stuff:
 ### Main Threads (GUI, Kernel, etc)
 ### Some threads can't hang
 ### Why Kernel?
+### Kernel order of events
 ### Bincode and version headers
 ### Performance cost of message passing vs direct access (GUI & CCD progress msg)
 #### Metadata vs Same dir image (which image among multiple?)

@@ -87,7 +87,7 @@ impl Kernel {
 		// Create `CCD` channel + thread and make it convert images.
 		debug!("Kernel [3/12] ... spawning CCD");
 		let (ccd_send, from_ccd) = crossbeam_channel::unbounded::<CcdToKernel>();
-		std::thread::spawn(move || Ccd::convert_img(ccd_send));
+		std::thread::spawn(move || Ccd::convert_art(ccd_send, collection));
 
 		// Before hanging on `CCD`, read `State` file.
 		// Note: This is a `Result`.
@@ -202,6 +202,7 @@ impl Kernel {
 				i if i == gui    => self.msg_gui(recv!(self.from_gui)),
 				i if i == search => self.msg_search(recv!(self.from_search)),
 				i if i == audio  => self.msg_audio(recv!(self.from_audio)),
+				// TODO: handle this.
 				_ => unreachable!(),
 			}
 		}

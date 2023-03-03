@@ -7,7 +7,7 @@ description = "Music player"
 homepage = "https://festival.io"
 documentation = "https://github.com/hinto-janai/festival/src/README.md"
 repository = "https://github.com/hinto-janai/festival"
-keywords = ["music", "audio", "player", "festival"]
+keywords = ["music", "player", "audio", "festival"]
 build = "build.rs"
 license = "MIT"
 
@@ -20,6 +20,7 @@ lto = true
 [dependencies]
 ### Local libraries `lib/`
 disk   = { path = "lib/disk", features = ["bincode", "toml"] }
+human  = { path = "lib/human" }
 rolock = { path = "lib/rolock" }
 
 ### External patched libraries `external/`
@@ -31,14 +32,12 @@ egui_extras       = { path = "external/egui/crates/egui_extras", features = ["im
 
 ### Regular libraries
 anyhow = "1.0.69"
-#bincode = "1.3.3"
 chrono = "0.4.23"
 clap = { version = "4.1.8", features = ["derive"] }
 crossbeam-channel = "0.5.7"
 #egui-notify = "0.5.1"
 env_logger = "0.10.0"
-fast_image_resize = "2.5.0"
-#figment = { version = "0.10.8", features = ["toml"] }
+fast_image_resize = "2.6.0"
 #id3 = "1.6.0"
 image = { version = "0.24.5", features = ["jpeg", "png"], default-features = false }
 lazy_static = "1.4.0"
