@@ -1,3 +1,5 @@
+use serde::{Serialize, Deserialize};
+
 //---------------------------------------------------------------------------------------------------- Constants
 // The locale numbers are formatting in is English, which looks like: [1,000]
 pub const LOCALE: num_format::Locale = num_format::Locale::en;
@@ -9,7 +11,7 @@ pub const ZERO_SECONDS: std::time::Duration = std::time::Duration::from_secs(0);
 // Code taken from [https://docs.rs/humantime/] and edited to remove sub-second time, change spacing and some words.
 use std::time::Duration;
 
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct HumanTime(Duration);
 
 impl Default for HumanTime {
@@ -81,7 +83,7 @@ impl std::fmt::Display for HumanTime {
 // Unsigned | [1234567] -> [1,234,567]                | Adds comma
 // Percent  | [99.123] -> [99.12%]                    | Truncates to 2 after dot, adds percent
 // Percent  | [0.001]  -> [0%]                        | Rounds down, removes redundant zeros
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct HumanNumber(String);
 
 impl std::fmt::Display for HumanNumber {
