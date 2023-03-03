@@ -2,20 +2,24 @@
 //use anyhow::{bail,ensure,Error};
 //use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
+use super::AlbumKey;
+use std::path::PathBuf;
+use human::HumanTime;
 
 //----------------------------------------------------------------------------------------------------
 //#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
 #[derive(Serialize,Deserialize)]
 pub struct Song {
+	// User-facing data.
 	pub title: String,
-	pub path: std::path::PathBuf,
-	pub index: u32,
-	pub runtime: f32,
-	#[serde(with = "serde_bytes")]
-	pub img: Vec<u8>,
-//	pub runtime_human: HumanTime,
-	pub artist: String,
-	pub key: usize,
+	pub album: AlbumKey,
+	pub length_human: HumanTime,  //
+	pub track_number: usize,      //
+	pub track_artists: String,    //
+
+	// "Raw" data.
+	pub length: f32,
+	pub path: PathBuf, //
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

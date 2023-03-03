@@ -5,7 +5,12 @@ use serde::{Serialize,Deserialize};
 use crate::macros::*;
 use disk::prelude::*;
 use disk::{Bincode,bincode_file};
+use human::{HumanTime,HumanNumber};
 use egui_extras::image::RetainedImage;
+use super::{
+	ArtistKey,
+	SongKey,
+};
 
 //----------------------------------------------------------------------------------------------------
 lazy_static::lazy_static! {
@@ -14,6 +19,8 @@ lazy_static::lazy_static! {
 			"Unknown",
 			include_bytes!("../../images/art/unknown.png")
 		).expect("Default album image failed to load");
+
+	pub static ref UNKNOWN_ALBUM_BYTES: &'static [u8] = include_bytes!("../../images/art/unknown.png");
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -21,30 +28,38 @@ lazy_static::lazy_static! {
 //bincode_file!(Album, Dir::Data, "Festival", "", "album");
 #[derive(Serialize,Deserialize)]
 pub struct Album {
-	pub title: String,
-	art_bytes: Option<Vec<u8>>,
+	// User-facing data.
+	pub title: String,                 //
+	pub artist: ArtistKey,             //
+	pub release_human: String,         //
+	pub length_human: HumanTime,       //
+	pub song_count_human: HumanNumber, //
+	pub songs: Vec<SongKey>,           //
+
+	// "Raw" data.
+	pub release: u64,    // UNIX?
+	pub lenght: f64,     //
+	pub song_count: u32, //
+
+	// Art data.
 	#[serde(skip)]
-	art: Option<RetainedImage>,
-//	pub runtime: f32,
-//	pub runtime_human: HumanTime,
-//	pub song_count: u32,
-//	pub songs: Vec<Song>,
-//	pub compilation: bool,
-//	pub img: bytes::Bytes,
-//	pub rank: u8,
-	pub key: usize,
+	pub art: Option<RetainedImage>, //
+	pub art_bytes: Option<Vec<u8>>, //
+
+	// Misc data.
+	pub compilation: bool, //
 }
 
-impl Album {
-	#[inline]
-	// Return the associated art or the default `[?]` image if `None`.
-	pub fn art_or_default(&self) -> &RetainedImage {
-		match &self.art {
-			Some(art) => art,
-			None      => &*UNKNOWN_ALBUM,
-		}
-	}
-}
+//impl Album {
+//	#[inline]
+//	// Return the associated art or the default `[?]` image if `None`.
+//	pub fn art_or_default(&self) -> &RetainedImage {
+//		match &self.art {
+//			Some(art) => art,
+//			None      => &*UNKNOWN_ALBUM,
+//		}
+//	}
+//}
 
 //pub struct AlbumArt {
 //	pub exists: bool,

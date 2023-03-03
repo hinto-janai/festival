@@ -95,6 +95,20 @@ impl Collection {
 	pub fn index_song(&self, key: &SongKey) -> &Song {
 		&self.songs[key.inner()]
 	}
+
+	// Key conversions.
+	#[inline(always)]
+	pub fn artist_from_album(&self, key: &AlbumKey) -> ArtistKey {
+		self.albums[key.inner()].artist
+	}
+	#[inline(always)]
+	pub fn album_from_song(&self, key: &SongKey) -> AlbumKey {
+		self.songs[key.inner()].album
+	}
+	#[inline(always)]
+	pub fn artist_from_song(&self, key: &SongKey) -> ArtistKey {
+		self.artist_from_album(&self.songs[key.inner()].album)
+	}
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

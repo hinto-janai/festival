@@ -59,9 +59,9 @@ impl Search {
 		}
 
 		// Search and collect results.
-		let mut artists: Vec<(f64, ArtistKey)> = self.collection.artists.iter().map(|x| (strsim::jaro(&x.name, &input), ArtistKey::from(x.key))).collect();
-		let mut albums:  Vec<(f64, AlbumKey)>  = self.collection.albums.iter().map(|x| (strsim::jaro(&x.title, &input), AlbumKey::from(x.key))).collect();
-		let mut songs:   Vec<(f64, SongKey)>   = self.collection.songs.iter().map(|x| (strsim::jaro(&x.title, &input), SongKey::from(x.key))).collect();
+		let mut artists: Vec<(f64, ArtistKey)> = self.collection.artists.iter().enumerate().map(|(i, x)| (strsim::jaro(&x.name, &input), ArtistKey::from(i))).collect();
+		let mut albums:  Vec<(f64, AlbumKey)>  = self.collection.albums.iter().enumerate().map(|(i, x)| (strsim::jaro(&x.title, &input), AlbumKey::from(i))).collect();
+		let mut songs:   Vec<(f64, SongKey)>   = self.collection.songs.iter().enumerate().map(|(i, x)| (strsim::jaro(&x.title, &input), SongKey::from(i))).collect();
 
 		// Sort by highest similarity value first.
 		artists.sort_by(|a, b| Self::cmp_f64(&a.0, &b.0));
@@ -125,7 +125,7 @@ impl Search {
 				// Other messages shouldn't be received here, e.g:
 				// `DropCollection` should _always_ be first before `CollectionArc`.
 				// Something buggy is happening if we randomly get a new `CollectionArc`.
-				CollectionArc(_) => error!("Message: Incorrect message received - CollectionArc"),
+				CollectionArc(_) => error!("Search: Incorrect message received - CollectionArc"),
 			}
 		}
 	}
@@ -158,7 +158,7 @@ impl Search {
 				return self
 			}
 
-			error!("Message: Incorrect message received");
+			error!("Search: Incorrect message received");
 		}
 	}
 }
