@@ -25,7 +25,6 @@ use crossbeam_channel::{Sender,Receiver};
 
 //---------------------------------------------------------------------------------------------------- Kernel
 pub struct Kernel {
-
 	// GUI Channels.
 	to_gui: Sender<KernelToGui>,
 	from_gui: Receiver<GuiToKernel>,

@@ -14,8 +14,8 @@ use crate::collection::{
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
 pub enum CcdToKernel {
-	NewCollection(Collection), // Here's the new `Collection`.
-	Failed(String),            // Creating new or converting `Collection` has failed.
+	NewCollection(Collection), // Here's the new (or modified) `Collection`.
+	Failed(anyhow::Error),     // Creating new or converting `Collection` has failed.
 	Update(String),            // This is the current `Path/Artist/Album/Song` I'm working on and the `%` of work done.
 }
 

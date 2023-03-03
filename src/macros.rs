@@ -113,12 +113,12 @@ pub(crate) use send;
 
 // Receive a message through a channel, `mass_panic!` on failure
 macro_rules! recv {
-	($channel:expr) => {
+	($channel:expr) => {{
 		match $channel.recv() {
 			Ok(msg) => msg,
 			Err(e)  => crate::macros::mass_panic!(e),
 		}
-	}
+	}}
 }
 pub(crate) use recv;
 

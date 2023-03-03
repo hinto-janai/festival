@@ -25,17 +25,7 @@ use super::msg::{
 use crate::collection::UNKNOWN_ALBUM_BYTES;
 use crossbeam_channel::{Sender,Receiver};
 use std::sync::{Arc,Mutex};
-
-
-// TODO:
-// CCD is a oneshot thing. Kernel sends 1 command and that's it.
-// There's no need for doing these generic message channels since Kernel
-// knows the exact context. Remove `from_kernel` and `old_collection` and
-// just pass the needed data directly from `Kernel` in a function instead.
-
-
-
-
+use std::path::Path;
 
 //---------------------------------------------------------------------------------------------------- CCD
 pub struct Ccd;
@@ -43,19 +33,51 @@ pub struct Ccd;
 //---------------------------------------------------------------------------------------------------- CCD `convert_art()`
 impl Ccd {
 	#[inline(always)]
+	// Public facing "front-end" to image conversion.
+	// Dynamically selects internal functions for single/multi-thread.
 	pub fn convert_art(to_kernel: Sender<CcdToKernel>, collection: Collection) {
 		ok_debug!("CCD - Purpose in life: convert_art()");
 
-		// TODO: convert art, send to kernel.
+		// If no albums, return.
+		if collection.albums.len() == 0 {
+			send!(to_kernel, CcdToKernel::NewCollection(collection));
+			return
+		}
+
+		// Convert art, send to `Kernel`.
+		match Self::priv_convert_art(&to_kernel, collection) {
+			Ok(collection) => send!(to_kernel, CcdToKernel::NewCollection(collection)),
+			Err(error)     => send!(to_kernel, CcdToKernel::Failed(error)),
+		}
 	}
 
 	#[inline(always)]
-	// Re-usable image conversion function.
+	// Internal re-usable image conversion function.
 	// This can be used in `new_collection()` as well.
-	fn priv_convert_art(to_kernel: Sender<CcdToKernel>, collection: Collection) -> Result<Collection, anyhow::Error> {
+	//
+	// Order of operations:
+	//     1. If multiple threads are detected -> `priv_convert_art_multithread()`
+	//     2. If single thread is detected     -> `priv_convert_art_singlethread()`
+	//     3. Get `Collection` back (wrapped in `Result`), return to `Kernel`
+	//
+	fn priv_convert_art(to_kernel: &Sender<CcdToKernel>, collection: Collection) -> Result<Collection, anyhow::Error> {
 		// Use half available threads.
 		let threads = super::get_half_threads();
 
+		// Single-thread never fails.
+		if threads == 1 {
+			return Ok(Self::priv_convert_art_singlethread(&to_kernel, collection));
+		}
+
+		// Workload needs to be wrapped in `Arc<Mutex<T>>` IF multi-threaded (it might fail).
+		match Self::priv_convert_art_multithread(&to_kernel, collection, threads) {
+			Ok(collection) => Ok(collection),
+			Err(error)     => Err(anyhow!("")),
+		}
+	}
+
+	#[inline(always)]
+	fn priv_convert_art_multithread(to_kernel: &Sender<CcdToKernel>, collection: Collection, threads: usize) -> Result<Collection, anyhow::Error> {
 		// How many albums are we processing?
 		let album_count = collection.albums.len();
 
@@ -130,13 +152,58 @@ impl Ccd {
 		}
 	}
 
+	#[inline(always)]
+	fn priv_convert_art_singlethread(to_kernel: &Sender<CcdToKernel>, mut collection: Collection) -> Collection {
+		for mut album in collection.albums.iter_mut() {
+			// Take raw image bytes.
+			let bytes = album.art_bytes.take();
+
+			// If `None`, provide the `?` art.
+			let art = match bytes {
+				Some(b) => super::art_from_known(&b),
+				None    => super::art_from_known(*UNKNOWN_ALBUM_BYTES),
+			};
+
+			// Insert the `RetainedImage`.
+			album.art = Some(art);
+
+			/* TODO: send progress report     send!(to_k)   */
+		}
+
+		collection
+	}
+
 //---------------------------------------------------------------------------------------------------- CCD `new_collection()`
-	pub fn new_collection(
+	pub fn new_collection<P>(
 		to_kernel: Sender<CcdToKernel>,
 		from_kernel: Receiver<KernelToCcd>,
-	) {
-		/* TODO: create new collection */
+		paths: &[&P],
+	) where
+		P: AsRef<Path>
+	{
 		ok_debug!("CCD - Purpose in life: new_collection()");
+
+		// TODO: new_collection() steps:
+		// 1. WalkDir given path(s).
+		// 2. Filter for audio files.
+		// 3. For each file, get metadata, add to `Collection`.
+		// 4.
+		//     a) If image metadata exists, append
+		//     b) If not, search parent dir for `jpeg/png`
+		//     c) Given multiple images, pick the highest quality image
+		//     d) Given no image, append `None`
+		//
+		// 5. Save to disk.
+		// 6. Transform in-memory `Collection` with `priv_convert_art()`
+		// 7. Send to `Kernel`
+		// 8. Wait for `Die` signal.
+		// 9. Die, destruct the old `Collection`.
+
+		// TODO: Handle potential errors:
+		// 1. No albums
+		// 2. Path error
+		// 3. Permission error
+		// 4. Disk error
 	}
 }
 
