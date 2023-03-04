@@ -56,6 +56,13 @@ These are top-level files for miscellaneous stuff:
 ### Performance cost of message passing vs direct access (GUI & CCD progress msg)
 #### Metadata vs Same dir image (which image among multiple?)
 
+### Audio Codec
+- AAC
+- ALAC
+- FLAC
+- MP3
+- Ogg/OPUS
+- PCM (wav, aiff)
 
 ## Bootstrap
 

@@ -1,3 +1,6 @@
+mod mime;
+pub use mime::*;
+
 mod msg;
 pub use msg::*;
 
