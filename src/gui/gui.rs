@@ -35,15 +35,15 @@ impl Img {
 	fn new() -> Self {
 		let now = std::time::Instant::now();
 		let mut vec = vec![
-				("さよーならあなた", egui_extras::RetainedImage::from_image_bytes("a.jpg", include_bytes!("../../images/art/a.jpg")).unwrap()),
-				("ひかれあい", egui_extras::RetainedImage::from_image_bytes("b.jpg", include_bytes!("../../images/art/b.jpg")).unwrap()),
-				("祝祭", egui_extras::RetainedImage::from_image_bytes("c.jpg", include_bytes!("../../images/art/c.jpg")).unwrap()),
-				("祝祭ひとりでに", egui_extras::RetainedImage::from_image_bytes("d.jpg", include_bytes!("../../images/art/d.jpg")).unwrap()),
-				("燦々", egui_extras::RetainedImage::from_image_bytes("e.jpg", include_bytes!("../../images/art/e.jpg")).unwrap()),
-				("燦々ひとりでに", egui_extras::RetainedImage::from_image_bytes("f.jpg", include_bytes!("../../images/art/f.jpg")).unwrap()),
-				("よすが", egui_extras::RetainedImage::from_image_bytes("g.jpg", include_bytes!("../../images/art/g.jpg")).unwrap()),
-				("よすがひとりでに", egui_extras::RetainedImage::from_image_bytes("h.jpg", include_bytes!("../../images/art/h.jpg")).unwrap()),
-				("タオルケットは穏やかな", egui_extras::RetainedImage::from_image_bytes("i.jpg", include_bytes!("../../images/art/i.jpg")).unwrap()),
+				("さよーならあなた", egui_extras::RetainedImage::from_image_bytes("a.jpg", include_bytes!("../../assets/images/art/a.jpg")).unwrap()),
+				("ひかれあい", egui_extras::RetainedImage::from_image_bytes("b.jpg", include_bytes!("../../assets/images/art/b.jpg")).unwrap()),
+				("祝祭", egui_extras::RetainedImage::from_image_bytes("c.jpg", include_bytes!("../../assets/images/art/c.jpg")).unwrap()),
+				("祝祭ひとりでに", egui_extras::RetainedImage::from_image_bytes("d.jpg", include_bytes!("../../assets/images/art/d.jpg")).unwrap()),
+				("燦々", egui_extras::RetainedImage::from_image_bytes("e.jpg", include_bytes!("../../assets/images/art/e.jpg")).unwrap()),
+				("燦々ひとりでに", egui_extras::RetainedImage::from_image_bytes("f.jpg", include_bytes!("../../assets/images/art/f.jpg")).unwrap()),
+				("よすが", egui_extras::RetainedImage::from_image_bytes("g.jpg", include_bytes!("../../assets/images/art/g.jpg")).unwrap()),
+				("よすがひとりでに", egui_extras::RetainedImage::from_image_bytes("h.jpg", include_bytes!("../../assets/images/art/h.jpg")).unwrap()),
+				("タオルケットは穏やかな", egui_extras::RetainedImage::from_image_bytes("i.jpg", include_bytes!("../../assets/images/art/i.jpg")).unwrap()),
 		];
 		Self {
 			vec,

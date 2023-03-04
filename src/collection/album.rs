@@ -17,10 +17,10 @@ lazy_static::lazy_static! {
 	pub static ref UNKNOWN_ALBUM: RetainedImage =
 		RetainedImage::from_image_bytes(
 			"Unknown",
-			include_bytes!("../../images/art/unknown.png")
+			include_bytes!("../../assets/images/art/unknown.png")
 		).expect("Default album image failed to load");
 
-	pub static ref UNKNOWN_ALBUM_BYTES: &'static [u8] = include_bytes!("../../images/art/unknown.png");
+	pub static ref UNKNOWN_ALBUM_BYTES: &'static [u8] = include_bytes!("../../assets/images/art/unknown.png");
 }
 
 //----------------------------------------------------------------------------------------------------

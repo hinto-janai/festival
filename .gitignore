@@ -1,3 +1,11 @@
 target/
-/images/art
+/assets/images/art/a.jpg
+/assets/images/art/b.jpg
+/assets/images/art/c.jpg
+/assets/images/art/d.jpg
+/assets/images/art/e.jpg
+/assets/images/art/f.jpg
+/assets/images/art/g.jpg
+/assets/images/art/h.jpg
+/assets/images/art/i.jpg
 /utils/Festival*AppImage
