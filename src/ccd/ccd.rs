@@ -261,41 +261,46 @@ impl Ccd {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-// These tests aren't in the `tests` module since private functions need to be tested.
-#[test]
-fn _path_is_audio() {
-	let path = ["aac", "m4a", "flac", "mp3", "ogg", "wav", "aiff"];
-	for i in path {
-		let file = PathBuf::from(format!("assets/audio/rain.{}", i));
-		eprintln!("{}", file.display());
-		assert!(Ccd::path_infer_audio(&file));
-		assert!(Ccd::path_guess_audio(&file));
+#[cfg(test)]
+mod tests {
+	use std::path::PathBuf;
+	use super::*;
+
+	#[test]
+	fn _path_is_audio() {
+		let path = ["aac", "m4a", "flac", "mp3", "ogg", "wav", "aiff"];
+		for i in path {
+			let file = PathBuf::from(format!("assets/audio/rain.{}", i));
+			eprintln!("{}", file.display());
+			assert!(Ccd::path_infer_audio(&file));
+			assert!(Ccd::path_guess_audio(&file));
+		}
 	}
-}
 
-#[test]
-fn _walkdir_audio() {
-	// Set-up PATHs.
-	let (to_kernel, _) = crossbeam_channel::unbounded::<CcdToKernel>();
-	let paths = vec![
-		PathBuf::from("src"),
-		PathBuf::from("assets"),
-		PathBuf::from("assets"),
-		PathBuf::from("assets/audio"),
-		PathBuf::from("assets/images"),
-	];
+	#[test]
+	fn _walkdir_audio() {
+		// Set-up PATHs.
+		let (to_kernel, _) = crossbeam_channel::unbounded::<CcdToKernel>();
+		let paths = vec![
+			PathBuf::from("src"),
+			PathBuf::from("assets"),
+			PathBuf::from("assets"),
+			PathBuf::from("assets/audio"),
+			PathBuf::from("assets/images"),
+		];
 
-	// WalkDir and filter for audio.
-	let result = Ccd::walkdir_audio(&to_kernel, &paths);
-	eprintln!("{:#?}", result);
+		// WalkDir and filter for audio.
+		let result = Ccd::walkdir_audio(&to_kernel, &paths);
+		eprintln!("{:#?}", result);
 
-	// Assert.
-	assert!(result[0].display().to_string() == "assets/audio/rain.aac");
-	assert!(result[1].display().to_string() == "assets/audio/rain.aiff");
-	assert!(result[2].display().to_string() == "assets/audio/rain.flac");
-	assert!(result[3].display().to_string() == "assets/audio/rain.m4a");
-	assert!(result[4].display().to_string() == "assets/audio/rain.mp3");
-	assert!(result[5].display().to_string() == "assets/audio/rain.ogg");
-	assert!(result[6].display().to_string() == "assets/audio/rain.wav");
-	assert!(result.len() == 7);
+		// Assert.
+		assert!(result[0].display().to_string() == "assets/audio/rain.aac");
+		assert!(result[1].display().to_string() == "assets/audio/rain.aiff");
+		assert!(result[2].display().to_string() == "assets/audio/rain.flac");
+		assert!(result[3].display().to_string() == "assets/audio/rain.m4a");
+		assert!(result[4].display().to_string() == "assets/audio/rain.mp3");
+		assert!(result[5].display().to_string() == "assets/audio/rain.ogg");
+		assert!(result[6].display().to_string() == "assets/audio/rain.wav");
+		assert!(result.len() == 7);
+	}
 }
