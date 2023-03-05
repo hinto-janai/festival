@@ -1,6 +1,9 @@
 mod collection;
 pub use collection::*;
 
+mod art;
+pub use art::*;
+
 mod album;
 pub use album::*;
 
