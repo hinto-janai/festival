@@ -12,6 +12,7 @@ use crate::macros::{
 	send,
 };
 use crate::collection::{
+	Album,
 	Collection,
 	CollectionKeychain,
 	ArtistKey,
@@ -22,7 +23,10 @@ use super::msg::{
 	CcdToKernel,
 	KernelToCcd,
 };
-use crate::collection::UNKNOWN_ALBUM_BYTES;
+use crate::collection::{
+	Art,
+	UNKNOWN_ALBUM_BYTES,
+};
 use super::SUPPORTED_AUDIO_MIME_TYPES;
 use crossbeam_channel::{Sender,Receiver};
 use std::sync::{Arc,Mutex};
@@ -49,13 +53,9 @@ impl Ccd {
 		// If no albums, return.
 		if collection.albums.len() == 0 {
 			send!(to_kernel, CcdToKernel::NewCollection(collection));
-			return
-		}
-
-		// Convert art, send to `Kernel`.
-		match Self::priv_convert_art(&to_kernel, collection) {
-			Ok(collection) => send!(to_kernel, CcdToKernel::NewCollection(collection)),
-			Err(error)     => send!(to_kernel, CcdToKernel::Failed(error)),
+		// Else, convert art, send to `Kernel`.
+		} else {
+			send!(to_kernel, CcdToKernel::NewCollection(Self::priv_convert_art(&to_kernel, collection)));
 		}
 	}
 
@@ -66,120 +66,76 @@ impl Ccd {
 	// Order of operations:
 	//     1. If multiple threads are detected -> `convert_art_multithread()`
 	//     2. If single thread is detected     -> `convert_art_singlethread()`
-	//     3. Get `Collection` back (wrapped in `Result`), return to `Kernel`
+	//     3. Return `Collection` after mutation.
 	//
-	fn priv_convert_art(to_kernel: &Sender<CcdToKernel>, collection: Collection) -> Result<Collection, anyhow::Error> {
-		// Use half available threads.
-		let threads = super::get_half_threads();
+	fn priv_convert_art(to_kernel: &Sender<CcdToKernel>, collection: Collection) -> Collection {
+		// How many threads should we use?
+		let threads = super::threads_for_albums(collection.albums.len());
 
-		// Single-thread never fails.
+		// Single-threaded.
 		if threads == 1 {
-			return Ok(Self::convert_art_singlethread(&to_kernel, collection));
-		}
-
-		// Workload needs to be wrapped in `Arc<Mutex<T>>` IF multi-threaded (it might fail).
-		match Self::convert_art_multithread(&to_kernel, collection, threads) {
-			Ok(collection) => Ok(collection),
-			Err(error)     => Err(anyhow!("")),
+			Self::convert_art_singlethread(&to_kernel, collection)
+		// Multi-threaded.
+		} else {
+			Self::convert_art_multithread(&to_kernel, collection, threads)
 		}
 	}
 
 	#[inline(always)]
-	fn convert_art_multithread(to_kernel: &Sender<CcdToKernel>, collection: Collection, threads: usize) -> Result<Collection, anyhow::Error> {
-		// How many albums are we processing?
-		let album_count = collection.albums.len();
+	// Multi-threaded `convert_art()` variant.
+	fn convert_art_multithread(to_kernel: &Sender<CcdToKernel>, mut collection: Collection, threads: usize) -> Collection {
+		// Multi-thread & scoped process of `Collection` album art:
+		//
+		// 1. Split the `Vec` of `Album` across an appropriate amount of threads
+		// 2. Move work into each scoped thread
+		// 3. Process data.
+		// 4. Join threads, return.
+		std::thread::scope(|scope| {
+			// Divide albums (mostly) evenly across threads.
+			for albums in collection.albums.chunks_mut(threads) {
 
-		// TODO: document
-		let collection      = Arc::new(Mutex::new(collection));
-		let divided_albums  = album_count / threads;
-		let remainder       = album_count % threads;
-		let mut start_index = 0;
-		let mut end_index   = start_index + divided_albums;
-		let mut workers     = vec![];
+				// Clone `Kernel` channel.
+				let to_k  = to_kernel.clone();
 
-		// TODO: document
-		for thread in 1..=threads {
-			let c     = Arc::clone(&collection);
-			let to_k  = to_kernel.clone();
-			let start = start_index;
-			let end   = end_index;
-
-			// Spawn worker threads.
-			let worker = std::thread::spawn(move || {
-				for index in start..end {
-					// Take raw image bytes.
-					let bytes = c.lock().unwrap().albums[index].art_bytes.take();
-
-					// If `None`, provide the `?` art.
-					let art = match bytes {
-						Some(b) => super::art_from_known(&b),
-						None    => super::art_from_known(*UNKNOWN_ALBUM_BYTES),
-					};
-
-					// Insert the `RetainedImage`.
-					c.lock().unwrap().albums[index].art = Some(art);
-
-					/* TODO: send progress report     send!(to_k)   */
-				}
-			});
-
-			// TODO: document
-			workers.push(worker);
-
-			// Update start/end indexes for next thread OR
-			// if the last thread, make sure we include everything (remainder).
-			if thread == threads {
-				start_index += divided_albums + remainder;
-				end_index   += divided_albums + remainder;
-			} else {
-				start_index += divided_albums;
-				end_index   += divided_albums;
+				// Spawn scoped thread with chunked workload.
+				scope.spawn(move || {
+					Self::convert_art_worker(to_kernel, albums);
+				});
 			}
-		}
-
-		// TODO: handle error message.
-		// Join workers.
-		for worker in workers {
-			if let Err(e) = worker.join() {
-				bail!("");
-			}
-		}
-
-		// TODO: handle error message.
-		// Unwrap the `Arc`.
-		let collection = match Arc::try_unwrap(collection) {
-			Ok(c)  => c,
-			Err(e) => bail!(""),
-		};
-
-		// TODO: handle error message.
-		// Unwrap the `Mutex`, return `Collection`.
-		match collection.into_inner() {
-			Ok(c)  => Ok(c),
-			Err(e) => bail!(""),
-		}
-	}
-
-	#[inline(always)]
-	fn convert_art_singlethread(to_kernel: &Sender<CcdToKernel>, mut collection: Collection) -> Collection {
-		for mut album in collection.albums.iter_mut() {
-			// Take raw image bytes.
-			let bytes = album.art_bytes.take();
-
-			// If `None`, provide the `?` art.
-			let art = match bytes {
-				Some(b) => super::art_from_known(&b),
-				None    => super::art_from_known(*UNKNOWN_ALBUM_BYTES),
-			};
-
-			// Insert the `RetainedImage`.
-			album.art = Some(art);
-
-			/* TODO: send progress report     send!(to_k)   */
-		}
+		});
 
 		collection
 	}
+
+	#[inline(always)]
+	// Single-threaded `convert_art()` variant.
+	fn convert_art_singlethread(to_kernel: &Sender<CcdToKernel>, mut collection: Collection) -> Collection {
+		Self::convert_art_worker(to_kernel, &mut collection.albums);
+
+		collection
+	}
+
+	#[inline(always)]
+	// The actual art conversion "processing" work.
+	fn convert_art_worker(to_kernel: &Sender<CcdToKernel>, albums: &mut [Album]) {
+		for album in albums {
+			// Take raw image bytes.
+			let bytes = album.art_bytes.take();
+
+			// If bytes exist, convert, else provide the `Unknown` art.
+			let art = match bytes {
+				Some(b) => Art::Known(super::art_from_known(&b)),
+				None    => Art::Unknown,
+			};
+
+			// Insert the `Art`.
+			album.art = art;
+
+			// TODO: send progress report
+			// send!(to_kernel, ...);
+		}
+	}
+
 
 //---------------------------------------------------------------------------------------------------- CCD `new_collection()`
 	#[inline(always)]
@@ -223,9 +179,9 @@ impl Ccd {
 	#[inline(always)]
 	// 1. `WalkDir` given PATHs and filter for audio files.
 	// Ignore non-existing PATHs in the array.
-	fn walkdir_audio<P>(
+	fn walkdir_audio(
 		to_kernel: &Sender<CcdToKernel>,
-		paths: &[&Path],
+		paths: &Vec<PathBuf>,
 	) -> Vec<PathBuf> {
 
 		// Test PATHs, collect valid ones.
@@ -265,17 +221,37 @@ impl Ccd {
 			}
 		}
 
+		result.sort();
+		result.dedup();
 		result
 	}
 
 	#[inline(always)]
 	fn path_is_audio(path: &Path) -> bool {
 		// Attempt MIME via file magic bytes first.
+		if Self::path_infer_audio(path) {
+			return true
+		}
+
+		// Attempt guess via file extension.
+		if Self::path_guess_audio(path) {
+			return true
+		}
+
+		false
+	}
+
+	#[inline(always)]
+	fn path_infer_audio(path: &Path) -> bool {
 		if let Ok(Some(mime)) = infer::get_from_path(&path) {
 			return SUPPORTED_AUDIO_MIME_TYPES.contains(&mime.mime_type())
 		}
 
-		// Attempt guess via file extension.
+		false
+	}
+
+	#[inline(always)]
+	fn path_guess_audio(path: &Path) -> bool {
 		if let Some(mime) = mime_guess::MimeGuess::from_path(&path).first_raw() {
 			return SUPPORTED_AUDIO_MIME_TYPES.contains(&mime)
 		}
@@ -285,9 +261,41 @@ impl Ccd {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//  #[test]
-//  fn __TEST__() {
-//  }
-//}
+// These tests aren't in the `tests` module since private functions need to be tested.
+#[test]
+fn _path_is_audio() {
+	let path = ["aac", "m4a", "flac", "mp3", "ogg", "wav", "aiff"];
+	for i in path {
+		let file = PathBuf::from(format!("assets/audio/rain.{}", i));
+		eprintln!("{}", file.display());
+		assert!(Ccd::path_infer_audio(&file));
+		assert!(Ccd::path_guess_audio(&file));
+	}
+}
+
+#[test]
+fn _walkdir_audio() {
+	// Set-up PATHs.
+	let (to_kernel, _) = crossbeam_channel::unbounded::<CcdToKernel>();
+	let paths = vec![
+		PathBuf::from("src"),
+		PathBuf::from("assets"),
+		PathBuf::from("assets"),
+		PathBuf::from("assets/audio"),
+		PathBuf::from("assets/images"),
+	];
+
+	// WalkDir and filter for audio.
+	let result = Ccd::walkdir_audio(&to_kernel, &paths);
+	eprintln!("{:#?}", result);
+
+	// Assert.
+	assert!(result[0].display().to_string() == "assets/audio/rain.aac");
+	assert!(result[1].display().to_string() == "assets/audio/rain.aiff");
+	assert!(result[2].display().to_string() == "assets/audio/rain.flac");
+	assert!(result[3].display().to_string() == "assets/audio/rain.m4a");
+	assert!(result[4].display().to_string() == "assets/audio/rain.mp3");
+	assert!(result[5].display().to_string() == "assets/audio/rain.ogg");
+	assert!(result[6].display().to_string() == "assets/audio/rain.wav");
+	assert!(result.len() == 7);
+}

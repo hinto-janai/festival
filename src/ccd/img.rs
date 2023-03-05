@@ -138,7 +138,7 @@ pub fn color_img_to_retained(img: egui::ColorImage) -> egui_extras::image::Retai
 mod tests {
 	use super::*;
 
-	const IMG_BYTES: &[u8] = include_bytes!("../../images/icon/1024.png");
+	const IMG_BYTES: &[u8] = include_bytes!("../../assets/images/icon/1024.png");
 
 	#[test]
 	// Makes sure we can take in random image bytes,
