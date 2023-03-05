@@ -21,30 +21,30 @@ use crate::constants::{
 //#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
 bincode_file!(Collection, Dir::Data, FESTIVAL, "", "collection", FESTIVAL_HEADER, COLLECTION_VERSION);
 #[derive(Serialize,Deserialize)]
-pub struct Collection {
+pub(crate) struct Collection {
 	// The actual (meta)data.
-	pub artists: Vec<Artist>,
-	pub albums: Vec<Album>,
-	pub songs: Vec<Song>,
+	pub(crate) artists: Vec<Artist>,
+	pub(crate) albums: Vec<Album>,
+	pub(crate) songs: Vec<Song>,
 
 	// Pre-computed and sorted keys.
-	pub sort_artist_release: Vec<CollectionKey>,
-	pub sort_artist_title: Vec<CollectionKey>,
-	pub sort_release: Vec<CollectionKey>,
-	pub sort_title: Vec<CollectionKey>,
+	pub(crate) sort_artist_release: Vec<CollectionKey>,
+	pub(crate) sort_artist_title: Vec<CollectionKey>,
+	pub(crate) sort_release: Vec<CollectionKey>,
+	pub(crate) sort_title: Vec<CollectionKey>,
 
 	// Metadata about the `Collection` itself.
-	pub timestamp: u64,      // Creation date as UNIX time.
-	pub empty: bool,         // Is this `Collection` empty?
-	pub count_artist: usize, // How many artists?
-	pub count_album: usize,  // How many albums?
-	pub count_song: usize,   // How many songs?
+	pub(crate) timestamp: u64,      // Creation date as UNIX time.
+	pub(crate) empty: bool,         // Is this `Collection` empty?
+	pub(crate) count_artist: usize, // How many artists?
+	pub(crate) count_album: usize,  // How many albums?
+	pub(crate) count_song: usize,   // How many songs?
 }
 
 impl Collection {
 	#[inline(always)]
 	// Creates an empty struct.
-	pub fn new() -> Self {
+	pub(crate) fn new() -> Self {
 		Self {
 			artists: vec![],
 			albums: vec![],
@@ -76,37 +76,37 @@ impl Collection {
 	}
 
 	#[inline(always)]
-	pub fn index(&self, key: &CollectionKey) -> (&Artist, &Album, &Song) {
+	pub(crate) fn index(&self, key: &CollectionKey) -> (&Artist, &Album, &Song) {
 		let (artist, album, song) = key.to_tuple();
 		(&self.artists[artist], &self.albums[album], &self.songs[song])
 	}
 
 	#[inline(always)]
-	pub fn index_artist(&self, key: &ArtistKey) -> &Artist {
+	pub(crate) fn index_artist(&self, key: &ArtistKey) -> &Artist {
 		&self.artists[key.inner()]
 	}
 
 	#[inline(always)]
-	pub fn index_album(&self, key: &AlbumKey) -> &Album {
+	pub(crate) fn index_album(&self, key: &AlbumKey) -> &Album {
 		&self.albums[key.inner()]
 	}
 
 	#[inline(always)]
-	pub fn index_song(&self, key: &SongKey) -> &Song {
+	pub(crate) fn index_song(&self, key: &SongKey) -> &Song {
 		&self.songs[key.inner()]
 	}
 
 	// Key conversions.
 	#[inline(always)]
-	pub fn artist_from_album(&self, key: &AlbumKey) -> ArtistKey {
+	pub(crate) fn artist_from_album(&self, key: &AlbumKey) -> ArtistKey {
 		self.albums[key.inner()].artist
 	}
 	#[inline(always)]
-	pub fn album_from_song(&self, key: &SongKey) -> AlbumKey {
+	pub(crate) fn album_from_song(&self, key: &SongKey) -> AlbumKey {
 		self.songs[key.inner()].album
 	}
 	#[inline(always)]
-	pub fn artist_from_song(&self, key: &SongKey) -> ArtistKey {
+	pub(crate) fn artist_from_song(&self, key: &SongKey) -> ArtistKey {
 		self.artist_from_album(&self.songs[key.inner()].album)
 	}
 }

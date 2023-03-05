@@ -1,5 +1,5 @@
 mod msg;
-pub use msg::*;
+pub(crate) use msg::*;
 
 mod search;
-pub use search::*;
+pub(crate) use search::*;

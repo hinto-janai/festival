@@ -10,7 +10,7 @@ use crate::constants::{
 //---------------------------------------------------------------------------------------------------- CLI Parser (clap)
 #[derive(Parser)]
 #[command(override_usage = "festival [OPTIONS]")]
-pub struct Cli {
+pub(crate) struct Cli {
 	/// Toggle playback (play/pause)
     #[arg(short, long)]
 	toggle: bool,
@@ -34,7 +34,7 @@ pub struct Cli {
 //---------------------------------------------------------------------------------------------------- CLI argument handling
 impl Cli {
 	#[inline(always)]
-	pub fn handle_args() {
+	pub(crate) fn handle_args() {
 		let cli = Self::parse();
 
 		// Version

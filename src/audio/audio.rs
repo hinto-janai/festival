@@ -28,7 +28,7 @@ use super::msg::{
 use crossbeam_channel::{Sender,Receiver};
 
 //---------------------------------------------------------------------------------------------------- Audio
-pub struct Audio {
+pub(crate) struct Audio {
 	collection:  Arc<Collection>,         // Pointer to `Collection`
 	state:       RoLock<State>,           // Read-Only lock to the `State`
 	to_kernel:   Sender<AudioToKernel>,   // Channel TO `Kernel`
@@ -37,7 +37,7 @@ pub struct Audio {
 
 impl Audio {
 	// Kernel starts `Audio` with this.
-	pub fn init(
+	pub(crate) fn init(
 		collection: Arc<Collection>,
 		state: RoLock<State>,
 		to_kernel: Sender<AudioToKernel>,

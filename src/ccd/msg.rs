@@ -13,13 +13,13 @@ use crate::collection::{
 };
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
-pub enum CcdToKernel {
+pub(crate) enum CcdToKernel {
 	NewCollection(Collection), // Here's the new (or modified) `Collection`.
 	Failed(anyhow::Error),     // Creating new or converting `Collection` has failed.
 	Update(String),            // This is the current `Path/Artist/Album/Song` I'm working on and the `%` of work done.
 }
 
-pub enum KernelToCcd {
+pub(crate) enum KernelToCcd {
 	Die, // You can rest now.
 
 	// Since the rest of `CCD` stuff are one-shot operations, there's no

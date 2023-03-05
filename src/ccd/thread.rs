@@ -38,7 +38,7 @@ fn most_threads(threads: usize) -> usize {
 }
 
 // Get a reasonable amount of threads for `n` amount of albums.
-pub fn threads_for_albums(albums: usize) -> usize {
+pub(crate) fn threads_for_albums(albums: usize) -> usize {
 	// Return 1 if it's not even worth spawning
 	// threads due to small amount of albums.
 	if albums <= ALBUM_THREAD_THRESHOLD {

@@ -19,33 +19,33 @@ use super::art::{
 //---------------------------------------------------------------------------------------------------- Album
 //#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
 #[derive(Serialize,Deserialize)]
-pub struct Album {
+pub(crate) struct Album {
 	// User-facing data.
-	pub title: String,                 //
-	pub artist: ArtistKey,             //
-	pub release_human: String,         //
-	pub length_human: HumanTime,       //
-	pub song_count_human: HumanNumber, //
-	pub songs: Vec<SongKey>,           //
+	pub(crate) title: String,                 //
+	pub(crate) artist: ArtistKey,             //
+	pub(crate) release_human: String,         //
+	pub(crate) length_human: HumanTime,       //
+	pub(crate) song_count_human: HumanNumber, //
+	pub(crate) songs: Vec<SongKey>,           //
 
 	// "Raw" data.
-	pub release: u64,    // UNIX?
-	pub lenght: f64,     //
-	pub song_count: u32, //
+	pub(crate) release: u64,    // UNIX?
+	pub(crate) lenght: f64,     //
+	pub(crate) song_count: u32, //
 
 	// Art data.
 	#[serde(skip)]
-	pub art: Art,                   // Always initialized after `CCD`.
-	pub art_bytes: Option<Vec<u8>>, //
+	pub(crate) art: Art,                   // Always initialized after `CCD`.
+	pub(crate) art_bytes: Option<Vec<u8>>, //
 
 	// Misc data.
-	pub compilation: bool, //
+	pub(crate) compilation: bool, //
 }
 
 impl Album {
 	#[inline]
 	// Return the associated art or the default `[?]` image if `Unknown`
-	pub fn art_or(&self) -> &egui_extras::RetainedImage {
+	pub(crate) fn art_or(&self) -> &egui_extras::RetainedImage {
 		self.art.art_or()
 	}
 }

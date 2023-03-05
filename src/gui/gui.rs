@@ -27,8 +27,8 @@ use crossbeam_channel::{Sender,Receiver};
 
 //---------------------------------------------------------------------------------------------------- TODO
 // TODO: tmp data
-pub struct Img {
-	pub vec: Vec<(&'static str, egui_extras::RetainedImage)>,
+pub(crate) struct Img {
+	pub(crate) vec: Vec<(&'static str, egui_extras::RetainedImage)>,
 }
 
 impl Img {
@@ -52,16 +52,16 @@ impl Img {
 }
 
 //---------------------------------------------------------------------------------------------------- GUI struct. This hold ALL data.
-pub struct Gui {
+pub(crate) struct Gui {
 	// TODO: tmp data.
-	pub img: Img,
-	pub v: f32,
-	pub s: u8,
-	pub list: Vec<(u8, &'static str, &'static str)>,
-	pub name: &'static str,
+	pub(crate) img: Img,
+	pub(crate) v: f32,
+	pub(crate) s: u8,
+	pub(crate) list: Vec<(u8, &'static str, &'static str)>,
+	pub(crate) name: &'static str,
 
 	// TODO: This is real data, clean it up.
-	pub tab: super::tab::Tab, // This should be in [State]
+	pub(crate) tab: super::tab::Tab, // This should be in [State]
 }
 
 //---------------------------------------------------------------------------------------------------- GUI Init.
@@ -126,7 +126,7 @@ impl Gui {
 impl Gui {
 	#[inline(always)]
 	// Sets the initial options for native rendering with eframe
-	pub fn options() -> eframe::NativeOptions {
+	pub(crate) fn options() -> eframe::NativeOptions {
 		// Icon
 		let icon = image::load_from_memory(ICON).expect("Failed to read icon bytes").to_rgba8();
 		let (width, height) = icon.dimensions();
@@ -152,7 +152,7 @@ impl Gui {
 	}
 
 	#[inline(always)]
-	pub fn init(
+	pub(crate) fn init(
 		cc:          &eframe::CreationContext<'_>,
 		to_kernel:   Sender<GuiToKernel>,
 		from_kernel: Receiver<KernelToGui>,

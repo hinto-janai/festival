@@ -11,13 +11,13 @@ use egui_extras::image::RetainedImage;
 
 //---------------------------------------------------------------------------------------------------- Unknown Art (lazy) Constant
 lazy_static::lazy_static! {
-	pub static ref UNKNOWN_ALBUM: RetainedImage = RetainedImage::from_image_bytes("Unknown", include_bytes!("../../assets/images/art/unknown.png")).unwrap();
-	pub static ref UNKNOWN_ALBUM_BYTES: &'static [u8] = include_bytes!("../../assets/images/art/unknown.png");
+	pub(crate) static ref UNKNOWN_ALBUM: RetainedImage = RetainedImage::from_image_bytes("Unknown", include_bytes!("../../assets/images/art/unknown.png")).unwrap();
+	pub(crate) static ref UNKNOWN_ALBUM_BYTES: &'static [u8] = include_bytes!("../../assets/images/art/unknown.png");
 }
 
 //---------------------------------------------------------------------------------------------------- Art
 #[derive(Default)]
-pub enum Art {
+pub(crate) enum Art {
 	Known(RetainedImage),
 	#[default]
 	Unknown,
@@ -25,7 +25,7 @@ pub enum Art {
 
 impl Art {
 	#[inline(always)]
-	pub fn new() -> Self {
+	pub(crate) fn new() -> Self {
 		Self::default()
 	}
 }
@@ -33,7 +33,7 @@ impl Art {
 impl Art {
 	#[inline]
 	// Return the associated art or the default `[?]` image if `Unknown`
-	pub fn art_or(&self) -> &RetainedImage {
+	pub(crate) fn art_or(&self) -> &RetainedImage {
 		match &self {
 			Self::Known(art) => art,
 			Self::Unknown    => &*UNKNOWN_ALBUM,

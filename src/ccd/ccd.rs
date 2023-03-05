@@ -40,14 +40,14 @@ use walkdir::WalkDir;
 
 
 //---------------------------------------------------------------------------------------------------- CCD
-pub struct Ccd;
+pub(crate) struct Ccd;
 
 //---------------------------------------------------------------------------------------------------- CCD `convert_art()`
 impl Ccd {
 	#[inline(always)]
 	// Public facing "front-end" function for image conversion.
 	// Dynamically selects internal functions for single/multi-thread.
-	pub fn convert_art(to_kernel: Sender<CcdToKernel>, collection: Collection) {
+	pub(crate) fn convert_art(to_kernel: Sender<CcdToKernel>, collection: Collection) {
 		ok_debug!("CCD - Purpose in life: convert_art()");
 
 		// If no albums, return.
@@ -143,7 +143,7 @@ impl Ccd {
 	//
 	// These operations are split up into different private
 	// functions mostly for testing flexability.
-	pub fn new_collection<P>(
+	pub(crate) fn new_collection<P>(
 		to_kernel: Sender<CcdToKernel>,
 		from_kernel: Receiver<KernelToCcd>,
 		paths: &[&P],

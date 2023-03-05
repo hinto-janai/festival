@@ -24,7 +24,7 @@ use crate::{
 use crossbeam_channel::{Sender,Receiver};
 
 //---------------------------------------------------------------------------------------------------- Kernel
-pub struct Kernel {
+pub(crate) struct Kernel {
 	// GUI Channels.
 	to_gui: Sender<KernelToGui>,
 	from_gui: Receiver<GuiToKernel>,
@@ -63,7 +63,7 @@ impl Kernel {
 	//-------------------------------------------------- bios()
 	#[inline(always)]
 	// `main()` starts `Kernel` with this.
-	pub fn bios(to_gui: Sender<KernelToGui>, from_gui: Receiver<GuiToKernel>) {
+	pub(crate) fn bios(to_gui: Sender<KernelToGui>, from_gui: Receiver<GuiToKernel>) {
 		debug!("Kernel [1/12] ... entering bios()");
 
 		// Attempt to load `Collection` from file.

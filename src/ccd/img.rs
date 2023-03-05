@@ -23,10 +23,10 @@ use std::num::NonZeroU32;
 
 //---------------------------------------------------------------------------------------------------- Album Art Constants.
 // 600x600 pixels.
-pub const ALBUM_ART_MAX_SIZE: u32 = 600;
+pub(crate) const ALBUM_ART_MAX_SIZE: u32 = 600;
 // `unsafe` invariant: The constant above can't be `0`.
-pub const ALBUM_ART_MAX_SIZE_NUM: NonZeroU32 = unsafe { NonZeroU32::new_unchecked(ALBUM_ART_MAX_SIZE) };
-pub const ALBUM_ART_MAX_SIZE_ARRAY: [usize; 2] = [ALBUM_ART_MAX_SIZE as usize; 2];
+pub(crate) const ALBUM_ART_MAX_SIZE_NUM: NonZeroU32 = unsafe { NonZeroU32::new_unchecked(ALBUM_ART_MAX_SIZE) };
+pub(crate) const ALBUM_ART_MAX_SIZE_ARRAY: [usize; 2] = [ALBUM_ART_MAX_SIZE as usize; 2];
 
 //---------------------------------------------------------------------------------------------------- Image Manipulation Functions.
 // Image pipeline, from raw/unedited bytes to an actually displayable `egui::RetainedImage`:
@@ -54,7 +54,7 @@ pub const ALBUM_ART_MAX_SIZE_ARRAY: [usize; 2] = [ALBUM_ART_MAX_SIZE as usize; 2
 // These 2 just apply the pipeline above.
 // The real functions are below.
 #[inline(always)]
-pub fn art_from_raw(bytes: &[u8], resizer: &mut fir::Resizer) -> Result<egui_extras::image::RetainedImage, anyhow::Error> {
+pub(crate) fn art_from_raw(bytes: &[u8], resizer: &mut fir::Resizer) -> Result<egui_extras::image::RetainedImage, anyhow::Error> {
 	// `.buffer()` must be called on `fir::Image`
 	// before passing it to the next function.
 	// It's cheap, it just returns a `&[u8]`.
@@ -68,7 +68,7 @@ pub fn art_from_raw(bytes: &[u8], resizer: &mut fir::Resizer) -> Result<egui_ext
 }
 
 #[inline(always)]
-pub fn art_from_known(bytes: &[u8]) -> egui_extras::image::RetainedImage {
+pub(crate) fn art_from_known(bytes: &[u8]) -> egui_extras::image::RetainedImage {
 	color_img_to_retained(
 		rgb_bytes_to_color_img(bytes)
 	)
@@ -76,7 +76,7 @@ pub fn art_from_known(bytes: &[u8]) -> egui_extras::image::RetainedImage {
 
 //-------------------------- Real functions.
 #[inline(always)]
-pub fn bytes_to_dyn_image(bytes: &[u8]) -> Result<image::DynamicImage, anyhow::Error> {
+pub(crate) fn bytes_to_dyn_image(bytes: &[u8]) -> Result<image::DynamicImage, anyhow::Error> {
 	match image::load_from_memory(bytes) {
 		Ok(img) => Ok(img),
 		Err(e)  => bail!(e),
@@ -84,12 +84,12 @@ pub fn bytes_to_dyn_image(bytes: &[u8]) -> Result<image::DynamicImage, anyhow::E
 }
 
 #[inline(always)]
-pub fn create_resizer() -> fir::Resizer {
+pub(crate) fn create_resizer() -> fir::Resizer {
 	fir::Resizer::new(ResizeAlg::Convolution(FilterType::Lanczos3))
 }
 
 #[inline(always)]
-pub fn resize_dyn_image(img: image::DynamicImage, resizer: &mut fir::Resizer) -> Result<fir::Image<'static>, anyhow::Error> {
+pub(crate) fn resize_dyn_image(img: image::DynamicImage, resizer: &mut fir::Resizer) -> Result<fir::Image<'static>, anyhow::Error> {
 	// Make sure the image width/height is not 0.
 	let width = match NonZeroU32::new(img.width()) {
 		Some(w) => w,
@@ -121,7 +121,7 @@ pub fn resize_dyn_image(img: image::DynamicImage, resizer: &mut fir::Resizer) ->
 // seperated into `3` chunks, as in `[R,G,B ... R,G,B]`.
 //
 // Original `egui` function has an `assert!()`.
-pub fn rgb_bytes_to_color_img(bytes: &[u8]) -> egui::ColorImage {
+pub(crate) fn rgb_bytes_to_color_img(bytes: &[u8]) -> egui::ColorImage {
 	egui::ColorImage {
 		size: ALBUM_ART_MAX_SIZE_ARRAY,
 		pixels: bytes.chunks_exact(3).map(|p| egui::Color32::from_rgb(p[0], p[1], p[2])).collect(),
@@ -129,7 +129,7 @@ pub fn rgb_bytes_to_color_img(bytes: &[u8]) -> egui::ColorImage {
 }
 
 #[inline(always)]
-pub fn color_img_to_retained(img: egui::ColorImage) -> egui_extras::image::RetainedImage {
+pub(crate) fn color_img_to_retained(img: egui::ColorImage) -> egui_extras::image::RetainedImage {
 	egui_extras::image::RetainedImage::from_color_image("", img)
 }
 

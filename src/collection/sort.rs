@@ -17,7 +17,7 @@ use strum_macros::{
 // https://doc.rust-lang.org/std/primitive.str.html#impl-Ord
 #[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,IntoStaticStr,EnumString,EnumIter,Serialize,Deserialize)]
 #[strum(serialize_all = "PascalCase")]
-pub enum CollectionSort {
+pub(crate) enum CollectionSort {
 	#[default]
 	ArtistRelease, // Artist sorted lexicographically, Albums of artist sorted oldest to latest
 	ArtistTitle,   // Artist sorted lexicographically, Albums of artist sorted lexicographically
@@ -27,7 +27,7 @@ pub enum CollectionSort {
 
 impl CollectionSort {
 	#[inline(always)]
-	pub fn as_str(&self) -> &'static str {
+	pub(crate) fn as_str(&self) -> &'static str {
 		self.into()
 	}
 }

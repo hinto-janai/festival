@@ -16,7 +16,7 @@ use crate::kernel::State;
 use rolock::RoLock;
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
-pub enum GuiToKernel {
+pub(crate) enum GuiToKernel {
 	// Audio playback.
 	Play,       // Play current song.
 	Stop,       // Stop.
@@ -35,7 +35,7 @@ pub enum GuiToKernel {
 	ResetCollection, // I'd like to reset the `Collection`.
 }
 
-pub enum KernelToGui {
+pub(crate) enum KernelToGui {
 	DropCollection,                 // Drop your pointer.
 	NewCollection(Arc<Collection>), // Here's a new `Collection` pointer.
 	NewState(RoLock<State>),        // Here's a new `State` pointer.

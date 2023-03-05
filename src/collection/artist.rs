@@ -7,9 +7,9 @@ use super::AlbumKey;
 //----------------------------------------------------------------------------------------------------
 //#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
 #[derive(Serialize,Deserialize)]
-pub struct Artist {
-	pub name: String,
-	pub albums: Vec<AlbumKey>,
+pub(crate) struct Artist {
+	pub(crate) name: String,
+	pub(crate) albums: Vec<AlbumKey>,
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

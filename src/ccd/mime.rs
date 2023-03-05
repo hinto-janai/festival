@@ -9,7 +9,7 @@
 //use std::sync::{Arc,Mutex,RwLock};
 
 //---------------------------------------------------------------------------------------------------- MIME constants.
-pub const SUPPORTED_AUDIO_MIME_TYPES: [&str; 22] = [
+pub(crate) const SUPPORTED_AUDIO_MIME_TYPES: [&str; 22] = [
 	// AAC
 	"audio/aac",
 	"audio/x-aac",

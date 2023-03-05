@@ -7,7 +7,7 @@ mod constants;
 mod tab;
 
 mod gui;
-pub use gui::Gui;
+pub(crate) use gui::Gui;
 
 mod msg;
-pub use msg::*;
+pub(crate) use msg::*;

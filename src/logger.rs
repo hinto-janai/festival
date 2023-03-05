@@ -5,7 +5,7 @@ use log::info;
 
 //---------------------------------------------------------------------------------------------------- Logger init function
 #[inline(always)]
-pub fn init_logger(filter: log::LevelFilter) {
+pub(crate) fn init_logger(filter: log::LevelFilter) {
 	// Disables all library crate logs except for [festival].
 	std::env::set_var("RUST_LOG", format!("off,festival={}", filter));
 	let now = std::time::Instant::now();

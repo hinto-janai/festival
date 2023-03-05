@@ -25,7 +25,7 @@ use crossbeam_channel::{Sender,Receiver};
 
 //---------------------------------------------------------------------------------------------------- Search thread.
 // This represents the `Search` thread.
-pub struct Search {
+pub(crate) struct Search {
 	cache:       HashMap<String, CollectionKeychain>, // Search index cache
 	collection:  Arc<Collection>,                     // Pointer to `Collection`
 	to_kernel:   Sender<SearchToKernel>,              // Channel TO `Kernel`
@@ -35,7 +35,7 @@ pub struct Search {
 //---------------------------------------------------------------------------------------------------- Search functions.
 impl Search {
 	// Kernel starts `Search` with this.
-	pub fn init(
+	pub(crate) fn init(
 		collection:  Arc<Collection>,
 		to_kernel:   Sender<SearchToKernel>,
 		from_kernel: Receiver<KernelToSearch>,

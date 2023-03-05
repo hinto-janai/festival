@@ -1,21 +1,21 @@
 //---------------------------------------------------------------------------------------------------- General Strings
-pub const FESTIVAL_VERSION:  &str = concat!("v", env!("CARGO_PKG_VERSION")); // e.g: v1.0.0
-pub const FESTIVAL_NAME_VER: &str = concat!("Festival v", env!("CARGO_PKG_VERSION")); // e.g: Festival v1.0.0
-pub const FESTIVAL:          &str = "Festival";
-pub const COMMIT:            &str = include_str!("../.git/refs/heads/main");
-pub const BUILD:             &str = if cfg!(debug_assertions) { "Debug" } else { "Release" };
+pub(crate) const FESTIVAL_VERSION:  &str = concat!("v", env!("CARGO_PKG_VERSION")); // e.g: v1.0.0
+pub(crate) const FESTIVAL_NAME_VER: &str = concat!("Festival v", env!("CARGO_PKG_VERSION")); // e.g: Festival v1.0.0
+pub(crate) const FESTIVAL:          &str = "Festival";
+pub(crate) const COMMIT:            &str = include_str!("../.git/refs/heads/main");
+pub(crate) const BUILD:             &str = if cfg!(debug_assertions) { "Debug" } else { "Release" };
 
-pub const COPYRIGHT: &str =
+pub(crate) const COPYRIGHT: &str =
 r#"Festival is licensed under the MIT License.
 For more information on the project, see link below:
 <https://github.com/hinto-janai/festival>"#;
 
-pub const DASH: &str = "--------------------------------------------";
+pub(crate) const DASH: &str = "--------------------------------------------";
 
 // The `24` unique bytes our `.bincode` files will start with.
 // It is the UTF-8 encoded string `-----BEGIN FESTIVAL-----` as bytes.
 // The next byte after _should_ be our `xxx_VERSION`, then our actual data.
-pub const FESTIVAL_HEADER: [u8; 24] = [
+pub(crate) const FESTIVAL_HEADER: [u8; 24] = [
 	45, 45, 45, 45, 45,             // `-----`
 	66, 69, 71, 73, 78,             // `BEGIN`
 	32,                             // ` `
@@ -24,10 +24,10 @@ pub const FESTIVAL_HEADER: [u8; 24] = [
 ];
 
 // Current major version of the `Collection`.
-pub const COLLECTION_VERSION: u8 = 1;
+pub(crate) const COLLECTION_VERSION: u8 = 1;
 
 // Current major version of the `State`.
-pub const STATE_VERSION: u8 = 1;
+pub(crate) const STATE_VERSION: u8 = 1;
 
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]

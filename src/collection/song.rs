@@ -9,17 +9,17 @@ use human::HumanTime;
 //----------------------------------------------------------------------------------------------------
 //#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
 #[derive(Serialize,Deserialize)]
-pub struct Song {
+pub(crate) struct Song {
 	// User-facing data.
-	pub title: String,
-	pub album: AlbumKey,
-	pub length_human: HumanTime,  //
-	pub track_number: usize,      //
-	pub track_artists: String,    //
+	pub(crate) title: String,
+	pub(crate) album: AlbumKey,
+	pub(crate) length_human: HumanTime,  //
+	pub(crate) track_number: usize,      //
+	pub(crate) track_artists: String,    //
 
 	// "Raw" data.
-	pub length: f32,
-	pub path: PathBuf, //
+	pub(crate) length: f32,
+	pub(crate) path: PathBuf, //
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

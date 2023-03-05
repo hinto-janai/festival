@@ -1,23 +1,23 @@
 mod collection;
-pub use collection::*;
+pub(crate) use collection::*;
 
 mod art;
-pub use art::*;
+pub(crate) use art::*;
 
 mod album;
-pub use album::*;
+pub(crate) use album::*;
 
 mod artist;
-pub use artist::*;
+pub(crate) use artist::*;
 
 mod song;
-pub use song::*;
+pub(crate) use song::*;
 
 mod sort;
-pub use sort::*;
+pub(crate) use sort::*;
 
 mod key;
-pub use key::*;
+pub(crate) use key::*;
 
 mod slice;
-pub use slice::*;
+pub(crate) use slice::*;

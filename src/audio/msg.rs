@@ -16,12 +16,12 @@ use crate::kernel::State;
 use rolock::RoLock;
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
-pub enum AudioToKernel {
+pub(crate) enum AudioToKernel {
 	TimestampUpdate(f32), // We've played the current song for `x` seconds.
 	PathError(String),    // `Path` error occured when trying to play a song.
 }
 
-pub enum KernelToAudio {
+pub(crate) enum KernelToAudio {
 	// Audio playback.
 	Play,       // Play currently stored audio.
 	Stop,       // Stop.

@@ -13,11 +13,11 @@ use crate::collection::{
 };
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
-pub enum SearchToKernel {
+pub(crate) enum SearchToKernel {
 	SearchResult(CollectionKeychain), // Here's the search result.
 }
 
-pub enum KernelToSearch {
+pub(crate) enum KernelToSearch {
 	Search(String),                 // Start a search on string input.
 	DropCollection,                 // Drop your pointer.
 	CollectionArc(Arc<Collection>), // Here's a new `Collection` pointer.
