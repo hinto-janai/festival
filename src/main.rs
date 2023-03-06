@@ -8,6 +8,7 @@ mod kernel;
 mod logger;
 mod macros;
 mod search;
+mod watch;
 
 fn main() {
 	// Handle CLI arguments.

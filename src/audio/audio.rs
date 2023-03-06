@@ -36,6 +36,7 @@ pub(crate) struct Audio {
 }
 
 impl Audio {
+	#[inline(always)]
 	// Kernel starts `Audio` with this.
 	pub(crate) fn init(
 		collection: Arc<Collection>,
