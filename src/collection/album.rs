@@ -30,8 +30,9 @@ pub struct Album {
 
 	// "Raw" data.
 	pub(crate) release: u64,    // UNIX?
-	pub(crate) lenght: f64,     //
+	pub(crate) length: f64,     //
 	pub(crate) song_count: u32, //
+	pub(crate) disk_count: u32, //
 
 	// Art data.
 	#[serde(skip)]

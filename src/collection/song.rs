@@ -16,6 +16,7 @@ pub struct Song {
 	pub length_human: HumanTime,  //
 	pub track_number: usize,      //
 	pub track_artists: String,    //
+	pub disk: u32,                //
 
 	// "Raw" data.
 	pub(crate) length: f32,
