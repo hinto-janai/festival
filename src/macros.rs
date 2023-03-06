@@ -122,6 +122,31 @@ macro_rules! recv {
 }
 pub(crate) use recv;
 
+// Send a message through a channel, only kill current thread on failure
+macro_rules! send_or_die {
+	($channel:expr, $($msg:tt)*) => {{
+		if let Err(e) = $channel.send($($msg)*) {
+			error!("THREAD PANIC - FAILED TO SEND: {}", e);
+			panic!("{}", e);
+		}
+	}}
+}
+pub(crate) use send_or_die;
+
+// Receive a message through a channel, only kill current thread on failure
+macro_rules! recv_or_die {
+	($channel:expr) => {{
+		match $channel.recv() {
+			Ok(msg) => msg,
+			Err(e)  => {
+				error!("THREAD PANIC - FAILED TO RECEIVE: {}", e);
+				panic!("{}", e);
+			},
+		}
+	}}
+}
+pub(crate) use recv_or_die;
+
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
 mod tests {

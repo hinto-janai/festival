@@ -10,12 +10,12 @@
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
 pub(crate) enum WatchToKernel {
 	// Signals.
-	Play,
-	Stop,
-	Next,
-	Last,
-	Shuffle,
-	Repeat,
+	Play,    // Play playback (ignored if already).
+	Stop,    // Pause playback (ignored if already).
+	Next,    // Skip to next song in queue.
+	Last,    // Skip to last song in queue.
+	Shuffle, // Toggles shuffle.
+	Repeat,  // Toggles repeat.
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

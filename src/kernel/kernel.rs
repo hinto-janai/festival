@@ -68,7 +68,7 @@ impl Kernel {
 	#[inline(always)]
 	// `main()` starts `Kernel` with this.
 	pub(crate) fn bios(to_gui: Sender<KernelToGui>, from_gui: Receiver<GuiToKernel>) {
-		debug!("Kernel [1/13] ... entering bios()");
+		debug!("Kernel [1/12] ... entering bios()");
 
 		// Attempt to load `Collection` from file.
 		match Collection::from_file() {
@@ -84,21 +84,21 @@ impl Kernel {
 	//-------------------------------------------------- boot_loader()
 	#[inline(always)]
 	fn boot_loader(collection: Collection, to_gui: Sender<KernelToGui>, from_gui: Receiver<GuiToKernel>) {
-		debug!("Kernel [2/13] ... entering boot_loader()");
+		debug!("Kernel [2/12] ... entering boot_loader()");
 
 		// We successfully loaded `Collection`.
 		// Create `CCD` channel + thread and make it convert images.
-		debug!("Kernel [3/13] ... spawning CCD");
+		debug!("Kernel [3/12] ... spawning CCD");
 		let (ccd_send, from_ccd) = crossbeam_channel::unbounded::<CcdToKernel>();
 		std::thread::spawn(move || Ccd::convert_art(ccd_send, collection));
 
 		// Before hanging on `CCD`, read `State` file.
 		// Note: This is a `Result`.
-		debug!("Kernel [4/13] ... reading State");
+		debug!("Kernel [4/12] ... reading State");
 		let state = State::from_file();
 
 		// Wait for `Collection` to be returned by `CCD`.
-		debug!("Kernel [5/13] ... waiting on CCD");
+		debug!("Kernel [5/12] ... waiting on CCD");
 		let collection = loop {
 			use CcdToKernel::*;
 			match recv!(from_ccd) {
@@ -121,7 +121,7 @@ impl Kernel {
 		from_gui:   Receiver<GuiToKernel>,
 	) {
 		/* TODO: initialize and sanitize collection & misc data */
-		debug!("Kernel [6/13] ... entering kernel()");
+		debug!("Kernel [6/12] ... entering kernel()");
 		let state = state.unwrap();
 
 		Self::init(Some(collection), Some(state), to_gui, from_gui);
@@ -135,18 +135,18 @@ impl Kernel {
 		to_gui:     Sender<KernelToGui>,
 		from_gui:   Receiver<GuiToKernel>
 	) {
-		debug!("Kernel [7/13] ... entering init()");
+		debug!("Kernel [7/12] ... entering init()");
 
 		// Handle potentially missing `Collection`.
 		let collection = match collection {
-			Some(c) => { debug!("Kernel [8/13] ... Collection found"); Arc::new(c) },
-			None    => { debug!("Kernel [8/13] ... Collection NOT found, returning default"); Arc::new(Collection::new()) },
+			Some(c) => { debug!("Kernel [8/12] ... Collection found"); Arc::new(c) },
+			None    => { debug!("Kernel [8/12] ... Collection NOT found, returning default"); Arc::new(Collection::new()) },
 		};
 
 		// Handle potentially missing `State`.
 		let state = match state {
-			Some(s) => { debug!("Kernel [9/13] ... State found"); Arc::new(RwLock::new(s)) },
-			None    => { debug!("Kernel [9/13] ... State NOT found, returning default"); Arc::new(RwLock::new(State::new())) },
+			Some(s) => { debug!("Kernel [9/12] ... State found"); Arc::new(RwLock::new(s)) },
+			None    => { debug!("Kernel [9/12] ... State NOT found, returning default"); Arc::new(RwLock::new(State::new())) },
 		};
 
 		// Create `To` channels.
@@ -171,22 +171,21 @@ impl Kernel {
 		};
 
 		// Spawn `Search`.
-		debug!("Kernel [10/13] ... spawning Search");
+		debug!("Kernel [10/12] ... spawning Search");
 		let collection = Arc::clone(&kernel.collection);
 		std::thread::spawn(move || Search::init(collection, search_send, search_recv));
 
 		// Spawn `Audio`.
-		debug!("Kernel [11/13] ... spawning Audio");
+		debug!("Kernel [11/12] ... spawning Audio");
 		let collection = Arc::clone(&kernel.collection);
 		let state      = RoLock::new(&kernel.state);
 		std::thread::spawn(move || Audio::init(collection, state, audio_send, audio_recv));
 
 		// Spawn `Watch`.
-		debug!("Kernel [12/13] ... spawning Watch");
+		debug!("Kernel [12/12] ... spawning Watch");
 		std::thread::spawn(move || Watch::init(watch_send));
 
 		// We're done, enter main `userspace` loop.
-		ok_debug!("Kernel [13/13] ... BOOT PROCESS");
 		debug!("Kernel: entering userspace()");
 		Self::userspace(kernel);
 	}
@@ -197,6 +196,8 @@ impl Kernel {
 impl Kernel {
 	#[inline(always)]
 	fn userspace(mut self) {
+		ok_debug!("Kernel");
+
 		// Array of our channels we can `select` from.
 		let mut select = crossbeam_channel::Select::new();
 		let gui        = select.recv(&self.from_gui);

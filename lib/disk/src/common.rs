@@ -183,6 +183,15 @@ macro_rules! impl_common {
 			Ok(Self::from_bytes(&Self::read_to_bytes_gzip()?)?)
 		}
 
+		#[inline]
+		/// Create the directories leading up-to the file.
+		///
+		/// This is not necessary when using any variant of
+		/// `Self::write()` as the directories are created implicitly.
+		fn create_dir() -> Result<(), anyhow::Error> {
+			Ok(std::fs::create_dir_all(Self::base_path()?)?)
+		}
+
 		/// Try writing a Rust structure as a file.
 		///
 		/// Calling this will automatically create the directories leading up to the file.
