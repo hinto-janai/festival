@@ -141,3 +141,8 @@ pub use crate::messagepack::MessagePack as MessagePack;
 mod bson;
 #[cfg(feature = "bson")]
 pub use crate::bson::Bson as Bson;
+
+#[cfg(feature = "plain")]
+mod plain;
+#[cfg(feature = "plain")]
+pub use crate::plain::Plain as Plain;

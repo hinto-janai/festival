@@ -19,7 +19,7 @@ lto = true
 
 [dependencies]
 ### Local libraries `lib/`
-disk   = { path = "lib/disk", features = ["bincode", "toml"] }
+disk   = { path = "lib/disk", features = ["bincode", "toml", "plain"] }
 human  = { path = "lib/human" }
 rolock = { path = "lib/rolock" }
 
@@ -42,9 +42,10 @@ fast_image_resize = "2.6.0"
 image = { version = "0.24.5", features = ["jpeg", "png"], default-features = false }
 infer = "0.13.0"
 lazy_static = "1.4.0"
-#lofty = "0.11.0"
+lofty = "0.11.0"
 log = "0.4.17"
 #num-format = "0.4.4"
+notify = "5.1.0"
 mime_guess = "2.0.4"
 #rand = "0.8.5"
 #regex = "1.7.1"

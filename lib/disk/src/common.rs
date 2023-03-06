@@ -149,6 +149,29 @@ macro_rules! impl_common {
 		}
 
 		#[inline(always)]
+		/// Check if the file exists.
+		///
+		/// `true`  == The file exists.
+		/// `false` == The file does not exist.
+		/// `anyhow::Error` == There was an error, existance is unknown.
+		fn exists() -> Result<bool, anyhow::Error> {
+			let path = Self::absolute_path()?;
+
+			Ok(path.exists())
+		}
+
+		#[inline(always)]
+		/// Same as `Self::exists()` but checks if the `gzip` file exists.
+		///
+		/// - `Self::exists()` checks for `file.toml`.
+		/// - `Self::exists_gzip()` checks for`file.toml.gz`.
+		fn exists_gzip() -> Result<bool, anyhow::Error> {
+			let path = format!("{}.gz", Self::absolute_path()?.display());
+
+			Ok(PathBuf::from(path).exists())
+		}
+
+		#[inline(always)]
 		/// Read the file directly as bytes and turn into a Rust structure.
 		fn from_file() -> Result<Self, anyhow::Error> {
 			Ok(Self::from_bytes(&Self::read_to_bytes()?)?)
