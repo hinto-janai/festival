@@ -87,7 +87,7 @@ impl Search {
 		keychain
 	}
 
-	// Invariant:
+	// INVARIANT:
 	// `.partial_cmp()` returns an `Option` because a
 	// floating point might be a `NaN`, but, `strsim::jaro()`
 	// will always return a value between `0.0 - 1.0`.

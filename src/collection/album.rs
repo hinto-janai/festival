@@ -19,14 +19,14 @@ use super::art::{
 //---------------------------------------------------------------------------------------------------- Album
 //#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
 #[derive(Serialize,Deserialize)]
-pub(crate) struct Album {
+pub struct Album {
 	// User-facing data.
-	pub(crate) title: String,                 //
-	pub(crate) artist: ArtistKey,             //
-	pub(crate) release_human: String,         //
-	pub(crate) length_human: HumanTime,       //
-	pub(crate) song_count_human: HumanNumber, //
-	pub(crate) songs: Vec<SongKey>,           //
+	pub title: String,                 //
+	pub artist: ArtistKey,             //
+	pub release_human: String,         //
+	pub length_human: HumanTime,       //
+	pub song_count_human: HumanNumber, //
+	pub songs: Vec<SongKey>,           //
 
 	// "Raw" data.
 	pub(crate) release: u64,    // UNIX?
@@ -35,17 +35,17 @@ pub(crate) struct Album {
 
 	// Art data.
 	#[serde(skip)]
-	pub(crate) art: Art,                   // Always initialized after `CCD`.
+	pub art: Art,                          // Always initialized after `CCD`.
 	pub(crate) art_bytes: Option<Vec<u8>>, //
 
 	// Misc data.
-	pub(crate) compilation: bool, //
+	pub compilation: bool, //
 }
 
 impl Album {
 	#[inline]
 	// Return the associated art or the default `[?]` image if `Unknown`
-	pub(crate) fn art_or(&self) -> &egui_extras::RetainedImage {
+	pub fn art_or(&self) -> &egui_extras::RetainedImage {
 		self.art.art_or()
 	}
 }

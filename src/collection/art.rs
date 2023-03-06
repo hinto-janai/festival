@@ -17,7 +17,7 @@ lazy_static::lazy_static! {
 
 //---------------------------------------------------------------------------------------------------- Art
 #[derive(Default)]
-pub(crate) enum Art {
+pub enum Art {
 	Known(RetainedImage),
 	#[default]
 	Unknown,
@@ -33,7 +33,7 @@ impl Art {
 impl Art {
 	#[inline]
 	// Return the associated art or the default `[?]` image if `Unknown`
-	pub(crate) fn art_or(&self) -> &RetainedImage {
+	pub fn art_or(&self) -> &RetainedImage {
 		match &self {
 			Self::Known(art) => art,
 			Self::Unknown    => &*UNKNOWN_ALBUM,

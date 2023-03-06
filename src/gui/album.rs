@@ -12,7 +12,7 @@ use egui::{
 //#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
 impl super::Gui {
 #[inline(always)]
-pub(crate) fn show_tab_album(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
+pub(super) fn show_tab_album(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
 	ui.vertical_centered(|ui| {
 		ui.add_space(height/40.0);
 		ui.set_max_width(height/3.0);

@@ -15,11 +15,11 @@ macro_rules! impl_common {
 	($type:ty) => {
 		impl $type {
 			#[inline(always)]
-			pub(crate) const fn new() -> Self {
+			pub const fn new() -> Self {
 				Self(0)
 			}
 			#[inline(always)]
-			pub(crate) const fn inner(&self) -> usize {
+			pub const fn inner(&self) -> usize {
 				self.0
 			}
 		}
@@ -85,15 +85,15 @@ macro_rules! impl_from_tuple {
 
 //---------------------------------------------------------------------------------------------------- CollectionKey
 #[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
-pub(crate) struct CollectionKey {
-	pub(crate) artist: ArtistKey,
-	pub(crate) album: AlbumKey,
-	pub(crate) song: SongKey,
+pub struct CollectionKey {
+	pub artist: ArtistKey,
+	pub album: AlbumKey,
+	pub song: SongKey,
 }
 
 impl CollectionKey {
 	#[inline(always)]
-	pub(crate) const fn new() -> Self {
+	pub const fn new() -> Self {
 		Self {
 			artist: ArtistKey::new(),
 			album: AlbumKey::new(),
@@ -102,7 +102,7 @@ impl CollectionKey {
 	}
 
 	#[inline(always)]
-	pub(crate) const fn to_tuple(&self) -> (usize, usize, usize) {
+	pub const fn to_tuple(&self) -> (usize, usize, usize) {
 		(self.artist.inner(), self.album.inner(), self.song.inner())
 	}
 }
@@ -129,15 +129,15 @@ where
 
 //---------------------------------------------------------------------------------------------------- CollectionKeychain
 #[derive(Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
-pub(crate) struct CollectionKeychain {
-	pub(crate) artists: Vec<ArtistKey>,
-	pub(crate) albums: Vec<AlbumKey>,
-	pub(crate) songs: Vec<SongKey>,
+pub struct CollectionKeychain {
+	pub artists: Vec<ArtistKey>,
+	pub albums: Vec<AlbumKey>,
+	pub songs: Vec<SongKey>,
 }
 
 impl CollectionKeychain {
 	#[inline(always)]
-	pub(crate) const fn new() -> Self {
+	pub const fn new() -> Self {
 		Self {
 			artists: vec![],
 			albums: vec![],
@@ -148,19 +148,19 @@ impl CollectionKeychain {
 
 //---------------------------------------------------------------------------------------------------- ArtistKey
 #[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
-pub(crate) struct ArtistKey(usize);
+pub struct ArtistKey(usize);
 
 impl_common!(ArtistKey);
 
 //---------------------------------------------------------------------------------------------------- AlbumKey
 #[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
-pub(crate) struct AlbumKey(usize);
+pub struct AlbumKey(usize);
 
 impl_common!(AlbumKey);
 
 //---------------------------------------------------------------------------------------------------- SongKey
 #[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
-pub(crate) struct SongKey(usize);
+pub struct SongKey(usize);
 
 impl_common!(SongKey);
 
@@ -172,14 +172,14 @@ impl_common!(SongKey);
 // 3. helper deletes queue[3]
 // ```
 #[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
-pub(crate) struct QueueKey(usize);
+pub struct QueueKey(usize);
 
 impl_common!(QueueKey);
 
 //---------------------------------------------------------------------------------------------------- PlaylistKey
 // Same as `QueueKey` but for `Playlist`.
 #[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
-pub(crate) struct PlaylistKey(usize);
+pub struct PlaylistKey(usize);
 
 impl_common!(PlaylistKey);
 

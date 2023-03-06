@@ -27,8 +27,8 @@ use crossbeam_channel::{Sender,Receiver};
 
 //---------------------------------------------------------------------------------------------------- TODO
 // TODO: tmp data
-pub(crate) struct Img {
-	pub(crate) vec: Vec<(&'static str, egui_extras::RetainedImage)>,
+pub(super) struct Img {
+	pub(super) vec: Vec<(&'static str, egui_extras::RetainedImage)>,
 }
 
 impl Img {
@@ -52,16 +52,16 @@ impl Img {
 }
 
 //---------------------------------------------------------------------------------------------------- GUI struct. This hold ALL data.
-pub(crate) struct Gui {
+pub struct Gui {
 	// TODO: tmp data.
-	pub(crate) img: Img,
-	pub(crate) v: f32,
-	pub(crate) s: u8,
-	pub(crate) list: Vec<(u8, &'static str, &'static str)>,
-	pub(crate) name: &'static str,
+	pub(super) img: Img,
+	pub(super) v: f32,
+	pub(super) s: u8,
+	pub(super) list: Vec<(u8, &'static str, &'static str)>,
+	pub(super) name: &'static str,
 
 	// TODO: This is real data, clean it up.
-	pub(crate) tab: super::tab::Tab, // This should be in [State]
+	pub(super) tab: super::tab::Tab, // This should be in [State]
 }
 
 //---------------------------------------------------------------------------------------------------- GUI Init.

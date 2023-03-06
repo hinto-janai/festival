@@ -14,7 +14,7 @@ use strum_macros::{
 //----------------------------------------------------------------------------------------------------
 #[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,IntoStaticStr,EnumString,EnumIter,Serialize,Deserialize)]
 #[strum(serialize_all = "PascalCase")]
-pub(crate) enum Tab {
+pub(super) enum Tab {
 	#[default]
 	Album,
 	Artist,
@@ -27,7 +27,7 @@ pub(crate) enum Tab {
 
 impl Tab {
 	#[inline(always)]
-	pub(crate) fn as_str(&self) -> &'static str {
+	pub(super) fn as_str(&self) -> &'static str {
 		self.into()
 	}
 }

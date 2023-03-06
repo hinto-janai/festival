@@ -21,23 +21,23 @@ use crate::constants::{
 //---------------------------------------------------------------------------------------------------- State
 bincode_file!(State, Dir::Data, FESTIVAL, "", "state", FESTIVAL_HEADER, STATE_VERSION);
 #[derive(Clone,Debug,Default,PartialEq,Serialize,Deserialize)]
-pub(crate) struct State {
+pub struct State {
 	// Audio.
-	pub(crate) current_key: CollectionKey,
-	pub(crate) current_elapsed: f64,
+	pub current_key: CollectionKey,
+	pub current_elapsed: f64,
 
 	// Search.
-	pub(crate) search_result: CollectionKeychain,
+	pub search_result: CollectionKeychain,
 
 	// Queue/Playlist.
-	pub(crate) queue: CollectionSlice,
-	pub(crate) playlists: CollectionSlice,
+	pub queue: CollectionSlice,
+	pub playlists: CollectionSlice,
 }
 
 impl State {
 	#[inline(always)]
 	// Create empty struct.
-	pub(crate) fn new() -> Self {
+	pub fn new() -> Self {
 		Self {
 			current_key: CollectionKey::new(),
 			current_elapsed: 0.0,

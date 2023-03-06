@@ -14,6 +14,24 @@ const ONE_THREAD: usize = 1;
 const ALBUM_THREAD_THRESHOLD: usize = 10;
 
 //---------------------------------------------------------------------------------------------------- Thread Functions.
+// Get a reasonable amount of threads for `n` amount of albums.
+pub(crate) fn threads_for_albums(albums: usize) -> usize {
+	// Return 1 if it's not even worth spawning
+	// threads due to small amount of albums.
+	if albums <= ALBUM_THREAD_THRESHOLD {
+		return ONE_THREAD
+	}
+
+	let threads = most_threads(available_threads());
+
+	// Make sure each thread has at least 1 album.
+	if threads > albums {
+		return albums
+	}
+
+	threads
+}
+
 fn available_threads() -> usize {
 	match std::thread::available_parallelism() {
 		Ok(t)  => t.get(),
@@ -35,24 +53,6 @@ fn most_threads(threads: usize) -> usize {
 		// Around 75%.
 		_ => (threads as f64 * 0.75).floor() as usize,
 	}
-}
-
-// Get a reasonable amount of threads for `n` amount of albums.
-pub(crate) fn threads_for_albums(albums: usize) -> usize {
-	// Return 1 if it's not even worth spawning
-	// threads due to small amount of albums.
-	if albums <= ALBUM_THREAD_THRESHOLD {
-		return ONE_THREAD
-	}
-
-	let threads = most_threads(available_threads());
-
-	// Make sure each thread has at least 1 album.
-	if threads > albums {
-		return albums
-	}
-
-	threads
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
