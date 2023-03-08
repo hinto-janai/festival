@@ -19,7 +19,7 @@ use super::SUPPORTED_AUDIO_MIME_TYPES;
 //---------------------------------------------------------------------------------------------------- __NAME__
 impl super::Ccd {
 	#[inline(always)]
-	// 1. `WalkDir` given PATHs and filter for audio files.
+	// `WalkDir` given PATHs and filter for audio files.
 	// Ignore non-existing PATHs in the array.
 	fn walkdir_audio(
 		to_kernel: &Sender<CcdToKernel>,

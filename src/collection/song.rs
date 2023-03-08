@@ -14,12 +14,12 @@ pub struct Song {
 	pub title: String,
 	pub album: AlbumKey,
 	pub length_human: HumanTime,  //
-	pub track_number: usize,      //
+	pub track: u32,             //
 	pub track_artists: String,    //
 	pub disk: u32,                //
 
 	// "Raw" data.
-	pub(crate) length: f32,
+	pub(crate) length: f64,
 	pub(crate) path: PathBuf, //
 }
 

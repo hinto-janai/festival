@@ -55,7 +55,7 @@ pub(crate) const ALBUM_ART_MAX_SIZE_ARRAY: [usize; 2] = [ALBUM_ART_MAX_SIZE as u
 // These 2 just apply the pipeline above.
 // The real functions are below.
 #[inline(always)]
-pub(crate) fn art_from_raw(bytes: &[u8], resizer: &mut fir::Resizer) -> Result<egui_extras::image::RetainedImage, anyhow::Error> {
+pub(crate) fn art_from_raw(bytes: &[u8], resizer: &mut fir::Resizer) -> Result<egui_extras::RetainedImage, anyhow::Error> {
 	// `.buffer()` must be called on `fir::Image`
 	// before passing it to the next function.
 	// It's cheap, it just returns a `&[u8]`.
@@ -69,7 +69,7 @@ pub(crate) fn art_from_raw(bytes: &[u8], resizer: &mut fir::Resizer) -> Result<e
 }
 
 #[inline(always)]
-pub(crate) fn art_from_known(bytes: &[u8]) -> egui_extras::image::RetainedImage {
+pub(crate) fn art_from_known(bytes: &[u8]) -> egui_extras::RetainedImage {
 	color_img_to_retained(
 		rgb_bytes_to_color_img(bytes)
 	)
@@ -130,8 +130,8 @@ fn rgb_bytes_to_color_img(bytes: &[u8]) -> egui::ColorImage {
 }
 
 #[inline(always)]
-fn color_img_to_retained(img: egui::ColorImage) -> egui_extras::image::RetainedImage {
-	egui_extras::image::RetainedImage::from_color_image("", img)
+fn color_img_to_retained(img: egui::ColorImage) -> egui_extras::RetainedImage {
+	egui_extras::RetainedImage::from_color_image("", img)
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
