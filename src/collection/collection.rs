@@ -23,19 +23,34 @@ bincode_file!(Collection, Dir::Data, FESTIVAL, "", "collection", FESTIVAL_HEADER
 #[derive(Serialize,Deserialize)]
 pub struct Collection {
 	// The actual (meta)data.
+	// These are (basically) in random order due to the `Collection` creation process.
+	// Iterating directly on these makes no sense, use the sorted keys below.
 	pub artists: Vec<Artist>,
 	pub albums: Vec<Album>,
 	pub songs: Vec<Song>,
 
-	// Pre-computed and sorted keys.
-	pub sort_artist_release: Vec<CollectionKey>,
-	pub sort_artist_title: Vec<CollectionKey>,
-	pub sort_release: Vec<CollectionKey>,
-	pub sort_title: Vec<CollectionKey>,
+	// `lexi` == `lexicographically`
+	// Sorted `Artist` keys.
+	pub sort_artist_lexi: Vec<ArtistKey>,        // `Artist` in lexi
+	pub sort_artist_album_count: Vec<ArtistKey>, // `Artist` with most `Album`'s to least.
+	pub sort_artist_song_count: Vec<ArtistKey>,  // `Artist` with most `Song`'s to least.
+
+	// Sorted `Album` keys.
+	pub sort_album_release_artist_lexi: Vec<AlbumKey>, // `Artist` lexi, `Album` in release order.
+	pub sort_album_lexi_artist_lexi: Vec<AlbumKey>,    // `Artist` lexi, `Album` lexi.
+	pub sort_album_lexi: Vec<AlbumKey>,                // `Album` lexi.
+	pub sort_album_release: Vec<AlbumKey>,             // `Album` oldest to latest.
+	pub sort_album_length: Vec<AlbumKey>,              // `Album` shortest to longest.
+
+	// Sorted `Song` keys.
+	pub sort_song_artist_lexi: Vec<SongKey>, // `Artist` lexi, `Song` lexi.
+	pub sort_song_lexi: Vec<SongKey>,        // `Song` lexi.
+	pub sort_song_release: Vec<SongKey>,     // `Song` oldest to latest.
+	pub sort_song_length: Vec<SongKey>,      // `Song` shortest to longest.
 
 	// Metadata about the `Collection` itself.
-	pub timestamp: u64,      // Creation date as UNIX time.
 	pub empty: bool,         // Is this `Collection` empty?
+	pub timestamp: u64,      // Creation date as UNIX time.
 	pub count_artist: usize, // How many artists?
 	pub count_album: usize,  // How many albums?
 	pub count_song: usize,   // How many songs?
@@ -50,13 +65,23 @@ impl Collection {
 			albums: vec![],
 			songs: vec![],
 
-			sort_artist_release: vec![],
-			sort_artist_title: vec![],
-			sort_release: vec![],
-			sort_title: vec![],
+			sort_artist_lexi: vec![],
+			sort_artist_album_count: vec![],
+			sort_artist_song_count: vec![],
 
-			timestamp: 0,
+			sort_album_release_artist_lexi: vec![],
+			sort_album_lexi_artist_lexi: vec![],
+			sort_album_lexi: vec![],
+			sort_album_release: vec![],
+			sort_album_length: vec![],
+
+			sort_song_artist_lexi: vec![],
+			sort_song_lexi: vec![],
+			sort_song_release: vec![],
+			sort_song_length: vec![],
+
 			empty: true,
+			timestamp: 0,
 			count_artist: 0,
 			count_album: 0,
 			count_song: 0,
@@ -75,6 +100,11 @@ impl Collection {
 		}
 	}
 
+	// INVARIANT:
+	// During the lifetime of a `Collection` (even during initial creation),
+	// `Key`'s are always created with a valid index into these global `Vec`'s.
+	//
+	// Thus directly indexing into them like this (in theory) should never fail.
 	#[inline(always)]
 	pub fn index(&self, key: &CollectionKey) -> (&Artist, &Album, &Song) {
 		let (artist, album, song) = key.to_tuple();
