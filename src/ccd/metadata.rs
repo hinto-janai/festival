@@ -28,19 +28,20 @@ use human::{HumanTime,HumanNumber};
 use std::borrow::Cow;
 
 //---------------------------------------------------------------------------------------------------- Tag Metadata (temporary) struct.
+#[derive(Debug)]
 struct TagMetadata<'a> {
 	artist: Cow<'a, str>,
 	album: Cow<'a, str>,
 	title: Cow<'a, str>,
-	track: u32,
-	disk: u32,
-	track_total: u32,
-	disk_total: u32,
+	track: Option<u32>,
+	disc: Option<u32>,
+	track_total: Option<u32>,
+	disc_total: Option<u32>,
 	picture: Option<&'a [u8]>,
 
 	length: f64,
 	release: Option<&'a str>,
-	track_artists: Option<&'a str>,
+	track_artists: Option<String>,
 
 	compilation: bool,
 }
@@ -117,18 +118,18 @@ impl super::Ccd {
 
 	#[inline(always)]
 	// Attempt to get the _maybe_ multiple track artists of the `TaggedFile`.
-	fn tag_track_artists<'a>(tag: &'a lofty::Tag) -> Option<&'a str> {
+	fn tag_track_artists(tag: &lofty::Tag) -> Option<String> {
 		// Attempt #1.
 		if let Some(t) = tag.get_item_ref(&lofty::ItemKey::Performer) {
 			if let Some(s) = Self::item_value_to_str(&t.value()) {
-				return Some(s)
+				return Some(s.to_string())
 			}
 		}
 
 		// Attempt #2.
 		if let Some(t) = tag.get_item_ref(&lofty::ItemKey::TrackArtist) {
 			if let Some(s) = Self::item_value_to_str(&t.value()) {
-				return Some(s)
+				return Some(s.to_string())
 			}
 		}
 
@@ -164,14 +165,15 @@ impl super::Ccd {
 	#[inline(always)]
 	// Attempts to extract tags from a `TaggedFile`.
 	fn extract_tag_metadata<'a>(tagged_file: &'a lofty::TaggedFile, tag: &'a lofty::Tag) -> Result<TagMetadata<'a>, anyhow::Error> {
-		// Attempt to get metadata.
+		// Attempt to get _needed_ metadata.
 		let artist      = match tag.artist()      { Some(t) => t, None => bail!("No artist") };
 		let album       = match tag.album()       { Some(t) => t, None => bail!("No album") };
 		let title       = match tag.title()       { Some(t) => t, None => bail!("No title") };
-		let track       = match tag.track()       { Some(t) => t, None => bail!("No track") };
-		let disk        = match tag.disk()        { Some(t) => t, None => bail!("No disk") };
-		let track_total = match tag.track_total() { Some(t) => t, None => bail!("No track_total") };
-		let disk_total  = match tag.disk_total()  { Some(t) => t, None => bail!("No disk_total") };
+		// Attempt to get not necessarily needed metadata.
+		let track       = tag.track();
+		let disc        = tag.disk();
+		let track_total = tag.track_total();
+		let disc_total  = tag.disk_total();
 		let picture = {
 			let pictures = tag.pictures();
 
@@ -193,9 +195,9 @@ impl super::Ccd {
 			album,
 			title,
 			track,
-			disk,
+			disc,
 			track_total,
-			disk_total,
+			disc_total,
 			picture,
 			length,
 			release,
@@ -265,9 +267,9 @@ impl super::Ccd {
 			album,
 			title,
 			track,
-			disk,
+			disc,
 			track_total,
-			disk_total,
+			disc_total,
 			picture,
 			length,
 			release,
@@ -286,8 +288,8 @@ impl super::Ccd {
 					album: AlbumKey::from(*album_idx),
 					length_human: HumanTime::new(),
 					track,
-					track_artists: String::new(),
-					disk,
+					track_artists,
+					disc,
 					length,
 					path: PathBuf::new(),
 				};
@@ -311,8 +313,8 @@ impl super::Ccd {
 				album: AlbumKey::from(count_album),
 				length_human: HumanTime::new(),
 				track,
-				track_artists: String::new(),
-				disk,
+				track_artists,
+				disc,
 				length,
 				path: PathBuf::new(),
 			};
@@ -334,7 +336,7 @@ impl super::Ccd {
 				release: 0,
 				length: 0.0,
 				song_count: 0,
-				disk_count: 0,
+				disc_count: 0,
 				art: Art::Unknown,
 				art_bytes,
 				compilation,
@@ -361,8 +363,8 @@ impl super::Ccd {
 			album: AlbumKey::from(count_album),
 			length_human: HumanTime::new(),
 			track,
-			track_artists: String::new(),
-			disk,
+			track_artists,
+			disc,
 			length,
 			path: PathBuf::new(),
 		};
@@ -384,7 +386,7 @@ impl super::Ccd {
 			release: 0,
 			length: 0.0,
 			song_count: 0,
-			disk_count: 0,
+			disc_count: 0,
 			art: Art::Unknown,
 			art_bytes,
 			compilation,
@@ -415,6 +417,74 @@ impl super::Ccd {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//}
+#[cfg(test)]
+mod tests {
+	use crate::ccd::Ccd;
+	use std::path::PathBuf;
+	use lofty::TaggedFile;
+
+	fn mp3() -> TaggedFile {
+		let mp3 = Ccd::path_to_tagged_file(PathBuf::from("assets/audio/rain.mp3").as_path()).unwrap();
+		mp3
+	}
+
+	#[test]
+	fn length() {
+		let mp3 = mp3();
+		let length = Ccd::tagged_file_length(&mp3);
+		eprintln!("{}", length);
+		assert!(length == 1.968);
+	}
+
+	#[test]
+	fn release() {
+		let mp3 = mp3();
+		let tag = Ccd::tagged_file_to_tag(&mp3).unwrap();
+		let release = Ccd::tag_release(&tag).unwrap();
+		eprintln!("{}", release);
+		assert!(release == "2023-03-08");
+	}
+
+	#[test]
+	// TODO:
+	// This isn't picking up the right tag.
+	// Probably a bug with the `mp3` file metadata
+	// instead of the function.
+	fn track_artists() {
+		let mp3 = mp3();
+		let tag = Ccd::tagged_file_to_tag(&mp3).unwrap();
+		let track_artist = Ccd::tag_track_artists(tag).unwrap();
+		eprintln!("{}", track_artist);
+		assert!(track_artist == "hinto");
+	}
+
+	#[test]
+	fn compilation() {
+		let mp3 = mp3();
+		let tag = Ccd::tagged_file_to_tag(&mp3).unwrap();
+		let comp = Ccd::tag_compilation("hinto", tag);
+		eprintln!("{}", comp);
+		assert!(comp);
+	}
+
+	#[test]
+	fn extract() {
+		let mp3 = mp3();
+		let tag = Ccd::tagged_file_to_tag(&mp3).unwrap();
+		let meta = Ccd::extract_tag_metadata(&mp3, &tag).unwrap();
+		eprintln!("{:#?}", meta);
+
+		assert!(meta.artist        == "hinto");
+		assert!(meta.album         == "Festival");
+		assert!(meta.title         == "rain_mp3");
+		assert!(meta.track         == Some(1));
+		assert!(meta.disc          == None);
+		assert!(meta.track_total   == None);
+		assert!(meta.disc_total    == None);
+		assert!(meta.picture       == None);
+		assert!(meta.length        == 1.968);
+		assert!(meta.release       == Some("2023-03-08"));
+		assert!(meta.track_artists == Some("hinto".to_string()));
+		assert!(meta.compilation   == true);
+	}
+}

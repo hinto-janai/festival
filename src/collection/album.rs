@@ -45,7 +45,7 @@ pub struct Album {
 	pub(crate) release: u64,
 	pub(crate) length: f64,     //
 	pub(crate) song_count: u32, //
-	pub(crate) disk_count: u32, //
+	pub(crate) disc_count: u32, //
 
 	// Art data.
 	#[serde(skip)]
@@ -76,7 +76,7 @@ impl Album {
 //			release: (None, None, None),
 //			length: 0.0,
 //			song_count: 0,
-//			disk_count: 0,
+//			disc_count: 0,
 //			art: Art::Unknown,
 //			art_bytes: None,
 //			compilation: false,

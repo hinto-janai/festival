@@ -13,10 +13,10 @@ pub struct Song {
 	// User-facing data.
 	pub title: String,
 	pub album: AlbumKey,
-	pub length_human: HumanTime,  //
-	pub track: u32,             //
-	pub track_artists: String,    //
-	pub disk: u32,                //
+	pub length_human: HumanTime,       //
+	pub track: Option<u32>,            //
+	pub track_artists: Option<String>, //
+	pub disc: Option<u32>,             //
 
 	// "Raw" data.
 	pub(crate) length: f64,

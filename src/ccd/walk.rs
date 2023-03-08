@@ -106,6 +106,7 @@ impl super::Ccd {
 #[cfg(test)]
 mod tests {
 	use std::path::PathBuf;
+	use crate::ccd::Ccd;
 	use super::*;
 
 	#[test]
