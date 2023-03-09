@@ -93,6 +93,12 @@ impl std::fmt::Display for HumanNumber {
 }
 
 impl HumanNumber {
+	pub fn new() -> Self {
+		Self(String::new())
+	}
+	pub fn zero() -> Self {
+		Self("0".to_string())
+	}
 	pub fn unknown() -> Self {
 		Self("???".to_string())
 	}
@@ -154,6 +160,11 @@ impl HumanNumber {
 		buf.write_formatted(&u, &LOCALE);
 		Self(buf.as_str().to_string())
 	}
+	pub fn from_usize(u: usize) -> Self {
+		let mut buf = num_format::Buffer::new();
+		buf.write_formatted(&u, &LOCALE);
+		Self(buf.as_str().to_string())
+	}
 	pub fn from_f64_12_point(f: f64) -> Self {
 		let f = format!("{:.12}", f);
 		Self(f)
@@ -193,42 +204,42 @@ pub struct HumanRuntime(f64, String);
 impl HumanRuntime {
 	#[inline]
 	/// Returns zero-second `(0, "0:00")` length [`Self`].
-	fn zero() -> Self {
+	pub fn zero() -> Self {
 		Self(0.0, "0:00".to_string())
 	}
 
 	#[inline]
 	/// Returns one-second `(1.0, "0:01")` length [`Self`].
-	fn one() -> Self {
+	pub fn one() -> Self {
 		Self(1.0, "0:01".to_string())
 	}
 
 	#[inline]
-	fn as_str(&self) -> &str {
+	pub fn as_str(&self) -> &str {
 		self.1.as_str()
 	}
 
 	#[inline]
 	/// Returns a [`Clone`] of the inner [`String`].
-	fn to_string(&self) -> String {
+	pub fn to_string(&self) -> String {
 		self.1.to_string()
 	}
 
 	#[inline]
 	/// Returns a [`Copy`] of the inner [`f64`].
-	fn to_f64(&self) -> f64 {
+	pub fn to_f64(&self) -> f64 {
 		self.0
 	}
 
 	#[inline]
 	/// Consumes [`Self`] for the inner [`String`].
-	fn into_string(self) -> String {
+	pub fn into_string(self) -> String {
 		self.1
 	}
 
 	#[inline]
 	/// Consumes [`Self`] for the inner `(f64, String)`.
-	fn into_raw(self) -> (f64, String) {
+	pub fn into_raw(self) -> (f64, String) {
 		(self.0, self.1)
 	}
 }
