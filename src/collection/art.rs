@@ -25,8 +25,8 @@ pub enum Art {
 
 impl Art {
 	#[inline(always)]
-	pub(crate) fn new() -> Self {
-		Self::default()
+	pub(crate) const fn new() -> Self {
+		Self::Unknown
 	}
 }
 

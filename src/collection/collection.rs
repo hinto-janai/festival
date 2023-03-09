@@ -20,7 +20,7 @@ use crate::constants::{
 //---------------------------------------------------------------------------------------------------- The Collection™
 //#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
 bincode_file!(Collection, Dir::Data, FESTIVAL, "", "collection", FESTIVAL_HEADER, COLLECTION_VERSION);
-#[derive(Serialize,Deserialize)]
+#[derive(Debug,Serialize,Deserialize)]
 pub struct Collection {
 	// The actual (meta)data.
 	// These are (basically) in random order due to the `Collection` creation process.
@@ -40,13 +40,14 @@ pub struct Collection {
 	pub sort_album_lexi_artist_lexi: Vec<AlbumKey>,    // `Artist` lexi, `Album` lexi.
 	pub sort_album_lexi: Vec<AlbumKey>,                // `Album` lexi.
 	pub sort_album_release: Vec<AlbumKey>,             // `Album` oldest to latest.
-	pub sort_album_length: Vec<AlbumKey>,              // `Album` shortest to longest.
+	pub sort_album_runtime: Vec<AlbumKey>,             // `Album` shortest to longest.
 
 	// Sorted `Song` keys.
-	pub sort_song_artist_lexi: Vec<SongKey>, // `Artist` lexi, `Song` lexi.
-	pub sort_song_lexi: Vec<SongKey>,        // `Song` lexi.
-	pub sort_song_release: Vec<SongKey>,     // `Song` oldest to latest.
-	pub sort_song_length: Vec<SongKey>,      // `Song` shortest to longest.
+	pub sort_song_artist_lexi_album_release: Vec<SongKey>, // `Artist` lexi, `Album` release, `Song` track_number
+	pub sort_song_artist_lexi_album_lexi: Vec<SongKey>,    // `Artist` lexi, `Album` lexi, `Song` track_number.
+	pub sort_song_lexi: Vec<SongKey>,                      // `Song` lexi.
+	pub sort_song_release: Vec<SongKey>,                   // `Song` oldest to latest.
+	pub sort_song_runtime: Vec<SongKey>,                   // `Song` shortest to longest.
 
 	// Metadata about the `Collection` itself.
 	pub empty: bool,         // Is this `Collection` empty?
@@ -59,7 +60,7 @@ pub struct Collection {
 impl Collection {
 	#[inline(always)]
 	// Creates an empty struct.
-	pub fn new() -> Self {
+	pub const fn new() -> Self {
 		Self {
 			artists: vec![],
 			albums: vec![],
@@ -73,12 +74,13 @@ impl Collection {
 			sort_album_lexi_artist_lexi: vec![],
 			sort_album_lexi: vec![],
 			sort_album_release: vec![],
-			sort_album_length: vec![],
+			sort_album_runtime: vec![],
 
-			sort_song_artist_lexi: vec![],
+			sort_song_artist_lexi_album_release: vec![],
+			sort_song_artist_lexi_album_lexi: vec![],
 			sort_song_lexi: vec![],
 			sort_song_release: vec![],
-			sort_song_length: vec![],
+			sort_song_runtime: vec![],
 
 			empty: true,
 			timestamp: 0,
@@ -89,7 +91,7 @@ impl Collection {
 	}
 
 	// Get current timestamp as UNIX time.
-	fn timestamp_now() -> u64 {
+	pub(crate) fn timestamp_now() -> u64 {
 		let now = std::time::SystemTime::now();
 		match now.duration_since(std::time::SystemTime::UNIX_EPOCH) {
 			Ok(ts) => ts.as_secs(),
