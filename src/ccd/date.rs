@@ -74,7 +74,6 @@ impl super::Ccd {
 		if length >= 10 {
 			// Attempt last 10.
 			let last_ten = &string[(length - 10)..];
-			println!("{}", last_ten);
 			parse_year_month_day!(last_ten);
 			parse_month_day_year!(last_ten);
 			parse_day_month_year!(last_ten);
@@ -82,7 +81,6 @@ impl super::Ccd {
 		if length >= 8 {
 			// Attempt last 8.
 			let last_eight = &string[(length - 8)..];
-			println!("{}", last_eight);
 			parse_year_month_day!(last_eight);
 			parse_month_day_year!(last_eight);
 			parse_day_month_year!(last_eight);
@@ -100,6 +98,66 @@ impl super::Ccd {
 			(Some(year), Some(month), None)      => format!("{}-{:0>2}", year, month),
 			(Some(year), Some(month), Some(day)) => format!("{}-{:0>2}-{:0>2}", year, month, day),
 			_                                    => String::new(),
+		}
+	}
+
+	#[inline]
+	// Compares two tuple dates.
+	pub(super) fn cmp_tuple_dates(
+		a: (Option<i32>, Option<u32>, Option<u32>),
+		b: (Option<i32>, Option<u32>, Option<u32>),
+	) -> std::cmp::Ordering {
+		use std::cmp::Ordering;
+		match (a, b) {
+			// None.
+			((None, _, _), (None, _, _)) => Ordering::Equal,
+			// Years.
+			((Some(a), _, _), (None,    _, _))    => Ordering::Greater,
+			((None,    _, _), (Some(b), _, _))    => Ordering::Less,
+			((Some(a), _, _), (Some(b),    _, _)) => if a > b { Ordering::Greater } else if a < b { Ordering::Less } else { Ordering::Equal },
+			// Years + Months.
+			((Some(a1), Some(a2), _), (Some(b1), Some(b2), _)) => {
+				// Year.
+				if a1 > b1 {
+					return Ordering::Greater
+				} else if a1 < b1 {
+					return Ordering::Less
+				} else if a1 == b1 {
+					// Month.
+					if a2 > b2 {
+						return Ordering::Greater
+					} else if a2 < b2 {
+						return Ordering::Less
+					}
+				}
+
+				Ordering::Equal
+			},
+			// Years + Months + Days.
+			((Some(a1), Some(a2), Some(a3)), (Some(b1), Some(b2), Some(b3))) => {
+				// Year.
+				if a1 > b1 {
+					return Ordering::Greater
+				} else if a1 < b1 {
+					return Ordering::Less
+				} else if a1 == b1 {
+					// Month.
+					if a2 > b2 {
+						return Ordering::Greater
+					} else if a2 < b2 {
+						return Ordering::Less
+					} else if a2 == b2 {
+						// Days.
+						if a3 > b3 {
+							return Ordering::Greater
+						} else if a3 < b3 {
+							return Ordering::Less
+						}
+					}
+				}
+
+				Ordering::Equal
+			},
 		}
 	}
 }
