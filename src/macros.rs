@@ -48,25 +48,46 @@ pub(crate) use ok;
 
 macro_rules! ok_debug {
 	($($tts:tt)*) => {
-			log::debug!("{} {} {}{}{}", $($tts)*, "...", "\x1b[1;92m", "OK", "\x1b[0m");
+		log::debug!("{} {} {}{}{}", $($tts)*, "...", "\x1b[1;92m", "OK", "\x1b[0m");
 	}
 }
 pub(crate) use ok_debug;
 
 macro_rules! ok_trace {
 	($($tts:tt)*) => {
-			log::trace!("{} {} {}{}{}", $($tts)*, "...", "\x1b[1;92m", "OK", "\x1b[0m");
+		log::trace!("{} {} {}{}{}", $($tts)*, "...", "\x1b[1;92m", "OK", "\x1b[0m");
 	}
 }
 pub(crate) use ok_trace;
 
-// FORWARDS input to info!() appended with white "... SKIP"
+// FORWARDS input to log macros appended with white "... SKIP"
 macro_rules! skip {
 	($($tts:tt)*) => {
 		log::info!("{} {} {}{}{}", $($tts)*, "...", "\x1b[1;97m", "SKIP", "\x1b[0m");
 	}
 }
 pub(crate) use skip;
+
+macro_rules! skip_warn {
+	($($tts:tt)*) => {
+		log::warn!("{} {} {}{}{}", $($tts)*, "...", "\x1b[1;97m", "SKIP", "\x1b[0m");
+	}
+}
+pub(crate) use skip_warn;
+
+macro_rules! skip_debug {
+	($($tts:tt)*) => {
+		log::debug!("{} {} {}{}{}", $($tts)*, "...", "\x1b[1;97m", "SKIP", "\x1b[0m");
+	}
+}
+pub(crate) use skip_debug;
+
+macro_rules! skip_trace {
+	($($tts:tt)*) => {
+		log::trace!("{} {} {}{}{}", $($tts)*, "...", "\x1b[1;97m", "SKIP", "\x1b[0m");
+	}
+}
+pub(crate) use skip_trace;
 
 // FORWARDS input to error!() appended with red "... FAIL"
 macro_rules! fail {
