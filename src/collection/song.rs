@@ -4,22 +4,22 @@
 use serde::{Serialize,Deserialize};
 use super::AlbumKey;
 use std::path::PathBuf;
-use human::HumanTime;
+use human::HumanRuntime;
 
 //----------------------------------------------------------------------------------------------------
 //#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
-#[derive(Serialize,Deserialize)]
+#[derive(Debug,Serialize,Deserialize)]
 pub struct Song {
 	// User-facing data.
 	pub title: String,
 	pub album: AlbumKey,
-	pub length_human: HumanTime,       //
+	pub runtime_human: HumanRuntime,   //
 	pub track: Option<u32>,            //
 	pub track_artists: Option<String>, //
 	pub disc: Option<u32>,             //
 
 	// "Raw" data.
-	pub(crate) length: f64,
+	pub(crate) runtime: f64,
 	pub(crate) path: PathBuf, //
 }
 
