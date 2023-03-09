@@ -29,6 +29,11 @@ pub(crate) const COLLECTION_VERSION: u8 = 1;
 // Current major version of the `State`.
 pub(crate) const STATE_VERSION: u8 = 1;
 
+// Log messages.
+pub(crate) const OK: &str   = " ... \x1b[1;92mOK\x1b[0m";
+pub(crate) const SKIP: &str = " ... \x1b[1;97mSKIP\x1b[0m";
+pub(crate) const FAIL: &str = " ... \x1b[1;91mFAIL\x1b[0m";
+
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
 mod tests {

@@ -23,6 +23,9 @@ use date::*;
 mod metadata;
 use metadata::*;
 
+mod sort;
+use sort::*;
+
 mod walk;
 use walk::*;
 // -----

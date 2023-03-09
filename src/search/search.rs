@@ -94,13 +94,13 @@ impl Search {
 	//
 	// `cmp_f64()` just returns `Less` on error
 	// (which should never happen... right strsim?)
-	fn cmp_f64(a: &f64, b: &f64) -> std::cmp::Ordering {
+	pub(crate) fn cmp_f64(a: &f64, b: &f64) -> std::cmp::Ordering {
 		match (*a <= *b, *a >= *b) {
 			(false, true) => std::cmp::Ordering::Greater,
 			(true, false) => std::cmp::Ordering::Less,
 			(true, true) => std::cmp::Ordering::Equal,
 			_ => {
-				error!("strsim you have failed me");
+				error!("cmp_f64() has failed, input: {} - {}", a, b);
 				std::cmp::Ordering::Less
 			},
 		}

@@ -12,6 +12,10 @@ use super::msg::{
 	KernelToCcd,
 };
 use crossbeam_channel::{Sender,Receiver};
+use crate::macros::{
+	skip_trace,
+	ok_trace,
+};
 use crate::collection::{
 	Album,
 	Collection,
@@ -89,8 +93,14 @@ impl super::Ccd {
 
 			// If bytes exist, convert, else provide the `Unknown` art.
 			let art = match bytes {
-				Some(b) => Art::Known(super::art_from_known(&b)),
-				None    => Art::Unknown,
+				Some(b) => {
+					ok_trace!(album.title);
+					Art::Known(super::art_from_known(&b))
+				},
+				None => {
+					skip_trace!(album.title);
+					Art::Unknown
+				},
 			};
 
 			// Insert the `Art`.

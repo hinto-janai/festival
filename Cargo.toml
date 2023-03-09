@@ -17,6 +17,13 @@ strip = "symbols"
 codegen-units = 1
 lto = true
 
+# Run tests in `--release` mode.
+#[profile.test]
+#debug = false
+#strip = "symbols"
+#codegen-units = 1
+#lto = true
+
 [dependencies]
 ### Local libraries `lib/`
 disk   = { path = "lib/disk", features = ["bincode", "toml", "plain"] }

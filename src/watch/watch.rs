@@ -44,7 +44,7 @@ impl Watch {
 	}
 
 	#[inline(always)]
-	// Remove all files, log errors (file probably doesn't exist).
+	// Remove all files (if they exist), log errors.
 	// Make sure the directory exists.
 	fn clean() {
 		// Create base directory.

@@ -21,14 +21,14 @@ impl super::Ccd {
 	#[inline(always)]
 	// `WalkDir` given PATHs and filter for audio files.
 	// Ignore non-existing PATHs in the array.
-	fn walkdir_audio(
+	pub(super) fn walkdir_audio(
 		to_kernel: &Sender<CcdToKernel>,
-		paths: &Vec<PathBuf>,
+		paths: Vec<PathBuf>,
 	) -> Vec<PathBuf> {
 
 		// Test PATHs, collect valid ones.
 		let mut vec: Vec<PathBuf> = Vec::with_capacity(paths.len());
-		for path in paths {
+		for path in &paths {
 			if let Ok(true) = path.try_exists() {
 				vec.push(path.to_path_buf());
 			} else {
@@ -132,14 +132,14 @@ mod tests {
 		let (to_kernel, _) = crossbeam_channel::unbounded::<CcdToKernel>();
 		let paths = vec![
 			PathBuf::from("src"),
-			PathBuf::from("assets"),
-			PathBuf::from("assets"),
+			PathBuf::from("assets/audio"),
+			PathBuf::from("assets/images"),
 			PathBuf::from("assets/audio"),
 			PathBuf::from("assets/images"),
 		];
 
 		// WalkDir and filter for audio.
-		let result = Ccd::walkdir_audio(&to_kernel, &paths);
+		let result = Ccd::walkdir_audio(&to_kernel, paths);
 		eprintln!("{:#?}", result);
 
 		// Assert.
