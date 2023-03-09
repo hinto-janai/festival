@@ -24,7 +24,7 @@ use crate::collection::{
 	AlbumKey,
 	SongKey,
 };
-use human::{HumanTime,HumanNumber};
+use human::{HumanRuntime,HumanNumber};
 use std::borrow::Cow;
 
 //---------------------------------------------------------------------------------------------------- Tag Metadata (temporary) struct.
@@ -39,7 +39,7 @@ struct TagMetadata<'a> {
 	disc_total: Option<u32>,
 	picture: Option<&'a [u8]>,
 
-	length: f64,
+	runtime: f64,
 	release: Option<&'a str>,
 	track_artists: Option<String>,
 
@@ -67,8 +67,8 @@ impl super::Ccd {
 	}
 
 	#[inline(always)]
-	// Get the audio length of the `TaggedFile`.
-	fn tagged_file_length(tagged_file: &lofty::TaggedFile) -> f64 {
+	// Get the audio runtime of the `TaggedFile`.
+	fn tagged_file_runtime(tagged_file: &lofty::TaggedFile) -> f64 {
 		tagged_file.properties().duration().as_secs_f64()
 	}
 
@@ -185,7 +185,7 @@ impl super::Ccd {
 		};
 
 		// Other data that can't be obtained from `tag._()`.
-		let length        = Self::tagged_file_length(tagged_file);
+		let runtime       = Self::tagged_file_runtime(tagged_file);
 		let release       = Self::tag_release(tag);
 		let track_artists = Self::tag_track_artists(tag);
 		let compilation   = Self::tag_compilation(&artist, tag);
@@ -199,7 +199,7 @@ impl super::Ccd {
 			track_total,
 			disc_total,
 			picture,
-			length,
+			runtime,
 			release,
 			track_artists,
 			compilation,
@@ -212,7 +212,7 @@ impl super::Ccd {
 	//
 	// Outputs the three main `Vec`'s of the `Collection` with
 	// mostly done but incomplete data (needs sorting, addition, etc).
-	fn audio_paths_to_metadata(paths: Vec<PathBuf>) -> Result<(Vec<Artist>, Vec<Album>, Vec<Song>), anyhow::Error> {
+	fn audio_paths_to_incomplete_vecs(paths: Vec<PathBuf>) -> Result<(Vec<Artist>, Vec<Album>, Vec<Song>), anyhow::Error> {
 		// For efficiency reasons, it's best to do
 		// all these operations in a single loop.
 		//
@@ -271,14 +271,14 @@ impl super::Ccd {
 			track_total,
 			disc_total,
 			picture,
-			length,
+			runtime,
 			release,
 			track_artists,
 			compilation,
 		} = metadata;
 
 		//------------------------------------------------------------- If `Artist` exists.
-		if let Some((artist_idx, album_map)) = memory.get(&*artist) {
+		if let Some((artist_idx, album_map)) = memory.get_mut(&*artist) {
 
 			//------------------------------------------------------------- If `Album` exists.
 			if let Some(album_idx) = album_map.get(&*album) {
@@ -286,12 +286,12 @@ impl super::Ccd {
 				let song = Song {
 					title: title.to_string(),
 					album: AlbumKey::from(*album_idx),
-					length_human: HumanTime::new(),
+					runtime_human: HumanRuntime::from(runtime),
 					track,
 					track_artists,
 					disc,
-					length,
-					path: PathBuf::new(),
+					runtime,
+					path,
 				};
 
 				// Update `Album`.
@@ -303,7 +303,7 @@ impl super::Ccd {
 				// Increment `Song` count.
 				count_song += 1;
 
-				bail!(""); // TODO: replace with `return`.
+				continue
 			}
 
 			//------------------------------------------------------------- If `Artist` exists, but not `Album`.
@@ -311,12 +311,12 @@ impl super::Ccd {
 			let song = Song {
 				title: title.to_string(),
 				album: AlbumKey::from(count_album),
-				length_human: HumanTime::new(),
+				runtime_human: HumanRuntime::from(runtime),
 				track,
 				track_artists,
 				disc,
-				length,
-				path: PathBuf::new(),
+				runtime,
+				path,
 			};
 
 			// Get `Album` art bytes.
@@ -325,29 +325,40 @@ impl super::Ccd {
 				None    => None,
 			};
 
+			// Get `Album` release.
+			let release = match release {
+				Some(date) => Self::parse_str_date(date),
+				None       => (None, None, None),
+			};
+
 			// Create `Album`.
-			let album = Album {
-				title: String::new(),
+			let album_struct = Album {
+				// Can be initialized now.
+				title: album.to_string(),
 				artist: ArtistKey::from(count_artist),
-				release_human: String::new(),
-				length_human: HumanTime::new(),
-				song_count_human: HumanNumber::unknown(),
+				release_human: Self::date_to_string(release),
 				songs: vec![SongKey::from(count_song)],
-				release: 0,
-				length: 0.0,
-				song_count: 0,
-				disc_count: 0,
-				art: Art::Unknown,
+				release,
 				art_bytes,
 				compilation,
+
+				// Needs to be updated later.
+				song_count_human: HumanNumber::new(),
+				runtime_human: HumanRuntime::zero(),
+				runtime: 0.0,
+				song_count: 0,
+				art: Art::Unknown,
 			};
 
 			// Update `Artist`.
 			vec_artist[*artist_idx].albums.push(AlbumKey::from(count_album));
 
 			// Push `Album/Song`.
-			vec_album.push(album);
+			vec_album.push(album_struct);
 			vec_song.push(song);
+
+			// Add to `HashMap` memory.
+			album_map.insert(album.to_string(), count_album);
 
 			// Increment `Album/Song` count.
 			count_album += 1;
@@ -361,12 +372,12 @@ impl super::Ccd {
 		let song = Song {
 			title: title.to_string(),
 			album: AlbumKey::from(count_album),
-			length_human: HumanTime::new(),
+			runtime_human: HumanRuntime::from(runtime),
 			track,
 			track_artists,
 			disc,
-			length,
-			path: PathBuf::new(),
+			runtime,
+			path,
 		};
 
 		// Get `Album` art bytes.
@@ -375,33 +386,47 @@ impl super::Ccd {
 			None    => None,
 		};
 
+		// Get `Album` release.
+		let release = match release {
+			Some(date) => Self::parse_str_date(date),
+			None       => (None, None, None),
+		};
+
 		// Create `Album`.
-		let album = Album {
-			title: String::new(),
+		let album_struct = Album {
+			// Can be initialized now.
+			title: album.to_string(),
 			artist: ArtistKey::from(count_artist),
-			release_human: String::new(),
-			length_human: HumanTime::new(),
-			song_count_human: HumanNumber::unknown(),
+			release_human: Self::date_to_string(release),
 			songs: vec![SongKey::from(count_song)],
-			release: 0,
-			length: 0.0,
-			song_count: 0,
-			disc_count: 0,
-			art: Art::Unknown,
+			release,
 			art_bytes,
 			compilation,
+
+			// Needs to be updated later.
+			song_count_human: HumanNumber::new(),
+			runtime_human: HumanRuntime::zero(),
+			runtime: 0.0,
+			song_count: 0,
+			art: Art::Unknown,
 		};
 
 		// Create `Artist`.
-		let artist = Artist {
+		let artist_struct = Artist {
 			name: artist.to_string(),
 			albums: vec![AlbumKey::from(count_album)],
 		};
 
 		// Push `Artist/Album/Song`.
-		vec_artist.push(artist);
-		vec_album.push(album);
+		vec_artist.push(artist_struct);
+		vec_album.push(album_struct);
 		vec_song.push(song);
+
+		// Add to `HashMap` memory.
+		memory.insert(
+			artist.to_string(),
+			(count_artist, HashMap::from([(album.to_string(), count_album)]))
+		);
 
 		// Increment `Artist/Album/Song` count.
 		count_artist += 1;
@@ -414,6 +439,26 @@ impl super::Ccd {
 		// Return the resulting `Vec`'s.
 		Ok((vec_artist, vec_album, vec_song))
 	}
+
+	#[inline(always)]
+	// Takes in the incomplete `Vec`'s from above.
+	// Adds the ancillary metadata to the `Album`'s based off the `Song`'s within it.
+	//
+	// The last field after this, `Art`, will be completed in the `convert` phase.
+	fn fix_album_metadata_from_songs(vec_album: &mut Vec<Album>, vec_song: &Vec<Song>) {
+		for album in vec_album {
+			// Song count.
+			let song_count         = album.songs.len();
+			album.song_count       = song_count;
+			album.song_count_human = HumanNumber::from_usize(song_count);
+
+			// Total runtime.
+			let mut runtime = 0.0;
+			album.songs.iter().for_each(|key| runtime += vec_song[key.inner()].runtime);
+			album.runtime_human = HumanRuntime::from(runtime);
+			album.runtime       = runtime;
+		}
+	}
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
@@ -423,17 +468,62 @@ mod tests {
 	use std::path::PathBuf;
 	use lofty::TaggedFile;
 
+	#[test]
+	fn vecs() {
+		// Convert `PathBuf` into `Vec`.
+		let paths = vec![
+			PathBuf::from("assets/audio/rain.mp3"),
+			PathBuf::from("assets/audio/rain.flac"),
+			PathBuf::from("assets/audio/rain.ogg"),
+		];
+		let (vec_artist, mut vec_album, vec_song) = Ccd::audio_paths_to_incomplete_vecs(paths).unwrap();
+
+		println!("{:#?}", vec_artist);
+		println!("{:#?}", vec_album);
+		println!("{:#?}", vec_song);
+
+		// Assert `Vec`s are correct.
+		assert!(vec_artist.len() == 1);
+		assert!(vec_album.len()  == 1);
+		assert!(vec_song.len()   == 3);
+
+		// Assert `Artist` is correct.
+		assert!(vec_artist[0].name         == "hinto");
+		assert!(vec_artist[0].albums.len() == 1);
+
+		// Assert `Album` is correct.
+		assert!(vec_album[0].title          == "Festival");
+		assert!(vec_album[0].artist.inner() == 0);
+		assert!(vec_album[0].release_human  == "2023-03-08");
+		assert!(vec_album[0].songs.len()    == 3);
+		assert!(vec_album[0].release        == (Some(2023), Some(3), Some(8)));
+		assert!(vec_album[0].compilation    == true);
+
+		// Fix the metadata.
+		Ccd::fix_album_metadata_from_songs(&mut vec_album, &vec_song);
+
+		println!("{:#?}", vec_artist);
+		println!("{:#?}", vec_album);
+		println!("{:#?}", vec_song);
+
+		// Assert metadata is fixed.
+		assert!(vec_album[0].runtime_human             == human::HumanRuntime::from(5.83));
+		assert!(vec_album[0].song_count_human.as_str() == "3");
+		assert!(vec_album[0].runtime                   == 5.83);
+		assert!(vec_album[0].song_count                == 3);
+	}
+
 	fn mp3() -> TaggedFile {
 		let mp3 = Ccd::path_to_tagged_file(PathBuf::from("assets/audio/rain.mp3").as_path()).unwrap();
 		mp3
 	}
 
 	#[test]
-	fn length() {
+	fn runtime() {
 		let mp3 = mp3();
-		let length = Ccd::tagged_file_length(&mp3);
-		eprintln!("{}", length);
-		assert!(length == 1.968);
+		let runtime = Ccd::tagged_file_runtime(&mp3);
+		eprintln!("{}", runtime);
+		assert!(runtime == 1.968);
 	}
 
 	#[test]
@@ -482,7 +572,7 @@ mod tests {
 		assert!(meta.track_total   == None);
 		assert!(meta.disc_total    == None);
 		assert!(meta.picture       == None);
-		assert!(meta.length        == 1.968);
+		assert!(meta.runtime       == 1.968);
 		assert!(meta.release       == Some("2023-03-08"));
 		assert!(meta.track_artists == Some("hinto".to_string()));
 		assert!(meta.compilation   == true);

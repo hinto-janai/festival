@@ -76,6 +76,7 @@ impl Ccd {
 		//     b) If not, search parent dir for `jpeg/png`
 		//     c) Given multiple images, pick the highest quality image
 		//     d) Given no image, append `None`
+		//     e) Sort `Vec` keys, append `Collection` metadata
 		//
 		// 5. Save to disk.
 		// 6. Transform in-memory `Collection` with `priv_convert_art()`

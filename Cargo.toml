@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 authors = ["hinto-janai <hinto.janai@protonmail.com>"]
 description = "Music player"
-homepage = "https://festival.io"
+homepage = "https://festival.pm"
 documentation = "https://github.com/hinto-janai/festival/src/README.md"
 repository = "https://github.com/hinto-janai/festival"
 keywords = ["music", "player", "audio", "festival"]
@@ -32,7 +32,7 @@ egui_extras       = { path = "external/egui/crates/egui_extras", features = ["im
 
 ### Regular libraries
 anyhow = "1.0.69"
-chrono = "0.4.23"
+chrono = { version = "0.4.23", features = ["serde"] }
 clap = { version = "4.1.8", features = ["derive"] }
 crossbeam-channel = "0.5.7"
 #egui-notify = "0.5.1"
