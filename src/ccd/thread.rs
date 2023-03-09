@@ -13,8 +13,12 @@ const ONE_THREAD: usize = 1;
 // until it's actually worth the cost of spawning threads?
 const ALBUM_THREAD_THRESHOLD: usize = 10;
 
+// How many PATHs should we _always_ process single-threaded
+// until it's actually worth the cost of spawning threads?
+const PATH_THREAD_THRESHOLD: usize = 40;
+
 //---------------------------------------------------------------------------------------------------- Thread Functions.
-// Get a reasonable amount of threads for `n` amount of albums.
+// Get a reasonable amount of threads for processing `n` amount of albums.
 pub(crate) fn threads_for_albums(albums: usize) -> usize {
 	// Return 1 if it's not even worth spawning
 	// threads due to small amount of albums.
@@ -32,6 +36,22 @@ pub(crate) fn threads_for_albums(albums: usize) -> usize {
 	threads
 }
 
+// Get a reasonable amount of threads for processing `n` amount of PATHs.
+pub(crate) fn threads_for_paths(paths: usize) -> usize {
+	if paths <= PATH_THREAD_THRESHOLD {
+		return ONE_THREAD
+	}
+
+	let threads = quarter_threads(available_threads());
+
+	// Make sure each thread has at least 1 PATH.
+	if threads > paths {
+		return paths
+	}
+
+	threads
+}
+
 fn available_threads() -> usize {
 	match std::thread::available_parallelism() {
 		Ok(t)  => t.get(),
@@ -39,6 +59,18 @@ fn available_threads() -> usize {
 			warn!("Available thread function failed, defaulting to 1!");
 			ONE_THREAD
 		}
+	}
+}
+
+fn quarter_threads(threads: usize) -> usize {
+	match threads {
+		// Special cases (low thread-count).
+		1|2|3|4 => return 1,
+		5|6|7|8 => return 2,
+		9|10|11|12|13|14|15 => return 3,
+
+		// Around 25%.
+		_ => (threads as f64 * 0.25).floor() as usize,
 	}
 }
 
@@ -59,6 +91,37 @@ fn most_threads(threads: usize) -> usize {
 #[cfg(test)]
 mod tests {
 	use super::*;
+
+	#[test]
+	fn _quarter_threads() {
+		for i in 1..=4 {
+			assert!(quarter_threads(i)  == 1);
+		}
+		for i in 5..=8 {
+			assert!(quarter_threads(i)  == 2);
+		}
+		for i in 9..=15 {
+			assert!(quarter_threads(i)  == 3);
+		}
+		for i in 16..=19 {
+			assert!(quarter_threads(i)  == 4);
+		}
+		for i in 20..=23 {
+			assert!(quarter_threads(i)  == 5);
+		}
+		for i in 24..=27 {
+			assert!(quarter_threads(i)  == 6);
+		}
+		for i in 28..=31 {
+			assert!(quarter_threads(i)  == 7);
+		}
+		assert!(quarter_threads(32)  == 8);
+		// Who the hell is running festival on these CPUs
+		assert!(quarter_threads(48)  == 12);
+		assert!(quarter_threads(64)  == 16);
+		assert!(quarter_threads(128) == 32);
+		assert!(quarter_threads(256) == 64);
+	}
 
 	#[test]
 	fn _most_threads() {
@@ -94,8 +157,6 @@ mod tests {
 		assert!(most_threads(30) == 22);
 		assert!(most_threads(31) == 23);
 		assert!(most_threads(32) == 24);
-
-		// Who the hell is running festival on these CPUs
 		assert!(most_threads(48)  == 36);
 		assert!(most_threads(64)  == 48);
 		assert!(most_threads(128) == 96);
