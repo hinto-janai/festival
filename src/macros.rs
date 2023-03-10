@@ -1,3 +1,14 @@
+// Lock a `Mutex` or `mass_panic!()` (exit all threads).
+macro_rules! lock {
+	($lock:expr) => {{
+		match $lock.lock() {
+			Ok(lock) => lock,
+			Err(e)   => crate::macros::mass_panic!(e),
+		}
+	}}
+}
+pub(crate) use lock;
+
 // Read a `RwLock/RoLock` or `mass_panic!()` (exit all threads).
 macro_rules! read_lock {
 	($lock:expr) => {{
@@ -121,6 +132,17 @@ macro_rules! mass_panic {
 	}}
 }
 pub(crate) use mass_panic;
+
+// `.unwrap()`, `mass_panic!` on `Err`.
+macro_rules! unwrap_or_mass {
+	($var:tt) => {{
+		match $var {
+			Ok(o)  => o,
+			Err(_) => crate::macros::mass_panic!("unwrap_or_mass"),
+		}
+	}}
+}
+pub(crate) use unwrap_or_mass;
 
 // Send a message through a channel, `mass_panic!` on failure
 macro_rules! send {

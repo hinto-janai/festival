@@ -92,12 +92,12 @@ impl Ccd {
 		// 2.
 		let now = Instant::now();
 		let (vec_artist, mut vec_album, vec_song) = Self::audio_paths_to_incomplete_vecs(&to_kernel, paths);
-		debug!("CCD [2/10] | Vec: {}", now.elapsed().as_secs_f32());
+		debug!("CCD [2/10] | Metadata: {}", now.elapsed().as_secs_f32());
 
 		// 3.
 		let now = Instant::now();
 		Self::fix_album_metadata_from_songs(&mut vec_album, &vec_song);
-		debug!("CCD [3/10] | Metadata: {}", now.elapsed().as_secs_f32());
+		debug!("CCD [3/10] | Fix: {}", now.elapsed().as_secs_f32());
 
 		// 4.
 		let now = Instant::now();
@@ -152,14 +152,14 @@ impl Ccd {
 		// 6.
 		// TODO:
 		// Consider moving this to the end so the user
-		// doens't have to wait for this write.
-		let now = Instant::now();
-		if let Err(e) = collection.write_atomic() {
-			send!(to_kernel, CcdToKernel::Failed(e));
-			debug!("CCD ... Collection failed, bye!");
-			return
-		}
-		debug!("CCD [6/10] | Disk: {}", now.elapsed().as_secs_f32());
+		// doesn't have to wait for this write.
+//		let now = Instant::now();
+//		if let Err(e) = collection.write_atomic() {
+//			send!(to_kernel, CcdToKernel::Failed(e));
+//			debug!("CCD ... Collection failed, bye!");
+//			return
+//		}
+//		debug!("CCD [6/10] | Disk: {}", now.elapsed().as_secs_f32());
 
 		// 7.
 		let now = Instant::now();

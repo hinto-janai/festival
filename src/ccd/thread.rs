@@ -23,6 +23,7 @@ pub(crate) fn threads_for_albums(albums: usize) -> usize {
 	// Return 1 if it's not even worth spawning
 	// threads due to small amount of albums.
 	if albums <= ALBUM_THREAD_THRESHOLD {
+		debug!("Album threads: {}", ONE_THREAD);
 		return ONE_THREAD
 	}
 
@@ -30,25 +31,30 @@ pub(crate) fn threads_for_albums(albums: usize) -> usize {
 
 	// Make sure each thread has at least 1 album.
 	if threads > albums {
+		debug!("Album threads: {}", albums);
 		return albums
 	}
 
+	debug!("Album threads: {}", threads);
 	threads
 }
 
 // Get a reasonable amount of threads for processing `n` amount of PATHs.
 pub(crate) fn threads_for_paths(paths: usize) -> usize {
 	if paths <= PATH_THREAD_THRESHOLD {
+		debug!("PATH threads: {}", ONE_THREAD);
 		return ONE_THREAD
 	}
 
-	let threads = quarter_threads(available_threads());
+	let threads = half_threads(available_threads());
 
 	// Make sure each thread has at least 1 PATH.
 	if threads > paths {
+		debug!("PATH threads: {}", paths);
 		return paths
 	}
 
+	debug!("PATH threads: {}", threads);
 	threads
 }
 
@@ -62,15 +68,13 @@ fn available_threads() -> usize {
 	}
 }
 
-fn quarter_threads(threads: usize) -> usize {
+fn half_threads(threads: usize) -> usize {
 	match threads {
 		// Special cases (low thread-count).
-		1|2|3|4 => return 1,
-		5|6|7|8 => return 2,
-		9|10|11|12|13|14|15 => return 3,
+		1|2 => return 1,
 
-		// Around 25%.
-		_ => (threads as f64 * 0.25).floor() as usize,
+		// Around 50%.
+		_ => (threads as f64 * 0.5).floor() as usize,
 	}
 }
 
@@ -93,34 +97,44 @@ mod tests {
 	use super::*;
 
 	#[test]
-	fn _quarter_threads() {
-		for i in 1..=4 {
-			assert!(quarter_threads(i)  == 1);
-		}
-		for i in 5..=8 {
-			assert!(quarter_threads(i)  == 2);
-		}
-		for i in 9..=15 {
-			assert!(quarter_threads(i)  == 3);
-		}
-		for i in 16..=19 {
-			assert!(quarter_threads(i)  == 4);
-		}
-		for i in 20..=23 {
-			assert!(quarter_threads(i)  == 5);
-		}
-		for i in 24..=27 {
-			assert!(quarter_threads(i)  == 6);
-		}
-		for i in 28..=31 {
-			assert!(quarter_threads(i)  == 7);
-		}
-		assert!(quarter_threads(32)  == 8);
+	fn _half_threads() {
+		assert!(half_threads(1)  == 1);
+		assert!(half_threads(2)  == 1);
+		assert!(half_threads(3)  == 1);
+		assert!(half_threads(4)  == 2);
+		assert!(half_threads(5)  == 2);
+		assert!(half_threads(6)  == 3);
+		assert!(half_threads(7)  == 3);
+		assert!(half_threads(8)  == 4);
+		assert!(half_threads(9)  == 4);
+		assert!(half_threads(10) == 5);
+		assert!(half_threads(11) == 5);
+		assert!(half_threads(12) == 6);
+		assert!(half_threads(13) == 6);
+		assert!(half_threads(14) == 7);
+		assert!(half_threads(15) == 7);
+		assert!(half_threads(16) == 8);
+		assert!(half_threads(17) == 8);
+		assert!(half_threads(18) == 9);
+		assert!(half_threads(19) == 9);
+		assert!(half_threads(20) == 10);
+		assert!(half_threads(21) == 10);
+		assert!(half_threads(22) == 11);
+		assert!(half_threads(23) == 11);
+		assert!(half_threads(24) == 12);
+		assert!(half_threads(25) == 12);
+		assert!(half_threads(26) == 13);
+		assert!(half_threads(27) == 13);
+		assert!(half_threads(28) == 14);
+		assert!(half_threads(29) == 14);
+		assert!(half_threads(30) == 15);
+		assert!(half_threads(31) == 15);
+		assert!(half_threads(32) == 16);
 		// Who the hell is running festival on these CPUs
-		assert!(quarter_threads(48)  == 12);
-		assert!(quarter_threads(64)  == 16);
-		assert!(quarter_threads(128) == 32);
-		assert!(quarter_threads(256) == 64);
+		assert!(half_threads(48)  == 12);
+		assert!(half_threads(64)  == 16);
+		assert!(half_threads(128) == 32);
+		assert!(half_threads(256) == 64);
 	}
 
 	#[test]

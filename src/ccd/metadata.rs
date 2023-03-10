@@ -25,7 +25,9 @@ use crate::collection::{
 	SongKey,
 };
 use crate::macros::{
+	lock,
 	skip_warn,
+	unwrap_or_mass,
 };
 use crate::constants::{
 	SKIP
@@ -34,6 +36,7 @@ use crossbeam_channel::Sender;
 use super::CcdToKernel;
 use human::{HumanRuntime,HumanNumber};
 use std::borrow::Cow;
+use std::sync::{Arc,Mutex};
 
 //---------------------------------------------------------------------------------------------------- Tag Metadata (temporary) struct.
 #[derive(Debug)]
@@ -62,9 +65,23 @@ impl super::Ccd {
 	//
 	// Outputs the three main `Vec`'s of the `Collection` with
 	// mostly done but incomplete data (needs sorting, addition, etc).
+	//
+	// Unlike the `convert_art()` functions, this one is too long to
+	// justify making 2 copies for single/multi-threaded purposes.
+	//
+	// Instead, single-thread usage (which realistically only happens on small `Collection`'s)
+	// will just have to pay the price of using syncing primitives (`Arc<Mutex<T>>`).
+	//
+	// `path_to_tagged_file()` is by far the most expensive function in this loop,
+	// accounting for 90% of the time spent when making a new `Collection`.
+	// It gains a 2-4x~ speed boost when multi-threaded, gaining relative speed on
+	// its single-threaded counter-part as the `Song`'s we process approach the 10_000s.
+	//
+	// Although, it hits diminishing returns quickly, which is why
+	// only `25%~` of the user's available threads are used.
 	pub(super) fn audio_paths_to_incomplete_vecs(
 		to_kernel: &Sender<CcdToKernel>,
-		paths: Vec<PathBuf>
+		vec_paths: Vec<PathBuf>
 	) -> (Vec<Artist>, Vec<Album>, Vec<Song>) {
 		// For efficiency reasons, it's best to do
 		// all these operations in a single loop.
@@ -85,17 +102,17 @@ impl super::Ccd {
 		// The "Working Memory" is a `HashMap` that takes in `String` input of an artist name and returns the `index` to it,
 		// along with another `HashMap` which represents that `Artist`'s `Album`'s and its appropriate `indicies`.
 		//
-		//                       Artist  Artist's index     Album  Album's index
-		//                        Name   in `Vec<Artist>`   Name   in `Vec<Album>`
-		//                          |          |              |         |
-		//                          v          v              v         v
-		let mut memory:     HashMap<String, (usize, HashMap<String, usize>)> = HashMap::new();
-		let mut vec_artist: Vec<Artist> = vec![];
-		let mut vec_album:  Vec<Album>  = vec![];
-		let mut vec_song:   Vec<Song>   = vec![];
-		let mut count_artist: usize = 0;
-		let mut count_album:  usize = 0;
-		let mut count_song:   usize = 0;
+		//                                    Artist  Artist's index     Album  Album's index
+		//                                     Name   in `Vec<Artist>`   Name   in `Vec<Album>`
+		//                                      |          |              |         |
+		//                                      v          v              v         v
+		let mut memory:       Arc<Mutex<HashMap<String, (usize, HashMap<String, usize>)>>> = Arc::new(Mutex::new(HashMap::new()));
+		let mut vec_artist:   Arc<Mutex<Vec<Artist>>> = Arc::new(Mutex::new(vec![]));
+		let mut vec_album:    Arc<Mutex<Vec<Album>>>  = Arc::new(Mutex::new(vec![]));
+		let mut vec_song:     Arc<Mutex<Vec<Song>>>   = Arc::new(Mutex::new(vec![]));
+		let mut count_artist: Arc<Mutex<usize>>       = Arc::new(Mutex::new(0));
+		let mut count_album:  Arc<Mutex<usize>>       = Arc::new(Mutex::new(0));
+		let mut count_song:   Arc<Mutex<usize>>       = Arc::new(Mutex::new(0));
 
 		// In this loop, each `PathBuf` represents a new `Song` with metadata.
 		// There are 3 logical possibilities with 3 actions associated with them:
@@ -105,10 +122,16 @@ impl super::Ccd {
 		//
 		// Counts and memory must be updated as well.
 
-		//------------------------------------------------------------- Begin loop for each `PathBuf`.
-		// No indentation because this function is crazy long.
+		// Get an appropriate amount of threads.
+		let threads = super::threads_for_paths(vec_paths.len());
 
-		for path in paths {
+		//------------------------------------------------------------- Begin multi-threaded loop for each `PathBuf`.
+		// No indentation because this function is crazy long.
+		std::thread::scope(|scope| {
+		for paths in vec_paths.chunks(threads) {
+		scope.spawn(|| {
+		for path in paths.into_iter() {
+		let path = path.clone(); // TODO: figure out how to take ownership of this instead of cloning.
 
 		// Get the tags for this `PathBuf`, skip on error.
 		let tagged_file = match Self::path_to_tagged_file(&path) {
@@ -141,7 +164,7 @@ impl super::Ccd {
 		} = metadata;
 
 		//------------------------------------------------------------- If `Artist` exists.
-		if let Some((artist_idx, album_map)) = memory.get_mut(&*artist) {
+		if let Some((artist_idx, album_map)) = lock!(memory).get_mut(&*artist) {
 
 			//------------------------------------------------------------- If `Album` exists.
 			if let Some(album_idx) = album_map.get(&*album) {
@@ -158,13 +181,13 @@ impl super::Ccd {
 				};
 
 				// Update `Album`.
-				vec_album[*album_idx].songs.push(SongKey::from(count_song));
+				lock!(vec_album)[*album_idx].songs.push(SongKey::from(*lock!(count_song)));
 
 				// Push to `Vec<Song>`
-				vec_song.push(song);
+				lock!(vec_song).push(song);
 
 				// Increment `Song` count.
-				count_song += 1;
+				*lock!(count_song) += 1;
 
 				continue
 			}
@@ -173,7 +196,7 @@ impl super::Ccd {
 			// Create `Song`.
 			let song = Song {
 				title: title.to_string(),
-				album: AlbumKey::from(count_album),
+				album: AlbumKey::from(*lock!(count_album)),
 				runtime_human: HumanRuntime::from(runtime),
 				track,
 				track_artists,
@@ -198,9 +221,9 @@ impl super::Ccd {
 			let album_struct = Album {
 				// Can be initialized now.
 				title: album.to_string(),
-				artist: ArtistKey::from(count_artist),
+				artist: ArtistKey::from(*lock!(count_artist)),
 				release_human: Self::date_to_string(release),
-				songs: vec![SongKey::from(count_song)],
+				songs: vec![SongKey::from(*lock!(count_song))],
 				release,
 				art_bytes,
 				compilation,
@@ -214,18 +237,18 @@ impl super::Ccd {
 			};
 
 			// Update `Artist`.
-			vec_artist[*artist_idx].albums.push(AlbumKey::from(count_album));
+			lock!(vec_artist)[*artist_idx].albums.push(AlbumKey::from(*lock!(count_album)));
 
 			// Push `Album/Song`.
-			vec_album.push(album_struct);
-			vec_song.push(song);
+			lock!(vec_album).push(album_struct);
+			lock!(vec_song).push(song);
 
 			// Add to `HashMap` memory.
-			album_map.insert(album.to_string(), count_album);
+			album_map.insert(album.to_string(), *lock!(count_album));
 
 			// Increment `Album/Song` count.
-			count_album += 1;
-			count_song += 1;
+			*lock!(count_album) += 1;
+			*lock!(count_song) += 1;
 
 			continue
 		}
@@ -234,7 +257,7 @@ impl super::Ccd {
 		// Create `Song`.
 		let song = Song {
 			title: title.to_string(),
-			album: AlbumKey::from(count_album),
+			album: AlbumKey::from(*lock!(count_album)),
 			runtime_human: HumanRuntime::from(runtime),
 			track,
 			track_artists,
@@ -259,9 +282,9 @@ impl super::Ccd {
 		let album_struct = Album {
 			// Can be initialized now.
 			title: album.to_string(),
-			artist: ArtistKey::from(count_artist),
+			artist: ArtistKey::from(*lock!(count_artist)),
 			release_human: Self::date_to_string(release),
-			songs: vec![SongKey::from(count_song)],
+			songs: vec![SongKey::from(*lock!(count_song))],
 			release,
 			art_bytes,
 			compilation,
@@ -277,27 +300,36 @@ impl super::Ccd {
 		// Create `Artist`.
 		let artist_struct = Artist {
 			name: artist.to_string(),
-			albums: vec![AlbumKey::from(count_album)],
+			albums: vec![AlbumKey::from(*lock!(count_album))],
 		};
 
 		// Push `Artist/Album/Song`.
-		vec_artist.push(artist_struct);
-		vec_album.push(album_struct);
-		vec_song.push(song);
+		lock!(vec_artist).push(artist_struct);
+		lock!(vec_album).push(album_struct);
+		lock!(vec_song).push(song);
 
 		// Add to `HashMap` memory.
-		memory.insert(
+		lock!(memory).insert(
 			artist.to_string(),
-			(count_artist, HashMap::from([(album.to_string(), count_album)]))
+			(*lock!(count_artist), HashMap::from([(album.to_string(), *lock!(count_album))]))
 		);
 
 		// Increment `Artist/Album/Song` count.
-		count_artist += 1;
-		count_album += 1;
-		count_song += 1;
+		*lock!(count_artist) += 1;
+		*lock!(count_album)  += 1;
+		*lock!(count_song)   += 1;
 
-		//------------------------------------------------------------- End of initial `for` loop.
+		//------------------------------------------------------------- End of initial `thread::scope` & `for` loop.
 		}
+		});
+		}
+		});
+
+		// Unwrap the `Arc<Mutex<_>>`.
+		let (vec_artist, vec_album, vec_song) = (Arc::try_unwrap(vec_artist), Arc::try_unwrap(vec_album), Arc::try_unwrap(vec_song));
+		let (vec_artist, vec_album, vec_song) = (unwrap_or_mass!(vec_artist), unwrap_or_mass!(vec_album), unwrap_or_mass!(vec_song));
+		let (vec_artist, vec_album, vec_song) = (vec_artist.into_inner(), vec_album.into_inner(), vec_song.into_inner());
+		let (vec_artist, vec_album, vec_song) = (unwrap_or_mass!(vec_artist), unwrap_or_mass!(vec_album), unwrap_or_mass!(vec_song));
 
 		// Return the resulting `Vec`'s.
 		(vec_artist, vec_album, vec_song)
@@ -326,6 +358,9 @@ impl super::Ccd {
 	//---------------------------------------------------------------------------------------------------- Private tag functions.
 	#[inline(always)]
 	// Attempts to probe a `Path`.
+	//
+	// This is the `heaviest` function within the entire `new_collection()` function.
+	// It accounts for around 90% of the total time spent making the `Collection`.
 	fn path_to_tagged_file(path: &Path) -> Result<lofty::TaggedFile, anyhow::Error> {
 		Ok(lofty::Probe::open(path)?.guess_file_type()?.read()?)
 	}
