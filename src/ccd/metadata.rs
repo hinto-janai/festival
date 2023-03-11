@@ -83,6 +83,9 @@ impl super::Ccd {
 		to_kernel: &Sender<CcdToKernel>,
 		vec_paths: Vec<PathBuf>
 	) -> (Vec<Artist>, Vec<Album>, Vec<Song>) {
+		// TODO:
+		// Send messages to `Kernel` & log.
+
 		// For efficiency reasons, it's best to do
 		// all these operations in a single loop.
 		//
@@ -326,6 +329,8 @@ impl super::Ccd {
 		});
 
 		// Unwrap the `Arc<Mutex<_>>`.
+		// TODO:
+		// Handle failure, return error.
 		let (vec_artist, vec_album, vec_song) = (Arc::try_unwrap(vec_artist), Arc::try_unwrap(vec_album), Arc::try_unwrap(vec_song));
 		let (vec_artist, vec_album, vec_song) = (unwrap_or_mass!(vec_artist), unwrap_or_mass!(vec_album), unwrap_or_mass!(vec_song));
 		let (vec_artist, vec_album, vec_song) = (vec_artist.into_inner(), vec_album.into_inner(), vec_song.into_inner());
