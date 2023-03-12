@@ -7,16 +7,37 @@ For details on any part of the system, look within any given sub-directory for i
 	- [Data](#Data)
 	- [Threads](#Threads)
 	- [Misc](#Misc)
-* [Threads](#Threads)
+* [Overview](#Overview)
+	- [Collection](#Collection)
 	- [Kernel](#Kernel)
 	- [CCD](#CCD)
 	- [Watch](#Watch)
 	- [Search](#Search)
 	- [Audio](#Audio)
 	- [GUI](#GUI)
-* [Collection](#Collection)
+* [Collection](#Collection-1)
+	- [The 3 Vecs](#The-3-Vecs)
+	- [Keys](#Keys)
+	- [Slices](#Slices)
+	- [Lifetime](#Lifetime)
+	- [File Format](#File-Format)
+	- [HashMap vs Pointer vs Index](#HashMap-vs-Pointer-vs-Index)
+* [Modularity](#Modularity)
+	- [Why Kernel?](#Why-Kernel)
+	- [Cons](#Cons)
+	- [Pros](#Pros)
+* [Disk]
+	- [Collection](#Collection-2)
+	- [State](#State)
+	- [Slices](#Slices-1)
+* [Internal Libraries]
+	- [egui](#egui)
+	- [Disk](#Disk)
+	- [Human](#Human)
+	- [RoLock](#RoLock)
+* [Audio Codecs](#Audio-Codecs)
 * [Bootstrap](#Bootstrap)
-* [Scale](#Scale)
+* [Alternative Frontends](#Alternative-Frontends)
 
 ---
 
@@ -54,17 +75,28 @@ These are top-level files for miscellaneous stuff:
 
 ---
 
-## Threads
+## Overview
 <div align="center">
 
-The relationship between the main threads and the data. They communicate via `crossbeam_channels`.
+The relationship between the main threads and data. Threads communicate via `crossbeam_channels`.
 
 <img src="assets/images/diagram/overview.png" width="66%"/>
 
 </div>
 
+### Collection
+This is the core data structure that holds the user's entire music _collection_.
+
+`Artist`'s, `Album`'s, `Song`'s, art, metadata, relational data, it's all here.
+
+The actual _audio data_ is not stored, rather a `PATH` to where that particular `Song` can be found is saved, album art bytes on the other hand _is_ saved (after being resized).
+
+`Collection`'s lifetime is as long as `Festival` is open, or until a reset is requested.
+
+After initial creation, `Collection` is permanently wrapped in an `Arc` such that all threads can have fast access to it while disallowing any mutation.
+
 ### Kernel
-`Kernel` acts as the coordinator for all other threads. If ownership of any long-lived data is required, `Kernel` is most likely the one to have it. Mutable access to shared data is also restricted to `Kernel`. When any thread needs to mutate something (or really do anything), they usually need to go through `Kernel` first.
+`Kernel` is the coordinator for all other threads. If ownership of any long-lived data is required, `Kernel` is most likely the one to have it. Mutable access to shared data is also restricted to `Kernel`. When any thread needs to mutate something (or really do anything), they usually need to go through `Kernel` first.
 
 Each thread in the system only has one `Sender/Receiver` channel pair, all sending/receiving to & from `Kernel`. Although, `Kernel` is the exception, it has channels to send and receive from _all_ threads.
 
@@ -109,7 +141,7 @@ This command:
 just creates a file called `play` within `~/.local/share/festival/signal/`, which `Watch` promptly deletes after sending a message to `Kernel` saying that the user requested `Play`.
 
 The command:
-```
+```bash
 touch ~/.local/share/festival/signal/play
 ```
 is equivalent.
@@ -152,40 +184,50 @@ The GUI library currently used is [`egui`](https://github.com/emilk/egui).
 ---
 
 ## Collection
-### HashMap vs Pointers (Rc) vs Indicies
-### Sorting pointer/indicies vs actual vec
-### Invalid pointers and indicies
-### Keys and Keychain
-### Queues and playlists
-### CCD (Collector Constructor Destructor)
-#### Fast Image Resizing
+### The 3 Vecs
+### Keys
+### Slices
+### Lifetime
+### File Format
+### HashMap vs Pointer vs Index
 
-### Pluggable Client (GUI, CLI, Web, HTTP)
-### Main Threads (GUI, Kernel, etc)
-### Some threads can't hang
+---
+
+## Modularity
 ### Why Kernel?
-### Kernel order of events
-### Bincode and version headers
-### Performance cost of message passing vs direct access (GUI & CCD progress msg)
-#### Metadata vs Same dir image (which image among multiple?)
+### Cons
+### Pros
 
-### Audio Codec
+---
+
+## Disk
+### Collection
+### State
+### Slices
+
+---
+
+## Internal Libraries
+### egui
+### Disk
+### Human
+### RoLock
+
+---
+
+## Audio Codec
 - AAC
 - ALAC
 - FLAC
 - MP3
 - Ogg/OPUS
+- Vorbis
 - PCM (wav, aiff)
+
+---
 
 ## Bootstrap
 
-## Scale
+---
 
-## Disk
-### Collection
-### Settings/State
-
-## Lib
-### Disk
-### Human
-### RoLock
+## Alternative Frontends
