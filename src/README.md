@@ -18,8 +18,10 @@ For details on any part of the system, look within any given sub-directory for i
 * [Collection](#Collection-1)
 	- [The 3 Vecs](#The-3-Vecs)
 	- [Keys](#Keys)
-	- [Slices](#Slices)
+	- [Keychains and Slices](#Keychains-and-Slices)
+	- [Construction and Destruction](#Construction-and-Destruction)
 	- [Lifetime](#Lifetime)
+	- [Mutation](#Mutation)
 	- [File Format](#File-Format)
 	- [HashMap vs Pointer vs Index](#HashMap-vs-Pointer-vs-Index)
 * [Modularity](#Modularity)
@@ -31,12 +33,11 @@ For details on any part of the system, look within any given sub-directory for i
 	- [State](#State)
 	- [Slices](#Slices-1)
 * [Internal Libraries]
-	- [egui](#egui)
 	- [Disk](#Disk)
 	- [Human](#Human)
 	- [RoLock](#RoLock)
+* [External Libraries]
 * [Audio Codecs](#Audio-Codecs)
-* [Bootstrap](#Bootstrap)
 * [Alternative Frontends](#Alternative-Frontends)
 
 ---
@@ -82,6 +83,17 @@ The relationship between the main threads and data. Threads communicate via `cro
 
 <img src="assets/images/diagram/overview.png" width="66%"/>
 
+This is simplified explaination of what happens at `main()`.
+
+Although, reading `main.rs` might be easier, it's only `30` lines long.
+
+1. User opens `Festival`
+2. CLI arguments are handled
+3. `Kernel` <-> `GUI` channels created
+4. `Kernel` is spawned, given channel
+5. `Kernel` spawns everyone else, starts a bunch of stuff
+6. `main()` directly turns into `GUI`, taking the other end of the channel
+
 </div>
 
 ### Collection
@@ -112,7 +124,7 @@ This is temporary thread that gets spun up by `Kernel` for either:
 a. Creating a new `Collection` from scratch
 b. Converting an already existing `Collection`'s images
 
-All the functions related to the actual _construction_ of the `Collection` belong to `CCD` (found in its folder `ccd/`). `CCD` itself spins up even more threads under its own control (`worker` threads) to process data in parallel.
+ All the functions related to the actual _construction_ of the `Collection` belong to `CCD` (found in its folder `ccd/`). `CCD` itself spins up even more threads under its own control (`worker` threads) to process data in parallel.
 
 At the end of option `a)`, `CCD` is given its final task in life: to `drop()` the old `Collection`.
 
@@ -184,50 +196,554 @@ The GUI library currently used is [`egui`](https://github.com/emilk/egui).
 ---
 
 ## Collection
+The core "database" that holds all the (meta)data about the user's music.
+
+This would normally be an _actual_ database like `SQLite`, `Postgres`, `LMDB`, etc, but `Festival` just uses a regular old `struct` made up of `Vec`'s and a few other `std` types. The entire `Collection` is in-memory at all times.
+
+The main reasons why this is done:
+
+- Performance
+- `std` types instead of `C` bindings
+- Access to all `Vec` methods (`albums.iter()`) and indexing (`albums[88]`)
+- Metadata is static (there's _always_ an artist, track length, song title, etc). This makes a "hand-crafted" database less insane than it sounds since the _type_ of data is known at compile time (song title lengths will vary, but there _will_ be a title).
+- I'm stupid and this was the first idea I thought of when considering how `egui` would (cheaply) draw all the album art
+
+Here's an abbreviated version of what `Collection` actually looks like:
+```rust
+struct Collection {
+	artists: Vec<Artist>,
+	albums: Vec<Album>,
+	songs: Vec<Song>,
+
+	sorted_artists: Vec<ArtistKey>,
+	sorted_albums: Vec<AlbumKey>,
+	sorted_songs: Vec<SongKey>,
+
+	[...]
+}
+```
+
 ### The 3 Vecs
+The three main `Vec`'s that the `Collection` is made up of are:
+
+1. `Vec<Artist>`
+2. `Vec<Album>`
+3. `Vec<Song>`
+
+These 3 are completely seperate and contain relatively scoped data.
+
+Pros of having completely separate `Vec`'s:
+
+- Processing a _specific_ type of data is much easier, e.g: only iterating over `Album`'s
+- Lots of operations only need `Song` data and `collection.songs[0].title` is much prettier than `collection.artists[92].albums[3].songs[0].title`
+- Indicies refer to an "absolute" index, e.g: `collection.songs[0]` is the 1st song in the `Vec` containing ***all songs***, whereas in the nested version, it would be the 1st song within some particular `Album` belonging to some particular `Artist`.
+- Multiple flat data structures are easier to reason about than their nested counterparts
+
+Con:
+
+- All relational data is lost (embedding `Song` within `Album` within `Artist` "automatically" links them)
+- Using indicies instead of text keys means playlists/queues are connected with a _particular_ `Collection` and cannot be transferred
+
 ### Keys
-### Slices
+`Key`'s are just simple wrappers around a `usize`, literally defined like so:
+```rust
+struct ArtistKey(usize);
+struct AlbumKey(usize);
+struct SongKey(usize);
+```
+This is 100% just for compile-time type safety.
+
+When indexing `Vec<Artist>`, you really want to make sure you have a `usize` corresponding to `Vec<Artist>`, so instead of raw indexing like so:
+```rust
+let my_usize = get_index();
+//  ^
+//  |_ not necessarily clear which `Vec` this is for.
+
+collection.artists[my_usize]; // Compiles, works.
+collection.albums[my_usize];  // Compiles, maybe will `panic!()`
+collection.songs[my_usize];   // Compiles, maybe will `panic!()`
+```
+Having this `Key` type makes what thing we're looking for _explicit_:
+```rust
+let key = ArtistKey::from(0);
+
+collection.idx_artist(key); // <- We get artist[0].
+collection.idx_song(key);   // <- Compile error!
+```
+
+In terms of overhead, all the functions are inlined. Just to make sure though, I checked the assembly. It's optimized away with both index operations resulting in the same instructions:
+```
+mov [...]
+lea [...]
+```
+Thanks compiler.
+
+_Note: it's still 100% possible to do `collection.artists[my_usize]` or create a `Key` from an incorrect index so I'm still "trusting" myself here (although less so than tossing usizes around). If I ever make `Festival`'s API public, the `Vec`'s will be wrapped so this isn't possible._
+
+<div align="center">
+
+The problem of relational data being lost between the 3 `Vec`'s is solved by embedding the related `Key`'s within the `Artist/Album/Song` structs:
+
+<img src="assets/images/diagram/doubly.png" width="66%"/>
+
+</div>
+
+This is essentially a doubly-linked-list, but across vectors. Since the `Collection` is _static_ for its entire lifetime, we also get to use indicies instead of pointers, meaning `artist[0]` will always `== artist[0]` and that saving to disk is possible (it's just a `usize`).
+
+This relational-link only needs to be done once, when the `Collection` is initially created, where-after, when given _any_ `Song`, you can traverse to the `Album`, and then to the `Artist` or vice-versa.
+
+### Keychains and Slices
+There are situations where you want multiple `Key`'s.
+
+The primitive building block made from an `ArtistKey`, `AlbumKey`, and `SongKey` is the `Key`, defined as:
+```rust
+struct Key(ArtistKey, AlbumKey, SongKey);
+```
+You could consider this an _absolute_ key to a specific `Song` within a specific `Album` owned by a specific `Artist`.
+
+When multiple `Key`'s are needed, but keeping them separate is desired, there is `Keychain`:
+```rust
+struct Keychain(Vec<ArtistKey>, Vec<AlbumKey>, Vec<SongKey>);
+```
+
+When you _do_ want them linked together, there is `Slice`, which is like an actual Rust `slice`. It's a dynamically-sized view into a contiguous sequence:
+```rust
+struct Slice(VecDeque<Key>);
+```
+This is the structure the song queue and user playlists are made out of (which are the same thing, really).
+
+### Construction and Destruction
+
+The linking and creation of the `Collection` itself is done by the `Collection Constructor Destructor`, or, `CCD`.
+
+The "create a new `Collection`" process, simplified:
+
+1. User requests a new `Collection`
+2. `Kernel` spawns `CCD`
+3. `CCD` creates the new `Collection`
+4. `CCD` sends the new `Collection` to `Kernel`
+5. `Kernel` sends a pointer to the new `Collection` to all threads
+6. `CCD` saves the new `Collection` to disk, deconstructs the old `Collection`, and dies
+
+<div align="center">
+
+The request for a new `Collection` always comes from the user (GUI, in this diagram).
+
+After sending the `PATH`'s it wants scanned to `Kernel`, `GUI` drops its pointer to the old `Collection`.
+
+`Kernel` then tells everyone to drop their pointers, and goes into "CCD" mode, spawning `CCD`, giving it a pointer and _only_ listening to it.
+
+<img src="assets/images/diagram/ccd1.png" width="66%"/>
+
+After `CCD` finishes, it hands ownership of the new `Collection` over to `Kernel`, after which `Kernel` drops its pointer to the _old_ `Collection`, leaving `CCD` the last one with a pointer to it.
+
+`Kernel` now tells `CCD` to "die", and closes the channel.
+
+`CCD`, being the last one holding onto an `Arc` to the _old_ `Collection`, will be the one actually _deconstructing_ the underlying memory. This role is given to `CCD` as:
+
+1. Dropping a potentially heavy & recursive object could take a while (bad idea for `GUI`)
+2. `CCD` is already on its way out, so why not let it take out the garbage too
+
+<img src="assets/images/diagram/ccd2.png" width="66%"/>
+
+In the meanwhile, `Kernel` is sending signals to all the main threads, giving them pointers to the _new_ `Collection`, effectively ending this "new `Collection`" process.
+
+<img src="assets/images/diagram/ccd3.png" width="66%"/>
+
+</div>
+
 ### Lifetime
+`Collection` gets created _once_, (its core data) never gets mutated, and lives in memory as long as `Festival` is open or until the user requests a new one.
+
+To prevent invalidating all the indicies to the inner `Vec`'s, `Collection` _must_ be static.
+
+This unfortunately means the lifetime of user-created playlists are tied with the `Collection`.
+
+Since playlists are just `CollectionSlice`'s, they will be invalidated if indicies are changed.
+
+This can be fixed by:
+
+1. Storing `Artist`, `Album` and `Song` names by text
+2. Comparing those with the new files when the user creates a new `Collection`
+3. Connect the known names with the new indicies
+4. Do ??? with names that don't exist anymore
+
+This isn't implemented because I personally never use playlists (it would be a lot of work, too).
+
+Pretty much all collection/library-based music players (iTunes, MusicBee, Lollypop) have dynamic databases, meaning, inserting and removing songs/albums is no problem.
+
+Since in `Collection`, that would end up invalidating everything, mutation is not possible, instead a _whole new_ `Collection` must be made from scratch.
+
+The one and only saving grace for what otherwise sounds like bad code:
+
+- It's fast.
+
+The time it takes `Lollypop` to add 1 new song and reload is the same time it takes `Festival` to create [**an entire `Collection` consisting of 135 `Artist`'s, 500 `Album`'s, and 7000 `Song`'s from scratch.**](https://github.com/hinto-janai/festival/cmp)
+
+Not the mention the access times of `SQL` queries vs. indexing a `Vec`.
+
+### Mutation
+After `CCD` hands off the finished `Collection` to `Kernel`, `Kernel` wraps it in an `Arc` and it becomes immutable from that point.
+
+**Although, mutation does occur at a single point:** when `Festival` starts up, `Collection` is read from disk, and the `Album` art is converted from `Vec<u8>` into `egui` images. Other than this, the core data is _never_ touched. The reason why this isn't handled by `serde` and immediately wrapped into an `Arc` is because that image conversion has been customized to use multiple threads.
+
 ### File Format
+[`Bincode`](https://github.com/bincode-org/bincode) is used to save the `Collection` and its related data structures (`Queue`, `Playlist`) to disk.
+
+[`TOML`](https://github.com/ordian/toml_edit) is used for miscellaneous state, like the `GUI` settings.
+
+`Festival` uses an internal library (`disk`) that add some extra features to `Bincode` files. In particular, it adds a versioning system. This is for when I eventually realize the `Collection` has a mistake in it's structure, or that something should be changed. Having a versioning system allows easy backwards compatability, and also could allow for different "types" of `Collection`'s based off the use-case, for example: `Daemon + CLI Client` would not need album art, so that could be removed which would save a lot of processing time and disk space.
+
+The versioning system is quite simple, `25` bytes of data are just added to the front of the file before saving.
+
+The first `24` bytes are a unique header. This is to make sure the following byte representing the version _is_ the version byte:
+```rust
+// The 24 unique bytes our Bincode files will start with.
+// It is the UTF-8 encoded string "-----BEGIN FESTIVAL-----" as bytes.
+// The next byte after _should_ be our version, then our actual data.
+const FESTIVAL_HEADER: [u8; 24] = [
+    45, 45, 45, 45, 45,             // -----
+    66, 69, 71, 73, 78,             // BEGIN
+    32,                             //
+    70, 69, 83, 84, 73, 86, 65, 76, // FESTIVAL
+    45, 45, 45, 45, 45              // -----
+];
+```
+The next byte is the version, represented by a `u8`, meaning it has `0-255` different possible values:
+```rust
+// Current major version of the `Collection`.
+const COLLECTION_VERSION: u8 = 1;
+```
+After this, the rest of the bytes should be the `Collection` in binary form.
+
+Currently, album art is represented in the `Collection` as `Option<Vec<u8>>` (RBG format), which gets transformed into images the frontend can actually display at runtime. The current GUI is `egui`, so it gets turned into `egui_extras::RetainedImage`. This will obviously change as different frontends are made.
+
 ### HashMap vs Pointer vs Index
+Since I didn't want to use a real database, there were 3 possible `std`-based setups I thought of:
+
+---
+
+Option 1 - Nested `HashMap`:
+```rust
+struct Collection(HashMap<Artist, HashMap<Album, HashMap<Song>>>);
+```
+Pros:
+
+- Relatively fast
+- Easy access with `String` keys
+- Relational data is "automatic"
+- Queue/Playlists would be _so easy_ to handle
+- All `HashMap` methods are available to use
+
+Cons:
+
+- Not possible to sort directly
+- No sequential iteration, `HashMap` key-value pairs are in random order
+- Nested data structures make my brain hurt
+- Nested data structures makes code long (`collection.get("artist").unwrap().get("album").unwrap().get("song").unwrap()`)
+
+---
+
+Option 2 - Separate `Vec`'s with connecting smart pointers:
+```rust
+struct Collection {
+	artists: Vec<Arc<Artist>>,
+	albums: Vec<Arc<Album>>,
+	songs: Vec<Arc<Song>>,
+}
+
+struct Artist {
+	albums: Vec<Arc<Album>>,
+
+	[...]
+}
+```
+Pros:
+
+- Very fast
+- Moving the elements in the `Vec` (e.g, sorting) doesn't cause invalidation, pointers _always_ point to the same object
+- Dynamic data is also easier since invalidation isn't a concern
+- Can sort cloned `Arc`'s based off the objects instead of the objects themselves
+- Sorted iteration is extremely easy (`collection.albums.iter()`)
+- All `Vec` methods are available to use
+
+Cons:
+
+- Cannot save to disk (linking has to be done at startup _everytime_)
+- Hard to read, especially if mutability is desired (`Vec<Arc<RwLock<Artist>>>`)
+
+---
+
+Option 3 - Separate `Vec`'s with connecting `usize` indicies, wrapped in `Arc`:
+```rust
+struct Collection {
+	artists: Vec<Artist>,
+	albums: Vec<Album>,
+	songs: Vec<Song>,
+}
+
+struct Artist {
+	albums: Vec<usize>,
+
+	[...]
+}
+
+let collection: Arc<Collection> = [...];
+```
+Pros:
+
+- **Extremely fast**
+- Indicies will _always_ point to the same object (`artist[0]` will always `== artist[0]`)
+- Saving to disk is as easy as saving the `usize`
+- Can sort the `usize` based off the objects instead of the objects themselves
+- Sorted iteration is extremely easy (`collection.albums.iter()`)
+- All `Vec` methods are available to use
+
+Cons:
+
+- Mutating the `Vec`'s after creation is not allowed, will result in index invalidation
+- The lifetime of any dynamic data built-on top of this is also tied to it (`Playlists`)
+
+This is the option I chose.
 
 ---
 
 ## Modularity
+`Festival`'s internals are more or less separated into "entities". Each "entity" in the system is its own thing, and really only passes messages to other parts in the system. This approach was taken because:
+
+- Unit testing is easier
+- Plugging in different frontends becomes much easier
+- Separating the different parts of the system and giving them names is easier to reason about than one single `Festival` blob. The scope of what any specific code is doing becomes smaller; less variables to keep in mind when reading code.
+
 ### Why Kernel?
+`Kernel` doesn't actually do much, it mostly just forwards messages. 
+
+But the existance of `Kernel` allows the other parts of the system to have a _single, simple_ interface.
+
+Consider the following diagram showing `Festival` if `Kernel` didn't exist:
+
+<img src="assets/images/diagram/no_kernel.png" width="66%"/>
+
+`GUI` (and every frontend that gets made) would need to implement interface code for all parts of the system.
+
+Reversely, the other parts of the system would also need to have a public API that suits `x` frontend.
+
+Instead of that, `Kernel` acts as the middleman, so that _all_ threads go through it, and that all this "interface" logic is encapsulated:
+
+<img src="assets/images/diagram/frontend.png" width="66%"/>
+
+Each thread communicates with `Kernel` and `Kernel` only, sending well-defined messsage. This is literally the message implementation between `CCD` and `Kernel`:
+```rust
+enum CcdToKernel {
+    NewCollection(Collection),
+    Failed(anyhow::Error),
+    Update(String),
+}
+
+enum KernelToCcd {
+	Die,
+}
+```
+If _all_ messages were sent/received from `GUI`:
+
+- The enum base size would be space inefficient
+- The `match` statements would be pages long
+- Any other part of the system could "fake" send messages from other parts of the system (`Audio` could send `CCD` messages)
+
+The `crossbeam_channel` between `Kernel` and every part of the system is _unique_ and only the proper thread can send them.
+```rust
+let (tx, rx) = crossbeam_channel::unbounded::<CcdToKernel>();
+```
+That channel only get passed to `CCD` and `Kernel`, meaning `Audio` or other threads _cannot_ "fake" send messages:
+```rust
+audio_to_kernel.send(CcdToKernel::Update("fake msg"));
+//                   ^
+//                   |
+//             Compile error!
+//         This channel is type:
+// 'crossbeam_channel::unbounded::<AudioToKernel>'
+//
+// Expected | AudioToKernel
+// Found    | CcdToKernel
+```
+
+These unrealistic type errors don't matter too much since after all, _I_ am the one writing the code, but this does matter if `Festival`'s internals ever get exposed as a public API.
+
+Also, it's always a nice feeling to have the type checker behind your back. This same idea applies to using `Key` instead of a raw `usize` for `Collection` indexing.
+
 ### Cons
+
+- There technically is a performance cost, albeit _tiny_. Any message passing will be slower than having _all_ variables in scope in a single thread (highly unrealistic spaghetti code)
+
 ### Pros
+
+- More modular, different components can be swapped more easily
+- Cleaner, separated, and more well defined code
+- Using the word `Kernel` is cool
 
 ---
 
 ## Disk
+Specification of what and where `Festival` saves things to disk.
+
+[`directories`](https://github.com/soc/directories-rs) is used, so `Festival` (mostly) follows:
+
+- The XDG base directory and the XDG user directory specifications on Linux
+- The Known Folder system on Windows
+- The Standard Directories on macOS
+
+The only folder actually used is the `Data` directory:
+
+| Platform | Value                                                       | Example                                              |
+|----------|-------------------------------------------------------------|------------------------------------------------------|
+| Linux    | `$XDG_DATA_HOME/festival` or `$HOME/.local/share/festival/` | `/home/alice/.local/share/festival/`                 |
+| macOS    | `$HOME/Library/Application Support/Festival/`               | `/Users/Alice/Library/Application Support/Festival/` |
+| Windows  | `{FOLDERID_LocalAppData}\Festival\`                         | `C:\Users\Alice\AppData\Local\Festival\`             |
+
 ### Collection
-### State
+The main `Collection`.
+
+Saved as `collection.bin`.
+
+| Platform | Value                                                                     | Example                                                            |
+|----------|---------------------------------------------------------------------------|--------------------------------------------------------------------|
+| Linux    | `$XDG_DATA_HOME/festival` or `$HOME/.local/share/festival/collection.bin` | `/home/alice/.local/share/festival/collection.bin`                 |
+| macOS    | `$HOME/Library/Application Support/Festival/collection.bin`               | `/Users/Alice/Library/Application Support/Festival/collection.bin` |
+| Windows  | `{FOLDERID_LocalAppData}\Festival\collection.bin`                         | `C:\Users\Alice\AppData\Local\Festival\collection.bin`             |
+
+### State and Settings
+The `GUI` state and settings.
+
+Saved as `state.toml` and `settings.toml`
+
+| Platform | Value                                                                 | Example                                                        |
+|----------|-----------------------------------------------------------------------| ---------------------------------------------------------------|
+| Linux    | `$XDG_DATA_HOME/festival` or `$HOME/.local/share/festival/state.toml` | `/home/alice/.local/share/festival/state.toml`                 |
+| macOS    | `$HOME/Library/Application Support/Festival/state.toml`               | `/Users/Alice/Library/Application Support/Festival/state.toml` |
+| Windows  | `{FOLDERID_LocalAppData}\Festival\state.toml`                         | `C:\Users\Alice\AppData\Local\Festival\state.toml`             |
+
 ### Slices
+This is the `Queue` and `Playlist`'s.
+
+Saved as `queue.bin` and `playlist.bin`
+
+| Platform | Value                                                                      | Example                                                       |
+|----------|----------------------------------------------------------------------------| --------------------------------------------------------------|
+| Linux    | `$XDG_DATA_HOME/festival` or `$HOME/.local/share/festival/queue.bin`       | `/home/alice/.local/share/festival/queue.bin`                 |
+| macOS    | `$HOME/Library/Application Support/Festival/queue.bin`                     | `/Users/Alice/Library/Application Support/Festival/queue.bin` |
+| Windows  | `{FOLDERID_LocalAppData}\Festival\queue.bin`                               | `C:\Users\Alice\AppData\Local\Festival\queue.bin`             |
+
+### Signals
+These are the `Signal` files, created by commands like `./festival --play`.
+
+These are located in the subdirectory `signal`.
+
+You can manually send signals to `Festival` by creating a file within the `signal` subdirectory with any of these filenames:
+
+- `play`
+- `stop`
+- `next`
+- `last`
+- `shuffle`
+- `repeat`
+
+They'll immediately get deleted, and `Festival` will act on the signal.
+
+| Platform | Value                                                              | Example                                                     |
+|----------|--------------------------------------------------------------------|-------------------------------------------------------------|
+| Linux    | `$XDG_DATA_HOME/festival` or `$HOME/.local/share/festival/signal/` | `/home/alice/.local/share/festival/signal/`                 |
+| macOS    | `$HOME/Library/Application Support/Festival/signal/`               | `/Users/Alice/Library/Application Support/Festival/signal/` |
+| Windows  | `{FOLDERID_LocalAppData}\Festival\signal\`                         | `C:\Users\Alice\AppData\Local\Festival\signal\`             |
 
 ---
 
 ## Internal Libraries
-### egui
+`Festival` uses some internal libraries, located at `lib/`. These are libraries I've created that aren't released publically, because getting them ready for public use is work.
+
 ### Disk
+This library provides a convenient trait macro that adds useful disk-related functions to a `struct`.
+
+Basically, `serde` + `directories` + a whole bunch of file formats.
+
+For example, this is how `Collection` is saved to disk:
+
+```rust
+collection.write_atomic();
+```
+
+I think something like this already exists but I wanted custom `Bincode` header functionality, so I wrote this.
+
+It's not ready because I'm too lazy to learn actual `#[derive]` macros, so currently it looks something like this:
+```rust
+bincode_file!(...);
+#[derive(Serialize, Deserialize)]
+struct Collection {
+	[...]
+}
+```
+
 ### Human
+Human formatting of numbers, time, runtime.
+
+Basically, input a number, get a human-readable `String`:
+```rust
+let number  = HumanNumber::from(1000);
+let time    = HumanTime::from(Duration::from_secs(253));
+let runtime = HumanRuntime::from(253.139782);
+
+println!("{}\n{}\n{}", number, time, runtime);
+
+> 1,000
+> 4 minutes, 13 seconds
+> 4:13
+```
+
 ### RoLock
+Read-Only Lock.
+
+Basically, thread-safe, read-only version of `RwLock`.
+
+`RoLock` is defined like this:
+```rust
+struct RoLock<T>(Arc<RwLock<T>>);
+```
+It re-implements `RwLock`'s functions, except `.write()`.
+
+Like the `Key` vs `usize` situation, this is 100% for type safety.
+
+Even though _I_ am the one writing the code, and could just never call `.write()` on a `RwLock`, it feels nice having the type checker on your side. This type makes calling `.write()` a compile time error instead.
+
+And yes, it gets optimized away.
 
 ---
 
-## Audio Codec
+## External Libraries
+There are forks of external libraries located in `external/` that contain some custom patches.
+
+More details can be found at `external/README.md` on exactly what patches were made.
+
+---
+
+## Audio Codecs
+The currently supported audio codecs that `Festival` will parse, and play:
+
 - AAC
+- AIFF
 - ALAC
 - FLAC
 - MP3
 - Ogg/OPUS
 - Vorbis
-- PCM (wav, aiff)
-
----
-
-## Bootstrap
+- WAV
 
 ---
 
 ## Alternative Frontends
+Some frontends I have in mind:
+
+- WASM version of the current `egui` GUI
+- Daemon + Client ([`mpd`](https://github.com/MusicPlayerDaemon/MPD)-like but `RPC` instead of... whatever `mpd` is doing)
+- Web for mobile (serving full audio data, not just a controller)
+- Web for mobile (just a controller)
+
+I'd like to make these and/or expose `Festival`'s internals as a library with proper APIs... eventually.
