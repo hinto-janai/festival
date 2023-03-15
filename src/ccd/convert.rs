@@ -19,7 +19,7 @@ use crate::macros::{
 use crate::collection::{
 	Album,
 	Collection,
-	CollectionKeychain,
+	Keychain,
 	ArtistKey,
 	AlbumKey,
 	SongKey,

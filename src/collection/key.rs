@@ -85,25 +85,17 @@ macro_rules! impl_from_tuple {
 
 //---------------------------------------------------------------------------------------------------- CollectionKey
 #[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
-pub struct CollectionKey {
-	pub artist: ArtistKey,
-	pub album: AlbumKey,
-	pub song: SongKey,
-}
+pub struct Key(pub ArtistKey, pub AlbumKey, pub SongKey);
 
-impl CollectionKey {
+impl Key {
 	#[inline(always)]
 	pub const fn new() -> Self {
-		Self {
-			artist: ArtistKey::new(),
-			album: AlbumKey::new(),
-			song: SongKey::new(),
-		}
+		Self(ArtistKey::new(), AlbumKey::new(), SongKey::new())
 	}
 
 	#[inline(always)]
 	pub const fn to_tuple(&self) -> (usize, usize, usize) {
-		(self.artist.inner(), self.album.inner(), self.song.inner())
+		(self.0.inner(), self.1.inner(), self.2.inner())
 	}
 }
 
@@ -111,7 +103,7 @@ impl CollectionKey {
 //
 // Since the target will (probably...) always be `x86_64`,
 // the cast from `u64` to `usize` is (probably...) always safe.
-impl<A, B, C> From<(A, B, C)> for CollectionKey
+impl<A, B, C> From<(A, B, C)> for Key
 where
 	A: Into<u64>,
 	B: Into<u64>,
@@ -119,30 +111,27 @@ where
 {
 	#[inline(always)]
 	fn from(tuple: (A, B, C)) -> Self {
-		Self {
-			artist: ArtistKey(tuple.0.into() as usize),
-			album: AlbumKey(tuple.1.into() as usize),
-			song: SongKey(tuple.2.into() as usize),
-		}
+		Self(ArtistKey(tuple.0.into() as usize), AlbumKey(tuple.1.into() as usize), SongKey(tuple.2.into() as usize))
 	}
 }
 
 //---------------------------------------------------------------------------------------------------- CollectionKeychain
 #[derive(Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
-pub struct CollectionKeychain {
-	pub artists: Vec<ArtistKey>,
-	pub albums: Vec<AlbumKey>,
-	pub songs: Vec<SongKey>,
-}
+pub struct Keychain(Vec<ArtistKey>, Vec<AlbumKey>, Vec<SongKey>);
 
-impl CollectionKeychain {
+impl Keychain {
 	#[inline(always)]
 	pub const fn new() -> Self {
-		Self {
-			artists: vec![],
-			albums: vec![],
-			songs: vec![],
-		}
+		Self(vec![], vec![], vec![])
+	}
+
+	#[inline(always)]
+	pub const fn from_vecs(
+		artists: Vec<ArtistKey>,
+		albums: Vec<AlbumKey>,
+		songs: Vec<SongKey>,
+	) -> Self {
+		Self(artists, albums, songs)
 	}
 }
 

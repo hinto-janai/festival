@@ -8,7 +8,7 @@ use crate::macros::{
 };
 use crate::collection::{
 	Collection,
-	CollectionKeychain,
+	Keychain,
 	ArtistKey,
 	AlbumKey,
 	SongKey,
@@ -26,10 +26,10 @@ use crossbeam_channel::{Sender,Receiver};
 //---------------------------------------------------------------------------------------------------- Search thread.
 // This represents the `Search` thread.
 pub(crate) struct Search {
-	cache:       HashMap<String, CollectionKeychain>, // Search index cache
-	collection:  Arc<Collection>,                     // Pointer to `Collection`
-	to_kernel:   Sender<SearchToKernel>,              // Channel TO `Kernel`
-	from_kernel: Receiver<KernelToSearch>,            // Channel FROM `Kernel`
+	cache:       HashMap<String, Keychain>, // Search index cache
+	collection:  Arc<Collection>,           // Pointer to `Collection`
+	to_kernel:   Sender<SearchToKernel>,    // Channel TO `Kernel`
+	from_kernel: Receiver<KernelToSearch>,  // Channel FROM `Kernel`
 }
 
 //---------------------------------------------------------------------------------------------------- Search functions.
@@ -52,7 +52,7 @@ impl Search {
 		Self::main(search);
 	}
 
-	fn search(&mut self, input: String) -> CollectionKeychain {
+	fn search(&mut self, input: String) -> Keychain {
 		// Return early if search input is in cache.
 		if let Some(v) = self.cache.get(&input) {
 			return v.clone()
@@ -74,11 +74,7 @@ impl Search {
 		let songs:   Vec<SongKey>   = songs.iter().map(|tuple| tuple.1).collect();
 
 		// Create keychain.
-		let keychain = CollectionKeychain {
-			artists,
-			albums,
-			songs,
-		};
+		let keychain = Keychain::from_vecs(artists, albums, songs);
 
 		// Add to cache.
 		self.cache.insert(input, keychain.clone());

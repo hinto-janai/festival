@@ -12,15 +12,15 @@ For more information on the project, see link below:
 
 pub(crate) const DASH: &str = "--------------------------------------------";
 
-// The `24` unique bytes our `.bincode` files will start with.
+// The `24` unique bytes our `Bincode` files will start with.
 // It is the UTF-8 encoded string `-----BEGIN FESTIVAL-----` as bytes.
 // The next byte after _should_ be our `xxx_VERSION`, then our actual data.
 pub(crate) const FESTIVAL_HEADER: [u8; 24] = [
-	45, 45, 45, 45, 45,             // `-----`
-	66, 69, 71, 73, 78,             // `BEGIN`
-	32,                             // ` `
-	70, 69, 83, 84, 73, 86, 65, 76, // `FESTIVAL`
-	45, 45, 45, 45, 45              // `-----`
+	45, 45, 45, 45, 45,             // -----
+	66, 69, 71, 73, 78,             // BEGIN
+	32,                             //
+	70, 69, 83, 84, 73, 86, 65, 76, // FESTIVAL
+	45, 45, 45, 45, 45              // -----
 ];
 
 // Current major version of the `Collection`.

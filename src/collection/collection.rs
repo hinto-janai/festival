@@ -6,7 +6,7 @@ use super::{
 	album::Album,
 	artist::Artist,
 	song::Song,
-	key::{CollectionKey,ArtistKey,AlbumKey,SongKey},
+	key::{Key,ArtistKey,AlbumKey,SongKey},
 };
 use std::collections::HashMap;
 use disk::prelude::*;
@@ -108,7 +108,7 @@ impl Collection {
 	//
 	// Thus directly indexing into them like this (in theory) should never fail.
 	#[inline(always)]
-	pub fn index(&self, key: &CollectionKey) -> (&Artist, &Album, &Song) {
+	pub fn index(&self, key: &Key) -> (&Artist, &Album, &Song) {
 		let (artist, album, song) = key.to_tuple();
 		(&self.artists[artist], &self.albums[album], &self.songs[song])
 	}

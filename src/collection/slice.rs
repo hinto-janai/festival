@@ -9,21 +9,21 @@ use std::collections::VecDeque;
 use crate::collection::key::{
 	QueueKey,
 	PlaylistKey,
-	CollectionKey,
+	Key,
 };
 
 //---------------------------------------------------------------------------------------------------- Queue/Playlist
 // Both `Queue` and `Playlist` are practically the same thing:
 //   - A `Slice` of the `Collection`
 //
-// They contain a bunch of `CollectionKey`s that point
+// They contain a bunch of `Key`s that point
 // to "segments" of the `Collection` (it's a slice).
 //
 // They both are saved to disk via `State` which saves as `state.bincode`.
 #[derive(Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
-pub struct CollectionSlice(VecDeque<CollectionKey>);
+pub struct Slice(VecDeque<Key>);
 
-impl CollectionSlice {
+impl Slice {
 	#[inline(always)]
 	pub fn new() -> Self {
 		Self(VecDeque::with_capacity(20))
@@ -37,17 +37,17 @@ impl CollectionSlice {
 
 	// Allows using `VecDeque` methods.
 	#[inline(always)]
-	pub const fn inner(&self) -> &VecDeque<CollectionKey> {
+	pub const fn inner(&self) -> &VecDeque<Key> {
 		&self.0
 	}
 	#[inline(always)]
-	pub fn inner_mut(&mut self) -> &mut VecDeque<CollectionKey> {
+	pub fn inner_mut(&mut self) -> &mut VecDeque<Key> {
 		&mut self.0
 	}
 
 	// Bypasses `Self` and directly indexes the inner `VecDeque`.
 	#[inline(always)]
-	pub fn index(&self, index: usize) -> &CollectionKey {
+	pub fn index(&self, index: usize) -> &Key {
 		&self.0[index]
 	}
 
@@ -57,7 +57,7 @@ impl CollectionSlice {
 		self.0.len()
 	}
 	#[inline(always)]
-	pub fn iter(&self) -> std::collections::vec_deque::Iter<'_, CollectionKey> {
+	pub fn iter(&self) -> std::collections::vec_deque::Iter<'_, Key> {
 		self.0.iter()
 	}
 	#[inline(always)]
@@ -69,29 +69,29 @@ impl CollectionSlice {
 		self.0.clear();
 	}
 	#[inline(always)]
-	pub fn remove(&mut self, index: usize) -> Option<CollectionKey> {
+	pub fn remove(&mut self, index: usize) -> Option<Key> {
 		self.0.remove(index)
 	}
 	#[inline(always)]
-	pub fn push_back(&mut self, key: CollectionKey) {
+	pub fn push_back(&mut self, key: Key) {
 		self.0.push_back(key)
 	}
 	#[inline(always)]
-	pub fn push_front(&mut self, key: CollectionKey) {
+	pub fn push_front(&mut self, key: Key) {
 		self.0.push_front(key)
 	}
 	#[inline(always)]
-	pub fn pop_back(&mut self) -> Option<CollectionKey> {
+	pub fn pop_back(&mut self) -> Option<Key> {
 		self.0.pop_back()
 	}
 	#[inline(always)]
-	pub fn pop_front(&mut self) -> Option<CollectionKey> {
+	pub fn pop_front(&mut self) -> Option<Key> {
 		self.0.pop_front()
 	}
 
 }
 
-impl std::default::Default for CollectionSlice {
+impl std::default::Default for Slice {
 	#[inline(always)]
 	fn default() -> Self {
 		Self::new()

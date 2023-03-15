@@ -9,12 +9,12 @@
 use std::sync::Arc;
 use crate::collection::{
 	Collection,
-	CollectionKeychain,
+	Keychain,
 };
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
 pub(crate) enum SearchToKernel {
-	SearchResult(CollectionKeychain), // Here's the search result.
+	SearchResult(Keychain), // Here's the search result.
 }
 
 pub(crate) enum KernelToSearch {
