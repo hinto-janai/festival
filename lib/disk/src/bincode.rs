@@ -157,7 +157,7 @@ macro_rules! bincode_file {
 			const OS_DIRECTORY: Dir = $dir;
 			const PROJECT_DIRECTORY: &'static str = $project_directory;
 			const SUB_DIRECTORIES: &'static str = $sub_directories;
-			const FILE_NAME: &'static str = const_format!("{}.{}", $file_name, "bincode");
+			const FILE_NAME: &'static str = const_format!("{}.{}", $file_name, "bin");
 			const HEADER: [u8; 24] = $header;
 			const VERSION: u8 = $version;
 		}

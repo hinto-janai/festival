@@ -53,7 +53,7 @@
 //! ```
 //! Manually implementing these traits is possible as well, it only requires 4 constants.
 //!
-//! The file extension (`.bin`, `.toml`, `.json`) is inferred based on what trait you use.
+//! The file extension (`.bin`, `.toml`, `.json`, `.bson`, etc) is inferred based on what trait you use.
 //! ```
 //! impl disk::Toml for State {
 //!     // Which OS directory it will be saved in.
