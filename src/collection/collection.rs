@@ -109,37 +109,37 @@ impl Collection {
 	// Thus directly indexing into them like this (in theory) should never fail.
 	#[inline(always)]
 	pub fn index(&self, key: &Key) -> (&Artist, &Album, &Song) {
-		let (artist, album, song) = key.to_tuple();
+		let (artist, album, song) = key.inner_usize();
 		(&self.artists[artist], &self.albums[album], &self.songs[song])
 	}
 
 	#[inline(always)]
-	pub fn index_artist(&self, key: &ArtistKey) -> &Artist {
+	pub fn artist(&self, key: ArtistKey) -> &Artist {
 		&self.artists[key.inner()]
 	}
 
 	#[inline(always)]
-	pub fn index_album(&self, key: &AlbumKey) -> &Album {
+	pub fn album(&self, key: AlbumKey) -> &Album {
 		&self.albums[key.inner()]
 	}
 
 	#[inline(always)]
-	pub fn index_song(&self, key: &SongKey) -> &Song {
+	pub fn song(&self, key: SongKey) -> &Song {
 		&self.songs[key.inner()]
 	}
 
-	// Key conversions.
+	// Key traversal.
 	#[inline(always)]
-	pub fn artist_from_album(&self, key: &AlbumKey) -> ArtistKey {
-		self.albums[key.inner()].artist
+	pub fn artist_from_album(&self, key: AlbumKey) -> &Artist {
+		&self.artist(self.albums[key.inner()].artist)
 	}
 	#[inline(always)]
-	pub fn album_from_song(&self, key: &SongKey) -> AlbumKey {
-		self.songs[key.inner()].album
+	pub fn album_from_song(&self, key: SongKey) -> &Album {
+		&self.album(self.songs[key.inner()].album)
 	}
 	#[inline(always)]
-	pub fn artist_from_song(&self, key: &SongKey) -> ArtistKey {
-		self.artist_from_album(&self.songs[key.inner()].album)
+	pub fn artist_from_song(&self, key: SongKey) -> &Artist {
+		&self.artist_from_album(self.songs[key.inner()].album)
 	}
 }
 

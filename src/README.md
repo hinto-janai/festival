@@ -303,7 +303,11 @@ You could consider this an _absolute_ key to a specific `Song` within a specific
 
 When multiple `Key`'s are needed, but keeping them separate is desired, there is `Keychain`:
 ```rust
-struct Keychain(Vec<ArtistKey>, Vec<AlbumKey>, Vec<SongKey>);
+struct Keychain {
+	artists: Vec<ArtistKey>,
+	albums: Vec<AlbumKey>,
+	songs: Vec<SongKey>,
+}
 ```
 
 When you _do_ want them linked together, there is `Slice`, which is like an actual Rust `slice`. It's a dynamically-sized view into a contiguous sequence:
