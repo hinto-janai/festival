@@ -36,7 +36,8 @@ p <- ggplot(aes(x = x, y = y, fill = series), data = input.data) +
 	scale_y_continuous(breaks = scales::pretty_breaks(n = 25)) +
 	theme(text = element_text(size = 30)) +
 	theme(plot.title = element_text(color = "black", size = 40, face = "bold")) +
-	labs(title = "New Collection (from scratch)", y = "Seconds (less is better)", x = NULL, fill = NULL)
+	labs(title = "New Collection (from scratch)", y = "Seconds (less is better)", x = NULL, fill = NULL) +
+	scale_fill_manual(values = c("#D82C6A", "#4F89C2", "#195750", "#957DAD", "#FB931F"))
 
 # Create PNG.
 png("scratch.png", width = 1000, height = 1000, pointsize = 50, res = 75)
