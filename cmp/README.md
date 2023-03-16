@@ -30,7 +30,7 @@ Similar behavior:
 
 - All programs had similar peak memory usage when creating a new collection, around `1-2GB`.
 
-Invariants:
+Differences:
 
 - Some music players use multiple threads, some do not
 - Some music players are Windows-only, some are Linux-only

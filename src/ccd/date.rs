@@ -102,6 +102,8 @@ impl super::Ccd {
 	}
 
 	#[inline]
+	// FIXME: This code works perfectly but is really ugly.
+	//
 	// Compares two tuple dates.
 	pub(super) fn cmp_tuple_dates(
 		a: (Option<i32>, Option<u32>, Option<u32>),

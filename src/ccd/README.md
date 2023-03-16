@@ -50,3 +50,17 @@ These have to be linked, of course. Indicies and the `HashMap` must be updated a
 "The Loop" is probably the longest function in this codebase, it also has lots of variables in scope. The `Vec<PathBuf>` input is also chunked into smaller pieces and handed off to multiple threads, so there's some thread/sync code mixed in as well.
 
 The actual code has tons of comments annotating what's going on, so please read those. While the function is long and has a few branches, it's actually relatively sequential.
+
+# Threads
+The heaviest operations associated with the `Collection` ("The Loop" and image conversion) are both multi-threaded for performance.
+
+The functions that calculate an appropriate amount of threads to use is in `threads.rs`. It's based off 2 factors:
+
+- How many available threads do we have?
+- How much work is there to do? (Image count, PATH count)
+
+Since image conversion is 100% CPU-bound, it scales really nicely. It currently uses around `75%` of available threads.
+
+"The Loop" benefits from multiple threads as well, but being mostly IO-bound, it hits diminishing returns pretty quickly. It currently uses `25%` of available threads.
+
+These percentages were selected after doing some external tests and seeing how well they scale with more threads. "The Loop" in particular, does get _marginally_ faster, but not enough to justify hogging the user's cores.

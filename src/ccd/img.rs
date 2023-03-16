@@ -24,9 +24,11 @@ use std::num::NonZeroU32;
 //---------------------------------------------------------------------------------------------------- Album Art Constants.
 // 600x600 pixels.
 pub(crate) const ALBUM_ART_MAX_SIZE: u32 = 600;
+
 // SAFETY:
 // The constant above can't be `0`.
 pub(crate) const ALBUM_ART_MAX_SIZE_NUM: NonZeroU32 = unsafe { NonZeroU32::new_unchecked(ALBUM_ART_MAX_SIZE) };
+
 pub(crate) const ALBUM_ART_MAX_SIZE_ARRAY: [usize; 2] = [ALBUM_ART_MAX_SIZE as usize; 2];
 
 //---------------------------------------------------------------------------------------------------- Image Manipulation Functions.

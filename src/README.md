@@ -1,7 +1,17 @@
 # Festival Documentation
 This is an overview of `Festival`.
 
-For details on any part of the system, look within any given sub-directory for its `README.md`. It contains more specific documentation. The code itself is also littered with comments.
+For details on any part of the system, look within any given sub-directory for its `README.md`, it contains more specific documentation.
+
+The code itself is also littered with comments. Some `grep`-able keywords:
+
+| Word        | Meaning |
+|-------------|---------|
+| `INVARIANT` | This code makes an _assumption_ that must be upheld for correctness
+| `SAFETY`    | This `unsafe` code is okay, for these reasons
+| `FIXME`     | This code works but isn't ideal
+| `HACK`      | This code is a brittle workaround
+| `TODO`      | This should be implemented... someday
 
 * [Code Structure](#Code-Structure)
 	- [Data](#Data)

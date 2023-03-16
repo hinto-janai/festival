@@ -60,6 +60,8 @@ struct TagMetadata<'a> {
 //---------------------------------------------------------------------------------------------------- Metadata functions.
 impl super::Ccd {
 	#[inline(always)]
+	// `The Loop`.
+	//
 	// Takes in input of a filtered `Vec<PathBuf>` of audio files.
 	// Loops over all `PathBuf`'s and adds metadata onto the `Vec`'s.
 	//
@@ -86,6 +88,9 @@ impl super::Ccd {
 		// TODO:
 		// Send messages to `Kernel` & log.
 
+		// TODO:
+		// Some metadata is missing.
+
 		// For efficiency reasons, it's best to do
 		// all these operations in a single loop.
 		//
@@ -105,17 +110,22 @@ impl super::Ccd {
 		// The "Working Memory" is a `HashMap` that takes in `String` input of an artist name and returns the `index` to it,
 		// along with another `HashMap` which represents that `Artist`'s `Album`'s and its appropriate `indicies`.
 		//
-		//                                    Artist  Artist's index     Album  Album's index
-		//                                     Name   in `Vec<Artist>`   Name   in `Vec<Album>`
-		//                                      |          |              |         |
-		//                                      v          v              v         v
-		let mut memory:       Arc<Mutex<HashMap<String, (usize, HashMap<String, usize>)>>> = Arc::new(Mutex::new(HashMap::new()));
-		let mut vec_artist:   Arc<Mutex<Vec<Artist>>> = Arc::new(Mutex::new(vec![]));
-		let mut vec_album:    Arc<Mutex<Vec<Album>>>  = Arc::new(Mutex::new(vec![]));
-		let mut vec_song:     Arc<Mutex<Vec<Song>>>   = Arc::new(Mutex::new(vec![]));
-		let mut count_artist: Arc<Mutex<usize>>       = Arc::new(Mutex::new(0));
-		let mut count_album:  Arc<Mutex<usize>>       = Arc::new(Mutex::new(0));
-		let mut count_song:   Arc<Mutex<usize>>       = Arc::new(Mutex::new(0));
+		//                                Artist  Artist's index     Album  Album's index
+		//                                 Name   in `Vec<Artist>`   Name   in `Vec<Album>`
+		//                                  |          |              |         |
+		//                                  v          v              v         v
+		let mut memory:       Mutex<HashMap<String, (usize, HashMap<String, usize>)>> = Mutex::new(HashMap::new());
+		let mut vec_artist:   Mutex<Vec<Artist>> = Mutex::new(vec![]);
+		let mut vec_album:    Mutex<Vec<Album>>  = Mutex::new(vec![]);
+		let mut vec_song:     Mutex<Vec<Song>>   = Mutex::new(vec![]);
+		let mut count_artist: Mutex<usize>       = Mutex::new(0);
+		let mut count_album:  Mutex<usize>       = Mutex::new(0);
+		let mut count_song:   Mutex<usize>       = Mutex::new(0);
+		// INVARIANT:               ^
+		// These `usize`'s _________|
+		// must be used correctly in the following code.
+		// There is no `Key` type-safety, we're making them
+		// by using these "raw" `usize`'s.
 
 		// In this loop, each `PathBuf` represents a new `Song` with metadata.
 		// There are 3 logical possibilities with 3 actions associated with them:
@@ -128,7 +138,7 @@ impl super::Ccd {
 		// Get an appropriate amount of threads.
 		let threads = super::threads_for_paths(vec_paths.len());
 
-		//------------------------------------------------------------- Begin multi-threaded loop for each `PathBuf`.
+		//------------------------------------------------------------- Begin `The Loop`.
 		// No indentation because this function is crazy long.
 		std::thread::scope(|scope| {
 		for paths in vec_paths.chunks(threads) {
@@ -322,17 +332,17 @@ impl super::Ccd {
 		*lock!(count_album)  += 1;
 		*lock!(count_song)   += 1;
 
-		//------------------------------------------------------------- End of initial `thread::scope` & `for` loop.
-		}
-		});
-		}
-		});
+		//------------------------------------------------------------- End of `The Loop`.
+		}   // for path in paths
+		}); // scope.spawn
+		}   // for paths in vec_paths
+		}); // std::thread::scope
 
-		// Unwrap the `Arc<Mutex<_>>`.
-		// TODO:
-		// Handle failure, return error.
-		let (vec_artist, vec_album, vec_song) = (Arc::try_unwrap(vec_artist), Arc::try_unwrap(vec_album), Arc::try_unwrap(vec_song));
-		let (vec_artist, vec_album, vec_song) = (unwrap_or_mass!(vec_artist), unwrap_or_mass!(vec_album), unwrap_or_mass!(vec_song));
+		// Unwrap the `Mutex`.
+		//
+		// INVARIANT:
+		// As long as none of the above `scoped` threads
+		// `panic()!`'ed, these `.into_inner()`s' are safe.
 		let (vec_artist, vec_album, vec_song) = (vec_artist.into_inner(), vec_album.into_inner(), vec_song.into_inner());
 		let (vec_artist, vec_album, vec_song) = (unwrap_or_mass!(vec_artist), unwrap_or_mass!(vec_album), unwrap_or_mass!(vec_song));
 

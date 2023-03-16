@@ -203,12 +203,12 @@ impl Kernel {
 				i if i == search => self.msg_search(recv!(self.from_search)),
 				i if i == audio  => self.msg_audio(recv!(self.from_audio)),
 				i if i == watch  => self.msg_watch(recv!(self.from_watch)),
-				// TODO: handle this.
-				_ => unreachable!(),
+				_ => error!("Kernel: Received an unknown message"),
 			}
 		}
 	}
 
+	// TODO: Implement messages.
 	#[inline(always)]
 	// We got a message from `Gui`.
 	fn msg_gui(&self, msg: GuiToKernel) {}

@@ -9,6 +9,7 @@ use std::num::NonZeroUsize;
 
 //---------------------------------------------------------------------------------------------------- Constants.
 const ONE_THREAD: usize = 1;
+
 // How many albums should we _always_ process single-threaded
 // until it's actually worth the cost of spawning threads?
 const ALBUM_THREAD_THRESHOLD: usize = 10;

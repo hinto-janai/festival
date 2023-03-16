@@ -203,6 +203,8 @@ impl super::Ccd {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
+// TODO:
+// Ensure all sorting orders are correct.
 //#[cfg(test)]
 //mod tests {
 //  #[test]
