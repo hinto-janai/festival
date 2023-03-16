@@ -1,5 +1,5 @@
 # Comparison
-This `README` contains some comparisons between `Festival` and some other album centered music players.
+Some comparisons between `Festival` and other album centered music players.
 
 The graphs are created with the code in this directory. Big thanks to [Rucknium](https://github.com/rucknium) for teaching me `R`.
 

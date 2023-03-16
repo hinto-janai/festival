@@ -7,13 +7,46 @@ All these functions are only separted for clarity, in reality they are going to 
 |----------------|---------|
 | ccd.rs         | High-level convenience wrapper functions for `Kernel` that call the below internal ones
 | convert.rs     | Converting art bytes into `egui` images
+| date.rs        | Date from `str` parsing functions
 | metadata.rs    | Audio metadata (MIME) processing
+| sort.rs        | `Collection` sorting functions
 | walk.rs        | `WalkDir`'ing PATH(s) and filtering for audio files
 
 # Misc functions/data
 Some important but more miscellaneous files.
+
 | File           | Purpose |
 |----------------|---------|
 | img.rs         | Image processing functions
 | thread.rs      | Thread availability functions
 | msg.rs         | Types of messages `CCD` and `Kernel` can send to each other
+
+# The Loop™
+`metadata.rs` contains the function `audio_paths_to_incomplete_vecs()`, or, "The Loop".
+
+When creating the `Collection`, most of the time is spent here.
+
+"The Loop":
+
+- Takes an input of `Vec<PathBuf>`
+- For each PATH, parses the metadata
+- Remembers if it has seen this `Artist/Album` before
+- Adds relational data by embedding `Artist/Album/Song` structs together with `Key`'s
+- Adds new `Artist/Album/Song`'s to the `Vec`'s
+- Outputs the 3 (mostly) complete `Vec`'s (`Vec<Artist>`, `Vec<Album>`, `Vec<Sort>`)
+
+A `HashMap` is used to "remember" which `Artist/Album`'s we've seen before, and 3 incrementing `usize`'s is used to determine which `Artist/Album/Song` we're on.
+
+Each `PathBuf` represents a new `Song` with metadata. Each loop, there's 3 logical branches that can be taken:
+
+| If                                     | Then         |
+|----------------------------------------|--------------|
+| `Artist` exists, `Album` exists        | Add `Song`
+| `Artist` exists, `Album` DOESN'T exist | Add `Album + Song`
+| `Artist` DOESN'T exist                 | Add `Artist + Album + Song`
+
+These have to be linked, of course. Indicies and the `HashMap` must be updated as well.
+
+"The Loop" is probably the longest function in this codebase, it also has lots of variables in scope. The `Vec<PathBuf>` input is also chunked into smaller pieces and handed off to multiple threads, so there's some thread/sync code mixed in as well.
+
+The actual code has tons of comments annotating what's going on, so please read those. While the function is long and has a few branches, it's actually relatively sequential.

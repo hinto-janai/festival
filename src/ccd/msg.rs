@@ -33,9 +33,6 @@ pub(crate) enum KernelToCcd {
 	//
 	// `CCD` needs to know for sure `Kernel` has dropped the old `Collection`
 	// before it drops its own since that determines who actually destructs it.
-
-//	NewCollection(Arc<Collection>),
-//	ConvertImg(Collection),
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

@@ -19,7 +19,7 @@ use crate::collection::key::{
 // They contain a bunch of `Key`s that point
 // to "segments" of the `Collection` (it's a slice).
 //
-// They both are saved to disk via `State` which saves as `state.bincode`.
+// They both are saved to disk via `State` which saves as `state.bin`.
 #[derive(Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
 pub struct Slice(VecDeque<Key>);
 
@@ -45,10 +45,14 @@ impl Slice {
 		&mut self.0
 	}
 
-	// Bypasses `Self` and directly indexes the inner `VecDeque`.
 	#[inline(always)]
-	pub fn index(&self, index: usize) -> &Key {
-		&self.0[index]
+	pub fn queue(&self, key: QueueKey) -> Key {
+		self.0[key.inner()]
+	}
+
+	#[inline(always)]
+	pub fn playlist(&self, key: PlaylistKey) -> Key {
+		self.0[key.inner()]
 	}
 
 	// Common functions `VecDeque` functions.
@@ -88,7 +92,6 @@ impl Slice {
 	pub fn pop_front(&mut self) -> Option<Key> {
 		self.0.pop_front()
 	}
-
 }
 
 impl std::default::Default for Slice {

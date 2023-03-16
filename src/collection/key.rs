@@ -7,6 +7,7 @@ use serde::{Serialize,Deserialize};
 //use disk::{};
 //use std::{};
 
+// `usize` needs to always `== u64`.
 #[cfg(not(target_pointer_width = "64"))]
 compile_error!("Festival is only built for 64-bit systems.");
 
@@ -68,7 +69,7 @@ macro_rules! impl_common {
 	}
 }
 
-//---------------------------------------------------------------------------------------------------- CollectionKey
+//---------------------------------------------------------------------------------------------------- Key
 #[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
 pub struct Key(ArtistKey, AlbumKey, SongKey);
 
@@ -104,10 +105,11 @@ impl Key {
 	}
 }
 
-// Converts any tuple of 3 integers that can losslessly `.into()` a `u64`.
+// INVARIANT:
+// Since the target will always be `x86_64`,
+// the cast from `u64` to `usize` is should be lossless.
 //
-// Since the target will (probably...) always be `x86_64`,
-// the cast from `u64` to `usize` is (probably...) always safe.
+// Converts any tuple of 3 integers that can losslessly `.into()` a `u64`.
 impl<A, B, C> From<(A, B, C)> for Key
 where
 	A: Into<u64>,
@@ -120,7 +122,7 @@ where
 	}
 }
 
-//---------------------------------------------------------------------------------------------------- CollectionKeychain
+//---------------------------------------------------------------------------------------------------- Keychain
 #[derive(Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
 pub struct Keychain {
 	pub artists: Vec<ArtistKey>,
@@ -160,38 +162,33 @@ impl Keychain {
 //---------------------------------------------------------------------------------------------------- ArtistKey
 #[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
 pub struct ArtistKey(usize);
-
 impl_common!(ArtistKey);
 
 //---------------------------------------------------------------------------------------------------- AlbumKey
 #[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
 pub struct AlbumKey(usize);
-
 impl_common!(AlbumKey);
 
 //---------------------------------------------------------------------------------------------------- SongKey
 #[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
 pub struct SongKey(usize);
-
 impl_common!(SongKey);
 
 //---------------------------------------------------------------------------------------------------- QueueKey
-// Used to index `Queue` which is just a `Vec<CollectionKey>`, e.g:
+// Used to index `Queue`, e.g:
 // ```
 // 1. user clicks 'remove song #4 from queue'
 // 2. gui sends QueueKey(3) to helper
-// 3. helper deletes queue[3]
+// 3. kernel deletes queue[3]
 // ```
 #[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
 pub struct QueueKey(usize);
-
 impl_common!(QueueKey);
 
 //---------------------------------------------------------------------------------------------------- PlaylistKey
 // Same as `QueueKey` but for `Playlist`.
 #[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
 pub struct PlaylistKey(usize);
-
 impl_common!(PlaylistKey);
 
 //---------------------------------------------------------------------------------------------------- TESTS

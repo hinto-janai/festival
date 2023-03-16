@@ -1,5 +1,5 @@
 # Festival Documentation
-This is a high-level overview of `Festival`.
+This is an overview of `Festival`.
 
 For details on any part of the system, look within any given sub-directory for its `README.md`. It contains more specific documentation. The code itself is also littered with comments.
 
@@ -38,6 +38,7 @@ For details on any part of the system, look within any given sub-directory for i
 	- [RoLock](#RoLock)
 * [External Libraries]
 * [Audio Codecs](#Audio-Codecs)
+* [Image Formats](#Image-Formats)
 * [Alternative Frontends](#Alternative-Frontends)
 
 ---
@@ -72,7 +73,6 @@ These are top-level files for miscellaneous stuff:
 | `logger.rs`    | Console logging initialization
 | `macros.rs`    | General macros
 | `main.rs`      | Barebones `main()` that starts stuff and turns into `GUI`
-| `regex.rs`     | General regexes
 
 ---
 
@@ -267,8 +267,8 @@ Having this `Key` type makes what thing we're looking for _explicit_:
 ```rust
 let key = ArtistKey::from(0);
 
-collection.idx_artist(key); // <- We get artist[0].
-collection.idx_song(key);   // <- Compile error!
+collection.artist(key); // We get artist[0].
+collection.song(key);   // Compile error!
 ```
 
 In terms of overhead, all the functions are inlined. Just to make sure though, I checked the assembly. It's optimized away with both index operations resulting in the same instructions:
@@ -363,7 +363,7 @@ To prevent invalidating all the indicies to the inner `Vec`'s, `Collection` _mus
 
 This unfortunately means the lifetime of user-created playlists are tied with the `Collection`.
 
-Since playlists are just `CollectionSlice`'s, they will be invalidated if indicies are changed.
+Since playlists are just `Slice`'s, they will be invalidated if indicies are changed.
 
 This can be fixed by:
 
@@ -513,7 +513,7 @@ This is the option I chose.
 ---
 
 ## Modularity
-`Festival`'s internals are more or less separated into "entities". Each "entity" in the system is its own thing, and really only passes messages to other parts in the system. This approach was taken because:
+`Festival`'s internals are more or less separated into "entities". Each "entity" in the system is its own thing, and only passes messages to/from `Kernel`. This approach was taken because:
 
 - Unit testing is easier
 - Plugging in different frontends becomes much easier
@@ -522,7 +522,7 @@ This is the option I chose.
 ### Why Kernel?
 `Kernel` doesn't actually do much, it mostly just forwards messages. 
 
-But the existance of `Kernel` allows the other parts of the system to have a _single, simple_ interface.
+But the existence of `Kernel` allows the other parts of the system to have a _single, simple_ interface.
 
 Consider the following diagram showing `Festival` if `Kernel` didn't exist:
 
@@ -554,21 +554,16 @@ If _all_ messages were sent/received from `GUI`:
 - The `match` statements would be pages long
 - Any other part of the system could "fake" send messages from other parts of the system (`Audio` could send `CCD` messages)
 
-The `crossbeam_channel` between `Kernel` and every part of the system is _unique_ and only the proper thread can send them.
+The channel between `Kernel` and every part of the system is _unique_ and only the proper thread can send them.
 ```rust
 let (tx, rx) = crossbeam_channel::unbounded::<CcdToKernel>();
 ```
-That channel only get passed to `CCD` and `Kernel`, meaning `Audio` or other threads _cannot_ "fake" send messages:
+That channel only gets passed to `CCD` and `Kernel`, meaning `Audio` or other threads _cannot_ "fake" send messages:
 ```rust
 audio_to_kernel.send(CcdToKernel::Update("fake msg"));
 //                   ^
 //                   |
 //             Compile error!
-//         This channel is type:
-// 'crossbeam_channel::unbounded::<AudioToKernel>'
-//
-// Expected | AudioToKernel
-// Found    | CcdToKernel
 ```
 
 These unrealistic type errors don't matter too much since after all, _I_ am the one writing the code, but this does matter if `Festival`'s internals ever get exposed as a public API.
@@ -711,7 +706,7 @@ Basically, thread-safe, read-only version of `RwLock`.
 ```rust
 struct RoLock<T>(Arc<RwLock<T>>);
 ```
-It re-implements `RwLock`'s functions, except `.write()`.
+It re-implements all of `RwLock`'s functions, except `.write()`.
 
 Like the `Key` vs `usize` situation, this is 100% for type safety.
 
@@ -742,12 +737,28 @@ The currently supported audio codecs that `Festival` will parse, and play:
 
 ---
 
+## Image Formats
+If the `Album` art is embedded within the `Song` as metadata, it will always be used.
+
+If no art metadata is found, `Festival` will look for the largest:
+
+- PNG
+- JPG
+
+image in the same directory as the file itself.
+
+If both are not found, a [default question mark](https://github.com/hinto-janai/festival/assets/images/art/unknown.png) cover will be used.
+
+This default art is actually just a pointer to a single image in memory (`lazy_static`), so it doesn't take up extra memory even if all your `Album`'s have no art.
+
+---
+
 ## Alternative Frontends
-Some frontends I have in mind:
+Some other frontends I have in mind:
 
 - WASM version of the current `egui` GUI
 - Daemon + Client ([`mpd`](https://github.com/MusicPlayerDaemon/MPD)-like but `RPC` instead of... whatever `mpd` is doing)
 - Web for mobile (serving full audio data, not just a controller)
 - Web for mobile (just a controller)
 
-I'd like to make these and/or expose `Festival`'s internals as a library with proper APIs... eventually.
+I'd like to make these and also expose `Festival`'s internals as a library with proper APIs... eventually.

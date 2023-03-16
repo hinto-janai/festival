@@ -17,7 +17,7 @@ Music player for Windows/macOS/Linux.
 ---
 
 ## Comparison
-For context on these graphs (there's always trade-offs), see the [`cmp/` folder's README.](https://github.com/hinto-janai/festival/cmp)
+For context on these graphs (there's always trade-offs), see [`cmp/`](https://github.com/hinto-janai/festival/cmp).
 
 Input data:
 
@@ -33,9 +33,7 @@ Input data:
 <img src="assets/images/cmp/boot.png" align="right" width="50%"/>
 
 ## Documentation
-For a broad overview of `Festival`'s internals, see the [`src/` folder's README.](https://github.com/hinto-janai/festival/src)
-
-For more specifics, see the README's of the subdirectories inside `src/`.
+For a broad overview of `Festival`'s internals, see [`src/`](https://github.com/hinto-janai/festival/src).
 
 ## Build
 ### General Info
@@ -69,7 +67,7 @@ After that, run:
 ```
 cargo bundle --release
 ```
-This bundles `Festival` into a `Festival.app`, the way it comes in the pre-built tars for macOS.
+This bundles `Festival` into `Festival.app`, the way it comes in the pre-built tars for macOS.
 
 ---
 
@@ -85,6 +83,18 @@ There is a `build.rs` file in the repo solely for Windows-specific things:
 
 ## License
 `Festival` is licensed under the [MIT License](https://github.com/hinto-janai/festival/LICENSE).
+
+All of the [fonts](https://github.com/hinto-janai/festival/assets/fonts) `Festival` uses:
+
+| Font                                                                    | License |
+|-------------------------------------------------------------------------|---------|
+| [Adobe Source Code Pro](https://github.com/adobe-fonts/source-code-pro) | `OFL-1.1`
+| [Adobe Source Han Sans](https://github.com/adobe-fonts/source-han-sans) | `OFL-1.1`
+| [JuliaMono](https://github.com/cormullion/juliamono)                    | `OFL-1.1`
+| [Emoji Icon Font](https://github.com/jslegers/emoji-icon-font)          | `MIT`
+| [Noto-Emoji](https://github.com/googlefonts/noto-emoji)                 | `OFL-1.1`
+| [Hack](https://github.com/source-foundry/Hack)                          | `MIT`
+| [Ubuntu](https://github.com/daltonmaag/ubuntu)                          | `Ubuntu Font License`
 
 All of the libraries `Festival` (directly) uses:
 

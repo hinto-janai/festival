@@ -42,7 +42,7 @@ impl Search {
 	) {
 		// Init data.
 		let search = Self {
-			cache: HashMap::with_capacity(50),
+			cache: HashMap::with_capacity(1000),
 			collection,
 			to_kernel,
 			from_kernel,
@@ -76,8 +76,14 @@ impl Search {
 		// Create keychain.
 		let keychain = Keychain::from_vecs(artists, albums, songs);
 
-		// Add to cache.
-		self.cache.insert(input, keychain.clone());
+		// Cache.
+		if self.cache.len() > 1000 {
+			// Clear.
+			self.cache.clear();
+		} else {
+			// Add to cache.
+			self.cache.insert(input, keychain.clone());
+		}
 
 		// Return.
 		keychain
@@ -144,11 +150,9 @@ impl Search {
 		debug!("Search: Dropped Collection, waiting...");
 
 		// Ignore messages until it's a pointer.
-		// (Kernel should only be sending a pointer at this point anyway).
+		// (`Kernel` should only be sending a pointer at this point anyway).
 		loop {
-			let msg = recv!(self.from_kernel);
-
-			if let KernelToSearch::CollectionArc(arc) = msg {
+			if let KernelToSearch::CollectionArc(arc) = recv!(self.from_kernel) {
 				ok_debug!("Search: New Collection");
 				self.collection = arc;
 				return self

@@ -48,21 +48,10 @@ pub(crate) struct Kernel {
 
 // `Kernel` boot process:
 //
-// `bios()` ---> `boot_loader()` ---> `kernel()` ---> `init()` ---> `userspace()`
-//          |                                          |
-//          |--- (bios error occured, skip to init) ---|
+//`bios()` ---> `boot_loader()` ---> `kernel()` ---> `init()` ---> `userspace()`
+//         |                                          |
+//         |--- (bios error occured, skip to init) ---|
 //
-//
-//
-// Ignore the fact that the name of this thing is `Kernel` and it kinda makes sense.
-//
-// What these phases actually do:
-// `bios()`        | Attempt to read `collection.bincode`. Skip to `init()` with default data on failure.
-// `boot_loader()` | Wait on `CCD` to transform `Collection`, load other data.
-// `kernel()`      | Run safety checks on data.
-// `init()`        | Spawn all threads and initialize everything else.
-// `userspace()`   | Main loop.
-
 impl Kernel {
 	//-------------------------------------------------- bios()
 	#[inline(always)]
