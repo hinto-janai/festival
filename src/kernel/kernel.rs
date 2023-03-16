@@ -7,11 +7,15 @@ use serde::{Serialize,Deserialize};
 //use disk::{};
 use std::sync::{Arc,RwLock};
 use super::state::State;
+use super::volume::Volume;
 use rolock::RoLock;
 use crate::macros::{
+	lock_write,
+	lock_read,
 	ok_debug,
 	recv,
 	send,
+	flip,
 };
 use disk::Bincode;
 use crate::{
@@ -23,6 +27,7 @@ use crate::{
 	collection::Collection,
 };
 use crossbeam_channel::{Sender,Receiver};
+use std::path::PathBuf;
 
 //---------------------------------------------------------------------------------------------------- Kernel
 pub(crate) struct Kernel {
@@ -43,7 +48,7 @@ pub(crate) struct Kernel {
 
 	// Data.
 	collection: Arc<Collection>,
-	state: Arc<RwLock<State>>,
+	state: Arc<RwLock<super::State>>,
 }
 
 // `Kernel` boot process:
@@ -189,10 +194,23 @@ impl Kernel {
 
 		// Array of our channels we can `select` from.
 		let mut select = crossbeam_channel::Select::new();
-		let gui        = select.recv(&self.from_gui);
-		let search     = select.recv(&self.from_search);
-		let audio      = select.recv(&self.from_audio);
-		let watch      = select.recv(&self.from_watch);
+		// FIXME:
+		// These channels need to be cloned first because
+		// `select.recv()` requires a `&`, but we need a
+		// `&mut` version of `self` later, so instead,
+		// we give `select.recv()` a cloned `&`.
+		let (gui, search, audio, watch) = (
+			self.from_gui.clone(),
+			self.from_search.clone(),
+			self.from_audio.clone(),
+			self.from_watch.clone(),
+		);
+		let (gui, search, audio, watch) = (
+			select.recv(&gui),
+			select.recv(&search),
+			select.recv(&audio),
+			select.recv(&watch),
+		);
 
 		// 1) Hang until message is ready.
 		// 2) Receive the message and pass to appropriate function.
@@ -208,19 +226,130 @@ impl Kernel {
 		}
 	}
 
-	// TODO: Implement messages.
+	//-------------------------------------------------- Message handling.
 	#[inline(always)]
-	// We got a message from `Gui`.
-	fn msg_gui(&self, msg: GuiToKernel) {}
+	// We got a message from `GUI`.
+	fn msg_gui(&mut self, msg: GuiToKernel) {
+		use crate::gui::GuiToKernel::*;
+		match msg {
+			// Audio playback.
+			Play                 => send!(self.to_audio, KernelToAudio::Play),
+			Stop                 => send!(self.to_audio, KernelToAudio::Stop),
+			Next                 => send!(self.to_audio, KernelToAudio::Next),
+			Last                 => send!(self.to_audio, KernelToAudio::Last),
+			Seek(float)          => self.seek(float),
+			PlayQueueKey(key)    => send!(self.to_audio, KernelToAudio::PlayQueueKey(key)),
+			Volume(volume)       => send!(self.to_audio, KernelToAudio::Volume(volume.inner())),
+			// Audio settings.
+			Shuffle              => flip!(lock_write!(self.state).shuffle),
+			Repeat               => flip!(lock_write!(self.state).repeat),
+			// Collection.
+			NewCollection(paths) => self.ccd_mode(paths),
+			Search(string)       => send!(self.to_search, KernelToSearch::Search(string)),
+		}
+	}
+
 	#[inline(always)]
 	// We got a message from `Search`.
-	fn msg_search(&self, msg: SearchToKernel) {}
+	fn msg_search(&self, msg: SearchToKernel) {
+		use crate::search::SearchToKernel::*;
+		match msg {
+			SearchResult(keychain) => send!(self.to_gui, KernelToGui::SearchResult(keychain)),
+		}
+	}
+
 	#[inline(always)]
 	// We got a message from `Audio`.
-	fn msg_audio(&self, msg: AudioToKernel) {}
+	fn msg_audio(&self, msg: AudioToKernel) {
+		use crate::audio::AudioToKernel::*;
+		match msg {
+			TimestampUpdate(float) => lock_write!(self.state).current_runtime = float,
+			PathError(string)      => send!(self.to_gui, KernelToGui::PathError(string)),
+		}
+	}
+
 	#[inline(always)]
 	// We got a message from `Watch`.
-	fn msg_watch(&self, msg: WatchToKernel) {}
+	fn msg_watch(&self, msg: WatchToKernel) {
+		use crate::watch::WatchToKernel::*;
+		match msg {
+			Play    => send!(self.to_audio, KernelToAudio::Play),
+			Stop    => send!(self.to_audio, KernelToAudio::Stop),
+			Next    => send!(self.to_audio, KernelToAudio::Next),
+			Last    => send!(self.to_audio, KernelToAudio::Last),
+			Shuffle => flip!(lock_write!(self.state).shuffle),
+			Repeat  => flip!(lock_write!(self.state).repeat),
+		}
+	}
+
+	//-------------------------------------------------- Misc message handling.
+	#[inline(always)]
+	// Verify the `seek` is valid before sending to `Audio`.
+	fn seek(&self, float: f64) {
+		if !lock_read!(self.state).playing {
+			return
+		}
+
+		if float <= lock_read!(self.state).current_runtime {
+			send!(self.to_audio, KernelToAudio::Play);
+		}
+	}
+
+	//-------------------------------------------------- `CCD` Mode.
+	#[inline(always)]
+	// `GUI` wants a new `Collection`:
+	//
+	// 1. Enter `CCD` mode
+	// 2. Only listen to it
+	// 3. (but send updates to `GUI`)
+	// 4. Tell everyone to drop the old `Collection` pointer
+	// 5. Wait until `CCD` gives the new `Collection`
+	// 6. Tell `CCD` to... `Die`
+	// 7. Give new `Arc<Collection>` to everyone
+	fn ccd_mode(&mut self, paths: Vec<PathBuf>) {
+		// INVARIANT:
+		// `GUI` is expected to drop its pointer by itself
+		// after requesting the new `Collection`.
+		//
+		// Drop your pointers.
+		send!(self.to_search, KernelToSearch::DropCollection);
+		send!(self.to_audio,  KernelToAudio::DropCollection);
+
+		// Create `CCD` channels.
+		let (to_ccd,   ccd_recv) = crossbeam_channel::unbounded::<KernelToCcd>();
+		let (ccd_send, from_ccd) = crossbeam_channel::unbounded::<CcdToKernel>();
+
+		// Get old `Collection` pointer.
+		let old_collection = Arc::clone(&self.collection);
+
+		// Spawn `CCD`.
+		std::thread::spawn(move || {
+			Ccd::new_collection(ccd_send, ccd_recv, old_collection, paths);
+		});
+
+		// Listen to `CCD`.
+		let collection = loop {
+			use crate::ccd::CcdToKernel::*;
+			match recv!(from_ccd) {
+				Update(string)            => send!(self.to_gui, KernelToGui::Update(string)),
+				NewCollection(collection) => break collection,
+				Failed(anyhow)            => {
+					// `CCD` failed, tell `GUI` and give the
+					// old `Collection` pointer to everyone again.
+					send!(self.to_search, KernelToSearch::NewCollection(Arc::clone(&self.collection)));
+					send!(self.to_audio,  KernelToAudio::NewCollection(Arc::clone(&self.collection)));
+					send!(self.to_gui,    KernelToGui::Failed((Arc::clone(&self.collection), anyhow.to_string())));
+					return;
+				},
+			}
+		};
+
+		// `CCD` succeeded, send new pointers to everyone.
+		self.collection = Arc::new(collection);
+		send!(self.to_search, KernelToSearch::NewCollection(Arc::clone(&self.collection)));
+		send!(self.to_audio,  KernelToAudio::NewCollection(Arc::clone(&self.collection)));
+		send!(self.to_gui,    KernelToGui::NewCollection(Arc::clone(&self.collection)));
+	}
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

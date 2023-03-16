@@ -125,9 +125,9 @@ impl Search {
 				DropCollection     => self = self.msg_drop(),
 
 				// Other messages shouldn't be received here, e.g:
-				// `DropCollection` should _always_ be first before `CollectionArc`.
-				// Something buggy is happening if we randomly get a new `CollectionArc`.
-				CollectionArc(_) => error!("Search: Incorrect message received - CollectionArc"),
+				// `DropCollection` should _always_ be first before `NewCollection`.
+				// Something buggy is happening if we randomly get a new `NweCollection`.
+				NewCollection(_) => error!("Search: Incorrect message received - NewCollection"),
 			}
 		}
 	}
@@ -152,7 +152,7 @@ impl Search {
 		// Ignore messages until it's a pointer.
 		// (`Kernel` should only be sending a pointer at this point anyway).
 		loop {
-			if let KernelToSearch::CollectionArc(arc) = recv!(self.from_kernel) {
+			if let KernelToSearch::NewCollection(arc) = recv!(self.from_kernel) {
 				ok_debug!("Search: New Collection");
 				self.collection = arc;
 				return self

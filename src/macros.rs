@@ -10,7 +10,7 @@ macro_rules! lock {
 pub(crate) use lock;
 
 // Read a `RwLock/RoLock` or `mass_panic!()` (exit all threads).
-macro_rules! read_lock {
+macro_rules! lock_read {
 	($lock:expr) => {{
 		match $lock.read() {
 			Ok(lock) => lock,
@@ -18,10 +18,10 @@ macro_rules! read_lock {
 		}
 	}};
 }
-pub(crate) use read_lock;
+pub(crate) use lock_read;
 
 // Write to a `RwLock/RoLock` or `mass_panic!()` (exit all threads).
-macro_rules! write_lock {
+macro_rules! lock_write {
 	($lock:expr) => {{
 		match $lock.write() {
 			Ok(lock) => lock,
@@ -29,7 +29,7 @@ macro_rules! write_lock {
 		}
 	}};
 }
-pub(crate) use write_lock;
+pub(crate) use lock_write;
 
 // Sleep the current thread for `x` milliseconds
 macro_rules! sleep {
@@ -138,7 +138,7 @@ macro_rules! unwrap_or_mass {
 	($var:tt) => {{
 		match $var {
 			Ok(o)  => o,
-			Err(_) => crate::macros::mass_panic!("unwrap_or_mass"),
+			Err(e) => crate::macros::mass_panic!(e),
 		}
 	}}
 }

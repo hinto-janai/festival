@@ -17,17 +17,18 @@ use rolock::RoLock;
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
 pub(crate) enum AudioToKernel {
-	TimestampUpdate(f32), // We've played the current song for `x` seconds.
+	TimestampUpdate(f64), // We've played the current song for `x` seconds.
 	PathError(String),    // `Path` error occured when trying to play a song.
 }
 
 pub(crate) enum KernelToAudio {
 	// Audio playback.
-	Play,       // Play currently stored audio.
-	Stop,       // Stop.
-	Next,       // Play next song in queue (stop if none).
-	Last,       // Play last song in queue.
-	Seek(f32),  // Seek to point in current song.
+	Play,        // Play currently stored audio.
+	Stop,        // Stop.
+	Next,        // Play next song in queue (stop if none).
+	Last,        // Play last song in queue.
+	Seek(f64),   // Seek to point in current song.
+	Volume(f64), // Change the volume.
 
 	// Queue/playlist.
 	PlayQueueKey(QueueKey), // Play the first song (`[0]`) in the queue.

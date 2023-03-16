@@ -8,6 +8,7 @@ use log::{info,error,warn,trace,debug};
 //use std::{};
 use crate::macros::{
 	ok_debug,
+	sleep,
 	recv,
 	send,
 };
@@ -178,12 +179,22 @@ impl Ccd {
 		}
 
 		// 10.
-		if Arc::strong_count(&old_collection) == 1 {
-			let now = Instant::now();
-			drop(old_collection);
-			debug!("CCD [10/10] | Deconstruct: {}", now.elapsed().as_secs_f32());
-		} else {
-			error!("CCD [10/10] | Someone else is pointing to the old Collection...! I can't deconstruct it noooooooooo~");
+		// Try 3 times before giving up.
+		for i in 1..=4 {
+			if i == 4 {
+				error!("CCD [10/10] | Someone else is pointing to the old Collection...! I can't deconstruct it noooooooooo~");
+				break
+			}
+
+			if Arc::strong_count(&old_collection) == 1 {
+				let now = Instant::now();
+				drop(old_collection);
+				debug!("CCD [10/10] | Deconstruct: {}", now.elapsed().as_secs_f32());
+				break
+			}
+
+			warn!("CCD [10/10] Attempt ({}/3) | Failed to deconstruct old Collection...", i);
+			sleep!(1000); // Sleep 1 second.
 		}
 
 		// Thank you CCD, you can rest now.

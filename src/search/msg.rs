@@ -20,7 +20,7 @@ pub(crate) enum SearchToKernel {
 pub(crate) enum KernelToSearch {
 	Search(String),                 // Start a search on string input.
 	DropCollection,                 // Drop your pointer.
-	CollectionArc(Arc<Collection>), // Here's a new `Collection` pointer.
+	NewCollection(Arc<Collection>), // Here's a new `Collection` pointer.
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

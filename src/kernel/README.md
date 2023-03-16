@@ -26,6 +26,7 @@ Basically, it initializes the data & threads, then loops forever, waiting for me
 |----------------|---------|
 | kernel.rs      | Main `Kernel` functions & data
 | state.rs       | Thread-safe `State` that only `Kernel` can mutate (playlists, current song, etc)
+| volume.rs      | Wrapper around `f64` that ensures it's between a range between `0.0..100.0`
 
 The messages that `Kernel` can send & receive are all defined in that thread's respective folder, rather than here.
 

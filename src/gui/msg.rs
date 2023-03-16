@@ -14,6 +14,8 @@ use crate::collection::{
 };
 use crate::kernel::State;
 use rolock::RoLock;
+use std::path::PathBuf;
+use crate::kernel::Volume;
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
 pub(crate) enum GuiToKernel {
@@ -22,23 +24,34 @@ pub(crate) enum GuiToKernel {
 	Stop,       // Stop.
 	Next,       // Play next song in queue (stop if none).
 	Last,       // Play last song in queue.
-	Seek(f32),  // Seek to point in current song.
+	Seek(f64),  // Seek to point in current song.
 
 	// Audio settings.
-	Shuffle, // Toggle shuffling songs.
-	Repeat,  // Toggle repeating songs.
+	Shuffle,        // Toggle shuffling songs.
+	Repeat,         // Toggle repeating songs.
+	Volume(Volume), // Change the audio volume.
 
 	// Queue/playlist.
 	PlayQueueKey(QueueKey), // Play the first song (`[0]`) in the queue.
 
 	// Collection.
-	ResetCollection, // I'd like to reset the `Collection`.
+	NewCollection(Vec<PathBuf>), // I'd like to reset the `Collection` from these `PATH`'s.
+	Search(String),              // I'd like to search the `Collection`.
 }
 
 pub(crate) enum KernelToGui {
-	DropCollection,                 // Drop your pointer.
-	NewCollection(Arc<Collection>), // Here's a new `Collection` pointer.
-	NewState(RoLock<State>),        // Here's a new `State` pointer.
+	// Collection.
+	DropCollection,                    // Drop your pointer.
+	NewCollection(Arc<Collection>),    // Here's the new `Collection` pointer.
+	Update(String),                    // Here's an update on the new `Collection`.
+	Failed((Arc<Collection>, String)), // Creating the new `Collection` failed, here's the old pointer and error message.
+
+	// Audio error.
+	PathError(String), // The audio file at this `PATH` has errored (probably doesn't exist).
+
+	// Misc.
+	NewState(RoLock<State>),           // Here's a new `State` pointer.
+	SearchResult(Keychain),            // Here's a search result
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
