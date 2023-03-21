@@ -28,7 +28,7 @@ lto = true
 [dependencies]
 ### Personal libraries.
 disk     = { version = "0.0.1", features = ["bincode", "toml", "plain"] }
-readable = { version = "0.2.1", features = ["serde", "ignore_nan_inf"] }
+readable = { version = "0.3.0", features = ["serde", "ignore_nan_inf"] }
 rolock   = { version = "0.1.1" }
 
 ### External patched libraries `external/`.

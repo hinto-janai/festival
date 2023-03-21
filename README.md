@@ -47,7 +47,7 @@ Other planned frontends:
 | `festivald`                 | Daemon ([`mpd`](https://github.com/MusicPlayerDaemon/MPD)-like)
 | `festival-cli`              | CLI client that connects to `festivald`
 
-Eventually, I'd also like to expose [`Festival`'s internals](https://github.com/hinto-janai/festival/src) as a library, as well.
+Eventually, I'd also like to expose [`Festival`'s internals](https://github.com/hinto-janai/festival/src) as a library.
 
 ## Build
 ### General Info

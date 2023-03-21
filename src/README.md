@@ -671,10 +671,10 @@ They'll immediately get deleted, and `Festival` will act on the signal.
 ---
 
 ## Personal Libraries
-These are libraries I created, pretty much because of `Festival`.
+These are libraries I made (because of `Festival`).
 
 ### [Disk](https://github.com/hinto-janai/disk)
-This provides a convenient trait macro that adds useful disk-related functions to a `struct`.
+This provides a trait macro that adds disk-related functions to a `struct`.
 
 Basically, `serde` + `directories` + a whole bunch of file formats.
 

@@ -57,43 +57,77 @@ impl Audio {
 	}
 }
 
+//---------------------------------------------------------------------------------------------------- Constants.
+// How long should `Audio` wait for a message from `Kernel` before timing out?
+//
+// This is done in the same `loop` as the audio demuxing/decoding,
+// so a timeout that is too _long_ will cause audible skips within
+// the played audio, while a timeout that is too _short_ will wake
+// the sleeping CPU core more often.
+const AUDIO_MESSAGE_TIMEOUT: std::time::Duration = std::time::Duration::from_millis(15);
+
 //---------------------------------------------------------------------------------------------------- Main Audio loop.
 impl Audio {
 	#[inline(always)]
 	fn main(mut self) {
 		ok_debug!("Audio");
 
-	}
+		loop {
+			// Listen for message.
+			self = self.msg();
 
-	#[inline(always)]
-	fn msg(&mut self) {
-//		let msg = match self.from_kernel.recv_timeout(std::time::Duration::from_millis(15)) {
-//			
-//			_ => return,
-//		};
-
-		use KernelToAudio::*;
-		match msg {
-			// Audio playback.
-			Play        =>
-			Stop        =>
-			Next        =>
-			Last        =>
-			Seek(f64)   =>
-			Volume(f64) =>
-
-			// Queue.
-			PlayQueueKey(QueueKey) =>
-
-			// Collection.
-			DropCollection                 => self.drop_collection(),
-			NewCollection(Arc<Collection>) => self.
-			NewState(RoLock<State>)        =>
+			// TODO:
+			// Audio loop.
 		}
 	}
 
 	#[inline(always)]
-	fn msg_hang(&mut self) {
+	fn msg(mut self) -> Self {
+		let msg = match self.from_kernel.recv_timeout(AUDIO_MESSAGE_TIMEOUT) {
+			Ok(msg) => msg,
+			_ => return self,
+		};
+
+		use KernelToAudio::*;
+		match msg {
+			// Audio playback.
+			Play        => todo!(),
+			Stop        => todo!(),
+			Next        => todo!(),
+			Last        => todo!(),
+			Seek(f64)   => todo!(),
+			Volume(f64) => todo!(),
+
+			// Queue.
+			PlayQueueKey(QueueKey) => todo!(),
+
+			// Collection.
+			DropCollection     => self = self.msg_drop(),
+			NewCollection(arc) => self.collection = arc,
+			NewState(rolock)   => self.state = rolock,
+		}
+
+		self
+	}
+
+	#[inline(always)]
+	fn msg_drop(mut self) -> Self {
+		// Drop pointer.
+		drop(self.collection);
+
+		// Hang until we get the new one.
+		debug!("Audio: Dropped Collection, waiting...");
+
+		// Ignore messages until it's a pointer.
+		loop {
+			if let KernelToAudio::NewCollection(arc) = recv!(self.from_kernel) {
+				ok_debug!("Audio: New Collection");
+				self.collection = arc;
+				return self
+			}
+
+			error!("Audio: Incorrect message received");
+		}
 	}
 }
 
