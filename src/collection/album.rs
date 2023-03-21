@@ -5,7 +5,6 @@ use serde::{Serialize,Deserialize};
 use crate::macros::*;
 use disk::prelude::*;
 use disk::{Bincode,bincode_file};
-use human::{HumanTime,HumanNumber,HumanRuntime};
 use super::{
 	ArtistKey,
 	SongKey,
@@ -21,11 +20,11 @@ use super::art::{
 #[derive(Debug,Serialize,Deserialize)]
 pub struct Album {
 	// User-facing data.
-	pub title: String,                 //
-	pub artist: ArtistKey,             //
-	pub release_human: String,         //
-	pub runtime_human: HumanRuntime,   //
-	pub song_count_human: HumanNumber, //
+	pub title: String,                    //
+	pub artist: ArtistKey,                //
+	pub release_human: String,            //
+	pub runtime_human: readable::Runtime, //
+	pub song_count_human: readable::Int,  //
 	// This `Vec<SongKey>` is _always_ sorted based
 	// off incrementing disc and track numbers, e.g:
 	//

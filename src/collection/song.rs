@@ -4,7 +4,7 @@
 use serde::{Serialize,Deserialize};
 use super::AlbumKey;
 use std::path::PathBuf;
-use human::HumanRuntime;
+use readable::Runtime;
 
 //----------------------------------------------------------------------------------------------------
 //#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
@@ -13,7 +13,7 @@ pub struct Song {
 	// User-facing data.
 	pub title: String,
 	pub album: AlbumKey,
-	pub runtime_human: HumanRuntime,   //
+	pub runtime_human: Runtime,        //
 	pub track: Option<u32>,            //
 	pub track_artists: Option<String>, //
 	pub disc: Option<u32>,             //

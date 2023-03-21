@@ -34,7 +34,7 @@ use crate::constants::{
 };
 use crossbeam_channel::Sender;
 use super::CcdToKernel;
-use human::{HumanRuntime,HumanNumber};
+use readable::{Runtime,Int};
 use std::borrow::Cow;
 use std::sync::{Arc,Mutex};
 
@@ -185,7 +185,7 @@ impl super::Ccd {
 				let song = Song {
 					title: title.to_string(),
 					album: AlbumKey::from(*album_idx),
-					runtime_human: HumanRuntime::from(runtime),
+					runtime_human: Runtime::from(runtime),
 					track,
 					track_artists,
 					disc,
@@ -210,7 +210,7 @@ impl super::Ccd {
 			let song = Song {
 				title: title.to_string(),
 				album: AlbumKey::from(*lock!(count_album)),
-				runtime_human: HumanRuntime::from(runtime),
+				runtime_human: Runtime::from(runtime),
 				track,
 				track_artists,
 				disc,
@@ -242,8 +242,8 @@ impl super::Ccd {
 				compilation,
 
 				// Needs to be updated later.
-				song_count_human: HumanNumber::new(),
-				runtime_human: HumanRuntime::zero(),
+				song_count_human: Int::new(),
+				runtime_human: Runtime::zero(),
 				runtime: 0.0,
 				song_count: 0,
 				art: Art::Unknown,
@@ -271,7 +271,7 @@ impl super::Ccd {
 		let song = Song {
 			title: title.to_string(),
 			album: AlbumKey::from(*lock!(count_album)),
-			runtime_human: HumanRuntime::from(runtime),
+			runtime_human: Runtime::from(runtime),
 			track,
 			track_artists,
 			disc,
@@ -303,8 +303,8 @@ impl super::Ccd {
 			compilation,
 
 			// Needs to be updated later.
-			song_count_human: HumanNumber::new(),
-			runtime_human: HumanRuntime::zero(),
+			song_count_human: Int::new(),
+			runtime_human: Runtime::zero(),
 			runtime: 0.0,
 			song_count: 0,
 			art: Art::Unknown,
@@ -360,12 +360,12 @@ impl super::Ccd {
 			// Song count.
 			let song_count         = album.songs.len();
 			album.song_count       = song_count;
-			album.song_count_human = HumanNumber::from_usize(song_count);
+			album.song_count_human = Int::from(song_count);
 
 			// Total runtime.
 			let mut runtime = 0.0;
 			album.songs.iter().for_each(|key| runtime += vec_song[key.inner()].runtime);
-			album.runtime_human = HumanRuntime::from(runtime);
+			album.runtime_human = Runtime::from(runtime);
 			album.runtime       = runtime;
 		}
 	}
@@ -581,7 +581,7 @@ mod tests {
 		println!("{:#?}", vec_song);
 
 		// Assert metadata is fixed.
-		assert!(vec_album[0].runtime_human             == human::HumanRuntime::from(5.83));
+		assert!(vec_album[0].runtime_human             == readable::Runtime::from(5.83));
 		assert!(vec_album[0].song_count_human.as_str() == "3");
 		assert!(vec_album[0].runtime                   == 5.83);
 		assert!(vec_album[0].song_count                == 3);
