@@ -45,6 +45,8 @@ Playlist handling: What happens when you delete the underlying file of a song in
 | `Lollypop` and `GNOME Music` | Silently adds/removes songs from playlists if the underlying file gets added/deleted
 | `MusicBee` and `iTunes`      | Continues displaying the playlist with the correct metadata, shows error when attempting to play missing song
 
+I believe `MusicBee` and `iTunes` have the best approach here.
+
 #### Sorting
 "Sorting methods" refers to how many options the music player provides to sort the music, either by artist, album, song, or a cross-sort combining them, e.g: album covers by artist name and album release:
 ```
@@ -81,6 +83,7 @@ The tests were conducted on the following PC:
 
 Some things to keep in mind:
 
+- The Linux version of `Festival` was used
 - The `NTFS` filesystem was used for both `Windows` and `Linux` tests (advantage for `iTunes`, `MusicBee`)
 - `FLAC` files were converted to `ALAC/AAC/MP3` for iTunes (advantage for `iTunes`)
 
@@ -165,7 +168,7 @@ Some other big differences that aren't shown in graphs here:
 
 - GUI bugs (`GNOME Music` really should be deprecated in favor of `Lollypop`)
 - Album art size (`Festival` uses `600x600`, others use `300x300`)
-- Access times (`SQL` query vs `Vec` index)
+- Access times (`Vec` index vs `SQL` query)
 
 On the other hand, the playlist implementation in `Festival` is quite bad, since I don't use playlists at all. In order to achieve the speeds that it does, `Festival` sacrifices everything in terms of dynamic collection management, since after the initial creation of the `Collection`, it is static _forever_. This doesn't make implementing dynamic data impossible, but annoying due to index invalidation.
 

@@ -11,13 +11,14 @@ Music player for Windows/macOS/Linux.
 
 * [Comparison](#Comparison)
 * [Documentation](#Documentation)
+* [Frontends](#Frontends)
 * [Build](#Build)
 * [License](#License)
 
 ---
 
 ## Comparison
-For context on these graphs (there's always trade-offs), see [`cmp/`](https://github.com/hinto-janai/festival/cmp).
+For context on these graphs (there are always trade-offs), see [`cmp/`](https://github.com/hinto-janai/festival/cmp).
 
 Input data:
 
@@ -34,6 +35,19 @@ Input data:
 
 ## Documentation
 For a broad overview of `Festival`'s internals, see [`src/`](https://github.com/hinto-janai/festival/src).
+
+## Frontends
+The only frontend currently is `festival-gui`, which uses [`egui`](https://github.com/emilk/egui).
+
+Other planned frontends:
+
+| Frontend                    | Description |
+|-----------------------------|-------------|
+| `festival-web`              | `WASM` version of `egui` GUI
+| `festivald`                 | Daemon ([`mpd`](https://github.com/MusicPlayerDaemon/MPD)-like)
+| `festival-cli`              | CLI client that connects to `festivald`
+
+Eventually, I'd also like to expose [`Festival`'s internals](https://github.com/hinto-janai/festival/src) as a library, as well.
 
 ## Build
 ### General Info
@@ -101,11 +115,10 @@ All of the libraries `Festival` (directly) uses:
 | Library | Purpose | License |
 |---------|---------|---------|
 | [anyhow](https://github.com/dtolnay/anyhow)                        | Error handling           | `MIT` & `Apache-2.0`
-| [bincode](https://github.com/bincode-org/bincode)                  | Binary file en/decoder   | `MIT` 
 | [chrono](https://github.com/chronotope/chrono)                     | Time formatting          | `MIT` & `Apache-2.0`
 | [clap](https://github.com/clap-rs/clap)                            | CLI arguments            | `MIT` & `Apache-2.0`
 | [crossbeam_channel](https://github.com/crossbeam-rs/crossbeam)     | Thread message passing   | `MIT` & `Apache-2.0`
-| [directories](https://github.com/soc/directories-rs)               | Native user directories  | `MIT` & `Apache-2.0`
+| [disk](https://github.com/hinto-janai/disk)                        | Saving to disk           | `MIT`
 | [egui](https://github.com/emilk/egui)                              | GUI                      | `MIT` & `Apache-2.0`
 | [egui_extras](https://github.com/emilk/egui/crates/egui_extras)    | GUI                      | `MIT` & `Apache-2.0`
 | [eframe](https://github.com/emilk/egui/crates/eframe)              | GUI                      | `MIT` & `Apache-2.0`
@@ -119,7 +132,6 @@ All of the libraries `Festival` (directly) uses:
 | [log](https://github.com/rust-lang/log)                            | Logging                  | `MIT` & `Apache-2.0`
 | [notify](https://github.com/notify-rs/notify)                      | Filesystem watching      | `Artistic License 2.0` & `CC Zero 1.0`
 | [mime_guess](https://github.com/abonander/mime_guess)              | File MIME detection      | `MIT`
-| [num-format](https://docs.rs/num-format)                           | Number formatting        | `MIT` & `Apache-2.0`
 | [rand](https://github.com/rust-random/rand)                        | RNG                      | `MIT` & `Apache-2.0`
 | [rfd](https://github.com/PolyMeilex/rfd)                           | Native file dialog       | `MIT`
 | [serde](https://github.com/serde-rs/serde)                         | (De)serialization        | `MIT` & `Apache-2.0`
@@ -128,5 +140,6 @@ All of the libraries `Festival` (directly) uses:
 | [strsim](https://github.com/dguo/strsim-rs)                        | String similarity        | `MIT`
 | [strum](https://github.com/Peternator7/strum)                      | Enum iteration           | `MIT`
 | [Symphonia](https://github.com/pdeljanov/Symphonia)                | Audio demuxing, decoding | `MPL-2.0`
-| [toml_edit](https://github.com/ordian/toml_edit)                   | TOML parsing             | `MIT` & `Apache-2.0` 
+| [readable](https://github.com/hinto-janai/readable)                | Human readable data      | `MIT`
+| [rolock](https://github.com/hinto-janai/rolock)                    | Read only lock           | `MIT`
 | [walkdir](https://github.com/BurntSushi/walkdir)                   | Recursive PATH walking   | `MIT` & `Unlicense` 

@@ -1,14 +1,14 @@
 # Festival Documentation
 This is an overview of `Festival`.
 
-For details on any part of the system, look within any given sub-directory for its `README.md`, it contains more specific documentation.
+For details on any part of the system, look within any given sub-directory for its `README.md`, which contains more specific documentation.
 
 The code itself is also littered with comments. Some `grep`-able keywords:
 
 | Word        | Meaning |
 |-------------|---------|
 | `INVARIANT` | This code makes an _assumption_ that must be upheld for correctness
-| `SAFETY`    | This `unsafe` code is okay, for these reasons
+| `SAFETY`    | This `unsafe` code is okay, for `x,y,z` reasons
 | `FIXME`     | This code works but isn't ideal
 | `HACK`      | This code is a brittle workaround
 | `TODO`      | This should be implemented... someday
@@ -40,9 +40,9 @@ The code itself is also littered with comments. Some `grep`-able keywords:
 	- [Pros](#Pros)
 * [Disk]
 	- [Collection](#Collection-2)
+	- [Settings](#Settings)
 	- [State](#State)
-	- [Slices](#Slices-1)
-* [Internal Libraries]
+* [Personal Libraries]
 	- [Disk](#Disk)
 	- [Human](#Human)
 	- [RoLock](#RoLock)
@@ -93,9 +93,9 @@ The relationship between the main threads and data. Threads communicate via `cro
 
 <img src="assets/images/diagram/overview.png" width="66%"/>
 
-This is simplified explaination of what happens at `main()`.
+A simplified explaination of what happens at `main()`:
 
-Although, reading `main.rs` might be easier, it's only `30` lines long.
+(although, reading `main.rs` might be easier, it's only `30` lines long)
 
 1. User opens `Festival`
 2. CLI arguments are handled
@@ -120,7 +120,7 @@ After initial creation, `Collection` is permanently wrapped in an `Arc` such tha
 ### Kernel
 `Kernel` is the coordinator for all other threads. If ownership of any long-lived data is required, `Kernel` is most likely the one to have it. Mutable access to shared data is also restricted to `Kernel`. When any thread needs to mutate something (or really do anything), they usually need to go through `Kernel` first.
 
-Each thread in the system only has one `Sender/Receiver` channel pair, all sending/receiving to & from `Kernel`. Although, `Kernel` is the exception, it has channels to send and receive from _all_ threads.
+_Most_ threads in the system only have one `Sender/Receiver` channel pair, all sending/receiving to & from `Kernel`. Although, `Kernel` is the exception, it has channels to send and receive from _all_ threads.
 
 The main reasons `Kernel` exists:
 
@@ -188,7 +188,7 @@ It also writes that data to the audio hardware so that it can be played.
 
 This is provided by [`Symphonia`](https://github.com/pdeljanov/Symphonia).
 
-`Audio` also sends/receives messages from `Kernel`, e.g: pause/play, adjust volume, etc.
+`Audio` also sends/receives messages from `Kernel`, e.g: play/pause, adjust volume, etc.
 
 ### GUI
 `GUI` is the thread that runs... the GUI.
@@ -249,7 +249,7 @@ Pros of having completely separate `Vec`'s:
 - Indicies refer to an "absolute" index, e.g: `collection.songs[0]` is the 1st song in the `Vec` containing ***all songs***, whereas in the nested version, it would be the 1st song within some particular `Album` belonging to some particular `Artist`.
 - Multiple flat data structures are easier to reason about than their nested counterparts
 
-Con:
+Cons:
 
 - All relational data is lost (embedding `Song` within `Album` within `Artist` "automatically" links them)
 - Using indicies instead of text keys means playlists/queues are connected with a _particular_ `Collection` and cannot be transferred
@@ -345,7 +345,7 @@ The request for a new `Collection` always comes from the user (GUI, in this diag
 
 After sending the `PATH`'s it wants scanned to `Kernel`, `GUI` drops its pointer to the old `Collection`.
 
-`Kernel` then tells everyone to drop their pointers, and goes into "CCD" mode, spawning `CCD`, giving it a pointer and _only_ listening to it.
+`Kernel` then tells everyone to drop their old pointers, and goes into "CCD" mode, spawning `CCD`, giving it an _old_ pointer and _only_ listening to it.
 
 <img src="assets/images/diagram/ccd1.png" width="66%"/>
 
@@ -388,13 +388,13 @@ Pretty much all collection/library-based music players (iTunes, MusicBee, Lollyp
 
 Since in `Collection`, that would end up invalidating everything, mutation is not possible, instead a _whole new_ `Collection` must be made from scratch.
 
-The one and only saving grace for what otherwise sounds like bad code:
+The one and only saving grace for what otherwise is bad code:
 
 - It's fast.
 
 The time it takes `Lollypop` to add 1 new song and reload is the same time it takes `Festival` to create [**an entire `Collection` consisting of 135 `Artist`'s, 500 `Album`'s, and 7000 `Song`'s from scratch.**](https://github.com/hinto-janai/festival/cmp)
 
-Not the mention the access times of `SQL` queries vs. indexing a `Vec`.
+Not to mention the access times of indexing a `Vec` vs `SQL` queries.
 
 ### Mutation
 After `CCD` hands off the finished `Collection` to `Kernel`, `Kernel` wraps it in an `Arc` and it becomes immutable from that point.
@@ -406,7 +406,11 @@ After `CCD` hands off the finished `Collection` to `Kernel`, `Kernel` wraps it i
 
 [`TOML`](https://github.com/ordian/toml_edit) is used for miscellaneous state, like the `GUI` settings.
 
-`Festival` uses an internal library (`disk`) that add some extra features to `Bincode` files. In particular, it adds a versioning system. This is for when I eventually realize the `Collection` has a mistake in it's structure, or that something should be changed. Having a versioning system allows easy backwards compatability, and also could allow for different "types" of `Collection`'s based off the use-case, for example: `Daemon + CLI Client` would not need album art, so that could be removed which would save a lot of processing time and disk space.
+`Festival` uses an internal library (`disk`) that adds some extra features to `Bincode` files. In particular, it adds a versioning system.
+
+This is for when I eventually realize the `Collection` has a mistake in it's structure, or that something should be changed.
+
+Having a versioning system allows for backwards compatability, and also could allow for different "types" of `Collection`'s based off the use-case, for example: `Daemon + CLI Client` would not need album art, so that could be removed which would save a lot of processing time and disk space.
 
 The versioning system is quite simple, `25` bytes of data are just added to the front of the file before saving.
 
@@ -414,7 +418,7 @@ The first `24` bytes are a unique header. This is to make sure the following byt
 ```rust
 // The 24 unique bytes our Bincode files will start with.
 // It is the UTF-8 encoded string "-----BEGIN FESTIVAL-----" as bytes.
-// The next byte after _should_ be our version, then our actual data.
+// The next byte _should_ be our version, then our actual data.
 const FESTIVAL_HEADER: [u8; 24] = [
     45, 45, 45, 45, 45,             // -----
     66, 69, 71, 73, 78,             // BEGIN
@@ -426,7 +430,7 @@ const FESTIVAL_HEADER: [u8; 24] = [
 The next byte is the version, represented by a `u8`, meaning it has `0-255` different possible values:
 ```rust
 // Current major version of the `Collection`.
-const COLLECTION_VERSION: u8 = 1;
+const COLLECTION_VERSION: u8 = 0;
 ```
 After this, the rest of the bytes should be the `Collection` in binary form.
 
@@ -546,7 +550,7 @@ Instead of that, `Kernel` acts as the middleman, so that _all_ threads go throug
 
 <img src="assets/images/diagram/frontend.png" width="66%"/>
 
-Each thread communicates with `Kernel` and `Kernel` only, sending well-defined messsage. This is literally the message implementation between `CCD` and `Kernel`:
+Each thread communicates with `Kernel` and `Kernel` only, sending well-defined messsages. This is literally the message implementation between `CCD` and `Kernel`:
 ```rust
 enum CcdToKernel {
     NewCollection(Collection),
@@ -576,7 +580,7 @@ audio_to_kernel.send(CcdToKernel::Update("fake msg"));
 //             Compile error!
 ```
 
-These unrealistic type errors don't matter too much since after all, _I_ am the one writing the code, but this does matter if `Festival`'s internals ever get exposed as a public API.
+These unrealistic type errors don't matter too much since after all, _I_ am the one writing the code, but this may matter if `Festival`'s internals ever get exposed as a public API.
 
 Also, it's always a nice feeling to have the type checker behind your back. This same idea applies to using `Key` instead of a raw `usize` for `Collection` indexing.
 
@@ -620,7 +624,7 @@ Saved as `collection.bin`.
 | macOS    | `$HOME/Library/Application Support/Festival/collection.bin`               | `/Users/Alice/Library/Application Support/Festival/collection.bin` |
 | Windows  | `{FOLDERID_LocalAppData}\Festival\collection.bin`                         | `C:\Users\Alice\AppData\Local\Festival\collection.bin`             |
 
-### State and Settings
+### Settings
 The `GUI` state and settings.
 
 Saved as `state.toml` and `settings.toml`
@@ -631,16 +635,16 @@ Saved as `state.toml` and `settings.toml`
 | macOS    | `$HOME/Library/Application Support/Festival/state.toml`               | `/Users/Alice/Library/Application Support/Festival/state.toml` |
 | Windows  | `{FOLDERID_LocalAppData}\Festival\state.toml`                         | `C:\Users\Alice\AppData\Local\Festival\state.toml`             |
 
-### Slices
-This is the `Queue` and `Playlist`'s.
+### State
+This includes the `Queue` and `Playlist`'s.
 
-Saved as `queue.bin` and `playlist.bin`
+They're part of larger `State` struct owned by `Kernel`, which is saved as `state.bin`.
 
 | Platform | Value                                                                      | Example                                                       |
 |----------|----------------------------------------------------------------------------| --------------------------------------------------------------|
-| Linux    | `$XDG_DATA_HOME/festival` or `$HOME/.local/share/festival/queue.bin`       | `/home/alice/.local/share/festival/queue.bin`                 |
-| macOS    | `$HOME/Library/Application Support/Festival/queue.bin`                     | `/Users/Alice/Library/Application Support/Festival/queue.bin` |
-| Windows  | `{FOLDERID_LocalAppData}\Festival\queue.bin`                               | `C:\Users\Alice\AppData\Local\Festival\queue.bin`             |
+| Linux    | `$XDG_DATA_HOME/festival` or `$HOME/.local/share/festival/state.bin`       | `/home/alice/.local/share/festival/state.bin`                 |
+| macOS    | `$HOME/Library/Application Support/Festival/state.bin`                     | `/Users/Alice/Library/Application Support/Festival/state.bin` |
+| Windows  | `{FOLDERID_LocalAppData}\Festival\state.bin`                               | `C:\Users\Alice\AppData\Local\Festival\state.bin`             |
 
 ### Signals
 These are the `Signal` files, created by commands like `./festival --play`.
@@ -666,11 +670,11 @@ They'll immediately get deleted, and `Festival` will act on the signal.
 
 ---
 
-## Internal Libraries
-`Festival` uses some internal libraries, located at `lib/`. These are libraries I've created that aren't released publically, because getting them ready for public use is work.
+## Personal Libraries
+These are libraries I created, pretty much because of `Festival`.
 
-### Disk
-This library provides a convenient trait macro that adds useful disk-related functions to a `struct`.
+### [Disk](https://github.com/hinto-janai/disk)
+This provides a convenient trait macro that adds useful disk-related functions to a `struct`.
 
 Basically, `serde` + `directories` + a whole bunch of file formats.
 
@@ -691,23 +695,23 @@ struct Collection {
 }
 ```
 
-### Human
-Human formatting of numbers, time, runtime.
+### [Readable](https://github.com/hinto-janai/readable)
+Human readable formatting of data.
 
 Basically, input a number, get a human-readable `String`:
 ```rust
-let number  = HumanNumber::from(1000);
-let time    = HumanTime::from(Duration::from_secs(253));
-let runtime = HumanRuntime::from(253.139782);
+let int     = readable::Int::from(1000);
+let time    = readable::Time::from(Duration::from_secs(253));
+let runtime = readable::Runtime::from(253.139782);
 
-println!("{}\n{}\n{}", number, time, runtime);
+println!("{}\n{}\n{}", int, time, runtime);
 
 > 1,000
 > 4 minutes, 13 seconds
 > 4:13
 ```
 
-### RoLock
+### [RoLock](https://github.com/hinto-janai/rolock)
 Read-Only Lock.
 
 Basically, thread-safe, read-only version of `RwLock`.
@@ -766,9 +770,10 @@ This default art is actually just a pointer to a single image in memory (`lazy_s
 ## Alternative Frontends
 Some other frontends I have in mind:
 
-- WASM version of the current `egui` GUI
-- Daemon + Client ([`mpd`](https://github.com/MusicPlayerDaemon/MPD)-like but `RPC` instead of... whatever `mpd` is doing)
-- Web for mobile (serving full audio data, not just a controller)
-- Web for mobile (just a controller)
+| Frontend                    | Description |
+|-----------------------------|-------------|
+| `festival-web`              | `WASM` version of `egui` GUI
+| `festivald`                 | Daemon ([`mpd`](https://github.com/MusicPlayerDaemon/MPD)-like but `RPC` instead of... whatever `mpd` is doing)
+| `festival-cli`              | CLI client that connects to `festivald`
 
 I'd like to make these and also expose `Festival`'s internals as a library with proper APIs... eventually.

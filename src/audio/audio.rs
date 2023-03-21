@@ -63,18 +63,38 @@ impl Audio {
 	fn main(mut self) {
 		ok_debug!("Audio");
 
-		// Block, wait for signal.
-		let msg = recv!(self.from_kernel);
+	}
 
-		// Match message and do action.
+	#[inline(always)]
+	fn msg(&mut self) {
+//		let msg = match self.from_kernel.recv_timeout(std::time::Duration::from_millis(15)) {
+//			
+//			_ => return,
+//		};
+
 		use KernelToAudio::*;
 		match msg {
-			_ => self.msg_new(),
+			// Audio playback.
+			Play        =>
+			Stop        =>
+			Next        =>
+			Last        =>
+			Seek(f64)   =>
+			Volume(f64) =>
+
+			// Queue.
+			PlayQueueKey(QueueKey) =>
+
+			// Collection.
+			DropCollection                 => self.drop_collection(),
+			NewCollection(Arc<Collection>) => self.
+			NewState(RoLock<State>)        =>
 		}
 	}
 
 	#[inline(always)]
-	fn msg_new(&mut self) { /* TODO: create new collection */ }
+	fn msg_hang(&mut self) {
+	}
 }
 
 

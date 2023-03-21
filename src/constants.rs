@@ -14,7 +14,7 @@ pub(crate) const DASH: &str = "--------------------------------------------";
 
 // The `24` unique bytes our `Bincode` files will start with.
 // It is the UTF-8 encoded string `-----BEGIN FESTIVAL-----` as bytes.
-// The next byte after _should_ be our `xxx_VERSION`, then our actual data.
+// The next byte _should_ be our `xxx_VERSION`, then our actual data.
 pub(crate) const FESTIVAL_HEADER: [u8; 24] = [
 	45, 45, 45, 45, 45,             // -----
 	66, 69, 71, 73, 78,             // BEGIN
@@ -24,10 +24,10 @@ pub(crate) const FESTIVAL_HEADER: [u8; 24] = [
 ];
 
 // Current major version of the `Collection`.
-pub(crate) const COLLECTION_VERSION: u8 = 1;
+pub(crate) const COLLECTION_VERSION: u8 = 0;
 
 // Current major version of the `State`.
-pub(crate) const STATE_VERSION: u8 = 1;
+pub(crate) const STATE_VERSION: u8 = 0;
 
 // Log messages.
 pub(crate) const OK: &str   = " ... \x1b[1;92mOK\x1b[0m";
