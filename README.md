@@ -39,7 +39,7 @@ For a broad overview of `Festival`'s internals, see [`src/`](https://github.com/
 ## Frontends
 | Frontend                    | Released | Description |
 |-----------------------------|----------|-------------|
-| `festival-gui`              | 🟢       | `egui` GUI
+| `festival-gui`              | 🔴       | `egui` GUI
 | `festival-web`              | 🔴       | `WASM` version of `egui` GUI
 | `festivald`                 | 🔴       | Daemon ([`mpd`](https://github.com/MusicPlayerDaemon/MPD)-like)
 | `festival-cli`              | 🔴       | CLI client that connects to `festivald`

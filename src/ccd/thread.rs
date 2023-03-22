@@ -132,10 +132,10 @@ mod tests {
 		assert!(half_threads(31) == 15);
 		assert!(half_threads(32) == 16);
 		// Who the hell is running festival on these CPUs
-		assert!(half_threads(48)  == 12);
-		assert!(half_threads(64)  == 16);
-		assert!(half_threads(128) == 32);
-		assert!(half_threads(256) == 64);
+		assert!(half_threads(48)  == 24);
+		assert!(half_threads(64)  == 32);
+		assert!(half_threads(128) == 64);
+		assert!(half_threads(256) == 128);
 	}
 
 	#[test]

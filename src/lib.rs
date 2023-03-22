@@ -65,8 +65,6 @@ mod macros;
 mod search;
 mod watch;
 
-mod cli;
-pub use cli::*;
 mod collection;
 pub use collection::*;
 mod constants;
