@@ -5,7 +5,22 @@ use log::info;
 
 //---------------------------------------------------------------------------------------------------- Logger init function
 #[inline(always)]
-pub(crate) fn init_logger(filter: log::LevelFilter) {
+/// Initializes the logger.
+///
+/// This enables console logging on all the internals of `Festival`.
+///
+/// Functionality is provided by [`log`].
+///
+/// The levels are:
+/// - ERROR
+/// - WARN
+/// - INFO
+/// - DEBUG
+/// - TRACE
+///
+/// # Panics
+/// This must only be called _once_.
+pub fn init_logger(filter: log::LevelFilter) {
 	// Disables all library crate logs except for [festival].
 	std::env::set_var("RUST_LOG", format!("off,festival={}", filter));
 	let now = std::time::Instant::now();

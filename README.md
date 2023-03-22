@@ -3,9 +3,9 @@
 # Festival
 Music player for Windows/macOS/Linux.
 
-![Build](https://github.com/hinto-janai/festival/actions/workflows/build.yml/badge.svg)
+![Build](https://github.com/hinto-janai/festival/actions/workflows/build/root.yml/badge.svg)
 
-![Tests](https://github.com/hinto-janai/festival/actions/workflows/tests.yml/badge.svg)
+![Tests](https://github.com/hinto-janai/festival/actions/workflows/tests/root.yml/badge.svg)
 
 <br clear="left"/>
 
@@ -93,7 +93,7 @@ There is a `build.rs` file in the repo solely for Windows-specific things:
 2. It statically links `VCRUNTIME140.dll` (the binary will not be portable without this)
 
 ## License
-`Festival` is licensed under the [MIT License](https://github.com/hinto-janai/festival/LICENSE).
+All of `Festival` is licensed under the [MIT License](https://github.com/hinto-janai/festival/LICENSE).
 
 All of the [fonts](https://github.com/hinto-janai/festival/assets/fonts) `Festival` uses:
 
@@ -140,3 +140,4 @@ All of the libraries `Festival` (directly) uses:
 | [readable](https://github.com/hinto-janai/readable)                | Human readable data      | `MIT`
 | [rolock](https://github.com/hinto-janai/rolock)                    | Read only lock           | `MIT`
 | [walkdir](https://github.com/BurntSushi/walkdir)                   | Recursive PATH walking   | `MIT` & `Unlicense` 
+

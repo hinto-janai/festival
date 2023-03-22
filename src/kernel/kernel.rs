@@ -30,7 +30,13 @@ use crossbeam_channel::{Sender,Receiver};
 use std::path::PathBuf;
 
 //---------------------------------------------------------------------------------------------------- Kernel
-pub(crate) struct Kernel {
+/// The `Kernel` of `Festival`.
+///
+/// `Kernel`, the messenger and coordinator.
+///
+/// `Kernel` handles all of `Festival`'s internals and acts
+/// as a small & simple interface to all the frontends.
+pub struct Kernel {
 	// Frontend (GUI) Channels.
 	to_frontend: Sender<KernelToFrontend>,
 	from_frontend: Receiver<FrontendToKernel>,
@@ -61,7 +67,7 @@ impl Kernel {
 	//-------------------------------------------------- bios()
 	#[inline(always)]
 	// `main()` starts `Kernel` with this.
-	pub(crate) fn bios(to_frontend: Sender<KernelToFrontend>, from_frontend: Receiver<FrontendToKernel>) {
+	pub fn bios(to_frontend: Sender<KernelToFrontend>, from_frontend: Receiver<FrontendToKernel>) {
 		debug!("Kernel [1/12] ... entering bios()");
 
 		// Attempt to load `Collection` from file.

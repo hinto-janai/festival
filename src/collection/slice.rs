@@ -13,29 +13,32 @@ use crate::collection::key::{
 };
 
 //---------------------------------------------------------------------------------------------------- Queue/Playlist
-// Both `Queue` and `Playlist` are practically the same thing:
-//   - A `Slice` of the `Collection`
-//
-// They contain a bunch of `Key`s that point
-// to "segments" of the `Collection` (it's a slice).
-//
-// They both are saved to disk via `State` which saves as `state.bin`.
 #[derive(Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
+/// Dynamically-sized view into a contiguous [`Key`] sequence.
+///
+/// Both `Queue` and `Playlist` are practically the same thing:
+///   - A `Slice` of the `Collection`
+///
+/// They contain a bunch of `Key`s that point
+/// to "segments" of the `Collection` (it's a slice).
+///
+/// They both are saved to disk via `State` which saves as `state.bin`.
 pub struct Slice(VecDeque<Key>);
 
 impl Slice {
 	#[inline(always)]
+	/// Returns a [`Slice`] with `20` capacity reserved upfront.
 	pub fn new() -> Self {
 		Self(VecDeque::with_capacity(20))
 	}
 
 	#[inline(always)]
-	// Create an empty "dummy" struct.
+	/// Create an empty "dummy" (empty) struct.
 	pub const fn dummy() -> Self {
 		Self(VecDeque::new())
 	}
 
-	// Allows using `VecDeque` methods.
+	/// Allows using `VecDeque` methods.
 	#[inline(always)]
 	pub const fn inner(&self) -> &VecDeque<Key> {
 		&self.0

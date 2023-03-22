@@ -1,8 +1,8 @@
 mod kernel;
-pub(crate) use kernel::*;
+pub use kernel::*;
 
 mod state;
-pub(crate) use state::*;
+pub use state::*;
 
 mod volume;
 pub use volume::*;

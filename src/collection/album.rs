@@ -6,6 +6,9 @@ use crate::macros::*;
 use disk::prelude::*;
 use disk::{Bincode,bincode_file};
 use super::{
+	Collection,
+	Artist,
+	Song,
 	ArtistKey,
 	SongKey,
 };
@@ -16,15 +19,26 @@ use super::art::{
 };
 
 //---------------------------------------------------------------------------------------------------- Album
-//#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
 #[derive(Debug,Serialize,Deserialize)]
+/// Struct holding [`Album`] metadata, with pointers to an [`Artist`] and [`Song`]\(s\)
+///
+/// This struct holds all the metadata about a particular [`Album`].
+///
+/// It contains an [`ArtistKey`] that is the index of the owning [`Artist`], in the [`Collection`].
+///
+/// It also contains [`SongKey`]\(s\) that are the indicies of [`Song`]\(s\) belonging to this [`Album`], in the [`Collection`].
 pub struct Album {
 	// User-facing data.
-	pub title: String,                    //
-	pub artist: ArtistKey,                //
-	pub release_human: String,            //
-	pub runtime_human: readable::Runtime, //
-	pub song_count_human: readable::Int,  //
+	/// Title of the [`Album`].
+	pub title: String,
+	/// Key to the [`Artist`].
+	pub artist: ArtistKey,
+	/// Human-readable release date of this [`Album`].
+	pub release_human: String,
+	/// Human-readable total runtime of this [`Album`].
+	pub runtime_human: readable::Runtime,
+	/// Human-readable [`Song`] count of this [`Album`].
+	pub song_count_human: readable::Int,
 	// This `Vec<SongKey>` is _always_ sorted based
 	// off incrementing disc and track numbers, e.g:
 	//
@@ -37,6 +51,7 @@ pub struct Album {
 	//
 	// So, doing `my_album.songs.iter()` will always
 	// result in the correct `Song` order for `my_album`.
+	/// Key\(s\) to the [`Song`]\(s\).
 	pub songs: Vec<SongKey>,           //
 
 	// "Raw" data.
@@ -46,16 +61,18 @@ pub struct Album {
 
 	// Art data.
 	#[serde(skip)]
+	/// The [`Album`]'s [`Art`].
 	pub art: Art,                          // Always initialized after `CCD`.
 	pub(crate) art_bytes: Option<Vec<u8>>, //
 
 	// Misc data.
+	/// Boolean representing if this is a compilation or not.
 	pub compilation: bool, //
 }
 
 impl Album {
 	#[inline]
-	// Return the associated art or the default `[?]` image if `Unknown`
+	/// Return the associated art or the default `[?]` image if `Unknown`
 	pub fn art_or(&self) -> &egui_extras::RetainedImage {
 		self.art.art_or()
 	}

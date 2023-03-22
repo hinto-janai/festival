@@ -64,14 +64,23 @@ These folders represent data:
 ### Threads
 These folders represent OS threads with a distinct purpose:
 
-| Folder         | Purpose |
-|----------------|---------|
-| `audio/`       | Audio demuxing + decoding + playback thread
-| `gui/`         | GUI thread (egui)
-| `ccd/`         | CCD thread (Collection Constructor Destructor)
-| `kernel/`      | Coordinates all threads and resources
-| `search/`      | Search thread (searches the `Collection` with arbitrary input)
-| `watch/`       | Watch thread (watching for user CLI commands)
+| Folder           | Purpose |
+|------------------|---------|
+| `audio/`         | Audio demuxing + decoding + playback thread
+| `ccd/`           | CCD thread (Collection Constructor Destructor)
+| `kernel/`        | Coordinates all threads and resources
+| `search/`        | Search thread (searches the `Collection` with arbitrary input)
+| `watch/`         | Watch thread (watching for user CLI commands)
+
+### Frontends
+These folders represent the frontend threads. They are located at the root `/`.
+
+| Folder           | Purpose |
+|------------------|---------|
+| `festival-gui/`  | GUI thread (egui)
+| `festival-web/`  | WASM thread (egui)
+| `festivald/`     | Daemon thread
+| `festival-cli/`  | CLI client
 
 ### Misc
 These are top-level files for miscellaneous stuff:
@@ -202,6 +211,8 @@ Instead, if `GUI` (really, the user) clicks a particular song, really what is ha
 There are `State/Settings` that `GUI` holds ownership over and can mutate for itself, e.g: sorting method, art size, etc, but those will be dependent on the frontend implementation itself rather than everything else in the system.
 
 The GUI library currently used is [`egui`](https://github.com/emilk/egui).
+
+The term `GUI` in the documentation can apply to any other frontend (`web`, `daemon`, `cli`).
 
 ---
 
@@ -430,7 +441,7 @@ const FESTIVAL_HEADER: [u8; 24] = [
 The next byte is the version, represented by a `u8`, meaning it has `0-255` different possible values:
 ```rust
 // Current major version of the `Collection`.
-const COLLECTION_VERSION: u8 = 0;
+const COLLECTION_VERSION: u8 = 1;
 ```
 After this, the rest of the bytes should be the `Collection` in binary form.
 

@@ -21,26 +21,39 @@ use crate::constants::{
 //---------------------------------------------------------------------------------------------------- State
 bincode_file!(State, Dir::Data, FESTIVAL, "", "state", FESTIVAL_HEADER, STATE_VERSION);
 #[derive(Clone,Debug,Default,PartialEq,Serialize,Deserialize)]
+/// Audio/System State.
+///
+/// This hold various bits of state that is `Kernel` controls
+/// but everyone else has a read-only lock to.
 pub struct State {
 	// Audio.
-	pub playing: bool,        // Are we playing audio right now?
-	pub current_key: Key,     // Which song are we playing right now?
-	pub current_elapsed: f64, // How much time has passed in this song?
-	pub current_runtime: f64, // What is the full runtime of the current song?
-	pub shuffle: bool,        // Is shuffle on?
-	pub repeat: bool,         // Is repeat on?
+	/// Are we playing audio right now?
+	pub playing: bool,
+	/// Which song are we playing right now?
+	pub current_key: Key,
+	/// How much time has passed in this song?
+	pub current_elapsed: f64,
+	/// What is the full runtime of the current song?
+	pub current_runtime: f64,
+	/// Is shuffle on?
+	pub shuffle: bool,
+	/// Is repeat on?
+	pub repeat: bool,
 
 	// Search.
-	pub search_result: Keychain, // The result of the current search result.
+	/// The result of the current search result.
+	pub search_result: Keychain,
 
 	// Queue/Playlist.
-	pub queue: Slice,     // The current song queue.
-	pub playlists: Slice, // ALL the user's playlists.
+	/// The current song queue.
+	pub queue: Slice,
+	/// ALL the user's playlists.
+	pub playlists: Slice,
 }
 
 impl State {
 	#[inline(always)]
-	// Create empty struct.
+	/// Creates an empty struct.
 	pub fn new() -> Self {
 		Self {
 			playing: false,

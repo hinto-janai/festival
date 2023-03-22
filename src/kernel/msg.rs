@@ -18,7 +18,11 @@ use std::path::PathBuf;
 use crate::kernel::Volume;
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
-pub(crate) enum FrontendToKernel {
+/// Messages `Frontend` can send to `Kernel`
+///
+/// This is the "API" that all frontends must implement
+/// in order to communicate with `Festival`'s internals.
+pub enum FrontendToKernel {
 	// Audio playback.
 	Play,       // Play current song.
 	Stop,       // Stop.
@@ -39,7 +43,11 @@ pub(crate) enum FrontendToKernel {
 	Search(String),              // I'd like to search the `Collection`.
 }
 
-pub(crate) enum KernelToFrontend {
+/// Messages `Kernel` can send to `Frontend`
+///
+/// This is the "API" that all frontends must implement
+/// in order to communicate with `Festival`'s internals.
+pub enum KernelToFrontend {
 	// Collection.
 	DropCollection,                    // Drop your pointer.
 	NewCollection(Arc<Collection>),    // Here's the new `Collection` pointer.

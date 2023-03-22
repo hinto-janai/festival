@@ -7,3 +7,6 @@
 [submodule "external/image"]
 	path = external/image
 	url = git@github.com:hinto-janaiyo/image.git
+[submodule "lofty-rs"]
+	path = external/lofty-rs
+	url = git@github.com:hinto-janai/lofty-rs.git

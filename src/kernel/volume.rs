@@ -10,6 +10,12 @@ use serde::{Serialize,Deserialize};
 
 //---------------------------------------------------------------------------------------------------- Volume.
 /// Wrapper around `f64` that is between `0.0..100.0`.
+///
+/// This is the "unit" `Kernel` wants audio volume changes in.
+///
+/// It guarantees the inner `f64` is between `0.0..100.0` so that
+/// frontends can't just send random floats that make no sense in the
+/// context of changing the volume level, like `2342.0123` or [`f64::NAN`].
 #[derive(Copy,Clone,Debug,PartialEq,PartialOrd,Serialize,Deserialize)]
 pub struct Volume(f64);
 
@@ -19,11 +25,15 @@ impl Volume {
 	///
 	/// # Errors
 	///
-	/// The `f64` must be between `1.0..100.0` or `None` will be returned.
+	/// The `f64` must be between `0.0..100.0` or `None` will be returned.
+	///
+	/// [`f64::NAN`] will also return `None`.
 	pub fn new(float: f64) -> Option<Self> {
 		if float < 1.0 {
 			return None
 		} else if float > 100.0 {
+			return None
+		} else if float.is_nan() {
 			return None
 		}
 
@@ -32,6 +42,12 @@ impl Volume {
 
 	#[inline(always)]
 	/// Creates [`Self`] without checking if the `f64` is between `0.0..100.0`.
+	///
+	/// SAFETY:
+	///
+	/// You must ensure:
+	/// 1. The input is between `0.0..100.0`
+	/// 2. The input is NOT [`f64::NAN`]
 	pub unsafe fn new_unchecked(float: f64) -> Self {
 		Self(float)
 	}
@@ -70,13 +86,6 @@ impl Volume {
 	/// Returns `Self(100.0)`.
 	pub fn max() -> Self {
 		Self(100.0)
-	}
-}
-
-impl std::default::Default for Volume {
-	/// Returns `Self(0.0)`
-	fn default() -> Self {
-		Self::zero()
 	}
 }
 
