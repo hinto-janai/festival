@@ -8,9 +8,22 @@ homepage = "https://festival.pm"
 documentation = "https://github.com/hinto-janai/festival/src/README.md"
 repository = "https://github.com/hinto-janai/festival"
 readme = "README.md"
-keywords = ["music", "player", "audio", "festival"]
+keywords = ["music", "player", "audio", "festival", "gui"]
 build = "build.rs"
 license = "MIT"
+
+[workspace]
+members = [
+	"festival-gui",
+	"festival-web",
+	"festivald",
+	"festival-cli",
+]
+
+# Currently, only build `festival-gui`.
+[[bin]]
+path = "festival-gui/src/main.rs"
+name = "festival"
 
 [profile.release]
 debug = false
