@@ -11,6 +11,7 @@ use crate::collection::{
 	Collection,
 	Keychain,
 	QueueKey,
+	Song,
 };
 use crate::kernel::State;
 use rolock::RoLock;
@@ -22,44 +23,78 @@ use crate::kernel::Volume;
 ///
 /// This is the "API" that all frontends must implement
 /// in order to communicate with `Festival`'s internals.
+///
+/// You can treat these as "commands" sent to `Kernel`.
 pub enum FrontendToKernel {
 	// Audio playback.
-	Play,       // Play current song.
-	Stop,       // Stop.
-	Next,       // Play next song in queue (stop if none).
-	Last,       // Play last song in queue.
-	Seek(f64),  // Seek to point in current song.
+	/// Play current song.
+	Play,
+	/// Stop playback.
+	Stop,
+	/// Play next song in queue (stop if none).
+	Next,
+	/// Play last song in queue.
+	Last,
+	/// Seek to point in current song.
+	Seek(f64),
 
 	// Audio settings.
-	Shuffle,        // Toggle shuffling songs.
-	Repeat,         // Toggle repeating songs.
-	Volume(Volume), // Change the audio volume.
+	/// Toggle shuffling songs.
+	Shuffle,
+	/// Toggle repeating songs.
+	Repeat,
+	/// Change the audio volume.
+	Volume(Volume),
 
 	// Queue/playlist.
-	PlayQueueKey(QueueKey), // Play the first song (`[0]`) in the queue.
+	/// Play the `n`'th index [`Song`] in the queue.
+	PlayQueueKey(QueueKey),
 
 	// Collection.
-	NewCollection(Vec<PathBuf>), // I'd like to reset the `Collection` from these `PATH`'s.
-	Search(String),              // I'd like to search the `Collection`.
+	/// I'd like a new `Collection`, scanning these `PATH`'s for audio files.
+	NewCollection(Vec<PathBuf>),
+	/// I'd like to search the `Collection` with this [`String`].
+	Search(String),
 }
 
 /// Messages `Kernel` can send to `Frontend`
 ///
 /// This is the "API" that all frontends must implement
 /// in order to communicate with `Festival`'s internals.
+///
+/// You can treat these as "commands" sent _from_ `Kernel` that you _**must**_ follow correctly.
+///
+/// `Kernel` assumes that all of these messages are implemented correctly.
+///
+/// # For example:
+/// If your frontend does _not_ actually drop the `Arc<Collection>`
+/// after receiving the message [`KernelToFrontend::DropCollection`],
+/// then `Festival`'s internals will not be able to destruct the old
+/// [`Collection`] correctly.
+///
+/// This will leave the deconstruction of the old `Collection` up to
+/// your frontend thread, which is most likely not desired, as it will
+/// probably skip a few frames or cause latency.
 pub enum KernelToFrontend {
 	// Collection.
-	DropCollection,                    // Drop your pointer.
-	NewCollection(Arc<Collection>),    // Here's the new `Collection` pointer.
-	Update(String),                    // Here's an update on the new `Collection`.
-	Failed((Arc<Collection>, String)), // Creating the new `Collection` failed, here's the old pointer and error message.
+	/// Drop your `Arc` pointer to the `Collection`.
+	DropCollection,
+	/// Here's the new `Collection` pointer.
+	NewCollection(Arc<Collection>),
+	/// Here's an update on the new `Collection`.
+	Update(String),
+	/// Creating the new `Collection` failed, here's the old pointer and error message.
+	Failed((Arc<Collection>, String)),
 
 	// Audio error.
-	PathError(String), // The audio file at this `PATH` has errored (probably doesn't exist).
+	/// The audio file at this `PATH` has errored (probably doesn't exist).
+	PathError(String),
 
 	// Misc.
-	NewState(RoLock<State>),           // Here's a new `State` pointer.
-	SearchResult(Keychain),            // Here's a search result
+	/// Here's a new `State` pointer.
+	NewState(RoLock<State>),
+	/// Here's a search result
+	SearchResult(Keychain),
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

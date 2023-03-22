@@ -11,7 +11,7 @@ use super::{
 //----------------------------------------------------------------------------------------------------
 //#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
 #[derive(Debug,Serialize,Deserialize)]
-/// Struct holding [`Artist`] metadata, with pointers to [`Album`]\(s\).
+/// Struct holding [`Artist`] metadata, with pointers to [`Album`]\(s\)
 ///
 /// This struct holds all the metadata about a particular [`Artist`].
 ///

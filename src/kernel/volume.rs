@@ -9,7 +9,7 @@ use serde::{Serialize,Deserialize};
 //use std::sync::{Arc,Mutex,RwLock};
 
 //---------------------------------------------------------------------------------------------------- Volume.
-/// Wrapper around `f64` that is between `0.0..100.0`.
+/// Wrapper around `f64` that is between `0.0..100.0`
 ///
 /// This is the "unit" `Kernel` wants audio volume changes in.
 ///

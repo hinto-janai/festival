@@ -36,6 +36,12 @@ Input data:
 ## Documentation
 For a broad overview of `Festival`'s internals, see [`src/`](https://github.com/hinto-janai/festival/src).
 
+For `cargo` docs of the internal, run 
+```bash
+cargo doc --open
+```
+inside [`src/`](https://github.com/hinto-janai/festival/src).
+
 ## Frontends
 | Frontend                    | Released | Description |
 |-----------------------------|----------|-------------|

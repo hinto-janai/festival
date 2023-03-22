@@ -21,7 +21,7 @@ use crate::constants::{
 //---------------------------------------------------------------------------------------------------- State
 bincode_file!(State, Dir::Data, FESTIVAL, "", "state", FESTIVAL_HEADER, STATE_VERSION);
 #[derive(Clone,Debug,Default,PartialEq,Serialize,Deserialize)]
-/// Audio/System State.
+/// Audio/System State
 ///
 /// This hold various bits of state that is `Kernel` controls
 /// but everyone else has a read-only lock to.

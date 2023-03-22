@@ -14,7 +14,7 @@ use crate::collection::key::{
 
 //---------------------------------------------------------------------------------------------------- Queue/Playlist
 #[derive(Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
-/// Dynamically-sized view into a contiguous [`Key`] sequence.
+/// Dynamically-sized view into a contiguous [`Key`] sequence
 ///
 /// Both `Queue` and `Playlist` are practically the same thing:
 ///   - A `Slice` of the `Collection`

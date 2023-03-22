@@ -20,7 +20,7 @@ use crate::constants::{
 //---------------------------------------------------------------------------------------------------- The Collection™
 bincode_file!(Collection, Dir::Data, FESTIVAL, "", "collection", FESTIVAL_HEADER, COLLECTION_VERSION);
 #[derive(Debug,Serialize,Deserialize)]
-/// The main music `Collection`.
+/// The main music `Collection`
 ///
 /// This is the `struct` that holds all the (meta)data about the user's music.
 ///

@@ -3,6 +3,14 @@ name = "festival-gui"
 version = "0.1.0"
 edition = "2021"
 build = "build.rs"
+authors = ["hinto.janai <hinto.janai@protonmail.com>"]
+description = "Festival GUI"
+homepage = "https://festival.pm"
+documentation = "https://github.com/hinto-janai/festival/festival-gui/README.md"
+repository = "https://github.com/hinto-janai/festival"
+readme = "README.md"
+keywords = ["music", "player", "audio", "festival", "gui"]
+license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -16,10 +24,10 @@ eframe      = { path = "../external/egui/crates/eframe",      features = ["wgpu"
 egui_extras = { path = "../external/egui/crates/egui_extras", features = ["image"] }
 
 ### Regular libraries.
-clap = { version = "4.1.11", features = ["derive"] }
+clap  = { version = "4.1.11", features = ["derive"] }
 crossbeam-channel = "0.5.7"
 image = { version = "0.24.5", features = ["jpeg", "png"], default-features = false }
-log = "0.4.17"
+log   = "0.4.17"
 serde = { version = "1.0.158", features = ["derive"] }
 strum = { version = "0.24.1", features = ["derive"] }
 strum_macros = "0.24.3"

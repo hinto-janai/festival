@@ -786,5 +786,3 @@ Some other frontends I have in mind:
 | `festival-web`              | `WASM` version of `egui` GUI
 | `festivald`                 | Daemon ([`mpd`](https://github.com/MusicPlayerDaemon/MPD)-like but `RPC` instead of... whatever `mpd` is doing)
 | `festival-cli`              | CLI client that connects to `festivald`
-
-I don't have plans on making the internals publically accessible.

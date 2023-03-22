@@ -1572,7 +1572,7 @@ dependencies = [
 
 [[package]]
 name = "festival-cli"
-version = "0.1.0"
+version = "0.0.0"
 
 [[package]]
 name = "festival-gui"
@@ -1593,11 +1593,11 @@ dependencies = [
 
 [[package]]
 name = "festival-web"
-version = "0.1.0"
+version = "0.0.0"
 
 [[package]]
 name = "festivald"
-version = "0.1.0"
+version = "0.0.0"
 
 [[package]]
 name = "filetime"

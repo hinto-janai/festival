@@ -79,9 +79,9 @@ macro_rules! impl_common {
 
 //---------------------------------------------------------------------------------------------------- Key
 #[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
-/// [`Key`] into the [`Collection`].
+/// [`Key`] into the [`Collection`]
 ///
-/// This represent an _absolute_ index into:
+/// This represents an _absolute_ index into:
 /// - a particular [`Song`] in
 /// - a particular [`Album`] by
 /// - a particular [`Artist`]
@@ -144,7 +144,7 @@ where
 
 //---------------------------------------------------------------------------------------------------- Keychain
 #[derive(Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
-/// A separated collection of keys.
+/// A separated collection of keys
 ///
 /// These keys aren't linked like in [`Key`].
 ///
@@ -189,7 +189,7 @@ impl Keychain {
 
 //---------------------------------------------------------------------------------------------------- ArtistKey
 #[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
-/// A key representing the index of an [`Artist`] in the [`Collection`].
+/// A key representing the index of an [`Artist`] in the [`Collection`]
 ///
 /// The inner type is just a `usize`.
 pub struct ArtistKey(usize);
@@ -197,7 +197,7 @@ impl_common!(ArtistKey);
 
 //---------------------------------------------------------------------------------------------------- AlbumKey
 #[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
-/// A key representing the index of an [`Album`] in the [`Collection`].
+/// A key representing the index of an [`Album`] in the [`Collection`]
 ///
 /// The inner type is just a `usize`.
 pub struct AlbumKey(usize);
@@ -205,7 +205,7 @@ impl_common!(AlbumKey);
 
 //---------------------------------------------------------------------------------------------------- SongKey
 #[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
-/// A key representing the index of a [`Song`] in the [`Collection`].
+/// A key representing the index of a [`Song`] in the [`Collection`]
 ///
 /// The inner type is just a `usize`.
 pub struct SongKey(usize);
@@ -213,7 +213,7 @@ impl_common!(SongKey);
 
 //---------------------------------------------------------------------------------------------------- QueueKey
 #[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
-/// A key representing an index in the `Queue`.
+/// A key representing an index in the `Queue`
 ///
 /// This is used to index `Queue`, e.g:
 ///
@@ -229,7 +229,7 @@ impl_common!(QueueKey);
 
 //---------------------------------------------------------------------------------------------------- PlaylistKey
 #[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
-/// A key representing an index in a `Playlist`.
+/// A key representing an index in a `Playlist`
 ///
 /// This is the same as [`QueueKey`] but for a `Playlist`.
 ///

@@ -30,7 +30,7 @@ use crossbeam_channel::{Sender,Receiver};
 use std::path::PathBuf;
 
 //---------------------------------------------------------------------------------------------------- Kernel
-/// The `Kernel` of `Festival`.
+/// The `Kernel` of `Festival`
 ///
 /// `Kernel`, the messenger and coordinator.
 ///

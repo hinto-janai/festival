@@ -1,37 +1,37 @@
 //---------------------------------------------------------------------------------------------------- General Strings
-/// Festival Version.
+/// Festival Version
 ///
 /// This is the version of the `Festival`'s internals.
 ///
 /// It uses `CARGO_PKG_VERSION`, or `version` found in `Cargo.toml`.
 pub const FESTIVAL_VERSION:  &str = concat!("v", env!("CARGO_PKG_VERSION"));
 
-/// Festival + Version.
+/// Festival + Version
 ///
 /// Just a string concatenating "Festival" and the current version, e.g: `Festival v1.0.0`
 pub const FESTIVAL_NAME_VER: &str = concat!("Festival v", env!("CARGO_PKG_VERSION"));
 
-/// "Festival", a `&'static str`.
+/// "Festival", a `&'static str`
 pub const FESTIVAL:          &str = "Festival";
 
-/// Current `git` commit.
+/// Current `git` commit
 pub const COMMIT:            &str = include_str!("../.git/refs/heads/main");
 
-/// Build profile (debug/release).
+/// Build profile (debug/release)
 pub const BUILD:             &str = if cfg!(debug_assertions) { "Debug" } else { "Release" };
 
-/// Copyright notice.
+/// Copyright notice
 pub const COPYRIGHT: &str =
 r#"Festival is licensed under the MIT License.
 For more information on the project, see link below:
 <https://github.com/hinto-janai/festival>"#;
 
-/// Logging separator.
+/// Logging separator
 ///
 /// This is used in logging to visually separate some things.
 pub const DASH: &str = "--------------------------------------------";
 
-/// Unique `Bincode` header.
+/// Unique `Bincode` header
 ///
 /// The `24` unique bytes our `Bincode` files will start with.
 ///
@@ -46,10 +46,10 @@ pub const FESTIVAL_HEADER: [u8; 24] = [
 	45, 45, 45, 45, 45              // -----
 ];
 
-/// Current major version of the `Collection`.
+/// Current major version of the `Collection`
 pub const COLLECTION_VERSION: u8 = 1;
 
-/// Current major version of the `State`.
+/// Current major version of the `State`
 pub const STATE_VERSION: u8 = 1;
 
 // Log messages.

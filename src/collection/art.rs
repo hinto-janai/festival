@@ -18,17 +18,17 @@ lazy_static::lazy_static! {
 
 //---------------------------------------------------------------------------------------------------- Art
 #[derive(Default)]
-/// An `enum` that is _always_ an image.
-///
-/// Some [`Album`]'s may not have art. In this case, we'd like to show a "unknown" image anyway.
-///
-/// This `enum` and the associate function [`Art::art_or()`] will always return
-/// a valid [`egui_extras::RetainedImage`], the real art if it exists, or an "unknown" image.
-///
-/// The returned "unknown" image is actually just a pointer to the single image created with [`lazy_static`].
-///
-/// The "unknown" image is from `assets/images/art/unknown.png`.
-pub enum Art {
+// An `enum` that is _always_ an image.
+//
+// Some [`Album`]'s may not have art. In this case, we'd like to show a "unknown" image anyway.
+//
+// This `enum` and the associate function [`Art::art_or()`] will always return
+// a valid [`egui_extras::RetainedImage`], the real art if it exists, or an "unknown" image.
+//
+// The returned "unknown" image is actually just a pointer to the single image created with [`lazy_static`].
+//
+// The "unknown" image is from `assets/images/art/unknown.png`.
+pub(crate) enum Art {
 	Known(RetainedImage),
 	#[default]
 	Unknown,
@@ -45,7 +45,7 @@ impl Art {
 impl Art {
 	#[inline]
 	/// Return the associated art or the default `[?]` image if [`Art::Unknown`]
-	pub fn art_or(&self) -> &RetainedImage {
+	pub(crate) fn art_or(&self) -> &RetainedImage {
 		match self {
 			Self::Known(art) => art,
 			Self::Unknown    => &UNKNOWN_ALBUM,

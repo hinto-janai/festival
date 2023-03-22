@@ -61,8 +61,8 @@ pub struct Album {
 
 	// Art data.
 	#[serde(skip)]
-	/// The [`Album`]'s [`Art`].
-	pub art: Art,                          // Always initialized after `CCD`.
+	// The [`Album`]'s art.
+	pub(crate) art: Art,                          // Always initialized after `CCD`.
 	pub(crate) art_bytes: Option<Vec<u8>>, //
 
 	// Misc data.
@@ -71,8 +71,18 @@ pub struct Album {
 }
 
 impl Album {
-	#[inline]
-	/// Return the associated art or the default `[?]` image if `Unknown`
+	#[inline(always)]
+	/// Return the [`Album`] art.
+	///
+	/// Some [`Album`]'s may not have art. In this case, we'd like to show a "unknown" image anyway.
+	///
+	/// This function will always return a valid [`egui_extras::RetainedImage`], either:
+	/// 1. The real [`Album`] art (if it exists)
+	/// 2. An "unknown" image
+	///
+	/// The returned "unknown" image is actually just a pointer to the single image created with [`lazy_static`].
+	///
+	/// The "unknown" image is from `assets/images/art/unknown.png`.
 	pub fn art_or(&self) -> &egui_extras::RetainedImage {
 		self.art.art_or()
 	}

@@ -1,7 +1,15 @@
 [package]
 name = "festival-web"
-version = "0.1.0"
+version = "0.0.0"
 edition = "2021"
+authors = ["hinto.janai <hinto.janai@protonmail.com>"]
+description = "Festival web client"
+homepage = "https://festival.pm"
+documentation = "https://github.com/hinto-janai/festival/festival-web/README.md"
+repository = "https://github.com/hinto-janai/festival"
+readme = "README.md"
+keywords = ["music", "player", "audio", "festival", "web"]
+license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
