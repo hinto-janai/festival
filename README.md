@@ -37,21 +37,18 @@ Input data:
 For a broad overview of `Festival`'s internals, see [`src/`](https://github.com/hinto-janai/festival/src).
 
 ## Frontends
-The only frontend currently is `festival-gui`, which uses [`egui`](https://github.com/emilk/egui).
-
-Other planned frontends:
-
-| Frontend                    | Description |
-|-----------------------------|-------------|
-| `festival-web`              | `WASM` version of `egui` GUI
-| `festivald`                 | Daemon ([`mpd`](https://github.com/MusicPlayerDaemon/MPD)-like)
-| `festival-cli`              | CLI client that connects to `festivald`
-
-Eventually, I'd also like to expose [`Festival`'s internals](https://github.com/hinto-janai/festival/src) as a library.
+| Frontend                    | Released | Description |
+|-----------------------------|----------|-------------|
+| `festival-gui`              | 🟢       | `egui` GUI
+| `festival-web`              | 🔴       | `WASM` version of `egui` GUI
+| `festivald`                 | 🔴       | Daemon ([`mpd`](https://github.com/MusicPlayerDaemon/MPD)-like)
+| `festival-cli`              | 🔴       | CLI client that connects to `festivald`
 
 ## Build
 ### General Info
 You need [`cargo`](https://www.rust-lang.org/learn/get-started).
+
+Building in this repo currently means building `festival-gui`. The produced binary is named `festival`.
 
 There are `30` unit tests, you may want to run:
 ```

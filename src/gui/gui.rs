@@ -22,7 +22,7 @@ use egui::widgets::{
 use strum::{
 	IntoEnumIterator,
 };
-use super::{GuiToKernel, KernelToGui};
+use crate::kernel::{FrontendToKernel, KernelToFrontend};
 use crossbeam_channel::{Sender,Receiver};
 
 //---------------------------------------------------------------------------------------------------- TODO
@@ -154,8 +154,8 @@ impl Gui {
 	#[inline(always)]
 	pub(crate) fn init(
 		cc:          &eframe::CreationContext<'_>,
-		to_kernel:   Sender<GuiToKernel>,
-		from_kernel: Receiver<KernelToGui>,
+		to_kernel:   Sender<FrontendToKernel>,
+		from_kernel: Receiver<KernelToFrontend>,
 	) -> Self {
 		info!("GUI Init starting...");
 

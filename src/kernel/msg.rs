@@ -18,7 +18,7 @@ use std::path::PathBuf;
 use crate::kernel::Volume;
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
-pub(crate) enum GuiToKernel {
+pub(crate) enum FrontendToKernel {
 	// Audio playback.
 	Play,       // Play current song.
 	Stop,       // Stop.
@@ -39,7 +39,7 @@ pub(crate) enum GuiToKernel {
 	Search(String),              // I'd like to search the `Collection`.
 }
 
-pub(crate) enum KernelToGui {
+pub(crate) enum KernelToFrontend {
 	// Collection.
 	DropCollection,                    // Drop your pointer.
 	NewCollection(Arc<Collection>),    // Here's the new `Collection` pointer.

@@ -8,6 +8,3 @@ mod tab;
 
 mod gui;
 pub(crate) use gui::Gui;
-
-mod msg;
-pub(crate) use msg::*;

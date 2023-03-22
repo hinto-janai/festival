@@ -776,4 +776,4 @@ Some other frontends I have in mind:
 | `festivald`                 | Daemon ([`mpd`](https://github.com/MusicPlayerDaemon/MPD)-like but `RPC` instead of... whatever `mpd` is doing)
 | `festival-cli`              | CLI client that connects to `festivald`
 
-I'd like to make these and also expose `Festival`'s internals as a library with proper APIs... eventually.
+I don't have plans on making the internals publically accessible.

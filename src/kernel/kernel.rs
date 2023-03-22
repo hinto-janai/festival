@@ -18,8 +18,8 @@ use crate::macros::{
 	flip,
 };
 use disk::Bincode;
+use super::{KernelToFrontend, FrontendToKernel};
 use crate::{
-	gui::{KernelToGui, GuiToKernel},
 	ccd::{KernelToCcd, CcdToKernel, Ccd},
 	search::{KernelToSearch, SearchToKernel, Search},
 	audio::{KernelToAudio, AudioToKernel, Audio},
@@ -31,9 +31,9 @@ use std::path::PathBuf;
 
 //---------------------------------------------------------------------------------------------------- Kernel
 pub(crate) struct Kernel {
-	// GUI Channels.
-	to_gui: Sender<KernelToGui>,
-	from_gui: Receiver<GuiToKernel>,
+	// Frontend (GUI) Channels.
+	to_frontend: Sender<KernelToFrontend>,
+	from_frontend: Receiver<FrontendToKernel>,
 
 	// Search Channels.
 	to_search: Sender<KernelToSearch>,
@@ -61,23 +61,27 @@ impl Kernel {
 	//-------------------------------------------------- bios()
 	#[inline(always)]
 	// `main()` starts `Kernel` with this.
-	pub(crate) fn bios(to_gui: Sender<KernelToGui>, from_gui: Receiver<GuiToKernel>) {
+	pub(crate) fn bios(to_frontend: Sender<KernelToFrontend>, from_frontend: Receiver<FrontendToKernel>) {
 		debug!("Kernel [1/12] ... entering bios()");
 
 		// Attempt to load `Collection` from file.
 		match Collection::from_file() {
 			// If success, continue to `boot_loader` to convert
 			// bytes to actual usable `egui` images.
-			Ok(collection) => Self::boot_loader(collection, to_gui, from_gui),
+			Ok(collection) => Self::boot_loader(collection, to_frontend, from_frontend),
 
 			// Else, straight to `init` with default flag set.
-			Err(e) => Self::init(None, None, to_gui, from_gui),
+			Err(e) => Self::init(None, None, to_frontend, from_frontend),
 		}
 	}
 
 	//-------------------------------------------------- boot_loader()
 	#[inline(always)]
-	fn boot_loader(collection: Collection, to_gui: Sender<KernelToGui>, from_gui: Receiver<GuiToKernel>) {
+	fn boot_loader(
+		collection: Collection,
+		to_frontend: Sender<KernelToFrontend>,
+		from_frontend: Receiver<FrontendToKernel>
+	) {
 		debug!("Kernel [2/12] ... entering boot_loader()");
 
 		// We successfully loaded `Collection`.
@@ -103,31 +107,31 @@ impl Kernel {
 		};
 
 		// Continue to `kernel` to verify data.
-		Self::kernel(collection, state, to_gui, from_gui);
+		Self::kernel(collection, state, to_frontend, from_frontend);
 	}
 
 	//-------------------------------------------------- kernel()
 	#[inline(always)]
 	fn kernel(
-		collection: Collection,
-		state:      Result<State, anyhow::Error>,
-		to_gui:     Sender<KernelToGui>,
-		from_gui:   Receiver<GuiToKernel>,
+		collection:    Collection,
+		state:         Result<State, anyhow::Error>,
+		to_frontend:   Sender<KernelToFrontend>,
+		from_frontend: Receiver<FrontendToKernel>,
 	) {
 		/* TODO: initialize and sanitize collection & misc data */
 		debug!("Kernel [6/12] ... entering kernel()");
 		let state = state.unwrap();
 
-		Self::init(Some(collection), Some(state), to_gui, from_gui);
+		Self::init(Some(collection), Some(state), to_frontend, from_frontend);
 	}
 
 	//-------------------------------------------------- init()
 	#[inline(always)]
 	fn init(
-		collection: Option<Collection>,
-		state:      Option<State>,
-		to_gui:     Sender<KernelToGui>,
-		from_gui:   Receiver<GuiToKernel>
+		collection:    Option<Collection>,
+		state:         Option<State>,
+		to_frontend:   Sender<KernelToFrontend>,
+		from_frontend: Receiver<FrontendToKernel>
 	) {
 		debug!("Kernel [7/12] ... entering init()");
 
@@ -155,7 +159,7 @@ impl Kernel {
 		// Create `Kernel`.
 		let kernel = Self {
 			// Channels.
-			to_gui, from_gui,
+			to_frontend, from_frontend,
 			to_search, from_search,
 			to_audio, from_audio,
 			from_watch,
@@ -199,14 +203,14 @@ impl Kernel {
 		// `select.recv()` requires a `&`, but we need a
 		// `&mut` version of `self` later, so instead,
 		// we give `select.recv()` a cloned `&`.
-		let (gui, search, audio, watch) = (
-			self.from_gui.clone(),
+		let (frontend, search, audio, watch) = (
+			self.from_frontend.clone(),
 			self.from_search.clone(),
 			self.from_audio.clone(),
 			self.from_watch.clone(),
 		);
-		let (gui, search, audio, watch) = (
-			select.recv(&gui),
+		let (frontend, search, audio, watch) = (
+			select.recv(&frontend),
 			select.recv(&search),
 			select.recv(&audio),
 			select.recv(&watch),
@@ -217,10 +221,10 @@ impl Kernel {
 		// 3) Loop.
 		loop {
 			match select.ready() {
-				i if i == gui    => self.msg_gui(recv!(self.from_gui)),
-				i if i == search => self.msg_search(recv!(self.from_search)),
-				i if i == audio  => self.msg_audio(recv!(self.from_audio)),
-				i if i == watch  => self.msg_watch(recv!(self.from_watch)),
+				i if i == frontend => self.msg_frontend(recv!(self.from_frontend)),
+				i if i == search   => self.msg_search(recv!(self.from_search)),
+				i if i == audio    => self.msg_audio(recv!(self.from_audio)),
+				i if i == watch     => self.msg_watch(recv!(self.from_watch)),
 				_ => error!("Kernel: Received an unknown message"),
 			}
 		}
@@ -229,8 +233,8 @@ impl Kernel {
 	//-------------------------------------------------- Message handling.
 	#[inline(always)]
 	// We got a message from `GUI`.
-	fn msg_gui(&mut self, msg: GuiToKernel) {
-		use crate::gui::GuiToKernel::*;
+	fn msg_frontend(&mut self, msg: FrontendToKernel) {
+		use super::FrontendToKernel::*;
 		match msg {
 			// Audio playback.
 			Play                 => send!(self.to_audio, KernelToAudio::Play),
@@ -254,7 +258,7 @@ impl Kernel {
 	fn msg_search(&self, msg: SearchToKernel) {
 		use crate::search::SearchToKernel::*;
 		match msg {
-			SearchResult(keychain) => send!(self.to_gui, KernelToGui::SearchResult(keychain)),
+			SearchResult(keychain) => send!(self.to_frontend, KernelToFrontend::SearchResult(keychain)),
 		}
 	}
 
@@ -264,7 +268,7 @@ impl Kernel {
 		use crate::audio::AudioToKernel::*;
 		match msg {
 			TimestampUpdate(float) => lock_write!(self.state).current_runtime = float,
-			PathError(string)      => send!(self.to_gui, KernelToGui::PathError(string)),
+			PathError(string)      => send!(self.to_frontend, KernelToFrontend::PathError(string)),
 		}
 	}
 
@@ -331,14 +335,14 @@ impl Kernel {
 		let collection = loop {
 			use crate::ccd::CcdToKernel::*;
 			match recv!(from_ccd) {
-				Update(string)            => send!(self.to_gui, KernelToGui::Update(string)),
+				Update(string)            => send!(self.to_frontend, KernelToFrontend::Update(string)),
 				NewCollection(collection) => break collection,
 				Failed(anyhow)            => {
 					// `CCD` failed, tell `GUI` and give the
 					// old `Collection` pointer to everyone again.
 					send!(self.to_search, KernelToSearch::NewCollection(Arc::clone(&self.collection)));
 					send!(self.to_audio,  KernelToAudio::NewCollection(Arc::clone(&self.collection)));
-					send!(self.to_gui,    KernelToGui::Failed((Arc::clone(&self.collection), anyhow.to_string())));
+					send!(self.to_frontend,    KernelToFrontend::Failed((Arc::clone(&self.collection), anyhow.to_string())));
 					return;
 				},
 			}
@@ -348,7 +352,7 @@ impl Kernel {
 		self.collection = Arc::new(collection);
 		send!(self.to_search, KernelToSearch::NewCollection(Arc::clone(&self.collection)));
 		send!(self.to_audio,  KernelToAudio::NewCollection(Arc::clone(&self.collection)));
-		send!(self.to_gui,    KernelToGui::NewCollection(Arc::clone(&self.collection)));
+		send!(self.to_frontend,    KernelToFrontend::NewCollection(Arc::clone(&self.collection)));
 	}
 }
 

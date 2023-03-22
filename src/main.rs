@@ -15,8 +15,8 @@ fn main() {
 	cli::Cli::handle_args();
 
 	// Create `Kernel` <-> `GUI` channels.
-	let (kernel_to_gui, gui_recv)    = crossbeam_channel::unbounded::<crate::gui::KernelToGui>();
-	let (gui_to_kernel, kernel_recv) = crossbeam_channel::unbounded::<crate::gui::GuiToKernel>();
+	let (kernel_to_gui, gui_recv)    = crossbeam_channel::unbounded::<crate::kernel::KernelToFrontend>();
+	let (gui_to_kernel, kernel_recv) = crossbeam_channel::unbounded::<crate::kernel::FrontendToKernel>();
 
 	// Spawn `Kernel`.
 	std::thread::spawn(move || kernel::Kernel::bios(kernel_to_gui, kernel_recv));
