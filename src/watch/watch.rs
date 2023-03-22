@@ -66,37 +66,39 @@ impl Watch {
 	fn main(to_kernel: Sender<WatchToKernel>) {
 		ok_debug!("Watch");
 
-		// Stop/Play.
-		//
-		// `Stop` will always take priority
-		// if both `Stop` and `Play` files exist.
-		if let Ok(true) = Stop::exists() {
-			send_or_die!(to_kernel, WatchToKernel::Stop)
-		} else if let Ok(true) = Play::exists() {
-			send_or_die!(to_kernel, WatchToKernel::Play)
-		}
+		loop {
+			// Stop/Play.
+			//
+			// `Stop` will always take priority
+			// if both `Stop` and `Play` files exist.
+			if let Ok(true) = Stop::exists() {
+				send_or_die!(to_kernel, WatchToKernel::Stop)
+			} else if let Ok(true) = Play::exists() {
+				send_or_die!(to_kernel, WatchToKernel::Play)
+			}
 
-		// Next/Last.
-		//
-		// `Next` takes priority.
-		if let Ok(true) = Next::exists() {
-			send_or_die!(to_kernel, WatchToKernel::Next)
-		} else if let Ok(true) = Last::exists() {
-			send_or_die!(to_kernel, WatchToKernel::Last)
-		}
+			// Next/Last.
+			//
+			// `Next` takes priority.
+			if let Ok(true) = Next::exists() {
+				send_or_die!(to_kernel, WatchToKernel::Next)
+			} else if let Ok(true) = Last::exists() {
+				send_or_die!(to_kernel, WatchToKernel::Last)
+			}
 
-		// Shuffle.
-		if let Ok(true) = Shuffle::exists() {
-			send_or_die!(to_kernel, WatchToKernel::Shuffle)
-		}
+			// Shuffle.
+			if let Ok(true) = Shuffle::exists() {
+				send_or_die!(to_kernel, WatchToKernel::Shuffle)
+			}
 
-		// Repeat.
-		if let Ok(true) = Repeat::exists() {
-			send_or_die!(to_kernel, WatchToKernel::Repeat)
-		}
+			// Repeat.
+			if let Ok(true) = Repeat::exists() {
+				send_or_die!(to_kernel, WatchToKernel::Repeat)
+			}
 
-		// Clean folder.
-		Self::clean();
+			// Clean folder.
+			Self::clean();
+		}
 	}
 }
 

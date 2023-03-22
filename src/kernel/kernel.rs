@@ -230,7 +230,7 @@ impl Kernel {
 				i if i == frontend => self.msg_frontend(recv!(self.from_frontend)),
 				i if i == search   => self.msg_search(recv!(self.from_search)),
 				i if i == audio    => self.msg_audio(recv!(self.from_audio)),
-				i if i == watch     => self.msg_watch(recv!(self.from_watch)),
+				i if i == watch    => self.msg_watch(recv!(self.from_watch)),
 				_ => error!("Kernel: Received an unknown message"),
 			}
 		}
