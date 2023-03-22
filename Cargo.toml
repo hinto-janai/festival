@@ -9,7 +9,6 @@ documentation = "https://github.com/hinto-janai/festival/src/README.md"
 repository = "https://github.com/hinto-janai/festival"
 readme = "README.md"
 keywords = ["music", "player", "audio", "festival", "gui"]
-build = "build.rs"
 license = "MIT"
 
 [workspace]
@@ -45,16 +44,15 @@ readable = { version = "0.3.0", features = ["serde", "ignore_nan_inf"] }
 rolock   = { version = "0.1.1" }
 
 ### External patched libraries `external/`.
-egui              = { path = "external/egui/crates/egui",        features = ["default_fonts"], default-features = false }
-eframe            = { path = "external/egui/crates/eframe",      features = ["wgpu"],          default-features = false }
-egui_extras       = { path = "external/egui/crates/egui_extras", features = ["image"] }
+egui               = { path = "external/egui/crates/egui",        features = ["default_fonts"], default-features = false }
+eframe             = { path = "external/egui/crates/eframe",      features = ["wgpu"],          default-features = false }
+egui_extras        = { path = "external/egui/crates/egui_extras", features = ["image"] }
 #image             = { path = "external/image", features = ["png", "jpeg"] }
 #fast_image_resize = { path = "external/fast_image_resize" }
 
 ### Regular libraries.
 anyhow = "1.0.70"
 chrono = { version = "0.4.24", features = ["serde"] }
-clap = { version = "4.1.11", features = ["derive"] }
 crossbeam-channel = "0.5.7"
 #egui-notify = "0.5.1"
 env_logger = "0.10.0"
@@ -75,7 +73,5 @@ serde_bytes = "0.11.9"
 serde = { version = "1.0.158", features = ["derive"] }
 #souvlaki = "0.5.3"
 strsim = "0.10.0"
-strum_macros = "0.24.3"
-strum = { version = "0.24.1", features = ["derive"] }
 #symphonia = "0.5.2"
 walkdir = "2.3.3"

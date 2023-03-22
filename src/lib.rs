@@ -13,7 +13,7 @@
 //! Each frontend must implement the correct message passing behavior to/from the `Kernel` and other various things.
 //!
 //! A simple frontend setup:
-//! ```rust
+//! ```rust,ignore
 //! fn main() {
 //!     // Handle CLI arguments (and logging).
 //!     // This calls into 'festival' code to initialize the logging

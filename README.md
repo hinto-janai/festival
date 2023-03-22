@@ -113,7 +113,6 @@ All of the libraries `Festival` (directly) uses:
 |---------|---------|---------|
 | [anyhow](https://github.com/dtolnay/anyhow)                        | Error handling           | `MIT` & `Apache-2.0`
 | [chrono](https://github.com/chronotope/chrono)                     | Time formatting          | `MIT` & `Apache-2.0`
-| [clap](https://github.com/clap-rs/clap)                            | CLI arguments            | `MIT` & `Apache-2.0`
 | [crossbeam_channel](https://github.com/crossbeam-rs/crossbeam)     | Thread message passing   | `MIT` & `Apache-2.0`
 | [disk](https://github.com/hinto-janai/disk)                        | Saving to disk           | `MIT`
 | [egui](https://github.com/emilk/egui)                              | GUI                      | `MIT` & `Apache-2.0`
@@ -135,9 +134,7 @@ All of the libraries `Festival` (directly) uses:
 | [serde_bytes](https://github.com/serde-rs/bytes)                   | (De)serialization        | `MIT` & `Apache-2.0`
 | [souvlaki](https://github.com/Sinono3/souvlaki)                    | Native media controls    | `MIT`
 | [strsim](https://github.com/dguo/strsim-rs)                        | String similarity        | `MIT`
-| [strum](https://github.com/Peternator7/strum)                      | Enum iteration           | `MIT`
 | [Symphonia](https://github.com/pdeljanov/Symphonia)                | Audio demuxing, decoding | `MPL-2.0`
 | [readable](https://github.com/hinto-janai/readable)                | Human readable data      | `MIT`
 | [rolock](https://github.com/hinto-janai/rolock)                    | Read only lock           | `MIT`
 | [walkdir](https://github.com/BurntSushi/walkdir)                   | Recursive PATH walking   | `MIT` & `Unlicense` 
-
