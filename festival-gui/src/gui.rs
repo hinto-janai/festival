@@ -52,6 +52,10 @@ impl Img {
 
 //---------------------------------------------------------------------------------------------------- GUI struct. This hold ALL data.
 pub struct Gui {
+	// `Kernel` channels.
+	pub(super) to_kernel: Sender<FrontendToKernel>,
+	pub(super) from_kernel: Receiver<KernelToFrontend>,
+
 	// TODO: tmp data.
 	pub(super) img: Img,
 	pub(super) v: f32,
@@ -159,6 +163,8 @@ impl Gui {
 		info!("GUI Init starting...");
 
 		let mut app = Self {
+			to_kernel,
+			from_kernel,
 			img: Img::new(),
 			v: 0.0,
 			s: 1,
