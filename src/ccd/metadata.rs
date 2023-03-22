@@ -377,7 +377,26 @@ impl super::Ccd {
 	// This is the `heaviest` function within the entire `new_collection()` function.
 	// It accounts for around 90% of the total time spent making the `Collection`.
 	fn path_to_tagged_file(path: &Path) -> Result<lofty::TaggedFile, anyhow::Error> {
-		Ok(lofty::Probe::open(path)?.guess_file_type()?.read()?)
+		use std::fs::File;
+		use std::io::BufReader;
+
+		// Open `Path`.
+		let file = File::open(path)?;
+		let reader = BufReader::new(file);
+
+		// Create the `lofty::Probe` options.
+		let options = lofty::ParseOptions::new()
+			.parsing_mode(lofty::ParsingMode::Relaxed)
+			.read_properties(false);
+
+		// Create `lofty::Probe`.
+		let probe = lofty::Probe::new(reader).options(options);
+
+		// This could include be a concrete type read since
+		// we already have MIME information, but in testing,
+		// it seems like it's actually the same speed whether
+		// `lofty` guesses or knows beforehand.
+		Ok(probe.guess_file_type()?.read()?)
 	}
 
 	#[inline(always)]

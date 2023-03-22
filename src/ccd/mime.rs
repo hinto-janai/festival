@@ -26,19 +26,32 @@ pub(crate) const SUPPORTED_AUDIO_MIME_TYPES: [&str; 22] = [
 	"audio/x-mp3",
 	"audio/x-mpeg",
 	"audio/x-mpeg3",
-	// OGG/Opus/Vorbis
+	// OGG/Vorbis
 	"audio/ogg",
-	"audio/opus",
 	"audio/vorbis",
 	"audio/x-ogg",
-	"audio/x-opus",
 	"audio/x-vorbis",
+	// Opus
+	"audio/opus",
+	"audio/x-opus",
 	// PCM (wav, aiff)
 	"audio/wav",
 	"audio/x-wav",
 	"audio/aiff",
 	"audio/x-aiff",
 ];
+
+#[derive(Debug,PartialEq,Eq,PartialOrd,Ord)]
+pub(super) enum AudioType {
+	Aac,
+	Alac,
+	Flac,
+	Mp3,
+	Ogg, // Vorbis.
+	Opus,
+	Wav,
+	Aiff,
+}
 
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
