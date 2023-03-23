@@ -12,6 +12,7 @@ use lofty::{
 	TaggedFile,
 	TaggedFileExt,
 	AudioFile,
+	Picture,
 };
 use std::path::{Path,PathBuf};
 use std::collections::HashMap;
@@ -40,6 +41,13 @@ use std::sync::{Arc,Mutex};
 
 //---------------------------------------------------------------------------------------------------- Tag Metadata (temporary) struct.
 #[derive(Debug)]
+// This is just a temporary container for
+// holding some borrowed data.
+//
+// Whether we need to clone the `&str`'s below
+// are in conditional branches, so this `struct`
+// is held in scope throughout "The Loop" so
+// we have the _choice_ to `to_string()` or not.
 struct TagMetadata<'a> {
 	artist: Cow<'a, str>,
 	album: Cow<'a, str>,
@@ -48,7 +56,7 @@ struct TagMetadata<'a> {
 	disc: Option<u32>,
 	track_total: Option<u32>,
 	disc_total: Option<u32>,
-	picture: Option<&'a [u8]>,
+	picture: Option<Vec<u8>>,
 
 	runtime: f64,
 	release: Option<&'a str>,
@@ -147,15 +155,15 @@ impl super::Ccd {
 		let path = path.clone(); // TODO: figure out how to take ownership of this instead of cloning.
 
 		// Get the tags for this `PathBuf`, skip on error.
-		let tagged_file = match Self::path_to_tagged_file(&path) {
+		let mut tagged_file = match Self::path_to_tagged_file(&path) {
 			Ok(t)  => t,
 			Err(e) => { warn!("CCD | TaggedFile fail: {}{}", path.display(), SKIP); continue; },
 		};
-		let tag = match Self::tagged_file_to_tag(&tagged_file) {
+		let mut tag = match Self::tagged_file_to_tag(&mut tagged_file) {
 			Ok(t)  => t,
 			Err(e) => { warn!("CCD | Tag fail: {}{}", path.display(), SKIP); continue; },
 		};
-		let metadata = match Self::extract_tag_metadata(&tagged_file, &tag) {
+		let metadata = match Self::extract_tag_metadata(tagged_file, &mut tag) {
 			Ok(t)  => t,
 			Err(e) => { warn!("CCD | Metadata fail: {}{}", path.display(), SKIP); continue; },
 		};
@@ -220,7 +228,7 @@ impl super::Ccd {
 
 			// Get `Album` art bytes.
 			let art_bytes = match picture {
-				Some(p) => Some(p.to_vec()),
+				Some(p) => Some(p),
 				None    => None,
 			};
 
@@ -281,7 +289,7 @@ impl super::Ccd {
 
 		// Get `Album` art bytes.
 		let art_bytes = match picture {
-			Some(p) => Some(p.to_vec()),
+			Some(p) => Some(p),
 			None    => None,
 		};
 
@@ -385,9 +393,7 @@ impl super::Ccd {
 		let reader = BufReader::new(file);
 
 		// Create the `lofty::Probe` options.
-		let options = lofty::ParseOptions::new()
-			.parsing_mode(lofty::ParsingMode::Relaxed)
-			.read_properties(false);
+		let options = lofty::ParseOptions::new().parsing_mode(lofty::ParsingMode::Relaxed);
 
 		// Create `lofty::Probe`.
 		let probe = lofty::Probe::new(reader).options(options);
@@ -401,10 +407,12 @@ impl super::Ccd {
 
 	#[inline(always)]
 	// Attempts to extract tags from a `TaggedFile`.
-	fn tagged_file_to_tag(tagged_file: &lofty::TaggedFile) -> Result<&lofty::Tag, anyhow::Error> {
-		if let Some(t) = tagged_file.primary_tag() {
+	fn tagged_file_to_tag(tagged_file: &mut lofty::TaggedFile) -> Result<lofty::Tag, anyhow::Error> {
+		if let Some(t) = tagged_file.remove(lofty::TagType::VorbisComments) {
 			Ok(t)
-		} else if let Some(t) = tagged_file.first_tag() {
+		} else if let Some(t) = tagged_file.remove(lofty::TagType::ID3v2) {
+			Ok(t)
+		} else if let Some(t) = tagged_file.remove(lofty::TagType::ID3v1) {
 			Ok(t)
 		} else {
 			Err(anyhow!("No tag"))
@@ -413,7 +421,7 @@ impl super::Ccd {
 
 	#[inline(always)]
 	// Get the audio runtime of the `TaggedFile`.
-	fn tagged_file_runtime(tagged_file: &lofty::TaggedFile) -> f64 {
+	fn tagged_file_runtime(tagged_file: lofty::TaggedFile) -> f64 {
 		tagged_file.properties().duration().as_secs_f64()
 	}
 
@@ -437,21 +445,21 @@ impl super::Ccd {
 	// Attempt to get the release date of the `TaggedFile`.
 	fn tag_release<'a>(tag: &'a lofty::Tag) -> Option<&'a str> {
 		// Attempt #1.
-		if let Some(t) = tag.get_item_ref(&lofty::ItemKey::OriginalReleaseDate) {
+		if let Some(t) = tag.get(&lofty::ItemKey::OriginalReleaseDate) {
 			if let Some(s) = Self::item_value_to_str(&t.value()) {
 				return Some(s)
 			}
 		}
 
 		// Attempt #2.
-		if let Some(t) = tag.get_item_ref(&lofty::ItemKey::RecordingDate) {
+		if let Some(t) = tag.get(&lofty::ItemKey::RecordingDate) {
 			if let Some(s) = Self::item_value_to_str(&t.value()) {
 				return Some(s)
 			}
 		}
 
 		// Attempt #3.
-		if let Some(t) = tag.get_item_ref(&lofty::ItemKey::Year) {
+		if let Some(t) = tag.get(&lofty::ItemKey::Year) {
 			if let Some(s) = Self::item_value_to_str(&t.value()) {
 				return Some(s)
 			}
@@ -465,14 +473,14 @@ impl super::Ccd {
 	// Attempt to get the _maybe_ multiple track artists of the `TaggedFile`.
 	fn tag_track_artists(tag: &lofty::Tag) -> Option<String> {
 		// Attempt #1.
-		if let Some(t) = tag.get_item_ref(&lofty::ItemKey::Performer) {
+		if let Some(t) = tag.get(&lofty::ItemKey::Performer) {
 			if let Some(s) = Self::item_value_to_str(&t.value()) {
 				return Some(s.to_string())
 			}
 		}
 
 		// Attempt #2.
-		if let Some(t) = tag.get_item_ref(&lofty::ItemKey::TrackArtist) {
+		if let Some(t) = tag.get(&lofty::ItemKey::TrackArtist) {
 			if let Some(s) = Self::item_value_to_str(&t.value()) {
 				return Some(s.to_string())
 			}
@@ -486,7 +494,7 @@ impl super::Ccd {
 	// Find out if this `TaggedFile` belongs to a compilation.
 	fn tag_compilation<'a>(artist: &str, tag: &'a lofty::Tag) -> bool {
 		// `FlagCompilation`.
-		if let Some(t) = tag.get_item_ref(&lofty::ItemKey::FlagCompilation) {
+		if let Some(t) = tag.get(&lofty::ItemKey::FlagCompilation) {
 			if let Some(s) = Self::item_value_to_str(&t.value()) {
 				if s == "1" {
 					return true
@@ -496,7 +504,7 @@ impl super::Ccd {
 
 		// `Various Artists`
 		// This metadata is unique to Itunes.
-		if let Some(t) = tag.get_item_ref(&lofty::ItemKey::AlbumArtist) {
+		if let Some(t) = tag.get(&lofty::ItemKey::AlbumArtist) {
 			if let Some(s) = Self::item_value_to_str(&t.value()) {
 				if s == "Various Artists" && s != artist {
 					return true
@@ -509,25 +517,32 @@ impl super::Ccd {
 
 	#[inline(always)]
 	// Attempts to extract tags from a `TaggedFile`.
-	fn extract_tag_metadata<'a>(tagged_file: &'a lofty::TaggedFile, tag: &'a lofty::Tag) -> Result<TagMetadata<'a>, anyhow::Error> {
+	// `TaggedFile` gets dropped here, since it is no longer needed.
+	fn extract_tag_metadata<'a>(tagged_file: lofty::TaggedFile, tag: &'a mut lofty::Tag) -> Result<TagMetadata<'a>, anyhow::Error> {
+		// Image metadata.
+		// This needs to be first because it needs `mut`.
+		// and the next operations create `&`, meaning I
+		// can't mutate `tag` after that.
+		let picture = {
+			if tag.pictures().len() == 0 {
+				None
+			} else {
+				// This removes the `Picture`, and cheaply
+				// takes ownership of the inner `Vec`.
+				Some(tag.remove_picture(0).into_vec())
+			}
+		};
+
 		// Attempt to get _needed_ metadata.
 		let artist      = match tag.artist()      { Some(t) => t, None => bail!("No artist") };
 		let album       = match tag.album()       { Some(t) => t, None => bail!("No album") };
 		let title       = match tag.title()       { Some(t) => t, None => bail!("No title") };
+
 		// Attempt to get not necessarily needed metadata.
 		let track       = tag.track();
 		let disc        = tag.disk();
 		let track_total = tag.track_total();
 		let disc_total  = tag.disk_total();
-		let picture = {
-			let pictures = tag.pictures();
-
-			if pictures.len() == 0 {
-				None
-			} else {
-				Some(pictures[0].data())
-			}
-		};
 
 		// Other data that can't be obtained from `tag._()`.
 		let runtime       = Self::tagged_file_runtime(tagged_file);
