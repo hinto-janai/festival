@@ -3,7 +3,7 @@ use super::{
 	constants::*,
 	tab::Tab,
 };
-use festival::*;
+use shukusai::*;
 use log::{
 	info,
 	warn,

@@ -30,12 +30,16 @@ use crossbeam_channel::{Sender,Receiver};
 use std::path::PathBuf;
 
 //---------------------------------------------------------------------------------------------------- Kernel
-/// The `Kernel` of `Festival`
+/// The [`Kernel`] of `Festival`
 ///
-/// `Kernel`, the messenger and coordinator.
+/// [`Kernel`], the messenger and coordinator.
 ///
-/// `Kernel` handles all of `Festival`'s internals and acts
+/// [`Kernel`] handles all of `Festival`'s internals and acts
 /// as a small & simple interface to all the frontends.
+///
+/// It is highly recommended to read [`festival-gui`](https://github.com/hinto-janai/festival/festival-gui)'s
+/// code and [`Festival`'s internal documentation](https://github.com/hinto-janai/festival/src)
+/// if you're creating your own frontend for `Festival`.
 pub struct Kernel {
 	// Frontend (GUI) Channels.
 	to_frontend: Sender<KernelToFrontend>,
@@ -66,7 +70,20 @@ pub struct Kernel {
 impl Kernel {
 	//-------------------------------------------------- bios()
 	#[inline(always)]
-	// `main()` starts `Kernel` with this.
+	/// [`Kernel`] is started with this.
+	///
+	/// For more info, see [here.](https://github.com/hinto-janai/festival/src/kernel)
+	///
+	/// You must provide [`Kernel`] with a `crossbeam_channel` between it and your frontend.
+	///
+	/// This channel _should never_ be closed.
+	///
+	/// This function doesn't itself spawn a new thread for [`Kernel`], so make sure you do that:
+	/// ```rust,ignore
+	/// std::thread::spawn(|| {
+	///     Kernel::bios()
+	/// });
+	/// ```
 	pub fn bios(to_frontend: Sender<KernelToFrontend>, from_frontend: Receiver<FrontendToKernel>) {
 		debug!("Kernel [1/12] ... entering bios()");
 

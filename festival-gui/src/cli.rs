@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------------------------------- Use
 use clap::Parser;
 use log::info;
-use festival::*;
+use shukusai::*;
 
 //---------------------------------------------------------------------------------------------------- CLI Parser (clap)
 #[derive(Parser)]
@@ -41,8 +41,8 @@ impl Cli {
 
 		// Logger
 		match cli.log_level {
-			Some(log_level) => festival::init_logger(log_level),
-			None            => festival::init_logger(log::LevelFilter::Info),
+			Some(log_level) => init_logger(log_level),
+			None            => init_logger(log::LevelFilter::Info),
 		}
 
 	}

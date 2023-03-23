@@ -13,6 +13,16 @@ The code itself is also littered with comments. Some `grep`-able keywords:
 | `HACK`      | This code is a brittle workaround
 | `TODO`      | This should be implemented... someday
 
+The crate [`festival`](https://crates.io/crates/festival) is being squatted, so instead, `Festival`'s
+original name, [`shukusai`](https://crates.io/crates/shukusai), is the name used to represent `Festival` internals.
+
+`祝祭/shukusai` translated means: `Festival`.
+
+In documentation:
+
+- `shukusai` _specifically_ means `Festival`'s internals
+- `Festival` means a frontend OR the project as a whole
+
 * [Code Structure](#Code-Structure)
 	- [Data](#Data)
 	- [Threads](#Threads)
@@ -44,7 +54,7 @@ The code itself is also littered with comments. Some `grep`-able keywords:
 	- [State](#State)
 * [Personal Libraries]
 	- [Disk](#Disk)
-	- [Human](#Human)
+	- [Readable](#Readable)
 	- [RoLock](#RoLock)
 * [External Libraries]
 * [Audio Codecs](#Audio-Codecs)
@@ -220,7 +230,7 @@ The term `GUI` in the documentation can apply to any other frontend (`web`, `dae
 ## Collection
 The core "database" that holds all the (meta)data about the user's music.
 
-This would normally be an _actual_ database like `SQLite`, `Postgres`, `LMDB`, etc, but `Festival` just uses a regular old `struct` made up of `Vec`'s and a few other `std` types. The entire `Collection` is in-memory at all times.
+This would normally be an _actual_ database like `SQLite`, `Postgres`, `LMDB`, etc, but `shukusai` just uses a regular old `struct` made up of `Vec`'s and a few other `std` types. The entire `Collection` is in-memory at all times.
 
 The main reasons why this is done:
 
@@ -300,7 +310,7 @@ lea [...]
 ```
 Thanks compiler.
 
-_Note: it's still 100% possible to do `collection.artists[my_usize]` or create a `Key` from an incorrect index so I'm still "trusting" myself here (although less so than tossing usizes around). If I ever make `Festival`'s API public, the `Vec`'s will be wrapped so this isn't possible._
+_Note: it's still 100% possible to do `collection.artists[my_usize]` or create a `Key` from an incorrect index so I'm still "trusting" myself here (although less so than tossing usizes around). If I ever make `shukusai`'s API public, the `Vec`'s will be wrapped so this isn't possible._
 
 <div align="center">
 
@@ -418,7 +428,7 @@ After `CCD` hands off the finished `Collection` to `Kernel`, `Kernel` wraps it i
 
 [`TOML`](https://github.com/ordian/toml_edit) is used for miscellaneous state, like the `GUI` settings.
 
-`Festival` uses an internal library (`disk`) that adds some extra features to `Bincode` files. In particular, it adds a versioning system.
+`shukusai` uses an internal library (`disk`) that adds some extra features to `Bincode` files. In particular, it adds a versioning system.
 
 This is for when I eventually realize the `Collection` has a mistake in it's structure, or that something should be changed.
 
@@ -539,18 +549,18 @@ This is the option I chose.
 ---
 
 ## Modularity
-`Festival`'s internals are more or less separated into "entities". Each "entity" in the system is its own thing, and only passes messages to/from `Kernel`. This approach was taken because:
+`shukusai` is more or less separated into "entities". Each "entity" in the system is its own thing, and only passes messages to/from `Kernel`. This approach was taken because:
 
 - Unit testing is easier
 - Plugging in different frontends becomes much easier
-- Separating the different parts of the system and giving them names is easier to reason about than one single `Festival` blob. The scope of what any specific code is doing becomes smaller; less variables to keep in mind when reading code.
+- Separating the different parts of the system and giving them names is easier to reason about than one single `shukusai` blob. The scope of what any specific code is doing becomes smaller; less variables to keep in mind when reading code.
 
 ### Why Kernel?
 `Kernel` doesn't actually do much, it mostly just forwards messages. 
 
 But the existence of `Kernel` allows the other parts of the system to have a _single, simple_ interface.
 
-Consider the following diagram showing `Festival` if `Kernel` didn't exist:
+Consider the following diagram showing `shukusai` if `Kernel` didn't exist:
 
 <img src="assets/images/diagram/no_kernel.png" width="66%"/>
 
@@ -592,7 +602,7 @@ audio_to_kernel.send(CcdToKernel::Update("fake msg"));
 //             Compile error!
 ```
 
-These unrealistic type errors don't matter too much since after all, _I_ am the one writing the code, but this may matter if `Festival`'s internals ever get exposed as a public API.
+These unrealistic type errors don't matter too much since after all, _I_ am the one writing the code, but this may matter if `shukusai` ever get exposed as a public API.
 
 Also, it's always a nice feeling to have the type checker behind your back. This same idea applies to using `Key` instead of a raw `usize` for `Collection` indexing.
 
@@ -609,9 +619,9 @@ Also, it's always a nice feeling to have the type checker behind your back. This
 ---
 
 ## Disk
-Specification of what and where `Festival` saves things to disk.
+Specification of what and where `shukusai` saves things to disk.
 
-[`directories`](https://github.com/soc/directories-rs) is used, so `Festival` (mostly) follows:
+[`directories`](https://github.com/soc/directories-rs) is used, so `shukusai` (mostly) follows:
 
 - The XDG base directory and the XDG user directory specifications on Linux
 - The Known Folder system on Windows
@@ -663,7 +673,7 @@ These are the `Signal` files, created by commands like `./festival --play`.
 
 These are located in the subdirectory `signal`.
 
-You can manually send signals to `Festival` by creating a file within the `signal` subdirectory with any of these filenames:
+You can manually send signals to `shukusai` by creating a file within the `signal` subdirectory with any of these filenames:
 
 - `play`
 - `stop`
@@ -672,7 +682,7 @@ You can manually send signals to `Festival` by creating a file within the `signa
 - `shuffle`
 - `repeat`
 
-They'll immediately get deleted, and `Festival` will act on the signal.
+They'll immediately get deleted, and `shukusai` will act on the signal.
 
 | Platform | Value                                                              | Example                                                     |
 |----------|--------------------------------------------------------------------|-------------------------------------------------------------|
@@ -750,7 +760,7 @@ More details can be found at `external/README.md` on exactly what patches were m
 ---
 
 ## Audio Codecs
-The currently supported audio codecs that `Festival` will parse, and play:
+The currently supported audio codecs that `shukusai` will parse, and play:
 
 - AAC
 - AIFF
@@ -766,7 +776,7 @@ The currently supported audio codecs that `Festival` will parse, and play:
 ## Image Formats
 If the `Album` art is embedded within the `Song` as metadata, it will always be used.
 
-If no art metadata is found, `Festival` will look for the largest:
+If no art metadata is found, `shukusai` will look for the largest:
 
 - PNG
 - JPG

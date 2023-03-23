@@ -13,15 +13,15 @@ fn main() {
 	cli::Cli::handle_args();
 
 	// Create `Kernel` <-> `GUI` channels.
-	let (kernel_to_gui, gui_recv)    = crossbeam_channel::unbounded::<festival::KernelToFrontend>();
-	let (gui_to_kernel, kernel_recv) = crossbeam_channel::unbounded::<festival::FrontendToKernel>();
+	let (kernel_to_gui, gui_recv)    = crossbeam_channel::unbounded::<shukusai::KernelToFrontend>();
+	let (gui_to_kernel, kernel_recv) = crossbeam_channel::unbounded::<shukusai::FrontendToKernel>();
 
 	// Spawn `Kernel`.
-	std::thread::spawn(move || festival::Kernel::bios(kernel_to_gui, kernel_recv));
+	std::thread::spawn(move || shukusai::Kernel::bios(kernel_to_gui, kernel_recv));
 
 	// Start `GUI`.
 	eframe::run_native(
-		festival::FESTIVAL_NAME_VER,
+		shukusai::FESTIVAL_NAME_VER,
 		gui::Gui::options(),
 		Box::new(|cc| Box::new(gui::Gui::init(cc, gui_to_kernel, gui_recv)))
 	);

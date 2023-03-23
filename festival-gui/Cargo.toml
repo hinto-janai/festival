@@ -1,6 +1,6 @@
 [package]
 name = "festival-gui"
-version = "0.1.0"
+version = "0.0.0"
 edition = "2021"
 build = "build.rs"
 authors = ["hinto.janai <hinto.janai@protonmail.com>"]
@@ -16,7 +16,7 @@ license = "MIT"
 
 [dependencies]
 ### Festival Internals.
-festival = { path = "../", version = "*" }
+shukusai = { path = "../", version = "0.1.0" }
 
 ### External patched libraries `external/`.
 egui        = { version = "0.21.0", path = "../external/egui/crates/egui",        features = ["default_fonts"], default-features = false }

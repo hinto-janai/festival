@@ -1,13 +1,26 @@
-//! The `Festival` internals that powers all the frontends.
+//! # Festival
+//! [`Festival`](https://github.com/hinto-janai/festival)'s internals that powers all of its frontends.
 //!
-//! **The internals are not stable. There's no _clean, restrictive, type-safe_ public API.**
+//! The crate [`festival`](https://crates.io/crates/festival) is being squatted, so instead, `Festival`'s
+//! original name, [`shukusai`](https://crates.io/crates/shukusai), is used.
+//!
+//! `祝祭/shukusai` translated means: `Festival`.
+//!
+//! In documentation:
+//!
+//! - `shukusai` _specifically_ means `Festival`'s internals
+//! - `Festival` means a frontend OR the project as a whole
+//!
+//! # Warning
+//! **The internals are not stable. There's no _restrictive, type-safe_ public API.**
 //!
 //! **If you're implementing a frontend, you are expected to implement the `Kernel`'s messages correctly.**
 //!
-//! **You can look at [`festival-gui`](https://github.com/hinto-janai/festival/festival-gui)'s code as an example,
-//! and the [internal documentation](https://github.com/hinto-janai/festival/src) as reference.**
+//! You can look at [`festival-gui`](https://github.com/hinto-janai/festival/festival-gui)'s code as an example,
+//! and the [internal documentation](https://github.com/hinto-janai/festival/src) as reference.
 //!
-//! The "API" between `Festival` and the frontends are:
+//! # API
+//! The "API" between `shukusai` and the frontends are:
 //! - [`KernelToFrontend`]
 //! - [`FrontendToKernel`]
 //!
@@ -23,7 +36,7 @@
 //! - Properly implement the messages `To/From` the `Kernel`
 //! - Properly handle shared data
 //!
-//! There are shared functions/data that `Festival/Kernel` exposes, notably:
+//! There are shared functions/data that `shukusai/Kernel` exposes, notably:
 //! - [`Collection`] (and everything within it)
 //! - [`State`]
 //! - [`Volume`]

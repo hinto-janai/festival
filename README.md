@@ -7,11 +7,15 @@ Music player for Windows/macOS/Linux.
 
 ![Tests](https://github.com/hinto-janai/festival/actions/workflows/tests/root.yml/badge.svg)
 
+[![crates.io](https://img.shields.io/crates/v/shukusai.svg)](https://crates.io/crates/shukusai)
+
+[![docs.rs](https://docs.rs/shukusai/badge.svg)](https://docs.rs/shukusai)
+
 <br clear="left"/>
 
 * [Comparison](#Comparison)
-* [Documentation](#Documentation)
 * [Frontends](#Frontends)
+* [Documentation](#Documentation)
 * [Build](#Build)
 * [License](#License)
 
@@ -33,15 +37,6 @@ Input data:
 <img src="assets/images/cmp/error.png" align="left" width="50%"/>
 <img src="assets/images/cmp/boot.png" align="right" width="50%"/>
 
-## Documentation
-For a broad overview of `Festival`'s internals, see [`src/`](https://github.com/hinto-janai/festival/src).
-
-For `cargo` docs of the internal, run 
-```bash
-cargo doc --open
-```
-inside [`src/`](https://github.com/hinto-janai/festival/src).
-
 ## Frontends
 | Frontend                    | Released | Description |
 |-----------------------------|----------|-------------|
@@ -49,6 +44,21 @@ inside [`src/`](https://github.com/hinto-janai/festival/src).
 | `festival-web`              | 🔴       | `WASM` version of `egui` GUI
 | `festivald`                 | 🔴       | Daemon ([`mpd`](https://github.com/MusicPlayerDaemon/MPD)-like)
 | `festival-cli`              | 🔴       | CLI client that connects to `festivald`
+
+## Documentation
+For a broad overview of `Festival`'s internals, see [`src/`](https://github.com/hinto-janai/festival/src).
+
+Documentation is also available on [`docs.rs`](https://docs.rs/shukusai).
+
+The crate [`festival`](https://crates.io/crates/festival) is being squatted, so instead, `Festival`'s
+original name, [`shukusai`](https://crates.io/crates/shukusai), is the name used to represent `Festival` internals.
+
+`祝祭/shukusai` translated means: `Festival`.
+
+In documentation:
+
+- `shukusai` _specifically_ means `Festival`'s internals
+- `Festival` means a frontend OR the project as a whole
 
 ## Build
 ### General Info

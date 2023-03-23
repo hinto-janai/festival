@@ -1,15 +1,34 @@
 [package]
-name = "festival"
-version = "0.1.0"
+name = "shukusai"
+version = "0.0.1"
 edition = "2021"
 authors = ["hinto.janai <hinto.janai@protonmail.com>"]
-description = "Music player"
+description = "Festival (music player) internals"
 homepage = "https://festival.pm"
-documentation = "https://github.com/hinto-janai/festival/src/README.md"
+documentation = "https://docs.rs/shukusai"
 repository = "https://github.com/hinto-janai/festival"
 readme = "README.md"
-keywords = ["music", "player", "audio", "festival"]
+keywords = ["music", "player", "audio", "festival", "shukusai"]
+categories = ["multimedia"]
 license = "MIT"
+exclude = [
+    "assets/*",
+    "cmp/*",
+    "external/*",
+    "pgp/*",
+    "utils/*",
+    "CHANGELOG.md",
+	".github",
+	"festival-gui/*",
+	"festival-web/*",
+	"festivald/*",
+	"festival-cli/*",
+]
+include = [
+	"src",
+	"assets/images/diagram",
+    "assets/images/art/unknown.png",
+]
 
 [workspace]
 members = [
@@ -18,6 +37,10 @@ members = [
 	"festivald",
 	"festival-cli",
 ]
+
+[lib]
+name = "shukusai"
+path = "src/lib.rs"
 
 # Currently, only build `festival-gui`.
 #[[bin]]
@@ -37,6 +60,13 @@ lto = true
 #codegen-units = 1
 #lto = true
 
+[patch.crates-io]
+### External patched libraries `external/`.
+egui        = { path = "external/egui/crates/egui",        features = ["default_fonts"], default-features = false }
+eframe      = { path = "external/egui/crates/eframe",      features = ["wgpu"],          default-features = false }
+egui_extras = { path = "external/egui/crates/egui_extras", features = ["image"] }
+lofty       = { path = "external/lofty-rs" }
+
 [dependencies]
 ### Personal libraries.
 disk     = { version = "0.0.1", features = ["bincode", "toml", "plain"] }
@@ -44,11 +74,10 @@ readable = { version = "0.3.0", features = ["serde", "ignore_nan_inf"] }
 rolock   = { version = "0.1.1" }
 
 ### External patched libraries `external/`.
-egui               = { version = "0.21.0", path = "external/egui/crates/egui",        features = ["default_fonts"], default-features = false }
-eframe             = { version = "0.21.0", path = "external/egui/crates/eframe",      features = ["wgpu"],          default-features = false }
-egui_extras        = { version = "0.21.0", path = "external/egui/crates/egui_extras", features = ["image"] }
-#image             = { path = "external/image", features = ["png", "jpeg"] }
-#fast_image_resize = { path = "external/fast_image_resize" }
+egui        = { version = "0.21.0", path = "external/egui/crates/egui",        features = ["default_fonts"], default-features = false }
+eframe      = { version = "0.21.0", path = "external/egui/crates/eframe",      features = ["wgpu"],          default-features = false }
+egui_extras = { version = "0.21.0", path = "external/egui/crates/egui_extras", features = ["image"] }
+lofty       = { version = "0.11.0", path = "external/lofty-rs" }
 
 ### Regular libraries.
 anyhow = "1.0.70"
@@ -61,7 +90,6 @@ fast_image_resize = "2.6.0"
 image = { version = "0.24.5", features = ["jpeg", "png"], default-features = false }
 infer = "0.13.0"
 lazy_static = "1.4.0"
-lofty = "0.11.0"
 log = "0.4.17"
 notify = "5.1.0"
 mime_guess = "2.0.4"
@@ -75,4 +103,3 @@ serde = { version = "1.0.158", features = ["derive"] }
 strsim = "0.10.0"
 #symphonia = "0.5.2"
 walkdir = "2.3.3"
-compact_str = "0.7.0"
