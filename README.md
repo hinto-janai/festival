@@ -1,6 +1,6 @@
 <img src="assets/images/icon/512.png" align="left" width="50%"/>
 
-# Festival
+# Festival (WIP)
 Music player for Windows/macOS/Linux.
 
 ![Build](https://github.com/hinto-janai/festival/actions/workflows/build/root.yml/badge.svg)

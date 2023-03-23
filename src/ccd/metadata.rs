@@ -445,21 +445,21 @@ impl super::Ccd {
 	// Attempt to get the release date of the `TaggedFile`.
 	fn tag_release<'a>(tag: &'a lofty::Tag) -> Option<&'a str> {
 		// Attempt #1.
-		if let Some(t) = tag.get(&lofty::ItemKey::OriginalReleaseDate) {
+		if let Some(t) = tag.get_item_ref(&lofty::ItemKey::OriginalReleaseDate) {
 			if let Some(s) = Self::item_value_to_str(&t.value()) {
 				return Some(s)
 			}
 		}
 
 		// Attempt #2.
-		if let Some(t) = tag.get(&lofty::ItemKey::RecordingDate) {
+		if let Some(t) = tag.get_item_ref(&lofty::ItemKey::RecordingDate) {
 			if let Some(s) = Self::item_value_to_str(&t.value()) {
 				return Some(s)
 			}
 		}
 
 		// Attempt #3.
-		if let Some(t) = tag.get(&lofty::ItemKey::Year) {
+		if let Some(t) = tag.get_item_ref(&lofty::ItemKey::Year) {
 			if let Some(s) = Self::item_value_to_str(&t.value()) {
 				return Some(s)
 			}
@@ -473,14 +473,14 @@ impl super::Ccd {
 	// Attempt to get the _maybe_ multiple track artists of the `TaggedFile`.
 	fn tag_track_artists(tag: &lofty::Tag) -> Option<String> {
 		// Attempt #1.
-		if let Some(t) = tag.get(&lofty::ItemKey::Performer) {
+		if let Some(t) = tag.get_item_ref(&lofty::ItemKey::Performer) {
 			if let Some(s) = Self::item_value_to_str(&t.value()) {
 				return Some(s.to_string())
 			}
 		}
 
 		// Attempt #2.
-		if let Some(t) = tag.get(&lofty::ItemKey::TrackArtist) {
+		if let Some(t) = tag.get_item_ref(&lofty::ItemKey::TrackArtist) {
 			if let Some(s) = Self::item_value_to_str(&t.value()) {
 				return Some(s.to_string())
 			}
@@ -494,7 +494,7 @@ impl super::Ccd {
 	// Find out if this `TaggedFile` belongs to a compilation.
 	fn tag_compilation<'a>(artist: &str, tag: &'a lofty::Tag) -> bool {
 		// `FlagCompilation`.
-		if let Some(t) = tag.get(&lofty::ItemKey::FlagCompilation) {
+		if let Some(t) = tag.get_item_ref(&lofty::ItemKey::FlagCompilation) {
 			if let Some(s) = Self::item_value_to_str(&t.value()) {
 				if s == "1" {
 					return true
@@ -504,7 +504,7 @@ impl super::Ccd {
 
 		// `Various Artists`
 		// This metadata is unique to Itunes.
-		if let Some(t) = tag.get(&lofty::ItemKey::AlbumArtist) {
+		if let Some(t) = tag.get_item_ref(&lofty::ItemKey::AlbumArtist) {
 			if let Some(s) = Self::item_value_to_str(&t.value()) {
 				if s == "Various Artists" && s != artist {
 					return true
@@ -529,7 +529,7 @@ impl super::Ccd {
 			} else {
 				// This removes the `Picture`, and cheaply
 				// takes ownership of the inner `Vec`.
-				Some(tag.remove_picture(0).into_vec())
+				Some(tag.remove_picture(0).data().to_vec())
 			}
 		};
 

@@ -1,6 +1,6 @@
 [package]
 name = "shukusai"
-version = "0.0.1"
+version = "0.0.0"
 edition = "2021"
 authors = ["hinto.janai <hinto.janai@protonmail.com>"]
 description = "Festival (music player) internals"
@@ -28,6 +28,8 @@ include = [
 	"src",
 	"assets/images/diagram",
     "assets/images/art/unknown.png",
+	"assets/images/icon/512.png",
+	"assets/images/cmp/*",
 ]
 
 [workspace]
@@ -37,10 +39,6 @@ members = [
 	"festivald",
 	"festival-cli",
 ]
-
-[lib]
-name = "shukusai"
-path = "src/lib.rs"
 
 # Currently, only build `festival-gui`.
 #[[bin]]
@@ -59,13 +57,6 @@ lto = true
 #strip = "symbols"
 #codegen-units = 1
 #lto = true
-
-[patch.crates-io]
-### External patched libraries `external/`.
-egui        = { path = "external/egui/crates/egui",        features = ["default_fonts"], default-features = false }
-eframe      = { path = "external/egui/crates/eframe",      features = ["wgpu"],          default-features = false }
-egui_extras = { path = "external/egui/crates/egui_extras", features = ["image"] }
-lofty       = { path = "external/lofty-rs" }
 
 [dependencies]
 ### Personal libraries.
