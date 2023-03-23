@@ -1,7 +1,11 @@
-<img src="assets/images/icon/512.png" align="left" width="50%"/>
+<img src="assets/images/icon/512.png" align="left" width="25%"/>
 
 # Festival (WIP)
 Music player for Windows/macOS/Linux.
+
+<br clear="left"/>
+
+<div align="center">
 
 ![Build](https://github.com/hinto-janai/festival/actions/workflows/build/root.yml/badge.svg)
 
@@ -11,17 +15,19 @@ Music player for Windows/macOS/Linux.
 
 [![docs.rs](https://docs.rs/shukusai/badge.svg)](https://docs.rs/shukusai)
 
-<br clear="left"/>
-
 * [Comparison](#Comparison)
 * [Frontends](#Frontends)
 * [Documentation](#Documentation)
 * [Build](#Build)
 * [License](#License)
 
+</div>
+
 ---
 
 ## Comparison
+<div align="center">
+
 For context on these graphs (there are always trade-offs), see [`cmp/`](https://github.com/hinto-janai/festival/cmp).
 
 Input data:
@@ -31,11 +37,9 @@ Input data:
 - 7000 Songs
 - `170GB` total disk space
 
-<img src="assets/images/cmp/scratch.png" align="left" width="50%"/>
-<img src="assets/images/cmp/cache.png" align="right" width="50%"/>
+<img src="assets/images/cmp/all.png" width="50%"/>
 
-<img src="assets/images/cmp/error.png" align="left" width="50%"/>
-<img src="assets/images/cmp/boot.png" align="right" width="50%"/>
+</div>
 
 ## Frontends
 | Frontend                    | Released | Description |
