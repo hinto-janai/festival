@@ -13,6 +13,8 @@ The code itself is also littered with comments. Some `grep`-able keywords:
 | `HACK`      | This code is a brittle workaround
 | `TODO`      | This should be implemented... someday
 
+---
+
 The crate [`festival`](https://crates.io/crates/festival) is being squatted, so instead, Festival's
 original name, [`shukusai`](https://crates.io/crates/shukusai), is the name used to represent the internals.
 
@@ -22,6 +24,8 @@ In documentation:
 
 - `shukusai` _specifically_ means `Festival`'s internals
 - `Festival` means a frontend OR the project as a whole
+
+---
 
 * [Code Structure](#Code-Structure)
 	- [Data](#Data)
@@ -103,8 +107,6 @@ These are top-level files for miscellaneous stuff:
 | `logger.rs`    | Console logging initialization
 | `macros.rs`    | General macros
 | `lib.rs`       | `pub` re-exposing, `doc` comments
-
----
 
 # Overview
 <div align="center">
@@ -224,8 +226,6 @@ There are `State/Settings` that `GUI` holds ownership over and can mutate for it
 The GUI library currently used is [`egui`](https://github.com/emilk/egui).
 
 The term `GUI` in the documentation can apply to any other frontend (`web`, `daemon`, `cli`).
-
----
 
 # Collection
 The core "database" that holds all the (meta)data about the user's music.
@@ -546,8 +546,6 @@ Cons:
 
 This is the option I chose.
 
----
-
 # Modularity
 `shukusai` is more or less separated into "entities". Each "entity" in the system is its own thing, and only passes messages to/from `Kernel`. This approach was taken because:
 
@@ -615,8 +613,6 @@ Also, it's always a nice feeling to have the type checker behind your back. This
 - More modular, different components can be swapped more easily
 - Cleaner, separated, and more well defined code
 - Using the word `Kernel` is cool
-
----
 
 # Disk
 Specification of what and where `shukusai` saves things to disk.
@@ -690,8 +686,6 @@ They'll immediately get deleted, and `shukusai` will act on the signal.
 | macOS    | `$HOME/Library/Application Support/Festival/signal/`               | `/Users/Alice/Library/Application Support/Festival/signal/` |
 | Windows  | `{FOLDERID_LocalAppData}\Festival\signal\`                         | `C:\Users\Alice\AppData\Local\Festival\signal\`             |
 
----
-
 # Personal Libraries
 These are libraries I made (because of `Festival`).
 
@@ -750,14 +744,10 @@ Even though _I_ am the one writing the code, and could just never call `.write()
 
 And yes, it gets optimized away.
 
----
-
 # External Libraries
 There are forks of external libraries located in `external/` that contain some custom patches.
 
 More details can be found at `external/README.md` on exactly what patches were made.
-
----
 
 # Audio Codecs
 The currently supported audio codecs that `shukusai` will parse, and play:
@@ -770,8 +760,6 @@ The currently supported audio codecs that `shukusai` will parse, and play:
 - Ogg/OPUS
 - Vorbis
 - WAV
-
----
 
 # Image Formats
 If the `Album` art is embedded within the `Song` as metadata, it will always be used.
@@ -786,8 +774,6 @@ image in the same directory as the file itself.
 If both are not found, a [default question mark](https://github.com/hinto-janai/festival/assets/images/art/unknown.png) cover will be used.
 
 This default art is actually just a pointer to a single image in memory (`lazy_static`), so it doesn't take up extra memory even if all your `Album`'s have no art.
-
----
 
 # Alternative Frontends
 Some other frontends I have in mind:

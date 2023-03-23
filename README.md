@@ -10,6 +10,7 @@ Music player for Windows/macOS/Linux.
 * [Comparison](#Comparison)
 * [Frontends](#Frontends)
 * [Documentation](#Documentation)
+* [Install](#Install)
 * [Build](#Build)
 * [License](#License)
 
@@ -55,6 +56,25 @@ In documentation:
 
 - `shukusai` _specifically_ means Festival's internals
 - `Festival` means a frontend OR the project as a whole
+
+## Install
+Pre-compiled binaries are available [here](https://github.com/hinto-janai/festival/releases), or on [Festival's website](https://festival.pm/downloads).
+
+---
+
+### Cargo
+If you have `cargo`, you can install Festival from [`crates.io`](https://crates.io/crates/festival-gui):
+```bash
+cargo install festival-gui
+```
+
+---
+
+### Arch
+If you're on Arch Linux, you can install Festival from the [`AUR`](https://aur.archlinux.org/packages/festival-gui-bin):
+```bash
+paru festival-gui-bin
+```
 
 ## Build
 ### General Info
