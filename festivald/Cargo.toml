@@ -7,7 +7,7 @@ description = "Festival daemon"
 homepage = "https://festival.pm"
 documentation = "https://github.com/hinto-janai/festival/festivald/README.md"
 repository = "https://github.com/hinto-janai/festival"
-readme = "festivald/README.md"
+readme = "README.md"
 keywords = ["music", "player", "audio", "festival", "daemon"]
 license = "MIT"
 

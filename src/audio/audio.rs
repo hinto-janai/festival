@@ -99,7 +99,7 @@ impl Audio {
 			Volume(f64) => todo!(),
 
 			// Queue.
-			PlayQueueKey(QueueKey) => todo!(),
+			PlayQueueKey(queue_key) => todo!(),
 
 			// Collection.
 			DropCollection     => self = self.msg_drop(),

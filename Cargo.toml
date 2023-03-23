@@ -44,9 +44,9 @@ readable = { version = "0.3.0", features = ["serde", "ignore_nan_inf"] }
 rolock   = { version = "0.1.1" }
 
 ### External patched libraries `external/`.
-egui               = { path = "external/egui/crates/egui",        features = ["default_fonts"], default-features = false }
-eframe             = { path = "external/egui/crates/eframe",      features = ["wgpu"],          default-features = false }
-egui_extras        = { path = "external/egui/crates/egui_extras", features = ["image"] }
+egui               = { version = "0.21.0", path = "external/egui/crates/egui",        features = ["default_fonts"], default-features = false }
+eframe             = { version = "0.21.0", path = "external/egui/crates/eframe",      features = ["wgpu"],          default-features = false }
+egui_extras        = { version = "0.21.0", path = "external/egui/crates/egui_extras", features = ["image"] }
 #image             = { path = "external/image", features = ["png", "jpeg"] }
 #fast_image_resize = { path = "external/fast_image_resize" }
 
@@ -75,3 +75,4 @@ serde = { version = "1.0.158", features = ["derive"] }
 strsim = "0.10.0"
 #symphonia = "0.5.2"
 walkdir = "2.3.3"
+compact_str = "0.7.0"

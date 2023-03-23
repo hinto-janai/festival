@@ -88,10 +88,11 @@ These are top-level files for miscellaneous stuff:
 | File           | Purpose |
 |----------------|---------|
 | `cli.rs`       | Command line argument parsing/handling
+| `commit`       | Symlink to current `main` branch commit
 | `constants.rs` | General constants
 | `logger.rs`    | Console logging initialization
 | `macros.rs`    | General macros
-| `main.rs`      | Barebones `main()` that starts stuff and turns into `GUI`
+| `lib.rs`       | `pub` re-exposing, `doc` comments
 
 ---
 

@@ -30,7 +30,8 @@ bincode_file!(Collection, Dir::Data, FESTIVAL, "", "collection", FESTIVAL_HEADER
 /// - Metadata about the [`Collection`] itself
 ///
 /// The "3 Vecs" are (basically) in random order due to how `Collection` is created.
-/// Iterating directly on these makes no sense, so use the pre-calculated sorted keys.
+///
+/// Iterating directly on them is not very useful, so use the pre-calculated sorted keys.
 ///
 /// The sorted key fields all start with `sort_`.
 ///
@@ -94,7 +95,11 @@ impl Collection {
 	#[inline(always)]
 	/// Creates an empty [`Collection`].
 	///
-	/// The `timestamp` is set to `0`.
+	/// All [`Vec`]'s are empty.
+	///
+	/// The `timestamp` and `count_*` fields are set to `0`.
+	///
+	/// `empty` is set to `true`.
 	pub const fn new() -> Self {
 		Self {
 			artists: vec![],
@@ -175,6 +180,60 @@ impl Collection {
 		&self.songs[key.inner()]
 	}
 
+	#[inline(always)]
+	/// [`slice::get`] the [`Collection`] with a [`Key`].
+	///
+	/// # Errors:
+	/// The [`ArtistKey`], [`AlbumKey`] and [`SongKey`] within
+	/// the [`Key`] must be valid indicies into the [`Collection`].
+	pub fn get(&self, key: &Key) -> Option<(&Artist, &Album, &Song)> {
+		let (artist, album, song) = key.inner_usize();
+
+		let artists = match self.artists.get(artist) {
+			Some(a) => a,
+			None    => return None,
+		};
+
+		let album = match self.albums.get(album) {
+			Some(a) => a,
+			None    => return None,
+		};
+
+		let song = match self.songs.get(song) {
+			Some(a) => a,
+			None    => return None,
+		};
+
+		Some((artists, album, song))
+	}
+
+	#[inline(always)]
+	/// [`slice::get`] the [`Collection`] for an [`Artist`].
+	///
+	/// # Errors:
+	/// The [`ArtistKey`] must be a valid index.
+	pub fn get_artist(&self, key: ArtistKey) -> Option<&Artist> {
+		self.artists.get(key.inner())
+	}
+
+	#[inline(always)]
+	/// [`slice::get`] the [`Collection`] for an [`Album`].
+	///
+	/// # Errors:
+	/// The [`AlbumKey`] must be a valid index.
+	pub fn get_album(&self, key: AlbumKey) -> Option<&Album> {
+		self.albums.get(key.inner())
+	}
+
+	#[inline(always)]
+	/// [`slice::get`] the [`Collection`] for a [`Song`].
+	///
+	/// # Errors:
+	/// The [`SongKey`] must be a valid index.
+	pub fn get_song(&self, key: SongKey) -> Option<&Song> {
+		self.songs.get(key.inner())
+	}
+
 	// Key traversal.
 	#[inline(always)]
 	/// Obtain an [`Artist`], but from a [`AlbumKey`].
@@ -199,6 +258,47 @@ impl Collection {
 	/// The [`SongKey`] must be a valid index.
 	pub fn artist_from_song(&self, key: SongKey) -> &Artist {
 		&self.artist_from_album(self.songs[key.inner()].album)
+	}
+
+	// Key traversal (`.get()`).
+	#[inline(always)]
+	/// Obtain an [`Artist`], but from a [`AlbumKey`].
+	///
+	/// # Errors:
+	/// The [`AlbumKey`] must be a valid index.
+	pub fn get_artist_from_album(&self, key: AlbumKey) -> Option<&Artist> {
+		let artist = match self.get_album(key) {
+			Some(a) => a.artist,
+			None    => return None,
+		};
+
+		self.get_artist(artist)
+	}
+	#[inline(always)]
+	/// Obtain an [`Album`], but from a [`SongKey`].
+	///
+	/// # Errors:
+	/// The [`SongKey`] must be a valid index.
+	pub fn get_album_from_song(&self, key: SongKey) -> Option<&Album> {
+		let album = match self.get_song(key) {
+			Some(a) => a.album,
+			None    => return None,
+		};
+
+		self.get_album(album)
+	}
+	#[inline(always)]
+	/// Obtain an [`Artist`], but from a [`SongKey`].
+	///
+	/// # Errors:
+	/// The [`SongKey`] must be a valid index.
+	pub fn get_artist_from_song(&self, key: SongKey) -> Option<&Artist> {
+		let album = match self.get_song(key) {
+			Some(a) => a.album,
+			None    => return None,
+		};
+
+		self.get_artist_from_album(album)
 	}
 }
 

@@ -15,7 +15,7 @@ pub const FESTIVAL_NAME_VER: &str = concat!("Festival v", env!("CARGO_PKG_VERSIO
 pub const FESTIVAL:          &str = "Festival";
 
 /// Current `git` commit
-pub const COMMIT:            &str = include_str!("../.git/refs/heads/main");
+pub const COMMIT:            &str = include_str!("commit");
 
 /// Build profile (debug/release)
 pub const BUILD:             &str = if cfg!(debug_assertions) { "Debug" } else { "Release" };
