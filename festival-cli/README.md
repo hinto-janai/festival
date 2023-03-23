@@ -1,11 +1,7 @@
 # `festival-cli`
 `Festival` CLI client for `festivald`.
 
-![Build](https://github.com/hinto-janai/festival/actions/workflows/build/cli.yml/badge.svg)
-
-![Tests](https://github.com/hinto-janai/festival/actions/workflows/tests/cli.yml/badge.svg)
-
-<br clear="left"/>
+![Build](https://github.com/hinto-janai/festival/actions/workflows/build-cli.yml/badge.svg) ![Tests](https://github.com/hinto-janai/festival/actions/workflows/test-cli.yml/badge.svg) [![crates.io](https://img.shields.io/crates/v/festival-cli.svg)](https://crates.io/crates/festival-cli) [![docs.rs](https://docs.rs/festival-cli/badge.svg)](https://docs.rs/festival-cli)
 
 * [Documentation](#Documentation)
 * [Build](#Build)

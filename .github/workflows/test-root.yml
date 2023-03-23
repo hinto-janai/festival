@@ -1,4 +1,4 @@
-name: Web Build
+name: Root Test
 
 on:
   push:
@@ -22,8 +22,13 @@ jobs:
           ~/.cargo/registry
           ~/.cargo/git
           target
-        key: cargo build
+        key: cargo test
     - uses: actions/checkout@v3
-    - name: Build
-      run: cd festival-web
-      run: cargo build
+      with:
+        submodules: recursive
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y libgtk-3-dev
+    - name: Test
+      run: cargo test

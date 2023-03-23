@@ -1,4 +1,4 @@
-name: Root Test
+name: CLI Build
 
 on:
   push:
@@ -22,11 +22,9 @@ jobs:
           ~/.cargo/registry
           ~/.cargo/git
           target
-        key: cargo test
+        key: cargo build
     - uses: actions/checkout@v3
-    - name: Install dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y libgtk-3-dev
-    - name: Test
-      run: cargo test
+      with:
+        submodules: recursive
+    - name: Build
+      run: cd festival-cli && cargo build

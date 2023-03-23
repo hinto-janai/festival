@@ -629,15 +629,15 @@ mod tests {
 	#[test]
 	fn runtime() {
 		let mp3 = mp3();
-		let runtime = Ccd::tagged_file_runtime(&mp3);
+		let runtime = Ccd::tagged_file_runtime(mp3);
 		eprintln!("{}", runtime);
 		assert!(runtime == 1.968);
 	}
 
 	#[test]
 	fn release() {
-		let mp3 = mp3();
-		let tag = Ccd::tagged_file_to_tag(&mp3).unwrap();
+		let mut mp3 = mp3();
+		let mut tag = Ccd::tagged_file_to_tag(&mut mp3).unwrap();
 		let release = Ccd::tag_release(&tag).unwrap();
 		eprintln!("{}", release);
 		assert!(release == "2023-03-08");
@@ -649,27 +649,27 @@ mod tests {
 	// Probably a bug with the `mp3` file metadata
 	// instead of the function.
 	fn track_artists() {
-		let mp3 = mp3();
-		let tag = Ccd::tagged_file_to_tag(&mp3).unwrap();
-		let track_artist = Ccd::tag_track_artists(tag).unwrap();
+		let mut mp3 = mp3();
+		let tag = Ccd::tagged_file_to_tag(&mut mp3).unwrap();
+		let track_artist = Ccd::tag_track_artists(&tag).unwrap();
 		eprintln!("{}", track_artist);
 		assert!(track_artist == "hinto");
 	}
 
 	#[test]
 	fn compilation() {
-		let mp3 = mp3();
-		let tag = Ccd::tagged_file_to_tag(&mp3).unwrap();
-		let comp = Ccd::tag_compilation("hinto", tag);
+		let mut mp3 = mp3();
+		let tag = Ccd::tagged_file_to_tag(&mut mp3).unwrap();
+		let comp = Ccd::tag_compilation("hinto", &tag);
 		eprintln!("{}", comp);
 		assert!(comp);
 	}
 
 	#[test]
 	fn extract() {
-		let mp3 = mp3();
-		let tag = Ccd::tagged_file_to_tag(&mp3).unwrap();
-		let meta = Ccd::extract_tag_metadata(&mp3, &tag).unwrap();
+		let mut mp3 = mp3();
+		let mut tag = Ccd::tagged_file_to_tag(&mut mp3).unwrap();
+		let meta = Ccd::extract_tag_metadata(mp3, &mut tag).unwrap();
 		eprintln!("{:#?}", meta);
 
 		assert!(meta.artist        == "hinto");

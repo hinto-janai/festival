@@ -1,4 +1,4 @@
-name: Daemon Test
+name: Web Build
 
 on:
   push:
@@ -22,8 +22,9 @@ jobs:
           ~/.cargo/registry
           ~/.cargo/git
           target
-        key: cargo test
+        key: cargo build
     - uses: actions/checkout@v3
-    - name: Test
-      run: cd festivald
-      run: cargo test
+      with:
+        submodules: recursive
+    - name: Build
+      run: cd festival-web && cargo build

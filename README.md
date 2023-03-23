@@ -1,19 +1,11 @@
-<img src="assets/images/icon/512.png" align="left" width="25%"/>
-
-# Festival (WIP)
-Music player for Windows/macOS/Linux.
-
-<br clear="left"/>
-
 <div align="center">
 
-![Build](https://github.com/hinto-janai/festival/actions/workflows/build/root.yml/badge.svg)
+# Festival (WIP)
+<img src="assets/images/icon/512.png" width="20%"/>
 
-![Tests](https://github.com/hinto-janai/festival/actions/workflows/tests/root.yml/badge.svg)
+Music player for Windows/macOS/Linux.
 
-[![crates.io](https://img.shields.io/crates/v/shukusai.svg)](https://crates.io/crates/shukusai)
-
-[![docs.rs](https://docs.rs/shukusai/badge.svg)](https://docs.rs/shukusai)
+![Build](https://github.com/hinto-janai/festival/actions/workflows/build-root.yml/badge.svg) ![Tests](https://github.com/hinto-janai/festival/actions/workflows/test-root.yml/badge.svg) [![crates.io](https://img.shields.io/crates/v/shukusai.svg)](https://crates.io/crates/shukusai) [![docs.rs](https://docs.rs/shukusai/badge.svg)](https://docs.rs/shukusai)
 
 * [Comparison](#Comparison)
 * [Frontends](#Frontends)
@@ -28,7 +20,7 @@ Music player for Windows/macOS/Linux.
 ## Comparison
 <div align="center">
 
-For context on these graphs (there are always trade-offs), see [`cmp/`](https://github.com/hinto-janai/festival/cmp).
+For context on these graphs (there are always trade-offs), see [`cmp/`](https://github.com/hinto-janai/festival/tree/main/cmp).
 
 Input data:
 
@@ -37,36 +29,41 @@ Input data:
 - 7000 Songs
 - `170GB` total disk space
 
-<img src="assets/images/cmp/all.png" width="50%"/>
+<img src="assets/images/cmp/all.png" width="80%"/>
 
 </div>
 
 ## Frontends
 | Frontend                    | Released | Description |
 |-----------------------------|----------|-------------|
-| `festival-gui`              | 🔴       | `egui` GUI
-| `festival-web`              | 🔴       | `WASM` version of `egui` GUI
-| `festivald`                 | 🔴       | Daemon ([`mpd`](https://github.com/MusicPlayerDaemon/MPD)-like)
-| `festival-cli`              | 🔴       | CLI client that connects to `festivald`
+| [`festival-gui`](https://github.com/hinto-janai/festival/tree/main/festival-gui) | 🔴       | `egui` GUI
+| [`festival-web`](https://github.com/hinto-janai/festival/tree/main/festival-web) | 🔴       | `WASM` version of `egui` GUI
+| [`festivald`](https://github.com/hinto-janai/festival/tree/main/festivald)       | 🔴       | Daemon ([`mpd`](https://github.com/MusicPlayerDaemon/MPD)-like)
+| [`festival-cli`](https://github.com/hinto-janai/festival/tree/main/festival-cli) | 🔴       | CLI client that connects to `festivald`
 
 ## Documentation
-For a broad overview of `Festival`'s internals, see [`src/`](https://github.com/hinto-janai/festival/src).
+1. For a broad overview of Festival's internals, see [`src/`](https://github.com/hinto-janai/festival/tree/main/src).
+2. For library docs, see [`docs.rs`](https://docs.rs/shukusai).
+3. For frontend docs, see the associated folder (e.g: [`festival-gui`](https://github.com/hinto-janai/festival/tree/main/festival-gui))
 
-Documentation is also available on [`docs.rs`](https://docs.rs/shukusai).
-
-The crate [`festival`](https://crates.io/crates/festival) is being squatted, so instead, `Festival`'s
-original name, [`shukusai`](https://crates.io/crates/shukusai), is the name used to represent `Festival` internals.
+The crate [`festival`](https://crates.io/crates/festival) is being squatted, so instead, Festival's
+original name, [`shukusai`](https://crates.io/crates/shukusai), is the name used to represent the internals.
 
 `祝祭/shukusai` translated means: `Festival`.
 
 In documentation:
 
-- `shukusai` _specifically_ means `Festival`'s internals
+- `shukusai` _specifically_ means Festival's internals
 - `Festival` means a frontend OR the project as a whole
 
 ## Build
 ### General Info
 You need [`cargo`](https://www.rust-lang.org/learn/get-started).
+
+You also need to clone the `submodules` that include patched libraries found in [`external/`](https://github.com/hinto-janai/festival/tree/main/external):
+```bash
+git clone --recursive https://github.com/hinto-janai/festival
+```
 
 Building in this repo currently means building `festival-gui`. The produced binary is named `festival`.
 
@@ -98,7 +95,7 @@ After that, run:
 ```
 cargo bundle --release
 ```
-This bundles `Festival` into `Festival.app`, the way it comes in the pre-built tars for macOS.
+This bundles Festival into `Festival.app`, the way it comes in the pre-built tars for macOS.
 
 ---
 
@@ -107,15 +104,15 @@ This bundles `Festival` into `Festival.app`, the way it comes in the pre-built t
 cargo build --release
 ```
 
-There is a `build.rs` file in the repo solely for Windows-specific things:
+There is a [`build.rs`](https://github.com/hinto-janai/festival/blob/main/build.rs) file in the repo solely for Windows-specific things:
 
 1. It sets the icon in `File Explorer`
 2. It statically links `VCRUNTIME140.dll` (the binary will not be portable without this)
 
 ## License
-All of `Festival` is licensed under the [MIT License](https://github.com/hinto-janai/festival/LICENSE).
+All of Festival is licensed under the [MIT License](https://github.com/hinto-janai/festival/blob/main/LICENSE).
 
-All of the [fonts](https://github.com/hinto-janai/festival/assets/fonts) `Festival` uses:
+All of the [fonts](https://github.com/hinto-janai/festival/tree/main/assets/fonts) Festival uses:
 
 | Font                                                                    | License |
 |-------------------------------------------------------------------------|---------|
@@ -127,7 +124,7 @@ All of the [fonts](https://github.com/hinto-janai/festival/assets/fonts) `Festiv
 | [Hack](https://github.com/source-foundry/Hack)                          | `MIT`
 | [Ubuntu](https://github.com/daltonmaag/ubuntu)                          | `Ubuntu Font License`
 
-All of the libraries `Festival` (directly) uses:
+All of the libraries Festival (directly) uses:
 
 | Library | Purpose | License |
 |---------|---------|---------|

@@ -13,8 +13,8 @@ The code itself is also littered with comments. Some `grep`-able keywords:
 | `HACK`      | This code is a brittle workaround
 | `TODO`      | This should be implemented... someday
 
-The crate [`festival`](https://crates.io/crates/festival) is being squatted, so instead, `Festival`'s
-original name, [`shukusai`](https://crates.io/crates/shukusai), is the name used to represent `Festival` internals.
+The crate [`festival`](https://crates.io/crates/festival) is being squatted, so instead, Festival's
+original name, [`shukusai`](https://crates.io/crates/shukusai), is the name used to represent the internals.
 
 `祝祭/shukusai` translated means: `Festival`.
 
@@ -48,30 +48,30 @@ In documentation:
 	- [Why Kernel?](#Why-Kernel)
 	- [Cons](#Cons)
 	- [Pros](#Pros)
-* [Disk]
+* [Disk](#Disk)
 	- [Collection](#Collection-2)
 	- [Settings](#Settings)
 	- [State](#State)
-* [Personal Libraries]
+* [Personal Libraries](#Personal-Libraries)
 	- [Disk](#Disk)
 	- [Readable](#Readable)
 	- [RoLock](#RoLock)
-* [External Libraries]
+* [External Libraries](#External-Libraries)
 * [Audio Codecs](#Audio-Codecs)
 * [Image Formats](#Image-Formats)
 * [Alternative Frontends](#Alternative-Frontends)
 
 ---
 
-## Code Structure
-### Data
+# Code Structure
+## Data
 These folders represent data:
 
 | Folder         | Purpose |
 |----------------|---------|
 | `collection/`  | Data for `Collection` and everything `Collection`-related
 
-### Threads
+## Threads
 These folders represent OS threads with a distinct purpose:
 
 | Folder           | Purpose |
@@ -82,7 +82,7 @@ These folders represent OS threads with a distinct purpose:
 | `search/`        | Search thread (searches the `Collection` with arbitrary input)
 | `watch/`         | Watch thread (watching for user CLI commands)
 
-### Frontends
+## Frontends
 These folders represent the frontend threads. They are located at the root `/`.
 
 | Folder           | Purpose |
@@ -92,7 +92,7 @@ These folders represent the frontend threads. They are located at the root `/`.
 | `festivald/`     | Daemon thread
 | `festival-cli/`  | CLI client
 
-### Misc
+## Misc
 These are top-level files for miscellaneous stuff:
 
 | File           | Purpose |
@@ -106,12 +106,12 @@ These are top-level files for miscellaneous stuff:
 
 ---
 
-## Overview
+# Overview
 <div align="center">
 
 The relationship between the main threads and data. Threads communicate via `crossbeam_channels`.
 
-<img src="assets/images/diagram/overview.png" width="66%"/>
+<img src="../assets/images/diagram/overview.png" width="66%"/>
 
 A simplified explaination of what happens at `main()`:
 
@@ -126,7 +126,7 @@ A simplified explaination of what happens at `main()`:
 
 </div>
 
-### Collection
+## Collection
 This is the core data structure that holds the user's entire music _collection_.
 
 `Artist`'s, `Album`'s, `Song`'s, art, metadata, relational data, it's all here.
@@ -137,7 +137,7 @@ The actual _audio data_ is not stored, rather a `PATH` to where that particular 
 
 After initial creation, `Collection` is permanently wrapped in an `Arc` such that all threads can have fast access to it while disallowing any mutation.
 
-### Kernel
+## Kernel
 `Kernel` is the coordinator for all other threads. If ownership of any long-lived data is required, `Kernel` is most likely the one to have it. Mutable access to shared data is also restricted to `Kernel`. When any thread needs to mutate something (or really do anything), they usually need to go through `Kernel` first.
 
 _Most_ threads in the system only have one `Sender/Receiver` channel pair, all sending/receiving to & from `Kernel`. Although, `Kernel` is the exception, it has channels to send and receive from _all_ threads.
@@ -148,7 +148,7 @@ The main reasons `Kernel` exists:
 2. Ease communication between threads (reduce blocking calls)
 3. Manage resources, and in general be "the one in control"
 
-### CCD
+## CCD
 This is temporary thread that gets spun up by `Kernel` for either:
 
 a. Creating a new `Collection` from scratch
@@ -164,7 +164,7 @@ Since we have a perfectly good thread (`CCD`) on its way out anyway... why not g
 
 Thus, `CCD` is the **Collection Constructor Destructor.**
 
-### Watch
+## Watch
 `Watch` watches the filesystem (local data folder, e.g.: `~/.local/share/festival/signal`) for file-based signals.
 
 Instead of implementing UNIX sockets and Windows named pipes, or [using](https://github.com/servo/ipc-channel) a [dependency](https://github.com/kotauskas/interprocess), regular files are used to indicate the simple boolean signals needed by the `Watch` thread.
@@ -192,7 +192,7 @@ is equivalent.
 
 The filesystem watching functionality is provided by [`notify`](https://github.com/notify-rs/notify).
 
-### Search
+## Search
 `Search` sleeps waiting for arbitrary `String` inputs from `Kernel` and searchs the `Collection` with it.
 
 `Search` returns sorted `Artist`'s, `Album`'s, and `Song`'s that go from most similar, to least similar to the input.
@@ -201,7 +201,7 @@ A `HashMap` of already inputted `String`'s and sorted results are kept around by
 
 The algorithm used is a string-similarity comparison provided by [strsim](https://docs.rs/strsim), specifically the `jaro` variant.
 
-### Audio
+## Audio
 `Audio` is responsible for the continuous demuxing and decoding of a given audio file.
 
 It also writes that data to the audio hardware so that it can be played.
@@ -210,7 +210,7 @@ This is provided by [`Symphonia`](https://github.com/pdeljanov/Symphonia).
 
 `Audio` also sends/receives messages from `Kernel`, e.g: play/pause, adjust volume, etc.
 
-### GUI
+## GUI
 `GUI` is the thread that runs... the GUI.
 
 Just like the other threads, `GUI` doesn't control much, it just sends/receives messages from `Kernel`.
@@ -227,7 +227,7 @@ The term `GUI` in the documentation can apply to any other frontend (`web`, `dae
 
 ---
 
-## Collection
+# Collection
 The core "database" that holds all the (meta)data about the user's music.
 
 This would normally be an _actual_ database like `SQLite`, `Postgres`, `LMDB`, etc, but `shukusai` just uses a regular old `struct` made up of `Vec`'s and a few other `std` types. The entire `Collection` is in-memory at all times.
@@ -255,7 +255,7 @@ struct Collection {
 }
 ```
 
-### The 3 Vecs
+## The 3 Vecs
 The three main `Vec`'s that the `Collection` is made up of are:
 
 1. `Vec<Artist>`
@@ -276,7 +276,7 @@ Cons:
 - All relational data is lost (embedding `Song` within `Album` within `Artist` "automatically" links them)
 - Using indicies instead of text keys means playlists/queues are connected with a _particular_ `Collection` and cannot be transferred
 
-### Keys
+## Keys
 `Key`'s are just simple wrappers around a `usize`, literally defined like so:
 ```rust
 struct ArtistKey(usize);
@@ -316,7 +316,7 @@ _Note: it's still 100% possible to do `collection.artists[my_usize]` or create a
 
 The problem of relational data being lost between the 3 `Vec`'s is solved by embedding the related `Key`'s within the `Artist/Album/Song` structs:
 
-<img src="assets/images/diagram/doubly.png" width="66%"/>
+<img src="../assets/images/diagram/doubly.png" width="66%"/>
 
 </div>
 
@@ -324,7 +324,7 @@ This is essentially a doubly-linked-list, but across vectors. Since the `Collect
 
 This relational-link only needs to be done once, when the `Collection` is initially created, where-after, when given _any_ `Song`, you can traverse to the `Album`, and then to the `Artist` or vice-versa.
 
-### Keychains and Slices
+## Keychains and Slices
 There are situations where you want multiple `Key`'s.
 
 The primitive building block made from an `ArtistKey`, `AlbumKey`, and `SongKey` is the `Key`, defined as:
@@ -348,7 +348,7 @@ struct Slice(VecDeque<Key>);
 ```
 This is the structure the song queue and user playlists are made out of (which are the same thing, really).
 
-### Construction and Destruction
+## Construction and Destruction
 
 The linking and creation of the `Collection` itself is done by the `Collection Constructor Destructor`, or, `CCD`.
 
@@ -369,7 +369,7 @@ After sending the `PATH`'s it wants scanned to `Kernel`, `GUI` drops its pointer
 
 `Kernel` then tells everyone to drop their old pointers, and goes into "CCD" mode, spawning `CCD`, giving it an _old_ pointer and _only_ listening to it.
 
-<img src="assets/images/diagram/ccd1.png" width="66%"/>
+<img src="../assets/images/diagram/ccd1.png" width="66%"/>
 
 After `CCD` finishes, it hands ownership of the new `Collection` over to `Kernel`, after which `Kernel` drops its pointer to the _old_ `Collection`, leaving `CCD` the last one with a pointer to it.
 
@@ -380,15 +380,15 @@ After `CCD` finishes, it hands ownership of the new `Collection` over to `Kernel
 1. Dropping a potentially heavy & recursive object could take a while (bad idea for `GUI`)
 2. `CCD` is already on its way out, so why not let it take out the garbage too
 
-<img src="assets/images/diagram/ccd2.png" width="66%"/>
+<img src="../assets/images/diagram/ccd2.png" width="66%"/>
 
 In the meanwhile, `Kernel` is sending signals to all the main threads, giving them pointers to the _new_ `Collection`, effectively ending this "new `Collection`" process.
 
-<img src="assets/images/diagram/ccd3.png" width="66%"/>
+<img src="../assets/images/diagram/ccd3.png" width="66%"/>
 
 </div>
 
-### Lifetime
+## Lifetime
 `Collection` gets created _once_, (its core data) never gets mutated, and lives in memory as long as `Festival` is open or until the user requests a new one.
 
 To prevent invalidating all the indicies to the inner `Vec`'s, `Collection` _must_ be static.
@@ -418,12 +418,12 @@ The time it takes `Lollypop` to add 1 new song and reload is the same time it ta
 
 Not to mention the access times of indexing a `Vec` vs `SQL` queries.
 
-### Mutation
+## Mutation
 After `CCD` hands off the finished `Collection` to `Kernel`, `Kernel` wraps it in an `Arc` and it becomes immutable from that point.
 
 **Although, mutation does occur at a single point:** when `Festival` starts up, `Collection` is read from disk, and the `Album` art is converted from `Vec<u8>` into `egui` images. Other than this, the core data is _never_ touched. The reason why this isn't handled by `serde` and immediately wrapped into an `Arc` is because that image conversion has been customized to use multiple threads.
 
-### File Format
+## File Format
 [`Bincode`](https://github.com/bincode-org/bincode) is used to save the `Collection` and its related data structures (`Queue`, `Playlist`) to disk.
 
 [`TOML`](https://github.com/ordian/toml_edit) is used for miscellaneous state, like the `GUI` settings.
@@ -458,7 +458,7 @@ After this, the rest of the bytes should be the `Collection` in binary form.
 
 Currently, album art is represented in the `Collection` as `Option<Vec<u8>>` (RBG format), which gets transformed into images the frontend can actually display at runtime. The current GUI is `egui`, so it gets turned into `egui_extras::RetainedImage`. This will obviously change as different frontends are made.
 
-### HashMap vs Pointer vs Index
+## HashMap vs Pointer vs Index
 Since I didn't want to use a real database, there were 3 possible `std`-based setups I thought of:
 
 ---
@@ -548,21 +548,21 @@ This is the option I chose.
 
 ---
 
-## Modularity
+# Modularity
 `shukusai` is more or less separated into "entities". Each "entity" in the system is its own thing, and only passes messages to/from `Kernel`. This approach was taken because:
 
 - Unit testing is easier
 - Plugging in different frontends becomes much easier
 - Separating the different parts of the system and giving them names is easier to reason about than one single `shukusai` blob. The scope of what any specific code is doing becomes smaller; less variables to keep in mind when reading code.
 
-### Why Kernel?
+## Why Kernel?
 `Kernel` doesn't actually do much, it mostly just forwards messages. 
 
 But the existence of `Kernel` allows the other parts of the system to have a _single, simple_ interface.
 
 Consider the following diagram showing `shukusai` if `Kernel` didn't exist:
 
-<img src="assets/images/diagram/no_kernel.png" width="66%"/>
+<img src="../assets/images/diagram/no_kernel.png" width="66%"/>
 
 `GUI` (and every frontend that gets made) would need to implement interface code for all parts of the system.
 
@@ -570,7 +570,7 @@ Reversely, the other parts of the system would also need to have a public API th
 
 Instead of that, `Kernel` acts as the middleman, so that _all_ threads go through it, and that all this "interface" logic is encapsulated:
 
-<img src="assets/images/diagram/frontend.png" width="66%"/>
+<img src="../assets/images/diagram/frontend.png" width="66%"/>
 
 Each thread communicates with `Kernel` and `Kernel` only, sending well-defined messsages. This is literally the message implementation between `CCD` and `Kernel`:
 ```rust
@@ -606,11 +606,11 @@ These unrealistic type errors don't matter too much since after all, _I_ am the 
 
 Also, it's always a nice feeling to have the type checker behind your back. This same idea applies to using `Key` instead of a raw `usize` for `Collection` indexing.
 
-### Cons
+## Cons
 
 - There technically is a performance cost, albeit _tiny_. Any message passing will be slower than having _all_ variables in scope in a single thread (highly unrealistic spaghetti code)
 
-### Pros
+## Pros
 
 - More modular, different components can be swapped more easily
 - Cleaner, separated, and more well defined code
@@ -618,7 +618,7 @@ Also, it's always a nice feeling to have the type checker behind your back. This
 
 ---
 
-## Disk
+# Disk
 Specification of what and where `shukusai` saves things to disk.
 
 [`directories`](https://github.com/soc/directories-rs) is used, so `shukusai` (mostly) follows:
@@ -635,7 +635,7 @@ The only folder actually used is the `Data` directory:
 | macOS    | `$HOME/Library/Application Support/Festival/`               | `/Users/Alice/Library/Application Support/Festival/` |
 | Windows  | `{FOLDERID_LocalAppData}\Festival\`                         | `C:\Users\Alice\AppData\Local\Festival\`             |
 
-### Collection
+## Collection
 The main `Collection`.
 
 Saved as `collection.bin`.
@@ -646,7 +646,7 @@ Saved as `collection.bin`.
 | macOS    | `$HOME/Library/Application Support/Festival/collection.bin`               | `/Users/Alice/Library/Application Support/Festival/collection.bin` |
 | Windows  | `{FOLDERID_LocalAppData}\Festival\collection.bin`                         | `C:\Users\Alice\AppData\Local\Festival\collection.bin`             |
 
-### Settings
+## Settings
 The `GUI` state and settings.
 
 Saved as `state.toml` and `settings.toml`
@@ -657,7 +657,7 @@ Saved as `state.toml` and `settings.toml`
 | macOS    | `$HOME/Library/Application Support/Festival/state.toml`               | `/Users/Alice/Library/Application Support/Festival/state.toml` |
 | Windows  | `{FOLDERID_LocalAppData}\Festival\state.toml`                         | `C:\Users\Alice\AppData\Local\Festival\state.toml`             |
 
-### State
+## State
 This includes the `Queue` and `Playlist`'s.
 
 They're part of larger `State` struct owned by `Kernel`, which is saved as `state.bin`.
@@ -668,7 +668,7 @@ They're part of larger `State` struct owned by `Kernel`, which is saved as `stat
 | macOS    | `$HOME/Library/Application Support/Festival/state.bin`                     | `/Users/Alice/Library/Application Support/Festival/state.bin` |
 | Windows  | `{FOLDERID_LocalAppData}\Festival\state.bin`                               | `C:\Users\Alice\AppData\Local\Festival\state.bin`             |
 
-### Signals
+## Signals
 These are the `Signal` files, created by commands like `./festival --play`.
 
 These are located in the subdirectory `signal`.
@@ -692,10 +692,10 @@ They'll immediately get deleted, and `shukusai` will act on the signal.
 
 ---
 
-## Personal Libraries
+# Personal Libraries
 These are libraries I made (because of `Festival`).
 
-### [Disk](https://github.com/hinto-janai/disk)
+## [Disk](https://github.com/hinto-janai/disk)
 This provides a trait macro that adds disk-related functions to a `struct`.
 
 Basically, `serde` + `directories` + a whole bunch of file formats.
@@ -717,7 +717,7 @@ struct Collection {
 }
 ```
 
-### [Readable](https://github.com/hinto-janai/readable)
+## [Readable](https://github.com/hinto-janai/readable)
 Human readable formatting of data.
 
 Basically, input a number, get a human-readable `String`:
@@ -733,7 +733,7 @@ println!("{}\n{}\n{}", int, time, runtime);
 > 4:13
 ```
 
-### [RoLock](https://github.com/hinto-janai/rolock)
+## [RoLock](https://github.com/hinto-janai/rolock)
 Read-Only Lock.
 
 Basically, thread-safe, read-only version of `RwLock`.
@@ -752,14 +752,14 @@ And yes, it gets optimized away.
 
 ---
 
-## External Libraries
+# External Libraries
 There are forks of external libraries located in `external/` that contain some custom patches.
 
 More details can be found at `external/README.md` on exactly what patches were made.
 
 ---
 
-## Audio Codecs
+# Audio Codecs
 The currently supported audio codecs that `shukusai` will parse, and play:
 
 - AAC
@@ -773,7 +773,7 @@ The currently supported audio codecs that `shukusai` will parse, and play:
 
 ---
 
-## Image Formats
+# Image Formats
 If the `Album` art is embedded within the `Song` as metadata, it will always be used.
 
 If no art metadata is found, `shukusai` will look for the largest:
@@ -789,7 +789,7 @@ This default art is actually just a pointer to a single image in memory (`lazy_s
 
 ---
 
-## Alternative Frontends
+# Alternative Frontends
 Some other frontends I have in mind:
 
 | Frontend                    | Description |

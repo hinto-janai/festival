@@ -15,10 +15,10 @@ The graphs are created with the code in this directory. Big thanks to [Rucknium]
 	- [New Collection (cached)](#New-Collection-Cached)
 	- [Error](#Error)
 	- [Boot](#Boot)
-* [Closing Notes](#Closing Notes)
+* [Closing Notes](#Closing-Notes)
 
 ## Comparison
-| Music Player | Version                 | OS                    | Open Source?   | Playlist handling | Sorting methods | Features vs Minimal |
+| Music Player | Version                 | OS                    | Open Source    | Playlist handling | Sorting methods | Features vs Minimal |
 |--------------|-------------------------|-----------------------|----------------|-------------------|-----------------|---------------------|
 | [Festival](https://github.com/hinto-janai/festival)       | `1.0.0`                 | Windows, macOS, Linux | 🟢             | 🔴                | 🟢              | Minimal
 | [Lollypop](https://gitlab.gnome.org/World/lollypop)       | `1.4.37` (2023-01-03)   | Linux (GTK)           | 🟢             | 🟡                | 🟡              | Both
@@ -41,11 +41,13 @@ Playlist handling: What happens when you delete the underlying file of a song in
 
 | Music Player                 | Behavior |
 |------------------------------|----------|
-| `Festival`                   | Playlists are linked with the `Collection` itself, if you reset the `Collection`, all your playlists are also reset
+| `Festival`                   | Playlists are linked with the `Collection` itself, if you reset the `Collection`, all your playlists are also reset. Continues displaying the playlist with the correct metadata, shows error when attempting to play missing song.
 | `Lollypop` and `GNOME Music` | Silently adds/removes songs from playlists if the underlying file gets added/deleted
 | `MusicBee` and `iTunes`      | Continues displaying the playlist with the correct metadata, shows error when attempting to play missing song
 
-I believe `MusicBee` and `iTunes` have the best approach here.
+I believe `MusicBee` and `iTunes` have the best approach here, so it is followed in `Festival`.
+
+Although, they support transferring playlists across `Collection` resets, while `Festival` does not.
 
 #### Sorting
 "Sorting methods" refers to how many options the music player provides to sort the music, either by artist, album, song, or a cross-sort combining them, e.g: album covers by artist name and album release:
@@ -106,7 +108,7 @@ The average album art size is around `1MB`, with a resolution of around `1400x14
 ### New Collection (from scratch)
 How long does it take to create a new collection and render all the album art _for the very first time?_
 
-<img src="assets/images/cmp/scratch.png" width="60%"/>
+<img src="../assets/images/cmp/scratch.png" width="50%"/>
 
 | Music Player  | Seconds (less is better) |
 |---------------|--------------------------|
@@ -121,7 +123,7 @@ Both the system's cache and the application's cache itself (`~/.cache`) can dras
 
 After resetting/removing the first collection, how long does it take to create it _again_ and render the album art?
 
-<img src="assets/images/cmp/cache.png" width="60%"/>
+<img src="../assets/images/cmp/cache.png" width="50%"/>
 
 | Music Player  | Seconds (less is better) |
 |---------------|--------------------------|
@@ -140,7 +142,7 @@ Notes:
 ### Error
 After creating a collection, how many albums are _not_ processed correctly? Missing metadata, missing album art, etc.
 
-<img src="assets/images/cmp/error.png" width="60%"/>
+<img src="../assets/images/cmp/error.png" width="50%"/>
 
 | Music Player  | Errors (less is better) |
 |---------------|-------------------------|
@@ -153,7 +155,7 @@ After creating a collection, how many albums are _not_ processed correctly? Miss
 ### Boot
 When opening the music player, how long does it take to render _all_ the album art?
 
-<img src="assets/images/cmp/boot.png" width="60%"/>
+<img src="../assets/images/cmp/boot.png" width="50%"/>
 
 | Music Player  | Seconds (less is better) |
 |---------------|--------------------------|

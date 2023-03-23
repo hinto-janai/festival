@@ -1,11 +1,7 @@
 # `festivald`
 `Festival` daemon. Directly uses `festival` internals, exposing a public API via RPC.
 
-![Build](https://github.com/hinto-janai/festival/actions/workflows/build/daemon.yml/badge.svg)
-
-![Tests](https://github.com/hinto-janai/festival/actions/workflows/tests/daemon.yml/badge.svg)
-
-<br clear="left"/>
+![Build](https://github.com/hinto-janai/festival/actions/workflows/build-daemon.yml/badge.svg) ![Tests](https://github.com/hinto-janai/festival/actions/workflows/test-daemon.yml/badge.svg)[![crates.io](https://img.shields.io/crates/v/festivald.svg)](https://crates.io/crates/festivald) [![docs.rs](https://docs.rs/festivald/badge.svg)](https://docs.rs/festivald)
 
 * [Documentation](#Documentation)
 * [Build](#Build)

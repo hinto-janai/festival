@@ -1,11 +1,7 @@
 # `festival-web`
 `Festival` Web (`egui + WASM`) client. Directly uses `festival` internals.
 
-![Build](https://github.com/hinto-janai/festival/actions/workflows/build/web.yml/badge.svg)
-
-![Tests](https://github.com/hinto-janai/festival/actions/workflows/tests/web.yml/badge.svg)
-
-<br clear="left"/>
+![Build](https://github.com/hinto-janai/festival/actions/workflows/build-web.yml/badge.svg) ![Tests](https://github.com/hinto-janai/festival/actions/workflows/test-web.yml/badge.svg) [![crates.io](https://img.shields.io/crates/v/festival-web.svg)](https://crates.io/crates/festival-web) [![docs.rs](https://docs.rs/festival-web/badge.svg)](https://docs.rs/festival-web)
 
 * [Documentation](#Documentation)
 * [Build](#Build)

@@ -1,11 +1,7 @@
 # `festival-gui`
 `Festival` GUI (`egui`) client. Directly uses `festival` internals.
 
-![Build](https://github.com/hinto-janai/festival/actions/workflows/build/gui.yml/badge.svg)
-
-![Tests](https://github.com/hinto-janai/festival/actions/workflows/tests/gui.yml/badge.svg)
-
-<br clear="left"/>
+![Build](https://github.com/hinto-janai/festival/actions/workflows/build-gui.yml/badge.svg) ![Tests](https://github.com/hinto-janai/festival/actions/workflows/test-gui.yml/badge.svg) [![crates.io](https://img.shields.io/crates/v/festival-gui.svg)](https://crates.io/crates/festival-gui) [![docs.rs](https://docs.rs/festival-gui/badge.svg)](https://docs.rs/festival-gui)
 
 * [Documentation](#Documentation)
 * [Build](#Build)
