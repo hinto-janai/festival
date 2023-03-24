@@ -2,33 +2,48 @@
 //use anyhow::{bail,ensure,Error};
 //use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
-use strum::{
-	IntoEnumIterator,
-};
-use strum_macros::{
-	EnumIter,
-	EnumString,
-	IntoStaticStr,
-};
 
-//----------------------------------------------------------------------------------------------------
-#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,IntoStaticStr,EnumString,EnumIter,Serialize,Deserialize)]
-#[strum(serialize_all = "PascalCase")]
+//---------------------------------------------------------------------------------------------------- Tab Constants
+// This is the text actually displayed in the `GUI`.
+pub(super) const ALBUMS:    &str = "Albums";
+pub(super) const ARTISTS:   &str = "Artists";
+pub(super) const SONGS:     &str = "Songs";
+pub(super) const QUEUE:     &str = "Queue";
+pub(super) const PLAYLISTS: &str = "Playlists";
+pub(super) const SEARCH:    &str = "Search";
+pub(super) const SETTINGS:  &str = "Settings";
+
+//---------------------------------------------------------------------------------------------------- Tab Enum
+#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
 pub(super) enum Tab {
 	#[default]
-	Album,
-	Artist,
+	Albums,
+	Artists,
+	Songs,
 	Queue,
-	Rank,
-	Stats,
+	Playlists,
 	Search,
 	Settings,
 }
 
 impl Tab {
-	#[inline(always)]
+	/// No [`String`] allocation.
 	pub(super) fn as_str(&self) -> &'static str {
-		self.into()
+		match self {
+			Self::Albums    => ALBUMS,
+			Self::Artists   => ARTISTS,
+			Self::Songs     => SONGS,
+			Self::Queue     => QUEUE,
+			Self::Playlists => PLAYLISTS,
+			Self::Search    => SEARCH,
+			Self::Settings  => SETTINGS,
+		}
+	}
+}
+
+impl std::fmt::Display for Tab {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		write!(f, "{:?}", self)
 	}
 }
 

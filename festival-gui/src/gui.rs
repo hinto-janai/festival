@@ -2,6 +2,7 @@
 use super::{
 	constants::*,
 	tab::Tab,
+	tab,
 };
 use shukusai::*;
 use log::{
@@ -18,9 +19,6 @@ use egui::{
 };
 use egui::widgets::{
 	Slider,Button,SelectableLabel,Label,
-};
-use strum::{
-	IntoEnumIterator,
 };
 use crossbeam_channel::{Sender,Receiver};
 
@@ -64,7 +62,7 @@ pub struct Gui {
 	pub(super) name: &'static str,
 
 	// TODO: This is real data, clean it up.
-	pub(super) tab: super::tab::Tab, // This should be in [State]
+	pub(super) tab: Tab, // This should be in [State]
 }
 
 //---------------------------------------------------------------------------------------------------- GUI Init.
@@ -184,7 +182,7 @@ impl Gui {
 				(13, "4:18", "祝日"),
 			],
 			name: "祝祭",
-			tab: super::tab::Tab::Album,
+			tab: Tab::Albums,
 		};
 
 		// Style
@@ -285,12 +283,20 @@ fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f
 		ui.vertical_centered_justified(|ui| {
 
 			// Display [SelectableLabel] for each [Tab].
-			for tab in Tab::iter() {
-				if ui.add_sized([tab_width, tab_height], SelectableLabel::new(self.tab == tab, tab.as_str())).clicked() {
-					self.tab = tab;
-				}
-				ui.separator();
-			}
+			if ui.add_sized([tab_width, tab_height], SelectableLabel::new(self.tab == Tab::Albums, tab::ALBUMS)).clicked()       { self.tab = Tab::Albums; }
+			ui.separator();
+			if ui.add_sized([tab_width, tab_height], SelectableLabel::new(self.tab == Tab::Artists, tab::ARTISTS)).clicked()     { self.tab = Tab::Artists; }
+			ui.separator();
+			if ui.add_sized([tab_width, tab_height], SelectableLabel::new(self.tab == Tab::Songs, tab::SONGS)).clicked()         { self.tab = Tab::Songs; }
+			ui.separator();
+			if ui.add_sized([tab_width, tab_height], SelectableLabel::new(self.tab == Tab::Queue, tab::QUEUE)).clicked()         { self.tab = Tab::Queue; }
+			ui.separator();
+			if ui.add_sized([tab_width, tab_height], SelectableLabel::new(self.tab == Tab::Playlists, tab::PLAYLISTS)).clicked() { self.tab = Tab::Playlists; }
+			ui.separator();
+			if ui.add_sized([tab_width, tab_height], SelectableLabel::new(self.tab == Tab::Search, tab::SEARCH)).clicked()       { self.tab = Tab::Search; }
+			ui.separator();
+			if ui.add_sized([tab_width, tab_height], SelectableLabel::new(self.tab == Tab::Settings, tab::SETTINGS)).clicked()   { self.tab = Tab::Settings; }
+			ui.separator();
 
 			// Volume slider
 			let slider_height = ui.available_height() - 20.0;
@@ -355,9 +361,8 @@ impl Gui {
 #[inline(always)]
 fn show_central(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
 	CentralPanel::default().show(ctx, |ui| {
-		use super::tab::Tab;
 		match self.tab { // TODO - this should be self.state.tab
-			Tab::Album    => Self::show_tab_album(self, ui, ctx, frame, width, height),
+			Tab::Albums    => Self::show_tab_album(self, ui, ctx, frame, width, height),
 			_ => (),
 		}
 	});
