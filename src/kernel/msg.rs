@@ -13,18 +13,18 @@ use crate::collection::{
 	QueueKey,
 	Song,
 };
-use crate::kernel::State;
+use super::KernelState;
 use rolock::RoLock;
 use std::path::PathBuf;
 use crate::kernel::Volume;
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
-/// Messages `Frontend` can send to `Kernel`
+/// Messages `Frontend` can send to [`Kernel`]
 ///
 /// This is the "API" that all frontends must implement
 /// in order to communicate with `Festival`'s internals.
 ///
-/// You can treat these as "commands" sent to `Kernel`.
+/// You can treat these as "commands" sent to [`Kernel`].
 pub enum FrontendToKernel {
 	// Audio playback.
 	/// Play current song.
@@ -51,20 +51,20 @@ pub enum FrontendToKernel {
 	PlayQueueKey(QueueKey),
 
 	// Collection.
-	/// I'd like a new `Collection`, scanning these `PATH`'s for audio files.
+	/// I'd like a new [`Collection`], scanning these [`PathBuf]`'s for audio files.
 	NewCollection(Vec<PathBuf>),
-	/// I'd like to search the `Collection` with this [`String`].
+	/// I'd like to search the [`Collection`] with this [`String`].
 	Search(String),
 }
 
-/// Messages `Kernel` can send to `Frontend`
+/// Messages [`Kernel`] can send to `Frontend`
 ///
 /// This is the "API" that all frontends must implement
 /// in order to communicate with `Festival`'s internals.
 ///
-/// You can treat these as "commands" sent _from_ `Kernel` that you _**must**_ follow correctly.
+/// You can treat these as "commands" sent _from_ [`Kernel`] that you _**must**_ follow correctly.
 ///
-/// `Kernel` assumes that all of these messages are implemented correctly.
+/// [`Kernel`] assumes that all of these messages are implemented correctly.
 ///
 /// # For example:
 /// If your frontend does _not_ actually drop the `Arc<Collection>`
@@ -72,27 +72,27 @@ pub enum FrontendToKernel {
 /// then `Festival`'s internals will not be able to destruct the old
 /// [`Collection`] correctly.
 ///
-/// This will leave the deconstruction of the old `Collection` up to
+/// This will leave the deconstruction of the old [`Collection`] up to
 /// your frontend thread, which is most likely not desired, as it will
 /// probably skip a few frames or cause latency.
 pub enum KernelToFrontend {
 	// Collection.
-	/// Drop your `Arc` pointer to the `Collection`.
+	/// Drop your [`Arc`] pointer to the [`Collection`].
 	DropCollection,
-	/// Here's the new `Collection` pointer.
+	/// Here's the new [`Collection`] pointer.
 	NewCollection(Arc<Collection>),
-	/// Here's an update on the new `Collection`.
+	/// Here's an update on the new [`Collection`].
 	Update(String),
-	/// Creating the new `Collection` failed, here's the old pointer and error message.
+	/// Creating the new [`Collection`] failed, here's the old pointer and error message.
 	Failed((Arc<Collection>, String)),
 
 	// Audio error.
-	/// The audio file at this `PATH` has errored (probably doesn't exist).
+	/// The audio file at this [`PathBuf`] has errored (probably doesn't exist).
 	PathError(String),
 
 	// Misc.
-	/// Here's a new `State` pointer.
-	NewState(RoLock<State>),
+	/// Here's a new [`KernelState`] pointer.
+	NewState(RoLock<KernelState>),
 	/// Here's a search result
 	SearchResult(Keychain),
 }

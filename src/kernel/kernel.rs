@@ -6,7 +6,7 @@ use serde::{Serialize,Deserialize};
 //use disk::prelude::*;
 //use disk::{};
 use std::sync::{Arc,RwLock};
-use super::state::State;
+use super::state::KernelState;
 use super::volume::Volume;
 use rolock::RoLock;
 use crate::macros::{
@@ -58,7 +58,7 @@ pub struct Kernel {
 
 	// Data.
 	collection: Arc<Collection>,
-	state: Arc<RwLock<super::State>>,
+	state: Arc<RwLock<KernelState>>,
 }
 
 // `Kernel` boot process:
@@ -113,10 +113,10 @@ impl Kernel {
 		let (ccd_send, from_ccd) = crossbeam_channel::unbounded::<CcdToKernel>();
 		std::thread::spawn(move || Ccd::convert_art(ccd_send, collection));
 
-		// Before hanging on `CCD`, read `State` file.
+		// Before hanging on `CCD`, read `KernelState` file.
 		// Note: This is a `Result`.
-		debug!("Kernel [4/12] ... reading State");
-		let state = State::from_file();
+		debug!("Kernel [4/12] ... reading KernelState");
+		let state = KernelState::from_file();
 
 		// Wait for `Collection` to be returned by `CCD`.
 		debug!("Kernel [5/12] ... waiting on CCD");
@@ -137,7 +137,7 @@ impl Kernel {
 	#[inline(always)]
 	fn kernel(
 		collection:    Collection,
-		state:         Result<State, anyhow::Error>,
+		state:         Result<KernelState, anyhow::Error>,
 		to_frontend:   Sender<KernelToFrontend>,
 		from_frontend: Receiver<FrontendToKernel>,
 	) {
@@ -152,7 +152,7 @@ impl Kernel {
 	#[inline(always)]
 	fn init(
 		collection:    Option<Collection>,
-		state:         Option<State>,
+		state:         Option<KernelState>,
 		to_frontend:   Sender<KernelToFrontend>,
 		from_frontend: Receiver<FrontendToKernel>
 	) {
@@ -166,8 +166,8 @@ impl Kernel {
 
 		// Handle potentially missing `State`.
 		let state = match state {
-			Some(s) => { debug!("Kernel [9/12] ... State found"); Arc::new(RwLock::new(s)) },
-			None    => { debug!("Kernel [9/12] ... State NOT found, returning default"); Arc::new(RwLock::new(State::new())) },
+			Some(s) => { debug!("Kernel [9/12] ... KernelState found"); Arc::new(RwLock::new(s)) },
+			None    => { debug!("Kernel [9/12] ... KernelState NOT found, returning default"); Arc::new(RwLock::new(KernelState::new())) },
 		};
 
 		// Create `To` channels.

@@ -12,7 +12,7 @@ use crate::collection::{
 	Keychain,
 	QueueKey,
 };
-use crate::kernel::State;
+use crate::kernel::KernelState;
 use rolock::RoLock;
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
@@ -36,7 +36,7 @@ pub(crate) enum KernelToAudio {
 	// Collection.
 	DropCollection,                 // Drop your pointer.
 	NewCollection(Arc<Collection>), // Here's a new `Collection` pointer.
-	NewState(RoLock<State>),        // Here's a new `State` pointer.
+	NewState(RoLock<KernelState>),  // Here's a new `KernelState` pointer.
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

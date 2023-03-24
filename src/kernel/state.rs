@@ -19,13 +19,13 @@ use crate::constants::{
 };
 
 //---------------------------------------------------------------------------------------------------- State
-bincode_file!(State, Dir::Data, FESTIVAL, "", "state", FESTIVAL_HEADER, STATE_VERSION);
+bincode_file!(KernelState, Dir::Data, FESTIVAL, "", "state", FESTIVAL_HEADER, STATE_VERSION);
 #[derive(Clone,Debug,Default,PartialEq,Serialize,Deserialize)]
-/// Audio/System State
+/// Audio/Misc State
 ///
 /// This hold various bits of state that is `Kernel` controls
-/// but everyone else has a read-only lock to.
-pub struct State {
+/// but `Frontend` only has a read-only lock to.
+pub struct KernelState {
 	// Audio.
 	/// Are we playing audio right now?
 	pub playing: bool,
@@ -51,7 +51,7 @@ pub struct State {
 	pub playlists: Slice,
 }
 
-impl State {
+impl KernelState {
 	#[inline(always)]
 	/// Creates an empty struct.
 	pub fn new() -> Self {

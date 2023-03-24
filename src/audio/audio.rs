@@ -18,7 +18,7 @@ use crate::collection::{
 	AlbumKey,
 	SongKey,
 };
-use crate::kernel::State;
+use crate::kernel::KernelState;
 use std::sync::Arc;
 use rolock::RoLock;
 use super::msg::{
@@ -30,7 +30,7 @@ use crossbeam_channel::{Sender,Receiver};
 //---------------------------------------------------------------------------------------------------- Audio
 pub(crate) struct Audio {
 	collection:  Arc<Collection>,         // Pointer to `Collection`
-	state:       RoLock<State>,           // Read-Only lock to the `State`
+	state:       RoLock<KernelState>,     // Read-Only lock to the `KernelState`
 	to_kernel:   Sender<AudioToKernel>,   // Channel TO `Kernel`
 	from_kernel: Receiver<KernelToAudio>, // Channel FROM `Kernel`
 }
@@ -40,7 +40,7 @@ impl Audio {
 	// Kernel starts `Audio` with this.
 	pub(crate) fn init(
 		collection: Arc<Collection>,
-		state: RoLock<State>,
+		state: RoLock<KernelState>,
 		to_kernel: Sender<AudioToKernel>,
 		from_kernel: Receiver<KernelToAudio>,
 	) {
