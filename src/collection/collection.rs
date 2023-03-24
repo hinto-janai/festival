@@ -7,6 +7,7 @@ use super::{
 	artist::Artist,
 	song::Song,
 	key::{Key,ArtistKey,AlbumKey,SongKey},
+	sort::{ArtistSort,AlbumSort,SongSort},
 };
 use std::collections::HashMap;
 use disk::prelude::*;
@@ -45,17 +46,17 @@ pub struct Collection {
 	pub songs: Vec<Song>,
 
 	// Sorted `Artist` keys.
-	/// `Artist` in `lexi`.
+	/// [`Artist`] `lexi`.
 	pub sort_artist_lexi: Vec<ArtistKey>,
-	/// `Artist` with most `Album`'s to least.
+	/// [`Artist`] with most [`Album`]'s to least.
 	pub sort_artist_album_count: Vec<ArtistKey>,
-	/// `Artist` with most `Song`'s to least.
+	/// [`Artist`] with most [`Song`]'s to least.
 	pub sort_artist_song_count: Vec<ArtistKey>,
 
 	// Sorted `Album` keys.
-	/// [`Artist`] with most [`Song`]'s to least.
+	/// [`Artist`] `lexi`, [`Album`]'s oldest release to latest.
 	pub sort_album_release_artist_lexi: Vec<AlbumKey>,
-	/// [`Artist`] lexi, [`Album`] lexi.
+	/// [`Artist`] `lexi`, [`Album`]'s `lexi`.
 	pub sort_album_lexi_artist_lexi: Vec<AlbumKey>,
 	/// [`Album`] lexi.
 	pub sort_album_lexi: Vec<AlbumKey>,
@@ -66,9 +67,9 @@ pub struct Collection {
 
 	// Sorted `Song` keys.
 	/// [`Artist`] lexi, [`Album`] release, [`Song`] track_number
-	pub sort_song_artist_lexi_album_release: Vec<SongKey>,
+	pub sort_song_album_release_artist_lexi: Vec<SongKey>,
 	/// [`Artist`] lexi, [`Album`] lexi, [`Song`] track_number.
-	pub sort_song_artist_lexi_album_lexi: Vec<SongKey>,
+	pub sort_song_album_lexi_artist_lexi: Vec<SongKey>,
 	/// [`Song`] lexi.
 	pub sort_song_lexi: Vec<SongKey>,
 	/// [`Song`] oldest to latest.
@@ -116,8 +117,8 @@ impl Collection {
 			sort_album_release: vec![],
 			sort_album_runtime: vec![],
 
-			sort_song_artist_lexi_album_release: vec![],
-			sort_song_artist_lexi_album_lexi: vec![],
+			sort_song_album_release_artist_lexi: vec![],
+			sort_song_album_lexi_artist_lexi: vec![],
 			sort_song_lexi: vec![],
 			sort_song_release: vec![],
 			sort_song_runtime: vec![],
@@ -299,6 +300,43 @@ impl Collection {
 		};
 
 		self.get_artist_from_album(album)
+	}
+
+	#[inline]
+	/// Access a particular `sort_artist_` field in the [`Collection`] via a [`ArtistSort`].
+	pub fn artist_sort(&self, sort: &ArtistSort) -> &Vec<ArtistKey> {
+		use ArtistSort::*;
+		match sort {
+			Lexi       => &self.sort_artist_lexi,
+			AlbumCount => &self.sort_artist_album_count,
+			SongCount  => &self.sort_artist_song_count,
+		}
+	}
+
+	#[inline]
+	/// Access a particular `sort_album_` field in the [`Collection`] via a [`AlbumSort`].
+	pub fn album_sort(&self, sort: &AlbumSort) -> &Vec<AlbumKey> {
+		use AlbumSort::*;
+		match sort {
+			ReleaseArtistLexi => &self.sort_album_release_artist_lexi,
+			LexiArtistLexi    => &self.sort_album_lexi_artist_lexi,
+			Lexi              => &self.sort_album_lexi,
+			Release           => &self.sort_album_release,
+			Runtime           => &self.sort_album_runtime,
+		}
+	}
+
+	#[inline]
+	/// Access a particular `sort_song_` field in the [`Collection`] via a [`SongSort`].
+	pub fn song_sort(&self, sort: &SongSort) -> &Vec<SongKey> {
+		use SongSort::*;
+		match sort {
+			AlbumReleaseArtistLexi => &self.sort_song_album_release_artist_lexi,
+			AlbumLexiArtistLexi    => &self.sort_song_album_lexi_artist_lexi,
+			Lexi                   => &self.sort_song_lexi,
+			Release                => &self.sort_song_release,
+			Runtime                => &self.sort_song_runtime,
+		}
 	}
 }
 
