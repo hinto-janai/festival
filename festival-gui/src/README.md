@@ -5,11 +5,18 @@ Since a `Collection` might contain songs of various languages, multiple fonts ar
 
 The default size of `GUI` is `1000x800`.
 
-## Files
+## Core Files
 | File           | Purpose |
 |----------------|---------|
 | `main.rs`      | Barebones `main()` that spawns `Kernel` and turns into `GUI`
-| `gui.rs`       | Main data & loop for the GUI
+| `gui.rs`       | Main loop for `GUI`
+| `init.rs`      | Main data definition and initialization for `GUI`
+
+## Other Files
+The other files, mostly (e)GUI code.
+
+| File           | Purpose |
+|----------------|---------|
 | `constants.rs` | General constants for the GUI
 | `tab.rs`       | (Left) Tab buttons
 | `album.rs`     | Album tab 
