@@ -529,7 +529,7 @@ impl super::Ccd {
 			} else {
 				// This removes the `Picture`, and cheaply
 				// takes ownership of the inner `Vec`.
-				Some(tag.remove_picture(0).into_vec())
+				Some(tag.remove_picture(0).into_data())
 			}
 		};
 
