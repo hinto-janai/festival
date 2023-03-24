@@ -6,7 +6,9 @@ mod gui;
 mod queue;
 mod search;
 mod settings;
+mod state;
 mod tab;
+mod update;
 
 fn main() {
 	// Handle CLI arguments.
@@ -20,9 +22,9 @@ fn main() {
 	std::thread::spawn(move || shukusai::Kernel::bios(kernel_to_gui, kernel_recv));
 
 	// Start `GUI`.
-	eframe::run_native(
-		shukusai::FESTIVAL_NAME_VER,
-		gui::Gui::options(),
-		Box::new(|cc| Box::new(gui::Gui::init(cc, gui_to_kernel, gui_recv)))
-	);
+//	eframe::run_native(
+//		shukusai::FESTIVAL_NAME_VER,
+//		gui::Gui::options(),
+//		Box::new(|cc| Box::new(gui::Gui::init(cc, gui_to_kernel, gui_recv)))
+//	);
 }

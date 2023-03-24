@@ -9,8 +9,8 @@ The default size of `GUI` is `1000x800`.
 | File           | Purpose |
 |----------------|---------|
 | `main.rs`      | Barebones `main()` that spawns `Kernel` and turns into `GUI`
-| `gui.rs`       | Main loop for `GUI`
-| `init.rs`      | Main data definition and initialization for `GUI`
+| `gui.rs`       | Main data definition and initialization for `GUI`
+| `update.rs`    | Main `eframe::App::update()` loop for `GUI`
 
 ## Other Files
 The other files, mostly (e)GUI code.

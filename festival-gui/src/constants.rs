@@ -2,7 +2,9 @@
 pub(super) const APP_MIN_WIDTH:  f32 = 1000.0;
 pub(super) const APP_MIN_HEIGHT: f32 = 800.0;
 pub(super) const APP_MIN_RESOLUTION: [f32; 2] = [APP_MIN_WIDTH, APP_MIN_HEIGHT];
-pub(super) const ALBUM_ART_DEFAULT_SIZE: f32 = APP_MIN_WIDTH / 4.0;
+pub(super) const ALBUM_ART_MIN_SIZE: f32 = 50.0;
+pub(super) const ALBUM_ART_MAX_SIZE: f32 = 600.0;
+pub(super) const ALBUM_ART_DEFAULT_SIZE: f32 = 300.0;
 
 //---------------------------------------------------------------------------------------------------- Fonts
 pub(super) const FONT_SOURCECODE_PRO: &[u8] = include_bytes!("../../assets/fonts/SourceCodePro-Regular.otf");
