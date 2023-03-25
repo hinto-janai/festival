@@ -38,7 +38,7 @@
 //!
 //! There are shared functions/data that `shukusai/Kernel` exposes, notably:
 //! - [`Collection`] (and everything within it)
-//! - [`State`]
+//! - [`KernelState`]
 //! - [`Volume`]
 //! - [`Key`] (and other keys)
 //! - `CONSTANTS`

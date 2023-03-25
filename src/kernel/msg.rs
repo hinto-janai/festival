@@ -17,6 +17,7 @@ use super::KernelState;
 use rolock::RoLock;
 use std::path::PathBuf;
 use crate::kernel::Volume;
+use super::Kernel;
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
 /// Messages `Frontend` can send to [`Kernel`]
@@ -51,7 +52,7 @@ pub enum FrontendToKernel {
 	PlayQueueKey(QueueKey),
 
 	// Collection.
-	/// I'd like a new [`Collection`], scanning these [`PathBuf]`'s for audio files.
+	/// I'd like a new [`Collection`], scanning these [`PathBuf`]'s for audio files.
 	NewCollection(Vec<PathBuf>),
 	/// I'd like to search the [`Collection`] with this [`String`].
 	Search(String),
@@ -93,7 +94,7 @@ pub enum KernelToFrontend {
 	// Misc.
 	/// Here's a new [`KernelState`] pointer.
 	NewState(RoLock<KernelState>),
-	/// Here's a search result
+	/// Here's a search result.
 	SearchResult(Keychain),
 }
 
