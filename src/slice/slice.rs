@@ -49,6 +49,18 @@ macro_rules! impl_slice {
 				&self.0[key.inner()]
 			}
 		}
+		impl std::ops::Index<&$key> for $name {
+			type Output = Key;
+
+			#[inline(always)]
+			/// Index [`Self`] with its appropriate key instead of a [`usize`].
+			///
+			/// # Panics:
+			/// The key must be a valid index.
+			fn index(&self, key: &$key) -> &Self::Output {
+				&self.0[key.inner()]
+			}
+		}
 
 		impl $name {
 			// From a `VecDeque`.

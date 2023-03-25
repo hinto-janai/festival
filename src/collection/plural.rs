@@ -54,6 +54,18 @@ macro_rules! impl_plural {
 				&self.0[key.inner()]
 			}
 		}
+		impl std::ops::Index<&$key> for $plural {
+			type Output = $name;
+
+			#[inline(always)]
+			/// Index [`Self`] with its appropriate key instead of a [`usize`].
+			///
+			/// # Panics:
+			/// The key must be a valid index.
+			fn index(&self, key: &$key) -> &Self::Output {
+				&self.0[key.inner()]
+			}
+		}
 
 		impl $plural {
 			// New (private).
