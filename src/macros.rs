@@ -8,7 +8,7 @@ macro_rules! lock {
 	($lock:expr) => {{
 		match $lock.lock() {
 			Ok(lock) => lock,
-			Err(e)   => crate::macros::mass_panic!(e),
+			Err(e)   => mass_panic!(e),
 		}
 	}}
 }
@@ -20,7 +20,7 @@ macro_rules! lock_read {
 	($lock:expr) => {{
 		match $lock.read() {
 			Ok(lock) => lock,
-			Err(e)   => crate::macros::mass_panic!(e),
+			Err(e)   => mass_panic!(e),
 		}
 	}};
 }
@@ -32,7 +32,7 @@ macro_rules! lock_write {
 	($lock:expr) => {{
 		match $lock.write() {
 			Ok(lock) => lock,
-			Err(e)   => crate::macros::mass_panic!(e),
+			Err(e)   => mass_panic!(e),
 		}
 	}};
 }
@@ -162,18 +162,20 @@ macro_rules! unwrap_or_mass {
 	($var:tt) => {{
 		match $var {
 			Ok(o)  => o,
-			Err(e) => crate::macros::mass_panic!(e),
+			Err(e) => mass_panic!(e),
 		}
 	}}
 }
 pub use unwrap_or_mass;
+
+extern crate self as shukusai;
 
 #[macro_export]
 /// [`send`] a channel message, [`mass_panic!`] on failure
 macro_rules! send {
 	($channel:expr, $($msg:tt)*) => {{
 		if let Err(e) = $channel.send($($msg)*) {
-			crate::macros::mass_panic!(e);
+			mass_panic!(e);
 		}
 	}}
 }
@@ -185,7 +187,7 @@ macro_rules! recv {
 	($channel:expr) => {{
 		match $channel.recv() {
 			Ok(msg) => msg,
-			Err(e)  => crate::macros::mass_panic!(e),
+			Err(e)  => mass_panic!(e),
 		}
 	}}
 }

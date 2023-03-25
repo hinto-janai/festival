@@ -2,21 +2,13 @@
 use anyhow::{anyhow,bail,ensure,Error};
 use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
-//use crate::macros::*;
 //use disk::prelude::*;
 //use disk::{};
 use std::sync::{Arc,RwLock};
 use super::state::KernelState;
 use super::volume::Volume;
 use rolock::RoLock;
-use crate::macros::{
-	lock_write,
-	lock_read,
-	ok_debug,
-	recv,
-	send,
-	flip,
-};
+use crate::macros::*;
 use disk::Bincode;
 use super::{KernelToFrontend, FrontendToKernel};
 use crate::{

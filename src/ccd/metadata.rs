@@ -25,11 +25,7 @@ use crate::collection::{
 	AlbumKey,
 	SongKey,
 };
-use crate::macros::{
-	lock,
-	skip_warn,
-	unwrap_or_mass,
-};
+use crate::macros::*;
 use crate::constants::{
 	SKIP
 };
