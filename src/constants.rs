@@ -1,3 +1,7 @@
+//---------------------------------------------------------------------------------------------------- Use
+use crate::collection::Collection;
+use crate::kernel::KernelState;
+
 //---------------------------------------------------------------------------------------------------- General Strings
 /// Festival Version
 ///
@@ -11,16 +15,20 @@ pub const FESTIVAL_VERSION:  &str = concat!("v", env!("CARGO_PKG_VERSION"));
 /// Just a string concatenating "Festival" and the current version, e.g: `Festival v1.0.0`
 pub const FESTIVAL_NAME_VER: &str = concat!("Festival v", env!("CARGO_PKG_VERSION"));
 
-/// "Festival", a `&'static str`
+/// "Festival", as a `&'static str`
 pub const FESTIVAL:          &str = "Festival";
 
-/// Current `git` commit
+/// Current `git` commit of `festival`
 pub const COMMIT:            &str = include_str!("commit");
 
 /// Build profile (debug/release)
+///
+/// This is `Debug` is `debug_assertions` is detected, else it is `Release`.
 pub const BUILD:             &str = if cfg!(debug_assertions) { "Debug" } else { "Release" };
 
 /// Copyright notice
+///
+/// Festival's copyright.
 pub const COPYRIGHT: &str =
 r#"Festival is licensed under the MIT License.
 For more information on the project, see link below:
@@ -37,7 +45,7 @@ pub const DASH: &str = "--------------------------------------------";
 ///
 /// It is the UTF-8 encoded string `-----BEGIN FESTIVAL-----` as bytes.
 ///
-/// The next byte _should_ be our `xxx_VERSION`, then our actual data.
+/// The next byte _should_ be our `VERSION`, then our actual data.
 pub const FESTIVAL_HEADER: [u8; 24] = [
 	45, 45, 45, 45, 45,             // -----
 	66, 69, 71, 73, 78,             // BEGIN
@@ -46,10 +54,10 @@ pub const FESTIVAL_HEADER: [u8; 24] = [
 	45, 45, 45, 45, 45              // -----
 ];
 
-/// Current major version of the `Collection`
+/// Current major version of the [`Collection`]
 pub const COLLECTION_VERSION: u8 = 1;
 
-/// Current major version of the `State`
+/// Current major version of the [`KernelState`]
 pub const STATE_VERSION: u8 = 1;
 
 // Log messages.

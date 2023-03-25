@@ -7,8 +7,10 @@ use serde::{Serialize,Deserialize};
 //use disk::{};
 //use std::{};
 //use std::sync::{Arc,Mutex,RwLock};
-use super::{
+use crate::collection::{
 	{Artist,Album,Song},
+};
+use crate::key::{
 	{ArtistKey,AlbumKey,SongKey},
 	{QueueKey,PlaylistKey},
 };
@@ -21,11 +23,11 @@ macro_rules! impl_plural {
 		///
 		/// This struct's inner value is just [`Vec<T>`], where `T` is the non-plural version of this `struct`'s name.
 		///
-		/// E.g: `AlbumKeys` is just a `Vec<AlbumKey>`.
+		/// E.g: `Albums` is just a `Vec<Album>`.
 		///
 		/// This reimplements common [`Vec`] functions/traits, notably [`std::ops::Index`]. This allows for type-safe indexing.
 		///
-		/// For example, [`AlbumKeys`] is ONLY allowed to be indexed with a [`AlbumKey`]:
+		/// For example, `Albums` is ONLY allowed to be indexed with a `AlbumKey`:
 		/// ```rust
 		/// let my_usize = 0;
 		/// let key = AlbumKey::from(my_usize);
@@ -37,7 +39,7 @@ macro_rules! impl_plural {
 		/// collection.albums[key];
 		/// ```
 		// Define plural `struct`.
-		pub struct $plural(pub(super) Vec<$name>);
+		pub struct $plural(pub(crate) Vec<$name>);
 
 		// Implement `[]` indexing.
 		impl std::ops::Index<$key> for $plural {
@@ -53,8 +55,13 @@ macro_rules! impl_plural {
 			}
 		}
 
-		// Implement common `Vec` and related functions.
 		impl $plural {
+			// New (private).
+			pub(crate) const fn new() -> Self {
+				Self(vec![])
+			}
+
+			// Common `Vec` and related functions.
 			#[inline(always)]
 			/// Calls [`slice::iter`].
 			pub fn iter(&self) -> std::slice::Iter<'_, $name> {
@@ -112,9 +119,6 @@ macro_rules! impl_plural {
 impl_plural!(Artist, Artists, ArtistKey);
 impl_plural!(Album, Albums, AlbumKey);
 impl_plural!(Song, Songs, SongKey);
-impl_plural!(SongKey, SongKeys, SongKey);
-impl_plural!(QueueKey, QueueKeys, QueueKey);
-impl_plural!(PlaylistKey, PlaylistKeys, PlaylistKey);
 
 //---------------------------------------------------------------------------------------------------- TESTS
 //#[cfg(test)]

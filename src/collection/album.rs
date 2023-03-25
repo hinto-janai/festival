@@ -9,6 +9,8 @@ use super::{
 	Collection,
 	Artist,
 	Song,
+};
+use crate::key::{
 	ArtistKey,
 	SongKey,
 };

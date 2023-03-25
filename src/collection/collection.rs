@@ -6,8 +6,18 @@ use super::{
 	album::Album,
 	artist::Artist,
 	song::Song,
-	key::{Key,ArtistKey,AlbumKey,SongKey},
-	sort::{ArtistSort,AlbumSort,SongSort},
+	plural::{Artists,Albums,Songs},
+};
+use crate::key::{
+	Key,
+	ArtistKey,
+	AlbumKey,
+	SongKey,
+};
+use crate::sort::{
+	ArtistSort,
+	AlbumSort,
+	SongSort,
 };
 use std::collections::HashMap;
 use disk::prelude::*;
@@ -30,6 +40,7 @@ bincode_file!(Collection, Dir::Data, FESTIVAL, "", "collection", FESTIVAL_HEADER
 /// - Pre-computed, sorted keys
 /// - Metadata about the [`Collection`] itself
 ///
+/// ### Sort
 /// The "3 Vecs" are (basically) in random order due to how `Collection` is created.
 ///
 /// Iterating directly on them is not very useful, so use the pre-calculated sorted keys.
@@ -37,13 +48,29 @@ bincode_file!(Collection, Dir::Data, FESTIVAL, "", "collection", FESTIVAL_HEADER
 /// The sorted key fields all start with `sort_`.
 ///
 /// `lexi` is shorthand for `lexicographically`, as defined [here.](https://doc.rust-lang.org/stable/std/primitive.str.html#impl-Ord-for-str)
+///
+/// ### Index
+/// To properly index the [`Collection`], for example, an [`Album`], you CAN use the `[]` operators, however,
+/// they must be type-safe. Meaning: it CANNOT be a random [`usize`], it must be the proper type of [`Key`].
+///
+/// Example:
+/// ```rust
+/// let my_usize = 0;
+/// let key = AlbumKey::from(my_usize);
+///
+/// // NOT type-safe, compile error!.
+/// collection.albums[my_usize];
+///
+/// // Type-safe, compiles.
+/// collection.albums[key];
+/// ```
 pub struct Collection {
 	/// All the [`Artist`]'s in mostly random order.
-	pub artists: Vec<Artist>,
+	pub artists: Artists,
 	/// All the [`Album`]'s in mostly random order.
-	pub albums: Vec<Album>,
+	pub albums: Albums,
 	/// All the [`Song`]'s in mostly random order.
-	pub songs: Vec<Song>,
+	pub songs: Songs,
 
 	// Sorted `Artist` keys.
 	/// [`Artist`] `lexi`.
@@ -93,6 +120,7 @@ pub struct Collection {
 }
 
 impl Collection {
+	//-------------------------------------------------- New.
 	#[inline(always)]
 	/// Creates an empty [`Collection`].
 	///
@@ -103,9 +131,9 @@ impl Collection {
 	/// `empty` is set to `true`.
 	pub const fn new() -> Self {
 		Self {
-			artists: vec![],
-			albums: vec![],
-			songs: vec![],
+			artists: Artists::new(),
+			albums: Albums::new(),
+			songs: Songs::new(),
 
 			sort_artist_lexi: vec![],
 			sort_artist_album_count: vec![],
@@ -131,6 +159,7 @@ impl Collection {
 		}
 	}
 
+	//-------------------------------------------------- Misc functions.
 	// Get current timestamp as UNIX time.
 	pub(crate) fn timestamp_now() -> u64 {
 		let now = std::time::SystemTime::now();
@@ -143,43 +172,17 @@ impl Collection {
 		}
 	}
 
-//	/// Directly index the [`Collection`] with a [`Key`].
-//	///
-//	/// # Panics:
-//	/// The [`ArtistKey`], [`AlbumKey`] and [`SongKey`] within
-//	/// the [`Key`] must be valid indicies into the [`Collection`].
-//	#[inline(always)]
-//	pub fn index(&self, key: &Key) -> (&Artist, &Album, &Song) {
-//		let (artist, album, song) = key.inner_usize();
-//		(&self.artists[artist], &self.albums[album], &self.songs[song])
-//	}
-//
-//	#[inline(always)]
-//	/// Directly index the [`Collection`] for an [`Artist`].
-//	///
-//	/// # Panics:
-//	/// The [`ArtistKey`] must be a valid index.
-//	pub fn artist(&self, key: ArtistKey) -> &Artist {
-//		&self.artists[key.inner()]
-//	}
-//
-//	#[inline(always)]
-//	/// Directly index the [`Collection`] for an [`Album`].
-//	///
-//	/// # Panics:
-//	/// The [`AlbumKey`] must be a valid index.
-//	pub fn album(&self, key: AlbumKey) -> &Album {
-//		&self.albums[key.inner()]
-//	}
-//
-//	#[inline(always)]
-//	/// Directly index the [`Collection`] for an [`Song`].
-//	///
-//	/// # Panics:
-//	/// The [`SongKey`] must be a valid index.
-//	pub fn song(&self, key: SongKey) -> &Song {
-//		&self.songs[key.inner()]
-//	}
+	//-------------------------------------------------- Indexing.
+	/// Directly index the [`Collection`] with a [`Key`].
+	///
+	/// # Panics:
+	/// The [`ArtistKey`], [`AlbumKey`] and [`SongKey`] within
+	/// the [`Key`] must be valid indicies into the [`Collection`].
+	#[inline(always)]
+	pub fn index(&self, key: &Key) -> (&Artist, &Album, &Song) {
+		let (artist, album, song) = key.inner_usize();
+		(&self.artists.0[artist], &self.albums.0[album], &self.songs.0[song])
+	}
 
 	#[inline(always)]
 	/// [`slice::get`] the [`Collection`] with a [`Key`].
@@ -190,17 +193,17 @@ impl Collection {
 	pub fn get(&self, key: &Key) -> Option<(&Artist, &Album, &Song)> {
 		let (artist, album, song) = key.inner_usize();
 
-		let artists = match self.artists.get(artist) {
+		let artists = match self.artists.0.get(artist) {
 			Some(a) => a,
 			None    => return None,
 		};
 
-		let album = match self.albums.get(album) {
+		let album = match self.albums.0.get(album) {
 			Some(a) => a,
 			None    => return None,
 		};
 
-		let song = match self.songs.get(song) {
+		let song = match self.songs.0.get(song) {
 			Some(a) => a,
 			None    => return None,
 		};
@@ -208,100 +211,78 @@ impl Collection {
 		Some((artists, album, song))
 	}
 
-//	#[inline(always)]
-//	/// [`slice::get`] the [`Collection`] for an [`Artist`].
-//	///
-//	/// # Errors:
-//	/// The [`ArtistKey`] must be a valid index.
-//	pub fn get_artist(&self, key: ArtistKey) -> Option<&Artist> {
-//		self.artists.get(key.inner())
-//	}
-//
-//	#[inline(always)]
-//	/// [`slice::get`] the [`Collection`] for an [`Album`].
-//	///
-//	/// # Errors:
-//	/// The [`AlbumKey`] must be a valid index.
-//	pub fn get_album(&self, key: AlbumKey) -> Option<&Album> {
-//		self.albums.get(key.inner())
-//	}
-//
-//	#[inline(always)]
-//	/// [`slice::get`] the [`Collection`] for a [`Song`].
-//	///
-//	/// # Errors:
-//	/// The [`SongKey`] must be a valid index.
-//	pub fn get_song(&self, key: SongKey) -> Option<&Song> {
-//		self.songs.get(key.inner())
-//	}
-//
-//	// Key traversal.
-//	#[inline(always)]
-//	/// Obtain an [`Artist`], but from a [`AlbumKey`].
-//	///
-//	/// # Panics:
-//	/// The [`AlbumKey`] must be a valid index.
-//	pub fn artist_from_album(&self, key: AlbumKey) -> &Artist {
-//		&self.artists[self.albums[key].artist]
-//	}
-//	#[inline(always)]
-//	/// Obtain an [`Album`], but from a [`SongKey`].
-//	///
-//	/// # Panics:
-//	/// The [`SongKey`] must be a valid index.
-//	pub fn album_from_song(&self, key: SongKey) -> &Album {
-//		&self.albums[self.songs[key].album]
-//	}
-//	#[inline(always)]
-//	/// Obtain an [`Artist`], but from a [`SongKey`].
-//	///
-//	/// # Panics:
-//	/// The [`SongKey`] must be a valid index.
-//	pub fn artist_from_song(&self, key: SongKey) -> &Artist {
-//		&self.artist_from_album(self.songs[key].album)
-//	}
-//
-//	// Key traversal (`.get()`).
-//	#[inline(always)]
-//	/// Obtain an [`Artist`], but from a [`AlbumKey`].
-//	///
-//	/// # Errors:
-//	/// The [`AlbumKey`] must be a valid index.
-//	pub fn get_artist_from_album(&self, key: AlbumKey) -> Option<&Artist> {
-//		let artist = match self.albums.get(key) {
-//			Some(a) => a.artist,
-//			None    => return None,
-//		};
-//
-//		self.artists.get(artist)
-//	}
-//	#[inline(always)]
-//	/// Obtain an [`Album`], but from a [`SongKey`].
-//	///
-//	/// # Errors:
-//	/// The [`SongKey`] must be a valid index.
-//	pub fn get_album_from_song(&self, key: SongKey) -> Option<&Album> {
-//		let album = match self.songs.get(key) {
-//			Some(a) => a.album,
-//			None    => return None,
-//		};
-//
-//		self.albums.get(album)
-//	}
-//	#[inline(always)]
-//	/// Obtain an [`Artist`], but from a [`SongKey`].
-//	///
-//	/// # Errors:
-//	/// The [`SongKey`] must be a valid index.
-//	pub fn get_artist_from_song(&self, key: SongKey) -> Option<&Artist> {
-//		let album = match self.songs.get(key) {
-//			Some(a) => a.album,
-//			None    => return None,
-//		};
-//
-//		self.get_artist_from_album(album)
-//	}
+	//-------------------------------------------------- Key traversal (index).
+	#[inline(always)]
+	/// Obtain an [`Artist`], but from a [`AlbumKey`].
+	///
+	/// # Panics:
+	/// The [`AlbumKey`] must be a valid index.
+	pub fn artist_from_album(&self, key: AlbumKey) -> &Artist {
+		&self.artists[self.albums[key].artist]
+	}
 
+	#[inline(always)]
+	/// Obtain an [`Album`], but from a [`SongKey`].
+	///
+	/// # Panics:
+	/// The [`SongKey`] must be a valid index.
+	pub fn album_from_song(&self, key: SongKey) -> &Album {
+		&self.albums[self.songs[key].album]
+	}
+
+	#[inline(always)]
+	/// Obtain an [`Artist`], but from a [`SongKey`].
+	///
+	/// # Panics:
+	/// The [`SongKey`] must be a valid index.
+	pub fn artist_from_song(&self, key: SongKey) -> &Artist {
+		&self.artist_from_album(self.songs[key].album)
+	}
+
+	//-------------------------------------------------- Key traversal (`.get()`).
+	#[inline(always)]
+	/// Obtain an [`Artist`], but from a [`AlbumKey`].
+	///
+	/// # Errors:
+	/// The [`AlbumKey`] must be a valid index.
+	pub fn get_artist_from_album(&self, key: AlbumKey) -> Option<&Artist> {
+		let artist = match self.albums.get(key) {
+			Some(a) => a.artist,
+			None    => return None,
+		};
+
+		self.artists.get(artist)
+	}
+
+	#[inline(always)]
+	/// Obtain an [`Album`], but from a [`SongKey`].
+	///
+	/// # Errors:
+	/// The [`SongKey`] must be a valid index.
+	pub fn get_album_from_song(&self, key: SongKey) -> Option<&Album> {
+		let album = match self.songs.get(key) {
+			Some(a) => a.album,
+			None    => return None,
+		};
+
+		self.albums.get(album)
+	}
+
+	#[inline(always)]
+	/// Obtain an [`Artist`], but from a [`SongKey`].
+	///
+	/// # Errors:
+	/// The [`SongKey`] must be a valid index.
+	pub fn get_artist_from_song(&self, key: SongKey) -> Option<&Artist> {
+		let album = match self.songs.get(key) {
+			Some(a) => a.album,
+			None    => return None,
+		};
+
+		self.get_artist_from_album(album)
+	}
+
+	//-------------------------------------------------- Sorting
 	#[inline]
 	/// Access a particular `sort_artist_` field in the [`Collection`] via a [`ArtistSort`].
 	pub fn artist_sort(&self, sort: &ArtistSort) -> &Vec<ArtistKey> {

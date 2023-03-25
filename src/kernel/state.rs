@@ -7,11 +7,13 @@ use disk::prelude::*;
 use disk::{Bincode,bincode_file};
 //use std::{};
 //use std::sync::{Arc,Mutex,RwLock};
-use crate::collection::{
+use crate::key::{
 	Key,
 	Keychain,
+};
+use crate::slice::{
 	Queue,
-	Playlists,
+	Playlist,
 };
 use crate::constants::{
 	FESTIVAL,
@@ -24,7 +26,7 @@ bincode_file!(KernelState, Dir::Data, FESTIVAL, "", "state", FESTIVAL_HEADER, ST
 #[derive(Clone,Debug,Default,PartialEq,Serialize,Deserialize)]
 /// Audio/Misc State
 ///
-/// This hold various bits of state that is `Kernel` controls
+/// This hold various bits of state that `Kernel` controls
 /// but `Frontend` only has a read-only lock to.
 pub struct KernelState {
 	// Audio.
@@ -48,8 +50,8 @@ pub struct KernelState {
 	// Queue/Playlist.
 	/// The current song queue.
 	pub queue: Queue,
-	/// ALL the user's playlists.
-	pub playlists: Playlists,
+	/// ALL of the user's playlists.
+	pub playlists: Vec<Playlist>,
 }
 
 impl KernelState {
@@ -67,7 +69,7 @@ impl KernelState {
 			search_result: Keychain::new(),
 
 			queue: Queue::new(),
-			playlists: Playlists::new(),
+			playlists: vec![],
 		}
 	}
 }

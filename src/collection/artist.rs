@@ -4,9 +4,9 @@
 use serde::{Serialize,Deserialize};
 use super::{
 	Album,
-	AlbumKey,
 	Collection,
 };
+use crate::key::AlbumKey;
 
 //----------------------------------------------------------------------------------------------------
 //#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]

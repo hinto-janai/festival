@@ -8,10 +8,12 @@
 //use std::{};
 use std::sync::Arc;
 use crate::collection::{
+	Song,
 	Collection,
+};
+use crate::key::{
 	Keychain,
 	QueueKey,
-	Song,
 };
 use super::KernelState;
 use rolock::RoLock;
@@ -107,7 +109,7 @@ pub enum KernelToFrontend {
 	PathError(String),
 
 	// Misc.
-	/// Here's a new [`KernelState`] pointer.
+	/// Here's a new [`KernelState`] pointer inside a [`rolock::RoLock`].
 	NewState(RoLock<KernelState>),
 	/// Here's a search result.
 	SearchResult(Keychain),

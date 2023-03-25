@@ -17,13 +17,15 @@ use crate::macros::{
 	ok_trace,
 };
 use crate::collection::{
+	Art,
 	Album,
 	Collection,
+};
+use crate::key::{
 	Keychain,
 	ArtistKey,
 	AlbumKey,
 	SongKey,
-	Art,
 };
 
 //---------------------------------------------------------------------------------------------------- Conversion (bytes <-> egui image) functions
@@ -61,7 +63,7 @@ impl super::Ccd {
 		// 4. Join threads, return.
 		std::thread::scope(|scope| {
 			// Divide albums (mostly) evenly across threads.
-			for albums in collection.albums.chunks_mut(threads) {
+			for albums in collection.albums.0.chunks_mut(threads) {
 
 				// Clone `Kernel` channel.
 				let to_k  = to_kernel.clone();
@@ -79,7 +81,7 @@ impl super::Ccd {
 	#[inline(always)]
 	// Single-threaded `convert_art()` variant.
 	fn convert_art_singlethread(to_kernel: &Sender<CcdToKernel>, mut collection: Collection) -> Collection {
-		Self::convert_art_worker(to_kernel, &mut collection.albums);
+		Self::convert_art_worker(to_kernel, &mut collection.albums.0);
 
 		collection
 	}

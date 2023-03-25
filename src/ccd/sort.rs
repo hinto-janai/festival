@@ -11,10 +11,12 @@ use crate::collection::{
 	Artist,
 	Album,
 	Song,
+	Collection,
+};
+use crate::key::{
 	ArtistKey,
 	AlbumKey,
 	SongKey,
-	Collection,
 };
 
 //---------------------------------------------------------------------------------------------------- __NAME__

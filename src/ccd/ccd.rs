@@ -9,6 +9,11 @@ use crate::macros::*;
 use crate::collection::{
 	Album,
 	Collection,
+	Artists,
+	Albums,
+	Songs,
+};
+use crate::key::{
 	Keychain,
 	ArtistKey,
 	AlbumKey,
@@ -122,9 +127,9 @@ impl Ccd {
 			count_album: vec_album.len(),
 			count_song: vec_song.len(),
 
-			artists: vec_artist,
-			albums: vec_album,
-			songs: vec_song,
+			artists: Artists::from(vec_artist),
+			albums: Albums::from(vec_album),
+			songs: Songs::from(vec_song),
 
 			sort_artist_lexi,
 			sort_artist_album_count,

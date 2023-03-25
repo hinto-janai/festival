@@ -1,26 +1,12 @@
-mod collection;
-pub use collection::*;
-
 mod art;
-pub use art::*;
-
+mod collection;
 mod album;
-pub use album::*;
-
 mod artist;
-pub use artist::*;
-
 mod song;
-pub use song::*;
-
-mod sort;
-pub use sort::*;
-
-mod key;
-pub use key::*;
-
-mod slice;
-pub use slice::*;
-
 mod plural;
+pub use collection::*;
+pub use art::*;
+pub use album::*;
+pub use artist::*;
+pub use song::*;
 pub use plural::*;

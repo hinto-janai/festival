@@ -6,7 +6,8 @@ use serde::{Serialize,Deserialize};
 use disk::prelude::*;
 use disk::{Bincode,bincode_file};
 use std::collections::VecDeque;
-use crate::collection::key::{
+use crate::collection::Collection;
+use crate::key::{
 	QueueKey,
 	PlaylistKey,
 	Key,
@@ -20,17 +21,9 @@ macro_rules! impl_slice {
 		///
 		/// Dynamically-sized view into a contiguous [`Key`] sequence.
 		///
-		/// Both `Queue` and `Playlist` are practically the same thing:
-		///   - A `Slice` of the `Collection`
-		///
-		/// They contain a bunch of `Key`s that point
-		/// to "segments" of the `Collection` (it's a slice).
-		///
-		/// Both [`Queue`] and [`Playlists`] inner values are [`VecDeque<Key>`].
-		///
 		/// This reimplements common [`VecDeque`] functions/traits, notably [`std::ops::Index`]. This allows for type-safe indexing.
 		///
-		/// For example, [`Playlists`] is ONLY allowed to be indexed with a [`PlaylistKey`]:
+		/// For example, [`Playlist`] is ONLY allowed to be indexed with a [`PlaylistKey`]:
 		/// ```rust
 		/// let my_usize = 0;
 		/// let key = PlaylistKey::from(my_usize);
@@ -154,7 +147,7 @@ macro_rules! impl_slice {
 }
 
 impl_slice!(Queue, QueueKey);
-impl_slice!(Playlists, PlaylistKey);
+impl_slice!(Playlist, PlaylistKey);
 
 //---------------------------------------------------------------------------------------------------- TESTS
 //#[cfg(test)]

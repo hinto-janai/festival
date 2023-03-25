@@ -7,8 +7,8 @@ use log::{info,error,warn,trace,debug};
 //use disk::{};
 //use std::{};
 use crate::macros::*;
-use crate::collection::{
-	Collection,
+use crate::collection::Collection;
+use crate::key::{
 	Keychain,
 	ArtistKey,
 	AlbumKey,

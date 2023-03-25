@@ -74,6 +74,9 @@ These folders represent data:
 | Folder         | Purpose |
 |----------------|---------|
 | `collection/`  | Data for `Collection` and everything `Collection`-related
+| `key/`         | `Key`'s for indexing the `Collection` in a type-safe way
+| `slice/`       | `Queue` and `Playlists` (the same thing, slices)
+| `sort/`        | Various sorting methods on the `Collection`
 
 ## Threads
 These folders represent OS threads with a distinct purpose:

@@ -7,10 +7,8 @@
 //use disk::{};
 //use std::{};
 use std::sync::Arc;
-use crate::collection::{
-	Collection,
-	Keychain,
-};
+use crate::collection::Collection;
+use crate::key::Keychain;
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
 pub(crate) enum SearchToKernel {

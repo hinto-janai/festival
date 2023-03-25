@@ -4,6 +4,8 @@ use log::{info,error,warn,trace,debug};
 use crate::macros::*;
 use crate::collection::{
 	Collection,
+};
+use crate::key::{
 	Keychain,
 	ArtistKey,
 	AlbumKey,

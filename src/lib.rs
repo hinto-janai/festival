@@ -12,7 +12,7 @@
 //! - `Festival` means a frontend OR the project as a whole
 //!
 //! # Warning
-//! **The internals are not stable. There's no _restrictive, type-safe_ public API.**
+//! **The internals are not stable.**
 //!
 //! **If you're implementing a frontend, you are expected to implement the `Kernel`'s messages correctly.**
 //!
@@ -21,8 +21,8 @@
 //!
 //! # API
 //! The "API" between `shukusai` and the frontends are:
-//! - [`KernelToFrontend`]
-//! - [`FrontendToKernel`]
+//! - [`kernel::KernelToFrontend`]
+//! - [`kernel::FrontendToKernel`]
 //!
 //! Each frontend must implement the correct message passing behavior to/from the `Kernel` and other various things.
 //!
@@ -33,38 +33,80 @@
 //!
 //! The `Frontend` implementation must:
 //! - Keep a channel to `Kernel` open at _all times_
+//! - Save and manage its own state/settings
 //! - Properly implement the messages `To/From` the `Kernel`
 //! - Properly handle shared data
 //!
-//! There are shared functions/data that `shukusai/Kernel` exposes, notably:
-//! - [`Collection`] (and everything within it)
-//! - [`KernelState`]
-//! - [`Volume`]
-//! - [`Key`] (and other keys)
+//! # Shared Data
+//! There are shared functions/data that `shukusai` exposes, notably:
+//! - [`collection::Collection`] (and everything within it)
+//! - [`kernel::KernelState`]
+//! - [`kernel::Volume`]
+//! - [`key::Key`] (and other keys)
 //! - `CONSTANTS`
 //! - `macros!()`
 //! - etc...
 //!
 //! It is up to the frontend on how to use these functions/data.
 //!
-//! None of the data/message relationships are restrictive enough to be a public API,
-//! and a lot of behavior depends on knowledge that _I_ have of the internals.
+//! A lot of the correct behavior implementation depends on knowledge that _I_ have of the internals.
 //! Since _I_ will most likely be creating all the frontends, there are no plans
-//! to make a well-defined public API for now (it's a lot of work).
+//! to fully flesh out this documentation for now (it's a lot of work).
 
+// Private `shukusai` internals.
 mod audio;
 mod ccd;
-mod macros;
 mod search;
 mod watch;
 
-mod collection;
-pub use collection::*;
+// Public `/` stuff.
 mod constants;
 pub use constants::*;
-mod kernel;
-pub use kernel::*;
 mod logger;
 pub use logger::*;
+mod macros;
+pub use macros::*;
 
-pub use rolock::RoLock as RoLock;
+// Public modules.
+/// The main music `Collection` and it's inner data
+pub mod collection;
+
+/// `Key`'s to index the `Collection` in a type-safe way
+pub mod key;
+
+/// `Kernel`, the messenger and coordinator
+///
+/// This is the "API" that all frontends must implement
+/// in order to communicate with `Festival`'s internals.
+///
+/// Your `Frontend` will communicate with `Kernel`, and
+/// `Kernel` will talk with the rest of `shukusai`'s internals.
+///
+/// Messages are sent via `crossbeam_channel`'s with these messages:
+/// - [`kernel::KernelToFrontend`]
+/// - [`kernel::FrontendToKernel`]
+pub mod kernel;
+
+/// Various sorting methods for the `Collection`
+///
+/// These `enum`'s just represent `Collection` fields and are used for convenience:
+/// ```rust
+/// // These two both return the same data.
+/// // The enum can be useful when programming frontend stuff.
+///
+/// collection.album_sort(AlbumSort::ReleaseArtistLexi);
+///
+/// collection.sort_album_release_artist_lexi;
+/// ```
+pub mod sort;
+
+/// `Queue` and `Playlist`
+///
+/// Both `Queue` and `Playlist` are practically the same thing:
+///   - A slice of the `Collection`
+///
+/// They contain a bunch of `Key`'s that point
+/// to "segments" of the `Collection` (it's a slice).
+///
+/// Both `Queue` and `Playlist` inner values are `VecDeque<Key>`.
+pub mod slice;

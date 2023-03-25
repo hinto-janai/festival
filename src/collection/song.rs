@@ -5,11 +5,13 @@ use serde::{Serialize,Deserialize};
 use std::path::PathBuf;
 use readable::Runtime;
 use super::{
+	Collection,
 	Artist,
 	Album,
+};
+use crate::key::{
 	AlbumKey,
 	SongKey,
-	Collection
 };
 
 //----------------------------------------------------------------------------------------------------
