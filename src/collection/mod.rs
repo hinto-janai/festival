@@ -21,3 +21,6 @@ pub use key::*;
 
 mod slice;
 pub use slice::*;
+
+mod plural;
+pub use plural::*;

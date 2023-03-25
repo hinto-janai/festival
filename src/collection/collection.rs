@@ -143,43 +143,43 @@ impl Collection {
 		}
 	}
 
-	/// Directly index the [`Collection`] with a [`Key`].
-	///
-	/// # Panics:
-	/// The [`ArtistKey`], [`AlbumKey`] and [`SongKey`] within
-	/// the [`Key`] must be valid indicies into the [`Collection`].
-	#[inline(always)]
-	pub fn index(&self, key: &Key) -> (&Artist, &Album, &Song) {
-		let (artist, album, song) = key.inner_usize();
-		(&self.artists[artist], &self.albums[album], &self.songs[song])
-	}
-
-	#[inline(always)]
-	/// Directly index the [`Collection`] for an [`Artist`].
-	///
-	/// # Panics:
-	/// The [`ArtistKey`] must be a valid index.
-	pub fn artist(&self, key: ArtistKey) -> &Artist {
-		&self.artists[key.inner()]
-	}
-
-	#[inline(always)]
-	/// Directly index the [`Collection`] for an [`Album`].
-	///
-	/// # Panics:
-	/// The [`AlbumKey`] must be a valid index.
-	pub fn album(&self, key: AlbumKey) -> &Album {
-		&self.albums[key.inner()]
-	}
-
-	#[inline(always)]
-	/// Directly index the [`Collection`] for an [`Song`].
-	///
-	/// # Panics:
-	/// The [`SongKey`] must be a valid index.
-	pub fn song(&self, key: SongKey) -> &Song {
-		&self.songs[key.inner()]
-	}
+//	/// Directly index the [`Collection`] with a [`Key`].
+//	///
+//	/// # Panics:
+//	/// The [`ArtistKey`], [`AlbumKey`] and [`SongKey`] within
+//	/// the [`Key`] must be valid indicies into the [`Collection`].
+//	#[inline(always)]
+//	pub fn index(&self, key: &Key) -> (&Artist, &Album, &Song) {
+//		let (artist, album, song) = key.inner_usize();
+//		(&self.artists[artist], &self.albums[album], &self.songs[song])
+//	}
+//
+//	#[inline(always)]
+//	/// Directly index the [`Collection`] for an [`Artist`].
+//	///
+//	/// # Panics:
+//	/// The [`ArtistKey`] must be a valid index.
+//	pub fn artist(&self, key: ArtistKey) -> &Artist {
+//		&self.artists[key.inner()]
+//	}
+//
+//	#[inline(always)]
+//	/// Directly index the [`Collection`] for an [`Album`].
+//	///
+//	/// # Panics:
+//	/// The [`AlbumKey`] must be a valid index.
+//	pub fn album(&self, key: AlbumKey) -> &Album {
+//		&self.albums[key.inner()]
+//	}
+//
+//	#[inline(always)]
+//	/// Directly index the [`Collection`] for an [`Song`].
+//	///
+//	/// # Panics:
+//	/// The [`SongKey`] must be a valid index.
+//	pub fn song(&self, key: SongKey) -> &Song {
+//		&self.songs[key.inner()]
+//	}
 
 	#[inline(always)]
 	/// [`slice::get`] the [`Collection`] with a [`Key`].
@@ -208,99 +208,99 @@ impl Collection {
 		Some((artists, album, song))
 	}
 
-	#[inline(always)]
-	/// [`slice::get`] the [`Collection`] for an [`Artist`].
-	///
-	/// # Errors:
-	/// The [`ArtistKey`] must be a valid index.
-	pub fn get_artist(&self, key: ArtistKey) -> Option<&Artist> {
-		self.artists.get(key.inner())
-	}
-
-	#[inline(always)]
-	/// [`slice::get`] the [`Collection`] for an [`Album`].
-	///
-	/// # Errors:
-	/// The [`AlbumKey`] must be a valid index.
-	pub fn get_album(&self, key: AlbumKey) -> Option<&Album> {
-		self.albums.get(key.inner())
-	}
-
-	#[inline(always)]
-	/// [`slice::get`] the [`Collection`] for a [`Song`].
-	///
-	/// # Errors:
-	/// The [`SongKey`] must be a valid index.
-	pub fn get_song(&self, key: SongKey) -> Option<&Song> {
-		self.songs.get(key.inner())
-	}
-
-	// Key traversal.
-	#[inline(always)]
-	/// Obtain an [`Artist`], but from a [`AlbumKey`].
-	///
-	/// # Panics:
-	/// The [`AlbumKey`] must be a valid index.
-	pub fn artist_from_album(&self, key: AlbumKey) -> &Artist {
-		&self.artist(self.albums[key.inner()].artist)
-	}
-	#[inline(always)]
-	/// Obtain an [`Album`], but from a [`SongKey`].
-	///
-	/// # Panics:
-	/// The [`SongKey`] must be a valid index.
-	pub fn album_from_song(&self, key: SongKey) -> &Album {
-		&self.album(self.songs[key.inner()].album)
-	}
-	#[inline(always)]
-	/// Obtain an [`Artist`], but from a [`SongKey`].
-	///
-	/// # Panics:
-	/// The [`SongKey`] must be a valid index.
-	pub fn artist_from_song(&self, key: SongKey) -> &Artist {
-		&self.artist_from_album(self.songs[key.inner()].album)
-	}
-
-	// Key traversal (`.get()`).
-	#[inline(always)]
-	/// Obtain an [`Artist`], but from a [`AlbumKey`].
-	///
-	/// # Errors:
-	/// The [`AlbumKey`] must be a valid index.
-	pub fn get_artist_from_album(&self, key: AlbumKey) -> Option<&Artist> {
-		let artist = match self.get_album(key) {
-			Some(a) => a.artist,
-			None    => return None,
-		};
-
-		self.get_artist(artist)
-	}
-	#[inline(always)]
-	/// Obtain an [`Album`], but from a [`SongKey`].
-	///
-	/// # Errors:
-	/// The [`SongKey`] must be a valid index.
-	pub fn get_album_from_song(&self, key: SongKey) -> Option<&Album> {
-		let album = match self.get_song(key) {
-			Some(a) => a.album,
-			None    => return None,
-		};
-
-		self.get_album(album)
-	}
-	#[inline(always)]
-	/// Obtain an [`Artist`], but from a [`SongKey`].
-	///
-	/// # Errors:
-	/// The [`SongKey`] must be a valid index.
-	pub fn get_artist_from_song(&self, key: SongKey) -> Option<&Artist> {
-		let album = match self.get_song(key) {
-			Some(a) => a.album,
-			None    => return None,
-		};
-
-		self.get_artist_from_album(album)
-	}
+//	#[inline(always)]
+//	/// [`slice::get`] the [`Collection`] for an [`Artist`].
+//	///
+//	/// # Errors:
+//	/// The [`ArtistKey`] must be a valid index.
+//	pub fn get_artist(&self, key: ArtistKey) -> Option<&Artist> {
+//		self.artists.get(key.inner())
+//	}
+//
+//	#[inline(always)]
+//	/// [`slice::get`] the [`Collection`] for an [`Album`].
+//	///
+//	/// # Errors:
+//	/// The [`AlbumKey`] must be a valid index.
+//	pub fn get_album(&self, key: AlbumKey) -> Option<&Album> {
+//		self.albums.get(key.inner())
+//	}
+//
+//	#[inline(always)]
+//	/// [`slice::get`] the [`Collection`] for a [`Song`].
+//	///
+//	/// # Errors:
+//	/// The [`SongKey`] must be a valid index.
+//	pub fn get_song(&self, key: SongKey) -> Option<&Song> {
+//		self.songs.get(key.inner())
+//	}
+//
+//	// Key traversal.
+//	#[inline(always)]
+//	/// Obtain an [`Artist`], but from a [`AlbumKey`].
+//	///
+//	/// # Panics:
+//	/// The [`AlbumKey`] must be a valid index.
+//	pub fn artist_from_album(&self, key: AlbumKey) -> &Artist {
+//		&self.artists[self.albums[key].artist]
+//	}
+//	#[inline(always)]
+//	/// Obtain an [`Album`], but from a [`SongKey`].
+//	///
+//	/// # Panics:
+//	/// The [`SongKey`] must be a valid index.
+//	pub fn album_from_song(&self, key: SongKey) -> &Album {
+//		&self.albums[self.songs[key].album]
+//	}
+//	#[inline(always)]
+//	/// Obtain an [`Artist`], but from a [`SongKey`].
+//	///
+//	/// # Panics:
+//	/// The [`SongKey`] must be a valid index.
+//	pub fn artist_from_song(&self, key: SongKey) -> &Artist {
+//		&self.artist_from_album(self.songs[key].album)
+//	}
+//
+//	// Key traversal (`.get()`).
+//	#[inline(always)]
+//	/// Obtain an [`Artist`], but from a [`AlbumKey`].
+//	///
+//	/// # Errors:
+//	/// The [`AlbumKey`] must be a valid index.
+//	pub fn get_artist_from_album(&self, key: AlbumKey) -> Option<&Artist> {
+//		let artist = match self.albums.get(key) {
+//			Some(a) => a.artist,
+//			None    => return None,
+//		};
+//
+//		self.artists.get(artist)
+//	}
+//	#[inline(always)]
+//	/// Obtain an [`Album`], but from a [`SongKey`].
+//	///
+//	/// # Errors:
+//	/// The [`SongKey`] must be a valid index.
+//	pub fn get_album_from_song(&self, key: SongKey) -> Option<&Album> {
+//		let album = match self.songs.get(key) {
+//			Some(a) => a.album,
+//			None    => return None,
+//		};
+//
+//		self.albums.get(album)
+//	}
+//	#[inline(always)]
+//	/// Obtain an [`Artist`], but from a [`SongKey`].
+//	///
+//	/// # Errors:
+//	/// The [`SongKey`] must be a valid index.
+//	pub fn get_artist_from_song(&self, key: SongKey) -> Option<&Artist> {
+//		let album = match self.songs.get(key) {
+//			Some(a) => a.album,
+//			None    => return None,
+//		};
+//
+//		self.get_artist_from_album(album)
+//	}
 
 	#[inline]
 	/// Access a particular `sort_artist_` field in the [`Collection`] via a [`ArtistSort`].
