@@ -1,3 +1,10 @@
+//---------------------------------------------------------------------------------------------------- Version
+/// Current major version of `State`
+pub(super) const STATE_VERSION: u8 = 1;
+
+/// Current major version of `Settings`
+pub(super) const SETTINGS_VERSION: u8 = 1;
+
 //---------------------------------------------------------------------------------------------------- Resolution
 pub(super) const APP_MIN_WIDTH:  f32 = 1000.0;
 pub(super) const APP_MIN_HEIGHT: f32 = 800.0;
