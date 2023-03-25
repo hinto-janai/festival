@@ -40,14 +40,14 @@ impl eframe::App for Gui {
 
 		// Save `State` if diff.
 		if self.diff_state() {
-			if let Err(e) = self.settings.write() {
+			if let Err(e) = self.settings.save() {
 				error!("GUI | Could not save `Settings`: {}", e)
 			}
 		}
 
 		// Save `Settings` if diff.
 		if self.diff_settings() {
-			if let Err(e) = self.state.write() {
+			if let Err(e) = self.state.save() {
 				error!("GUI | Could not save `State`: {}", e)
 			}
 		}

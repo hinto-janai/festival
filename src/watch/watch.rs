@@ -48,7 +48,7 @@ impl Watch {
 	// Make sure the directory exists.
 	fn clean() {
 		// Create base directory.
-		if let Err(e) = Stop::create_dir() { error!("Watch | Could not create signal folder"); }
+		if let Err(e) = Stop::mkdir() { error!("Watch | Could not create signal folder"); }
 
 		// Clean files.
 		if let Err(e) = Stop::remove()    { info!("Watch | Stop: {}", e); }

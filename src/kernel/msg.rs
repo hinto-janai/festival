@@ -62,14 +62,14 @@ pub enum FrontendToKernel {
 	///
 	/// # Notes
 	/// After you send this message, [`Kernel`] will save everything, and respond with a
-	/// [`Kernel::ExitResponse`] that contains either a [`Result::Ok`] meaning everything went okay,
-	/// or [`Result::Err`] with a [`String`] payload containing an error message.
+	/// [`KernelToFrontend::ExitResponse`] that contains either a [`Result::Ok`] meaning
+	/// everything went okay, or [`Result::Err`] with a [`String`] payload containing an error message.
 	///
 	/// After the reponse (regardless of the [`Result`]), [`Kernel`] will
 	/// - [`std::thread::park`] forever
 	/// - Ignore all channel messages
 	///
-	/// After you receive the response, you should [`std::thread::exit`] to kill all threads.
+	/// After you receive the response, you should [`std::process::exit`] to kill all threads.
 	Exit,
 }
 

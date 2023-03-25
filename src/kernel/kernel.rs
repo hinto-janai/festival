@@ -320,7 +320,7 @@ impl Kernel {
 	// The `Frontend` is exiting, save everything.
 	fn exit(&mut self) -> ! {
 		// Save `KernelState`.
-		match lock_read!(self.state).write() {
+		match lock_read!(self.state).save() {
 			Ok(_)  => send!(self.to_frontend, KernelToFrontend::ExitResponse(Ok(()))),
 			Err(e) => send!(self.to_frontend, KernelToFrontend::ExitResponse(Err(e.to_string()))),
 		}
