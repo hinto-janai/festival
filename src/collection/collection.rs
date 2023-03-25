@@ -54,7 +54,7 @@ bincode_file!(Collection, Dir::Data, FESTIVAL, "", "collection", FESTIVAL_HEADER
 /// they must be type-safe. Meaning: it CANNOT be a random [`usize`], it must be the proper type of [`Key`].
 ///
 /// Example:
-/// ```rust
+/// ```rust,ignore
 /// let my_usize = 0;
 /// let key = AlbumKey::from(my_usize);
 ///

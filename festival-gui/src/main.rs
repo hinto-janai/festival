@@ -15,11 +15,11 @@ fn main() {
 	cli::Cli::handle_args();
 
 	// Create `Kernel` <-> `GUI` channels.
-	let (kernel_to_gui, gui_recv)    = crossbeam_channel::unbounded::<shukusai::KernelToFrontend>();
-	let (gui_to_kernel, kernel_recv) = crossbeam_channel::unbounded::<shukusai::FrontendToKernel>();
+	let (kernel_to_gui, gui_recv)    = crossbeam_channel::unbounded::<shukusai::kernel::KernelToFrontend>();
+	let (gui_to_kernel, kernel_recv) = crossbeam_channel::unbounded::<shukusai::kernel::FrontendToKernel>();
 
 	// Spawn `Kernel`.
-	std::thread::spawn(move || shukusai::Kernel::bios(kernel_to_gui, kernel_recv));
+	std::thread::spawn(move || shukusai::kernel::Kernel::bios(kernel_to_gui, kernel_recv));
 
 	// Start `GUI`.
 //	eframe::run_native(

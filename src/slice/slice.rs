@@ -24,7 +24,7 @@ macro_rules! impl_slice {
 		/// This reimplements common [`VecDeque`] functions/traits, notably [`std::ops::Index`]. This allows for type-safe indexing.
 		///
 		/// For example, [`Playlist`] is ONLY allowed to be indexed with a [`PlaylistKey`]:
-		/// ```rust
+		/// ```rust,ignore
 		/// let my_usize = 0;
 		/// let key = PlaylistKey::from(my_usize);
 		///

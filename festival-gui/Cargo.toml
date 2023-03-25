@@ -30,3 +30,4 @@ disk  = { version = "0.0.3", features = ["toml"] }
 image = { version = "0.24.5", features = ["jpeg", "png"], default-features = false }
 log   = "0.4.17"
 serde = { version = "1.0.158", features = ["derive"] }
+rolock = "0.1.1"

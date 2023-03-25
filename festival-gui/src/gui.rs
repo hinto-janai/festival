@@ -5,7 +5,17 @@ use super::{
 	settings::Settings,
 	state::State,
 };
-use shukusai::*;
+use shukusai::kernel::{
+	Kernel,
+	KernelState,
+	FrontendToKernel,
+	KernelToFrontend,
+};
+use shukusai::collection::{
+	Collection,
+};
+use shukusai::sort::{
+};
 use log::{
 	info,
 	warn,
@@ -18,6 +28,7 @@ use egui::{
 };
 use crossbeam_channel::{Sender,Receiver};
 use std::sync::Arc;
+use rolock::RoLock;
 
 //---------------------------------------------------------------------------------------------------- GUI struct. This hold ALL data.
 pub struct Gui {

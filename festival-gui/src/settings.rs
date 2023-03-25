@@ -16,6 +16,9 @@ use shukusai::{
 	FESTIVAL,
 	FESTIVAL_HEADER,
 };
+use shukusai::sort::{
+	AlbumSort,
+};
 
 //---------------------------------------------------------------------------------------------------- Settings
 /// `GUI`'s settings.
@@ -34,7 +37,7 @@ pub(super) struct Settings {
 	pub(super) restore_state: bool,
 
 	/// Collection sorting of album view.
-	pub(super) sort_order: shukusai::AlbumSort,
+	pub(super) sort_order: AlbumSort,
 
 	/// Static pixel width/height for each album cover.
 	pub(super) album_art_size: f32,

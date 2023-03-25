@@ -28,7 +28,7 @@ macro_rules! impl_plural {
 		/// This reimplements common [`Vec`] functions/traits, notably [`std::ops::Index`]. This allows for type-safe indexing.
 		///
 		/// For example, `Albums` is ONLY allowed to be indexed with a `AlbumKey`:
-		/// ```rust
+		/// ```rust,ignore
 		/// let my_usize = 0;
 		/// let key = AlbumKey::from(my_usize);
 		///

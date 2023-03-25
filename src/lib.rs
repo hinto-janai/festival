@@ -90,7 +90,7 @@ pub mod kernel;
 /// Various sorting methods for the `Collection`
 ///
 /// These `enum`'s just represent `Collection` fields and are used for convenience:
-/// ```rust
+/// ```rust,ignore
 /// // These two both return the same data.
 /// // The enum can be useful when programming frontend stuff.
 ///

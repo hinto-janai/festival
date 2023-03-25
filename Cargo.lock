@@ -1599,6 +1599,7 @@ dependencies = [
  "egui_extras",
  "image",
  "log",
+ "rolock",
  "serde",
  "shukusai",
 ]

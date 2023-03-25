@@ -21,9 +21,11 @@ use super::{
 };
 use disk::Bincode;
 use log::{error,warn,info,debug,trace};
-use shukusai::{
+use shukusai::kernel::{
 	FrontendToKernel,
 	KernelToFrontend,
+};
+use shukusai::{
 	mass_panic,
 	send,
 	recv,
