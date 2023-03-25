@@ -2,7 +2,6 @@
 //use anyhow::{anyhow,bail,ensure};
 //use log::{info,error,warn,trace,debug};
 //use serde::{Serialize,Deserialize};
-//use crate::macros::*;
 //use disk::prelude::*;
 //use disk::{};
 //use std::{};
@@ -20,9 +19,66 @@ use super::{
 	tab::Tab,
 	tab,
 };
+use disk::Bincode;
+use log::{error,warn,info,debug,trace};
+use shukusai::{
+	FrontendToKernel,
+	KernelToFrontend,
+	mass_panic,
+	send,
+	recv,
+	ok,
+};
+use std::time::Duration;
 
 //---------------------------------------------------------------------------------------------------- Main GUI event loop.
 impl eframe::App for Gui {
+	#[inline(always)]
+	fn on_close_event(&mut self) -> bool {
+		// Tell `Kernel` to save stuff.
+		send!(self.to_kernel, FrontendToKernel::Exit);
+
+		// Save `State` if diff.
+		if self.diff_state() {
+			if let Err(e) = self.settings.write() {
+				error!("GUI | Could not save `Settings`: {}", e)
+			}
+		}
+
+		// Save `Settings` if diff.
+		if self.diff_settings() {
+			if let Err(e) = self.state.write() {
+				error!("GUI | Could not save `State`: {}", e)
+			}
+		}
+
+		// Check if `Kernel` succeeded.
+		// Loop through 3 messages just in-case
+		// there were others in the channel queue.
+		//
+		// This waits a max `900ms` before
+		// continuing without the response.
+		let mut n = 0;
+		loop {
+			if let Ok(KernelToFrontend::ExitResponse(r)) = self.from_kernel.recv_timeout(Duration::from_millis(300)) {
+				match r {
+					Ok(_)  => ok!("GUI | Kernel save"),
+					Err(e) => error!("GUI | Kernel save failed: {}", e),
+				}
+				break
+			} else if n > 3 {
+				error!("GUI | Could not determine Kernel's exit result, continuing exit");
+			} else {
+				n += 1;
+			}
+		}
+
+		// Exit.
+		std::process::exit(0);
+		true
+	}
+
+	#[inline(always)]
 	fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
 		// Determine if there is a diff in settings.
 //		let diff = self.settings != self.og;

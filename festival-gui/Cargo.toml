@@ -26,6 +26,7 @@ egui_extras = { version = "0.21.0", path = "../external/egui/crates/egui_extras"
 ### Regular libraries.
 clap  = { version = "4.1.13", features = ["derive"] }
 crossbeam-channel = "0.5.7"
+disk  = { version = "0.0.1", features = ["toml"] }
 image = { version = "0.24.5", features = ["jpeg", "png"], default-features = false }
 log   = "0.4.17"
 serde = { version = "1.0.158", features = ["derive"] }

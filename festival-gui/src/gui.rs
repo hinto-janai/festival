@@ -27,7 +27,7 @@ pub struct Gui {
 
 	// `shukusai` data.
 	pub(super) collection: Arc<Collection>,
-	pub(super) k_state: RoLock<KernelState>,
+	pub(super) kernel_state: RoLock<KernelState>,
 
 	// `GUI` settings.
 	pub(super) og_settings: Settings,
@@ -40,28 +40,46 @@ pub struct Gui {
 
 //---------------------------------------------------------------------------------------------------- GUI convenience functions.
 impl Gui {
-	#[inline]
+	#[inline(always)]
 	/// Set the original [`Settings`] to reflect live [`Settings`].
 	pub(super) fn set_settings(&mut self) {
 		self.og_settings = self.settings.clone();
 	}
 
-	#[inline]
+	#[inline(always)]
 	/// Set the original [`State`] to reflect live [`State`].
 	pub(super) fn set_state(&mut self) {
 		self.og_state = self.state.clone();
 	}
 
-	#[inline]
+	#[inline(always)]
 	/// Reset [`Settings`] to the original.
 	pub(super) fn reset_settings(&mut self) {
 		self.settings = self.og_settings.clone();
 	}
 
-	#[inline]
+	#[inline(always)]
 	/// Reset [`State`] to the original.
 	pub(super) fn reset_state(&mut self) {
 		self.state = self.og_state.clone();
+	}
+
+	#[inline]
+	/// Returns true if either [`Settings`] or [`State`] have diffs.
+	pub(super) fn diff(&self) -> bool {
+		(self.state == self.og_state) && (self.settings == self.og_settings)
+	}
+
+	#[inline(always)]
+	/// Returns true if [`Settings`] and the old version are not `==`.
+	pub(super) fn diff_settings(&self) -> bool {
+		self.settings == self.og_settings
+	}
+
+	#[inline(always)]
+	/// Returns true if [`State`] and the old version are not `==`.
+	pub(super) fn diff_state(&self) -> bool {
+		self.state == self.og_state
 	}
 }
 
