@@ -56,6 +56,21 @@ pub enum FrontendToKernel {
 	NewCollection(Vec<PathBuf>),
 	/// I'd like to search the [`Collection`] with this [`String`].
 	Search(String),
+
+	// Exiting.
+	/// I'm exiting, save everything.
+	///
+	/// # Notes
+	/// After you send this message, [`Kernel`] will save everything, and respond with a
+	/// [`Kernel::ExitResponse`] that contains either a [`Result::Ok`] meaning everything went okay,
+	/// or [`Result::Err`] with a [`String`] payload containing an error message.
+	///
+	/// After the reponse (regardless of the [`Result`]), [`Kernel`] will
+	/// - [`std::thread::park`] forever
+	/// - Ignore all channel messages
+	///
+	/// After you receive the response, you should [`std::thread::exit`] to kill all threads.
+	Exit,
 }
 
 /// Messages [`Kernel`] can send to `Frontend`
@@ -96,6 +111,12 @@ pub enum KernelToFrontend {
 	NewState(RoLock<KernelState>),
 	/// Here's a search result.
 	SearchResult(Keychain),
+
+	// Exit.
+	/// You sent a [`FrontendToKernel::Exit`], here is the [`Result`]
+	/// of saving the data. I'm going to [`std::thread::park`] forever
+	/// after this response and ignore channel messages.
+	ExitResponse(Result<(), String>),
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

@@ -273,6 +273,8 @@ impl Kernel {
 			// Collection.
 			NewCollection(paths) => self.ccd_mode(paths),
 			Search(string)       => send!(self.to_search, KernelToSearch::Search(string)),
+			// Exit.
+			Exit                 => self.exit(),
 		}
 	}
 
@@ -319,6 +321,21 @@ impl Kernel {
 
 		if float <= lock_read!(self.state).current_runtime {
 			send!(self.to_audio, KernelToAudio::Play);
+		}
+	}
+
+	#[inline(always)]
+	// The `Frontend` is exiting, save everything.
+	fn exit(&mut self) -> ! {
+		// Save `KernelState`.
+		match lock_read!(self.state).write() {
+			Ok(_)  => send!(self.to_frontend, KernelToFrontend::ExitResponse(Ok(()))),
+			Err(e) => send!(self.to_frontend, KernelToFrontend::ExitResponse(Err(e.to_string()))),
+		}
+
+		// Hang forever.
+		loop {
+			std::thread::park();
 		}
 	}
 
