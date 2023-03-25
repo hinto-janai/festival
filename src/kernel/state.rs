@@ -10,7 +10,8 @@ use disk::{Bincode,bincode_file};
 use crate::collection::{
 	Key,
 	Keychain,
-	Slice,
+	Queue,
+	Playlists,
 };
 use crate::constants::{
 	FESTIVAL,
@@ -46,9 +47,9 @@ pub struct KernelState {
 
 	// Queue/Playlist.
 	/// The current song queue.
-	pub queue: Slice,
+	pub queue: Queue,
 	/// ALL the user's playlists.
-	pub playlists: Slice,
+	pub playlists: Playlists,
 }
 
 impl KernelState {
@@ -65,8 +66,8 @@ impl KernelState {
 
 			search_result: Keychain::new(),
 
-			queue: Slice::new(),
-			playlists: Slice::new(),
+			queue: Queue::new(),
+			playlists: Playlists::new(),
 		}
 	}
 }

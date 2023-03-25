@@ -44,7 +44,10 @@ macro_rules! impl_plural {
 			type Output = $name;
 
 			#[inline(always)]
-			/// Index [`$name`] with a [`$key`] instead of a [`usize`].
+			/// Index [`Self`] with its appropriate key instead of a [`usize`].
+			///
+			/// # Panics:
+			/// The key must be a valid index.
 			fn index(&self, key: $key) -> &Self::Output {
 				&self.0[key.inner()]
 			}
@@ -109,8 +112,6 @@ macro_rules! impl_plural {
 impl_plural!(Artist, Artists, ArtistKey);
 impl_plural!(Album, Albums, AlbumKey);
 impl_plural!(Song, Songs, SongKey);
-impl_plural!(ArtistKey, ArtistKeys, ArtistKey);
-impl_plural!(AlbumKey, AlbumKeys, AlbumKey);
 impl_plural!(SongKey, SongKeys, SongKey);
 impl_plural!(QueueKey, QueueKeys, QueueKey);
 impl_plural!(PlaylistKey, PlaylistKeys, PlaylistKey);
