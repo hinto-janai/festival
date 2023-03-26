@@ -27,6 +27,11 @@ macro_rules! impl_common {
 				Self(0)
 			}
 			#[inline(always)]
+			/// Returns `Self(0)`.
+			pub const fn zero() -> Self {
+				Self(0)
+			}
+			#[inline(always)]
 			/// Returns the inner `usize`.
 			pub const fn inner(&self) -> usize {
 				self.0
@@ -72,6 +77,22 @@ macro_rules! impl_common {
 			#[inline(always)]
 			fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 				write!(f, "{}", self.0)
+			}
+		}
+		impl PartialEq<$type> for usize {
+			fn eq(&self, other: &$type) -> bool {
+				*self == other.0
+			}
+			fn ne(&self, other: &$type) -> bool {
+				*self != other.0
+			}
+		}
+		impl PartialEq<usize> for $type {
+			fn eq(&self, other: &usize) -> bool {
+				self.0 == *other
+			}
+			fn ne(&self, other: &usize) -> bool {
+				self.0 != *other
 			}
 		}
 	}
