@@ -33,63 +33,63 @@ use rolock::RoLock;
 //---------------------------------------------------------------------------------------------------- GUI struct. This hold ALL data.
 pub struct Gui {
 	// `Kernel` channels.
-	pub(super) to_kernel: Sender<FrontendToKernel>,
-	pub(super) from_kernel: Receiver<KernelToFrontend>,
+	pub to_kernel: Sender<FrontendToKernel>,
+	pub from_kernel: Receiver<KernelToFrontend>,
 
 	// `shukusai` data.
-	pub(super) collection: Arc<Collection>,
-	pub(super) kernel_state: RoLock<KernelState>,
+	pub collection: Arc<Collection>,
+	pub kernel_state: RoLock<KernelState>,
 
 	// `GUI` settings.
-	pub(super) og_settings: Settings,
-	pub(super) settings: Settings,
+	pub og_settings: Settings,
+	pub settings: Settings,
 
 	// `GUI` state.
-	pub(super) og_state: State,
-	pub(super) state: State,
+	pub og_state: State,
+	pub state: State,
 }
 
 //---------------------------------------------------------------------------------------------------- GUI convenience functions.
 impl Gui {
 	#[inline(always)]
 	/// Set the original [`Settings`] to reflect live [`Settings`].
-	pub(super) fn set_settings(&mut self) {
+	pub fn set_settings(&mut self) {
 		self.og_settings = self.settings.clone();
 	}
 
 	#[inline(always)]
 	/// Set the original [`State`] to reflect live [`State`].
-	pub(super) fn set_state(&mut self) {
+	pub fn set_state(&mut self) {
 		self.og_state = self.state.clone();
 	}
 
 	#[inline(always)]
 	/// Reset [`Settings`] to the original.
-	pub(super) fn reset_settings(&mut self) {
+	pub fn reset_settings(&mut self) {
 		self.settings = self.og_settings.clone();
 	}
 
 	#[inline(always)]
 	/// Reset [`State`] to the original.
-	pub(super) fn reset_state(&mut self) {
+	pub fn reset_state(&mut self) {
 		self.state = self.og_state.clone();
 	}
 
 	#[inline]
 	/// Returns true if either [`Settings`] or [`State`] have diffs.
-	pub(super) fn diff(&self) -> bool {
+	pub fn diff(&self) -> bool {
 		(self.state == self.og_state) && (self.settings == self.og_settings)
 	}
 
 	#[inline(always)]
 	/// Returns true if [`Settings`] and the old version are not `==`.
-	pub(super) fn diff_settings(&self) -> bool {
+	pub fn diff_settings(&self) -> bool {
 		self.settings == self.og_settings
 	}
 
 	#[inline(always)]
 	/// Returns true if [`State`] and the old version are not `==`.
-	pub(super) fn diff_state(&self) -> bool {
+	pub fn diff_state(&self) -> bool {
 		self.state == self.og_state
 	}
 }
@@ -156,7 +156,7 @@ impl Gui {
 //impl Gui {
 //	#[inline(always)]
 //	// Sets the initial options for native rendering with eframe
-//	pub(super) fn options() -> eframe::NativeOptions {
+//	pub fn options() -> eframe::NativeOptions {
 //		// Icon
 //		let icon = image::load_from_memory(ICON).expect("Failed to read icon bytes").to_rgba8();
 //		let (width, height) = icon.dimensions();
@@ -182,7 +182,7 @@ impl Gui {
 //	}
 //
 //	#[inline(always)]
-//	pub(super) fn init(
+//	pub fn init(
 //		cc:          &eframe::CreationContext<'_>,
 //		to_kernel:   Sender<FrontendToKernel>,
 //		from_kernel: Receiver<KernelToFrontend>,

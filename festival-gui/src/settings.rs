@@ -29,26 +29,26 @@ use shukusai::sort::{
 /// - etc
 bincode_file!(Settings, Dir::Data, FESTIVAL, "gui", "settings", FESTIVAL_HEADER, SETTINGS_VERSION);
 #[derive(Clone,Debug,Default,PartialEq,PartialOrd,Serialize,Deserialize)]
-pub(super) struct Settings {
+pub struct Settings {
 	/// RGB (A is always added later as 255, no opacity).
-	pub(super) accent_color: [u8; 3],
+	pub accent_color: [u8; 3],
 
 	/// Restore playback on re-open.
-	pub(super) restore_state: bool,
+	pub restore_state: bool,
 
 	/// Collection sorting of album view.
-	pub(super) sort_order: AlbumSort,
+	pub sort_order: AlbumSort,
 
 	/// Static pixel width/height for each album cover.
-	pub(super) album_art_size: f32,
+	pub album_art_size: f32,
 
 	/// List of [`PathBuf`]'s to source music
 	/// data from when making a new [`Collection`].
-	pub(super) collection_paths: Vec<PathBuf>,
+	pub collection_paths: Vec<PathBuf>,
 }
 
 impl Settings {
-	pub(super) fn new() -> Self {
+	pub fn new() -> Self {
 		Self {
 			accent_color: [200, 100, 100], // Pinkish red
 			restore_state: true,

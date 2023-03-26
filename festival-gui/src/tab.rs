@@ -5,17 +5,17 @@ use serde::{Serialize,Deserialize};
 
 //---------------------------------------------------------------------------------------------------- Tab Constants
 // This is the text actually displayed in the `GUI`.
-pub(super) const ALBUMS:    &str = "Albums";
-pub(super) const ARTISTS:   &str = "Artists";
-pub(super) const SONGS:     &str = "Songs";
-pub(super) const QUEUE:     &str = "Queue";
-pub(super) const PLAYLISTS: &str = "Playlists";
-pub(super) const SEARCH:    &str = "Search";
-pub(super) const SETTINGS:  &str = "Settings";
+pub const ALBUMS:    &str = "Albums";
+pub const ARTISTS:   &str = "Artists";
+pub const SONGS:     &str = "Songs";
+pub const QUEUE:     &str = "Queue";
+pub const PLAYLISTS: &str = "Playlists";
+pub const SEARCH:    &str = "Search";
+pub const SETTINGS:  &str = "Settings";
 
 //---------------------------------------------------------------------------------------------------- Tab Enum
 #[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
-pub(super) enum Tab {
+pub enum Tab {
 	#[default]
 	Albums,
 	Artists,
@@ -28,7 +28,7 @@ pub(super) enum Tab {
 
 impl Tab {
 	/// No [`String`] allocation.
-	pub(super) fn as_str(&self) -> &'static str {
+	pub fn as_str(&self) -> &'static str {
 		match self {
 			Self::Albums    => ALBUMS,
 			Self::Artists   => ARTISTS,
