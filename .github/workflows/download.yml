@@ -1,0 +1,37 @@
+# Attempt downloading all files from `festival.pm`
+# and verifies the SHA256SUMS & PGP signature.
+
+name: festival.pm
+on:
+  schedule:
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Download Windows
+      run: wget --content-disposition "https://festival.pm/windows"
+    - name: Download macOS
+      run: wget --content-disposition "https://festival.pm/macos"
+    - name: Download Linux
+      run: wget --content-disposition "https://festival.pm/linux"
+    - name: Download Hashes
+      run: wget --content-disposition "https://festival.pm/hashes"
+    - name: Download PGP key
+      run: wget --content-disposition "https://festival.pm/hinto"
+    - name: Import PGP key
+      run: gpg --import hinto.asc
+    - name: Verify Hashes
+      run: sha256sum -c hashes.asc
+    - name: Verify PGP Signature
+      run: gpg --verify hashes.asc
