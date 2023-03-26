@@ -17,6 +17,7 @@ use shukusai::{
 	FESTIVAL_HEADER,
 };
 use shukusai::key::{
+	Key,
 	AlbumKey,
 };
 
