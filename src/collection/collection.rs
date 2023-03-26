@@ -27,6 +27,21 @@ use crate::constants::{
 	FESTIVAL_HEADER,
 	COLLECTION_VERSION,
 };
+use rand::{
+	Rng,
+	SeedableRng,
+	prelude::SliceRandom,
+};
+use std::sync::Mutex;
+use crate::macros::{
+	lock,
+	mass_panic,
+};
+
+//---------------------------------------------------------------------------------------------------- Constant/lazy_static
+lazy_static::lazy_static! {
+	static ref RNG: Mutex<rand::rngs::SmallRng> = Mutex::new(rand::rngs::SmallRng::from_entropy());
+}
 
 //---------------------------------------------------------------------------------------------------- The Collection™
 bincode_file!(Collection, Dir::Data, FESTIVAL, "", "collection", FESTIVAL_HEADER, COLLECTION_VERSION);
@@ -121,7 +136,6 @@ pub struct Collection {
 
 impl Collection {
 	//-------------------------------------------------- New.
-	#[inline(always)]
 	/// Creates an empty [`Collection`].
 	///
 	/// All [`Vec`]'s are empty.
@@ -160,6 +174,7 @@ impl Collection {
 	}
 
 	//-------------------------------------------------- Misc functions.
+	#[inline]
 	// Get current timestamp as UNIX time.
 	pub(crate) fn timestamp_now() -> u64 {
 		let now = std::time::SystemTime::now();
@@ -184,7 +199,6 @@ impl Collection {
 		(&self.artists.0[artist], &self.albums.0[album], &self.songs.0[song])
 	}
 
-	#[inline(always)]
 	/// [`slice::get`] the [`Collection`] with a [`Key`].
 	///
 	/// # Errors:
@@ -240,7 +254,7 @@ impl Collection {
 	}
 
 	//-------------------------------------------------- Key traversal (`.get()`).
-	#[inline(always)]
+	#[inline]
 	/// Obtain an [`Artist`], but from a [`AlbumKey`].
 	///
 	/// # Errors:
@@ -254,7 +268,7 @@ impl Collection {
 		self.artists.get(artist)
 	}
 
-	#[inline(always)]
+	#[inline]
 	/// Obtain an [`Album`], but from a [`SongKey`].
 	///
 	/// # Errors:
@@ -268,7 +282,7 @@ impl Collection {
 		self.albums.get(album)
 	}
 
-	#[inline(always)]
+	#[inline]
 	/// Obtain an [`Artist`], but from a [`SongKey`].
 	///
 	/// # Errors:
@@ -283,7 +297,6 @@ impl Collection {
 	}
 
 	//-------------------------------------------------- Sorting
-	#[inline]
 	/// Access a particular `sort_artist_` field in the [`Collection`] via a [`ArtistSort`].
 	pub fn artist_sort(&self, sort: &ArtistSort) -> &Vec<ArtistKey> {
 		use ArtistSort::*;
@@ -294,7 +307,6 @@ impl Collection {
 		}
 	}
 
-	#[inline]
 	/// Access a particular `sort_album_` field in the [`Collection`] via a [`AlbumSort`].
 	pub fn album_sort(&self, sort: &AlbumSort) -> &Vec<AlbumKey> {
 		use AlbumSort::*;
@@ -307,7 +319,6 @@ impl Collection {
 		}
 	}
 
-	#[inline]
 	/// Access a particular `sort_song_` field in the [`Collection`] via a [`SongSort`].
 	pub fn song_sort(&self, sort: &SongSort) -> &Vec<SongKey> {
 		use SongSort::*;
@@ -317,6 +328,151 @@ impl Collection {
 			Lexi                   => &self.sort_song_lexi,
 			Release                => &self.sort_song_release,
 			Runtime                => &self.sort_song_runtime,
+		}
+	}
+
+	//-------------------------------------------------- Random
+	/// Get a random _valid_ [`ArtistKey`].
+	///
+	/// If you provide a `Some<ArtistKey>`, this function
+	/// will _not_ return that same [`ArtistKey`].
+	///
+	/// # Notes
+	/// - If there is only 1 [`ArtistKey`], `ArtistKey(0)` will always be returned.
+	/// - If there are _no_ [`Artist`]'s in the [`Collection`], [`Option::None`] is returned.
+	pub fn rand_artist(&self, key: Option<ArtistKey>) -> Option<ArtistKey> {
+		match self.count_artist {
+			0 => return None,
+			1 => return Some(ArtistKey::zero()),
+			_ => (),
+		}
+
+		if let Some(key) = key {
+			loop {
+				let rand_usize: usize = lock!(RNG).gen_range(0..self.count_artist);
+				if rand_usize != key {
+					return Some(ArtistKey::from(rand_usize))
+				}
+			}
+		}
+
+		let rand_usize: usize = lock!(RNG).gen_range(0..self.count_artist);
+		Some(ArtistKey::from(rand_usize))
+	}
+
+	/// Get a random _valid_ [`AlbumKey`].
+	///
+	/// If you provide a `Some<AlbumKey>`, this function
+	/// will _not_ return that same [`AlbumKey`].
+	///
+	/// # Notes
+	/// - If there is only 1 [`AlbumKey`], `AlbumKey(0)` will always be returned.
+	/// - If there are _no_ [`Album`]'s in the [`Collection`], [`Option::None`] is returned.
+	pub fn rand_album(&self, key: Option<AlbumKey>) -> Option<AlbumKey> {
+		match self.count_album {
+			0 => return None,
+			1 => return Some(AlbumKey::zero()),
+			_ => (),
+		}
+
+		if let Some(key) = key {
+			loop {
+				let rand_usize: usize = lock!(RNG).gen_range(0..self.count_album);
+				if rand_usize != key {
+					return Some(AlbumKey::from(rand_usize))
+				}
+			}
+		}
+
+		let rand_usize: usize = lock!(RNG).gen_range(0..self.count_album);
+		Some(AlbumKey::from(rand_usize))
+	}
+
+	/// Get a random _valid_ [`SongKey`].
+	///
+	/// If you provide a `Some<SongKey>`, this function
+	/// will _not_ return that same [`SongKey`].
+	///
+	/// # Notes
+	/// - If there is only 1 [`SongKey`], `SongKey(0)` will always be returned.
+	/// - If there are _no_ [`Song`]'s in the [`Collection`], [`Option::None`] is returned.
+	pub fn rand_song(&self, key: Option<SongKey>) -> Option<SongKey> {
+		match self.count_song {
+			0 => return None,
+			1 => return Some(SongKey::zero()),
+			_ => (),
+		}
+
+		if let Some(key) = key {
+			loop {
+				let rand_usize: usize = lock!(RNG).gen_range(0..self.count_song);
+				if rand_usize != key {
+					return Some(SongKey::from(rand_usize))
+				}
+			}
+		}
+
+		let rand_usize: usize = lock!(RNG).gen_range(0..self.count_song);
+		Some(SongKey::from(rand_usize))
+	}
+
+	/// Get a [`Vec`] of random _valid_ [`ArtistKey`]'s.
+	///
+	/// The length of the returned [`Vec`] will match [`Collection::count_artist`]'s length.
+	///
+	/// # Notes
+	/// - If there are _no_ [`Artist`]'s in the [`Collection`], [`Option::None`] is returned.
+	pub fn rand_artists(&self) -> Option<Vec<ArtistKey>> {
+		match self.count_artist {
+			0 => None,
+			1 => Some(vec![ArtistKey::zero()]),
+			_ => {
+				let mut vec: Vec<ArtistKey> = (0..self.count_artist)
+					.map(|i: usize| ArtistKey::from(i))
+					.collect();
+				vec.shuffle(&mut *lock!(RNG));
+				Some(vec)
+			}
+		}
+	}
+
+	/// Get a [`Vec`] of random _valid_ [`AlbumKey`]'s.
+	///
+	/// The length of the returned [`Vec`] will match [`Collection::count_album`]'s length.
+	///
+	/// # Notes
+	/// - If there are _no_ [`Album`]'s in the [`Collection`], [`Option::None`] is returned.
+	pub fn rand_albums(&self) -> Option<Vec<AlbumKey>> {
+		match self.count_album {
+			0 => None,
+			1 => Some(vec![AlbumKey::zero()]),
+			_ => {
+				let mut vec: Vec<AlbumKey> = (0..self.count_album)
+					.map(|i: usize| AlbumKey::from(i))
+					.collect();
+				vec.shuffle(&mut *lock!(RNG));
+				Some(vec)
+			}
+		}
+	}
+
+	/// Get a [`Vec`] of random _valid_ [`SongKey`]'s.
+	///
+	/// The length of the returned [`Vec`] will match [`Collection::count_song`]'s length.
+	///
+	/// # Notes
+	/// - If there are _no_ [`Song`]'s in the [`Collection`], [`Option::None`] is returned.
+	pub fn rand_songs(&self) -> Option<Vec<SongKey>> {
+		match self.count_song {
+			0 => None,
+			1 => Some(vec![SongKey::zero()]),
+			_ => {
+				let mut vec: Vec<SongKey> = (0..self.count_song)
+					.map(|i: usize| SongKey::from(i))
+					.collect();
+				vec.shuffle(&mut *lock!(RNG));
+				Some(vec)
+			}
 		}
 	}
 }
