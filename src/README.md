@@ -100,7 +100,7 @@ These folders represent the frontend threads. They are located at the root `/`.
 | `festival-cli/`  | CLI client
 
 ## Misc
-These are top-level files for miscellaneous stuff:
+These are top-level `src/` files for miscellaneous stuff:
 
 | File           | Purpose |
 |----------------|---------|

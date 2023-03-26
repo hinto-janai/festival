@@ -5,7 +5,7 @@
 
 Music player for Windows/macOS/Linux.
 
-![Build](https://github.com/hinto-janai/festival/actions/workflows/build-root.yml/badge.svg) ![Tests](https://github.com/hinto-janai/festival/actions/workflows/test-root.yml/badge.svg) [![crates.io](https://img.shields.io/crates/v/shukusai.svg)](https://crates.io/crates/shukusai) [![docs.rs](https://docs.rs/shukusai/badge.svg)](https://docs.rs/shukusai)
+![Build](https://github.com/hinto-janai/festival/actions/workflows/build.yml/badge.svg) ![Tests](https://github.com/hinto-janai/festival/actions/workflows/test.yml/badge.svg) [![crates.io](https://img.shields.io/crates/v/shukusai.svg)](https://crates.io/crates/shukusai) [![docs.rs](https://docs.rs/shukusai/badge.svg)](https://docs.rs/shukusai)
 
 * [Comparison](#Comparison)
 * [Frontends](#Frontends)
