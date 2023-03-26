@@ -19,10 +19,9 @@ jobs:
       uses: actions/cache@v3.2.3
       with:
         path: |
-          ~/.cargo/registry
-          ~/.cargo/git
+          ~/.cargo
           target
-        key: cargo test
+        key: test-gui
     - uses: actions/checkout@v3
       with:
         submodules: recursive
@@ -31,4 +30,4 @@ jobs:
         sudo apt update
         sudo apt install -y libgtk-3-dev
     - name: Test
-      run: cd festival-gui && cargo test
+      run: cd festival-gui && cargo test --all-features

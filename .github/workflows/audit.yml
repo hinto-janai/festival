@@ -1,6 +1,6 @@
-# This builds everything.
+# This runs `cargo audit` on everything.
 
-name: Build
+name: Audit
 
 on:
   push:
@@ -23,7 +23,7 @@ jobs:
         path: |
           ~/.cargo
           target
-        key: build
+        key: audit
     - uses: actions/checkout@v3
       with:
         submodules: recursive
@@ -31,5 +31,6 @@ jobs:
       run: |
         sudo apt update
         sudo apt install -y libgtk-3-dev
-    - name: Build
-      run: cargo build --all-features
+        cargo install cargo-audit
+    - name: Audit
+      run: cargo audit

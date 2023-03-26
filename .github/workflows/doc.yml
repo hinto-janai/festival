@@ -1,6 +1,6 @@
-# This builds everything.
+# This documents all of `Festival`, but not the dependencies.
 
-name: Build
+name: Doc
 
 on:
   push:
@@ -23,7 +23,7 @@ jobs:
         path: |
           ~/.cargo
           target
-        key: build
+        key: doc
     - uses: actions/checkout@v3
       with:
         submodules: recursive
@@ -31,5 +31,5 @@ jobs:
       run: |
         sudo apt update
         sudo apt install -y libgtk-3-dev
-    - name: Build
-      run: cargo build --all-features
+    - name: Doc
+      run: cargo doc --workspace --no-deps --all-features

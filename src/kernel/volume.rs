@@ -30,11 +30,7 @@ impl Volume {
 	///
 	/// [`f64::NAN`] will also return `None`.
 	pub fn new(float: f64) -> Option<Self> {
-		if float < 0.0 {
-			return None
-		} else if float > 100.0 {
-			return None
-		} else if float.is_nan() {
+		if float < 0.0 || float > 100.0 || float.is_nan() {
 			return None
 		}
 

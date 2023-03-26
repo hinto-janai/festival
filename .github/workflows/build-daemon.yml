@@ -19,12 +19,11 @@ jobs:
       uses: actions/cache@v3.2.3
       with:
         path: |
-          ~/.cargo/registry
-          ~/.cargo/git
+          ~/.cargo
           target
-        key: cargo build
+        key: build-daemon
     - uses: actions/checkout@v3
       with:
         submodules: recursive
     - name: Build
-      run: cd festivald && cargo build
+      run: cd festivald && cargo build --all-features
