@@ -64,7 +64,7 @@ all-features = true
 [dependencies]
 ### Personal libraries.
 disk     = { version = "0.0.3", features = ["bincode", "toml", "plain"] }
-readable = { version = "0.3.1", features = ["serde", "ignore_nan_inf"] }
+readable = { version = "0.3.2", features = ["serde", "ignore_nan_inf"] }
 rolock   = { version = "0.1.1" }
 
 ### External patched libraries `external/`.
@@ -81,7 +81,7 @@ crossbeam-channel = "0.5.7"
 env_logger = "0.10.0"
 fast_image_resize = "2.7.0"
 #id3 = "1.6.0"
-image = { version = "0.24.5", features = ["jpeg", "png"], default-features = false }
+image = { version = "0.24.6", features = ["jpeg", "png"], default-features = false }
 infer = "0.13.0"
 lazy_static = "1.4.0"
 log = "0.4.17"

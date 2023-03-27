@@ -1,5 +1,5 @@
 # Festival Documentation
-This is an overview of `Festival`.
+This is an overview of `Festival`'s internals: `shukusai`.
 
 For details on any part of the system, look within any given sub-directory for its `README.md`, which contains more specific documentation.
 
@@ -104,7 +104,6 @@ These are top-level `src/` files for miscellaneous stuff:
 
 | File           | Purpose |
 |----------------|---------|
-| `cli.rs`       | Command line argument parsing/handling
 | `commit`       | Symlink to current `main` branch commit
 | `constants.rs` | General constants
 | `logger.rs`    | Console logging initialization
@@ -415,9 +414,9 @@ Since in `Collection`, that would end up invalidating everything, mutation is no
 
 The one and only saving grace for what otherwise is bad code:
 
-- It's fast.
+- **It's fast.**
 
-The time it takes `Lollypop` to add 1 new song and reload is the same time it takes `Festival` to create [**an entire `Collection` consisting of 135 `Artist`'s, 500 `Album`'s, and 7000 `Song`'s from scratch.**](https://github.com/hinto-janai/festival/cmp)
+The time it takes `Lollypop` to add 1 new song and reload is the same time it takes `Festival` to create [an entire `Collection` consisting of 135 `Artist`'s, 500 `Album`'s, and 7000 `Song`'s from scratch.](https://github.com/hinto-janai/festival/tree/main/cmp)
 
 Not to mention the access times of indexing a `Vec` vs `SQL` queries.
 
@@ -431,7 +430,7 @@ After `CCD` hands off the finished `Collection` to `Kernel`, `Kernel` wraps it i
 
 [`TOML`](https://github.com/ordian/toml_edit) is used for miscellaneous state, like the `GUI` settings.
 
-`shukusai` uses an internal library (`disk`) that adds some extra features to `Bincode` files. In particular, it adds a versioning system.
+`shukusai` uses the library `disk` that adds some extra features to `Bincode` files. In particular, it adds a versioning system.
 
 This is for when I eventually realize the `Collection` has a mistake in it's structure, or that something should be changed.
 
