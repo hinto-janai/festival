@@ -121,11 +121,12 @@ impl Ccd {
 		// 5.
 		let now = Instant::now();
 		let collection = Collection {
+			// These will be fixed after construction.
 			empty: false,
-			timestamp: Collection::timestamp_now(),
-			count_artist: vec_artist.len(),
-			count_album: vec_album.len(),
-			count_song: vec_song.len(),
+			timestamp: 0,
+			count_artist: 0,
+			count_album: 0,
+			count_song: 0,
 
 			artists: Artists::from(vec_artist),
 			albums: Albums::from(vec_album),
@@ -147,6 +148,8 @@ impl Ccd {
 			sort_song_release,
 			sort_song_runtime,
 		};
+		// Fix.
+		let collection = collection.set_metadata();
 		debug!("CCD [5/10] | Collection: {}", now.elapsed().as_secs_f32());
 
 		// 6.

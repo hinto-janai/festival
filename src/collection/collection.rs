@@ -80,6 +80,7 @@ bincode_file!(Collection, Dir::Data, FESTIVAL, "", "collection", FESTIVAL_HEADER
 /// collection.albums[key];
 /// ```
 pub struct Collection {
+	// The "3 Vecs".
 	/// All the [`Artist`]'s in mostly random order.
 	pub artists: Artists,
 	/// All the [`Album`]'s in mostly random order.
@@ -173,10 +174,36 @@ impl Collection {
 		}
 	}
 
-	//-------------------------------------------------- Misc functions.
+	//-------------------------------------------------- Metadata functions.
 	#[inline]
-	// Get current timestamp as UNIX time.
-	pub(crate) fn timestamp_now() -> u64 {
+	// Set the proper metadata for this `Collection`.
+	pub(crate) fn set_metadata(mut self) -> Self {
+		// Get `Vec` lengths.
+		let artists = self.artists.len();
+		let albums  = self.albums.len();
+		let songs   = self.songs.len();
+
+		// Set `empty`.
+		if artists == 0 && albums == 0 && songs == 0 {
+			self.empty = true;
+		} else {
+			self.empty = false;
+		}
+
+		// Set `count_*`.
+		self.count_artist = artists;
+		self.count_album  = albums;
+		self.count_song   = songs;
+
+		// Set `timestamp`.
+		self.timestamp = Self::unix_now();
+
+		self
+	}
+
+	#[inline]
+	// Get the current UNIX time.
+	pub(crate) fn unix_now() -> u64 {
 		let now = std::time::SystemTime::now();
 		match now.duration_since(std::time::SystemTime::UNIX_EPOCH) {
 			Ok(ts) => ts.as_secs(),
