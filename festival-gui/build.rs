@@ -5,7 +5,7 @@ fn main() -> std::io::Result<()> {
 
 	// Set `File Explorer` icon.
 	let mut res = winres::WindowsResource::new();
-	res.set_icon("assets/images/icons/icon.ico");
+	res.set_icon("../assets/images/icon/icon.ico");
 	res.compile()
 }
 

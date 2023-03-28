@@ -123,6 +123,7 @@ mod tests {
 	}
 
 	#[test]
+	#[cfg(unix)]
 	// Makes sure the `WalkDir` function is correctly:
 	// 1. Finding PATHs
 	// 2. Filtering for audio MIMEs

@@ -62,7 +62,7 @@ impl eframe::App for Gui {
 		// continuing without the response.
 		let mut n = 0;
 		loop {
-			if let Ok(KernelToFrontend::ExitResponse(r)) = self.from_kernel.recv_timeout(Duration::from_millis(300)) {
+			if let Ok(KernelToFrontend::Exit(r)) = self.from_kernel.recv_timeout(Duration::from_millis(300)) {
 				match r {
 					Ok(_)  => ok!("GUI | Kernel save"),
 					Err(e) => error!("GUI | Kernel save failed: {}", e),

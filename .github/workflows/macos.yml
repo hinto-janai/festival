@@ -1,6 +1,6 @@
-# This runs `cargo clippy` on everything.
+# This clippys, docs, tests, builds, miris.
 
-name: Clippy
+name: macOS
 
 on:
   push:
@@ -10,12 +10,11 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  RUSTFLAGS: -Awarnings
 
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
-
+  macos:
+    runs-on: macos-latest
     steps:
     - name: Cache
       uses: actions/cache@v3.2.3
@@ -23,13 +22,15 @@ jobs:
         path: |
           ~/.cargo
           target
-        key: clippy
+        key: macos
     - uses: actions/checkout@v3
       with:
         submodules: recursive
-    - name: Install dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y libgtk-3-dev
     - name: Clippy
       run: cargo clippy --all-features
+    - name: Doc
+      run: cargo doc --workspace --no-deps --all-features
+    - name: Test
+      run: cargo test --all-features
+    - name: Build
+      run: cargo build --all-features

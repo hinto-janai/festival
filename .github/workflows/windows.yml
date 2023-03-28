@@ -1,6 +1,6 @@
-# This documents all of `Festival`, but not the dependencies.
+# This clippys, docs, tests, builds, miris.
 
-name: Doc
+name: Windows
 
 on:
   push:
@@ -10,26 +10,27 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  RUSTFLAGS: -Awarnings
 
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
-
+  windows:
+    runs-on: windows-latest
     steps:
     - name: Cache
       uses: actions/cache@v3.2.3
       with:
         path: |
-          ~/.cargo
+          ~\.cargo
           target
-        key: doc
+        key: windows
     - uses: actions/checkout@v3
       with:
         submodules: recursive
-    - name: Install dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y libgtk-3-dev
+    - name: Clippy
+      run: cargo clippy --all-features
     - name: Doc
       run: cargo doc --workspace --no-deps --all-features
+    - name: Test
+      run: cargo test --all-features
+    - name: Build
+      run: cargo build --all-features

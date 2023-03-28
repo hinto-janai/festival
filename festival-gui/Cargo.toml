@@ -31,3 +31,8 @@ image = { version = "0.24.6", features = ["jpeg", "png"], default-features = fal
 log   = "0.4.17"
 serde = { version = "1.0.158", features = ["derive"] }
 rolock = "0.1.1"
+
+# For Windows build (icon)
+[target.'cfg(windows)'.build-dependencies]
+winres = "0.1.12"
+static_vcruntime = "2.0.0"

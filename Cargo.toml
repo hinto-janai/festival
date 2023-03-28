@@ -40,10 +40,29 @@ members = [
 	"festival-cli",
 ]
 
-# Currently, only build `festival-gui`.
-#[[bin]]
-#path = "festival-gui/src/main.rs"
-#name = "festival"
+# GUI
+[[bin]]
+name = "festival"
+path = "festival-gui/src/main.rs"
+doc = false
+
+# Web
+[[bin]]
+name = "festival-web"
+path = "festival-web/src/main.rs"
+doc = false
+
+# Daemon
+[[bin]]
+name = "festivald"
+path = "festivald/src/main.rs"
+doc = false
+
+# CLI
+[[bin]]
+name = "festival-cli"
+path = "festival-cli/src/main.rs"
+doc = false
 
 [profile.release]
 debug = false
@@ -72,6 +91,12 @@ egui        = { version = "0.21.0", path = "external/egui/crates/egui",        f
 eframe      = { version = "0.21.0", path = "external/egui/crates/eframe",      features = ["wgpu"],          default-features = false }
 egui_extras = { version = "0.21.0", path = "external/egui/crates/egui_extras", features = ["image"] }
 lofty       = { version = "0.11.0", path = "external/lofty-rs" }
+
+### Build dependencies.
+### These aren't directly used in `shukusai`
+### but for some reason, workspace builds won't
+### work if not defined here, so...
+clap = { version = "4", features = ["derive"] }
 
 ### Regular libraries.
 anyhow = "1.0.70"

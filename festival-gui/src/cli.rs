@@ -4,7 +4,7 @@ use log::info;
 use shukusai::*;
 
 //---------------------------------------------------------------------------------------------------- CLI Parser (clap)
-#[derive(Parser)]
+#[derive(Parser, Debug)]
 #[command(override_usage = "festival [OPTIONS]")]
 pub struct Cli {
 	/// Toggle playback (play/pause)
