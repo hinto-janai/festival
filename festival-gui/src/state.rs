@@ -20,27 +20,24 @@ use shukusai::key::{
 	Key,
 	AlbumKey,
 };
+use shukusai::kernel::{
+	AudioState,
+	KernelState,
+};
 
 //---------------------------------------------------------------------------------------------------- State
 /// `GUI`'s State.
 ///
 /// Holds user-mutable `GUI` state.
+///
+/// This struct holds an [`AudioState`] which a local copy copied from [`KernelState`].
+/// This is so that within the `GUI` loop, [`KernelState`] only needs to be locked _once_,
+/// so its values can be locally cached, then used within the frame.
 bincode_file!(State, Dir::Data, FESTIVAL, "gui", "state", FESTIVAL_HEADER, STATE_VERSION);
-#[derive(Clone,Debug,Default,PartialEq,PartialOrd,Serialize,Deserialize)]
+#[derive(Copy,Clone,Debug,Default,PartialEq,PartialOrd,Serialize,Deserialize)]
 pub struct State {
 	/// Which [`Tab`] are currently on?
 	pub tab: Tab,
-
-	/// Which [`Key`] are we currently on?
-	///
-	/// This means which [`Song`] of what [`Album`]
-	/// of what [`Artist`] are we currently listening to.
-	///
-	/// This acts as a local cache so we don't have to lock
-	/// `KernelState` everytime we want to read the value.
-	///
-	/// [`Option::None`] indicates we aren't listening to anything right now.
-	pub key: Option<Key>,
 
 	/// Which [`Album`] are we on in the `Album` tab?
 	///
@@ -51,14 +48,16 @@ pub struct State {
 	/// [`Option::None`] indicates we aren't looking at
 	/// any [`Album`] and are in the full [`Album`] art view.
 	pub album: Option<AlbumKey>,
+
+	/// `GUI`'s local [`AudioState`].
+	pub audio: AudioState,
 }
 
 impl State {
+	#[inline]
 	/// Creates a mostly empty [`State`].
 	pub fn new() -> Self {
 		Self {
-			key: None,
-			album: None,
 			..Default::default()
 		}
 	}

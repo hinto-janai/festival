@@ -32,6 +32,7 @@ use shukusai::{
 	ok,
 };
 use std::time::Duration;
+use rolock::RoLock;
 
 //---------------------------------------------------------------------------------------------------- Main GUI event loop.
 impl eframe::App for Gui {
@@ -83,7 +84,12 @@ impl eframe::App for Gui {
 	#[inline(always)]
 	fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
 		// Determine if there is a diff in settings.
-//		let diff = self.settings != self.og;
+		let diff = self.diff_settings();
+
+		// Copy `Kernel`'s `AudioState`.
+		if self.state.audio.playing {
+			self.copy_kernel_audio();
+		}
 
 		// Set global UI [Style/Visual]s
 //		if diff {
@@ -118,32 +124,33 @@ impl eframe::App for Gui {
 impl Gui {
 #[inline(always)]
 fn show_bottom(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
-// TODO
-//	TopBottomPanel::bottom("bottom").resizable(false).show(ctx, |ui| {
-//		ui.set_height(height);
-//
-//		// Base unit for sizing UI.
-//		let unit = width / 15.0;
-//
-//		ui.horizontal(|ui| {
-//			// Media control buttons
-//			ui.group(|ui| {
-//				ui.add_sized([unit, height], Button::new("⏪"));
-//				ui.add_sized([unit*1.5, height], Button::new("▶"));
-//				ui.add_sized([unit, height], Button::new("⏩"));
-//			});
-//
-//			// Song time elapsed
-//			ui.add_sized([unit, height], Label::new("1:33 / 3:22"));
-//
-//			// Slider (playback)
-//			ui.spacing_mut().slider_width = ui.available_width();
-//			ui.add_sized(
-//				[ui.available_width(), height],
-//				Slider::new(&mut self.v, 0.0..=100.0).smallest_positive(1.0).show_value(false)
-//			);
-//		});
-//	});
+	TopBottomPanel::bottom("bottom").resizable(false).show(ctx, |ui| {
+		ui.set_height(height);
+
+		// Base unit for sizing UI.
+		let unit = width / 15.0;
+
+		ui.horizontal(|ui| {
+			// Media control buttons
+			ui.group(|ui| {
+				ui.add_sized([unit, height], Button::new("⏪"));
+				ui.add_sized([unit*1.5, height], Button::new("▶"));
+				ui.add_sized([unit, height], Button::new("⏩"));
+			});
+
+			// Song time elapsed
+			ui.add_sized([unit, height], Label::new("1:33 / 3:22"));
+
+			// Slider (playback)
+			ui.spacing_mut().slider_width = ui.available_width();
+			ui.add_sized(
+				[ui.available_width(), height],
+				// TODO:
+				// Send signal on slider mutation by user.
+				Slider::new(&mut self.state.audio.current_elapsed, 0.0..=100.0).smallest_positive(1.0).show_value(false)
+			);
+		});
+	});
 }}
 
 //---------------------------------------------------------------------------------------------------- Left Panel

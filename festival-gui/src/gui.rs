@@ -16,6 +16,12 @@ use shukusai::collection::{
 };
 use shukusai::sort::{
 };
+use shukusai::{
+	ok,
+	ok_debug,
+	lock_read,
+	mass_panic,
+};
 use log::{
 	info,
 	warn,
@@ -29,6 +35,7 @@ use egui::{
 use crossbeam_channel::{Sender,Receiver};
 use std::sync::Arc;
 use rolock::RoLock;
+use disk::Bincode;
 
 //---------------------------------------------------------------------------------------------------- GUI struct. This hold ALL data.
 pub struct Gui {
@@ -92,139 +99,156 @@ impl Gui {
 	pub fn diff_state(&self) -> bool {
 		self.state == self.og_state
 	}
+
+	#[inline(always)]
+	/// Copies the _audio_ values from [`KernelState`] into [`State`].
+	pub fn copy_kernel_audio(&mut self) {
+		let k = lock_read!(self.kernel_state);
+
+		// PERF:
+		// Comparison seems to be slower than un-conditional
+		// assignment for small `copy`-able structs like `AudioState`,
+		// so don't even check for diffs, just always copy.
+		self.state.audio = k.audio;
+	}
 }
 
-////---------------------------------------------------------------------------------------------------- GUI Init.
-//// Instead of having [Gui::new()] be 1000s of lines long,
-//// these private functions will be separate stuff.
-//impl Gui {
-//	#[inline(always)]
-//	fn init_style() -> egui::Style {
-//		let style = Style {
-//			..Default::default()
-//		};
+//---------------------------------------------------------------------------------------------------- GUI Init.
+// Instead of having [Gui::new()] be 1000s of lines long,
+// these private functions will be separate stuff.
 //
-//		ok_debug!("GUI Init | Style");
-//		style
-//	}
-//
-//	#[inline(always)]
-//	fn init_visuals() -> egui::Visuals {
-//		let visuals = Visuals {
-//			slider_trailing_fill: true,
-//			..Visuals::dark()
-//		};
-//
-//		ok_debug!("GUI Init | Visuals");
-//		visuals
-//	}
-//
-//	#[inline(always)]
-//	fn init_fonts() -> egui::FontDefinitions {
-//		let mut fonts = FontDefinitions::default();
-//		// TODO
-//		fonts.font_data.insert("0".to_string(), FontData::from_static(FONT_SOURCECODE_PRO));
-//		fonts.font_data.insert("1".to_string(), FontData::from_static(FONT_SOURCECODE_JP).tweak(
-//			FontTweak {
-//				y_offset_factor: -0.38, // Move it up
-//				..Default::default()
-//			},
-//		));
-////		fonts.font_data.insert("SourceCode-Pro".to_string(), FontData::from_static(FONT_SOURCECODE_PRO));
-////		fonts.font_data.insert("SourceCode-CN".to_string(), FontData::from_static(FONT_SOURCECODE_CN));
-////		fonts.font_data.insert("SourceCode-HK".to_string(), FontData::from_static(FONT_SOURCECODE_HK));
-////		fonts.font_data.insert("SourceCode-TW".to_string(), FontData::from_static(FONT_SOURCECODE_TW));
-////		fonts.font_data.insert("SourceCode-KR".to_string(), FontData::from_static(FONT_SOURCECODE_KR));
-////		fonts.font_data.insert("SourceCode-JP".to_string(), FontData::from_static(FONT_SOURCECODE_JP));
-////		fonts.font_data.insert("JuliaMono".to_string(), FontData::from_static(FONT_JULIAMONO));
-//
-//		for i in 0..=1 {
-//			fonts.families.get_mut(&FontFamily::Monospace)
-//				.expect("Failed to get: egui::FontFamily::Monospace")
-//				.insert(i, i.to_string());
-//			fonts.families.get_mut(&FontFamily::Proportional)
-//				.expect("Failed to get: egui::FontFamily::Proportional")
-//				.push(i.to_string());
-//		}
-//
-//		ok_debug!("GUI Init | Fonts");
-//		fonts
-//	}
-//}
-//
-////---------------------------------------------------------------------------------------------------- `egui/eframe` options & init
-//impl Gui {
-//	#[inline(always)]
-//	// Sets the initial options for native rendering with eframe
-//	pub fn options() -> eframe::NativeOptions {
-//		// Icon
-//		let icon = image::load_from_memory(ICON).expect("Failed to read icon bytes").to_rgba8();
-//		let (width, height) = icon.dimensions();
-//		let icon_data = Some(eframe::IconData {
-//			rgba: icon.into_raw(),
-//			width,
-//			height,
-//		});
-//
-//		// The rest
-//		let options = eframe::NativeOptions {
-//			min_window_size: Some(egui::Vec2::from(APP_MIN_RESOLUTION)),
-//			initial_window_size: Some(egui::Vec2::from(APP_MIN_RESOLUTION)),
-//			follow_system_theme: false,
-//			default_theme: eframe::Theme::Dark,
-//			renderer: eframe::Renderer::Wgpu,
-//			icon_data,
-//			..Default::default()
-//		};
-//
-//		ok!("eframe::NativeOptions");
-//		options
-//	}
-//
-//	#[inline(always)]
-//	pub fn init(
-//		cc:          &eframe::CreationContext<'_>,
-//		to_kernel:   Sender<FrontendToKernel>,
-//		from_kernel: Receiver<KernelToFrontend>,
-//	) -> Self {
-//		info!("GUI Init starting...");
-//
-//		let mut app = Self {
-//			to_kernel,
-//			from_kernel,
-//			img: Img::new(),
-//			v: 0.0,
-//			s: 1,
-//			list: vec![
-//				(1, "3:02", "Home Alone"),
-//				(2, "3:22", "恋しい日々"),
-//				(3, "3:20", "エメラルド"),
-//				(4, "2:46", "ごあいさつ"),
-//				(5, "2:09", "ジェットコースター"),
-//				(6, "4:07", "序章"),
-//				(7, "2:29", "ロマンス宣言"),
-//				(8, "4:34", "ゆくえ"),
-//				(9, "3:58", "サマーバケーション"),
-//				(10, "3:45", "カーステレオから"),
-//				(11, "4:38", "グレープフルーツ"),
-//				(12, "3:21", "アーケード"),
-//				(13, "4:18", "祝日"),
-//			],
-//			name: "祝祭",
-//			tab: Tab::Albums,
-//		};
-//
-//		// Style
-//		cc.egui_ctx.set_style(Self::init_style());
-//
-//		// Visuals
-//		cc.egui_ctx.set_visuals(Self::init_visuals());
-//
-//		// Fonts
-//		cc.egui_ctx.set_fonts(Self::init_fonts());
-//
-//		// Done.
-//		ok!("GUI Init");
-//		app
-//	}
-//}
+// See `Gui::init` at the bottom to see the function that "starts" the `GUI`.
+impl Gui {
+	#[inline(always)]
+	fn init_style() -> egui::Style {
+		let style = Style {
+			..Default::default()
+		};
+
+		ok_debug!("GUI Init | Style");
+		style
+	}
+
+	#[inline(always)]
+	fn init_visuals() -> egui::Visuals {
+		let visuals = Visuals {
+			slider_trailing_fill: true,
+			..Visuals::dark()
+		};
+
+		ok_debug!("GUI Init | Visuals");
+		visuals
+	}
+
+	#[inline(always)]
+	fn init_fonts() -> egui::FontDefinitions {
+		let mut fonts = FontDefinitions::default();
+		// TODO:
+		// Only 2 fonts for debugging.
+		// Make sure all fonts are enabled at v1.0.0.
+		fonts.font_data.insert("0".to_string(), FontData::from_static(FONT_SOURCECODE_PRO));
+		fonts.font_data.insert("1".to_string(), FontData::from_static(FONT_SOURCECODE_JP).tweak(
+			FontTweak {
+				y_offset_factor: -0.38, // Move it up
+				..Default::default()
+			},
+		));
+//		fonts.font_data.insert("SourceCode-Pro".to_string(), FontData::from_static(FONT_SOURCECODE_PRO));
+//		fonts.font_data.insert("SourceCode-CN".to_string(), FontData::from_static(FONT_SOURCECODE_CN));
+//		fonts.font_data.insert("SourceCode-HK".to_string(), FontData::from_static(FONT_SOURCECODE_HK));
+//		fonts.font_data.insert("SourceCode-TW".to_string(), FontData::from_static(FONT_SOURCECODE_TW));
+//		fonts.font_data.insert("SourceCode-KR".to_string(), FontData::from_static(FONT_SOURCECODE_KR));
+//		fonts.font_data.insert("SourceCode-JP".to_string(), FontData::from_static(FONT_SOURCECODE_JP));
+//		fonts.font_data.insert("JuliaMono".to_string(), FontData::from_static(FONT_JULIAMONO));
+
+		for i in 0..=1 {
+			fonts.families.get_mut(&FontFamily::Monospace)
+				.expect("Failed to get: egui::FontFamily::Monospace")
+				.insert(i, i.to_string());
+			fonts.families.get_mut(&FontFamily::Proportional)
+				.expect("Failed to get: egui::FontFamily::Proportional")
+				.push(i.to_string());
+		}
+
+		ok_debug!("GUI Init | Fonts");
+		fonts
+	}
+}
+
+//---------------------------------------------------------------------------------------------------- `egui/eframe` options & init
+impl Gui {
+	#[inline(always)]
+	// Sets the initial options for native rendering with eframe
+	pub fn options() -> eframe::NativeOptions {
+		// Icon
+		// SAFETY: This image is known at compile-time. It should never fail.
+		let icon = image::load_from_memory(ICON).unwrap().to_rgba8();
+		let (width, height) = icon.dimensions();
+		let icon_data = Some(eframe::IconData {
+			rgba: icon.into_raw(),
+			width,
+			height,
+		});
+
+		// The rest
+		let options = eframe::NativeOptions {
+			min_window_size: Some(egui::Vec2::from(APP_MIN_RESOLUTION)),
+			initial_window_size: Some(egui::Vec2::from(APP_MIN_RESOLUTION)),
+			follow_system_theme: false,
+			default_theme: eframe::Theme::Dark,
+			renderer: eframe::Renderer::Wgpu,
+			icon_data,
+			..Default::default()
+		};
+
+		ok!("eframe::NativeOptions");
+		options
+	}
+
+	#[inline(always)]
+	// This "starts" the `GUI` thread.
+	pub fn init(
+		cc:          &eframe::CreationContext<'_>,
+		to_kernel:   Sender<FrontendToKernel>,
+		from_kernel: Receiver<KernelToFrontend>,
+	) -> Self {
+		info!("GUI Init starting...");
+
+		// TODO: Handle errors.
+		//
+		// Read from disk.
+		let settings = Settings::from_file().unwrap();
+		let state    = State::from_file().unwrap();
+
+		let mut app = Self {
+			// `Kernel` channels.
+			to_kernel,
+			from_kernel,
+
+			// `shukusai` data.
+			collection: Collection::dummy(),
+			kernel_state: KernelState::dummy(),
+
+			// `GUI` settings.
+			og_settings: settings.clone(),
+			settings,
+
+			// `GUI` state.
+			og_state: state.clone(),
+			state,
+		};
+
+		// Style
+		cc.egui_ctx.set_style(Self::init_style());
+
+		// Visuals
+		cc.egui_ctx.set_visuals(Self::init_visuals());
+
+		// Fonts
+		cc.egui_ctx.set_fonts(Self::init_fonts());
+
+		// Done.
+		ok!("GUI Init");
+		app
+	}
+}
