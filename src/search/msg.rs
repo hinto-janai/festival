@@ -12,11 +12,12 @@ use crate::key::Keychain;
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
 pub(crate) enum SearchToKernel {
-	SearchResult(Keychain), // Here's the search result.
+	// Here's the search (similarity) result.
+	SearchSim(Keychain),
 }
 
 pub(crate) enum KernelToSearch {
-	Search(String),                 // Start a search on string input.
+	SearchSim(String),              // Start a (similarity) search on string input.
 	DropCollection,                 // Drop your pointer.
 	NewCollection(Arc<Collection>), // Here's a new `Collection` pointer.
 }

@@ -56,16 +56,20 @@ pub enum FrontendToKernel {
 	// Collection.
 	/// I'd like a new [`Collection`], scanning these [`PathBuf`]'s for audio files.
 	NewCollection(Vec<PathBuf>),
-	/// I'd like to search the [`Collection`] with this [`String`].
-	Search(String),
+	/// I'd like to search the [`Collection`] with this [`String`] for similar
+	/// [`Artist`]'s, [`Album`]'s, and [`Song`]'s.
+	///
+	/// # Notes
+	/// [`Kernel`] will respond with [`KernelToFrontend::SearchSim`].
+	SearchSim(String),
 
 	// Exiting.
 	/// I'm exiting, save everything.
 	///
 	/// # Notes
 	/// After you send this message, [`Kernel`] will save everything, and respond with a
-	/// [`KernelToFrontend::ExitResponse`] that contains either a [`Result::Ok`] meaning
-	/// everything went okay, or [`Result::Err`] with a [`String`] payload containing an error message.
+	/// [`KernelToFrontend::Exit`] that contains either a [`Result::Ok`] meaning everything went okay,
+	/// or [`Result::Err`] with a [`String`] payload containing an error message.
 	///
 	/// After the reponse (regardless of the [`Result`]), [`Kernel`] will
 	/// - [`std::thread::park`] forever
@@ -108,17 +112,22 @@ pub enum KernelToFrontend {
 	/// The audio file at this [`PathBuf`] has errored (probably doesn't exist).
 	PathError(String),
 
-	// Misc.
+	// State.
 	/// Here's a new [`KernelState`] pointer inside a [`rolock::RoLock`].
 	NewState(RoLock<KernelState>),
-	/// Here's a search result.
-	SearchResult(Keychain),
+
+	// Search.
+	/// Here's a (similarity) search result.
+	///
+	/// # Notes
+	/// This is a response to [`FrontendToKernel::SearchSim`].
+	SearchSim(Keychain),
 
 	// Exit.
 	/// You sent a [`FrontendToKernel::Exit`], here is the [`Result`]
 	/// of saving the data. I'm going to [`std::thread::park`] forever
 	/// after this response and ignore channel messages.
-	ExitResponse(Result<(), String>),
+	Exit(Result<(), String>),
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

@@ -264,7 +264,7 @@ impl Kernel {
 			Repeat               => flip!(lock_write!(self.state).repeat),
 			// Collection.
 			NewCollection(paths) => self.ccd_mode(paths),
-			Search(string)       => send!(self.to_search, KernelToSearch::Search(string)),
+			SearchSim(string)    => send!(self.to_search, KernelToSearch::SearchSim(string)),
 			// Exit.
 			Exit                 => self.exit(),
 		}
@@ -275,7 +275,7 @@ impl Kernel {
 	fn msg_search(&self, msg: SearchToKernel) {
 		use crate::search::SearchToKernel::*;
 		match msg {
-			SearchResult(keychain) => send!(self.to_frontend, KernelToFrontend::SearchResult(keychain)),
+			SearchSim(keychain) => send!(self.to_frontend, KernelToFrontend::SearchSim(keychain)),
 		}
 	}
 
@@ -321,8 +321,8 @@ impl Kernel {
 	fn exit(&mut self) -> ! {
 		// Save `KernelState`.
 		match lock_read!(self.state).save() {
-			Ok(_)  => send!(self.to_frontend, KernelToFrontend::ExitResponse(Ok(()))),
-			Err(e) => send!(self.to_frontend, KernelToFrontend::ExitResponse(Err(e.to_string()))),
+			Ok(_)  => send!(self.to_frontend, KernelToFrontend::Exit(Ok(()))),
+			Err(e) => send!(self.to_frontend, KernelToFrontend::Exit(Err(e.to_string()))),
 		}
 
 		// Hang forever.

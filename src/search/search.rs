@@ -50,7 +50,7 @@ impl Search {
 		Self::main(search);
 	}
 
-	fn search(&mut self, input: String) -> Keychain {
+	fn sim(&mut self, input: String) -> Keychain {
 		// Return early if search input is in cache.
 		if let Some(v) = self.cache.get(&input) {
 			return v.clone()
@@ -74,14 +74,14 @@ impl Search {
 		// Create keychain.
 		let keychain = Keychain::from_vecs(artists, albums, songs);
 
-		// Cache.
+		// (Maybe) clear cache.
 		if self.cache.len() > 1000 {
 			// Clear.
 			self.cache.clear();
-		} else {
-			// Add to cache.
-			self.cache.insert(input, keychain.clone());
 		}
+
+		// Add to cache.
+		self.cache.insert(input, keychain.clone());
 
 		// Return.
 		keychain
@@ -119,7 +119,7 @@ impl Search {
 			// Match message and do action.
 			use KernelToSearch::*;
 			match msg {
-				Search(input)      => self.msg_search(input),
+				SearchSim(input)   => self.msg_sim(input),
 				DropCollection     => self = self.msg_drop(),
 
 				// Other messages shouldn't be received here, e.g:
@@ -131,12 +131,12 @@ impl Search {
 	}
 
 	#[inline(always)]
-	fn msg_search(&mut self, input: String) {
+	fn msg_sim(&mut self, input: String) {
 		// Get result.
-		let result = self.search(input);
+		let result = self.sim(input);
 
 		// Send to Kernel.
-		send!(self.to_kernel, SearchToKernel::SearchResult(result));
+		send!(self.to_kernel, SearchToKernel::SearchSim(result));
 	}
 
 	#[inline(always)]
