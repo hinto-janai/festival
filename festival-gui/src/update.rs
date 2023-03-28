@@ -157,50 +157,60 @@ fn show_bottom(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width:
 impl Gui {
 #[inline(always)]
 fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
-// TODO
-//	SidePanel::left("left").resizable(false).show(ctx, |ui| {
-//		ui.set_width(width);
-//		ui.set_height(height);
-//
-//		// Size definitions of the elements within the left panel.
-//		let half_height = height / 2.0;
-//		let tab_height  = half_height / 7.0;
-//		let tab_width   = width / 1.2;
-//
-//		// Main UI
-//		ui.vertical_centered_justified(|ui| {
-//
-//			// Display [SelectableLabel] for each [Tab].
-//			if ui.add_sized([tab_width, tab_height], SelectableLabel::new(self.tab == Tab::Albums, tab::ALBUMS)).clicked()       { self.tab = Tab::Albums; }
-//			ui.separator();
-//			if ui.add_sized([tab_width, tab_height], SelectableLabel::new(self.tab == Tab::Artists, tab::ARTISTS)).clicked()     { self.tab = Tab::Artists; }
-//			ui.separator();
-//			if ui.add_sized([tab_width, tab_height], SelectableLabel::new(self.tab == Tab::Songs, tab::SONGS)).clicked()         { self.tab = Tab::Songs; }
-//			ui.separator();
-//			if ui.add_sized([tab_width, tab_height], SelectableLabel::new(self.tab == Tab::Queue, tab::QUEUE)).clicked()         { self.tab = Tab::Queue; }
-//			ui.separator();
-//			if ui.add_sized([tab_width, tab_height], SelectableLabel::new(self.tab == Tab::Playlists, tab::PLAYLISTS)).clicked() { self.tab = Tab::Playlists; }
-//			ui.separator();
-//			if ui.add_sized([tab_width, tab_height], SelectableLabel::new(self.tab == Tab::Search, tab::SEARCH)).clicked()       { self.tab = Tab::Search; }
-//			ui.separator();
-//			if ui.add_sized([tab_width, tab_height], SelectableLabel::new(self.tab == Tab::Settings, tab::SETTINGS)).clicked()   { self.tab = Tab::Settings; }
-//			ui.separator();
-//
-//			// Volume slider
-//			let slider_height = ui.available_height() - 20.0;
-//
-//			ui.add_space(10.0);
-//
-//			ui.spacing_mut().slider_width = slider_height;
-//			ui.visuals_mut().selection.bg_fill = Color32::from_rgb(200, 100, 100);
-//
-//			ui.horizontal(|ui| {
-//				let unit = width / 10.0;
-//				ui.add_space(unit*4.0);
-//				ui.add(Slider::new(&mut self.v, 0.0..=100.0).smallest_positive(1.0).show_value(false).vertical().thickness(unit*2.0).circle_size(unit));
-//			});
-//		});
-//	});
+	SidePanel::left("left").resizable(false).show(ctx, |ui| {
+		ui.set_width(width);
+		ui.set_height(height);
+
+		// Size definitions of the elements within the left panel.
+		let half_height = height / 2.0;
+		let tab_height  = half_height / 7.0;
+		let tab_width   = width / 1.2;
+
+		// Main UI
+		ui.vertical_centered_justified(|ui| {
+
+			// Display [SelectableLabel] for each [Tab].
+			{
+				let mut tab = self.state.tab;
+				if ui.add_sized([tab_width, tab_height], SelectableLabel::new(tab == Tab::Albums, tab::ALBUMS)).clicked()       { tab = Tab::Albums; }
+				ui.separator();
+				if ui.add_sized([tab_width, tab_height], SelectableLabel::new(tab == Tab::Artists, tab::ARTISTS)).clicked()     { tab = Tab::Artists; }
+				ui.separator();
+				if ui.add_sized([tab_width, tab_height], SelectableLabel::new(tab == Tab::Songs, tab::SONGS)).clicked()         { tab = Tab::Songs; }
+				ui.separator();
+				if ui.add_sized([tab_width, tab_height], SelectableLabel::new(tab == Tab::Queue, tab::QUEUE)).clicked()         { tab = Tab::Queue; }
+				ui.separator();
+				if ui.add_sized([tab_width, tab_height], SelectableLabel::new(tab == Tab::Playlists, tab::PLAYLISTS)).clicked() { tab = Tab::Playlists; }
+				ui.separator();
+				if ui.add_sized([tab_width, tab_height], SelectableLabel::new(tab == Tab::Search, tab::SEARCH)).clicked()       { tab = Tab::Search; }
+				ui.separator();
+				if ui.add_sized([tab_width, tab_height], SelectableLabel::new(tab == Tab::Settings, tab::SETTINGS)).clicked()   { tab = Tab::Settings; }
+				ui.separator();
+			}
+
+			// Volume slider
+			let slider_height = ui.available_height() - 20.0;
+
+			ui.add_space(10.0);
+
+			ui.spacing_mut().slider_width = slider_height;
+			ui.visuals_mut().selection.bg_fill = Color32::from_rgb(200, 100, 100);
+
+			ui.horizontal(|ui| {
+				let unit = width / 10.0;
+				ui.add_space(unit*4.0);
+				// TODO:
+				// Send signal on slider mutation by user.
+				ui.add(Slider::new(&mut self.state.audio.volume.inner(), 0.0..=100.0)
+					.smallest_positive(1.0)
+					.show_value(false)
+					.vertical()
+					.thickness(unit*2.0)
+					.circle_size(unit)
+				);
+			});
+		});
+	});
 }}
 
 //---------------------------------------------------------------------------------------------------- Right Panel

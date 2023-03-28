@@ -21,6 +21,7 @@ use crate::constants::{
 	STATE_VERSION,
 };
 use rolock::RoLock;
+use super::Volume;
 
 //---------------------------------------------------------------------------------------------------- AudioState
 /// Audio State
@@ -33,6 +34,8 @@ use rolock::RoLock;
 pub struct AudioState {
 	/// Are we playing audio right now?
 	pub playing: bool,
+	/// What is the current [`Volume`]?
+	pub volume: Volume,
 	/// Which song are we playing right now?
 	pub current_key: Option<Key>,
 	/// How much time has passed in this song?
@@ -51,6 +54,7 @@ impl AudioState {
 	pub fn new() -> Self {
 		Self {
 			playing: false,
+			volume: Volume::new_50(),
 			current_key: None,
 			current_elapsed: 0.0,
 			current_runtime: 0.0,

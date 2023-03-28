@@ -81,6 +81,14 @@ impl Volume {
 	}
 }
 
+impl Default for Volume {
+	#[inline]
+	/// Calls [`Volume::new_50`].
+	fn default() -> Self {
+		Self::new_50()
+	}
+}
+
 impl std::fmt::Display for Volume {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		write!(f, "{}", self.0)
