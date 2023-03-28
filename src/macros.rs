@@ -168,8 +168,6 @@ macro_rules! unwrap_or_mass {
 }
 pub use unwrap_or_mass;
 
-extern crate self as shukusai;
-
 #[macro_export]
 /// [`send`] a channel message, [`mass_panic!`] on failure
 macro_rules! send {
