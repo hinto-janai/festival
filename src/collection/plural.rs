@@ -38,10 +38,10 @@ macro_rules! impl_plural {
 		/// // Type-safe, compiles.
 		/// collection.albums[key];
 		/// ```
-		// Define plural `struct`.
+		//-------------------------------------------------- Define plural `struct`.
 		pub struct $plural(pub(crate) Vec<$name>);
 
-		// Implement `[]` indexing.
+		//-------------------------------------------------- Implement `[]` indexing.
 		impl std::ops::Index<$key> for $plural {
 			type Output = $name;
 
@@ -68,12 +68,12 @@ macro_rules! impl_plural {
 		}
 
 		impl $plural {
-			// New (private).
+			//-------------------------------------------------- New (private).
 			pub(crate) const fn new() -> Self {
 				Self(vec![])
 			}
 
-			// Common `Vec` and related functions.
+			//-------------------------------------------------- Common `Vec` and related functions.
 			#[inline(always)]
 			/// Calls [`slice::iter`].
 			pub fn iter(&self) -> std::slice::Iter<'_, $name> {
@@ -117,7 +117,7 @@ macro_rules! impl_plural {
 			}
 		}
 
-		// From a `Vec`.
+		//-------------------------------------------------- From a `Vec`.
 		// This is only used internally.
 		impl From<Vec<$name>> for $plural {
 			#[inline]

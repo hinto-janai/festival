@@ -7,6 +7,7 @@ use super::{
 	artist::Artist,
 	song::Song,
 	plural::{Artists,Albums,Songs},
+	Map,
 };
 use crate::key::{
 	Key,
@@ -19,6 +20,7 @@ use crate::sort::{
 	AlbumSort,
 	SongSort,
 };
+use crate::kernel::Kernel;
 use std::collections::HashMap;
 use disk::prelude::*;
 use disk::{Bincode,bincode_file};
@@ -52,21 +54,15 @@ bincode_file!(Collection, Dir::Data, FESTIVAL, "", "collection", FESTIVAL_HEADER
 ///
 /// This holds:
 /// - The "3 Vecs", holding _all_ [`Artist`]'s, [`Album`]'s, and [`Song`]'s.
+/// - The "Map", a searchable [`HashMap`]
 /// - Pre-computed, sorted keys
 /// - Metadata about the [`Collection`] itself
 ///
-/// ### Sort
-/// The "3 Vecs" are (basically) in random order due to how `Collection` is created.
-///
-/// Iterating directly on them is not very useful, so use the pre-calculated sorted keys.
-///
-/// The sorted key fields all start with `sort_`.
-///
-/// `lexi` is shorthand for `lexicographically`, as defined [here.](https://doc.rust-lang.org/stable/std/primitive.str.html#impl-Ord-for-str)
-///
 /// ### Index
-/// To properly index the [`Collection`], for example, an [`Album`], you CAN use the `[]` operators, however,
-/// they must be type-safe. Meaning: it CANNOT be a random [`usize`], it must be the proper type of [`Key`].
+/// The fastest & preferred way to access the [`Collection`] is via indexing.
+///
+/// To properly index the [`Collection`], for example, an [`Album`], you can use the `[]` operators, however,
+/// it must be type-safe. It _cannot_ be a [`usize`], it must be the proper type of [`Key`].
 ///
 /// Example:
 /// ```rust,ignore
@@ -79,7 +75,44 @@ bincode_file!(Collection, Dir::Data, FESTIVAL, "", "collection", FESTIVAL_HEADER
 /// // Type-safe, compiles.
 /// collection.albums[key];
 /// ```
+///
+/// ### Search
+/// Instead of directly indexing the [`Collection`], you can opt to use:
+/// - [`Collection::artist`]
+/// - [`Collection::album`]
+/// - [`Collection::song`]
+///
+/// These three functions are akin to a [`HashMap::get`] and accept arbitrary
+/// [`str`] input instead of raw indicies or a [`Key`]. This is more flexible
+/// but obviously is much slower if you already know the proper index.
+///
+/// A [`Song`] or [`Album`] cannot be directly searched without an [`Artist`]
+/// due to collisions. For example, what should be returned given a [`Collection`] like this?
+/// - Artist_A | Album_C | Song_E
+/// - Artist_B | Album_D | Song_E
+/// - Artist_C | Album_D | Song_E
+///
+/// There's a collision of both [`Album`]'s AND [`Song`]'s.
+///
+/// [`Artist`]'s will always be unique, so it acts as an identifier.
+///
+/// ### Sort
+/// The "3 Vecs" are (basically) in random order due to how `Collection` is created.
+///
+/// Iterating directly on them is not very useful, so use the pre-calculated sorted keys.
+///
+/// The sorted key fields all start with `sort_`.
+///
+/// `lexi` is shorthand for `lexicographically`, as defined [here.](https://doc.rust-lang.org/stable/std/primitive.str.html#impl-Ord-for-str)
+///
+/// ### Frontend
+/// As a `Frontend`, you will never produce a [`Collection`] yourself, rather,
+/// you ask [`Kernel`] to produce one for you. You will receive an immutable `Arc<Collection>`.
 pub struct Collection {
+	// The "Map".
+	/// A [`HashMap`] that knows all [`Artist`]'s, [`Album`]'s and [`Song`]'s.
+	pub(crate) map: Map,
+
 	// The "3 Vecs".
 	/// All the [`Artist`]'s in mostly random order.
 	pub artists: Artists,
@@ -137,18 +170,22 @@ pub struct Collection {
 
 impl Collection {
 	//-------------------------------------------------- New.
-	/// Creates an empty [`Collection`].
-	///
-	/// All [`Vec`]'s are empty.
-	///
-	/// The `timestamp` and `count_*` fields are set to `0`.
-	///
-	/// `empty` is set to `true`.
-	pub const fn new() -> Self {
+	// Creates an empty [`Collection`].
+	//
+	// All [`Vec`]'s are empty.
+	//
+	// All search functions will return [`Option::None`].
+	//
+	// The `timestamp` and `count_*` fields are set to `0`.
+	//
+	// `empty` is set to `true`.
+	pub(crate) fn new() -> Self {
 		Self {
 			artists: Artists::new(),
 			albums: Albums::new(),
 			songs: Songs::new(),
+
+			map: Map::new(),
 
 			sort_artist_lexi: vec![],
 			sort_artist_album_count: vec![],
@@ -212,6 +249,77 @@ impl Collection {
 				0
 			}
 		}
+	}
+
+	//-------------------------------------------------- Searching.
+	#[inline]
+	/// Search [`Collection`] for an [`Artist`].
+	///
+	/// # Example:
+	/// ```ignore
+	/// collection.artist("hinto").unwrap();
+	/// ```
+	/// In the above example, we're searching for a:
+	/// - [`Artist`] called `hinto`
+	pub fn artist(&self, artist_name: &str) -> Option<(&Artist, ArtistKey)> {
+		if let Some((key, _)) = self.map.0.get(artist_name) {
+			return Some((&self.artists[key], *key))
+		}
+
+		None
+	}
+
+	#[inline]
+	/// Search [`Collection`] for a [`Song`] in an [`Album`] by an [`Artist`].
+	///
+	/// # Example:
+	/// ```ignore
+	/// collection.album("hinto", "festival").unwrap();
+	/// ```
+	/// In the above example, we're searching for a:
+	/// - [`Album`] called `festival` by the
+	/// - [`Artist`] called `hinto`
+	pub fn album(
+		&self,
+		artist_name: &str,
+		album_title: &str
+	) -> Option<(&Album, AlbumKey)> {
+		if let Some((key, albums)) = self.map.0.get(artist_name) {
+			if let Some((key, _)) = albums.0.get(album_title) {
+				return Some((&self.albums[key], *key))
+			}
+		}
+
+		None
+	}
+
+	#[inline]
+	/// Search [`Collection`] for a [`Song`] in an [`Album`] by an [`Artist`].
+	///
+	/// # Example:
+	/// ```ignore
+	/// collection.song("hinto", "festival", "track_1").unwrap();
+	/// ```
+	/// In the above example, we're searching for a:
+	/// - [`Song`] called `track_1` in an
+	/// - [`Album`] called `festival` by the
+	/// - [`Artist`] called `hinto`
+	pub fn song(
+		&self,
+		artist_name: &str,
+		album_title: &str,
+		song_title: &str,
+	) -> Option<(&Song, Key)> {
+		if let Some((artist_key, albums)) = self.map.0.get(artist_name) {
+			if let Some((album_key, songs)) = albums.0.get(album_title) {
+				if let Some(song_key) = songs.0.get(song_title) {
+					let key = Key::from_keys(*artist_key, *album_key, *song_key);
+					return Some((&self.songs[song_key], key))
+				}
+			}
+		}
+
+		None
 	}
 
 	//-------------------------------------------------- Indexing.

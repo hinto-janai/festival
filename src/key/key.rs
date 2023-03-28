@@ -110,6 +110,16 @@ pub struct Key(ArtistKey, AlbumKey, SongKey);
 
 impl Key {
 	#[inline(always)]
+	// Private function.
+	pub(crate) fn from_keys(
+		artist: ArtistKey,
+		album: AlbumKey,
+		song: SongKey,
+	) -> Self {
+		Self(artist, album, song)
+	}
+
+	#[inline(always)]
 	/// Returns [`Key`] with all inner keys set to `0`.
 	pub const fn new() -> Self {
 		Self(ArtistKey::new(), AlbumKey::new(), SongKey::new())

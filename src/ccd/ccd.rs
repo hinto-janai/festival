@@ -12,6 +12,7 @@ use crate::collection::{
 	Artists,
 	Albums,
 	Songs,
+	Map,
 };
 use crate::key::{
 	Keychain,
@@ -68,13 +69,14 @@ impl Ccd {
 		// 1. WalkDir given path(s), filtering for audio files.
 		// 2. For each file, append metadata to appropriate `Vec`.
 		// 3. Make sure `Vec<Album>` metadata matches the songs.
-		// 4. Created sorted `Key`'s.
-		// 5. Create our `Collection`.
-		// 6. Save to disk.
-		// 7. Transform in-memory `Collection` with `priv_convert_art()`
-		// 8. Send to `Kernel`
-		// 9. Wait for `Die` signal.
-		// 10. Die, destruct the old `Collection`.
+		// 4. Create sorted `Key`'s.
+		// 5. Create the "Map"
+		// 6. Create our `Collection`.
+		// 7. Save to disk.
+		// 8. Transform in-memory `Collection` with `priv_convert_art()`
+		// 9. Send to `Kernel`
+		// 10. Wait for `Die` signal.
+		// 11. Die, destruct the old `Collection`.
 
 		// TODO: Handle potential errors:
 		// 1. No albums
@@ -87,17 +89,17 @@ impl Ccd {
 		// 1.
 		let now = Instant::now();
 		let paths = Self::walkdir_audio(&to_kernel, paths);
-		debug!("CCD [1/10] | WalkDir: {}", now.elapsed().as_secs_f32());
+		debug!("CCD [1/11] | WalkDir: {}", now.elapsed().as_secs_f32());
 
 		// 2.
 		let now = Instant::now();
 		let (vec_artist, mut vec_album, vec_song) = Self::audio_paths_to_incomplete_vecs(&to_kernel, paths);
-		debug!("CCD [2/10] | Metadata: {}", now.elapsed().as_secs_f32());
+		debug!("CCD [2/11] | Metadata: {}", now.elapsed().as_secs_f32());
 
 		// 3.
 		let now = Instant::now();
 		Self::fix_album_metadata_from_songs(&mut vec_album, &vec_song);
-		debug!("CCD [3/10] | Fix: {}", now.elapsed().as_secs_f32());
+		debug!("CCD [3/11] | Fix: {}", now.elapsed().as_secs_f32());
 
 		// 4.
 		let now = Instant::now();
@@ -116,9 +118,14 @@ impl Ccd {
 		let sort_song_lexi                      = Self::sort_song_lexi(&vec_song);
 		let sort_song_release                   = Self::sort_song_iterating_over_albums(&sort_album_release, &vec_artist, &vec_album);
 		let sort_song_runtime                   = Self::sort_song_runtime(&vec_song);
-		debug!("CCD [4/10] | Sort: {}", now.elapsed().as_secs_f32());
+		debug!("CCD [4/11] | Sort: {}", now.elapsed().as_secs_f32());
 
 		// 5.
+		let now = Instant::now();
+		let map = Map::from_3_vecs(&vec_artist, &vec_album, &vec_song);
+		debug!("CCD [5/11] | Map: {}", now.elapsed().as_secs_f32());
+
+		// 6.
 		let now = Instant::now();
 		let collection = Collection {
 			// These will be fixed after construction.
@@ -127,6 +134,8 @@ impl Ccd {
 			count_artist: 0,
 			count_album: 0,
 			count_song: 0,
+
+			map,
 
 			artists: Artists::from(vec_artist),
 			albums: Albums::from(vec_album),
@@ -148,54 +157,54 @@ impl Ccd {
 			sort_song_release,
 			sort_song_runtime,
 		};
-		// Fix.
+		// Fix metadata.
 		let collection = collection.set_metadata();
-		debug!("CCD [5/10] | Collection: {}", now.elapsed().as_secs_f32());
-
-		// 6.
-		// TODO:
-		// Consider moving this to the end so the user
-		// doesn't have to wait for this write.
-//		let now = Instant::now();
-//		if let Err(e) = collection.write_atomic() {
-//			send!(to_kernel, CcdToKernel::Failed(e));
-//			debug!("CCD ... Collection failed, bye!");
-//			return
-//		}
-//		debug!("CCD [6/10] | Disk: {}", now.elapsed().as_secs_f32());
+		debug!("CCD [6/11] | Collection: {}", now.elapsed().as_secs_f32());
 
 		// 7.
+		// FIXME:
+		// Consider moving this to the end so the user
+		// doesn't have to wait for this write.
 		let now = Instant::now();
-		let collection = Self::priv_convert_art(&to_kernel, collection);
-		debug!("CCD [7/10] | Image: {}", now.elapsed().as_secs_f32());
+		if let Err(e) = collection.save_atomic() {
+			send!(to_kernel, CcdToKernel::Failed(e));
+			debug!("CCD ... Collection failed, bye!");
+			return
+		}
+		debug!("CCD [7/11] | Disk: {}", now.elapsed().as_secs_f32());
 
 		// 8.
 		let now = Instant::now();
-		send!(to_kernel, CcdToKernel::NewCollection(collection));
-		debug!("CCD [8/10] | ToKernel: {}", now.elapsed().as_secs_f32());
+		let collection = Self::priv_convert_art(&to_kernel, collection);
+		debug!("CCD [8/11] | Image: {}", now.elapsed().as_secs_f32());
 
 		// 9.
 		let now = Instant::now();
-		match recv!(from_kernel) {
-			KernelToCcd::Die => debug!("CCD [9/10] | Die: {}", now.elapsed().as_secs_f32()),
-		}
+		send!(to_kernel, CcdToKernel::NewCollection(collection));
+		debug!("CCD [9/11] | ToKernel: {}", now.elapsed().as_secs_f32());
 
 		// 10.
+		let now = Instant::now();
+		match recv!(from_kernel) {
+			KernelToCcd::Die => debug!("CCD [10/11] | Die: {}", now.elapsed().as_secs_f32()),
+		}
+
+		// 11.
 		// Try 3 times before giving up.
 		for i in 1..=4 {
 			if i == 4 {
-				error!("CCD [10/10] | Someone else is pointing to the old Collection...! I can't deconstruct it noooooooooo~");
+				error!("CCD [11/11] | Someone else is pointing to the old Collection...! I can't deconstruct it noooooooooo~");
 				break
 			}
 
 			if Arc::strong_count(&old_collection) == 1 {
 				let now = Instant::now();
 				drop(old_collection);
-				debug!("CCD [10/10] | Deconstruct: {}", now.elapsed().as_secs_f32());
+				debug!("CCD [11/11] | Deconstruct: {}", now.elapsed().as_secs_f32());
 				break
 			}
 
-			warn!("CCD [10/10] Attempt ({}/3) | Failed to deconstruct old Collection...", i);
+			warn!("CCD [11/11] Attempt ({}/3) | Failed to deconstruct old Collection...", i);
 			sleep!(1000); // Sleep 1 second.
 		}
 

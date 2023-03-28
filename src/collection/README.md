@@ -11,3 +11,4 @@ The main data structure that holds all the (meta)data about the user's music.
 | sort.rs        | Sorting functions for the `Collection`
 | key.rs         | `Key`; Wrappers around `usize` that act as the "key" to any given `Collection` index
 | slice.rs       | `Slice`; Wrapper around `VecDeque<Key>` that acts as a `Queue/Playlist` of keys
+| map.rs         | The "Map", a `HashMap` that holds `String` keys to the `Collection` instead of indicies
