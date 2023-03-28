@@ -260,8 +260,8 @@ impl Kernel {
 			PlayQueueKey(key)    => send!(self.to_audio, KernelToAudio::PlayQueueKey(key)),
 			Volume(volume)       => send!(self.to_audio, KernelToAudio::Volume(volume.inner())),
 			// Audio settings.
-			Shuffle              => flip!(lock_write!(self.state).shuffle),
-			Repeat               => flip!(lock_write!(self.state).repeat),
+			Shuffle              => flip!(lock_write!(self.state).audio.shuffle),
+			Repeat               => flip!(lock_write!(self.state).audio.repeat),
 			// Collection.
 			NewCollection(paths) => self.ccd_mode(paths),
 			SearchSim(string)    => send!(self.to_search, KernelToSearch::SearchSim(string)),
@@ -284,7 +284,7 @@ impl Kernel {
 	fn msg_audio(&self, msg: AudioToKernel) {
 		use crate::audio::AudioToKernel::*;
 		match msg {
-			TimestampUpdate(float) => lock_write!(self.state).current_runtime = float,
+			TimestampUpdate(float) => lock_write!(self.state).audio.current_runtime = float,
 			PathError(string)      => send!(self.to_frontend, KernelToFrontend::PathError(string)),
 		}
 	}
@@ -298,8 +298,8 @@ impl Kernel {
 			Stop    => send!(self.to_audio, KernelToAudio::Stop),
 			Next    => send!(self.to_audio, KernelToAudio::Next),
 			Last    => send!(self.to_audio, KernelToAudio::Last),
-			Shuffle => flip!(lock_write!(self.state).shuffle),
-			Repeat  => flip!(lock_write!(self.state).repeat),
+			Shuffle => flip!(lock_write!(self.state).audio.shuffle),
+			Repeat  => flip!(lock_write!(self.state).audio.repeat),
 		}
 	}
 
@@ -307,11 +307,11 @@ impl Kernel {
 	#[inline(always)]
 	// Verify the `seek` is valid before sending to `Audio`.
 	fn seek(&self, float: f64) {
-		if !lock_read!(self.state).playing {
+		if !lock_read!(self.state).audio.playing {
 			return
 		}
 
-		if float <= lock_read!(self.state).current_runtime {
+		if float <= lock_read!(self.state).audio.current_runtime {
 			send!(self.to_audio, KernelToAudio::Play);
 		}
 	}

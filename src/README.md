@@ -11,6 +11,7 @@ The code itself is also littered with comments. Some `grep`-able keywords:
 | `SAFETY`    | This `unsafe` code is okay, for `x,y,z` reasons
 | `FIXME`     | This code works but isn't ideal
 | `HACK`      | This code is a brittle workaround
+| `PERF`      | This code is weird for performance reasons
 | `TODO`      | This should be implemented... someday
 
 ---

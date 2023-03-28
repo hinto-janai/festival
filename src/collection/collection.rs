@@ -34,7 +34,7 @@ use rand::{
 	SeedableRng,
 	prelude::SliceRandom,
 };
-use std::sync::Mutex;
+use std::sync::{Arc,Mutex};
 use crate::macros::{
 	lock,
 	mass_panic,
@@ -209,6 +209,15 @@ impl Collection {
 			count_album: 0,
 			count_song: 0,
 		}
+	}
+
+	#[inline(always)]
+	/// Create an empty, dummy [`Collection`] wrapped in an [`Arc`].
+	///
+	/// This is useful when you need to initialize but don't want
+	/// to wait on [`Kernel`] to hand you the _real_ `Arc<Collection>`.
+	pub fn dummy() -> Arc<Self> {
+		Arc::new(Self::new())
 	}
 
 	//-------------------------------------------------- Metadata functions.
