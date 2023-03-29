@@ -48,15 +48,15 @@ impl Watch {
 	// Make sure the directory exists.
 	fn clean() {
 		// Create base directory.
-		if let Err(e) = Stop::mkdir() { error!("Watch | Could not create signal folder"); }
+		if let Err(e) = Stop::mkdir() { error!("Watch - Could not create signal folder"); }
 
 		// Clean files.
-		if let Err(e) = Stop::remove()    { info!("Watch | Stop: {}", e); }
-		if let Err(e) = Play::remove()    { info!("Watch | Play: {}", e); }
-		if let Err(e) = Next::remove()    { info!("Watch | Next: {}", e); }
-		if let Err(e) = Last::remove()    { info!("Watch | Last: {}", e); }
-		if let Err(e) = Shuffle::remove() { info!("Watch | Shuffle: {}", e); }
-		if let Err(e) = Repeat::remove()  { info!("Watch | Repeat: {}", e); }
+		if let Err(e) = Stop::remove()    { info!("Watch - Stop: {}", e); }
+		if let Err(e) = Play::remove()    { info!("Watch - Play: {}", e); }
+		if let Err(e) = Next::remove()    { info!("Watch - Next: {}", e); }
+		if let Err(e) = Last::remove()    { info!("Watch - Last: {}", e); }
+		if let Err(e) = Shuffle::remove() { info!("Watch - Shuffle: {}", e); }
+		if let Err(e) = Repeat::remove()  { info!("Watch - Repeat: {}", e); }
 	}
 
 	#[inline(always)]

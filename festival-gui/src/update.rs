@@ -47,14 +47,14 @@ impl eframe::App for Gui {
 		// Save `State` if diff.
 		if self.diff_state() {
 			if let Err(e) = self.settings.save() {
-				error!("GUI | Could not save `Settings`: {}", e)
+				error!("GUI - Could not save `Settings`: {}", e)
 			}
 		}
 
 		// Save `Settings` if diff.
 		if self.diff_settings() {
 			if let Err(e) = self.state.save() {
-				error!("GUI | Could not save `State`: {}", e)
+				error!("GUI - Could not save `State`: {}", e)
 			}
 		}
 
@@ -68,12 +68,12 @@ impl eframe::App for Gui {
 		loop {
 			if let Ok(KernelToFrontend::Exit(r)) = self.from_kernel.recv_timeout(Duration::from_millis(300)) {
 				match r {
-					Ok(_)  => ok!("GUI | Kernel save"),
-					Err(e) => error!("GUI | Kernel save failed: {}", e),
+					Ok(_)  => ok!("GUI - Kernel save"),
+					Err(e) => error!("GUI - Kernel save failed: {}", e),
 				}
 				break
 			} else if n > 3 {
-				error!("GUI | Could not determine Kernel's exit result, continuing exit");
+				error!("GUI - Could not determine Kernel's exit result, continuing exit");
 			} else {
 				n += 1;
 			}

@@ -214,11 +214,17 @@ impl Gui {
 	) -> Self {
 		info!("GUI Init starting...");
 
-		// TODO: Handle errors.
-		//
-		// Read from disk.
-		let settings = Settings::from_file().unwrap();
-		let state    = State::from_file().unwrap();
+		// Read `Settings` from disk.
+		let settings = match Settings::from_file() {
+			Ok(s)  => s,
+			Err(e) => { warn!("GUI - Settings failed from disk: {}", e); Settings::new() },
+		};
+
+		// Read `State` from disk.
+		let state = match State::from_file() {
+			Ok(s)  => s,
+			Err(e) => { warn!("GUI - State failed from disk: {}", e); State::new() },
+		};
 
 		let mut app = Self {
 			// `Kernel` channels.
