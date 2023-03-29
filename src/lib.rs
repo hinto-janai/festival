@@ -110,3 +110,27 @@ pub mod sort;
 ///
 /// Both `Queue` and `Playlist` inner values are `VecDeque<Key>`.
 pub mod slice;
+
+/// Audio Signals to `Kernel`
+///
+/// These are structs that represent files that represent a signal.
+///
+/// These structs implement `disk::Plain` so that they can easily be created with `save()`.
+///
+/// It holds no data but the file existing represents a signal to `Kernel`.
+///
+/// ## Usage
+/// ```rust,ignore
+/// Play::save().unwrap()
+/// ```
+/// This creates a file with the:
+/// - Lowercase struct name in the
+/// - `signal` subdirectory of the
+/// - `festival` folder which is in the
+/// - OS data folder
+///
+/// Example: `~/.local/share/festival/signal/play`.
+///
+/// `Kernel` will immediately respond to the signal, in this example,
+/// `Kernel` will start audio playback, then delete the file that was created.
+pub mod signal;

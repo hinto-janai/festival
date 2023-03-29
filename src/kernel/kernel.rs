@@ -252,6 +252,7 @@ impl Kernel {
 		use super::FrontendToKernel::*;
 		match msg {
 			// Audio playback.
+			Toggle               => send!(self.to_audio, KernelToAudio::Toggle),
 			Play                 => send!(self.to_audio, KernelToAudio::Play),
 			Stop                 => send!(self.to_audio, KernelToAudio::Stop),
 			Next                 => send!(self.to_audio, KernelToAudio::Next),
@@ -294,6 +295,7 @@ impl Kernel {
 	fn msg_watch(&self, msg: WatchToKernel) {
 		use crate::watch::WatchToKernel::*;
 		match msg {
+			Toggle  => send!(self.to_audio, KernelToAudio::Toggle),
 			Play    => send!(self.to_audio, KernelToAudio::Play),
 			Stop    => send!(self.to_audio, KernelToAudio::Stop),
 			Next    => send!(self.to_audio, KernelToAudio::Next),

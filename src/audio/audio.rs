@@ -88,6 +88,7 @@ impl Audio {
 		match msg {
 			// Audio playback.
 			// TODO: Implement.
+			Toggle      => trace!("Audio - Toggle"),
 			Play        => trace!("Audio - Play"),
 			Stop        => trace!("Audio - Stop"),
 			Next        => trace!("Audio - Next"),

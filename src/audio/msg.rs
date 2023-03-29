@@ -23,6 +23,7 @@ pub(crate) enum AudioToKernel {
 
 pub(crate) enum KernelToAudio {
 	// Audio playback.
+	Toggle,      // Toggle playback.
 	Play,        // Play currently stored audio.
 	Stop,        // Stop.
 	Next,        // Play next song in queue (stop if none).

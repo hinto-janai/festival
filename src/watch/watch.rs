@@ -24,22 +24,9 @@ use notify::{
 	Config,
 	Event,
 };
-
-//---------------------------------------------------------------------------------------------------- Signals
-macro_rules! impl_signal {
-	($type:ident, $file_name:literal) => {
-		plain_file!($type, Dir::Data, FESTIVAL, "signal", $file_name);
-		#[derive(Copy,Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
-		struct $type;
-	}
-}
-
-impl_signal!(Stop, "stop");
-impl_signal!(Play, "play");
-impl_signal!(Next, "next");
-impl_signal!(Last, "last");
-impl_signal!(Shuffle, "shuffle");
-impl_signal!(Repeat, "repeat");
+use crate::kernel::Kernel;
+use crate::signal::*;
+use disk;
 
 //---------------------------------------------------------------------------------------------------- Watch
 #[derive(Debug)]
@@ -130,6 +117,11 @@ impl Watch {
 						}
 					}
 				}
+			}
+
+			// Toggle.
+			if let Ok(true) = Toggle::exists() {
+				send_or_die!(self.to_kernel, WatchToKernel::Toggle)
 			}
 
 			// Stop/Play.

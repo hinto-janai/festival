@@ -30,6 +30,8 @@ use super::Kernel;
 /// You can treat these as "commands" sent to [`Kernel`].
 pub enum FrontendToKernel {
 	// Audio playback.
+	/// Toggle playback.
+	Toggle,
 	/// Play current song.
 	Play,
 	/// Stop playback.
