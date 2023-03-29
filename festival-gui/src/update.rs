@@ -32,30 +32,30 @@ use shukusai::{
 	mass_panic,
 	send,
 	recv,
+	fail,
 	ok,
 };
 use std::time::Duration;
 use rolock::RoLock;
 
-//---------------------------------------------------------------------------------------------------- Main GUI event loop.
+//---------------------------------------------------------------------------------------------------- `GUI`'s eframe impl.
 impl eframe::App for Gui {
+	//-------------------------------------------------------------------------------- On exit.
 	#[inline(always)]
 	fn on_close_event(&mut self) -> bool {
 		// Tell `Kernel` to save stuff.
 		send!(self.to_kernel, FrontendToKernel::Exit);
 
-		// Save `State` if diff.
-		if self.diff_state() {
-			if let Err(e) = self.settings.save() {
-				error!("GUI - Could not save `Settings`: {}", e)
-			}
+		// Save `State`.
+		match self.state.save() {
+			Ok(_)  => ok!("GUI - State save"),
+			Err(e) => fail!("GUI - State save: {}", e),
 		}
 
-		// Save `Settings` if diff.
-		if self.diff_settings() {
-			if let Err(e) = self.state.save() {
-				error!("GUI - Could not save `State`: {}", e)
-			}
+		// Save `Settings`.
+		match self.settings.save() {
+			Ok(_)  => ok!("GUI - Settings save"),
+			Err(e) => fail!("GUI - Settings save: {}", e),
 		}
 
 		// Check if `Kernel` succeeded.
@@ -69,11 +69,11 @@ impl eframe::App for Gui {
 			if let Ok(KernelToFrontend::Exit(r)) = self.from_kernel.recv_timeout(Duration::from_millis(300)) {
 				match r {
 					Ok(_)  => ok!("GUI - Kernel save"),
-					Err(e) => error!("GUI - Kernel save failed: {}", e),
+					Err(e) => fail!("GUI - Kernel save failed: {}", e),
 				}
 				break
 			} else if n > 3 {
-				error!("GUI - Could not determine Kernel's exit result, continuing exit");
+				fail!("GUI - Could not determine Kernel's exit result");
 			} else {
 				n += 1;
 			}
@@ -84,6 +84,7 @@ impl eframe::App for Gui {
 		true
 	}
 
+	//-------------------------------------------------------------------------------- Main event loop.
 	#[inline(always)]
 	fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
 		// Determine if there is a diff in settings.

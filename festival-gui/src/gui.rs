@@ -125,7 +125,7 @@ impl Gui {
 			..Default::default()
 		};
 
-		ok_debug!("GUI Init | Style");
+		ok_debug!("GUI Init - Style");
 		style
 	}
 
@@ -136,7 +136,7 @@ impl Gui {
 			..Visuals::dark()
 		};
 
-		ok_debug!("GUI Init | Visuals");
+		ok_debug!("GUI Init - Visuals");
 		visuals
 	}
 
@@ -170,7 +170,7 @@ impl Gui {
 				.push(i.to_string());
 		}
 
-		ok_debug!("GUI Init | Fonts");
+		ok_debug!("GUI Init - Fonts");
 		fonts
 	}
 }
