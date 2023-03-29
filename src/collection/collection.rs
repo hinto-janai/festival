@@ -338,7 +338,7 @@ impl Collection {
 	/// The [`ArtistKey`], [`AlbumKey`] and [`SongKey`] within
 	/// the [`Key`] must be valid indicies into the [`Collection`].
 	#[inline(always)]
-	pub fn index(&self, key: &Key) -> (&Artist, &Album, &Song) {
+	pub fn index(&self, key: Key) -> (&Artist, &Album, &Song) {
 		let (artist, album, song) = key.inner_usize();
 		(&self.artists.0[artist], &self.albums.0[album], &self.songs.0[song])
 	}
@@ -348,7 +348,7 @@ impl Collection {
 	/// # Errors:
 	/// The [`ArtistKey`], [`AlbumKey`] and [`SongKey`] within
 	/// the [`Key`] must be valid indicies into the [`Collection`].
-	pub fn get(&self, key: &Key) -> Option<(&Artist, &Album, &Song)> {
+	pub fn get(&self, key: Key) -> Option<(&Artist, &Album, &Song)> {
 		let (artist, album, song) = key.inner_usize();
 
 		let artists = match self.artists.0.get(artist) {
@@ -442,7 +442,7 @@ impl Collection {
 
 	//-------------------------------------------------- Sorting
 	/// Access a particular `sort_artist_` field in the [`Collection`] via a [`ArtistSort`].
-	pub fn artist_sort(&self, sort: &ArtistSort) -> &Vec<ArtistKey> {
+	pub fn artist_sort(&self, sort: ArtistSort) -> &Vec<ArtistKey> {
 		use ArtistSort::*;
 		match sort {
 			Lexi       => &self.sort_artist_lexi,
@@ -452,7 +452,7 @@ impl Collection {
 	}
 
 	/// Access a particular `sort_album_` field in the [`Collection`] via a [`AlbumSort`].
-	pub fn album_sort(&self, sort: &AlbumSort) -> &Vec<AlbumKey> {
+	pub fn album_sort(&self, sort: AlbumSort) -> &Vec<AlbumKey> {
 		use AlbumSort::*;
 		match sort {
 			ReleaseArtistLexi => &self.sort_album_release_artist_lexi,
@@ -464,7 +464,7 @@ impl Collection {
 	}
 
 	/// Access a particular `sort_song_` field in the [`Collection`] via a [`SongSort`].
-	pub fn song_sort(&self, sort: &SongSort) -> &Vec<SongKey> {
+	pub fn song_sort(&self, sort: SongSort) -> &Vec<SongKey> {
 		use SongSort::*;
 		match sort {
 			AlbumReleaseArtistLexi => &self.sort_song_album_release_artist_lexi,

@@ -25,6 +25,9 @@ use shukusai::kernel::{
 	FrontendToKernel,
 	KernelToFrontend,
 };
+use shukusai::key::{
+	AlbumKey,
+};
 use shukusai::{
 	mass_panic,
 	send,
@@ -112,8 +115,10 @@ impl eframe::App for Gui {
 		// Left Panel
 		Self::show_left(self, ctx, frame, side_panel_width, side_panel_height);
 
-		// Right Panel
-		Self::show_right(self, ctx, frame, side_panel_width, side_panel_height);
+		// Right Panel (only if viewing an album)
+		if let Some(album_key) = self.state.album {
+			Self::show_right(self, album_key, ctx, frame, side_panel_width, side_panel_height);
+		}
 
 		// Central Panel
 		Self::show_central(self, ctx, frame, width, height);
@@ -216,43 +221,72 @@ fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f
 //---------------------------------------------------------------------------------------------------- Right Panel
 impl Gui {
 #[inline(always)]
-fn show_right(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
-//	TODO
-//	SidePanel::right("right").resizable(false).show(ctx, |ui| {
-//		ui.set_width(width);
-//
-//		// How big the albums (on the right side) should be.
-//		let ALBUM_SIZE = width / 1.4;
-//
-//		ScrollArea::vertical().max_width(width).max_height(f32::INFINITY).auto_shrink([false; 2]).show_viewport(ui, |ui, _| {
-//			ui.vertical_centered(|ui| {
-//			for (name, img) in &self.img.vec {
-//				ui.add_space(5.0);
-//				ui.scope(|ui| {
-//					ui.set_width(ALBUM_SIZE);
-//	 				Frame::window(&ctx.style()).rounding(Rounding::none()).inner_margin(1.0).show(ui, |ui| {
-//						let mut rect = ui.cursor();
-//						rect.max.x += 2.0;
-//						rect.max.y = rect.min.y + ALBUM_SIZE;
-//						if ui.put(rect, Button::new("").rounding(Rounding::none())).clicked() { self.name = *name };
-//						rect.max.x = rect.min.x;
-//						ui.allocate_ui_at_rect(rect, |ui| {
-//							ui.horizontal_centered(|ui| {
-//								img.show_size(ui, Vec2::new(ALBUM_SIZE, ALBUM_SIZE));
-//							});
-//						});
-//					});
-//				});
-//				if *name == self.name {
-//					ui.add(Label::new(RichText::new(name.to_string()).color(Color32::LIGHT_BLUE)));
-//				} else {
-//					ui.label(name.to_string());
-//				}
-//				ui.add_space(5.0);
-//			}
-//			});
-//		});
-//	});
+fn show_right(&mut self, album_key: AlbumKey, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
+	// The scrollable section to the RIGHT side of an album.
+	//
+	// We only show this if the user has an album selected.
+	// We must:
+	// - Find the artist of this album
+	// - Iterate over all the albums of that artist
+	// - Make the album we're on pop out
+	let artist = self.collection.artist_from_album(album_key);
+	let albums = artist.albums.iter();
+
+	SidePanel::right("right").resizable(false).show(ctx, |ui| {
+		ui.set_width(width);
+
+		// How big the albums (on the right side) should be.
+		let ALBUM_SIZE = width / 1.4;
+
+		// The scrollable area.
+		ScrollArea::vertical().max_width(width).max_height(f32::INFINITY).auto_shrink([false; 2]).show_viewport(ui, |ui, _| {
+			ui.vertical_centered(|ui| {
+
+			// For each album...
+			for album in albums {
+				// Get the actual `Album`.
+				let key   = album;
+				let album = &self.collection.albums[key];
+
+				// Draw the art with the title.
+				ui.add_space(5.0);
+				ui.scope(|ui| {
+					ui.set_width(ALBUM_SIZE);
+
+					// Draw the frame.
+	 				Frame::window(&ctx.style()).rounding(Rounding::none()).inner_margin(1.0).show(ui, |ui| {
+						let mut rect = ui.cursor();
+						rect.max.x += 2.0;
+						rect.max.y = rect.min.y + ALBUM_SIZE;
+
+						// If user clicks this album, set our state to that album.
+						if ui.put(rect, Button::new("").rounding(Rounding::none())).clicked() {
+							self.state.album = Some(*key);
+						};
+
+						// Draw art.
+						rect.max.x = rect.min.x;
+						ui.allocate_ui_at_rect(rect, |ui| {
+							ui.horizontal_centered(|ui| {
+								// Index `Collection` for this `Album`'s art.
+								album.art_or().show_size(ui, Vec2::new(ALBUM_SIZE, ALBUM_SIZE));
+							});
+						});
+					});
+				});
+
+				// If this is the album we're on, make it pop.
+				if *key == album_key {
+					ui.add(Label::new(RichText::new(album.title.to_string()).color(Color32::LIGHT_BLUE)));
+				} else {
+					ui.label(album.title.to_string());
+				}
+				ui.add_space(5.0);
+			}
+
+			});
+		});
+	});
 }}
 
 //---------------------------------------------------------------------------------------------------- Central Panel
