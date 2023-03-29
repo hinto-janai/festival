@@ -21,9 +21,18 @@ use log::info;
 /// # Panics
 /// This must only be called _once_.
 pub fn init_logger(filter: log::LevelFilter) {
-	// Disables all library crate logs except for [festival].
-	std::env::set_var("RUST_LOG", format!("off,festival={}", filter));
+	// If `RUST_LOG` isn't set, override it and disables
+	// all library crate logs except for `festival` & `shukusai`.
+	let mut env = String::new();
+	match std::env::var("RUST_LOG") {
+		Ok(e) => { std::env::set_var("RUST_LOG", &e); env = e; },
+		// TODO:
+		// Support frontend names without *festival*.
+		_     => std::env::set_var("RUST_LOG", format!("off,shukusai={},festival={}", filter, filter)),
+	}
+
 	let now = std::time::Instant::now();
+
 	env_logger::Builder::new().format(move |buf, record| {
 		let mut style = buf.style();
 		let level = match record.level() {
@@ -35,16 +44,23 @@ pub fn init_logger(filter: log::LevelFilter) {
 		};
 		writeln!(
 			buf,
-//			"[{}] [{}] [{}] [{}:{}] {}",
-			"[{}] [{}] [{}:{}] {}",
+			"| {: >5} | {: >10} | {: >30} @ {: <4} | {}",
 			style.set_bold(true).value(level),
 			buf.style().set_dimmed(true).value(format!("{:.3}", now.elapsed().as_secs_f32())),
-//			buf.style().set_dimmed(true).value(chrono::offset::Local::now().format("%F %T%.3f")),
 			buf.style().set_dimmed(true).value(record.file().unwrap_or("???")),
 			buf.style().set_dimmed(true).value(record.line().unwrap_or(0)),
 			record.args(),
 		)
 	}).write_style(env_logger::WriteStyle::Always).parse_default_env().format_timestamp_millis().init();
-	info!("Log Level ... {}", filter);
+
+	println!("| LEVEL |       TIME |                           FILE @ LINE | MESSAGE |");
+	println!("|-------|------------|---------------------------------------|---------|");
+
+	if env.is_empty() {
+		info!("Log Level (Flag) ... {}", filter);
+	} else {
+		info!("Log Level (ENV) ... {}", env);
+	}
+
 	ok!("Logger");
 }
