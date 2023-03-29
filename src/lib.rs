@@ -115,13 +115,13 @@ pub mod slice;
 ///
 /// These are structs that represent files that represent a signal.
 ///
-/// These structs implement `disk::Plain` so that they can easily be created with `save()`.
+/// These structs implement `disk::Empty` so that they can easily be created with `touch()`.
 ///
 /// It holds no data but the file existing represents a signal to `Kernel`.
 ///
 /// ## Usage
 /// ```rust,ignore
-/// Play::save().unwrap()
+/// Play::touch().unwrap()
 /// ```
 /// This creates a file with the:
 /// - Lowercase struct name in the

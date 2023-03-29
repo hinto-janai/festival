@@ -16,17 +16,11 @@ use disk::{Empty, empty_file};
 macro_rules! impl_signal {
 	($type:ident, $file_name:literal) => {
 		empty_file!($type, Dir::Data, FESTIVAL, "signal", $file_name);
-		#[derive(Copy,Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
+		#[derive(Copy,Clone,Debug,PartialEq,Eq)]
 		/// File representing a signal
 		///
-		/// Use `touch()` to create the file.
+		/// Use [`Self::touch()`] to create the file.
 		pub struct $type;
-
-		impl $type {
-			pub fn new() -> Self {
-				Self
-			}
-		}
 	}
 }
 

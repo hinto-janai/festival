@@ -1296,9 +1296,9 @@ dependencies = [
 
 [[package]]
 name = "disk"
-version = "0.0.4"
+version = "0.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4d3fd5424a8d4c09d54d17e70ed092143830bedaa2d7684c5704e7ba70375eeb"
+checksum = "8c79ae660af3ab4fb4713c95dc6869c2aaf73b47ae080c95e7543bde72374cf1"
 dependencies = [
  "anyhow",
  "bincode",
