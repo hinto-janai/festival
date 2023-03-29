@@ -15,7 +15,7 @@ use disk::{Empty, empty_file};
 //---------------------------------------------------------------------------------------------------- Signals
 macro_rules! impl_signal {
 	($type:ident, $file_name:literal) => {
-		plain_file!($type, Dir::Data, FESTIVAL, "signal", $file_name);
+		empty_file!($type, Dir::Data, FESTIVAL, "signal", $file_name);
 		#[derive(Copy,Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
 		/// File representing a signal
 		///
