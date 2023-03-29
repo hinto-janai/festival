@@ -87,15 +87,17 @@ impl Audio {
 		use KernelToAudio::*;
 		match msg {
 			// Audio playback.
-			Play        => todo!(),
-			Stop        => todo!(),
-			Next        => todo!(),
-			Last        => todo!(),
-			Seek(f64)   => todo!(),
-			Volume(f64) => todo!(),
+			// TODO: Implement.
+			Play        => trace!("Audio - Play"),
+			Stop        => trace!("Audio - Stop"),
+			Next        => trace!("Audio - Next"),
+			Last        => trace!("Audio - Last"),
+			Seek(f)     => trace!("Audio - Seek"),
+			Volume(f)   => trace!("Audio - Volume"),
 
 			// Queue.
-			PlayQueueKey(queue_key) => todo!(),
+			// TODO: Implement.
+			PlayQueueKey(queue_key) => trace!("Audio - PlayQueueKey"),
 
 			// Collection.
 			DropCollection     => self = self.msg_drop(),
