@@ -62,7 +62,7 @@ pub use flip;
 /// Forward input to [`log::info`], appended with green `... OK`
 macro_rules! ok {
 	($($tts:tt)*) => {
-		log::info!("{} {} {}{}{}", $($tts)*, "...", "\x1b[1;92m", "OK", "\x1b[0m");
+		log::info!("{} ... \x1b[1;92mOK\x1b[0m", $($tts)*);
 	}
 }
 pub use ok;
@@ -71,7 +71,7 @@ pub use ok;
 /// Forward input to [`log::debug`], appended with green `... OK`
 macro_rules! ok_debug {
 	($($tts:tt)*) => {
-		log::debug!("{} {} {}{}{}", $($tts)*, "...", "\x1b[1;92m", "OK", "\x1b[0m");
+		log::debug!("{} ... \x1b[1;92mOK\x1b[0m", $($tts)*);
 	}
 }
 pub use ok_debug;
@@ -80,7 +80,7 @@ pub use ok_debug;
 /// Forward input to [`log::trace`], appended with green `... OK`
 macro_rules! ok_trace {
 	($($tts:tt)*) => {
-		log::trace!("{} {} {}{}{}", $($tts)*, "...", "\x1b[1;92m", "OK", "\x1b[0m");
+		log::trace!("{} ... \x1b[1;92mOK\x1b[0m", $($tts)*);
 	}
 }
 pub use ok_trace;
@@ -89,7 +89,7 @@ pub use ok_trace;
 /// Forward input to [`log::info`], appended with white `... SKIP`
 macro_rules! skip {
 	($($tts:tt)*) => {
-		log::info!("{} {} {}{}{}", $($tts)*, "...", "\x1b[1;97m", "SKIP", "\x1b[0m");
+		log::info!("{} ... \x1b[1;97mSKIP\x1b[0m", $($tts)*);
 	}
 }
 pub use skip;
@@ -98,7 +98,7 @@ pub use skip;
 /// Forward input to [`log::warn`], appended with white `... SKIP`
 macro_rules! skip_warn {
 	($($tts:tt)*) => {
-		log::warn!("{} {} {}{}{}", $($tts)*, "...", "\x1b[1;97m", "SKIP", "\x1b[0m");
+		log::warn!("{} ... \x1b[1;97mSKIP\x1b[0m", $($tts)*);
 	}
 }
 pub use skip_warn;
@@ -107,7 +107,7 @@ pub use skip_warn;
 /// Forward input to [`log::debug`], appended with white `... SKIP`
 macro_rules! skip_debug {
 	($($tts:tt)*) => {
-		log::debug!("{} {} {}{}{}", $($tts)*, "...", "\x1b[1;97m", "SKIP", "\x1b[0m");
+		log::debug!("{} ... \x1b[1;97mSKIP\x1b[0m", $($tts)*);
 	}
 }
 pub use skip_debug;
@@ -116,7 +116,7 @@ pub use skip_debug;
 /// Forward input to [`log::trace`], appended with white `... SKIP`
 macro_rules! skip_trace {
 	($($tts:tt)*) => {
-		log::trace!("{} {} {}{}{}", $($tts)*, "...", "\x1b[1;97m", "SKIP", "\x1b[0m");
+		log::trace!("{} ... \x1b[1;97mSKIP\x1b[0m", $($tts)*);
 	}
 }
 pub use skip_trace;
@@ -125,7 +125,7 @@ pub use skip_trace;
 /// Forward input to [`log::error!`], appended with red `... FAIL`
 macro_rules! fail {
 	($($tts:tt)*) => {
-		log::error!("{} {} {}{}{}", $($tts)*, "...", "\x1b[1;91m", "FAIL", "\x1b[0m");
+		log::error!("{} ... \x1b[1;91mFAIL\x1b[0m", format_args!($($tts)*));
 	}
 }
 pub use fail;
