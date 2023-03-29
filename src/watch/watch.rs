@@ -90,12 +90,13 @@ impl Watch {
 		if let Err(e) = Stop::mkdir() { error!("Watch - Could not create signal folder"); }
 
 		// Clean files.
-		if let Err(e) = Stop::rm()    { info!("Watch - Stop: {}", e); }
-		if let Err(e) = Play::rm()    { info!("Watch - Play: {}", e); }
-		if let Err(e) = Next::rm()    { info!("Watch - Next: {}", e); }
-		if let Err(e) = Last::rm()    { info!("Watch - Last: {}", e); }
-		if let Err(e) = Shuffle::rm() { info!("Watch - Shuffle: {}", e); }
-		if let Err(e) = Repeat::rm()  { info!("Watch - Repeat: {}", e); }
+		if let Err(e) = Toggle::rm()  { error!("Watch - Toggle: {}", e); }
+		if let Err(e) = Stop::rm()    { error!("Watch - Stop: {}", e); }
+		if let Err(e) = Play::rm()    { error!("Watch - Play: {}", e); }
+		if let Err(e) = Next::rm()    { error!("Watch - Next: {}", e); }
+		if let Err(e) = Last::rm()    { error!("Watch - Last: {}", e); }
+		if let Err(e) = Shuffle::rm() { error!("Watch - Shuffle: {}", e); }
+		if let Err(e) = Repeat::rm()  { error!("Watch - Repeat: {}", e); }
 	}
 
 	#[inline(always)]
