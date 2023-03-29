@@ -5,36 +5,36 @@ use rolock::RoLock;
 #[macro_export]
 /// Lock a [`Mutex`] or [`mass_panic!()`]
 macro_rules! lock {
-	($lock:expr) => {{
+	($lock:expr) => {
 		match $lock.lock() {
 			Ok(lock) => lock,
 			Err(e)   => mass_panic!(e),
 		}
-	}}
+	}
 }
 pub use lock;
 
 /// Read a [`RwLock`]/[`RoLock`] or [`mass_panic!`]
 #[macro_export]
 macro_rules! lock_read {
-	($lock:expr) => {{
+	($lock:expr) => {
 		match $lock.read() {
 			Ok(lock) => lock,
 			Err(e)   => mass_panic!(e),
 		}
-	}};
+	}
 }
 pub use lock_read;
 
 #[macro_export]
 /// Write to a [`RwLock`] or [`mass_panic!`]
 macro_rules! lock_write {
-	($lock:expr) => {{
+	($lock:expr) => {
 		match $lock.write() {
 			Ok(lock) => lock,
 			Err(e)   => mass_panic!(e),
 		}
-	}};
+	}
 }
 pub use lock_write;
 
@@ -43,18 +43,16 @@ pub use lock_write;
 macro_rules! sleep {
     ($millis:expr) => {
 		std::thread::sleep(std::time::Duration::from_millis($millis))
-    };
+    }
 }
 pub use sleep;
 
 #[macro_export]
-/// Flip a [`bool`] in place
+/// Flip a [`bool`] in place (bitwise XOR assign)
 macro_rules! flip {
 	($b:expr) => {
-		match $b {
-			true|false => $b = !$b,
-		}
-	};
+		$b ^= true
+	}
 }
 pub use flip;
 
@@ -159,62 +157,62 @@ pub use mass_panic;
 #[macro_export]
 /// `match` a [`Result`], [`mass_panic!`] on [`Result::Err`]
 macro_rules! unwrap_or_mass {
-	($var:tt) => {{
+	($var:tt) => {
 		match $var {
 			Ok(o)  => o,
 			Err(e) => mass_panic!(e),
 		}
-	}}
+	}
 }
 pub use unwrap_or_mass;
 
 #[macro_export]
 /// [`send`] a channel message, [`mass_panic!`] on failure
 macro_rules! send {
-	($channel:expr, $($msg:tt)*) => {{
+	($channel:expr, $($msg:tt)*) => {
 		if let Err(e) = $channel.send($($msg)*) {
 			mass_panic!(e);
 		}
-	}}
+	}
 }
 pub use send;
 
 #[macro_export]
 /// [`recv`] a channel message, [`mass_panic!`] on failure
 macro_rules! recv {
-	($channel:expr) => {{
+	($channel:expr) => {
 		match $channel.recv() {
 			Ok(msg) => msg,
 			Err(e)  => mass_panic!(e),
 		}
-	}}
+	}
 }
 pub use recv;
 
 #[macro_export]
 /// [`send`] a channel message, [`panic!`] current thread on failure
 macro_rules! send_or_die {
-	($channel:expr, $($msg:tt)*) => {{
+	($channel:expr, $($msg:tt)*) => {
 		if let Err(e) = $channel.send($($msg)*) {
-			error!("THREAD PANIC - FAILED TO SEND: {}", e);
+			log::error!("THREAD PANIC - FAILED TO SEND: {}", e);
 			panic!("{}", e);
 		}
-	}}
+	}
 }
 pub use send_or_die;
 
 #[macro_export]
 /// [`recv`] a channel message, [`panic!`] current thread on failure
 macro_rules! recv_or_die {
-	($channel:expr) => {{
+	($channel:expr) => {
 		match $channel.recv() {
 			Ok(msg) => msg,
 			Err(e)  => {
-				error!("THREAD PANIC - FAILED TO RECEIVE: {}", e);
+				log::error!("THREAD PANIC - FAILED TO RECEIVE: {}", e);
 				panic!("{}", e);
 			},
 		}
-	}}
+	}
 }
 pub use recv_or_die;
 
@@ -226,5 +224,46 @@ mod tests {
 		let mut b = true;
 		flip!(b);
 		assert!(b == false);
+
+		let mut b = false;
+		flip!(b);
+		assert!(b == true);
+	}
+
+	#[test]
+	fn send_recv() {
+		let (tx, rx) = crossbeam_channel::unbounded::<u8>();
+		send_or_die!(tx, 0);
+		let msg = recv_or_die!(rx);
+		assert!(msg == 0);
+	}
+
+	#[test]
+	#[should_panic]
+	fn send_recv_panic() {
+		use log::error;
+
+		let (tx, rx) = crossbeam_channel::unbounded::<u8>();
+		send_or_die!(tx, 0);
+		recv_or_die!(rx);
+
+		drop(rx);
+		send_or_die!(tx, 0);
+	}
+
+	#[test]
+	fn lock() {
+		use std::sync::{Arc,Mutex};
+		let lock = Arc::new(Mutex::new(0));
+		let lock = lock!(lock);
+		assert!(*lock == 0);
+	}
+
+	#[test]
+	fn lock_write_read() {
+		use std::sync::{Arc,RwLock};
+		let lock = Arc::new(RwLock::new(0));
+		*lock_write!(lock) = 1;
+		assert!(*lock_read!(lock) == 1);
 	}
 }
