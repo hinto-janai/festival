@@ -22,6 +22,7 @@ use crate::constants::{
 };
 use rolock::RoLock;
 use super::Volume;
+use crate::kernel::Kernel;
 
 //---------------------------------------------------------------------------------------------------- AudioState
 /// Audio State

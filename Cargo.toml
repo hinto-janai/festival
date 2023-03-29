@@ -84,7 +84,7 @@ all-features = true
 ### Personal libraries.
 disk     = { version = "0.0.4", features = ["bincode", "toml", "empty"] }
 readable = { version = "0.3.2", features = ["serde", "ignore_nan_inf"] }
-rolock   = { version = "0.1.1" }
+rolock   = { version = "0.1.2" }
 
 ### External patched libraries `external/`.
 egui        = { version = "0.21.0", path = "external/egui/crates/egui",        features = ["default_fonts"], default-features = false }

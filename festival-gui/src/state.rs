@@ -16,6 +16,10 @@ use shukusai::{
 	FESTIVAL,
 	FESTIVAL_HEADER,
 };
+use shukusai::collection::{
+	Album,
+	Collection,
+};
 use shukusai::key::{
 	Key,
 	AlbumKey,
@@ -23,6 +27,7 @@ use shukusai::key::{
 use shukusai::kernel::{
 	AudioState,
 	KernelState,
+	Kernel,
 };
 
 //---------------------------------------------------------------------------------------------------- State

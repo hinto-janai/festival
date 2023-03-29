@@ -16,6 +16,9 @@ use shukusai::{
 	FESTIVAL,
 	FESTIVAL_HEADER,
 };
+use shukusai::collection::{
+	Collection,
+};
 use shukusai::sort::{
 	AlbumSort,
 };

@@ -8,6 +8,8 @@
 //use std::{};
 use std::sync::Arc;
 use crate::collection::{
+	Artist,
+	Album,
 	Song,
 	Collection,
 };

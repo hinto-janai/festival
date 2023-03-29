@@ -8,8 +8,7 @@ use crate::macros::{
 	send_or_die,
 	ok_trace,
 };
-use disk::prelude::*;
-use disk::{Plain, plain_file};
+use disk::Empty;
 //use std::{};
 //use std::sync::{Arc,Mutex,RwLock};
 use crate::constants::FESTIVAL;
@@ -91,12 +90,12 @@ impl Watch {
 		if let Err(e) = Stop::mkdir() { error!("Watch - Could not create signal folder"); }
 
 		// Clean files.
-		if let Err(e) = Stop::remove()    { info!("Watch - Stop: {}", e); }
-		if let Err(e) = Play::remove()    { info!("Watch - Play: {}", e); }
-		if let Err(e) = Next::remove()    { info!("Watch - Next: {}", e); }
-		if let Err(e) = Last::remove()    { info!("Watch - Last: {}", e); }
-		if let Err(e) = Shuffle::remove() { info!("Watch - Shuffle: {}", e); }
-		if let Err(e) = Repeat::remove()  { info!("Watch - Repeat: {}", e); }
+		if let Err(e) = Stop::rm()    { info!("Watch - Stop: {}", e); }
+		if let Err(e) = Play::rm()    { info!("Watch - Play: {}", e); }
+		if let Err(e) = Next::rm()    { info!("Watch - Next: {}", e); }
+		if let Err(e) = Last::rm()    { info!("Watch - Last: {}", e); }
+		if let Err(e) = Shuffle::rm() { info!("Watch - Shuffle: {}", e); }
+		if let Err(e) = Repeat::rm()  { info!("Watch - Repeat: {}", e); }
 	}
 
 	#[inline(always)]

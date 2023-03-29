@@ -1,10 +1,12 @@
-# This runs `cargo miri test`
+# This runs `miri`
 
 name: Miri
 
 on:
-  schedule:
-    - cron: "0 2 * * *"
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 env:
   CARGO_TERM_COLOR: always
@@ -27,9 +29,10 @@ jobs:
       run: |
         sudo apt update
         sudo apt install -y libgtk-3-dev
-    - name: Miri
-      run: |
         rustup toolchain install nightly --component miri
         rustup override set nightly
         cargo miri setup
-        cargo miri test --all-features
+    - name: Miri
+      env:
+        RUSTLOG: "-A warnings"
+      run: cargo miri test --release --all-features

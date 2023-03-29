@@ -1241,9 +1241,9 @@ dependencies = [
 
 [[package]]
 name = "disk"
-version = "0.0.3"
+version = "0.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d05a32c48755b309ab1d24b4e2772856fbf80716ddceac39a731a98a2104c258"
+checksum = "4d3fd5424a8d4c09d54d17e70ed092143830bedaa2d7684c5704e7ba70375eeb"
 dependencies = [
  "anyhow",
  "bincode",
@@ -1252,7 +1252,6 @@ dependencies = [
  "flate2",
  "lazy_static",
  "serde",
- "serde_plain",
  "toml_edit",
 ]
 
@@ -3235,9 +3234,9 @@ dependencies = [
 
 [[package]]
 name = "rolock"
-version = "0.1.1"
+version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "db6375a7c486af465d1b7e839a8fe9d3c654110a5cb64a7cefc2fde995dc892e"
+checksum = "9715db66489e53c33ec88f8f5339ef22c3ea901af604ae5d2346c4595c227c3f"
 
 [[package]]
 name = "ron"
@@ -3363,9 +3362,9 @@ dependencies = [
 
 [[package]]
 name = "serde"
-version = "1.0.158"
+version = "1.0.159"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "771d4d9c4163ee138805e12c710dd365e4f44be8be0503cb1bb9eb989425d9c9"
+checksum = "3c04e8343c3daeec41f58990b9d77068df31209f2af111e059e9fe9646693065"
 dependencies = [
  "serde_derive",
 ]
@@ -3393,9 +3392,9 @@ dependencies = [
 
 [[package]]
 name = "serde_derive"
-version = "1.0.158"
+version = "1.0.159"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e801c1712f48475582b7696ac71e0ca34ebb30e09338425384269d9717c62cad"
+checksum = "4c614d17805b093df4b147b51339e7e44bf05ef59fba1e45d83500bcfb4d8585"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3410,15 +3409,6 @@ checksum = "d721eca97ac802aa7777b701877c8004d950fc142651367300d21c1cc0194744"
 dependencies = [
  "itoa",
  "ryu",
- "serde",
-]
-
-[[package]]
-name = "serde_plain"
-version = "1.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d6018081315db179d0ce57b1fe4b62a12a0028c9cf9bbef868c9cf477b3c34ae"
-dependencies = [
  "serde",
 ]
 
