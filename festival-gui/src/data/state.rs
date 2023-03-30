@@ -7,7 +7,8 @@ use crate::ui::{
 };
 use std::path::PathBuf;
 use disk::prelude::*;
-use disk::{Bincode,bincode_file};
+//use disk::{Bincode,bincode_file};
+use disk::{Toml,toml_file};
 use crate::constants::{
 	STATE_VERSION,
 	ALBUM_ART_DEFAULT_SIZE,
@@ -38,7 +39,8 @@ use shukusai::kernel::{
 /// This struct holds an [`AudioState`] which a local copy copied from [`KernelState`].
 /// This is so that within the `GUI` loop, [`KernelState`] only needs to be locked _once_,
 /// so its values can be locally cached, then used within the frame.
-bincode_file!(State, Dir::Data, FESTIVAL, "gui", "state", FESTIVAL_HEADER, STATE_VERSION);
+//bincode_file!(State, Dir::Data, FESTIVAL, "gui", "state", FESTIVAL_HEADER, STATE_VERSION);
+toml_file!(State, Dir::Data, FESTIVAL, "gui", "state");
 #[derive(Copy,Clone,Debug,Default,PartialEq,PartialOrd,Serialize,Deserialize)]
 pub struct State {
 	/// Which [`Tab`] are currently on?

@@ -7,7 +7,7 @@ use crate::ui::{
 };
 use std::path::PathBuf;
 use disk::prelude::*;
-use disk::{Bincode,bincode_file};
+use disk::{Toml,toml_file};
 use crate::constants::{
 	SETTINGS_VERSION,
 	ALBUM_ART_DEFAULT_SIZE,
@@ -30,20 +30,21 @@ use shukusai::sort::{
 /// - Accent color
 /// - Album art size
 /// - etc
-bincode_file!(Settings, Dir::Data, FESTIVAL, "gui", "settings", FESTIVAL_HEADER, SETTINGS_VERSION);
+//bincode_file!(Settings, Dir::Data, FESTIVAL, "gui", "settings", FESTIVAL_HEADER, SETTINGS_VERSION);
+toml_file!(Settings, Dir::Data, FESTIVAL, "gui", "settings");
 #[derive(Clone,Debug,Default,PartialEq,PartialOrd,Serialize,Deserialize)]
 pub struct Settings {
-	/// RGB (A is always added later as 255, no opacity).
-	pub accent_color: [u8; 3],
-
-	/// Restore playback on re-open.
-	pub restore_state: bool,
-
 	/// Collection sorting of album view.
 	pub sort_order: AlbumSort,
 
 	/// Static pixel width/height for each album cover.
 	pub album_art_size: f32,
+
+	/// Restore playback on re-open.
+	pub restore_state: bool,
+
+	/// RGB (A is always added later as 255, no opacity).
+	pub accent_color: [u8; 3],
 
 	/// List of [`PathBuf`]'s to source music
 	/// data from when making a new [`Collection`].

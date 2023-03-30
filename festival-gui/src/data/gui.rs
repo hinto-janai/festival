@@ -39,7 +39,7 @@ use egui::{
 use crossbeam_channel::{Sender,Receiver};
 use std::sync::Arc;
 use rolock::RoLock;
-use disk::Bincode;
+use disk::Toml;
 
 //---------------------------------------------------------------------------------------------------- GUI struct. This hold ALL data.
 pub struct Gui {
