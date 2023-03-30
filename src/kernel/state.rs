@@ -88,6 +88,20 @@ pub struct KernelState {
 	pub queue: Queue,
 	/// ALL of the user's playlists.
 	pub playlists: Vec<Playlist>,
+
+	// Saving.
+	/// This [`bool`] represents if a [`Collection`] that was
+	/// recently created is still being written to the disk.
+	///
+	/// For performance reasons, when the `Frontend` asks [`Kernel`]
+	/// for a new [`Collection`], [`Kernel`] will return immediately upon
+	/// having an in-memory [`Collection`]. However, `shukusai` will
+	/// (in the background) be saving it disk.
+	///
+	/// If your `Frontend` exits around this time, it should probably hang
+	/// (for a reasonable amount of time) if this is set to `true`, waiting
+	/// for the [`Collection`] to be saved to disk.
+	pub saving: bool,
 }
 
 impl KernelState {
@@ -101,6 +115,8 @@ impl KernelState {
 
 			queue: Queue::new(),
 			playlists: vec![],
+
+			saving: false,
 		}
 	}
 

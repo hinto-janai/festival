@@ -24,10 +24,13 @@ use super::msg::{
 	CcdToKernel,
 	KernelToCcd,
 };
+use crate::kernel::{
+	KernelState,
+};
 use crate::collection::Art;
 use crossbeam_channel::{Sender,Receiver};
 use std::path::{Path,PathBuf};
-use std::sync::Arc;
+use std::sync::{Arc,RwLock};
 use disk::Bincode;
 use std::time::Instant;
 
@@ -44,10 +47,11 @@ impl Ccd {
 
 		// If no albums, return.
 		if collection.albums.len() == 0 {
-			send!(to_kernel, CcdToKernel::NewCollection(collection));
+			send!(to_kernel, CcdToKernel::NewCollection(Arc::new(collection)));
 		// Else, convert art, send to `Kernel`.
 		} else {
-			send!(to_kernel, CcdToKernel::NewCollection(Self::priv_convert_art(&to_kernel, collection)));
+			let collection = Arc::new(Self::priv_convert_art(&to_kernel, collection));
+			send!(to_kernel, CcdToKernel::NewCollection(collection));
 		}
 	}
 
@@ -60,6 +64,7 @@ impl Ccd {
 	pub(crate) fn new_collection(
 		to_kernel: Sender<CcdToKernel>,
 		from_kernel: Receiver<KernelToCcd>,
+		kernel_state: Arc<RwLock<KernelState>>,
 		old_collection: Arc<Collection>,
 		paths: Vec<PathBuf>,
 	) {
@@ -72,11 +77,11 @@ impl Ccd {
 		// 4. Create sorted `Key`'s.
 		// 5. Create the "Map"
 		// 6. Create our `Collection`.
-		// 7. Save to disk.
-		// 8. Transform in-memory `Collection` with `priv_convert_art()`
-		// 9. Send to `Kernel`
-		// 10. Wait for `Die` signal.
-		// 11. Die, destruct the old `Collection`.
+		// 7. Transform in-memory `Collection` with `priv_convert_art()`
+		// 8. Send to `Kernel`
+		// 9. Wait for `Die` signal.
+		// 10. Save `Collection` to disk.
+		// 11. Destruct the old `Collection`.
 
 		// TODO: Handle potential errors:
 		// 1. No albums
@@ -162,32 +167,35 @@ impl Ccd {
 		debug!("CCD [6/11] - Collection: {}", now.elapsed().as_secs_f32());
 
 		// 7.
-		// FIXME:
-		// Consider moving this to the end so the user
-		// doesn't have to wait for this write.
 		let now = Instant::now();
-		if let Err(e) = collection.save_atomic() {
-			send!(to_kernel, CcdToKernel::Failed(e));
-			debug!("CCD ... Collection failed, bye!");
-			return
-		}
-		debug!("CCD [7/11] - Disk: {}", now.elapsed().as_secs_f32());
+		let collection = Self::priv_convert_art(&to_kernel, collection);
+		debug!("CCD [7/11] - Image: {}", now.elapsed().as_secs_f32());
 
 		// 8.
 		let now = Instant::now();
-		let collection = Self::priv_convert_art(&to_kernel, collection);
-		debug!("CCD [8/11] - Image: {}", now.elapsed().as_secs_f32());
+		let collection = Arc::new(collection);
+		send!(to_kernel, CcdToKernel::NewCollection(Arc::clone(&collection)));
+		debug!("CCD [8/11] - ToKernel: {}", now.elapsed().as_secs_f32());
 
 		// 9.
 		let now = Instant::now();
-		send!(to_kernel, CcdToKernel::NewCollection(collection));
-		debug!("CCD [9/11] - ToKernel: {}", now.elapsed().as_secs_f32());
+		match recv!(from_kernel) {
+			KernelToCcd::Die => debug!("CCD [9/11] - Die: {}", now.elapsed().as_secs_f32()),
+		}
 
 		// 10.
 		let now = Instant::now();
-		match recv!(from_kernel) {
-			KernelToCcd::Die => debug!("CCD [10/11] - Die: {}", now.elapsed().as_secs_f32()),
+		// Set `saving` state.
+		lock_write!(kernel_state).saving = true;
+		// Attempt atomic save.
+		if let Err(e) = collection.save_atomic() {
+			fail!("CCD - Collection write to disk: {}", e);
 		}
+		// Set `saving` state.
+		lock_write!(kernel_state).saving = false;
+		debug!("CCD [10/11] - Disk: {}", now.elapsed().as_secs_f32());
+		// Don't need this anymore.
+		drop(collection);
 
 		// 11.
 		// Try 3 times before giving up.

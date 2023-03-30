@@ -128,7 +128,7 @@ impl Kernel {
 	//-------------------------------------------------- kernel()
 	#[inline(always)]
 	fn kernel(
-		collection:    Collection,
+		collection:    Arc<Collection>,
 		state:         Result<KernelState, anyhow::Error>,
 		to_frontend:   Sender<KernelToFrontend>,
 		from_frontend: Receiver<FrontendToKernel>,
@@ -143,7 +143,7 @@ impl Kernel {
 	//-------------------------------------------------- init()
 	#[inline(always)]
 	fn init(
-		collection:    Option<Collection>,
+		collection:    Option<Arc<Collection>>,
 		state:         Option<KernelState>,
 		to_frontend:   Sender<KernelToFrontend>,
 		from_frontend: Receiver<FrontendToKernel>
@@ -152,7 +152,7 @@ impl Kernel {
 
 		// Handle potentially missing `Collection`.
 		let collection = match collection {
-			Some(c) => { debug!("Kernel [8/12] ... Collection found"); Arc::new(c) },
+			Some(c) => { debug!("Kernel [8/12] ... Collection found"); c },
 			None    => { debug!("Kernel [8/12] ... Collection NOT found, returning default"); Arc::new(Collection::new()) },
 		};
 
@@ -357,12 +357,15 @@ impl Kernel {
 		let (to_ccd,   ccd_recv) = crossbeam_channel::unbounded::<KernelToCcd>();
 		let (ccd_send, from_ccd) = crossbeam_channel::unbounded::<CcdToKernel>();
 
+		// Get `KernelState` pointer.
+		let kernel_state = Arc::clone(&self.state);
+
 		// Get old `Collection` pointer.
 		let old_collection = Arc::clone(&self.collection);
 
 		// Spawn `CCD`.
 		std::thread::spawn(move || {
-			Ccd::new_collection(ccd_send, ccd_recv, old_collection, paths);
+			Ccd::new_collection(ccd_send, ccd_recv, kernel_state, old_collection, paths);
 		});
 
 		// Listen to `CCD`.
@@ -383,7 +386,7 @@ impl Kernel {
 		};
 
 		// `CCD` succeeded, send new pointers to everyone.
-		self.collection = Arc::new(collection);
+		self.collection = collection;
 		send!(self.to_search, KernelToSearch::NewCollection(Arc::clone(&self.collection)));
 		send!(self.to_audio,  KernelToAudio::NewCollection(Arc::clone(&self.collection)));
 		send!(self.to_frontend,    KernelToFrontend::NewCollection(Arc::clone(&self.collection)));

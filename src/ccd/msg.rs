@@ -13,13 +13,17 @@ use crate::collection::{
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
 pub(crate) enum CcdToKernel {
-	NewCollection(Collection), // Here's the new (or modified) `Collection`.
-	Failed(anyhow::Error),     // Creating new or converting `Collection` has failed.
-	Update(String),            // This is the current `Path/Artist/Album/Song` I'm working on and the `%` of work done.
+	NewCollection(Arc<Collection>), // Here's the new (or modified) `Collection`.
+	Failed(anyhow::Error),          // Creating new or converting `Collection` has failed.
+	Update(String),                 // This is the current `Path/Artist/Album/Song` I'm working on and the `%` of work done.
 }
 
 pub(crate) enum KernelToCcd {
-	Die, // You can rest now.
+	// You can rest now.
+	//
+	// (But before you do, save `Collection`
+	// to disk and deconstruct the old one)
+	Die,
 
 	// Since the rest of `CCD` stuff are one-shot operations, there's no
 	// need for `Kernel` to have a channel since it can just start `CCD`
