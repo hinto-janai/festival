@@ -40,7 +40,10 @@ use crate::macros::{
 	mass_panic,
 };
 
-//---------------------------------------------------------------------------------------------------- Constant/lazy_static
+//---------------------------------------------------------------------------------------------------- RNG
+// This could be a `once_cell::Lazy`, but that limits `RNG` usage
+// to a single caller. If `Kernel` (or any other thread) needs to
+// access `Collection`'s `rand_*` methods, a `Mutex` is required.
 lazy_static::lazy_static! {
 	static ref RNG: Mutex<rand::rngs::SmallRng> = Mutex::new(rand::rngs::SmallRng::from_entropy());
 }
