@@ -10,6 +10,12 @@ pub use tab::*;
 mod search;
 use search::*;
 
+mod settings;
+use settings::*;
+
+mod songs;
+use songs::*;
+
 mod update;
 use update::*;
 

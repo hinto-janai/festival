@@ -186,8 +186,9 @@ fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f
 				ui.separator();
 				if ui.add_sized([tab_width, tab_height], SelectableLabel::new(tab == Tab::Queue, tab::QUEUE)).clicked()         { tab = Tab::Queue; }
 				ui.separator();
-				if ui.add_sized([tab_width, tab_height], SelectableLabel::new(tab == Tab::Playlists, tab::PLAYLISTS)).clicked() { tab = Tab::Playlists; }
-				ui.separator();
+				// TODO: Make `shukusai` playlists suck less.
+//				if ui.add_sized([tab_width, tab_height], SelectableLabel::new(tab == Tab::Playlists, tab::PLAYLISTS)).clicked() { tab = Tab::Playlists; }
+//				ui.separator();
 				if ui.add_sized([tab_width, tab_height], SelectableLabel::new(tab == Tab::Search, tab::SEARCH)).clicked()       { tab = Tab::Search; }
 				ui.separator();
 				if ui.add_sized([tab_width, tab_height], SelectableLabel::new(tab == Tab::Settings, tab::SETTINGS)).clicked()   { tab = Tab::Settings; }
@@ -296,8 +297,14 @@ impl Gui {
 fn show_central(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
 	CentralPanel::default().show(ctx, |ui| {
 		match self.state.tab {
-			Tab::Albums    => Self::show_tab_album(self, ui, ctx, frame, width, height),
-			_ => (),
+			Tab::Albums    => Self::show_tab_albums(self, ui, ctx, frame, width, height),
+			Tab::Artists   => Self::show_tab_artists(self, ui, ctx, frame, width, height),
+			Tab::Songs     => Self::show_tab_songs(self, ui, ctx, frame, width, height),
+			Tab::Queue     => Self::show_tab_queue(self, ui, ctx, frame, width, height),
+			// TODO: Make `shukusai` playlists suck less.
+//			Tab::Playlists => (),
+			Tab::Search    => Self::show_tab_search(self, ui, ctx, frame, width, height),
+			Tab::Settings  => Self::show_tab_settings(self, ui, ctx, frame, width, height),
 		}
 	});
 }}
