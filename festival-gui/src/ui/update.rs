@@ -13,7 +13,8 @@ use egui::{
 	TopBottomPanel,SidePanel,CentralPanel,
 };
 use egui::widgets::{
-	Slider,Button,SelectableLabel,Label,
+	Slider,Button,Spinner,
+	SelectableLabel,Label,
 };
 use super::{
 	Tab,
@@ -30,63 +31,78 @@ use shukusai::key::{
 };
 use shukusai::{
 	mass_panic,
+	lock,
 	send,
 	recv,
 	fail,
 	ok,
 };
-use std::time::Duration;
+use std::time::{
+	Instant,
+	Duration,
+};
 use rolock::RoLock;
+use std::sync::Arc;
 
 //---------------------------------------------------------------------------------------------------- `GUI`'s eframe impl.
 impl eframe::App for Gui {
 	//-------------------------------------------------------------------------------- On exit.
 	#[inline(always)]
 	fn on_close_event(&mut self) -> bool {
-		// Tell `Kernel` to save stuff.
-		send!(self.to_kernel, FrontendToKernel::Exit);
+		// If already exiting, return, else
+		// turn on `GUI`'s signal for exiting.
+		let mut exiting = lock!(self.exiting);
+		match *exiting {
+			true  => {
+				warn!("GUI - Already in process of exiting, ignoring exit signal");
+				return false;
+			},
+			false => {
+				info!("GUI - Exiting...");
+				*exiting = true;
+			},
+		};
+		drop(exiting);
 
-		// Save `State`.
-		match self.state.save() {
-			Ok(_)  => ok!("GUI - State save"),
-			Err(e) => fail!("GUI - State save: {}", e),
-		}
+		// Clone things to send to exit thread.
+		let to_kernel    = self.to_kernel.clone();
+		let from_kernel  = self.from_kernel.clone();
+		let state        = self.og_state.clone();
+		let settings     = self.og_settings.clone();
+		let kernel_state = self.kernel_state.clone();
+		let exiting      = Arc::clone(&self.exiting);
 
-		// Save `Settings`.
-		match self.settings.save() {
-			Ok(_)  => ok!("GUI - Settings save"),
-			Err(e) => fail!("GUI - Settings save: {}", e),
-		}
+		// Spawn `exit` thread.
+		std::thread::spawn(move || {
+			Self::exit(to_kernel, from_kernel, state, settings, kernel_state, exiting);
+		});
 
-		// Check if `Kernel` succeeded.
-		// Loop through 3 messages just in-case
-		// there were others in the channel queue.
-		//
-		// This waits a max `900ms` before
-		// continuing without the response.
-		let mut n = 0;
-		loop {
-			if let Ok(KernelToFrontend::Exit(r)) = self.from_kernel.recv_timeout(Duration::from_millis(300)) {
-				match r {
-					Ok(_)  => ok!("GUI - Kernel save"),
-					Err(e) => fail!("GUI - Kernel save failed: {}", e),
-				}
-				break
-			} else if n > 3 {
-				fail!("GUI - Could not determine Kernel's exit result");
-			} else {
-				n += 1;
-			}
-		}
+		// Set the exit `Instant`.
+		self.exit_instant = Instant::now();
 
-		// Exit.
-		std::process::exit(0);
-		true
+		// Don't exit here.
+		false
 	}
 
 	//-------------------------------------------------------------------------------- Main event loop.
 	#[inline(always)]
 	fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+		// Set global available width/height.
+		let rect   = ctx.available_rect();
+		let width  = rect.width();
+		let height = rect.height();
+
+		// If exiting, show fullscreen spinner.
+		if *lock!(self.exiting) {
+			// To prevent showing a flash of the spinner
+			// when exiting really quickly, rack up enough
+			// time (100ms) before showing the spinner.
+			if self.exit_instant.elapsed().as_secs_f32() > 0.1 {
+				Self::show_spinner(self, ctx, frame, width, height);
+				return;
+			}
+		}
+
 		// Determine if there is a diff in settings.
 		let diff = self.diff_settings();
 
@@ -99,11 +115,6 @@ impl eframe::App for Gui {
 //		if diff {
 //			ctx.set_visuals();
 //		}
-
-		// Set global available width/height.
-		let rect   = ctx.available_rect();
-		let width  = rect.width();
-		let height = rect.height();
 
 		// Size definitions of the major UI panels.
 		let bottom_panel_height = height / 15.0;
@@ -306,6 +317,27 @@ fn show_central(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width
 	});
 }}
 
+
+//---------------------------------------------------------------------------------------------------- Spinner
+// This is a fullscreen spinner.
+// Used when exiting and waiting for everything to save.
+impl Gui {
+#[inline(always)]
+fn show_spinner(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
+	CentralPanel::default().show(ctx, |ui| {
+		ui.vertical_centered(|ui| {
+			let half = height / 2.0;
+			let hh   = half / 2.0;
+
+			let text = RichText::new("Saving...")
+				.size(hh / 4.0)
+				.color(crate::constants::BONE);
+
+			ui.add_sized([width, half], Label::new(text));
+			ui.add_sized([width, hh], Spinner::new().size(hh));
+		});
+	});
+}}
 
 //---------------------------------------------------------------------------------------------------- TESTS
 //#[cfg(test)]

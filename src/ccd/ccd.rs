@@ -194,7 +194,8 @@ impl Ccd {
 		// Set `saving` state.
 		lock_write!(kernel_state).saving = false;
 		debug!("CCD [10/11] - Disk: {}", now.elapsed().as_secs_f32());
-		// Don't need this anymore.
+		// Don't need these anymore.
+		drop(kernel_state);
 		drop(collection);
 
 		// 11.

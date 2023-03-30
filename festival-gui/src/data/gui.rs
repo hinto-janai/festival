@@ -37,9 +37,10 @@ use egui::{
 	FontData,FontDefinitions,FontFamily,FontTweak,
 };
 use crossbeam_channel::{Sender,Receiver};
-use std::sync::Arc;
+use std::sync::{Arc,Mutex};
 use rolock::RoLock;
 use disk::Toml;
+use std::time::Instant;
 
 //---------------------------------------------------------------------------------------------------- GUI struct. This hold ALL data.
 pub struct Gui {
@@ -58,6 +59,14 @@ pub struct Gui {
 	// `GUI` state.
 	pub og_state: State,
 	pub state: State,
+
+	// Are we currently in
+	// the process of exiting?
+	pub exiting: Arc<Mutex<bool>>,
+	// To prevent showing a flash of the spinner
+	// when exiting really quickly, this `Instant`
+	// needs to rack up some time before showing the spinner.
+	pub exit_instant: Instant,
 }
 
 //---------------------------------------------------------------------------------------------------- GUI convenience functions.
@@ -246,6 +255,9 @@ impl Gui {
 			// `GUI` state.
 			og_state: state.clone(),
 			state,
+
+			exiting: Arc::new(Mutex::new(false)),
+			exit_instant: Instant::now(),
 		};
 
 		// Style

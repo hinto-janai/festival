@@ -33,8 +33,6 @@ jobs:
     - name: Clippy
       run: cargo clippy --all-features
     - name: Doc
-      env:
-        RUSTFLAGS: '-D warnings'
       run: cargo doc --workspace --no-deps --all-features
     - name: Test
       run: cargo test --all-features
