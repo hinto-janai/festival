@@ -19,7 +19,7 @@ use super::{
 	Tab,
 	tab,
 };
-use disk::Bincode;
+use disk::Toml;
 use log::{error,warn,info,debug,trace};
 use shukusai::kernel::{
 	FrontendToKernel,
@@ -169,31 +169,28 @@ fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f
 
 		// Size definitions of the elements within the left panel.
 		let half_height = height / 2.0;
-		let tab_height  = half_height / 7.0;
+		let tab_height  = half_height / 6.0;
 		let tab_width   = width / 1.2;
 
 		// Main UI
 		ui.vertical_centered_justified(|ui| {
 
 			// Display [SelectableLabel] for each [Tab].
-			{
-				let mut tab = self.state.tab;
-				if ui.add_sized([tab_width, tab_height], SelectableLabel::new(tab == Tab::Albums, tab::ALBUMS)).clicked()       { tab = Tab::Albums; }
-				ui.separator();
-				if ui.add_sized([tab_width, tab_height], SelectableLabel::new(tab == Tab::Artists, tab::ARTISTS)).clicked()     { tab = Tab::Artists; }
-				ui.separator();
-				if ui.add_sized([tab_width, tab_height], SelectableLabel::new(tab == Tab::Songs, tab::SONGS)).clicked()         { tab = Tab::Songs; }
-				ui.separator();
-				if ui.add_sized([tab_width, tab_height], SelectableLabel::new(tab == Tab::Queue, tab::QUEUE)).clicked()         { tab = Tab::Queue; }
-				ui.separator();
-				// TODO: Make `shukusai` playlists suck less.
-//				if ui.add_sized([tab_width, tab_height], SelectableLabel::new(tab == Tab::Playlists, tab::PLAYLISTS)).clicked() { tab = Tab::Playlists; }
-//				ui.separator();
-				if ui.add_sized([tab_width, tab_height], SelectableLabel::new(tab == Tab::Search, tab::SEARCH)).clicked()       { tab = Tab::Search; }
-				ui.separator();
-				if ui.add_sized([tab_width, tab_height], SelectableLabel::new(tab == Tab::Settings, tab::SETTINGS)).clicked()   { tab = Tab::Settings; }
-				ui.separator();
-			}
+			if ui.add_sized([tab_width, tab_height], SelectableLabel::new(self.state.tab == Tab::Albums, tab::ALBUMS)).clicked()       { self.state.tab = Tab::Albums; }
+			ui.separator();
+			if ui.add_sized([tab_width, tab_height], SelectableLabel::new(self.state.tab == Tab::Artists, tab::ARTISTS)).clicked()     { self.state.tab = Tab::Artists; }
+			ui.separator();
+			if ui.add_sized([tab_width, tab_height], SelectableLabel::new(self.state.tab == Tab::Songs, tab::SONGS)).clicked()         { self.state.tab = Tab::Songs; }
+			ui.separator();
+			if ui.add_sized([tab_width, tab_height], SelectableLabel::new(self.state.tab == Tab::Queue, tab::QUEUE)).clicked()         { self.state.tab = Tab::Queue; }
+			ui.separator();
+			// TODO: Make `shukusai` playlists suck less.
+//			if ui.add_sized([tab_width, tab_height], SelectableLabel::new(self.state.tab == Tab::Playlists, tab::PLAYLISTS)).clicked() { self.state.tab = Tab::Playlists; }
+//			ui.separator();
+			if ui.add_sized([tab_width, tab_height], SelectableLabel::new(self.state.tab == Tab::Search, tab::SEARCH)).clicked()       { self.state.tab = Tab::Search; }
+			ui.separator();
+			if ui.add_sized([tab_width, tab_height], SelectableLabel::new(self.state.tab == Tab::Settings, tab::SETTINGS)).clicked()   { self.state.tab = Tab::Settings; }
+			ui.separator();
 
 			// Volume slider
 			let slider_height = ui.available_height() - 20.0;
