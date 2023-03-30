@@ -80,7 +80,7 @@ impl Gui {
 	#[inline(always)]
 	/// Set the original [`State`] to reflect live [`State`].
 	pub fn set_state(&mut self) {
-		self.og_state = self.state.clone();
+		self.og_state = self.state; // `copy`-able
 	}
 
 	#[inline(always)]
@@ -92,7 +92,7 @@ impl Gui {
 	#[inline(always)]
 	/// Reset [`State`] to the original.
 	pub fn reset_state(&mut self) {
-		self.state = self.og_state.clone();
+		self.state = self.og_state; // `copy`-able
 	}
 
 	#[inline]
@@ -239,7 +239,7 @@ impl Gui {
 			Err(e) => { warn!("GUI - State failed from disk: {}", e); State::new() },
 		};
 
-		let mut app = Self {
+		let app = Self {
 			// `Kernel` channels.
 			to_kernel,
 			from_kernel,
@@ -253,7 +253,7 @@ impl Gui {
 			settings,
 
 			// `GUI` state.
-			og_state: state.clone(),
+			og_state: state, // `copy`-able
 			state,
 
 			exiting: Arc::new(Mutex::new(false)),

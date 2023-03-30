@@ -19,5 +19,5 @@ fn main() {
 		shukusai::FESTIVAL_NAME_VER,
 		data::Gui::options(),
 		Box::new(|cc| Box::new(data::Gui::init(cc, gui_to_kernel, gui_recv)))
-	);
+	).expect("eframe::run_native() failed");
 }

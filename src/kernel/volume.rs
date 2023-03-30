@@ -40,7 +40,7 @@ impl Volume {
 	#[inline(always)]
 	/// Creates [`Volume`] without checking if the [`f64`] is between `0.0..100.0`.
 	///
-	/// # Safety:
+	/// # Safety
 	///
 	/// You must ensure:
 	/// 1. The input is between `0.0..100.0`
@@ -72,7 +72,7 @@ impl Volume {
 	#[inline(always)]
 	/// Creates [`Volume`] without checking if the [`u8`] is between `0..100`.
 	///
-	/// # Safety:
+	/// # Safety
 	///
 	/// You must ensure:
 	/// 1. The input is between `0..100`

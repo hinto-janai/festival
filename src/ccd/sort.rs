@@ -36,7 +36,7 @@ impl super::Ccd {
 	#[inline]
 	// Returns a `Vec` filled with a specified amount of `usize`.
 	fn filled_vec_usize(len: usize) -> Vec<usize> {
-		(0..len).map(|k| k).collect()
+		(0..len).collect()
 	}
 
 	//--------------------------------------------------------------- `ArtistKey` sorts.
@@ -44,14 +44,14 @@ impl super::Ccd {
 	pub(super) fn sort_artist_lexi(artists: &[Artist]) -> Vec<ArtistKey> {
 		let mut vec_artist = Self::filled_vec_usize(artists.len());
 		vec_artist.sort_by(|a, b| artists[*a].name.to_lowercase().cmp(&artists[*b].name.to_lowercase()));
-		vec_artist.into_iter().map(|key| ArtistKey::from(key)).collect()
+		vec_artist.into_iter().map(ArtistKey::from).collect()
 	}
 
 	#[inline]
 	pub(super) fn sort_artist_album_count(artists: &[Artist]) -> Vec<ArtistKey> {
 		let mut vec_artist = Self::filled_vec_usize(artists.len());
 		vec_artist.sort_by(|a, b| artists[*a].albums.len().cmp(&artists[*b].albums.len()));
-		vec_artist.into_iter().map(|key| ArtistKey::from(key)).collect()
+		vec_artist.into_iter().map(ArtistKey::from).collect()
 	}
 
 	#[inline]
@@ -60,9 +60,9 @@ impl super::Ccd {
 		vec_artist.sort_by(|a, b| {
 			let first:  usize = artists[*a].albums.iter().map(|a| albums[a.inner()].songs.len()).sum();
 			let second: usize = artists[*b].albums.iter().map(|a| albums[a.inner()].songs.len()).sum();
-			a.cmp(&b)
+			a.cmp(b)
 		});
-		vec_artist.into_iter().map(|key| ArtistKey::from(key)).collect()
+		vec_artist.into_iter().map(ArtistKey::from).collect()
 	}
 
 	//--------------------------------------------------------------- `AlbumKey` sorts.
@@ -115,7 +115,7 @@ impl super::Ccd {
 			)
 		);
 
-		vec_album.into_iter().map(|key| AlbumKey::from(key)).collect()
+		vec_album.into_iter().map(AlbumKey::from).collect()
 	}
 
 	#[inline]
@@ -129,7 +129,7 @@ impl super::Ccd {
 			)
 		);
 
-		vec_album.into_iter().map(|key| AlbumKey::from(key)).collect()
+		vec_album.into_iter().map(AlbumKey::from).collect()
 	}
 
 	#[inline]
@@ -144,7 +144,7 @@ impl super::Ccd {
 			crate::search::Search::cmp_f64(&albums[*a].runtime, &albums[*b].runtime)
 		);
 
-		vec_album.into_iter().map(|key| AlbumKey::from(key)).collect()
+		vec_album.into_iter().map(AlbumKey::from).collect()
 	}
 
 	//--------------------------------------------------------------- `SongKey` sorts.
@@ -161,7 +161,7 @@ impl super::Ccd {
 			)
 		);
 
-		vec_song.into_iter().map(|key| SongKey::from(key)).collect()
+		vec_song.into_iter().map(SongKey::from).collect()
 	}
 
 	#[inline]
@@ -186,7 +186,7 @@ impl super::Ccd {
 			)
 		});
 
-		vec_song.into_iter().map(|key| SongKey::from(key)).collect()
+		vec_song.into_iter().map(SongKey::from).collect()
 	}
 
 	#[inline]
@@ -200,7 +200,7 @@ impl super::Ccd {
 			crate::search::Search::cmp_f64(&songs[*a].runtime, &songs[*b].runtime)
 		);
 
-		vec_song.into_iter().map(|key| SongKey::from(key)).collect()
+		vec_song.into_iter().map(SongKey::from).collect()
 	}
 }
 

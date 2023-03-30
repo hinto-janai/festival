@@ -65,12 +65,12 @@ impl eframe::App for Gui {
 		drop(exiting);
 
 		// Clone things to send to exit thread.
+		let exiting      = Arc::clone(&self.exiting);
 		let to_kernel    = self.to_kernel.clone();
 		let from_kernel  = self.from_kernel.clone();
-		let state        = self.og_state.clone();
-		let settings     = self.og_settings.clone();
 		let kernel_state = self.kernel_state.clone();
-		let exiting      = Arc::clone(&self.exiting);
+		let settings     = self.og_settings.clone();
+		let state        = self.og_state; // `copy`-able
 
 		// Spawn `exit` thread.
 		std::thread::spawn(move || {
@@ -246,7 +246,7 @@ fn show_right(&mut self, album_key: AlbumKey, ctx: &egui::Context, frame: &mut e
 		ui.set_width(width);
 
 		// How big the albums (on the right side) should be.
-		let ALBUM_SIZE = width / 1.4;
+		let album_size = width / 1.4;
 
 		// The scrollable area.
 		ScrollArea::vertical().max_width(width).max_height(f32::INFINITY).auto_shrink([false; 2]).show_viewport(ui, |ui, _| {
@@ -261,13 +261,13 @@ fn show_right(&mut self, album_key: AlbumKey, ctx: &egui::Context, frame: &mut e
 				// Draw the art with the title.
 				ui.add_space(5.0);
 				ui.scope(|ui| {
-					ui.set_width(ALBUM_SIZE);
+					ui.set_width(album_size);
 
 					// Draw the frame.
 	 				Frame::window(&ctx.style()).rounding(Rounding::none()).inner_margin(1.0).show(ui, |ui| {
 						let mut rect = ui.cursor();
 						rect.max.x += 2.0;
-						rect.max.y = rect.min.y + ALBUM_SIZE;
+						rect.max.y = rect.min.y + album_size;
 
 						// If user clicks this album, set our state to that album.
 						if ui.put(rect, Button::new("").rounding(Rounding::none())).clicked() {
@@ -279,7 +279,7 @@ fn show_right(&mut self, album_key: AlbumKey, ctx: &egui::Context, frame: &mut e
 						ui.allocate_ui_at_rect(rect, |ui| {
 							ui.horizontal_centered(|ui| {
 								// Index `Collection` for this `Album`'s art.
-								album.art_or().show_size(ui, Vec2::new(ALBUM_SIZE, ALBUM_SIZE));
+								album.art_or().show_size(ui, Vec2::new(album_size, album_size));
 							});
 						});
 					});

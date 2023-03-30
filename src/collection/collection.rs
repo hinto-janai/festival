@@ -397,7 +397,7 @@ impl Collection {
 	/// # Panics:
 	/// The [`SongKey`] must be a valid index.
 	pub fn artist_from_song(&self, key: SongKey) -> &Artist {
-		&self.artist_from_album(self.songs[key].album)
+		self.artist_from_album(self.songs[key].album)
 	}
 
 	//-------------------------------------------------- Key traversal (`.get()`).
@@ -575,7 +575,7 @@ impl Collection {
 			1 => Some(vec![ArtistKey::zero()]),
 			_ => {
 				let mut vec: Vec<ArtistKey> = (0..self.count_artist)
-					.map(|i: usize| ArtistKey::from(i))
+					.map(ArtistKey::from)
 					.collect();
 				vec.shuffle(&mut *lock!(RNG));
 				Some(vec)
@@ -595,7 +595,7 @@ impl Collection {
 			1 => Some(vec![AlbumKey::zero()]),
 			_ => {
 				let mut vec: Vec<AlbumKey> = (0..self.count_album)
-					.map(|i: usize| AlbumKey::from(i))
+					.map(AlbumKey::from)
 					.collect();
 				vec.shuffle(&mut *lock!(RNG));
 				Some(vec)
@@ -615,7 +615,7 @@ impl Collection {
 			1 => Some(vec![SongKey::zero()]),
 			_ => {
 				let mut vec: Vec<SongKey> = (0..self.count_song)
-					.map(|i: usize| SongKey::from(i))
+					.map(SongKey::from)
 					.collect();
 				vec.shuffle(&mut *lock!(RNG));
 				Some(vec)

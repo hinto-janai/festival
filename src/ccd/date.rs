@@ -118,7 +118,7 @@ impl super::Ccd {
 			((None,    _, _), (Some(b), _, _))    => Ordering::Less,
 			((Some(a), _, _), (Some(b),    _, _)) => if a > b { Ordering::Greater } else if a < b { Ordering::Less } else { Ordering::Equal },
 			// Years + Months.
-			((Some(a1), Some(a2), _), (Some(b1), Some(b2), _)) => {
+			((Some(a1), Some(a2), None), (Some(b1), Some(b2), None)) => {
 				// Year.
 				if a1 > b1 {
 					return Ordering::Greater

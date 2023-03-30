@@ -46,7 +46,7 @@ impl Ccd {
 		debug!("CCD - Purpose in life: convert_art()");
 
 		// If no albums, return.
-		if collection.albums.len() == 0 {
+		if collection.albums.is_empty() {
 			send!(to_kernel, CcdToKernel::NewCollection(Arc::new(collection)));
 		// Else, convert art, send to `Kernel`.
 		} else {

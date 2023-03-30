@@ -116,17 +116,17 @@ impl super::Ccd {
 		// The "Working Memory" is a `HashMap` that takes in `String` input of an artist name and returns the `index` to it,
 		// along with another `HashMap` which represents that `Artist`'s `Album`'s and its appropriate `indicies`.
 		//
-		//                                Artist  Artist's index     Album  Album's index
-		//                                 Name   in `Vec<Artist>`   Name   in `Vec<Album>`
-		//                                  |          |              |         |
-		//                                  v          v              v         v
-		let mut memory:       Mutex<HashMap<String, (usize, HashMap<String, usize>)>> = Mutex::new(HashMap::new());
-		let mut vec_artist:   Mutex<Vec<Artist>> = Mutex::new(vec![]);
-		let mut vec_album:    Mutex<Vec<Album>>  = Mutex::new(vec![]);
-		let mut vec_song:     Mutex<Vec<Song>>   = Mutex::new(vec![]);
-		let mut count_artist: Mutex<usize>       = Mutex::new(0);
-		let mut count_album:  Mutex<usize>       = Mutex::new(0);
-		let mut count_song:   Mutex<usize>       = Mutex::new(0);
+		//                           Artist  Artist's index     Album  Album's index
+		//                            Name   in `Vec<Artist>`   Name   in `Vec<Album>`
+		//                              |          |              |         |
+		//                              v          v              v         v
+		let memory:       Mutex<HashMap<String, (usize, HashMap<String, usize>)>> = Mutex::new(HashMap::new());
+		let vec_artist:   Mutex<Vec<Artist>> = Mutex::new(vec![]);
+		let vec_album:    Mutex<Vec<Album>>  = Mutex::new(vec![]);
+		let vec_song:     Mutex<Vec<Song>>   = Mutex::new(vec![]);
+		let count_artist: Mutex<usize>       = Mutex::new(0);
+		let count_album:  Mutex<usize>       = Mutex::new(0);
+		let count_song:   Mutex<usize>       = Mutex::new(0);
 		// INVARIANT:               ^
 		// These `usize`'s _________|
 		// must be used correctly in the following code.
@@ -149,7 +149,7 @@ impl super::Ccd {
 		std::thread::scope(|scope| {
 		for paths in vec_paths.chunks(threads) {
 		scope.spawn(|| {
-		for path in paths.into_iter() {
+		for path in paths.iter() {
 		let path = path.clone(); // TODO: figure out how to take ownership of this instead of cloning.
 
 		// Get the tags for this `PathBuf`, skip on error.
@@ -225,10 +225,7 @@ impl super::Ccd {
 			};
 
 			// Get `Album` art bytes.
-			let art_bytes = match picture {
-				Some(p) => Some(p),
-				None    => None,
-			};
+			let art_bytes = picture;
 
 			// Get `Album` release.
 			let release = match release {
@@ -286,10 +283,7 @@ impl super::Ccd {
 		};
 
 		// Get `Album` art bytes.
-		let art_bytes = match picture {
-			Some(p) => Some(p),
-			None    => None,
-		};
+		let art_bytes = picture;
 
 		// Get `Album` release.
 		let release = match release {
@@ -361,7 +355,7 @@ impl super::Ccd {
 	// Adds the ancillary metadata to the `Album`'s based off the `Song`'s within it.
 	//
 	// The last field after this, `Art`, will be completed in the `convert` phase.
-	pub(super) fn fix_album_metadata_from_songs(vec_album: &mut Vec<Album>, vec_song: &Vec<Song>) {
+	pub(super) fn fix_album_metadata_from_songs(vec_album: &mut [Album], vec_song: &[Song]) {
 		for album in vec_album {
 			// Song count.
 			let song_count         = album.songs.len();
@@ -425,7 +419,7 @@ impl super::Ccd {
 
 	#[inline]
 	// Extracts `lofty`'s `ItemValue`.
-	fn item_value_to_str<'a>(item: &'a lofty::ItemValue) -> Option<&'a str> {
+	fn item_value_to_str(item: &lofty::ItemValue) -> Option<&str> {
 		match item {
 			lofty::ItemValue::Text(s)    => Some(s),
 			lofty::ItemValue::Locator(s) => Some(s),
@@ -441,24 +435,24 @@ impl super::Ccd {
 
 	#[inline(always)]
 	// Attempt to get the release date of the `TaggedFile`.
-	fn tag_release<'a>(tag: &'a lofty::Tag) -> Option<&'a str> {
+	fn tag_release(tag: &lofty::Tag) -> Option<&str> {
 		// Attempt #1.
 		if let Some(t) = tag.get(&lofty::ItemKey::OriginalReleaseDate) {
-			if let Some(s) = Self::item_value_to_str(&t.value()) {
+			if let Some(s) = Self::item_value_to_str(t.value()) {
 				return Some(s)
 			}
 		}
 
 		// Attempt #2.
 		if let Some(t) = tag.get(&lofty::ItemKey::RecordingDate) {
-			if let Some(s) = Self::item_value_to_str(&t.value()) {
+			if let Some(s) = Self::item_value_to_str(t.value()) {
 				return Some(s)
 			}
 		}
 
 		// Attempt #3.
 		if let Some(t) = tag.get(&lofty::ItemKey::Year) {
-			if let Some(s) = Self::item_value_to_str(&t.value()) {
+			if let Some(s) = Self::item_value_to_str(t.value()) {
 				return Some(s)
 			}
 		}
@@ -472,14 +466,14 @@ impl super::Ccd {
 	fn tag_track_artists(tag: &lofty::Tag) -> Option<String> {
 		// Attempt #1.
 		if let Some(t) = tag.get(&lofty::ItemKey::Performer) {
-			if let Some(s) = Self::item_value_to_str(&t.value()) {
+			if let Some(s) = Self::item_value_to_str(t.value()) {
 				return Some(s.to_string())
 			}
 		}
 
 		// Attempt #2.
 		if let Some(t) = tag.get(&lofty::ItemKey::TrackArtist) {
-			if let Some(s) = Self::item_value_to_str(&t.value()) {
+			if let Some(s) = Self::item_value_to_str(t.value()) {
 				return Some(s.to_string())
 			}
 		}
@@ -493,7 +487,7 @@ impl super::Ccd {
 	fn tag_compilation<'a>(artist: &str, tag: &'a lofty::Tag) -> bool {
 		// `FlagCompilation`.
 		if let Some(t) = tag.get(&lofty::ItemKey::FlagCompilation) {
-			if let Some(s) = Self::item_value_to_str(&t.value()) {
+			if let Some(s) = Self::item_value_to_str(t.value()) {
 				if s == "1" {
 					return true
 				}
@@ -503,7 +497,7 @@ impl super::Ccd {
 		// `Various Artists`
 		// This metadata is unique to Itunes.
 		if let Some(t) = tag.get(&lofty::ItemKey::AlbumArtist) {
-			if let Some(s) = Self::item_value_to_str(&t.value()) {
+			if let Some(s) = Self::item_value_to_str(t.value()) {
 				if s == "Various Artists" && s != artist {
 					return true
 				}
@@ -516,13 +510,13 @@ impl super::Ccd {
 	#[inline(always)]
 	// Attempts to extract tags from a `TaggedFile`.
 	// `TaggedFile` gets dropped here, since it is no longer needed.
-	fn extract_tag_metadata<'a>(tagged_file: lofty::TaggedFile, tag: &'a mut lofty::Tag) -> Result<TagMetadata<'a>, anyhow::Error> {
+	fn extract_tag_metadata(tagged_file: lofty::TaggedFile, tag: &mut lofty::Tag) -> Result<TagMetadata, anyhow::Error> {
 		// Image metadata.
 		// This needs to be first because it needs `mut`.
 		// and the next operations create `&`, meaning I
 		// can't mutate `tag` after that.
 		let picture = {
-			if tag.pictures().len() == 0 {
+			if tag.pictures().is_empty() {
 				None
 			} else {
 				// This removes the `Picture`, and cheaply

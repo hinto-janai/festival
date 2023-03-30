@@ -83,16 +83,10 @@ macro_rules! impl_common {
 			fn eq(&self, other: &$type) -> bool {
 				*self == other.0
 			}
-			fn ne(&self, other: &$type) -> bool {
-				*self != other.0
-			}
 		}
 		impl PartialEq<usize> for $type {
 			fn eq(&self, other: &usize) -> bool {
 				self.0 == *other
-			}
-			fn ne(&self, other: &usize) -> bool {
-				self.0 != *other
 			}
 		}
 	}

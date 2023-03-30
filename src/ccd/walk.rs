@@ -85,7 +85,7 @@ impl super::Ccd {
 
 	#[inline(always)]
 	fn path_infer_audio(path: &Path) -> bool {
-		if let Ok(Some(mime)) = infer::get_from_path(&path) {
+		if let Ok(Some(mime)) = infer::get_from_path(path) {
 			return SUPPORTED_AUDIO_MIME_TYPES.contains(&mime.mime_type())
 		}
 
@@ -94,7 +94,7 @@ impl super::Ccd {
 
 	#[inline(always)]
 	fn path_guess_audio(path: &Path) -> bool {
-		if let Some(mime) = mime_guess::MimeGuess::from_path(&path).first_raw() {
+		if let Some(mime) = mime_guess::MimeGuess::from_path(path).first_raw() {
 			return SUPPORTED_AUDIO_MIME_TYPES.contains(&mime)
 		}
 

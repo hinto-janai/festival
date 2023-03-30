@@ -45,10 +45,10 @@ impl super::Ccd {
 
 		// Single-threaded.
 		if threads == 1 {
-			Self::convert_art_singlethread(&to_kernel, collection)
+			Self::convert_art_singlethread(to_kernel, collection)
 		// Multi-threaded.
 		} else {
-			Self::convert_art_multithread(&to_kernel, collection, threads)
+			Self::convert_art_multithread(to_kernel, collection, threads)
 		}
 	}
 

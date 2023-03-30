@@ -25,7 +25,6 @@ use notify::{
 };
 use crate::kernel::Kernel;
 use crate::signal::*;
-use disk;
 
 //---------------------------------------------------------------------------------------------------- Watch
 #[derive(Debug)]

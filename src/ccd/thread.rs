@@ -72,7 +72,7 @@ fn available_threads() -> usize {
 fn half_threads(threads: usize) -> usize {
 	match threads {
 		// Special cases (low thread-count).
-		1|2 => return 1,
+		1|2 => 1,
 
 		// Around 50%.
 		_ => (threads as f64 * 0.5).floor() as usize,
@@ -82,10 +82,10 @@ fn half_threads(threads: usize) -> usize {
 fn most_threads(threads: usize) -> usize {
 	match threads {
 		// Special cases (low thread-count).
-		1 => return 1,
-		2 => return 1,
-		3 => return 2,
-		4 => return 3,
+		1 => 1,
+		2 => 1,
+		3 => 2,
+		4 => 3,
 
 		// Around 75%.
 		_ => (threads as f64 * 0.75).floor() as usize,

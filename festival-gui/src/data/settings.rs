@@ -24,15 +24,15 @@ use shukusai::sort::{
 };
 
 //---------------------------------------------------------------------------------------------------- Settings
+//bincode_file!(Settings, Dir::Data, FESTIVAL, "gui", "settings", FESTIVAL_HEADER, SETTINGS_VERSION);
+toml_file!(Settings, Dir::Data, FESTIVAL, "gui", "settings");
+#[derive(Clone,Debug,Default,PartialEq,PartialOrd,Serialize,Deserialize)]
 /// `GUI`'s settings.
 ///
 /// Holds user-mutable `GUI` settings, e.g:
 /// - Accent color
 /// - Album art size
 /// - etc
-//bincode_file!(Settings, Dir::Data, FESTIVAL, "gui", "settings", FESTIVAL_HEADER, SETTINGS_VERSION);
-toml_file!(Settings, Dir::Data, FESTIVAL, "gui", "settings");
-#[derive(Clone,Debug,Default,PartialEq,PartialOrd,Serialize,Deserialize)]
 pub struct Settings {
 	/// Collection sorting of album view.
 	pub sort_order: AlbumSort,
