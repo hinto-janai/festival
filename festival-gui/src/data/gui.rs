@@ -1,9 +1,13 @@
 //---------------------------------------------------------------------------------------------------- Use
-use super::{
+use crate::{
 	constants::*,
-	tab::Tab,
-	settings::Settings,
-	state::State,
+};
+use crate::data::{
+	State,
+	Settings,
+};
+use crate::ui::{
+	Tab,
 };
 use shukusai::kernel::{
 	Kernel,

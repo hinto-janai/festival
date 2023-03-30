@@ -2,13 +2,13 @@
 //use anyhow::{bail,ensure,Error};
 //use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
-use super::{
-	tab::Tab,
+use crate::ui::{
+	Tab,
 };
 use std::path::PathBuf;
 use disk::prelude::*;
 use disk::{Bincode,bincode_file};
-use super::constants::{
+use crate::constants::{
 	STATE_VERSION,
 	ALBUM_ART_DEFAULT_SIZE,
 };

@@ -1,14 +1,7 @@
-mod album;
-mod artist;
 mod cli;
 mod constants;
-mod gui;
-mod queue;
-mod search;
-mod settings;
-mod state;
-mod tab;
-mod update;
+mod data;
+mod ui;
 
 fn main() {
 	// Handle CLI arguments.
@@ -24,7 +17,7 @@ fn main() {
 	// Start `GUI`.
 	eframe::run_native(
 		shukusai::FESTIVAL_NAME_VER,
-		gui::Gui::options(),
-		Box::new(|cc| Box::new(gui::Gui::init(cc, gui_to_kernel, gui_recv)))
+		data::Gui::options(),
+		Box::new(|cc| Box::new(data::Gui::init(cc, gui_to_kernel, gui_recv)))
 	);
 }

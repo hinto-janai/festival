@@ -6,7 +6,7 @@
 //use disk::{};
 //use std::{};
 //use std::sync::{Arc,Mutex,RwLock};
-use super::gui::Gui;
+use crate::data::Gui;
 use egui::{
 	ScrollArea,Frame,
 	Color32,Vec2,Stroke,Rounding,RichText,
@@ -16,7 +16,7 @@ use egui::widgets::{
 	Slider,Button,SelectableLabel,Label,
 };
 use super::{
-	tab::Tab,
+	Tab,
 	tab,
 };
 use disk::Bincode;
