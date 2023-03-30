@@ -259,6 +259,7 @@ mod tests {
 		// Set-up inputs.
 		let (to_kernel, from_ccd) = crossbeam_channel::unbounded::<CcdToKernel>();
 		let (to_ccd, from_kernel) = crossbeam_channel::unbounded::<KernelToCcd>();
+		let kernel_state   = Arc::new(RwLock::new(KernelState::new()));
 		let old_collection = Arc::new(Collection::new());
 		let paths = vec![
 			PathBuf::from("src"),
@@ -271,7 +272,7 @@ mod tests {
 
 		// Spawn `CCD`.
 		let old_clone = Arc::clone(&old_collection);
-		std::thread::spawn(move || Ccd::new_collection(to_kernel, from_kernel, old_clone, paths));
+		std::thread::spawn(move || Ccd::new_collection(to_kernel, from_kernel, kernel_state, old_clone, paths));
 
 		// Act as `Kernel`.
 		// Receive.
