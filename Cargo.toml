@@ -117,7 +117,7 @@ rand = { version = "0.8.5", features = ["small_rng"] }
 #rfd = "0.11.1"
 #rodio = "0.16.0"
 serde_bytes = "0.11.9"
-serde = { version = "1.0.158", features = ["derive"] }
+serde = { version = "1.0.159", features = ["derive"] }
 #souvlaki = "0.5.3"
 strsim = "0.10.0"
 #symphonia = "0.5.2"
