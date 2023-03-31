@@ -57,6 +57,33 @@ macro_rules! flip {
 pub use flip;
 
 #[macro_export]
+/// Flip a [`std::sync::atomic::AtomicBool`] in place with `Ordering::SeqCst`
+macro_rules! atomic_flip {
+	($b:expr) => {
+		$b.fetch_xor(true, std::sync::atomic::Ordering::SeqCst)
+	}
+}
+pub use atomic_flip;
+
+#[macro_export]
+/// [`load()`] from [`std::sync::atomic`] with `Ordering::SeqCst`
+macro_rules! atomic_load {
+	($b:expr) => {
+		$b.load(std::sync::atomic::Ordering::SeqCst)
+	}
+}
+pub use atomic_load;
+
+#[macro_export]
+/// [`store()`] from [`std::sync::atomic::AtomicBool`] with `Ordering::SeqCst`
+macro_rules! atomic_store {
+	($atomic:expr, $b:expr) => {
+		$atomic.store($b, std::sync::atomic::Ordering::SeqCst)
+	}
+}
+pub use atomic_store;
+
+#[macro_export]
 /// Forward input to [`log::info`], appended with green `... OK`
 macro_rules! ok {
 	($($tts:tt)*) => {
@@ -219,15 +246,37 @@ pub use recv_or_die;
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
 mod tests {
+	use std::sync::atomic::{AtomicBool,AtomicU64,Ordering};
+
 	#[test]
 	fn flip() {
 		let mut b = true;
 		flip!(b);
 		assert!(b == false);
-
-		let mut b = false;
 		flip!(b);
 		assert!(b == true);
+		flip!(b);
+		assert!(b == false);
+	}
+
+	#[test]
+	fn atomic_flip() {
+		let mut b = AtomicBool::new(true);
+		atomic_flip!(b);
+		assert!(b.load(Ordering::SeqCst) == false);
+		atomic_flip!(b);
+		assert!(b.load(Ordering::SeqCst) == true);
+		atomic_flip!(b);
+		assert!(b.load(Ordering::SeqCst) == false);
+	}
+
+	#[test]
+	fn atomic() {
+		let mut u = AtomicU64::new(0);
+		atomic_store!(u, 123);
+		assert!(atomic_load!(u) == 123);
+		atomic_store!(u, 0);
+		assert!(atomic_load!(u) == 0);
 	}
 
 	#[test]
