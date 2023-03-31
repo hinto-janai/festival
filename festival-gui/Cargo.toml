@@ -30,6 +30,7 @@ disk  = { version = "0.0.6", features = ["toml", "empty"] }
 image = { version = "0.24.6", features = ["jpeg", "png"], default-features = false }
 log   = "0.4.17"
 serde = { version = "1.0.159", features = ["derive"] }
+rfd = "0.11.3"
 rolock = "0.1.2"
 
 # For Windows build (icon)

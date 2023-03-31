@@ -114,7 +114,6 @@ notify = "5.1.0"
 mime_guess = "2.0.4"
 rand = { version = "0.8.5", features = ["small_rng"] }
 #regex = "1.7.1"
-#rfd = "0.11.1"
 #rodio = "0.16.0"
 serde_bytes = "0.11.9"
 serde = { version = "1.0.159", features = ["derive"] }
