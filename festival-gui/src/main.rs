@@ -1,6 +1,7 @@
 mod cli;
 mod constants;
 mod data;
+mod text;
 mod ui;
 
 fn main() {

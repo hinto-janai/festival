@@ -91,11 +91,9 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 		ui.add_space(10.0);
 		ComboBox::from_id_source("sort_order").selected_text(RichText::new(self.settings.sort_order.as_str()).color(BONE)).show_ui(ui, |ui| {
 			// Album Sort methods.
-			ui.selectable_value(&mut self.settings.sort_order, AlbumSort::ReleaseArtistLexi, "Artists lexicographically, albums in release order");
-			ui.selectable_value(&mut self.settings.sort_order, AlbumSort::LexiArtistLexi,    "Artists lexicographically, albums lexicographically");
-			ui.selectable_value(&mut self.settings.sort_order, AlbumSort::Lexi,              "Albums lexicographically");
-			ui.selectable_value(&mut self.settings.sort_order, AlbumSort::Release,           "Albums in release order");
-			ui.selectable_value(&mut self.settings.sort_order, AlbumSort::Runtime,           "Albums shortest to longest");
+			for i in AlbumSort::iter() {
+				ui.selectable_value(&mut self.settings.sort_order, *i, i.as_str());
+			}
 		});
 
 		ui.add_space(60.0);

@@ -41,6 +41,21 @@ impl Tab {
 			Self::Settings  => SETTINGS,
 		}
 	}
+
+	#[inline]
+	/// Returns an iterator over all [`Tab`] variants.
+	pub fn iter() -> std::slice::Iter<'static, Self> {
+		[
+			Self::Albums,
+			Self::Artists,
+			Self::Songs,
+			Self::Queue,
+			// TODO: Make `shukusai` playlists suck less.
+//			Self::Playlists,
+			Self::Search,
+			Self::Settings,
+		].iter()
+	}
 }
 
 impl std::fmt::Display for Tab {
