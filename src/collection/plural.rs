@@ -69,6 +69,7 @@ macro_rules! impl_plural {
 
 		impl $plural {
 			//-------------------------------------------------- New (private).
+			#[inline(always)]
 			pub(crate) const fn new() -> Self {
 				Self(vec![])
 			}

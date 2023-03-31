@@ -41,6 +41,8 @@ use crate::macros::{
 };
 
 //---------------------------------------------------------------------------------------------------- RNG
+// `RNG`: Global RNG state for `Collection`'s `rand_*` functions.
+//
 // This could be a `once_cell::Lazy`, but that limits `RNG` usage
 // to a single caller. If `Kernel` (or any other thread) needs to
 // access `Collection`'s `rand_*` methods, a `Mutex` is required.
@@ -224,7 +226,7 @@ impl Collection {
 	}
 
 	//-------------------------------------------------- Metadata functions.
-	#[inline]
+	#[inline(always)] // This only gets called once.
 	// Set the proper metadata for this `Collection`.
 	pub(crate) fn set_metadata(mut self) -> Self {
 		// Get `Vec` lengths.
@@ -250,7 +252,7 @@ impl Collection {
 		self
 	}
 
-	#[inline]
+	#[inline(always)] // This only gets called once.
 	// Get the current UNIX time.
 	pub(crate) fn unix_now() -> u64 {
 		let now = std::time::SystemTime::now();

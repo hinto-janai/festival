@@ -30,7 +30,7 @@ impl Map {
 		Self::default()
 	}
 
-	#[inline(always)]
+	#[inline(always)] // This only gets called once.
 	// Iterates over the the "3 Vecs"
 	// and creates a matching `Map`.
 	pub(crate) fn from_3_vecs(

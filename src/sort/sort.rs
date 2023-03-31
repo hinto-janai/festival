@@ -10,19 +10,32 @@ use crate::collection::{
 };
 
 //---------------------------------------------------------------------------------------------------- Sort Constants
-const ARTIST_LEXI:                    &str = "Artists lexicographically";
-const ARTIST_ALBUM_COUNT:             &str = "Artists per album count";
-const ARTIST_SONG_COUNT:              &str = "Artists per song count";
-const ALBUM_RELEASE_ARTIST_LEXI:      &str = "Artists lexicographically, albums in release order";
-const ALBUM_LEXI_ARTIST_LEXI:         &str = "Artists lexicographically, albums lexicographically";
-const ALBUM_LEXI:                     &str = "Albums lexicographically";
-const ALBUM_RELEASE:                  &str = "Albums in release order";
-const ALBUM_RUNTIME:                  &str = "Albums shortest to longest";
-const SONG_ALBUM_RELEASE_ARTIST_LEXI: &str = "Artists lexicographically, albums in release order, songs in track order";
-const SONG_ALBUM_LEXI_ARTIST_LEXI:    &str = "Artists lexicographically, albums lexicographically,, songs in track order";
-const SONG_LEXI:                      &str = "Songs lexicographically";
-const SONG_RELEASE:                   &str = "Songs in release order";
-const SONG_RUNTIME:                   &str = "Songs shortest to longest";
+/// [`ArtistSort::Lexi`]
+pub const ARTIST_LEXI:                    &str = "Artists lexicographically";
+/// [`ArtistSort::AlbumCount`]
+pub const ARTIST_ALBUM_COUNT:             &str = "Artists per album count";
+/// [`ArtistSort::SongCount`]
+pub const ARTIST_SONG_COUNT:              &str = "Artists per song count";
+/// [`AlbumSort::ReleaseArtistLexi`]
+pub const ALBUM_RELEASE_ARTIST_LEXI:      &str = "Artists lexicographically, albums in release order";
+/// [`AlbumSort::LexiArtistLexi`]
+pub const ALBUM_LEXI_ARTIST_LEXI:         &str = "Artists lexicographically, albums lexicographically";
+/// [`AlbumSort::Lexi`]
+pub const ALBUM_LEXI:                     &str = "Albums lexicographically";
+/// [`AlbumSort::Release`]
+pub const ALBUM_RELEASE:                  &str = "Albums in release order";
+/// [`AlbumSort::Runtime`]
+pub const ALBUM_RUNTIME:                  &str = "Albums shortest to longest";
+/// [`SongSort::AlbumReleaseArtistLexi`]
+pub const SONG_ALBUM_RELEASE_ARTIST_LEXI: &str = "Artists lexicographically, albums in release order, songs in track order";
+/// [`SongSort::AlbumLexiArtistLexi`]
+pub const SONG_ALBUM_LEXI_ARTIST_LEXI:    &str = "Artists lexicographically, albums lexicographically,, songs in track order";
+/// [`SongSort::Lexi`]
+pub const SONG_LEXI:                      &str = "Songs lexicographically";
+/// [`SongSort::Release`]
+pub const SONG_RELEASE:                   &str = "Songs in release order";
+/// [`SongSort::Runtime`]
+pub const SONG_RUNTIME:                   &str = "Songs shortest to longest";
 
 //---------------------------------------------------------------------------------------------------- Sort
 /// All the ways to sort the [`Collection`]'s [`Artist`]'s.
@@ -82,10 +95,10 @@ pub enum SongSort {
 }
 
 impl ArtistSort {
-	#[inline(always)]
+	#[inline]
 	/// Returns formatted, human readable versions.
 	///
-	/// e.g: [`ArtistSort::AlbumCount`] is `Artists per album count`
+	/// e.g: [`ArtistSort::AlbumCount`] returns [`ARTIST_ALBUM_COUNT`]
 	pub fn as_str(&self) -> &'static str {
 		use ArtistSort::*;
 		match self {
@@ -94,13 +107,23 @@ impl ArtistSort {
 			SongCount  => ARTIST_SONG_COUNT,
 		}
 	}
+
+	#[inline]
+	/// Returns an iterator over all [`ArtistSort`] variants.
+	pub fn iter() -> std::slice::Iter<'static, Self> {
+		[
+			Self::Lexi,
+			Self::AlbumCount,
+			Self::SongCount,
+		].iter()
+	}
 }
 
 impl AlbumSort {
-	#[inline(always)]
+	#[inline]
 	/// Returns formatted, human readable versions.
 	///
-	/// e.g: [`AlbumSort::ReleaseArtistLexi`] is `Artists lexicographically, albums in release order`
+	/// e.g: [`AlbumSort::ReleaseArtistLexi`] returns [`ALBUM_RELEASE_ARTIST_LEXI`]
 	pub fn as_str(&self) -> &'static str {
 		use AlbumSort::*;
 		match self {
@@ -111,13 +134,25 @@ impl AlbumSort {
 			Runtime           => ALBUM_RUNTIME,
 		}
 	}
+
+	#[inline]
+	/// Returns an iterator over all [`AlbumSort`] variants.
+	pub fn iter() -> std::slice::Iter<'static, Self> {
+		[
+			Self::ReleaseArtistLexi,
+			Self::LexiArtistLexi,
+			Self::Lexi,
+			Self::Release,
+			Self::Runtime,
+		].iter()
+	}
 }
 
 impl SongSort {
-	#[inline(always)]
+	#[inline]
 	/// Returns formatted, human readable versions.
 	///
-	/// e.g: [`SongSort::AlbumReleaseArtistLexi`] is `Artists lexicographically, albums in release order, songs in track order`
+	/// e.g: [`SongSort::AlbumReleaseArtistLexi`] returns [`SONG_ALBUM_RELEASE_ARTIST_LEXI`]
 	pub fn as_str(&self) -> &'static str {
 		use SongSort::*;
 		match self {
@@ -127,6 +162,18 @@ impl SongSort {
 			Release                => SONG_RELEASE,
 			Runtime                => SONG_RUNTIME,
 		}
+	}
+
+	#[inline]
+	/// Returns an iterator over all [`SongSort`] variants.
+	pub fn iter() -> std::slice::Iter<'static, Self> {
+		[
+			Self::AlbumReleaseArtistLexi,
+			Self::AlbumLexiArtistLexi,
+			Self::Lexi,
+			Self::Release,
+			Self::Runtime,
+		].iter()
 	}
 }
 
