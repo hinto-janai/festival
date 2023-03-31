@@ -4,8 +4,8 @@ use artist::*;
 mod album;
 use album::*;
 
-mod close;
-use close::*;
+mod exit;
+use exit::*;
 
 mod tab;
 pub use tab::*;

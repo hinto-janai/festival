@@ -34,7 +34,7 @@ use log::{
 use egui::{
 	Style,Visuals,
 	TopBottomPanel,SidePanel,CentralPanel,
-	FontData,FontDefinitions,FontFamily,FontTweak,
+	TextStyle,FontId,FontData,FontDefinitions,FontFamily,FontTweak,
 };
 use crossbeam_channel::{Sender,Receiver};
 use std::sync::{Arc,Mutex};
@@ -44,28 +44,30 @@ use std::time::Instant;
 
 //---------------------------------------------------------------------------------------------------- GUI struct. This hold ALL data.
 pub struct Gui {
-	// `Kernel` channels.
+	/// To `Kernel`.
 	pub to_kernel: Sender<FrontendToKernel>,
+	/// From `Kernel`.
 	pub from_kernel: Receiver<KernelToFrontend>,
 
-	// `shukusai` data.
+	/// The `Collection`.
 	pub collection: Arc<Collection>,
 	pub kernel_state: RoLock<KernelState>,
 
-	// `GUI` settings.
-	pub og_settings: Settings,
+	/// `GUI` settings.
 	pub settings: Settings,
+	/// `GUI` settings (old).
+	pub og_settings: Settings,
 
-	// `GUI` state.
-	pub og_state: State,
+	/// `GUI` state.
 	pub state: State,
+	/// `GUI` settings (old).
+	pub og_state: State,
 
-	// Are we currently in
-	// the process of exiting?
+	/// Are we currently in the process of exiting?
 	pub exiting: Arc<Mutex<bool>>,
-	// To prevent showing a flash of the spinner
-	// when exiting really quickly, this `Instant`
-	// needs to rack up some time before showing the spinner.
+	/// To prevent showing a flash of the spinner
+	/// when exiting really quickly, this `Instant`
+	/// needs to rack up some time before showing the spinner.
 	pub exit_instant: Instant,
 }
 
@@ -135,6 +137,13 @@ impl Gui {
 	#[inline(always)]
 	fn init_style() -> egui::Style {
 		let style = Style {
+			text_styles: [
+				(TextStyle::Small,     FontId::new(10.0, FontFamily::Monospace)),
+				(TextStyle::Body,      FontId::new(20.0, FontFamily::Monospace)),
+				(TextStyle::Button,    FontId::new(20.0, FontFamily::Monospace)),
+				(TextStyle::Monospace, FontId::new(20.0, FontFamily::Monospace)),
+				(TextStyle::Heading,   FontId::new(40.0, FontFamily::Monospace)),
+			].into(),
 			..Default::default()
 		};
 
