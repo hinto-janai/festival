@@ -74,11 +74,21 @@ macro_rules! atomic_load {
 }
 pub use atomic_load;
 
+
+#[macro_export]
+/// [`load()`] from [`std::sync::atomic`] with `Ordering::SeqCst`
+macro_rules! atomic_add {
+	($atomic:expr, $i:expr) => {
+		$atomic.fetch_add($i, std::sync::atomic::Ordering::SeqCst)
+	}
+}
+pub use atomic_add;
+
 #[macro_export]
 /// [`store()`] from [`std::sync::atomic::AtomicBool`] with `Ordering::SeqCst`
 macro_rules! atomic_store {
-	($atomic:expr, $b:expr) => {
-		$atomic.store($b, std::sync::atomic::Ordering::SeqCst)
+	($atomic:expr, $i:expr) => {
+		$atomic.store($i, std::sync::atomic::Ordering::SeqCst)
 	}
 }
 pub use atomic_store;

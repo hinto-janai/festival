@@ -27,7 +27,13 @@ use crate::key::{
 	AlbumKey,
 	SongKey,
 };
-use crate::macros::*;
+use crate::macros::{
+	lock,
+	mass_panic,
+	unwrap_or_mass,
+	atomic_load,
+	atomic_add,
+};
 use crate::constants::{
 	SKIP
 };
@@ -36,6 +42,7 @@ use super::CcdToKernel;
 use readable::{Runtime,Int};
 use std::borrow::Cow;
 use std::sync::{Arc,Mutex};
+use std::sync::atomic::AtomicUsize;
 
 //---------------------------------------------------------------------------------------------------- Tag Metadata (temporary) struct.
 #[derive(Debug)]
@@ -124,9 +131,9 @@ impl super::Ccd {
 		let vec_artist:   Mutex<Vec<Artist>> = Mutex::new(vec![]);
 		let vec_album:    Mutex<Vec<Album>>  = Mutex::new(vec![]);
 		let vec_song:     Mutex<Vec<Song>>   = Mutex::new(vec![]);
-		let count_artist: Mutex<usize>       = Mutex::new(0);
-		let count_album:  Mutex<usize>       = Mutex::new(0);
-		let count_song:   Mutex<usize>       = Mutex::new(0);
+		let count_artist: AtomicUsize        = AtomicUsize::new(0);
+		let count_album:  AtomicUsize        = AtomicUsize::new(0);
+		let count_song:   AtomicUsize        = AtomicUsize::new(0);
 		// INVARIANT:               ^
 		// These `usize`'s _________|
 		// must be used correctly in the following code.
@@ -200,13 +207,13 @@ impl super::Ccd {
 				};
 
 				// Update `Album`.
-				lock!(vec_album)[*album_idx].songs.push(SongKey::from(*lock!(count_song)));
+				lock!(vec_album)[*album_idx].songs.push(SongKey::from(atomic_load!(count_song)));
 
 				// Push to `Vec<Song>`
 				lock!(vec_song).push(song);
 
 				// Increment `Song` count.
-				*lock!(count_song) += 1;
+				atomic_add!(count_song, 1);
 
 				continue
 			}
@@ -215,7 +222,7 @@ impl super::Ccd {
 			// Create `Song`.
 			let song = Song {
 				title: title.to_string(),
-				album: AlbumKey::from(*lock!(count_album)),
+				album: AlbumKey::from(atomic_load!(count_album)),
 				runtime_human: Runtime::from(runtime),
 				track,
 				track_artists,
@@ -237,9 +244,9 @@ impl super::Ccd {
 			let album_struct = Album {
 				// Can be initialized now.
 				title: album.to_string(),
-				artist: ArtistKey::from(*lock!(count_artist)),
+				artist: ArtistKey::from(atomic_load!(count_artist)),
 				release_human: Self::date_to_string(release),
-				songs: vec![SongKey::from(*lock!(count_song))],
+				songs: vec![SongKey::from(atomic_load!(count_song))],
 				release,
 				art_bytes,
 				compilation,
@@ -253,18 +260,18 @@ impl super::Ccd {
 			};
 
 			// Update `Artist`.
-			lock!(vec_artist)[*artist_idx].albums.push(AlbumKey::from(*lock!(count_album)));
+			lock!(vec_artist)[*artist_idx].albums.push(AlbumKey::from(atomic_load!(count_album)));
 
 			// Push `Album/Song`.
 			lock!(vec_album).push(album_struct);
 			lock!(vec_song).push(song);
 
 			// Add to `HashMap` memory.
-			album_map.insert(album.to_string(), *lock!(count_album));
+			album_map.insert(album.to_string(), atomic_load!(count_album));
 
 			// Increment `Album/Song` count.
-			*lock!(count_album) += 1;
-			*lock!(count_song) += 1;
+			atomic_add!(count_album, 1);
+			atomic_add!(count_song, 1);
 
 			continue
 		}
@@ -273,7 +280,7 @@ impl super::Ccd {
 		// Create `Song`.
 		let song = Song {
 			title: title.to_string(),
-			album: AlbumKey::from(*lock!(count_album)),
+			album: AlbumKey::from(atomic_load!(count_album)),
 			runtime_human: Runtime::from(runtime),
 			track,
 			track_artists,
@@ -295,9 +302,9 @@ impl super::Ccd {
 		let album_struct = Album {
 			// Can be initialized now.
 			title: album.to_string(),
-			artist: ArtistKey::from(*lock!(count_artist)),
+			artist: ArtistKey::from(atomic_load!(count_artist)),
 			release_human: Self::date_to_string(release),
-			songs: vec![SongKey::from(*lock!(count_song))],
+			songs: vec![SongKey::from(atomic_load!(count_song))],
 			release,
 			art_bytes,
 			compilation,
@@ -313,7 +320,7 @@ impl super::Ccd {
 		// Create `Artist`.
 		let artist_struct = Artist {
 			name: artist.to_string(),
-			albums: vec![AlbumKey::from(*lock!(count_album))],
+			albums: vec![AlbumKey::from(atomic_load!(count_album))],
 		};
 
 		// Push `Artist/Album/Song`.
@@ -324,13 +331,13 @@ impl super::Ccd {
 		// Add to `HashMap` memory.
 		lock!(memory).insert(
 			artist.to_string(),
-			(*lock!(count_artist), HashMap::from([(album.to_string(), *lock!(count_album))]))
+			(atomic_load!(count_artist), HashMap::from([(album.to_string(), atomic_load!(count_album))]))
 		);
 
 		// Increment `Artist/Album/Song` count.
-		*lock!(count_artist) += 1;
-		*lock!(count_album)  += 1;
-		*lock!(count_song)   += 1;
+		atomic_add!(count_artist, 1);
+		atomic_add!(count_album, 1);
+		atomic_add!(count_song, 1);
 
 		//------------------------------------------------------------- End of `The Loop`.
 		}   // for path in paths
