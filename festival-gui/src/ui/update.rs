@@ -51,21 +51,18 @@ impl eframe::App for Gui {
 	fn on_close_event(&mut self) -> bool {
 		// If already exiting, return, else
 		// turn on `GUI`'s signal for exiting.
-		let mut exiting = lock!(self.exiting);
-		match *exiting {
+		match self.exiting {
 			true  => {
 				warn!("GUI - Already in process of exiting, ignoring exit signal");
 				return false;
 			},
 			false => {
 				info!("GUI - Exiting...");
-				*exiting = true;
+				self.exiting = true;
 			},
 		};
-		drop(exiting);
 
 		// Clone things to send to exit thread.
-		let exiting      = Arc::clone(&self.exiting);
 		let to_kernel    = self.to_kernel.clone();
 		let from_kernel  = self.from_kernel.clone();
 		let kernel_state = self.kernel_state.clone();
@@ -74,7 +71,7 @@ impl eframe::App for Gui {
 
 		// Spawn `exit` thread.
 		std::thread::spawn(move || {
-			Self::exit(to_kernel, from_kernel, state, settings, kernel_state, exiting);
+			Self::exit(to_kernel, from_kernel, state, settings, kernel_state);
 		});
 
 		// Set the exit `Instant`.
@@ -93,7 +90,7 @@ impl eframe::App for Gui {
 		let height = rect.height();
 
 		// If exiting, show fullscreen spinner.
-		if *lock!(self.exiting) {
+		if self.exiting {
 			// To prevent showing a flash of the spinner
 			// when exiting really quickly, rack up enough
 			// time (100ms) before showing the spinner.

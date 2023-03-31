@@ -6,7 +6,6 @@
 //use disk::prelude::*;
 //use disk::{};
 //use std::{};
-use std::sync::{Arc,Mutex};
 use crate::data::{
 	State,
 	Settings,
@@ -48,7 +47,6 @@ pub(super) fn exit(
 	state: State,
 	settings: Settings,
 	kernel_state: RoLock<KernelState>,
-	exiting: Arc<Mutex<bool>>,
 ) {
 	// Tell `Kernel` to save stuff.
 	send!(to_kernel, FrontendToKernel::Exit);

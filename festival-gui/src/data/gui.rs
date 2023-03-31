@@ -37,7 +37,7 @@ use egui::{
 	TextStyle,FontId,FontData,FontDefinitions,FontFamily,FontTweak,
 };
 use crossbeam_channel::{Sender,Receiver};
-use std::sync::{Arc,Mutex};
+use std::sync::Arc;
 use rolock::RoLock;
 use disk::Toml;
 use std::time::Instant;
@@ -64,7 +64,7 @@ pub struct Gui {
 	pub og_state: State,
 
 	/// Are we currently in the process of exiting?
-	pub exiting: Arc<Mutex<bool>>,
+	pub exiting: bool,
 	/// To prevent showing a flash of the spinner
 	/// when exiting really quickly, this `Instant`
 	/// needs to rack up some time before showing the spinner.
@@ -265,7 +265,7 @@ impl Gui {
 			og_state: state, // `copy`-able
 			state,
 
-			exiting: Arc::new(Mutex::new(false)),
+			exiting: false,
 			exit_instant: Instant::now(),
 		};
 

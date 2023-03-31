@@ -11,6 +11,7 @@ The default size of `GUI` is `1000x800`.
 | `main.rs`      | Barebones `main()` that spawns `Kernel` and turns into `GUI`
 | `cli.rs`       | CLI handling
 | `constants.rs` | General constants
+| `text.rs`      | Constant `&'static str`'s for `GUI` text
 
 ## Folders
 | Folder         | Purpose |
