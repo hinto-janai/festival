@@ -194,7 +194,7 @@ pub use mass_panic;
 #[macro_export]
 /// `match` a [`Result`], [`mass_panic!`] on [`Result::Err`]
 macro_rules! unwrap_or_mass {
-	($var:tt) => {
+	($var:expr) => {
 		match $var {
 			Ok(o)  => o,
 			Err(e) => mass_panic!(e),

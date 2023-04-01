@@ -114,11 +114,9 @@ impl super::Ccd {
 		//
 		// Vec<Artist>    Vec<Album>    Vec<Song>
 		//
-		//   usize          usize         usize
 		//```
 		// - We have a "Working Memory" that keeps track of what `Artist/Album` we've seen already.
 		// - We have 3 `Vec`'s (that will eventually become the `Collection`).
-		// - We have 3 `usize`'s that represent how many `Artist/Album/Song` we've seen.
 		//
 		// The "Working Memory" is a `HashMap` that takes in `String` input of an artist name and returns the `index` to it,
 		// along with another `HashMap` which represents that `Artist`'s `Album`'s and its appropriate `indicies`.
@@ -131,14 +129,6 @@ impl super::Ccd {
 		let vec_artist:   Mutex<Vec<Artist>> = Mutex::new(vec![]);
 		let vec_album:    Mutex<Vec<Album>>  = Mutex::new(vec![]);
 		let vec_song:     Mutex<Vec<Song>>   = Mutex::new(vec![]);
-		let count_artist: AtomicUsize        = AtomicUsize::new(0);
-		let count_album:  AtomicUsize        = AtomicUsize::new(0);
-		let count_song:   AtomicUsize        = AtomicUsize::new(0);
-		// INVARIANT:               ^
-		// These `usize`'s _________|
-		// must be used correctly in the following code.
-		// There is no `Key` type-safety, we're making them
-		// by using these "raw" `usize`'s.
 
 		// In this loop, each `PathBuf` represents a new `Song` with metadata.
 		// There are 3 logical possibilities with 3 actions associated with them:
@@ -146,7 +136,7 @@ impl super::Ccd {
 		//     2. `Artist` exists, `Album` DOESN'T exist  => Add `Album + Song`
 		//     3. `Artist` DOESN'T exist                  => Add `Artist + Album + Song`
 		//
-		// Counts and memory must be updated as well.
+		// Memory must be updated as well.
 
 		// Get an appropriate amount of threads.
 		let threads = super::threads_for_paths(vec_paths.len());
@@ -206,138 +196,177 @@ impl super::Ccd {
 					path,
 				};
 
-				// Update `Album`.
-				lock!(vec_album)[*album_idx].songs.push(SongKey::from(atomic_load!(count_song)));
+				// Lock.
+				let mut vec_album = lock!(vec_album);
+				let mut vec_song  = lock!(vec_song);
 
 				// Push to `Vec<Song>`
-				lock!(vec_song).push(song);
+				vec_song.push(song);
 
-				// Increment `Song` count.
-				atomic_add!(count_song, 1);
+				// Update `Album`.
+				vec_album[*album_idx].songs.push(SongKey::from(vec_song.len() - 1));
 
 				continue
 			}
 
 			//------------------------------------------------------------- If `Artist` exists, but not `Album`.
+			// Prepare `Song`.
+			let song_title    = title.to_string();
+			let runtime_human = Runtime::from(runtime);
+
+			// Prepare `Album`.
+			let release = match release {
+				Some(date) => Self::parse_str_date(date),
+				None       => (None, None, None),
+			};
+			let album_title      = album.to_string();
+			let release_human    = Self::date_to_string(release);
+			let song_count_human = Int::new();
+			let runtime_human    = Runtime::zero();
+			let runtime_human2   = Runtime::zero();
+			let runtime          = 0.0;
+			let song_count       = 0;
+			let art              = Art::Unknown;
+			let art_bytes        = picture;
+
+			// Lock.
+			let mut vec_artist = lock!(vec_artist);
+			let mut vec_album  = lock!(vec_album);
+			let mut vec_song   = lock!(vec_song);
+
 			// Create `Song`.
 			let song = Song {
-				title: title.to_string(),
-				album: AlbumKey::from(atomic_load!(count_album)),
-				runtime_human: Runtime::from(runtime),
+				title: song_title,
+				runtime_human,
 				track,
 				track_artists,
 				disc,
 				runtime,
 				path,
-			};
-
-			// Get `Album` art bytes.
-			let art_bytes = picture;
-
-			// Get `Album` release.
-			let release = match release {
-				Some(date) => Self::parse_str_date(date),
-				None       => (None, None, None),
+				album: AlbumKey::from(vec_song.len()),
 			};
 
 			// Create `Album`.
 			let album_struct = Album {
-				// Can be initialized now.
-				title: album.to_string(),
-				artist: ArtistKey::from(atomic_load!(count_artist)),
-				release_human: Self::date_to_string(release),
-				songs: vec![SongKey::from(atomic_load!(count_song))],
-				release,
+				title: album_title,
+				release_human,
 				art_bytes,
+				release,
 				compilation,
 
+				artist: ArtistKey::from(vec_artist.len() - 1),
+				songs: vec![SongKey::from(vec_song.len())],
+
 				// Needs to be updated later.
-				song_count_human: Int::new(),
-				runtime_human: Runtime::zero(),
-				runtime: 0.0,
-				song_count: 0,
-				art: Art::Unknown,
+				song_count_human,
+				runtime_human: runtime_human2,
+				runtime,
+				song_count,
+				art,
 			};
 
 			// Update `Artist`.
-			lock!(vec_artist)[*artist_idx].albums.push(AlbumKey::from(atomic_load!(count_album)));
+			let count_album = vec_album.len();
+			vec_artist[*artist_idx].albums.push(AlbumKey::from(count_album));
 
 			// Push `Album/Song`.
-			lock!(vec_album).push(album_struct);
-			lock!(vec_song).push(song);
+			vec_album.push(album_struct);
+			vec_song.push(song);
+
+			// Drop locks.
+			drop(vec_artist);
+			drop(vec_album);
+			drop(vec_song);
 
 			// Add to `HashMap` memory.
-			album_map.insert(album.to_string(), atomic_load!(count_album));
-
-			// Increment `Album/Song` count.
-			atomic_add!(count_album, 1);
-			atomic_add!(count_song, 1);
+			album_map.insert(album.to_string(), count_album);
 
 			continue
 		}
 
 		//------------------------------------------------------------- If `Artist` DOESN'T exist.
+		// Prepare `Song`.
+		let title = title.to_string();
+		let runtime_human = Runtime::from(runtime);
+
+		// Prepare `Album`.
+		let release = match release {
+			Some(date) => Self::parse_str_date(date),
+			None       => (None, None, None),
+		};
+		let album_title      = album.to_string();
+		let release_human    = Self::date_to_string(release);
+		let song_count_human = Int::new();
+		let runtime_human    = Runtime::zero();
+		let runtime_human2   = Runtime::zero();
+		let runtime          = 0.0;
+		let song_count       = 0;
+		let art              = Art::Unknown;
+		let art_bytes        = picture;
+
+		// Prepare `Artist`.
+		let name = artist.to_string();
+
+		// Lock.
+		let mut vec_artist = lock!(vec_artist);
+		let mut vec_album  = lock!(vec_album);
+		let mut vec_song   = lock!(vec_song);
+
 		// Create `Song`.
 		let song = Song {
-			title: title.to_string(),
-			album: AlbumKey::from(atomic_load!(count_album)),
-			runtime_human: Runtime::from(runtime),
+			title,
+			runtime_human,
 			track,
 			track_artists,
 			disc,
 			runtime,
 			path,
-		};
-
-		// Get `Album` art bytes.
-		let art_bytes = picture;
-
-		// Get `Album` release.
-		let release = match release {
-			Some(date) => Self::parse_str_date(date),
-			None       => (None, None, None),
+			album: AlbumKey::from(vec_album.len()),
 		};
 
 		// Create `Album`.
 		let album_struct = Album {
-			// Can be initialized now.
-			title: album.to_string(),
-			artist: ArtistKey::from(atomic_load!(count_artist)),
-			release_human: Self::date_to_string(release),
-			songs: vec![SongKey::from(atomic_load!(count_song))],
+			title: album_title,
+			release_human,
 			release,
 			art_bytes,
 			compilation,
 
+			artist: ArtistKey::from(vec_artist.len()),
+			songs: vec![SongKey::from(vec_song.len())],
+
 			// Needs to be updated later.
-			song_count_human: Int::new(),
-			runtime_human: Runtime::zero(),
-			runtime: 0.0,
-			song_count: 0,
-			art: Art::Unknown,
+			song_count_human,
+			runtime_human: runtime_human2,
+			runtime,
+			song_count,
+			art,
 		};
 
 		// Create `Artist`.
+		let count_artist = vec_artist.len();
+		let count_album  = vec_album.len();
 		let artist_struct = Artist {
-			name: artist.to_string(),
-			albums: vec![AlbumKey::from(atomic_load!(count_album))],
+			name,
+			albums: vec![AlbumKey::from(count_album)],
 		};
 
 		// Push `Artist/Album/Song`.
-		lock!(vec_artist).push(artist_struct);
-		lock!(vec_album).push(album_struct);
-		lock!(vec_song).push(song);
+		vec_artist.push(artist_struct);
+		vec_album.push(album_struct);
+		vec_song.push(song);
+
+		// Drop locks.
+		drop(vec_artist);
+		drop(vec_album);
+		drop(vec_song);
 
 		// Add to `HashMap` memory.
-		lock!(memory).insert(
-			artist.to_string(),
-			(atomic_load!(count_artist), HashMap::from([(album.to_string(), atomic_load!(count_album))]))
-		);
+		let artist = artist.to_string();
+		let map    = HashMap::from([(album.to_string(), count_album)]);
+		let tuple  = (count_artist, map);
 
-		// Increment `Artist/Album/Song` count.
-		atomic_add!(count_artist, 1);
-		atomic_add!(count_album, 1);
-		atomic_add!(count_song, 1);
+		lock!(memory).insert(artist, tuple);
 
 		//------------------------------------------------------------- End of `The Loop`.
 		}   // for path in paths
@@ -349,12 +378,12 @@ impl super::Ccd {
 		//
 		// INVARIANT:
 		// As long as none of the above `scoped` threads
-		// `panic()!`'ed, these `.into_inner()`s' are safe.
-		let (vec_artist, vec_album, vec_song) = (vec_artist.into_inner(), vec_album.into_inner(), vec_song.into_inner());
-		let (vec_artist, vec_album, vec_song) = (unwrap_or_mass!(vec_artist), unwrap_or_mass!(vec_album), unwrap_or_mass!(vec_song));
-
-		// Return the resulting `Vec`'s.
-		(vec_artist, vec_album, vec_song)
+		// `panic()!`'ed, these `.into_inner()`'s are safe.
+		(
+			unwrap_or_mass!(vec_artist.into_inner()),
+			unwrap_or_mass!(vec_album.into_inner()),
+			unwrap_or_mass!(vec_song.into_inner()),
+		)
 	}
 
 	#[inline(always)]
