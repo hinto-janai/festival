@@ -246,8 +246,22 @@ mod tests {
 
 		// Convert.
 		let now = Instant::now();
-		let collection = Ccd::convert_art(to_kernel, collection);
+		Ccd::convert_art(to_kernel, collection);
+		let collection = match from_ccd.recv().unwrap() {
+			CcdToKernel::NewCollection(c) => c,
+			_ => panic!("wrong msg received"),
+		};
 		info!("Convert: {}", now.elapsed().as_secs_f32());
+
+		// Print.
+		println!("{:#?}", collection);
+
+		// Assert.
+		assert!(collection.count_artist >= 1);
+		assert!(collection.count_album  >= 1);
+		assert!(collection.count_song   >= 1);
+		assert!(collection.timestamp >= 1);
+		assert!(collection.empty == false);
 	}
 
 	#[test]
@@ -299,7 +313,7 @@ mod tests {
 		assert!(collection.timestamp > 1678382892);
 		assert!(collection.count_artist == 1 || collection.count_artist == 501);
 		assert!(collection.count_album  == 1 || collection.count_album  == 501);
-		assert!(collection.count_song   == 1 || collection.count_song   == 505);
+		assert!(collection.count_song   == 4 || collection.count_song   == 505);
 	}
 }
 

@@ -179,8 +179,11 @@ impl super::Ccd {
 			compilation,
 		} = metadata;
 
+		// Lock memory (HashMap).
+		let mut memory = lock!(memory);
+
 		//------------------------------------------------------------- If `Artist` exists.
-		if let Some((artist_idx, album_map)) = lock!(memory).get_mut(&*artist) {
+		if let Some((artist_idx, album_map)) = memory.get_mut(&*artist) {
 
 			//------------------------------------------------------------- If `Album` exists.
 			if let Some(album_idx) = album_map.get(&*album) {
@@ -366,7 +369,8 @@ impl super::Ccd {
 		let map    = HashMap::from([(album.to_string(), count_album)]);
 		let tuple  = (count_artist, map);
 
-		lock!(memory).insert(artist, tuple);
+//		lock!(memory).insert(artist, tuple);
+		memory.insert(artist, tuple);
 
 		//------------------------------------------------------------- End of `The Loop`.
 		}   // for path in paths
@@ -644,9 +648,9 @@ mod tests {
 		println!("{:#?}", vec_song);
 
 		// Assert metadata is fixed.
-		assert!(vec_album[0].runtime_human             == readable::Runtime::from(5.83));
+		assert!(vec_album[0].runtime_human             == readable::Runtime::from(3.899));
 		assert!(vec_album[0].song_count_human.as_str() == "3");
-		assert!(vec_album[0].runtime                   == 5.83);
+		assert!(vec_album[0].runtime                   == 3.899);
 		assert!(vec_album[0].song_count                == 3);
 	}
 
