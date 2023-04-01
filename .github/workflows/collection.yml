@@ -1,0 +1,43 @@
+# This tests creation of the `Collection`.
+#
+# These tests are ignored in the regular workflows.
+#
+# `Serialize And Convert` must be ran after `New`.
+# It depends on an actual `collection.bin` existing on the FS.
+
+name: Collection
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: -Awarnings
+
+jobs:
+  collection:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Cache
+      uses: actions/cache@v3.2.3
+      with:
+        path: |
+          ~/.cargo
+          target
+        key: collection
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y libgtk-3-dev
+    - name: Vecs
+      run: cargo test --all-features -- --ignored --exact "ccd::metadata::tests::vecs"
+    - name: New
+      run: cargo test --all-features -- --ignored --exact "ccd::ccd::tests::new_collection"
+    - name: Serialize And Convert
+      run: cargo test --all-features -- --ignored --exact "ccd::ccd::tests::serialize_and_convert_collection"
