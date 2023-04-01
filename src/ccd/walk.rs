@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------------------------------- Use
 //use anyhow::{anyhow,bail,ensure};
-//use log::{info,error,warn,trace,debug};
+use log::{info,warn,debug,trace};
 //use serde::{Serialize,Deserialize};
 //use crate::macros::*;
 //use disk::prelude::*;
@@ -32,7 +32,7 @@ impl super::Ccd {
 			if let Ok(true) = path.try_exists() {
 				vec.push(path.to_path_buf());
 			} else {
-				// TODO: log ignored path
+				warn!("CCD - Ignoring non-existent PATH: {}", path.display());
 			}
 		}
 
@@ -44,11 +44,13 @@ impl super::Ccd {
 		let mut result: Vec<PathBuf> = Vec::with_capacity(paths.len());
 
 		for path in paths {
+			debug!("CCD - Walking PATH: {}", path.display());
+
 			for entry in WalkDir::new(path).follow_links(true) {
 				// Handle potential PATH error.
 				let entry = match entry {
 					Ok(e)    => e,
-					Err(err) => continue, // TODO: log error.
+					Err(err) => { warn!("CCD - PATH failed: {}", err); continue; },
 				};
 
 				// To `PathBuf`.
@@ -58,7 +60,7 @@ impl super::Ccd {
 				if Self::path_is_audio(&path_buf) {
 					result.push(path_buf);
 				} else {
-					// TODO: log
+					trace!("CCD - Skipping non-audio PATH: {}", path_buf.display());
 				}
 			}
 		}
