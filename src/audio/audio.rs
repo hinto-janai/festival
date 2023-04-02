@@ -6,7 +6,10 @@ use log::{info,error,warn,trace,debug};
 //use disk::prelude::*;
 //use disk::{};
 //use std::{};
-use crate::macros::*;
+use benri::{
+	sync::*,
+	log::*,
+};
 use crate::collection::Collection;
 use crate::key::{
 	Keychain,

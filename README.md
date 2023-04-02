@@ -149,6 +149,7 @@ All of the libraries Festival (directly) uses:
 | Library | Purpose | License |
 |---------|---------|---------|
 | [anyhow](https://github.com/dtolnay/anyhow)                        | Error handling           | `MIT` & `Apache-2.0`
+| [benri](https://github.com/hinto-janai/benri)                      | General purpose macros   | `MIT`
 | [chrono](https://github.com/chronotope/chrono)                     | Time formatting          | `MIT` & `Apache-2.0`
 | [crossbeam_channel](https://github.com/crossbeam-rs/crossbeam)     | Thread message passing   | `MIT` & `Apache-2.0`
 | [disk](https://github.com/hinto-janai/disk)                        | Saving to disk           | `MIT`

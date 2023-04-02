@@ -10,15 +10,10 @@ use crate::data::{
 	State,
 	Settings,
 };
-use shukusai::{
-	ok,
-	fail,
-	send,
-	recv,
-	lock,
-	sleep,
-	lock_read,
-	mass_panic,
+use benri::{
+	log::*,
+	sync::*,
+	thread::*,
 };
 use log::{
 	info,

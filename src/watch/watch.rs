@@ -2,11 +2,9 @@
 use anyhow::{anyhow,bail,ensure};
 use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
-use crate::macros::{
-	fail,
-	ok_debug,
-	send_or_die,
-	ok_trace,
+use benri::{
+	log::*,
+	sync::*,
 };
 use disk::Empty;
 //use std::{};

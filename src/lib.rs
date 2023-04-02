@@ -44,7 +44,6 @@
 //! - [`kernel::Volume`]
 //! - [`key::Key`] (and other keys)
 //! - `CONSTANTS`
-//! - `macros!()`
 //! - etc...
 //!
 //! It is up to the frontend on how to use these functions/data.
@@ -64,8 +63,6 @@ mod constants;
 pub use constants::*;
 mod logger;
 pub use logger::*;
-mod macros;
-pub use macros::*;
 
 // Public modules.
 /// The main music `Collection` and it's inner data

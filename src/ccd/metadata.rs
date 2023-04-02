@@ -27,12 +27,10 @@ use crate::key::{
 	AlbumKey,
 	SongKey,
 };
-use crate::macros::{
-	lock,
-	mass_panic,
-	unwrap_or_mass,
-	atomic_load,
-	atomic_add,
+use benri::{
+	log::*,
+	sync::*,
+	panic::*,
 };
 use crate::constants::{
 	SKIP

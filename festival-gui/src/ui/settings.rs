@@ -19,8 +19,8 @@ use crate::constants::{
 	ALBUM_ART_MAX_SIZE,
 };
 use shukusai::sort::AlbumSort;
-use shukusai::{
-	flip,
+use benri::{
+	ops::*,
 };
 
 //---------------------------------------------------------------------------------------------------- Settings

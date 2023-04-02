@@ -8,7 +8,11 @@ use std::sync::{Arc,RwLock};
 use super::state::KernelState;
 use super::volume::Volume;
 use rolock::RoLock;
-use crate::macros::*;
+use benri::{
+	ops::*,
+	sync::*,
+	log::*,
+};
 use disk::Bincode;
 use super::{KernelToFrontend, FrontendToKernel};
 use crate::{

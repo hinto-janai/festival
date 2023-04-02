@@ -35,7 +35,7 @@ use rand::{
 	prelude::SliceRandom,
 };
 use std::sync::{Arc,Mutex};
-use crate::macros::{
+use benri::{
 	lock,
 	mass_panic,
 };

@@ -83,6 +83,7 @@ All of the libraries `festival-gui` (directly) uses:
 
 | Library | Purpose | License |
 |---------|---------|---------|
+| [benri](https://github.com/hinto-janai/benri)                      | General purpose macros   | `MIT`
 | [clap](https://github.com/clap-rs/clap)                            | CLI arguments            | `MIT` & `Apache-2.0`
 | [crossbeam_channel](https://github.com/crossbeam-rs/crossbeam)     | Thread message passing   | `MIT` & `Apache-2.0`
 | [egui](https://github.com/emilk/egui)                              | GUI                      | `MIT` & `Apache-2.0`
@@ -91,4 +92,5 @@ All of the libraries `festival-gui` (directly) uses:
 | [log](https://github.com/rust-lang/log)                            | Logging                  | `MIT` & `Apache-2.0`
 | [image](https://github.com/image-rs/image)                         | Image processing         | `MIT`
 | [serde](https://github.com/serde-rs/serde)                         | (De)serialization        | `MIT` & `Apache-2.0`
-| [strum](https://github.com/Peternator7/strum)                      | Enum iteration           | `MIT`
+| [readable](https://github.com/hinto-janai/readable)                | Human readable data      | `MIT`
+| [rolock](https://github.com/hinto-janai/rolock)                    | Read only lock           | `MIT`

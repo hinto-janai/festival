@@ -29,13 +29,10 @@ use shukusai::kernel::{
 use shukusai::key::{
 	AlbumKey,
 };
-use shukusai::{
-	mass_panic,
-	lock,
-	send,
-	recv,
-	fail,
-	ok,
+use benri::{
+	log::*,
+	sync::*,
+	panic::*,
 };
 use std::time::{
 	Instant,

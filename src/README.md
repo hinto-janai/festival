@@ -108,7 +108,6 @@ These are top-level `src/` files for miscellaneous stuff:
 | `commit`       | Symlink to current `main` branch commit
 | `constants.rs` | General constants
 | `logger.rs`    | Console logging initialization
-| `macros.rs`    | General macros
 | `lib.rs`       | `pub` re-exposing, `doc` comments
 
 # Overview

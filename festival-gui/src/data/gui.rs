@@ -20,11 +20,10 @@ use shukusai::collection::{
 };
 use shukusai::sort::{
 };
-use shukusai::{
-	ok,
-	ok_debug,
-	lock_read,
-	mass_panic,
+use benri::{
+	log::*,
+	panic::*,
+	sync::*,
 };
 use log::{
 	info,
