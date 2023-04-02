@@ -307,7 +307,7 @@ mod tests {
 		drop(old_collection);
 		send!(to_ccd, KernelToCcd::Die);
 
-		crate::macros::sleep!(5000);
+		sleep!(5000);
 		info!("empty        | {}", collection.empty);
 		info!("timestamp    | {}", collection.timestamp);
 		info!("count_artist | {}", collection.count_artist);
