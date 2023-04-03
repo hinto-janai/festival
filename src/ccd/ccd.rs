@@ -37,7 +37,7 @@ use crossbeam_channel::{Sender,Receiver};
 use std::path::{Path,PathBuf};
 use std::sync::{Arc,RwLock};
 use disk::Bincode;
-use std::time::Instant;
+use readable::Unsigned;
 
 //---------------------------------------------------------------------------------------------------- CCD
 pub(crate) struct Ccd;
@@ -141,9 +141,9 @@ impl Ccd {
 			// These will be fixed after construction.
 			empty: false,
 			timestamp: 0,
-			count_artist: 0,
-			count_album: 0,
-			count_song: 0,
+			count_artist: Unsigned::new(),
+			count_album: Unsigned::new(),
+			count_song: Unsigned::new(),
 
 			map,
 

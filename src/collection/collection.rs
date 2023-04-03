@@ -39,6 +39,10 @@ use benri::{
 	lock,
 	mass_panic,
 };
+use readable::{
+	Time,
+	Unsigned,
+};
 
 //---------------------------------------------------------------------------------------------------- RNG
 // `RNG`: Global RNG state for `Collection`'s `rand_*` functions.
@@ -166,11 +170,11 @@ pub struct Collection {
 	/// UNIX timestamp of the [`Collection`]'s creation date.
 	pub timestamp: u64,
 	/// How many [`Artist`]'s in this [`Collection`]?
-	pub count_artist: usize,
+	pub count_artist: Unsigned,
 	/// How many [`Album`]'s in this [`Collection`]?
-	pub count_album: usize,
+	pub count_album: Unsigned,
 	/// How many [`Song`]'s in this [`Collection`]?
-	pub count_song: usize,
+	pub count_song: Unsigned,
 }
 
 impl Collection {
@@ -210,9 +214,9 @@ impl Collection {
 
 			empty: true,
 			timestamp: 0,
-			count_artist: 0,
-			count_album: 0,
-			count_song: 0,
+			count_artist: Unsigned::new(),
+			count_album: Unsigned::new(),
+			count_song: Unsigned::new(),
 		}
 	}
 
@@ -242,9 +246,9 @@ impl Collection {
 		}
 
 		// Set `count_*`.
-		self.count_artist = artists;
-		self.count_album  = albums;
-		self.count_song   = songs;
+		self.count_artist = Unsigned::from(artists);
+		self.count_album  = Unsigned::from(albums);
+		self.count_song   = Unsigned::from(songs);
 
 		// Set `timestamp`.
 		self.timestamp = Self::unix_now();
@@ -490,7 +494,7 @@ impl Collection {
 	/// - If there is only 1 [`ArtistKey`], `ArtistKey(0)` will always be returned.
 	/// - If there are _no_ [`Artist`]'s in the [`Collection`], [`Option::None`] is returned.
 	pub fn rand_artist(&self, key: Option<ArtistKey>) -> Option<ArtistKey> {
-		match self.count_artist {
+		match self.count_artist.usize() {
 			0 => return None,
 			1 => return Some(ArtistKey::zero()),
 			_ => (),
@@ -498,14 +502,14 @@ impl Collection {
 
 		if let Some(key) = key {
 			loop {
-				let rand_usize: usize = lock!(RNG).gen_range(0..self.count_artist);
+				let rand_usize: usize = lock!(RNG).gen_range(0..self.count_artist.usize());
 				if rand_usize != key {
 					return Some(ArtistKey::from(rand_usize))
 				}
 			}
 		}
 
-		let rand_usize: usize = lock!(RNG).gen_range(0..self.count_artist);
+		let rand_usize: usize = lock!(RNG).gen_range(0..self.count_artist.usize());
 		Some(ArtistKey::from(rand_usize))
 	}
 
@@ -518,7 +522,7 @@ impl Collection {
 	/// - If there is only 1 [`AlbumKey`], `AlbumKey(0)` will always be returned.
 	/// - If there are _no_ [`Album`]'s in the [`Collection`], [`Option::None`] is returned.
 	pub fn rand_album(&self, key: Option<AlbumKey>) -> Option<AlbumKey> {
-		match self.count_album {
+		match self.count_album.usize() {
 			0 => return None,
 			1 => return Some(AlbumKey::zero()),
 			_ => (),
@@ -526,14 +530,14 @@ impl Collection {
 
 		if let Some(key) = key {
 			loop {
-				let rand_usize: usize = lock!(RNG).gen_range(0..self.count_album);
+				let rand_usize: usize = lock!(RNG).gen_range(0..self.count_album.usize());
 				if rand_usize != key {
 					return Some(AlbumKey::from(rand_usize))
 				}
 			}
 		}
 
-		let rand_usize: usize = lock!(RNG).gen_range(0..self.count_album);
+		let rand_usize: usize = lock!(RNG).gen_range(0..self.count_album.usize());
 		Some(AlbumKey::from(rand_usize))
 	}
 
@@ -546,7 +550,7 @@ impl Collection {
 	/// - If there is only 1 [`SongKey`], `SongKey(0)` will always be returned.
 	/// - If there are _no_ [`Song`]'s in the [`Collection`], [`Option::None`] is returned.
 	pub fn rand_song(&self, key: Option<SongKey>) -> Option<SongKey> {
-		match self.count_song {
+		match self.count_song.usize() {
 			0 => return None,
 			1 => return Some(SongKey::zero()),
 			_ => (),
@@ -554,14 +558,14 @@ impl Collection {
 
 		if let Some(key) = key {
 			loop {
-				let rand_usize: usize = lock!(RNG).gen_range(0..self.count_song);
+				let rand_usize: usize = lock!(RNG).gen_range(0..self.count_song.usize());
 				if rand_usize != key {
 					return Some(SongKey::from(rand_usize))
 				}
 			}
 		}
 
-		let rand_usize: usize = lock!(RNG).gen_range(0..self.count_song);
+		let rand_usize: usize = lock!(RNG).gen_range(0..self.count_song.usize());
 		Some(SongKey::from(rand_usize))
 	}
 
@@ -572,11 +576,11 @@ impl Collection {
 	/// # Notes
 	/// - If there are _no_ [`Artist`]'s in the [`Collection`], [`Option::None`] is returned.
 	pub fn rand_artists(&self) -> Option<Vec<ArtistKey>> {
-		match self.count_artist {
+		match self.count_artist.usize() {
 			0 => None,
 			1 => Some(vec![ArtistKey::zero()]),
 			_ => {
-				let mut vec: Vec<ArtistKey> = (0..self.count_artist)
+				let mut vec: Vec<ArtistKey> = (0..self.count_artist.usize())
 					.map(ArtistKey::from)
 					.collect();
 				vec.shuffle(&mut *lock!(RNG));
@@ -592,11 +596,11 @@ impl Collection {
 	/// # Notes
 	/// - If there are _no_ [`Album`]'s in the [`Collection`], [`Option::None`] is returned.
 	pub fn rand_albums(&self) -> Option<Vec<AlbumKey>> {
-		match self.count_album {
+		match self.count_album.usize() {
 			0 => None,
 			1 => Some(vec![AlbumKey::zero()]),
 			_ => {
-				let mut vec: Vec<AlbumKey> = (0..self.count_album)
+				let mut vec: Vec<AlbumKey> = (0..self.count_album.usize())
 					.map(AlbumKey::from)
 					.collect();
 				vec.shuffle(&mut *lock!(RNG));
@@ -612,11 +616,11 @@ impl Collection {
 	/// # Notes
 	/// - If there are _no_ [`Song`]'s in the [`Collection`], [`Option::None`] is returned.
 	pub fn rand_songs(&self) -> Option<Vec<SongKey>> {
-		match self.count_song {
+		match self.count_song.usize() {
 			0 => None,
 			1 => Some(vec![SongKey::zero()]),
 			_ => {
-				let mut vec: Vec<SongKey> = (0..self.count_song)
+				let mut vec: Vec<SongKey> = (0..self.count_song.usize())
 					.map(SongKey::from)
 					.collect();
 				vec.shuffle(&mut *lock!(RNG));
