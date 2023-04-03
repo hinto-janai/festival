@@ -62,6 +62,14 @@ pub struct Gui {
 	/// `GUI` settings (old).
 	pub og_state: State,
 
+	// Local cached variables.
+	/// A cached, formatted version of [`Collection::count_artist`]
+	pub count_artist: String,
+	/// A cached, formatted version of [`Collection::count_album`]
+	pub count_album: String,
+	/// A cached, formatted version of [`Collection::count_song`]
+	pub count_song: String,
+
 	/// Are we currently in the process of exiting?
 	pub exiting: bool,
 	/// To prevent showing a flash of the spinner
@@ -124,6 +132,15 @@ impl Gui {
 		// assignment for small `copy`-able structs like `AudioState`,
 		// so don't even check for diffs, just always copy.
 		self.state.audio = k.audio;
+	}
+
+	#[inline(always)]
+	/// Copies the data from our current [`Collection`],
+	/// formats it, and assigns it to [`Self`]'s `count_*` fields.
+	pub fn format_count_assign(&mut self) {
+		self.count_artist = format!("Artists: {}", self.collection.count_artist);
+		self.count_album  = format!("Albums: {}", self.collection.count_album);
+		self.count_song   = format!("Songs: {}", self.collection.count_song);
 	}
 }
 
@@ -263,6 +280,11 @@ impl Gui {
 			// `GUI` state.
 			og_state: state, // `copy`-able
 			state,
+
+			// Local cache.
+			count_artist: "Artists: 0".to_string(),
+			count_album: "Albums: 0".to_string(),
+			count_song: "Songs: 0".to_string(),
 
 			exiting: false,
 			exit_instant: Instant::now(),

@@ -186,6 +186,10 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 		);
 		ui.add_sized([width, text], label).on_hover_text("TODO");
 
+		// Stats.
+		ui.add_sized([width, text], Label::new(&self.count_artist));
+		ui.add_sized([width, text], Label::new(&self.count_album));
+		ui.add_sized([width, text], Label::new(&self.count_song));
 	});
 }}
 

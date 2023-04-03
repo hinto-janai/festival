@@ -37,9 +37,9 @@ toml_file!(State, Dir::Data, FESTIVAL, "gui", "state");
 #[derive(Copy,Clone,Debug,Default,PartialEq,PartialOrd,Serialize,Deserialize)]
 /// `GUI`'s State.
 ///
-/// Holds user-mutable `GUI` state.
+/// Holds `copy`-able, user-mutable `GUI` state.
 ///
-/// This struct holds an [`AudioState`] which a local copy copied from [`KernelState`].
+/// This struct holds an [`AudioState`] which is a local copy of [`KernelState`].
 /// This is so that within the `GUI` loop, [`KernelState`] only needs to be locked _once_,
 /// so its values can be locally cached, then used within the frame.
 pub struct State {

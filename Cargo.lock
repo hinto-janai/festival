@@ -3323,9 +3323,9 @@ checksum = "3b42e27ef78c35d3998403c1d26f3efd9e135d3e5121b0a4845cc5cc27547f4f"
 
 [[package]]
 name = "readable"
-version = "0.4.0"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "879a1e41edf798ae5edb4a3926eeaacf8811f47684eb37b32c18662184a96daf"
+checksum = "44863ee370d5ea3f28e7f3fd20621c10aa6f004292622e53737add66b72e54e3"
 dependencies = [
  "compact_str",
  "num-format",
