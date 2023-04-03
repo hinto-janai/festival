@@ -189,11 +189,10 @@ impl super::Ccd {
 				let song = Song {
 					title: title.to_string(),
 					album: AlbumKey::from(*album_idx),
-					runtime_human: Runtime::from(runtime),
+					runtime: Runtime::from(runtime),
 					track,
 					track_artists,
 					disc,
-					runtime,
 					path,
 				};
 
@@ -213,22 +212,19 @@ impl super::Ccd {
 			//------------------------------------------------------------- If `Artist` exists, but not `Album`.
 			// Prepare `Song`.
 			let song_title    = title.to_string();
-			let runtime_human = Runtime::from(runtime);
+			let runtime       = Runtime::from(runtime);
 
 			// Prepare `Album`.
 			let release = match release {
 				Some(date) => Self::parse_str_date(date),
 				None       => (None, None, None),
 			};
-			let album_title      = album.to_string();
-			let release_human    = Self::date_to_string(release);
-			let song_count_human = Unsigned::new();
-			let runtime_human    = Runtime::zero();
-			let runtime_human2   = Runtime::zero();
-			let runtime          = 0.0;
-			let song_count       = 0;
-			let art              = Art::Unknown;
-			let art_bytes        = picture;
+			let album_title   = album.to_string();
+			let release_human = Self::date_to_string(release);
+			let song_count    = Unsigned::new();
+			let runtime_album = Runtime::zero();
+			let art           = Art::Unknown;
+			let art_bytes     = picture;
 
 			// Lock.
 			let mut vec_artist = lock!(vec_artist);
@@ -238,11 +234,10 @@ impl super::Ccd {
 			// Create `Song`.
 			let song = Song {
 				title: song_title,
-				runtime_human,
+				runtime,
 				track,
 				track_artists,
 				disc,
-				runtime,
 				path,
 				album: AlbumKey::from(vec_song.len()),
 			};
@@ -259,9 +254,7 @@ impl super::Ccd {
 				songs: vec![SongKey::from(vec_song.len())],
 
 				// Needs to be updated later.
-				song_count_human,
-				runtime_human: runtime_human2,
-				runtime,
+				runtime: runtime_album,
 				song_count,
 				art,
 			};
@@ -287,23 +280,20 @@ impl super::Ccd {
 
 		//------------------------------------------------------------- If `Artist` DOESN'T exist.
 		// Prepare `Song`.
-		let title = title.to_string();
-		let runtime_human = Runtime::from(runtime);
+		let title   = title.to_string();
+		let runtime = Runtime::from(runtime);
 
 		// Prepare `Album`.
 		let release = match release {
 			Some(date) => Self::parse_str_date(date),
 			None       => (None, None, None),
 		};
-		let album_title      = album.to_string();
-		let release_human    = Self::date_to_string(release);
-		let song_count_human = Unsigned::new();
-		let runtime_human    = Runtime::zero();
-		let runtime_human2   = Runtime::zero();
-		let runtime          = 0.0;
-		let song_count       = 0;
-		let art              = Art::Unknown;
-		let art_bytes        = picture;
+		let album_title   = album.to_string();
+		let release_human = Self::date_to_string(release);
+		let song_count    = Unsigned::new();
+		let runtime_album = Runtime::zero();
+		let art           = Art::Unknown;
+		let art_bytes     = picture;
 
 		// Prepare `Artist`.
 		let name = artist.to_string();
@@ -316,11 +306,10 @@ impl super::Ccd {
 		// Create `Song`.
 		let song = Song {
 			title,
-			runtime_human,
+			runtime,
 			track,
 			track_artists,
 			disc,
-			runtime,
 			path,
 			album: AlbumKey::from(vec_album.len()),
 		};
@@ -337,9 +326,7 @@ impl super::Ccd {
 			songs: vec![SongKey::from(vec_song.len())],
 
 			// Needs to be updated later.
-			song_count_human,
-			runtime_human: runtime_human2,
-			runtime,
+			runtime: runtime_album,
 			song_count,
 			art,
 		};
@@ -396,15 +383,12 @@ impl super::Ccd {
 	pub(super) fn fix_album_metadata_from_songs(vec_album: &mut [Album], vec_song: &[Song]) {
 		for album in vec_album {
 			// Song count.
-			let song_count         = album.songs.len();
-			album.song_count       = song_count;
-			album.song_count_human = Unsigned::from(song_count);
+			album.song_count = Unsigned::from(album.songs.len());
 
 			// Total runtime.
 			let mut runtime = 0.0;
-			album.songs.iter().for_each(|key| runtime += vec_song[key.inner()].runtime);
-			album.runtime_human = Runtime::from(runtime);
-			album.runtime       = runtime;
+			album.songs.iter().for_each(|key| runtime += vec_song[key.inner()].runtime.f64());
+			album.runtime = Runtime::from(runtime);
 		}
 	}
 
@@ -646,10 +630,10 @@ mod tests {
 		println!("{:#?}", vec_song);
 
 		// Assert metadata is fixed.
-		assert!(vec_album[0].runtime_human.to_f64()    >= readable::Runtime::from(3.8).to_f64());
-		assert!(vec_album[0].song_count_human.as_str() == "3");
-		assert!(vec_album[0].runtime                   >= 3.8);
-		assert!(vec_album[0].song_count                == 3);
+		assert!(vec_album[0].runtime_human.to_f64() >= readable::Runtime::from(3.8).to_f64());
+		assert!(vec_album[0].song_count             == "3");
+		assert!(vec_album[0].runtime                >= 3.8);
+		assert!(vec_album[0].song_count             == 3);
 	}
 
 	fn mp3() -> TaggedFile {

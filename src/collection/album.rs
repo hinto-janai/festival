@@ -18,6 +18,10 @@ use super::art::{
 	UNKNOWN_ALBUM,
 	UNKNOWN_ALBUM_BYTES,
 };
+use readable::{
+	Runtime,
+	Unsigned,
+};
 
 //---------------------------------------------------------------------------------------------------- Album
 #[derive(Debug,Serialize,Deserialize)]
@@ -36,10 +40,10 @@ pub struct Album {
 	pub artist: ArtistKey,
 	/// Human-readable release date of this [`Album`].
 	pub release_human: String,
-	/// Human-readable total runtime of this [`Album`].
-	pub runtime_human: readable::Runtime,
-	/// Human-readable [`Song`] count of this [`Album`].
-	pub song_count_human: readable::Unsigned,
+	/// Total runtime of this [`Album`].
+	pub runtime: Runtime,
+	/// [`Song`] count of this [`Album`].
+	pub song_count: Unsigned,
 	// This `Vec<SongKey>` is _always_ sorted based
 	// off incrementing disc and track numbers, e.g:
 	//
@@ -57,8 +61,6 @@ pub struct Album {
 
 	// "Raw" data.
 	pub(crate) release: (Option<i32>, Option<u32>, Option<u32>),    // (Year, Month, Day)
-	pub(crate) runtime: f64,    //
-	pub(crate) song_count: usize, //
 
 	// Art data.
 	#[serde(skip)]

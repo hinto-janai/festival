@@ -27,8 +27,8 @@ pub struct Song {
 	pub title: String,
 	/// Key to the [`Album`].
 	pub album: AlbumKey,
-	/// Human-readable total runtime of this [`Song`].
-	pub runtime_human: Runtime,
+	/// Total runtime of this [`Song`].
+	pub runtime: Runtime,
 	/// The track number of this [`Song`].
 	pub track: Option<u32>,
 	/// Additional [`Artist`]'s that are on this [`Song`].
@@ -37,7 +37,6 @@ pub struct Song {
 	pub disc: Option<u32>,
 
 	// "Raw" data.
-	pub(crate) runtime: f64,
 	pub(crate) path: PathBuf,
 }
 
