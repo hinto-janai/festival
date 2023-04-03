@@ -37,7 +37,7 @@ use crate::constants::{
 };
 use crossbeam_channel::Sender;
 use super::CcdToKernel;
-use readable::{Runtime,Int};
+use readable::{Runtime,Unsigned};
 use std::borrow::Cow;
 use std::sync::{Arc,Mutex};
 use std::sync::atomic::AtomicUsize;
@@ -222,7 +222,7 @@ impl super::Ccd {
 			};
 			let album_title      = album.to_string();
 			let release_human    = Self::date_to_string(release);
-			let song_count_human = Int::new();
+			let song_count_human = Unsigned::new();
 			let runtime_human    = Runtime::zero();
 			let runtime_human2   = Runtime::zero();
 			let runtime          = 0.0;
@@ -297,7 +297,7 @@ impl super::Ccd {
 		};
 		let album_title      = album.to_string();
 		let release_human    = Self::date_to_string(release);
-		let song_count_human = Int::new();
+		let song_count_human = Unsigned::new();
 		let runtime_human    = Runtime::zero();
 		let runtime_human2   = Runtime::zero();
 		let runtime          = 0.0;
@@ -398,7 +398,7 @@ impl super::Ccd {
 			// Song count.
 			let song_count         = album.songs.len();
 			album.song_count       = song_count;
-			album.song_count_human = Int::from(song_count);
+			album.song_count_human = Unsigned::from(song_count);
 
 			// Total runtime.
 			let mut runtime = 0.0;

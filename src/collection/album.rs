@@ -39,7 +39,7 @@ pub struct Album {
 	/// Human-readable total runtime of this [`Album`].
 	pub runtime_human: readable::Runtime,
 	/// Human-readable [`Song`] count of this [`Album`].
-	pub song_count_human: readable::Int,
+	pub song_count_human: readable::Unsigned,
 	// This `Vec<SongKey>` is _always_ sorted based
 	// off incrementing disc and track numbers, e.g:
 	//
