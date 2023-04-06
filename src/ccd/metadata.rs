@@ -221,7 +221,7 @@ impl super::Ccd {
 			};
 			let album_title   = album.to_string();
 			let release_human = Self::date_to_string(release);
-			let song_count    = Unsigned::new();
+			let song_count    = Unsigned::zero();
 			let runtime_album = Runtime::zero();
 			let art           = Art::Unknown;
 			let art_bytes     = picture;
@@ -290,7 +290,7 @@ impl super::Ccd {
 		};
 		let album_title   = album.to_string();
 		let release_human = Self::date_to_string(release);
-		let song_count    = Unsigned::new();
+		let song_count    = Unsigned::zero();
 		let runtime_album = Runtime::zero();
 		let art           = Art::Unknown;
 		let art_bytes     = picture;
@@ -387,7 +387,7 @@ impl super::Ccd {
 
 			// Total runtime.
 			let mut runtime = 0.0;
-			album.songs.iter().for_each(|key| runtime += vec_song[key.inner()].runtime.f64());
+			album.songs.iter().for_each(|key| runtime += vec_song[key.inner()].runtime.inner());
 			album.runtime = Runtime::from(runtime);
 		}
 	}

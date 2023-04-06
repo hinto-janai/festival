@@ -214,9 +214,9 @@ impl Collection {
 
 			empty: true,
 			timestamp: 0,
-			count_artist: Unsigned::new(),
-			count_album: Unsigned::new(),
-			count_song: Unsigned::new(),
+			count_artist: Unsigned::zero(),
+			count_album: Unsigned::zero(),
+			count_song: Unsigned::zero(),
 		}
 	}
 

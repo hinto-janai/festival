@@ -21,7 +21,7 @@ shukusai = { path = "../", version = "0.0.0" }
 ### Personal Libraries.
 benri    = { version = "0.1.0", features = ["log"] }
 disk     = { version = "0.0.6", features = ["toml", "empty"] }
-readable = { version = "0.4.1", features = ["serde", "ignore_nan_inf"] }
+readable = { version = "0.6.1", features = ["serde", "ignore_nan_inf"] }
 rolock   = "0.1.2"
 
 ### External patched libraries `external/`.

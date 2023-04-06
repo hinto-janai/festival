@@ -141,7 +141,7 @@ impl super::Ccd {
 		let mut vec_album = Self::filled_vec_usize(albums.len());
 
 		vec_album.sort_by(|a, b|
-			crate::search::Search::cmp_f64(&albums[*a].runtime.f64(), &albums[*b].runtime.f64())
+			crate::search::Search::cmp_f64(&albums[*a].runtime.inner(), &albums[*b].runtime.inner())
 		);
 
 		vec_album.into_iter().map(AlbumKey::from).collect()
@@ -197,7 +197,7 @@ impl super::Ccd {
 		let mut vec_song = Self::filled_vec_usize(songs.len());
 
 		vec_song.sort_by(|a, b|
-			crate::search::Search::cmp_f64(&songs[*a].runtime.f64(), &songs[*b].runtime.f64())
+			crate::search::Search::cmp_f64(&songs[*a].runtime.inner(), &songs[*b].runtime.inner())
 		);
 
 		vec_song.into_iter().map(SongKey::from).collect()

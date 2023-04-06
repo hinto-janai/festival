@@ -84,7 +84,7 @@ all-features = true
 ### Personal libraries.
 benri    = { version = "0.1.0", features = ["log"] }
 disk     = { version = "0.0.6", features = ["bincode", "toml", "empty"] }
-readable = { version = "0.4.1", features = ["serde", "ignore_nan_inf"] }
+readable = { version = "0.6.1", features = ["serde", "ignore_nan_inf"] }
 rolock   = { version = "0.1.2" }
 
 ### External patched libraries `external/`.
@@ -101,7 +101,6 @@ clap = { version = "4", features = ["derive"] }
 
 ### Regular libraries.
 anyhow = "1.0.70"
-chrono = { version = "0.4.24", features = ["serde"] }
 crossbeam-channel = "0.5.7"
 #egui-notify = "0.5.1"
 env_logger = "0.10.0"
