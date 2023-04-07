@@ -29,7 +29,7 @@ pub(crate) enum KernelToAudio {
 	Next,        // Play next song in queue (stop if none).
 	Last,        // Play last song in queue.
 	Seek(f64),   // Seek to point in current song.
-	Volume(f64), // Change the volume.
+	Volume(u8),  // Change the volume.
 
 	// Queue/playlist.
 	PlayQueueKey(QueueKey), // Play the first song (`[0]`) in the queue.

@@ -66,13 +66,13 @@ macro_rules! impl_slice {
 			// From a `VecDeque`.
 			// This is only used internally.
 			#[inline]
-			pub(crate) fn from_vec(vec: VecDeque<Key>) -> Self {
+			pub(crate) const fn from_vec(vec: VecDeque<Key>) -> Self {
 				Self(vec)
 			}
 
 			// Private mutation functions.
 			#[inline(always)]
-			pub(crate)fn clear(&mut self) {
+			pub(crate) fn clear(&mut self) {
 				self.0.clear();
 			}
 

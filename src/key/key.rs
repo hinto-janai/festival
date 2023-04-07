@@ -105,7 +105,7 @@ pub struct Key(ArtistKey, AlbumKey, SongKey);
 impl Key {
 	#[inline(always)]
 	// Private function.
-	pub(crate) fn from_keys(
+	pub(crate) const fn from_keys(
 		artist: ArtistKey,
 		album: AlbumKey,
 		song: SongKey,

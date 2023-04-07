@@ -99,7 +99,7 @@ impl ArtistSort {
 	/// Returns formatted, human readable versions.
 	///
 	/// e.g: [`ArtistSort::AlbumCount`] returns [`ARTIST_ALBUM_COUNT`]
-	pub fn as_str(&self) -> &'static str {
+	pub const fn as_str(&self) -> &'static str {
 		use ArtistSort::*;
 		match self {
 			Lexi       => ARTIST_LEXI,
@@ -124,7 +124,7 @@ impl AlbumSort {
 	/// Returns formatted, human readable versions.
 	///
 	/// e.g: [`AlbumSort::ReleaseArtistLexi`] returns [`ALBUM_RELEASE_ARTIST_LEXI`]
-	pub fn as_str(&self) -> &'static str {
+	pub const fn as_str(&self) -> &'static str {
 		use AlbumSort::*;
 		match self {
 			ReleaseArtistLexi => ALBUM_RELEASE_ARTIST_LEXI,
@@ -153,7 +153,7 @@ impl SongSort {
 	/// Returns formatted, human readable versions.
 	///
 	/// e.g: [`SongSort::AlbumReleaseArtistLexi`] returns [`SONG_ALBUM_RELEASE_ARTIST_LEXI`]
-	pub fn as_str(&self) -> &'static str {
+	pub const fn as_str(&self) -> &'static str {
 		use SongSort::*;
 		match self {
 			AlbumReleaseArtistLexi => SONG_ALBUM_RELEASE_ARTIST_LEXI,
