@@ -21,6 +21,7 @@ use super::art::{
 use readable::{
 	Runtime,
 	Unsigned,
+	Date,
 };
 
 //---------------------------------------------------------------------------------------------------- Album
@@ -39,7 +40,7 @@ pub struct Album {
 	/// Key to the [`Artist`].
 	pub artist: ArtistKey,
 	/// Human-readable release date of this [`Album`].
-	pub release_human: String,
+	pub release: Date,
 	/// Total runtime of this [`Album`].
 	pub runtime: Runtime,
 	/// [`Song`] count of this [`Album`].
@@ -58,9 +59,6 @@ pub struct Album {
 	// result in the correct `Song` order for `my_album`.
 	/// Key\(s\) to the [`Song`]\(s\).
 	pub songs: Vec<SongKey>,           //
-
-	// "Raw" data.
-	pub(crate) release: (Option<i32>, Option<u32>, Option<u32>),    // (Year, Month, Day)
 
 	// Art data.
 	#[serde(skip)]

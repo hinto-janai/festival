@@ -76,9 +76,8 @@ impl super::Ccd {
 		for artist in sorted_artists {
 			let mut tmp: Vec<AlbumKey> = artists[artist.inner()].albums.clone();
 			tmp.sort_by(|a, b|
-				Self::cmp_tuple_dates(
-					albums[a.inner()].release,
-					albums[b.inner()].release
+				albums[a.inner()].release.cmp(
+					&albums[b.inner()].release
 				)
 			);
 			vec_album.push(tmp);
@@ -123,9 +122,8 @@ impl super::Ccd {
 		let mut vec_album = Self::filled_vec_usize(albums.len());
 
 		vec_album.sort_by(|a, b|
-			Self::cmp_tuple_dates(
-				albums[*a].release,
-				albums[*b].release,
+			albums[*a].release.cmp(
+				&albums[*b].release,
 			)
 		);
 

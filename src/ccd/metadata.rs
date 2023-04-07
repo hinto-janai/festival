@@ -37,7 +37,11 @@ use crate::constants::{
 };
 use crossbeam_channel::Sender;
 use super::CcdToKernel;
-use readable::{Runtime,Unsigned};
+use readable::{
+	Runtime,
+	Unsigned,
+	Date,
+};
 use std::borrow::Cow;
 use std::sync::{Arc,Mutex};
 use std::sync::atomic::AtomicUsize;
@@ -216,11 +220,10 @@ impl super::Ccd {
 
 			// Prepare `Album`.
 			let release = match release {
-				Some(date) => Self::parse_str_date(date),
-				None       => (None, None, None),
+				Some(r) => Date::from_str_silent(r, '-'),
+				None    => Date::unknown(),
 			};
 			let album_title   = album.to_string();
-			let release_human = Self::date_to_string(release);
 			let song_count    = Unsigned::zero();
 			let runtime_album = Runtime::zero();
 			let art           = Art::Unknown;
@@ -245,9 +248,8 @@ impl super::Ccd {
 			// Create `Album`.
 			let album_struct = Album {
 				title: album_title,
-				release_human,
-				art_bytes,
 				release,
+				art_bytes,
 				compilation,
 
 				artist: ArtistKey::from(vec_artist.len() - 1),
@@ -285,11 +287,10 @@ impl super::Ccd {
 
 		// Prepare `Album`.
 		let release = match release {
-			Some(date) => Self::parse_str_date(date),
-			None       => (None, None, None),
+			Some(r) => Date::from_str_silent(r, '-'),
+			None    => Date::unknown(),
 		};
 		let album_title   = album.to_string();
-		let release_human = Self::date_to_string(release);
 		let song_count    = Unsigned::zero();
 		let runtime_album = Runtime::zero();
 		let art           = Art::Unknown;
@@ -317,7 +318,6 @@ impl super::Ccd {
 		// Create `Album`.
 		let album_struct = Album {
 			title: album_title,
-			release_human,
 			release,
 			art_bytes,
 			compilation,

@@ -734,7 +734,6 @@ dependencies = [
  "js-sys",
  "num-integer",
  "num-traits",
- "serde",
  "time",
  "wasm-bindgen",
  "winapi",
@@ -3327,12 +3326,14 @@ checksum = "3b42e27ef78c35d3998403c1d26f3efd9e135d3e5121b0a4845cc5cc27547f4f"
 
 [[package]]
 name = "readable"
-version = "0.5.0"
+version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "90106b926c043397725440505e0a8edafa64edb7843ead28f14a995e9fc8f6bf"
+checksum = "a04141f10830ebe78fcee40aed1d2b8561d630bf15adfae97387808253328ca9"
 dependencies = [
  "compact_str",
+ "lazy_static",
  "num-format",
+ "regex",
  "serde",
 ]
 
@@ -3645,7 +3646,6 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "benri",
- "chrono",
  "clap 4.2.1",
  "crossbeam-channel",
  "disk",

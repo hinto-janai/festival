@@ -17,8 +17,9 @@ pub(crate) use img::*;
 mod convert;
 use convert::*;
 
-mod date;
-use date::*;
+// Superseded by `readable::Date`.
+//mod date;
+//use date::*;
 
 mod metadata;
 use metadata::*;
