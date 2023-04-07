@@ -52,19 +52,24 @@
 //! Since _I_ will most likely be creating all the frontends, there are no plans
 //! to fully flesh out this documentation for now (it's a lot of work).
 
-// Private `shukusai` internals.
+//---------------------------------------------------------------------------------------------------- Private `shukusai` internals.
 mod audio;
 mod ccd;
 mod search;
 mod watch;
 
-// Public `/` stuff.
+//---------------------------------------------------------------------------------------------------- Re-exports.
+pub use disk;
+pub use readable;
+pub use rolock;
+
+//---------------------------------------------------------------------------------------------------- Public `/` stuff.
 mod constants;
 pub use constants::*;
 mod logger;
 pub use logger::*;
 
-// Public modules.
+//---------------------------------------------------------------------------------------------------- Public modules.
 /// The main music `Collection` and it's inner data
 pub mod collection;
 

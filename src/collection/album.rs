@@ -58,13 +58,15 @@ pub struct Album {
 	// So, doing `my_album.songs.iter()` will always
 	// result in the correct `Song` order for `my_album`.
 	/// Key\(s\) to the [`Song`]\(s\).
-	pub songs: Vec<SongKey>,           //
+	pub songs: Vec<SongKey>,
 
 	// Art data.
 	#[serde(skip)]
-	// The [`Album`]'s art.
-	pub(crate) art: Art,                          // Always initialized after `CCD`.
-	pub(crate) art_bytes: Option<Vec<u8>>, //
+	// The `Album`'s art.
+	// `Frontend`'s don't access this field
+	// directly, but use `album.art_or()`.
+	pub(crate) art: Art,                   // Always initialized after `CCD`.
+	pub(crate) art_bytes: Option<Vec<u8>>, // May or may not exist (`None` == default `???` art)
 
 	// Misc data.
 	/// Boolean representing if this is a compilation or not.
