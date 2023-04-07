@@ -2,6 +2,7 @@
 use std::io::Write;
 use benri::log::ok;
 use log::info;
+use compact_str::format_compact;
 
 //---------------------------------------------------------------------------------------------------- Logger init function
 #[inline(always)]
@@ -28,7 +29,7 @@ pub fn init_logger(filter: log::LevelFilter) {
 		Ok(e) => { std::env::set_var("RUST_LOG", &e); env = e; },
 		// TODO:
 		// Support frontend names without *festival*.
-		_     => std::env::set_var("RUST_LOG", format!("off,shukusai={},festival={}", filter, filter)),
+		_     => std::env::set_var("RUST_LOG", format_compact!("off,shukusai={},festival={}", filter, filter)),
 	}
 
 	let now = std::time::Instant::now();
@@ -44,17 +45,26 @@ pub fn init_logger(filter: log::LevelFilter) {
 		};
 		writeln!(
 			buf,
-			"| {: >5} | {: >10} | {: >30} @ {: <4} | {}",
+			// Longest PATH in the repo: `festival-gui/src/data/settings.rs` - `33` characters
+			// Longest file in the repo: `703 src/ccd/metadata.rs`           - `3` digits
+			//
+			// Use `utils/longest.sh` to find this.
+			//
+			//        Longest PATH ---|         |--- Longest file
+			//                        |         |
+			//                        v         v
+			"| {: >5} | {: >10} | {: >33} @ {: <3} | {}",
 			style.set_bold(true).value(level),
-			buf.style().set_dimmed(true).value(format!("{:.3}", now.elapsed().as_secs_f32())),
-			buf.style().set_dimmed(true).value(record.file().unwrap_or("???")),
+			buf.style().set_dimmed(true).value(format_compact!("{:.3}", now.elapsed().as_secs_f32())),
+			buf.style().set_dimmed(true).value(record.file_static().unwrap_or("???")),
 			buf.style().set_dimmed(true).value(record.line().unwrap_or(0)),
 			record.args(),
 		)
-	}).write_style(env_logger::WriteStyle::Always).parse_default_env().format_timestamp_millis().init();
+	}).write_style(env_logger::WriteStyle::Always).parse_default_env().init();
 
-	println!("| LEVEL |       TIME |                           FILE @ LINE | MESSAGE |");
-	println!("|-------|------------|---------------------------------------|---------|");
+	// This has to be updated with the longest PATH/file too.
+	println!("| LEVEL |       TIME |                                   WHERE | MESSAGE |");
+	println!("|-------|------------|-----------------------------------------|---------|");
 
 	if env.is_empty() {
 		info!("Log Level (Flag) ... {}", filter);
