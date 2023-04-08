@@ -40,6 +40,9 @@ use std::time::{
 };
 use rolock::RoLock;
 use std::sync::Arc;
+use crate::constants::{
+	VISUALS,
+};
 
 //---------------------------------------------------------------------------------------------------- `GUI`'s eframe impl.
 impl eframe::App for Gui {
@@ -63,8 +66,8 @@ impl eframe::App for Gui {
 		let to_kernel    = self.to_kernel.clone();
 		let from_kernel  = self.from_kernel.clone();
 		let kernel_state = self.kernel_state.clone();
-		let settings     = self.og_settings.clone();
-		let state        = self.og_state; // `copy`-able
+		let settings     = self.settings.clone();
+		let state        = self.state; // `copy`-able
 
 		// Spawn `exit` thread.
 		std::thread::spawn(move || {
@@ -97,18 +100,32 @@ impl eframe::App for Gui {
 			}
 		}
 
-		// Determine if there is a diff in settings.
-		let diff = self.diff_settings();
-
 		// Copy `Kernel`'s `AudioState`.
 		if self.state.audio.playing {
 			self.copy_kernel_audio();
 		}
 
-		// Set global UI [Style/Visual]s
-//		if diff {
-//			ctx.set_visuals();
-//		}
+//		// Determine if there is a diff in `Settings`'s.
+		let diff_settings = self.diff_settings();
+
+		// Set global UI [Style/Visual]'s
+
+		// Check if `RFD` thread added some PATHs.
+		match lock!(self.rfd_new).take() {
+			Some(p) => {
+				let mut exists = false;
+				for path in &self.settings.collection_paths {
+					if p == *path {
+						exists = true;
+					}
+				}
+				match exists {
+					true  => info!("GUI - PATH exists, not adding: {}", p.display()),
+					false => self.settings.collection_paths.push(p),
+				}
+			},
+			None    => (),
+		}
 
 		// Size definitions of the major UI panels.
 		let bottom_panel_height = height / 15.0;
@@ -136,6 +153,7 @@ impl Gui {
 #[inline(always)]
 fn show_bottom(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
 	TopBottomPanel::bottom("bottom").resizable(false).show(ctx, |ui| {
+		self.set_visuals(ui);
 		ui.set_height(height);
 
 		// Base unit for sizing UI.
@@ -154,11 +172,16 @@ fn show_bottom(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width:
 
 			// Slider (playback)
 			ui.spacing_mut().slider_width = ui.available_width();
+			let h = height / 5.0;
 			ui.add_sized(
 				[ui.available_width(), height],
 				// TODO:
 				// Send signal on slider mutation by user.
-				Slider::new(&mut self.state.audio.current_elapsed, 0.0..=100.0).smallest_positive(1.0).show_value(false)
+				Slider::new(&mut self.state.audio.current_elapsed, 0.0..=100.0)
+					.smallest_positive(1.0)
+					.show_value(false)
+					.thickness(h*2.0)
+					.circle_size(h)
 			);
 		});
 	});
@@ -169,6 +192,7 @@ impl Gui {
 #[inline(always)]
 fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
 	SidePanel::left("left").resizable(false).show(ctx, |ui| {
+		self.set_visuals(ui);
 		ui.set_width(width);
 		ui.set_height(height);
 
@@ -194,14 +218,13 @@ fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f
 			ui.add_space(10.0);
 
 			ui.spacing_mut().slider_width = slider_height;
-			ui.visuals_mut().selection.bg_fill = Color32::from_rgb(200, 100, 100);
 
 			ui.horizontal(|ui| {
 				let unit = width / 10.0;
 				ui.add_space(unit*4.0);
 				// TODO:
 				// Send signal on slider mutation by user.
-				ui.add(Slider::new(&mut self.state.audio.volume.inner(), 0.0..=100.0)
+				ui.add(Slider::new(&mut self.state.audio.volume.inner(), 0..=100)
 					.smallest_positive(1.0)
 					.show_value(false)
 					.vertical()
@@ -217,18 +240,19 @@ fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f
 impl Gui {
 #[inline(always)]
 fn show_right(&mut self, album_key: AlbumKey, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
-	// The scrollable section to the RIGHT side of an album.
-	//
-	// We only show this if the user has an album selected.
-	// We must:
-	// - Find the artist of this album
-	// - Iterate over all the albums of that artist
-	// - Make the album we're on pop out
-	let artist = self.collection.artist_from_album(album_key);
-	let albums = artist.albums.iter();
-
 	SidePanel::right("right").resizable(false).show(ctx, |ui| {
+		self.set_visuals(ui);
 		ui.set_width(width);
+
+		// The scrollable section to the RIGHT side of an album.
+		//
+		// We only show this if the user has an album selected.
+		// We must:
+		// - Find the artist of this album
+		// - Iterate over all the albums of that artist
+		// - Make the album we're on pop out
+		let artist = self.collection.artist_from_album(album_key);
+		let albums = artist.albums.iter();
 
 		// How big the albums (on the right side) should be.
 		let album_size = width / 1.4;
@@ -289,6 +313,7 @@ impl Gui {
 #[inline(always)]
 fn show_central(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
 	CentralPanel::default().show(ctx, |ui| {
+		self.set_visuals(ui);
 		match self.state.tab {
 			Tab::Albums    => Self::show_tab_albums(self, ui, ctx, frame, width, height),
 			Tab::Artists   => Self::show_tab_artists(self, ui, ctx, frame, width, height),
@@ -310,6 +335,7 @@ impl Gui {
 #[inline(always)]
 fn show_spinner(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
 	CentralPanel::default().show(ctx, |ui| {
+		self.set_visuals(ui);
 		ui.vertical_centered(|ui| {
 			let half = height / 2.0;
 			let hh   = half / 2.0;

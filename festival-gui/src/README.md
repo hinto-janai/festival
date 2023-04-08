@@ -16,5 +16,5 @@ The default size of `GUI` is `1000x800`.
 ## Folders
 | Folder         | Purpose |
 |----------------|---------|
-| `data/`        | Main data definitions and initialization
+| `data/`        | Main data definitions, initialization, misc functions
 | `ui/`          | The actual `egui` code & main `eframe::App::update()` loop

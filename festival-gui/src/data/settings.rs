@@ -11,6 +11,8 @@ use disk::{Toml,toml_file};
 use crate::constants::{
 	SETTINGS_VERSION,
 	ALBUM_ART_DEFAULT_SIZE,
+	ACCENT_COLOR,
+	VISUALS,
 };
 use shukusai::{
 	FESTIVAL,
@@ -26,7 +28,7 @@ use shukusai::sort::{
 //---------------------------------------------------------------------------------------------------- Settings
 //bincode_file!(Settings, Dir::Data, FESTIVAL, "gui", "settings", FESTIVAL_HEADER, SETTINGS_VERSION);
 toml_file!(Settings, Dir::Data, FESTIVAL, "gui", "settings");
-#[derive(Clone,Debug,Default,PartialEq,PartialOrd,Serialize,Deserialize)]
+#[derive(Clone,Debug,Default,PartialEq,Serialize,Deserialize)]
 /// `GUI`'s settings.
 ///
 /// Holds user-mutable `GUI` settings, e.g:
@@ -43,8 +45,8 @@ pub struct Settings {
 	/// Restore playback on re-open.
 	pub restore_state: bool,
 
-	/// RGB (A is always added later as 255, no opacity).
-	pub accent_color: [u8; 3],
+	/// Our accent color.
+	pub accent_color: egui::Color32,
 
 	/// List of [`PathBuf`]'s to source music
 	/// data from when making a new [`Collection`].
@@ -52,9 +54,15 @@ pub struct Settings {
 }
 
 impl Settings {
+//	/// Returns the accent color in [`Settings`] in tuple form.
+//	pub const fn accent_color(&self) -> (u8, u8, u8) {
+//		let (r, g, b, _) = self.visuals.selection.bg_fill.to_tuple();
+//		(r, g, b)
+//	}
+
 	pub fn new() -> Self {
 		Self {
-			accent_color: [200, 100, 100], // Pinkish red
+			accent_color: ACCENT_COLOR,
 			restore_state: true,
 			album_art_size: ALBUM_ART_DEFAULT_SIZE,
 			collection_paths: vec![],

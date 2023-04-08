@@ -31,12 +31,17 @@ use log::{
 	error
 };
 use egui::{
-	Style,Visuals,
+	Style,Visuals,Color32,
 	TopBottomPanel,SidePanel,CentralPanel,
 	TextStyle,FontId,FontData,FontDefinitions,FontFamily,FontTweak,
 };
 use crossbeam_channel::{Sender,Receiver};
-use std::sync::Arc;
+use std::path::PathBuf;
+use std::sync::{
+	Arc,
+	Mutex,
+	atomic::AtomicBool,
+};
 use rolock::RoLock;
 use disk::Toml;
 use std::time::Instant;
@@ -62,6 +67,14 @@ pub struct Gui {
 	/// `GUI` settings (old).
 	pub og_state: State,
 
+	// RFD state.
+	/// If a RFD window is currently open.
+	pub rfd_open: Arc<AtomicBool>,
+	/// If a file was selected with RFD.
+	pub rfd_new: Arc<Mutex<Option<PathBuf>>>,
+	/// A buffer of the indicies of the PATHs the user wants deleted.
+	pub deleted_paths: Vec<usize>,
+
 	// Local cached variables.
 	/// A cached, formatted version of [`Collection::count_artist`]
 	pub count_artist: String,
@@ -81,21 +94,33 @@ pub struct Gui {
 //---------------------------------------------------------------------------------------------------- GUI convenience functions.
 impl Gui {
 	#[inline(always)]
+	// Sets the [`egui::Ui`]'s `Visual` from our current `Settings`
+	//
+	// This should be called at the beginning of every major `Ui` frame.
+	pub fn set_visuals(&mut self, ui: &mut egui::Ui) {
+		// Accent color.
+		let mut visuals = ui.visuals_mut();
+		visuals.selection.bg_fill = self.settings.accent_color;
+	}
+
+	#[inline(always)]
 	/// Set the original [`Settings`] to reflect live [`Settings`].
 	pub fn set_settings(&mut self) {
 		self.og_settings = self.settings.clone();
 	}
 
 	#[inline(always)]
-	/// Set the original [`State`] to reflect live [`State`].
-	pub fn set_state(&mut self) {
-		self.og_state = self.state; // `copy`-able
+	/// Reset [`Settings`] to the original.
+	///
+	/// This also resets the [`egui::Visuals`].
+	pub fn reset_settings(&mut self) {
+		self.settings = self.og_settings.clone();
 	}
 
 	#[inline(always)]
-	/// Reset [`Settings`] to the original.
-	pub fn reset_settings(&mut self) {
-		self.settings = self.og_settings.clone();
+	/// Set the original [`State`] to reflect live [`State`].
+	pub fn set_state(&mut self) {
+		self.og_state = self.state; // `copy`-able
 	}
 
 	#[inline(always)]
@@ -107,19 +132,19 @@ impl Gui {
 	#[inline]
 	/// Returns true if either [`Settings`] or [`State`] have diffs.
 	pub fn diff(&self) -> bool {
-		(self.state == self.og_state) && (self.settings == self.og_settings)
+		self.diff_settings() && self.diff_state()
 	}
 
 	#[inline(always)]
 	/// Returns true if [`Settings`] and the old version are not `==`.
 	pub fn diff_settings(&self) -> bool {
-		self.settings == self.og_settings
+		self.settings != self.og_settings
 	}
 
 	#[inline(always)]
 	/// Returns true if [`State`] and the old version are not `==`.
 	pub fn diff_state(&self) -> bool {
-		self.state == self.og_state
+		self.state != self.og_state
 	}
 
 	#[inline(always)]
@@ -169,13 +194,8 @@ impl Gui {
 
 	#[inline(always)]
 	fn init_visuals() -> egui::Visuals {
-		let visuals = Visuals {
-			slider_trailing_fill: true,
-			..Visuals::dark()
-		};
-
 		ok_debug!("GUI Init - Visuals");
-		visuals
+		VISUALS.clone()
 	}
 
 	#[inline(always)]
@@ -254,16 +274,16 @@ impl Gui {
 
 		// Read `Settings` from disk.
 		let settings = match Settings::from_file() {
-			Ok(s)  => s,
+			Ok(s)  => { ok!("GUI - Settings from disk"); s },
 			Err(e) => { warn!("GUI - Settings failed from disk: {}", e); Settings::new() },
 		};
 
 		// Read `State` from disk.
 		let state = match State::from_file() {
-			Ok(s)  => s,
+			Ok(s)  => { ok!("GUI - State from disk"); s },
 			Err(e) => { warn!("GUI - State failed from disk: {}", e); State::new() },
 		};
-
+		println!("{:#?}", state.tab);
 		let app = Self {
 			// `Kernel` channels.
 			to_kernel,
@@ -280,6 +300,11 @@ impl Gui {
 			// `GUI` state.
 			og_state: state, // `copy`-able
 			state,
+
+			// `rfd`.
+			rfd_open: Arc::new(AtomicBool::new(false)),
+			rfd_new: Arc::new(Mutex::new(None)),
+			deleted_paths: vec![],
 
 			// Local cache.
 			count_artist: "Artists: 0".to_string(),
