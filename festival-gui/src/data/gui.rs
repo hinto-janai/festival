@@ -89,6 +89,9 @@ pub struct Gui {
 	/// when exiting really quickly, this `Instant`
 	/// needs to rack up some time before showing the spinner.
 	pub exit_instant: Instant,
+
+	/// Are we in the middle of resetting the [`Collection`]?
+	pub resetting_collection: bool,
 }
 
 //---------------------------------------------------------------------------------------------------- GUI convenience functions.
@@ -313,6 +316,8 @@ impl Gui {
 
 			exiting: false,
 			exit_instant: Instant::now(),
+
+			resetting_collection: false,
 		};
 
 		// Style

@@ -476,9 +476,9 @@ checksum = "a4a4ddaa51a5bc52a6948f74c06d20aaaddb71924eab79b8c97a8c556e942d6a"
 
 [[package]]
 name = "benri"
-version = "0.1.0"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c3f8d2822978266940a5f05f140d2c9d98f04c7a5dac084f0da5a4fabea0a87a"
+checksum = "c783de0eb2f62a2686bfb72ba9e1ac7d6deacdcecff06df1bf1476ebb970446e"
 dependencies = [
  "log",
 ]
@@ -3327,16 +3327,39 @@ checksum = "3b42e27ef78c35d3998403c1d26f3efd9e135d3e5121b0a4845cc5cc27547f4f"
 
 [[package]]
 name = "readable"
-version = "0.6.2"
+version = "0.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a04141f10830ebe78fcee40aed1d2b8561d630bf15adfae97387808253328ca9"
+checksum = "7f77f760a46e92c98bf2863ea73842ad0e8f0ca2944fc60c430d56e10dc36c9a"
 dependencies = [
  "compact_str",
  "lazy_static",
  "num-format",
+ "paste",
+ "readable-inlined-date",
+ "readable-inlined-runtime",
+ "readable-inlined-time",
  "regex",
+ "seq-macro",
  "serde",
 ]
+
+[[package]]
+name = "readable-inlined-date"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d217dfe23dcecff3cb4f8b7005445b03a6150b4d6dbf5c2ef579cc4e6e660a19"
+
+[[package]]
+name = "readable-inlined-runtime"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ca2d8d7c91d98b93b95f336b45da36fd098d52581ed72cb0f1f9b9b87e27f2ea"
+
+[[package]]
+name = "readable-inlined-time"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d253ff3a427db5c14433d66bb26ea11178c17a444dd190b722843f7391f8c888"
 
 [[package]]
 name = "redox_syscall"
@@ -3553,6 +3576,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "seq-macro"
+version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e6b44e8fc93a14e66336d230954dda83d18b4605ccace8fe09bc7514a71ad0bc"
+
+[[package]]
 name = "serde"
 version = "1.0.159"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3663,10 +3692,12 @@ dependencies = [
  "log",
  "mime_guess",
  "notify",
+ "paste",
  "rand",
  "readable",
  "rfd",
  "rolock",
+ "seq-macro",
  "serde",
  "serde_bytes",
  "strsim",

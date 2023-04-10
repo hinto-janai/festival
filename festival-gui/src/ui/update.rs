@@ -8,7 +8,7 @@
 //use std::sync::{Arc,Mutex,RwLock};
 use crate::data::Gui;
 use egui::{
-	ScrollArea,Frame,
+	ScrollArea,Frame,ProgressBar,
 	Color32,Vec2,Stroke,Rounding,RichText,
 	TopBottomPanel,SidePanel,CentralPanel,
 };
@@ -84,6 +84,16 @@ impl eframe::App for Gui {
 	//-------------------------------------------------------------------------------- Main event loop.
 	#[inline(always)]
 	fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+		// Check for `Kernel` messages.
+		if let Ok(msg) = self.from_kernel.try_recv() {
+			use KernelToFrontend::*;
+			match msg {
+				NewCollection(c) => self.collection = c,
+				NewState(k)      => self.kernel_state = k,
+				_ => todo!(),
+			}
+		}
+
 		// Set global available width/height.
 		let rect   = ctx.available_rect();
 		let width  = rect.width();
@@ -95,9 +105,16 @@ impl eframe::App for Gui {
 			// when exiting really quickly, rack up enough
 			// time (100ms) before showing the spinner.
 			if self.exit_instant.elapsed().as_secs_f32() > 0.1 {
-				Self::show_spinner(self, ctx, frame, width, height);
+				Self::show_exit_spinner(self, ctx, frame, width, height);
 				return;
 			}
+		}
+
+		// If resetting the `Collection`,
+		// show fullscreen spinner with info.
+		if self.resetting_collection {
+			Self::show_resetting_collection(self, ctx, frame, width, height);
+			return;
 		}
 
 		// Copy `Kernel`'s `AudioState`.
@@ -328,12 +345,12 @@ fn show_central(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width
 }}
 
 
-//---------------------------------------------------------------------------------------------------- Spinner
+//---------------------------------------------------------------------------------------------------- Exit spinner
 // This is a fullscreen spinner.
 // Used when exiting and waiting for everything to save.
 impl Gui {
 #[inline(always)]
-fn show_spinner(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
+fn show_exit_spinner(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
 	CentralPanel::default().show(ctx, |ui| {
 		self.set_visuals(ui);
 		ui.vertical_centered(|ui| {
@@ -346,6 +363,54 @@ fn show_spinner(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width
 
 			ui.add_sized([width, half], Label::new(text));
 			ui.add_sized([width, hh], Spinner::new().size(hh));
+		});
+	});
+}}
+
+//---------------------------------------------------------------------------------------------------- Reset Collection
+// This is a fullscreen spinner.
+// Used when waiting on `Kernel` to hand over the new `Collection`.
+impl Gui {
+#[inline(always)]
+fn show_resetting_collection(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
+	// Check for `Kernel` messages.
+	if let Ok(msg) = self.from_kernel.try_recv() {
+		use KernelToFrontend::*;
+		match msg {
+			NewCollection(collection) => {
+				self.collection = collection;
+				self.resetting_collection = false;
+				println!("DONE GUI");
+			},
+			Failed((old_collection, error_string)) => println!("failed"),
+			_ => (),
+		}
+	}
+
+	CentralPanel::default().show(ctx, |ui| {
+		self.set_visuals(ui);
+		ui.vertical_centered(|ui| {
+			let half = height / 2.0;
+
+			// Header.
+			let text = RichText::new("Resetting the Collection...")
+				.size(half / 8.0)
+				.color(crate::constants::BONE);
+			ui.add_sized([width, half], Label::new(text));
+
+			let height = half / 6.0;
+
+			// Spinner.
+			ui.add_sized([width, height], Spinner::new().size(height));
+			// Percent.
+			ui.add_sized([width, height], Label::new(lock_read!(self.kernel_state).reset.percent.as_str()));
+			// Phase.
+			ui.add_sized([width, height], Label::new(&lock_read!(self.kernel_state).reset.phase));
+			// Specific.
+			ui.add_sized([width, height], Label::new(&lock_read!(self.kernel_state).reset.specific));
+			// ProgressBar.
+			ui.add_sized([width / 1.1, height], ProgressBar::new(lock_read!(self.kernel_state).reset.percent.inner() as f32 / 100.0));
+
 		});
 	});
 }}

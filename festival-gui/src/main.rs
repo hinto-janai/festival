@@ -13,7 +13,10 @@ fn main() {
 	let (gui_to_kernel, kernel_recv) = crossbeam_channel::unbounded::<shukusai::kernel::FrontendToKernel>();
 
 	// Spawn `Kernel`.
-	std::thread::spawn(move || shukusai::kernel::Kernel::bios(kernel_to_gui, kernel_recv));
+	std::thread::Builder::new()
+		.name("Kernel".to_string())
+		.stack_size(4_000_000) // 4MB stack.
+		.spawn(move || shukusai::kernel::Kernel::bios(kernel_to_gui, kernel_recv));
 
 	// Start `GUI`.
 	eframe::run_native(

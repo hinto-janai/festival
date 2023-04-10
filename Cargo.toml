@@ -82,9 +82,9 @@ all-features = true
 
 [dependencies]
 ### Personal libraries.
-benri    = { version = "0.1.0", features = ["log"] }
+benri    = { version = "0.1.1", features = ["log"] }
 disk     = { version = "0.0.6", features = ["bincode", "toml", "empty"] }
-readable = { version = "0.6.2", features = ["serde", "ignore_nan_inf"] }
+readable = { version = "0.7.4", features = ["full"] }
 rolock   = { version = "0.1.2" }
 
 ### External patched libraries `external/`.
@@ -102,6 +102,7 @@ lofty       = { version = "0.11.0", path = "external/lofty-rs" }
 ### work if not defined here, so...
 clap = { version = "4", features = ["derive"] }
 rfd = "0.11.3"
+paste = "1.0.12"
 
 ### Regular libraries.
 anyhow = "1.0.70"
@@ -126,3 +127,4 @@ serde = { version = "1.0.159", features = ["derive"] }
 strsim = "0.10.0"
 #symphonia = "0.5.2"
 walkdir = "2.3.3"
+seq-macro = "0.3.3"
