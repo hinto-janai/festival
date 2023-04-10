@@ -51,6 +51,15 @@ impl Art {
 			Self::Unknown    => &UNKNOWN_ALBUM,
 		}
 	}
+
+	#[inline]
+	/// Same as [`Art::art_or`] but with no backup image.
+	pub(crate) fn get(&self) -> Option<&RetainedImage> {
+		match self {
+			Self::Known(art) => Some(art),
+			Self::Unknown    => None,
+		}
+	}
 }
 
 impl std::fmt::Debug for Art {

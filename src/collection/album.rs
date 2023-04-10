@@ -89,6 +89,14 @@ impl Album {
 	pub fn art_or(&self) -> &egui_extras::RetainedImage {
 		self.art.art_or()
 	}
+
+	#[inline(always)]
+	/// Return the [`Album`] art wrapped in [`Option`].
+	///
+	/// Same as [`Album::art_or`] but with no "unknown" backup image.
+	pub fn art(&self) -> Option<&egui_extras::RetainedImage> {
+		self.art.get()
+	}
 }
 
 //impl Default for Album {
