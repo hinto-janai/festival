@@ -19,7 +19,11 @@ use crate::constants::{
 	ALBUM_ART_MAX_SIZE,
 };
 use shukusai::sort::AlbumSort;
+use shukusai::kernel::{
+	FrontendToKernel,
+};
 use benri::{
+	send,
 	flip,
 	atomic_load,
 };
@@ -227,6 +231,22 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 			}
 			self.deleted_paths.clear();
 		}
+
+		ui.add_space(10.0);
+
+		// Reset collection.
+		ui.scope(|ui| {
+			ui.set_enabled(collection_paths_len > 0 && !self.resetting_collection);
+
+			if ui.add_sized([width - 10.0, text], Button::new("Reset Collection")).on_hover_text("Scan the folders listed and create a new Collection").clicked() {
+				// TODO:
+				// Send signal to `Kernel`.
+				// Go into collection mode.
+				send!(self.to_kernel, FrontendToKernel::NewCollection(self.settings.collection_paths.clone()));
+				self.resetting_collection = true;
+				return;
+			}
+		});
 
 		ui.add_space(60.0);
 		ui.separator();
