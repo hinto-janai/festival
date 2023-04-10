@@ -88,8 +88,13 @@ impl eframe::App for Gui {
 		if let Ok(msg) = self.from_kernel.try_recv() {
 			use KernelToFrontend::*;
 			match msg {
-				NewCollection(c) => self.collection = c,
+				NewCollection(collection) => {
+					ok_debug!("GUI: New Collection");
+					self.collection = collection;
+					self.resetting_collection = false;
+				},
 				NewState(k)      => self.kernel_state = k,
+				Failed((old_collection, error_string)) => println!("failed"),
 				_ => todo!(),
 			}
 		}
@@ -373,20 +378,6 @@ fn show_exit_spinner(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, 
 impl Gui {
 #[inline(always)]
 fn show_resetting_collection(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
-	// Check for `Kernel` messages.
-	if let Ok(msg) = self.from_kernel.try_recv() {
-		use KernelToFrontend::*;
-		match msg {
-			NewCollection(collection) => {
-				self.collection = collection;
-				self.resetting_collection = false;
-				println!("DONE GUI");
-			},
-			Failed((old_collection, error_string)) => println!("failed"),
-			_ => (),
-		}
-	}
-
 	CentralPanel::default().show(ctx, |ui| {
 		self.set_visuals(ui);
 		ui.vertical_centered(|ui| {
