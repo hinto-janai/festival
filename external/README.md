@@ -2,8 +2,9 @@
 
 Some external libraries that with some custom patches for some features `Festival` needs.
 
-| Library    | Patch | Purpose | Merged upstream? |
-|------------|-------|---------|------------------|
-| `egui`     | Add `trailing_fill()` bool toggle to `Slider` | Adds color to a slider similar to a `ProgressBar` | [Yes](https://github.com/emilk/egui/pull/2660)
-| `egui`     | Add `thickness()` to `Slider` | Change thickness (not length/width) of a `Slider` | No
-| `lofty-rs` | Add `into_data()` for `Picture` | Ownership of inner picture bytes | [Yes](https://github.com/Serial-ATA/lofty-rs/pull/173)
+| Library       | Patch | Purpose | Merged upstream? |
+|---------------|-------|---------|------------------|
+| `egui`        | Add `trailing_fill()` bool toggle to `Slider` | Adds color to a slider similar to a `ProgressBar` | [Yes](https://github.com/emilk/egui/pull/2660)
+| `egui`        | Add `thickness()` to `Slider` | Change thickness (not length/width) of a `Slider` | [No](https://github.com/emilk/egui/pull/2713)
+| `lofty-rs`    | Add `into_data()` for `Picture` | Ownership of inner picture bytes | [Yes](https://github.com/Serial-ATA/lofty-rs/pull/173)
+| `egui_extras` | Add `load_texture()` for `RetainedImage` | Preemptively turn image into texture without blocking GUI | [No](https://github.com/emilk/egui/pull/2891)

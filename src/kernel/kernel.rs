@@ -59,6 +59,7 @@ pub struct Kernel {
 	// Data.
 	collection: Arc<Collection>,
 	state: Arc<RwLock<KernelState>>,
+	ctx: egui::Context,
 }
 
 // `Kernel` boot process:
@@ -84,17 +85,21 @@ impl Kernel {
 	///     Kernel::bios()
 	/// });
 	/// ```
-	pub fn bios(to_frontend: Sender<KernelToFrontend>, from_frontend: Receiver<FrontendToKernel>) {
+	pub fn bios(
+		to_frontend: Sender<KernelToFrontend>,
+		from_frontend: Receiver<FrontendToKernel>,
+		ctx: egui::Context,
+	) {
 		debug!("Kernel [1/12] ... entering bios()");
 
 		// Attempt to load `Collection` from file.
 		match Collection::from_file() {
 			// If success, continue to `boot_loader` to convert
 			// bytes to actual usable `egui` images.
-			Ok(collection) => Self::boot_loader(collection, to_frontend, from_frontend),
+			Ok(collection) => Self::boot_loader(collection, to_frontend, from_frontend, ctx),
 
 			// Else, straight to `init` with default flag set.
-			Err(e) => Self::init(None, None, to_frontend, from_frontend),
+			Err(e) => Self::init(None, None, to_frontend, from_frontend, ctx),
 		}
 	}
 
@@ -103,7 +108,8 @@ impl Kernel {
 	fn boot_loader(
 		collection: Collection,
 		to_frontend: Sender<KernelToFrontend>,
-		from_frontend: Receiver<FrontendToKernel>
+		from_frontend: Receiver<FrontendToKernel>,
+		ctx: egui::Context,
 	) {
 		debug!("Kernel [2/12] ... entering boot_loader()");
 
@@ -111,9 +117,10 @@ impl Kernel {
 		// Create `CCD` channel + thread and make it convert images.
 		debug!("Kernel [3/12] ... spawning CCD");
 		let (ccd_send, from_ccd) = crossbeam_channel::unbounded::<CcdToKernel>();
+		let ctx_clone = ctx.clone();
 		std::thread::Builder::new()
 			.name("CCD".to_string())
-			.spawn(move || Ccd::convert_art(ccd_send, collection));
+			.spawn(move || Ccd::convert_art(ccd_send, collection, ctx_clone));
 
 		// Before hanging on `CCD`, read `KernelState` file.
 		// Note: This is a `Result`.
@@ -133,7 +140,7 @@ impl Kernel {
 		};
 
 		// Continue to `kernel` to verify data.
-		Self::kernel(collection, state, to_frontend, from_frontend);
+		Self::kernel(collection, state, to_frontend, from_frontend, ctx);
 	}
 
 	//-------------------------------------------------- kernel()
@@ -143,12 +150,13 @@ impl Kernel {
 		state:         Result<KernelState, anyhow::Error>,
 		to_frontend:   Sender<KernelToFrontend>,
 		from_frontend: Receiver<FrontendToKernel>,
+		ctx: egui::Context,
 	) {
 		/* TODO: initialize and sanitize collection & misc data */
 		debug!("Kernel [6/12] ... entering kernel()");
 		let state = state.unwrap();
 
-		Self::init(Some(collection), Some(state), to_frontend, from_frontend);
+		Self::init(Some(collection), Some(state), to_frontend, from_frontend, ctx);
 	}
 
 	//-------------------------------------------------- init()
@@ -157,7 +165,8 @@ impl Kernel {
 		collection:    Option<Arc<Collection>>,
 		state:         Option<KernelState>,
 		to_frontend:   Sender<KernelToFrontend>,
-		from_frontend: Receiver<FrontendToKernel>
+		from_frontend: Receiver<FrontendToKernel>,
+		ctx:           egui::Context,
 	) {
 		debug!("Kernel [7/12] ... entering init()");
 
@@ -195,7 +204,7 @@ impl Kernel {
 			from_watch,
 
 			// Data.
-			collection, state,
+			collection, state, ctx,
 		};
 
 		// Spawn `Search`.
@@ -388,12 +397,13 @@ impl Kernel {
 		let old_collection = Arc::clone(&self.collection);
 
 		// Spawn `CCD`.
+		let ctx_clone = self.ctx.clone();
 		std::thread::Builder::new()
 			.name("CCD".to_string())
 			.stack_size(4_000_000) // 4MB stack.
 			.spawn(move ||
 		{
-			Ccd::new_collection(ccd_send, ccd_recv, kernel_state, old_collection, paths);
+			Ccd::new_collection(ccd_send, ccd_recv, kernel_state, old_collection, paths, ctx_clone);
 		});
 
 		// Listen to `CCD`.

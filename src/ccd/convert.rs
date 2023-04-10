@@ -39,7 +39,11 @@ impl super::Ccd {
 	//     2. If single thread is detected     -> `convert_art_singlethread()`
 	//     3. Return `Collection` after mutation.
 	//
-	pub(super) fn priv_convert_art(to_kernel: &Sender<CcdToKernel>, collection: Collection) -> Collection {
+	pub(super) fn priv_convert_art(
+		to_kernel: &Sender<CcdToKernel>,
+		collection: Collection,
+		ctx: egui::Context,
+	) -> Collection {
 		// How many albums total?
 		let total = collection.albums.len();
 
@@ -47,14 +51,14 @@ impl super::Ccd {
 		let threads = super::threads_for_albums(total);
 
 		// ResetUpdate.
-		let increment = 40.0 / total as f64;
+		let increment = 39.0 / total as f64;
 
 		// Single-threaded.
 		if threads == 1 {
-			Self::convert_art_singlethread(to_kernel, collection, total, increment)
+			Self::convert_art_singlethread(to_kernel, collection, &ctx, total, increment)
 		// Multi-threaded.
 		} else {
-			Self::convert_art_multithread(to_kernel, collection, threads, total, increment)
+			Self::convert_art_multithread(to_kernel, collection, &ctx, threads, total, increment)
 		}
 	}
 
@@ -63,6 +67,7 @@ impl super::Ccd {
 	fn convert_art_multithread(
 		to_kernel: &Sender<CcdToKernel>,
 		mut collection: Collection,
+		ctx: &egui::Context,
 		threads: usize,
 		total: usize,
 		increment: f64,
@@ -79,7 +84,7 @@ impl super::Ccd {
 
 				// Spawn scoped thread with chunked workload.
 				scope.spawn(|| {
-					Self::convert_art_worker(to_kernel, albums, total, increment);
+					Self::convert_art_worker(to_kernel, albums, ctx, total, increment);
 				});
 			}
 		});
@@ -92,10 +97,11 @@ impl super::Ccd {
 	fn convert_art_singlethread(
 		to_kernel: &Sender<CcdToKernel>,
 		mut collection: Collection,
+		ctx: &egui::Context,
 		total: usize,
 		increment: f64,
 	) -> Collection {
-		Self::convert_art_worker(to_kernel, &mut collection.albums.0, total, increment);
+		Self::convert_art_worker(to_kernel, &mut collection.albums.0, ctx, total, increment);
 
 		collection
 	}
@@ -105,6 +111,7 @@ impl super::Ccd {
 	fn convert_art_worker(
 		to_kernel: &Sender<CcdToKernel>,
 		albums: &mut [Album],
+		ctx: &egui::Context,
 		total: usize,
 		increment: f64,
 	) {
@@ -122,7 +129,7 @@ impl super::Ccd {
 				Some(b) => {
 					ok_trace!("{}", album.title);
 //					Art::Known(super::art_from_known(&b))
-					match super::art_from_raw(&b, &mut resizer) {
+					match super::art_from_raw(&b, &mut resizer, ctx) {
 						Ok(a) => Art::Known(a),
 						_ => Art::Unknown,
 					}

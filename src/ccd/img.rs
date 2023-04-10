@@ -38,14 +38,16 @@ pub(crate) const ALBUM_ART_MAX_SIZE_ARRAY: [usize; 2] = [ALBUM_ART_MAX_SIZE as u
 //     | bytes_to_dyn_image()     \
 //     | resize_dyn_image()       \
 //     | rgb_bytes_to_color_img() \
-//     | color_img_to_retained()
+//     | color_img_to_retained()  \
+//     | retained_load_texture()
 // ```
 //
 // Image pipeline, from known good edited bytes to `egui::RetainedImage`:
 // ```
 // echo $KNOWN_BYTES              \
 //     | rgb_bytes_to_color_img() \
-//     | color_img_to_retained()
+//     | color_img_to_retained()  \
+//     | retained_load_texture()
 // ```
 // All these functions take input of the previous function
 // and their output goes straight into the next.
@@ -57,16 +59,18 @@ pub(crate) const ALBUM_ART_MAX_SIZE_ARRAY: [usize; 2] = [ALBUM_ART_MAX_SIZE as u
 // These 2 just apply the pipeline above.
 // The real functions are below.
 #[inline(always)]
-pub(crate) fn art_from_raw(bytes: &[u8], resizer: &mut fir::Resizer) -> Result<egui_extras::RetainedImage, anyhow::Error> {
+pub(crate) fn art_from_raw(bytes: &[u8], resizer: &mut fir::Resizer, ctx: &egui::Context) -> Result<egui_extras::RetainedImage, anyhow::Error> {
 	// `.buffer()` must be called on `fir::Image`
 	// before passing it to the next function.
 	// It's cheap, it just returns a `&[u8]`.
-	Ok(color_img_to_retained(
-		rgb_bytes_to_color_img(
-			resize_dyn_image(
-				bytes_to_dyn_image(bytes)?, resizer)?.buffer()
+	Ok(retained_load_texture(
+		color_img_to_retained(
+			rgb_bytes_to_color_img(
+				resize_dyn_image(
+					bytes_to_dyn_image(bytes)?, resizer)?.buffer()
+				)
 			)
-		)
+		, ctx)
 	)
 }
 
@@ -134,6 +138,25 @@ fn rgb_bytes_to_color_img(bytes: &[u8]) -> egui::ColorImage {
 #[inline(always)]
 fn color_img_to_retained(img: egui::ColorImage) -> egui_extras::RetainedImage {
 	egui_extras::RetainedImage::from_color_image("", img)
+}
+
+#[inline(always)]
+// The image must be turned into a `texture` before
+// it can properly be painted in `egui`.
+//
+// This `image` -> `texture` process is done
+// lazily and only occurs when the `GUI` with a `Context`
+// actually needs to load the image, aka:
+//
+// The GUI stutters a bit when loading the
+// album art of a new `Collection`.
+// This is not acceptable.
+//
+// To prevent this, we'll call `load_texture` here so that
+// `CCD` itself can load these images instead of `GUI`.
+fn retained_load_texture(retained: egui_extras::RetainedImage, ctx: &egui::Context) -> egui_extras::RetainedImage {
+	let a = retained.load_texture(ctx);
+	retained
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

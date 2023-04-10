@@ -50,7 +50,11 @@ impl Ccd {
 	//-------------------------------------------------------------------------------- CCD `convert_art()`
 	// Public facing "front-end" function for image conversion.
 	// Dynamically selects internal functions for single/multi-thread.
-	pub(crate) fn convert_art(to_kernel: Sender<CcdToKernel>, collection: Collection) {
+	pub(crate) fn convert_art(
+		to_kernel: Sender<CcdToKernel>,
+		collection: Collection,
+		ctx: egui::Context,
+	) {
 		debug!("CCD - Purpose in life: convert_art()");
 
 		// If no albums, return.
@@ -58,7 +62,7 @@ impl Ccd {
 			send!(to_kernel, CcdToKernel::NewCollection(Arc::new(collection)));
 		// Else, convert art, send to `Kernel`.
 		} else {
-			let collection = Arc::new(Self::priv_convert_art(&to_kernel, collection));
+			let collection = Arc::new(Self::priv_convert_art(&to_kernel, collection, ctx));
 			send!(to_kernel, CcdToKernel::NewCollection(collection));
 		}
 	}
@@ -75,6 +79,7 @@ impl Ccd {
 		kernel_state: Arc<RwLock<KernelState>>,
 		old_collection: Arc<Collection>,
 		paths: Vec<PathBuf>,
+		ctx: egui::Context,
 	) {
 		let beginning = now!();
 		debug!("CCD - Purpose in life: new_collection()");
@@ -184,7 +189,8 @@ impl Ccd {
 		// 7.
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((60.00, "Resizing Album Art".to_string())));
-		let collection = Self::priv_convert_art(&to_kernel, collection);
+		let collection = Self::priv_convert_art(&to_kernel, collection, ctx);
+		// Update should be <= 99% at this point.
 		debug!("CCD [7/11] - Image: {}", secs_f64!(now));
 
 		// 8.
