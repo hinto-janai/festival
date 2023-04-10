@@ -14,6 +14,7 @@ use super::msg::{
 use crossbeam_channel::{Sender,Receiver};
 use benri::{
 	log::*,
+	sync::*,
 };
 use crate::collection::{
 	Art,
@@ -39,21 +40,33 @@ impl super::Ccd {
 	//     3. Return `Collection` after mutation.
 	//
 	pub(super) fn priv_convert_art(to_kernel: &Sender<CcdToKernel>, collection: Collection) -> Collection {
+		// How many albums total?
+		let total = collection.albums.len();
+
 		// How many threads should we use?
-		let threads = super::threads_for_albums(collection.albums.len());
+		let threads = super::threads_for_albums(total);
+
+		// ResetUpdate.
+		let increment = 40.0 / total as f64;
 
 		// Single-threaded.
 		if threads == 1 {
-			Self::convert_art_singlethread(to_kernel, collection)
+			Self::convert_art_singlethread(to_kernel, collection, total, increment)
 		// Multi-threaded.
 		} else {
-			Self::convert_art_multithread(to_kernel, collection, threads)
+			Self::convert_art_multithread(to_kernel, collection, threads, total, increment)
 		}
 	}
 
 	#[inline(always)]
 	// Multi-threaded `convert_art()` variant.
-	fn convert_art_multithread(to_kernel: &Sender<CcdToKernel>, mut collection: Collection, threads: usize) -> Collection {
+	fn convert_art_multithread(
+		to_kernel: &Sender<CcdToKernel>,
+		mut collection: Collection,
+		threads: usize,
+		total: usize,
+		increment: f64,
+	) -> Collection {
 		// Multi-thread & scoped process of `Collection` album art:
 		//
 		// 1. Split the `Vec` of `Album` across an appropriate amount of threads
@@ -64,12 +77,9 @@ impl super::Ccd {
 			// Divide albums (mostly) evenly across threads.
 			for albums in collection.albums.0.chunks_mut(threads) {
 
-				// Clone `Kernel` channel.
-				let to_k  = to_kernel.clone();
-
 				// Spawn scoped thread with chunked workload.
-				scope.spawn(move || {
-					Self::convert_art_worker(to_kernel, albums);
+				scope.spawn(|| {
+					Self::convert_art_worker(to_kernel, albums, total, increment);
 				});
 			}
 		});
@@ -79,16 +89,31 @@ impl super::Ccd {
 
 	#[inline(always)]
 	// Single-threaded `convert_art()` variant.
-	fn convert_art_singlethread(to_kernel: &Sender<CcdToKernel>, mut collection: Collection) -> Collection {
-		Self::convert_art_worker(to_kernel, &mut collection.albums.0);
+	fn convert_art_singlethread(
+		to_kernel: &Sender<CcdToKernel>,
+		mut collection: Collection,
+		total: usize,
+		increment: f64,
+	) -> Collection {
+		Self::convert_art_worker(to_kernel, &mut collection.albums.0, total, increment);
 
 		collection
 	}
 
 	#[inline(always)]
 	// The actual art conversion "processing" work.
-	fn convert_art_worker(to_kernel: &Sender<CcdToKernel>, albums: &mut [Album]) {
+	fn convert_art_worker(
+		to_kernel: &Sender<CcdToKernel>,
+		albums: &mut [Album],
+		total: usize,
+		increment: f64,
+	) {
+		// Resizer.
+		let mut resizer = crate::ccd::create_resizer();
+
 		for album in albums {
+			send!(to_kernel, CcdToKernel::UpdateIncrement((increment, format!("{}", album.title))));
+
 			// Take raw image bytes.
 			let bytes = album.art_bytes.take();
 
@@ -96,7 +121,11 @@ impl super::Ccd {
 			let art = match bytes {
 				Some(b) => {
 					ok_trace!("{}", album.title);
-					Art::Known(super::art_from_known(&b))
+//					Art::Known(super::art_from_known(&b))
+					match super::art_from_raw(&b, &mut resizer) {
+						Ok(a) => Art::Known(a),
+						_ => Art::Unknown,
+					}
 				},
 				None => {
 					skip_trace!("{}", album.title);

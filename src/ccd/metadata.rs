@@ -132,6 +132,12 @@ impl super::Ccd {
 		let vec_album:    Mutex<Vec<Album>>  = Mutex::new(vec![]);
 		let vec_song:     Mutex<Vec<Song>>   = Mutex::new(vec![]);
 
+		// ResetUpdate.
+		//
+		// These are sent to `Kernel` for progress updates.
+		let vec_len:   usize = vec_paths.len();
+		let increment: f64   = 50.0 / vec_len as f64;
+
 		// In this loop, each `PathBuf` represents a new `Song` with metadata.
 		// There are 3 logical possibilities with 3 actions associated with them:
 		//     1. `Artist` exists, `Album` exists         => Add `Song`
@@ -141,7 +147,7 @@ impl super::Ccd {
 		// Memory must be updated as well.
 
 		// Get an appropriate amount of threads.
-		let threads = super::threads_for_paths(vec_paths.len());
+		let threads = super::threads_for_paths(vec_len);
 
 		//------------------------------------------------------------- Begin `The Loop`.
 		// No indentation because this function is crazy long.
@@ -180,6 +186,9 @@ impl super::Ccd {
 			track_artists,
 			compilation,
 		} = metadata;
+
+		// Send update to `Kernel`.
+		send!(to_kernel, CcdToKernel::UpdateIncrement((increment, format!("{artist} - {album} - {title}"))));
 
 		// Lock memory (HashMap).
 		let mut memory = lock!(memory);
@@ -220,7 +229,7 @@ impl super::Ccd {
 
 			// Prepare `Album`.
 			let release = match release {
-				Some(r) => Date::from_str_silent(r, '-'),
+				Some(r) => Date::from_str_silent(r),
 				None    => Date::unknown(),
 			};
 			let album_title   = album.to_string();
@@ -287,7 +296,7 @@ impl super::Ccd {
 
 		// Prepare `Album`.
 		let release = match release {
-			Some(r) => Date::from_str_silent(r, '-'),
+			Some(r) => Date::from_str_silent(r),
 			None    => Date::unknown(),
 		};
 		let album_title   = album.to_string();
@@ -386,7 +395,7 @@ impl super::Ccd {
 			album.song_count = Unsigned::from(album.songs.len());
 
 			// Total runtime.
-			let mut runtime = 0.0;
+			let mut runtime = 0;
 			album.songs.iter().for_each(|key| runtime += vec_song[key.inner()].runtime.inner());
 			album.runtime = Runtime::from(runtime);
 		}

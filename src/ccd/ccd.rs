@@ -37,7 +37,10 @@ use crossbeam_channel::{Sender,Receiver};
 use std::path::{Path,PathBuf};
 use std::sync::{Arc,RwLock};
 use disk::Bincode;
-use readable::Unsigned;
+use readable::{
+	Unsigned,
+	Percent,
+};
 
 //---------------------------------------------------------------------------------------------------- CCD
 pub(crate) struct Ccd;
@@ -98,21 +101,26 @@ impl Ccd {
 
 		// 1.
 		let now = now!();
+		send!(to_kernel, CcdToKernel::UpdatePhase((0.00, "Walking Directories".to_string())));
 		let paths = Self::walkdir_audio(&to_kernel, paths);
 		debug!("CCD [1/11] - WalkDir: {}", secs_f64!(now));
 
 		// 2.
 		let now = now!();
+		send!(to_kernel, CcdToKernel::UpdatePhase((5.00, "Parsing Metadata".to_string())));
 		let (vec_artist, mut vec_album, vec_song) = Self::audio_paths_to_incomplete_vecs(&to_kernel, paths);
+		// Update should be < 50% at this point.
 		debug!("CCD [2/11] - Metadata: {}", secs_f64!(now));
 
 		// 3.
 		let now = now!();
+		send!(to_kernel, CcdToKernel::UpdatePhase((50.00, "Fixing Metadata".to_string())));
 		Self::fix_album_metadata_from_songs(&mut vec_album, &vec_song);
 		debug!("CCD [3/11] - Fix: {}", secs_f64!(now));
 
 		// 4.
 		let now = now!();
+		send!(to_kernel, CcdToKernel::UpdatePhase((52.50, "Sorting".to_string())));
 		let sort_artist_lexi                    = Self::sort_artist_lexi(&vec_artist);
 		let sort_artist_album_count             = Self::sort_artist_album_count(&vec_artist);
 		let sort_artist_song_count              = Self::sort_artist_song_count(&vec_artist, &vec_album);
@@ -132,11 +140,13 @@ impl Ccd {
 
 		// 5.
 		let now = now!();
+		send!(to_kernel, CcdToKernel::UpdatePhase((55.00, "Creating Search Engine".to_string())));
 		let map = Map::from_3_vecs(&vec_artist, &vec_album, &vec_song);
 		debug!("CCD [5/11] - Map: {}", secs_f64!(now));
 
 		// 6.
 		let now = now!();
+		send!(to_kernel, CcdToKernel::UpdatePhase((60.00, "Preparing Collection".to_string())));
 		let collection = Collection {
 			// These will be fixed after construction.
 			empty: false,
@@ -173,14 +183,18 @@ impl Ccd {
 
 		// 7.
 		let now = now!();
+		send!(to_kernel, CcdToKernel::UpdatePhase((60.00, "Resizing Album Art".to_string())));
 		let collection = Self::priv_convert_art(&to_kernel, collection);
 		debug!("CCD [7/11] - Image: {}", secs_f64!(now));
 
 		// 8.
 		let now = now!();
+		send!(to_kernel, CcdToKernel::UpdatePhase((100.00, "Creating Collection".to_string())));
 		let collection = Arc::new(collection);
 		send!(to_kernel, CcdToKernel::NewCollection(Arc::clone(&collection)));
 		debug!("CCD [8/11] - ToKernel: {}", secs_f64!(now));
+
+		debug!("CCD - Created Collection and sent to Kernel: {}", secs_f64!(beginning));
 
 		// 9.
 		let now = now!();
@@ -223,7 +237,7 @@ impl Ccd {
 		}
 
 		// Thank you CCD, you can rest now.
-		debug!("CCD ... Took {} seconds, bye!", beginning.elapsed().as_secs_f32());
+		debug!("CCD ... Took {} seconds, bye!", secs_f64!(beginning));
 	}
 }
 
