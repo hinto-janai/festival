@@ -5,7 +5,10 @@ use serde::{Serialize,Deserialize};
 //use disk::prelude::*;
 //use disk::{};
 use std::sync::{Arc,RwLock};
-use super::state::KernelState;
+use super::state::{
+	ResetState,
+	KernelState,
+};
 use super::volume::Volume;
 use rolock::RoLock;
 use benri::{
@@ -24,6 +27,7 @@ use crate::{
 };
 use crossbeam_channel::{Sender,Receiver};
 use std::path::PathBuf;
+use readable::Percent;
 
 //---------------------------------------------------------------------------------------------------- Kernel
 /// The [`Kernel`] of `Festival`
@@ -107,7 +111,9 @@ impl Kernel {
 		// Create `CCD` channel + thread and make it convert images.
 		debug!("Kernel [3/12] ... spawning CCD");
 		let (ccd_send, from_ccd) = crossbeam_channel::unbounded::<CcdToKernel>();
-		std::thread::spawn(move || Ccd::convert_art(ccd_send, collection));
+		std::thread::Builder::new()
+			.name("CCD".to_string())
+			.spawn(move || Ccd::convert_art(ccd_send, collection));
 
 		// Before hanging on `CCD`, read `KernelState` file.
 		// Note: This is a `Result`.
@@ -119,9 +125,10 @@ impl Kernel {
 		let collection = loop {
 			use CcdToKernel::*;
 			match recv!(from_ccd) {
-				NewCollection(collection) => break collection,
-				Failed(string)            => (), // TODO: Forward to `GUI`.
-				Update(string)            => (), // TODO: Forward to `GUI`.
+				UpdateIncrement((increment, string)) => (), // TODO: Forward to `GUI`.
+				UpdatePhase((phase, string))         => (), // TODO: Forward to `GUI`.
+				NewCollection(collection)            => break collection,
+				Failed(string)                       => (), // TODO: Forward to `GUI`.
 			}
 		};
 
@@ -166,6 +173,10 @@ impl Kernel {
 			None    => { debug!("Kernel [9/12] ... KernelState NOT found, returning default"); Arc::new(RwLock::new(KernelState::new())) },
 		};
 
+		// Send `Collection/State` to `Frontend`.
+		send!(to_frontend, KernelToFrontend::NewCollection(Arc::clone(&collection)));
+		send!(to_frontend, KernelToFrontend::NewState(RoLock::new(&state)));
+
 		// Create `To` channels.
 		let (to_search, search_recv) = crossbeam_channel::unbounded::<KernelToSearch>();
 		let (to_audio,  audio_recv)  = crossbeam_channel::unbounded::<KernelToAudio>();
@@ -190,17 +201,23 @@ impl Kernel {
 		// Spawn `Search`.
 		debug!("Kernel [10/12] ... spawning Search");
 		let collection = Arc::clone(&kernel.collection);
-		std::thread::spawn(move || Search::init(collection, search_send, search_recv));
+		std::thread::Builder::new()
+			.name("Search".to_string())
+			.spawn(move || Search::init(collection, search_send, search_recv));
 
 		// Spawn `Audio`.
 		debug!("Kernel [11/12] ... spawning Audio");
 		let collection = Arc::clone(&kernel.collection);
 		let state      = RoLock::new(&kernel.state);
-		std::thread::spawn(move || Audio::init(collection, state, audio_send, audio_recv));
+		std::thread::Builder::new()
+			.name("Audio".to_string())
+			.spawn(move || Audio::init(collection, state, audio_send, audio_recv));
 
 		// Spawn `Watch`.
 		debug!("Kernel [12/12] ... spawning Watch");
-		std::thread::spawn(move || Watch::init(watch_send));
+		std::thread::Builder::new()
+			.name("Watch".to_string())
+			.spawn(move || Watch::init(watch_send));
 
 		// We're done, enter main `userspace` loop.
 		debug!("Kernel: entering userspace()");
@@ -349,6 +366,9 @@ impl Kernel {
 	// 6. Tell `CCD` to... `Die`
 	// 7. Give new `Arc<Collection>` to everyone
 	fn ccd_mode(&mut self, paths: Vec<PathBuf>) {
+		// Set our `ResetState`.
+		lock_write!(self.state).reset = ResetState::start();
+
 		// INVARIANT:
 		// `GUI` is expected to drop its pointer by itself
 		// after requesting the new `Collection`.
@@ -368,32 +388,70 @@ impl Kernel {
 		let old_collection = Arc::clone(&self.collection);
 
 		// Spawn `CCD`.
-		std::thread::spawn(move || {
+		std::thread::Builder::new()
+			.name("CCD".to_string())
+			.stack_size(4_000_000) // 4MB stack.
+			.spawn(move ||
+		{
 			Ccd::new_collection(ccd_send, ccd_recv, kernel_state, old_collection, paths);
 		});
 
 		// Listen to `CCD`.
-		let collection = loop {
+		self.collection = loop {
 			use crate::ccd::CcdToKernel::*;
+
+			// What message did `CCD` send?
 			match recv!(from_ccd) {
-				Update(string)            => send!(self.to_frontend, KernelToFrontend::Update(string)),
+				// We received an incremental update.
+				// Update the current `KernelState.ResetState` values to match.
+				UpdateIncrement((increment, specific)) => {
+					let current         = lock_read!(self.state).reset.percent.inner();
+					let percent         = Percent::from(current + increment);
+					let mut lock        = lock_write!(self.state);
+					lock.reset.percent  = percent;
+					lock.reset.specific = specific;
+				},
+
+				// We're onto the next phase in `Collection` creation process.
+				// Update the current `KernelState.ResetState` values to match.
+				//
+				// If we're on the last step, clear the `specific` field.
+				UpdatePhase((percent, phase)) => {
+					let done = percent == 100.0;
+					let percent        = Percent::from(percent);
+					let mut lock       = lock_write!(self.state);
+					lock.reset.percent = percent;
+					lock.reset.phase   = phase;
+					if done {
+						lock.reset.specific = "".to_string();
+					}
+				},
+
+				// `CCD` was successful. We got the new `Collection`.
 				NewCollection(collection) => break collection,
-				Failed(anyhow)            => {
-					// `CCD` failed, tell `GUI` and give the
-					// old `Collection` pointer to everyone again.
-					send!(self.to_search, KernelToSearch::NewCollection(Arc::clone(&self.collection)));
-					send!(self.to_audio,  KernelToAudio::NewCollection(Arc::clone(&self.collection)));
-					send!(self.to_frontend,    KernelToFrontend::Failed((Arc::clone(&self.collection), anyhow.to_string())));
+
+				// `CCD` failed, tell `GUI` and give the
+				// old `Collection` pointer to everyone
+				// and return out of this function.
+				Failed(anyhow) => {
+					send!(self.to_search,   KernelToSearch::NewCollection(Arc::clone(&self.collection)));
+					send!(self.to_audio,    KernelToAudio::NewCollection(Arc::clone(&self.collection)));
+					send!(self.to_frontend, KernelToFrontend::Failed((Arc::clone(&self.collection), anyhow.to_string())));
 					return;
 				},
 			}
 		};
 
+		// We have the `Collection`, tell `CCD` to die.
+		send!(to_ccd, KernelToCcd::Die);
+
 		// `CCD` succeeded, send new pointers to everyone.
-		self.collection = collection;
-		send!(self.to_search, KernelToSearch::NewCollection(Arc::clone(&self.collection)));
-		send!(self.to_audio,  KernelToAudio::NewCollection(Arc::clone(&self.collection)));
-		send!(self.to_frontend,    KernelToFrontend::NewCollection(Arc::clone(&self.collection)));
+		send!(self.to_search,   KernelToSearch::NewCollection(Arc::clone(&self.collection)));
+		send!(self.to_audio,    KernelToAudio::NewCollection(Arc::clone(&self.collection)));
+		send!(self.to_frontend, KernelToFrontend::NewCollection(Arc::clone(&self.collection)));
+
+		// Set our `ResetState`, we're done.
+		lock_write!(self.state).reset = ResetState::done();
 	}
 }
 

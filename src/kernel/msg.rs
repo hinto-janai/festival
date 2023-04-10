@@ -22,6 +22,7 @@ use rolock::RoLock;
 use std::path::PathBuf;
 use crate::kernel::Volume;
 use super::Kernel;
+use readable::Percent;
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
 /// Messages `Frontend` can send to [`Kernel`]
@@ -107,8 +108,6 @@ pub enum KernelToFrontend {
 	DropCollection,
 	/// Here's the new [`Collection`] pointer.
 	NewCollection(Arc<Collection>),
-	/// Here's an update on the new [`Collection`].
-	Update(String),
 	/// Creating the new [`Collection`] failed, here's the old pointer and error message.
 	Failed((Arc<Collection>, String)),
 
