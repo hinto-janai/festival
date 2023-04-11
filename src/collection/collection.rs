@@ -631,9 +631,15 @@ impl Collection {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//  #[test]
-//  fn _() {
-//  }
-//}
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use disk::Bincode;
+
+	#[test]
+	fn serde() {
+		let collection = Collection::new();
+		collection.save().unwrap();
+		let collection = Collection::from_file();
+	}
+}

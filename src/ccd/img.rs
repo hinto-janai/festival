@@ -155,7 +155,7 @@ fn color_img_to_retained(img: egui::ColorImage) -> egui_extras::RetainedImage {
 // To prevent this, we'll call `load_texture` here so that
 // `CCD` itself can load these images instead of `GUI`.
 fn retained_load_texture(retained: egui_extras::RetainedImage, ctx: &egui::Context) -> egui_extras::RetainedImage {
-	let a = retained.load_texture(ctx);
+	retained.load_texture(ctx);
 	retained
 }
 

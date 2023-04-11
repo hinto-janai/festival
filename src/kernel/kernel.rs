@@ -99,7 +99,10 @@ impl Kernel {
 			Ok(collection) => Self::boot_loader(collection, to_frontend, from_frontend, ctx),
 
 			// Else, straight to `init` with default flag set.
-			Err(e) => Self::init(None, None, to_frontend, from_frontend, ctx),
+			Err(e) => {
+				warn!("Kernel - Collection from file error: {}", e);
+				Self::init(None, None, to_frontend, from_frontend, ctx);
+			},
 		}
 	}
 
