@@ -44,14 +44,17 @@ use readable::{
 	Unsigned,
 };
 
-//---------------------------------------------------------------------------------------------------- RNG
-// `RNG`: Global RNG state for `Collection`'s `rand_*` functions.
-//
-// This could be a `once_cell::Lazy`, but that limits `RNG` usage
-// to a single caller. If `Kernel` (or any other thread) needs to
-// access `Collection`'s `rand_*` methods, a `Mutex` is required.
+//---------------------------------------------------------------------------------------------------- Lazy
 lazy_static::lazy_static! {
+	// `RNG`: Global RNG state for `Collection`'s `rand_*` functions.
+	//
+	// This could be a `once_cell::Lazy`, but that limits `RNG` usage
+	// to a single caller. If `Kernel` (or any other thread) needs to
+	// access `Collection`'s `rand_*` methods, a `Mutex` is required.
 	static ref RNG: Mutex<rand::rngs::SmallRng> = Mutex::new(rand::rngs::SmallRng::from_entropy());
+
+	// This is an empty, dummy `Collection`.
+	pub(crate) static ref DUMMY_COLLECTION: Arc<Collection> = Arc::new(Collection::new());
 }
 
 //---------------------------------------------------------------------------------------------------- The Collection™
@@ -117,6 +120,12 @@ bincode_file!(Collection, Dir::Data, FESTIVAL, "", "collection", FESTIVAL_HEADER
 /// ### Frontend
 /// As a `Frontend`, you will never produce a [`Collection`] yourself, rather,
 /// you ask [`Kernel`] to produce one for you. You will receive an immutable `Arc<Collection>`.
+///
+/// ### Late initialization
+/// Waiting on [`Kernel`] to hand you the _real_ [`Collection`] may take a while
+///
+/// This prevents your `Frontend` from finishing initializing beforehand, so instead, use [`Collection::dummy`]
+/// to _cheaply_ obtain an empty, dummy [`Collection`], then wait for [`Kernel`]'s signal later on.
 pub struct Collection {
 	// The "Map".
 	/// A [`HashMap`] that knows all [`Artist`]'s, [`Album`]'s and [`Song`]'s.
@@ -180,14 +189,6 @@ pub struct Collection {
 impl Collection {
 	//-------------------------------------------------- New.
 	// Creates an empty [`Collection`].
-	//
-	// All [`Vec`]'s are empty.
-	//
-	// All search functions will return [`Option::None`].
-	//
-	// The `timestamp` and `count_*` fields are set to `0`.
-	//
-	// `empty` is set to `true`.
 	pub(crate) fn new() -> Self {
 		Self {
 			artists: Artists::new(),
@@ -221,12 +222,38 @@ impl Collection {
 	}
 
 	#[inline(always)]
-	/// Create an empty, dummy [`Collection`] wrapped in an [`Arc`].
+	/// Obtain an empty, dummy [`Collection`] wrapped in an [`Arc`].
 	///
 	/// This is useful when you need to initialize but don't want
 	/// to wait on [`Kernel`] to hand you the _real_ `Arc<Collection>`.
+	///
+	///
+	/// Details on the fields:
+	/// - All [`Vec`]'s are empty
+	/// - All search functions will return [`Option::None`]
+	/// - The `timestamp` and `count_*` fields are set to `0`
+	/// - `empty` is set to `true`
+	///
+	/// This [`Collection`] is [`Arc::clone`]'ed from a `lazy_static`
+	/// evaluated, empty [`Collection`] that has static lifetime.
+	///
+	/// [`Kernel`] initializes this data the second it gets spawned, so most likely your
+	/// `Frontend` will just be [`Arc::clone`]'ing instead of initializing the value
+	/// (which is still insanely cheap anyway, see below).
+	///
+	/// # Cost
+	/// The bulk of [`Collection`]'s insides are [`Vec`]'s. [`Vec`]'s themselves are basically:
+	/// - `len`, the length, which is a `usize`
+	/// - `cap`, the capacity, which is a `usize`
+	/// - `ptr`, the pointer to the data, which is just an `isize`
+	///
+	/// Creating an empty, dummy [`Collection`] is akin to creating 60-ish [`usize`]'s and an [`Arc`].
+	///
+	/// For reference, creating the initial value takes `0.000003` seconds on my PC.
+	///
+	/// [`Arc::clone`]'ing takes `0.000000007` seconds, aka, this function is basically free.
 	pub fn dummy() -> Arc<Self> {
-		Arc::new(Self::new())
+		Arc::clone(&DUMMY_COLLECTION)
 	}
 
 	//-------------------------------------------------- Metadata functions.

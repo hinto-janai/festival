@@ -23,7 +23,7 @@ use crate::{
 	search::{KernelToSearch, SearchToKernel, Search},
 	audio::{KernelToAudio, AudioToKernel, Audio},
 	watch::{WatchToKernel, Watch},
-	collection::Collection,
+	collection::{Collection,DUMMY_COLLECTION},
 };
 use crossbeam_channel::{Sender,Receiver};
 use std::path::PathBuf;
@@ -91,6 +91,13 @@ impl Kernel {
 		ctx: egui::Context,
 	) {
 		debug!("Kernel [1/12] ... entering bios()");
+
+		// Initialize the dummy `Collection`.
+		//
+		// Make sure the compiler doesn't optimize away
+		// this call. We need this so that `lazy_static`
+		// _actually_ creates the value here.
+		let pls_dont_optimize_away = std::hint::black_box(lazy_static::initialize(DUMMY_COLLECTION));
 
 		// Attempt to load `Collection` from file.
 		match Collection::from_file() {
