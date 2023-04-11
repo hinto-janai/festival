@@ -22,6 +22,7 @@ use shukusai::sort::AlbumSort;
 use shukusai::kernel::{
 	FrontendToKernel,
 };
+use shukusai::collection::Collection;
 use benri::{
 	send,
 	flip,

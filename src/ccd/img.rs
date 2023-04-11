@@ -84,7 +84,14 @@ pub(crate) fn art_from_known(bytes: &[u8]) -> egui_extras::RetainedImage {
 //-------------------------- Real functions.
 #[inline(always)]
 pub(crate) fn create_resizer() -> fir::Resizer {
-	fir::Resizer::new(ResizeAlg::Convolution(FilterType::Lanczos3))
+	// FIXME:
+	// Test in blind test to see if you can
+	// actually tell the quality difference
+	// between these two.
+	//
+	// Nearest is faster but "lower quality".
+	fir::Resizer::new(ResizeAlg::Nearest)
+//	fir::Resizer::new(ResizeAlg::Convolution(FilterType::Lanczos3))
 }
 
 #[inline(always)]

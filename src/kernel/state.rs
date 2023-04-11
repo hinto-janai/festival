@@ -218,7 +218,7 @@ impl KernelState {
 	///
 	/// For more information, read that documentation.
 	pub fn dummy() -> RoLock<Self> {
-		RoLock::new(DUMMY_KERNEL_STATE)
+		RoLock::new(&DUMMY_KERNEL_STATE)
 	}
 }
 

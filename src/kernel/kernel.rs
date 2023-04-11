@@ -97,8 +97,8 @@ impl Kernel {
 		//
 		// Make sure the compiler doesn't optimize away this call.
 		// We need this so that `lazy_static` _actually_ creates the values here.
-		let pls_dont_optimize_away   = std::hint::black_box(lazy_static::initialize(DUMMY_COLLECTION));
-		let pls_dont_optimize_away_2 = std::hint::black_box(lazy_static::initialize(DUMMY_KERNEL_STATE));
+		let pls_dont_optimize_away   = std::hint::black_box(lazy_static::initialize(&DUMMY_COLLECTION));
+		let pls_dont_optimize_away_2 = std::hint::black_box(lazy_static::initialize(&DUMMY_KERNEL_STATE));
 
 		// Attempt to load `Collection` from file.
 		match Collection::from_file() {

@@ -188,7 +188,7 @@ impl super::Ccd {
 		} = metadata;
 
 		// Send update to `Kernel`.
-		send!(to_kernel, CcdToKernel::UpdateIncrement((increment, format!("{artist} - {album} - {title}"))));
+		send!(to_kernel, CcdToKernel::UpdateIncrement((increment, title.to_string())));
 
 		// Lock memory (HashMap).
 		let mut memory = lock!(memory);
