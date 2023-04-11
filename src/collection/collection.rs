@@ -227,7 +227,6 @@ impl Collection {
 	/// This is useful when you need to initialize but don't want
 	/// to wait on [`Kernel`] to hand you the _real_ `Arc<Collection>`.
 	///
-	///
 	/// Details on the fields:
 	/// - All [`Vec`]'s are empty
 	/// - All search functions will return [`Option::None`]

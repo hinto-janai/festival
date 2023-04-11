@@ -6,7 +6,7 @@ use serde::{Serialize,Deserialize};
 use disk::prelude::*;
 use disk::{Bincode,bincode_file};
 //use std::{};
-//use std::sync::{Arc,Mutex,RwLock};
+use std::sync::{Arc,RwLock};
 use crate::key::{
 	Key,
 	Keychain,
@@ -25,6 +25,12 @@ use super::Volume;
 use crate::kernel::Kernel;
 use crate::collection::Collection;
 use readable::Percent;
+
+//---------------------------------------------------------------------------------------------------- Lazy
+lazy_static::lazy_static! {
+	// This is an empty, dummy `KernelState`.
+	pub(crate) static ref DUMMY_KERNEL_STATE: Arc<RwLock<KernelState>> = Arc::new(RwLock::new(KernelState::new()));
+}
 
 //---------------------------------------------------------------------------------------------------- AudioState
 /// Audio State
@@ -203,13 +209,16 @@ impl KernelState {
 	}
 
 	#[inline(always)]
-	/// Create an empty, dummy [`KernelState`] wrapped in an [`RoLock`].
+	/// Obtain an empty, dummy [`Collection`] wrapped in an [`Arc`].
 	///
 	/// This is useful when you need to initialize but don't want
 	/// to wait on [`Kernel`] to hand you the _real_ `RoLock<KernelState>`.
+	///
+	/// This is implemented in the exact same way as [`Collection::dummy`].
+	///
+	/// For more information, read that documentation.
 	pub fn dummy() -> RoLock<Self> {
-		let (_, ro) = RoLock::new_pair(Self::new());
-		ro
+		RoLock::new(DUMMY_KERNEL_STATE)
 	}
 }
 

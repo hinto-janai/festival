@@ -21,6 +21,7 @@ use shukusai::collection::{
 use shukusai::sort::{
 };
 use benri::{
+	now,
 	log::*,
 	panic::*,
 	sync::*,
@@ -325,7 +326,7 @@ impl Gui {
 			count_song: "Songs: 0".to_string(),
 
 			exiting: false,
-			exit_instant: Instant::now(),
+			exit_instant: now!(),
 
 			resetting_collection: false,
 		};

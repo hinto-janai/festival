@@ -8,6 +8,7 @@ use std::sync::{Arc,RwLock};
 use super::state::{
 	ResetState,
 	KernelState,
+	DUMMY_KERNEL_STATE,
 };
 use super::volume::Volume;
 use rolock::RoLock;
@@ -92,12 +93,12 @@ impl Kernel {
 	) {
 		debug!("Kernel [1/12] ... entering bios()");
 
-		// Initialize the dummy `Collection`.
+		// Initialize the dummy `Collection` and `KernelState`.
 		//
-		// Make sure the compiler doesn't optimize away
-		// this call. We need this so that `lazy_static`
-		// _actually_ creates the value here.
-		let pls_dont_optimize_away = std::hint::black_box(lazy_static::initialize(DUMMY_COLLECTION));
+		// Make sure the compiler doesn't optimize away this call.
+		// We need this so that `lazy_static` _actually_ creates the values here.
+		let pls_dont_optimize_away   = std::hint::black_box(lazy_static::initialize(DUMMY_COLLECTION));
+		let pls_dont_optimize_away_2 = std::hint::black_box(lazy_static::initialize(DUMMY_KERNEL_STATE));
 
 		// Attempt to load `Collection` from file.
 		match Collection::from_file() {
