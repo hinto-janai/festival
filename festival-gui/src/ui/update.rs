@@ -92,6 +92,7 @@ impl eframe::App for Gui {
 					ok_debug!("GUI: New Collection");
 					self.collection = collection;
 					self.resetting_collection = false;
+					self.cache_collection();
 				},
 				NewState(k)      => self.kernel_state = k,
 				Failed((old_collection, error_string)) => println!("failed"),
@@ -385,7 +386,7 @@ fn show_resetting_collection(&mut self, ctx: &egui::Context, frame: &mut eframe:
 
 			// Header.
 			let text = RichText::new("Resetting the Collection...")
-				.size(half / 8.0)
+				.heading()
 				.color(crate::constants::BONE);
 			ui.add_sized([width, half], Label::new(text));
 

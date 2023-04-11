@@ -84,6 +84,7 @@ all-features = true
 ### Personal libraries.
 benri    = { version = "0.1.1", features = ["log"] }
 disk     = { version = "0.0.6", features = ["bincode", "toml", "empty"] }
+#disk     = { path = "/home/main/git/disk", features = ["bincode", "toml", "empty"] }
 readable = { version = "0.7.4", features = ["full"] }
 rolock   = { version = "0.1.2" }
 

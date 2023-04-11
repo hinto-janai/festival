@@ -44,6 +44,7 @@ use std::sync::{
 };
 use rolock::RoLock;
 use disk::Toml;
+use disk::Bincode;
 use std::time::Instant;
 
 //---------------------------------------------------------------------------------------------------- GUI struct. This hold ALL data.
@@ -163,9 +164,18 @@ impl Gui {
 	}
 
 	#[inline(always)]
+	/// Caches some segments of [`Collection`] for local use
+	/// so don't have to access it all the time.
+	///
+	/// This should be called after we received a new [`Collection`].
+	pub fn cache_collection(&mut self) {
+		self.format_count_assign();
+	}
+
+	#[inline(always)]
 	/// Copies the data from our current [`Collection`],
 	/// formats it, and assigns it to [`Self`]'s `count_*` fields.
-	pub fn format_count_assign(&mut self) {
+	fn format_count_assign(&mut self) {
 		self.count_artist = format!("Artists: {}", self.collection.count_artist);
 		self.count_album  = format!("Albums: {}", self.collection.count_album);
 		self.count_song   = format!("Songs: {}", self.collection.count_song);

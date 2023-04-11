@@ -7,8 +7,8 @@ use crate::ui::{
 };
 use std::path::PathBuf;
 use disk::prelude::*;
-//use disk::{Bincode,bincode_file};
-use disk::{Toml,toml_file};
+use disk::{Bincode,bincode_file};
+//use disk::{Toml,toml_file};
 use crate::constants::{
 	STATE_VERSION,
 	ALBUM_ART_DEFAULT_SIZE,
@@ -32,8 +32,8 @@ use shukusai::kernel::{
 };
 
 //---------------------------------------------------------------------------------------------------- State
-//bincode_file!(State, Dir::Data, FESTIVAL, "gui", "state", FESTIVAL_HEADER, STATE_VERSION);
-toml_file!(State, Dir::Data, FESTIVAL, "gui", "state");
+bincode_file!(State, Dir::Data, FESTIVAL, "gui", "state", FESTIVAL_HEADER, STATE_VERSION);
+//toml_file!(State, Dir::Data, FESTIVAL, "gui", "state");
 #[derive(Copy,Clone,Debug,Default,PartialEq,PartialOrd,Serialize,Deserialize)]
 /// `GUI`'s State.
 ///

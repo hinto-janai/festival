@@ -239,10 +239,23 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 			ui.set_enabled(collection_paths_len > 0 && !self.resetting_collection);
 
 			if ui.add_sized([width - 10.0, text], Button::new("Reset Collection")).on_hover_text("Scan the folders listed and create a new Collection").clicked() {
-				// TODO:
 				// Send signal to `Kernel`.
-				// Go into collection mode.
 				send!(self.to_kernel, FrontendToKernel::NewCollection(self.settings.collection_paths.clone()));
+
+				// FIXME:
+				// We're _supposed_ to drop our `Collection` here
+				// but that's just not possible (it's in `self`).
+				//
+				// However:
+				//   1.`CCD` tries 3 times to deconstruct the old `Collection`
+				//   2. When we get the new `Collection`, we will have assigned
+				//      it to `self.collection`, which drops the old one.
+				//
+				// Thus, `CCD` actually ends up deconstructing it anyway.
+				// Relying on this behavior wasn't my original plan, so,
+				// this should probably be more formally thought out.
+
+				// Go into collection mode.
 				self.resetting_collection = true;
 				return;
 			}
