@@ -106,6 +106,16 @@ impl super::Ccd {
 		// TODO:
 		// Some metadata is missing.
 
+		// ResetUpdate.
+		//
+		// These are sent to `Kernel` for progress updates.
+		let vec_len:   usize = vec_paths.len();
+		let increment: f64   = 50.0 / vec_len as f64;
+		// Vec capacity estimation.
+		let song_len_maybe   = vec_len;             // Assuming _every_ PATH is a valid `Song`.
+		let album_len_maybe  = vec_len / 16;        // Assuming `~16` `Song`'s per `Album`.
+		let artist_len_maybe = album_len_maybe / 5; // Assuming `~5` `Album`'s per `Artist`.
+
 		// For efficiency reasons, it's best to do
 		// all these operations in a single loop.
 		//
@@ -127,16 +137,10 @@ impl super::Ccd {
 		//                            Name   in `Vec<Artist>`   Name   in `Vec<Album>`
 		//                              |          |              |         |
 		//                              v          v              v         v
-		let memory:       Mutex<HashMap<String, (usize, HashMap<String, usize>)>> = Mutex::new(HashMap::new());
-		let vec_artist:   Mutex<Vec<Artist>> = Mutex::new(vec![]);
-		let vec_album:    Mutex<Vec<Album>>  = Mutex::new(vec![]);
-		let vec_song:     Mutex<Vec<Song>>   = Mutex::new(vec![]);
-
-		// ResetUpdate.
-		//
-		// These are sent to `Kernel` for progress updates.
-		let vec_len:   usize = vec_paths.len();
-		let increment: f64   = 50.0 / vec_len as f64;
+		let memory:       Mutex<HashMap<String, (usize, HashMap<String, usize>)>> = Mutex::new(HashMap::with_capacity(artist_len_maybe));
+		let vec_artist:   Mutex<Vec<Artist>> = Mutex::new(Vec::with_capacity(artist_len_maybe));
+		let vec_album:    Mutex<Vec<Album>>  = Mutex::new(Vec::with_capacity(album_len_maybe));
+		let vec_song:     Mutex<Vec<Song>>   = Mutex::new(Vec::with_capacity(song_len_maybe));
 
 		// In this loop, each `PathBuf` represents a new `Song` with metadata.
 		// There are 3 logical possibilities with 3 actions associated with them:
