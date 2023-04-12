@@ -158,6 +158,18 @@ impl super::Ccd {
 		let path = path.clone(); // TODO: figure out how to take ownership of this instead of cloning.
 
 		// Get the tags for this `PathBuf`, skip on error.
+		//
+		// FIXME:
+		// `lofty` doesn't have a partial-`Tag` API. It always reads all
+		// the data from a file. AKA, the `Picture` data gets allocated
+		// into an owned `Vec<u8>` for every single file...!
+		//
+		// This is obviously not ideal, we only need
+		// the `Picture` data once per `Album`.
+		//
+		// For some reason though, this doesn't affect performance that much.
+		// Basic tests show maybe `~1.5x-2x` speed improvements upon commenting
+		// out all picture ops. Not that much faster.
 		let mut tagged_file = match Self::path_to_tagged_file(&path) {
 			Ok(t)  => t,
 			Err(e) => { warn!("CCD - TaggedFile fail: {}{}", path.display(), SKIP); continue; },
