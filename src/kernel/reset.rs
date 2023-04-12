@@ -86,7 +86,7 @@ impl ResetState {
 			resetting: false,
 			percent: Percent::zero(),
 			phase: "...".to_string(),
-			specific: String::new(),
+			specific: "".to_string(),
 		}
 	}
 
@@ -101,7 +101,7 @@ impl ResetState {
 			resetting: true,
 			percent: Percent::zero(),
 			phase: "Starting...".to_string(),
-			specific: String::new(),
+			specific: "".to_string(),
 		};
 	}
 
@@ -111,7 +111,7 @@ impl ResetState {
 			resetting: false,
 			percent: Percent::const_100(),
 			phase: "Done".to_string(),
-			specific: String::new(),
+			specific: "".to_string(),
 		};
 	}
 }
