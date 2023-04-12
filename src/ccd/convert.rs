@@ -42,7 +42,7 @@ impl super::Ccd {
 	pub(super) fn priv_convert_art(
 		to_kernel: &Sender<CcdToKernel>,
 		collection: Collection,
-		ctx: egui::Context,
+		ctx: &egui::Context,
 	) -> Collection {
 		// How many albums total?
 		let total = collection.albums.len();
@@ -55,10 +55,10 @@ impl super::Ccd {
 
 		// Single-threaded.
 		if threads == 1 {
-			Self::convert_art_singlethread(to_kernel, collection, &ctx, total, increment)
+			Self::convert_art_singlethread(to_kernel, collection, ctx, total, increment)
 		// Multi-threaded.
 		} else {
-			Self::convert_art_multithread(to_kernel, collection, &ctx, threads, total, increment)
+			Self::convert_art_multithread(to_kernel, collection, ctx, threads, total, increment)
 		}
 	}
 

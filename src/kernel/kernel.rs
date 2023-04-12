@@ -407,61 +407,63 @@ impl Kernel {
 		// Get old `Collection` pointer.
 		let old_collection = Arc::clone(&self.collection);
 
-		// Spawn `CCD`.
-		let ctx_clone = self.ctx.clone();
-		std::thread::Builder::new()
-			.name("CCD".to_string())
-			.stack_size(4_000_000) // 4MB stack.
-			.spawn(move ||
-		{
-			Ccd::new_collection(ccd_send, ccd_recv, kernel_state, old_collection, paths, ctx_clone);
-		});
+		// Get `egui::Context` pointer.
+		let ctx = self.ctx.clone();
 
-		// Listen to `CCD`.
-		self.collection = loop {
-			use crate::ccd::CcdToKernel::*;
+		// Enter scoped thread.
+		std::thread::scope(|scope| {
+			// Spawn `CCD`.
+			std::thread::Builder::new()
+				.name("CCD".to_string())
+				.stack_size(4_000_000) // 4MB stack.
+				.spawn_scoped(scope, move || Ccd::new_collection(ccd_send, ccd_recv, kernel_state, old_collection, paths, ctx));
 
-			// What message did `CCD` send?
-			match recv!(from_ccd) {
-				// We received an incremental update.
-				// Update the current `KernelState.ResetState` values to match.
-				UpdateIncrement((increment, specific)) => {
-					let current         = lock_read!(self.state).reset.percent.inner();
-					let percent         = Percent::from(current + increment);
-					let mut lock        = lock_write!(self.state);
-					lock.reset.percent  = percent;
-					lock.reset.specific = specific;
-				},
+			// Listen to `CCD`.
+			self.collection = loop {
+				use crate::ccd::CcdToKernel::*;
 
-				// We're onto the next phase in `Collection` creation process.
-				// Update the current `KernelState.ResetState` values to match.
-				//
-				// If we're on the last step, clear the `specific` field.
-				UpdatePhase((percent, phase)) => {
-					let done = percent == 100.0;
-					let percent        = Percent::from(percent);
-					let mut lock       = lock_write!(self.state);
-					lock.reset.percent = percent;
-					lock.reset.phase   = phase;
-					if done {
-						lock.reset.specific = "".to_string();
-					}
-				},
+				// What message did `CCD` send?
+				match recv!(from_ccd) {
+					// We received an incremental update.
+					// Update the current `KernelState.ResetState` values to match.
+					UpdateIncrement((increment, specific)) => {
+						let current         = lock_read!(self.state).reset.percent.inner();
+						let percent         = Percent::from(current + increment);
+						let mut lock        = lock_write!(self.state);
+						lock.reset.percent  = percent;
+						lock.reset.specific = specific;
+					},
 
-				// `CCD` was successful. We got the new `Collection`.
-				NewCollection(collection) => break collection,
+					// We're onto the next phase in `Collection` creation process.
+					// Update the current `KernelState.ResetState` values to match.
+					//
+					// If we're on the last step, clear the `specific` field.
+					UpdatePhase((percent, phase)) => {
+						let done = percent == 100.0;
+						let percent        = Percent::from(percent);
+						let mut lock       = lock_write!(self.state);
+						lock.reset.percent = percent;
+						lock.reset.phase   = phase;
+						if done {
+							lock.reset.specific = "".to_string();
+						}
+					},
 
-				// `CCD` failed, tell `GUI` and give the
-				// old `Collection` pointer to everyone
-				// and return out of this function.
-				Failed(anyhow) => {
-					send!(self.to_search,   KernelToSearch::NewCollection(Arc::clone(&self.collection)));
-					send!(self.to_audio,    KernelToAudio::NewCollection(Arc::clone(&self.collection)));
-					send!(self.to_frontend, KernelToFrontend::Failed((Arc::clone(&self.collection), anyhow.to_string())));
-					return;
-				},
-			}
-		};
+					// `CCD` was successful. We got the new `Collection`.
+					NewCollection(collection) => break collection,
+
+					// `CCD` failed, tell `GUI` and give the
+					// old `Collection` pointer to everyone
+					// and return out of this function.
+					Failed(anyhow) => {
+						send!(self.to_search,   KernelToSearch::NewCollection(Arc::clone(&self.collection)));
+						send!(self.to_audio,    KernelToAudio::NewCollection(Arc::clone(&self.collection)));
+						send!(self.to_frontend, KernelToFrontend::Failed((Arc::clone(&self.collection), anyhow.to_string())));
+						return;
+					},
+				}
+			};
+		}); // End `std::thread::scope`.
 
 		// We have the `Collection`, tell `CCD` to die.
 		send!(to_ccd, KernelToCcd::Die);

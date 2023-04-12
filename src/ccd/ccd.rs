@@ -62,7 +62,7 @@ impl Ccd {
 			send!(to_kernel, CcdToKernel::NewCollection(Arc::new(collection)));
 		// Else, convert art, send to `Kernel`.
 		} else {
-			let collection = Arc::new(Self::priv_convert_art(&to_kernel, collection, ctx));
+			let collection = Arc::new(Self::priv_convert_art(&to_kernel, collection, &ctx));
 			send!(to_kernel, CcdToKernel::NewCollection(collection));
 		}
 	}
@@ -189,7 +189,7 @@ impl Ccd {
 		// 7.
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((60.00, "Resizing Album Art".to_string())));
-		let collection = Self::priv_convert_art(&to_kernel, collection, ctx);
+		let collection = Self::priv_convert_art(&to_kernel, collection, &ctx);
 		// Update should be <= 99% at this point.
 		debug!("CCD [7/11] - Image: {}", secs_f64!(now));
 
@@ -220,8 +220,10 @@ impl Ccd {
 		lock_write!(kernel_state).saving = false;
 		debug!("CCD [10/11] - Disk: {}", secs_f64!(now));
 		// Don't need these anymore.
-		drop(kernel_state);
-		drop(collection);
+		{
+			kernel_state
+			collection
+		}
 
 		// 11.
 		// Try 3 times before giving up.
