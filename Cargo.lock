@@ -476,9 +476,9 @@ checksum = "a4a4ddaa51a5bc52a6948f74c06d20aaaddb71924eab79b8c97a8c556e942d6a"
 
 [[package]]
 name = "benri"
-version = "0.1.1"
+version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c783de0eb2f62a2686bfb72ba9e1ac7d6deacdcecff06df1bf1476ebb970446e"
+checksum = "61de8f67d110adb8fed71fb500fe4f8fda52eb13f367433b547884f7a2649e47"
 dependencies = [
  "log",
 ]

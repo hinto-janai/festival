@@ -6,11 +6,12 @@ use serde::{Serialize,Deserialize};
 //use disk::{};
 use std::sync::{Arc,RwLock};
 use super::state::{
-	ResetState,
 	KernelState,
 	DUMMY_KERNEL_STATE,
 };
+use super::DUMMY_RESET_STATE;
 use super::volume::Volume;
+use super::reset::ResetState;
 use rolock::RoLock;
 use benri::{
 	ops::*,
@@ -60,6 +61,7 @@ pub struct Kernel {
 	// Data.
 	collection: Arc<Collection>,
 	state: Arc<RwLock<KernelState>>,
+	reset: Arc<RwLock<ResetState>>,
 	ctx: egui::Context,
 }
 
@@ -93,12 +95,13 @@ impl Kernel {
 	) {
 		debug!("Kernel [1/12] ... entering bios()");
 
-		// Initialize the dummy `Collection` and `KernelState`.
+		// Initialize the dummy `Collection/KernelState/ResetState`.
 		//
 		// Make sure the compiler doesn't optimize away this call.
 		// We need this so that `lazy_static` _actually_ creates the values here.
 		let pls_dont_optimize_away   = std::hint::black_box(lazy_static::initialize(&DUMMY_COLLECTION));
 		let pls_dont_optimize_away_2 = std::hint::black_box(lazy_static::initialize(&DUMMY_KERNEL_STATE));
+		let pls_dont_optimize_away_3 = std::hint::black_box(lazy_static::initialize(&DUMMY_RESET_STATE));
 
 		// Attempt to load `Collection` from file.
 		match Collection::from_file() {
@@ -193,9 +196,13 @@ impl Kernel {
 			None    => { debug!("Kernel [9/12] ... KernelState NOT found, returning default"); Arc::new(RwLock::new(KernelState::new())) },
 		};
 
+		// Create `ResetState`.
+		let reset = ResetState::from_dummy();
+
 		// Send `Collection/State` to `Frontend`.
 		send!(to_frontend, KernelToFrontend::NewCollection(Arc::clone(&collection)));
-		send!(to_frontend, KernelToFrontend::NewState(RoLock::new(&state)));
+		send!(to_frontend, KernelToFrontend::NewKernelState(RoLock::new(&state)));
+		send!(to_frontend, KernelToFrontend::NewResetState(RoLock::new(&reset)));
 
 		// Create `To` channels.
 		let (to_search, search_recv) = crossbeam_channel::unbounded::<KernelToSearch>();
@@ -215,7 +222,10 @@ impl Kernel {
 			from_watch,
 
 			// Data.
-			collection, state, ctx,
+			collection,
+			state,
+			reset,
+			ctx,
 		};
 
 		// Spawn `Search`.
@@ -387,7 +397,7 @@ impl Kernel {
 	// 7. Give new `Arc<Collection>` to everyone
 	fn ccd_mode(&mut self, paths: Vec<PathBuf>) {
 		// Set our `ResetState`.
-		lock_write!(self.state).reset = ResetState::start();
+		lock_write!(self.reset).start();
 
 		// INVARIANT:
 		// `GUI` is expected to drop its pointer by itself
@@ -427,11 +437,11 @@ impl Kernel {
 					// We received an incremental update.
 					// Update the current `KernelState.ResetState` values to match.
 					UpdateIncrement((increment, specific)) => {
-						let current         = lock_read!(self.state).reset.percent.inner();
-						let percent         = Percent::from(current + increment);
-						let mut lock        = lock_write!(self.state);
-						lock.reset.percent  = percent;
-						lock.reset.specific = specific;
+						let current    = lock_read!(self.reset).percent.inner();
+						let percent    = Percent::from(current + increment);
+						let mut reset  = lock_write!(self.reset);
+						reset.percent  = percent;
+						reset.specific = specific;
 					},
 
 					// We're onto the next phase in `Collection` creation process.
@@ -439,14 +449,10 @@ impl Kernel {
 					//
 					// If we're on the last step, clear the `specific` field.
 					UpdatePhase((percent, phase)) => {
-						let done = percent == 100.0;
-						let percent        = Percent::from(percent);
-						let mut lock       = lock_write!(self.state);
-						lock.reset.percent = percent;
-						lock.reset.phase   = phase;
-						if done {
-							lock.reset.specific = "".to_string();
-						}
+						let percent   = Percent::from(percent);
+						let mut reset = lock_write!(self.reset);
+						reset.percent = percent;
+						reset.phase   = phase;
 					},
 
 					// `CCD` was successful. We got the new `Collection`.
@@ -474,7 +480,7 @@ impl Kernel {
 		send!(self.to_frontend, KernelToFrontend::NewCollection(Arc::clone(&self.collection)));
 
 		// Set our `ResetState`, we're done.
-		lock_write!(self.state).reset = ResetState::done();
+		lock_write!(self.reset).done();
 	}
 }
 

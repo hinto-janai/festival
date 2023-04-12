@@ -10,6 +10,7 @@ use benri::{
 	sync::*,
 	thread::*,
 	time::*,
+	drop,
 };
 use crate::collection::{
 	Album,
@@ -220,10 +221,7 @@ impl Ccd {
 		lock_write!(kernel_state).saving = false;
 		debug!("CCD [10/11] - Disk: {}", secs_f64!(now));
 		// Don't need these anymore.
-		{
-			kernel_state
-			collection
-		}
+		drop!(kernel_state, collection);
 
 		// 11.
 		// Try 3 times before giving up.

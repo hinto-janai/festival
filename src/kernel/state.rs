@@ -39,7 +39,7 @@ lazy_static::lazy_static! {
 /// It is included within [`KernelState`], and can easily
 /// be `copied` to `Frontend`'s cheaply so [`KernelState`]
 /// doesn't have to be directly locked all the time.
-#[derive(Copy,Clone,Debug,Default,PartialOrd,PartialEq,Serialize,Deserialize)]
+#[derive(Copy,Clone,Debug,PartialOrd,PartialEq,Serialize,Deserialize)]
 pub struct AudioState {
 	/// Are we playing audio right now?
 	pub playing: bool,
@@ -60,7 +60,7 @@ pub struct AudioState {
 impl AudioState {
 	#[inline]
 	/// Creates an empty struct.
-	pub fn new() -> Self {
+	pub(crate) fn new() -> Self {
 		Self {
 			playing: false,
 			volume: Volume::new_50(),
@@ -73,74 +73,15 @@ impl AudioState {
 	}
 }
 
-//---------------------------------------------------------------------------------------------------- ResetState
-/// Reset State.
-///
-/// Some in-progress status updates for when the [`Collection`] is reset.
-///
-/// This holds a:
-/// - [`Percent`] representing the total work done out of `100%`
-/// - [`String`] representing what work we're currently doing
-///
-/// This values in this struct will be updated during the process.
-///
-/// [`None`] represents we're not currently reseting the [`Collection`].
-#[derive(Clone,Debug,PartialOrd,PartialEq,Serialize,Deserialize)]
-pub struct ResetState {
-	/// [`bool`] representing: Are we currently resetting the [`Collection`]?
-	pub resetting: bool,
-
-	/// [`Percent`] representing the total work done out of `100%`
-	pub percent: Percent,
-
-	/// [`String`] representing what phase we're on
-	///
-	/// Example: `Walking Directories`, `Parsing Metadata`, etc.
-
-	pub phase: String,
-
-	/// [`String`] representing the specific work we're currently doing
-	///
-	/// Example: Current `Artist/Album/Song`.
-	pub specific: String,
-}
-
-impl ResetState {
-	/// Returns an initial starting version.
-	pub(super) fn start() -> Self {
-		Self {
-			resetting: true,
-			percent: Percent::zero(),
-			phase: "Starting...".to_string(),
-			specific: String::new(),
-		}
-	}
-
-	/// Resets, use this after we're done.
-	pub(super) fn done() -> Self {
-		Self {
-			resetting: false,
-			percent: Percent::const_100(),
-			phase: "Done".to_string(),
-			specific: String::new(),
-		}
-	}
-}
-
-impl Default for ResetState {
+impl Default for AudioState {
 	fn default() -> Self {
-		Self {
-			resetting: false,
-			percent: Percent::zero(),
-			phase: String::new(),
-			specific: String::new(),
-		}
+		Self::new()
 	}
 }
 
 //---------------------------------------------------------------------------------------------------- KernelState
 bincode_file!(KernelState, Dir::Data, FESTIVAL, "", "state", FESTIVAL_HEADER, STATE_VERSION);
-#[derive(Clone,Debug,Default,PartialOrd,PartialEq,Serialize,Deserialize)]
+#[derive(Clone,Debug,PartialOrd,PartialEq,Serialize,Deserialize)]
 /// Kernel State
 ///
 /// This hold various bits of state that `Kernel` controls
@@ -175,19 +116,6 @@ pub struct KernelState {
 	/// (for a reasonable amount of time) if this is set to `true`, waiting
 	/// for the [`Collection`] to be saved to disk.
 	pub saving: bool,
-
-	/// Reset State.
-	///
-	/// Some in-progress status updates for when the [`Collection`] is reset.
-	///
-	/// This holds a:
-	/// - [`bool`] representing if we're _currently_ in the process of resetting the [`Collection`]
-	/// - [`Percent`] representing the total work done out of `100%`
-	/// - [`String`] representing what phase we're on
-	/// - [`String`] representing what work we're currently doing
-	///
-	/// This values in this struct will be updated during the process.
-	pub reset: ResetState,
 }
 
 impl KernelState {
@@ -203,8 +131,6 @@ impl KernelState {
 			playlists: vec![],
 
 			saving: false,
-
-			reset: ResetState::default(),
 		}
 	}
 
@@ -222,6 +148,11 @@ impl KernelState {
 	}
 }
 
+impl Default for KernelState {
+	fn default() -> Self {
+		Self::new()
+	}
+}
 
 //---------------------------------------------------------------------------------------------------- TESTS
 //#[cfg(test)]

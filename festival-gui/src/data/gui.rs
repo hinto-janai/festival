@@ -12,6 +12,7 @@ use crate::ui::{
 use shukusai::kernel::{
 	Kernel,
 	KernelState,
+	ResetState,
 	FrontendToKernel,
 	KernelToFrontend,
 };
@@ -55,9 +56,10 @@ pub struct Gui {
 	/// From `Kernel`.
 	pub from_kernel: Receiver<KernelToFrontend>,
 
-	/// The `Collection`.
+	/// The `Collection` and misc state.
 	pub collection: Arc<Collection>,
 	pub kernel_state: RoLock<KernelState>,
+	pub reset_state: RoLock<ResetState>,
 
 	/// `GUI` settings.
 	pub settings: Settings,
@@ -305,6 +307,7 @@ impl Gui {
 			// `shukusai` data.
 			collection: Collection::dummy(),
 			kernel_state: KernelState::dummy(),
+			reset_state: ResetState::dummy(),
 
 			// `GUI` settings.
 			og_settings: settings.clone(),

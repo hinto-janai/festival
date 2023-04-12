@@ -19,7 +19,7 @@ license = "MIT"
 shukusai = { path = "../", version = "0.0.0" }
 
 ### Personal Libraries.
-benri    = { version = "0.1.1", features = ["log"] }
+benri    = { version = "0.1.2", features = ["log"] }
 disk     = { version = "0.0.6", features = ["toml", "empty"] }
 #disk     = { path = "/home/main/git/disk", features = ["toml", "empty"] }
 readable = { version = "0.7.4", features = ["full"] }

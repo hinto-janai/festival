@@ -18,6 +18,7 @@ use crate::key::{
 	QueueKey,
 };
 use super::KernelState;
+use super::ResetState;
 use rolock::RoLock;
 use std::path::PathBuf;
 use crate::kernel::Volume;
@@ -116,8 +117,10 @@ pub enum KernelToFrontend {
 	PathError(String),
 
 	// State.
-	/// Here's a new [`KernelState`] pointer inside a [`rolock::RoLock`].
-	NewState(RoLock<KernelState>),
+	/// Here's a new [`KernelState`] pointer inside a [`RoLock`].
+	NewKernelState(RoLock<KernelState>),
+	/// Here's a new [`ResetState`] pointer inside a [`RoLock`].
+	NewResetState(RoLock<ResetState>),
 
 	// Search.
 	/// Here's a (similarity) search result.

@@ -94,7 +94,8 @@ impl eframe::App for Gui {
 					self.resetting_collection = false;
 					self.cache_collection();
 				},
-				NewState(k)      => self.kernel_state = k,
+				NewKernelState(k)      => self.kernel_state = k,
+				NewResetState(r)      => self.reset_state = r,
 				Failed((old_collection, error_string)) => println!("failed"),
 				_ => todo!(),
 			}
@@ -395,13 +396,13 @@ fn show_resetting_collection(&mut self, ctx: &egui::Context, frame: &mut eframe:
 			// Spinner.
 			ui.add_sized([width, height], Spinner::new().size(height));
 			// Percent.
-			ui.add_sized([width, height], Label::new(lock_read!(self.kernel_state).reset.percent.as_str()));
+			ui.add_sized([width, height], Label::new(lock_read!(self.reset_state).percent.as_str()));
 			// Phase.
-			ui.add_sized([width, height], Label::new(&lock_read!(self.kernel_state).reset.phase));
+			ui.add_sized([width, height], Label::new(&lock_read!(self.reset_state).phase));
 			// Specific.
-			ui.add_sized([width, height], Label::new(&lock_read!(self.kernel_state).reset.specific));
+			ui.add_sized([width, height], Label::new(&lock_read!(self.reset_state).specific));
 			// ProgressBar.
-			ui.add_sized([width / 1.1, height], ProgressBar::new(lock_read!(self.kernel_state).reset.percent.inner() as f32 / 100.0));
+			ui.add_sized([width / 1.1, height], ProgressBar::new(lock_read!(self.reset_state).percent.inner() as f32 / 100.0));
 
 		});
 	});
