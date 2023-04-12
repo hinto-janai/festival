@@ -297,7 +297,6 @@ impl Gui {
 			Ok(s)  => { ok!("GUI - State from disk"); s },
 			Err(e) => { warn!("GUI - State failed from disk: {}", e); State::new() },
 		};
-		println!("{:#?}", state.tab);
 		let app = Self {
 			// `Kernel` channels.
 			to_kernel,
