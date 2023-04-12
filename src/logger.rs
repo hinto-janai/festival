@@ -2,7 +2,6 @@
 use std::io::Write;
 use benri::log::ok;
 use log::info;
-use compact_str::format_compact;
 
 //---------------------------------------------------------------------------------------------------- Logger init function
 #[inline(always)]
@@ -29,7 +28,7 @@ pub fn init_logger(filter: log::LevelFilter) {
 		Ok(e) => { std::env::set_var("RUST_LOG", &e); env = e; },
 		// TODO:
 		// Support frontend names without *festival*.
-		_     => std::env::set_var("RUST_LOG", format_compact!("off,shukusai={},festival={}", filter, filter)),
+		_     => std::env::set_var("RUST_LOG", format!("off,shukusai={},festival={}", filter, filter)),
 	}
 
 	let now = std::time::Instant::now();

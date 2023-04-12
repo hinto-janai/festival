@@ -29,7 +29,6 @@ use benri::{
 	atomic_load,
 };
 use std::sync::Arc;
-use compact_str::format_compact;
 
 //---------------------------------------------------------------------------------------------------- Settings
 impl crate::data::Gui {
@@ -208,7 +207,7 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 		// List folders (max 10)
 		for i in 0..collection_paths_len {
 			ui.horizontal(|ui| {
-				let path  = format_compact!("{}", self.settings.collection_paths[i].display());
+				let path  = format!("{}", self.settings.collection_paths[i].display());
 				let width = width / 20.0;
 
 				// Delete button.
