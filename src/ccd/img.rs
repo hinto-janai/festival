@@ -20,6 +20,7 @@ use fir::{
 	PixelType,
 };
 use std::num::NonZeroU32;
+use std::sync::Arc;
 
 //---------------------------------------------------------------------------------------------------- Album Art Constants.
 // 600x600 pixels.
@@ -59,18 +60,16 @@ pub(crate) const ALBUM_ART_MAX_SIZE_ARRAY: [usize; 2] = [ALBUM_ART_MAX_SIZE as u
 // These 2 just apply the pipeline above.
 // The real functions are below.
 #[inline(always)]
-pub(crate) fn art_from_raw(bytes: &[u8], resizer: &mut fir::Resizer, ctx: &egui::Context) -> Result<egui_extras::RetainedImage, anyhow::Error> {
+pub(crate) fn art_from_raw(bytes: &[u8], resizer: &mut fir::Resizer) -> Result<egui_extras::RetainedImage, anyhow::Error> {
 	// `.buffer()` must be called on `fir::Image`
 	// before passing it to the next function.
 	// It's cheap, it just returns a `&[u8]`.
-	Ok(retained_load_texture(
-		color_img_to_retained(
-			rgb_bytes_to_color_img(
-				resize_dyn_image(
-					bytes_to_dyn_image(bytes)?, resizer)?.buffer()
-				)
+	Ok(color_img_to_retained(
+		rgb_bytes_to_color_img(
+			resize_dyn_image(
+				bytes_to_dyn_image(bytes)?, resizer)?.buffer()
 			)
-		, ctx)
+		)
 	)
 }
 
@@ -159,11 +158,38 @@ fn color_img_to_retained(img: egui::ColorImage) -> egui_extras::RetainedImage {
 // album art of a new `Collection`.
 // This is not acceptable.
 //
-// To prevent this, we'll call `load_texture` here so that
+// To prevent this, we'll load the textures here so that
 // `CCD` itself can load these images instead of `GUI`.
-fn retained_load_texture(retained: egui_extras::RetainedImage, ctx: &egui::Context) -> egui_extras::RetainedImage {
-	retained.load_texture(ctx);
-	retained
+//
+// FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
+// `CCD` locking `Context` to insert the textures actually freezes
+// the `GUI`, so we sleep every loop so that we don't starve reads.
+//
+// This is so bad.
+// There has to be a better way.
+// FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
+pub(super) fn alloc_textures(albums: &crate::collection::Albums, ctx: &egui::Context) {
+	// Get `Arc<RwLock<TextureManager>>`.
+	let arc = ctx.tex_manager();
+
+	// For each `Album`...
+	for album in albums.iter() {
+		// Continue only if this is a real `Art`.
+		if let crate::collection::Art::Known(art) = &album.art {
+			// Get `TextureManager`.
+			let tex_mngr = Arc::clone(&arc);
+
+			let image = egui::ImageData::Color(std::mem::take(&mut art.image.lock()));
+			let string = String::new();
+
+			// Wait 300 microseconds before locking. (aka: prevent `GUI` from reader starvation)
+			std::thread::sleep(std::time::Duration::from_micros(315));
+
+			// Allocate to `TextureManager`.
+			let tex_id = tex_mngr.write().alloc(string, image, art.options);
+			*art.texture.lock() = Some(egui::TextureHandle::new(tex_mngr, tex_id));
+		}
+	}
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
