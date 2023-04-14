@@ -11,13 +11,7 @@ use egui::{
 //----------------------------------------------------------------------------------------------------
 impl crate::data::Gui {
 #[inline(always)]
-pub fn show_tab_albums(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
-	ScrollArea::vertical().max_width(f32::INFINITY).max_height(f32::INFINITY).auto_shrink([false; 2]).show_viewport(ui, |ui, _| {
-	for album in self.collection.albums.iter() {
-		album.art_or().show_size(ui, Vec2::new(200.0, 200.0));
-	}
-	});
-
+pub fn show_tab_current_album(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
 //	ui.vertical_centered(|ui| {
 //		ui.add_space(height/40.0);
 //		ui.set_max_width(height/3.0);

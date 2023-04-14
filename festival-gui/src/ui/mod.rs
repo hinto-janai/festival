@@ -1,8 +1,11 @@
 mod artist;
 use artist::*;
 
-mod album;
-use album::*;
+mod albums;
+use albums::*;
+
+mod current;
+use current::*;
 
 mod exit;
 use exit::*;
