@@ -32,9 +32,11 @@ use benri::{
 	send,
 	flip,
 	atomic_load,
+	ok_debug,
 };
 use std::sync::Arc;
 use crate::text::*;
+use disk::Bincode;
 
 //---------------------------------------------------------------------------------------------------- Settings
 impl crate::data::Gui {
@@ -71,6 +73,11 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 
 		if ui.add_sized([width, text], save).on_hover_text(SAVE).clicked() {
 			self.set_settings();
+			// TODO: handle save error.
+			match self.settings.save_atomic() {
+				Ok(_)  => ok_debug!("GUI - Settings save"),
+				Err(e) => error!("GUI - Settings could not be saved to disk: {e}"),
+			}
 		}
 	})});
 
