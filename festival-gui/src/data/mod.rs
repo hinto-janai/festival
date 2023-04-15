@@ -1,3 +1,6 @@
+mod album;
+pub use album::*;
+
 mod state;
 pub use state::*;
 

@@ -266,8 +266,8 @@ impl Gui {
 
 		// The rest
 		let options = eframe::NativeOptions {
-			min_window_size: Some(egui::Vec2::from(APP_MIN_RESOLUTION)),
-			initial_window_size: Some(egui::Vec2::from(APP_MIN_RESOLUTION)),
+			min_window_size: Some(egui::Vec2::from(APP_RESOLUTION_MIN)),
+			initial_window_size: Some(egui::Vec2::from(APP_RESOLUTION_MIN)),
 			follow_system_theme: false,
 			default_theme: eframe::Theme::Dark,
 			renderer: eframe::Renderer::Wgpu,

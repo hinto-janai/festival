@@ -8,3 +8,4 @@ Main data definitions and initialization for GUI.
 | `settings.rs` | `Settings` struct/impl
 | `state.rs`    | `State` struct/impl
 | `file.rs`     | `RFD` thread (file picker)
+| `album.rs`    | The different methods on sizing `Album`'s in the main `Album` view

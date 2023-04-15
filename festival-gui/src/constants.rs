@@ -113,12 +113,15 @@ pub const STATE_VERSION: u8 = 1;
 pub const SETTINGS_VERSION: u8 = 1;
 
 //---------------------------------------------------------------------------------------------------- Resolution
-pub const APP_MIN_WIDTH:  f32 = 1000.0;
-pub const APP_MIN_HEIGHT: f32 = 800.0;
-pub const APP_MIN_RESOLUTION: [f32; 2] = [APP_MIN_WIDTH, APP_MIN_HEIGHT];
-pub const ALBUM_ART_MIN_SIZE: f32 = 50.0;
-pub const ALBUM_ART_MAX_SIZE: f32 = 600.0;
-pub const ALBUM_ART_DEFAULT_SIZE: f32 = 300.0;
+pub const APP_WIDTH_MIN:          f32 = 1000.0;
+pub const APP_HEIGHT_MIN:         f32 = 800.0;
+pub const APP_RESOLUTION_MIN:     [f32; 2] = [APP_WIDTH_MIN, APP_HEIGHT_MIN];
+pub const ALBUM_ART_SIZE_MIN:     f32 = 50.0;
+pub const ALBUM_ART_SIZE_MAX:     f32 = 600.0;
+pub const ALBUM_ART_SIZE_DEFAULT: f32 = 300.0;
+pub const ALBUMS_PER_ROW_MIN:      u8 = 1;
+pub const ALBUMS_PER_ROW_MAX:      u8 = 20;
+pub const ALBUMS_PER_ROW_DEFAULT:  u8 = 10;
 
 //---------------------------------------------------------------------------------------------------- Fonts
 pub const FONT_SOURCECODE_PRO: &[u8] = include_bytes!("../../assets/fonts/SourceCodePro-Regular.otf");

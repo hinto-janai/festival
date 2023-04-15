@@ -8,7 +8,7 @@ use crate::kernel::KernelState;
 /// This is the version of the `Festival`'s internals.
 ///
 /// It uses `CARGO_PKG_VERSION`, or `version` found in `Cargo.toml`.
-pub const FESTIVAL_VERSION:  &str = concat!("v", env!("CARGO_PKG_VERSION"));
+pub const FESTIVAL_VERSION: &str = concat!("v", env!("CARGO_PKG_VERSION"));
 
 /// Festival + Version
 ///
@@ -16,15 +16,15 @@ pub const FESTIVAL_VERSION:  &str = concat!("v", env!("CARGO_PKG_VERSION"));
 pub const FESTIVAL_NAME_VER: &str = concat!("Festival v", env!("CARGO_PKG_VERSION"));
 
 /// "Festival", as a `&'static str`
-pub const FESTIVAL:          &str = "Festival";
+pub const FESTIVAL: &str = "Festival";
 
 /// Current `git` commit of `festival`
-pub const COMMIT:            &str = include_str!("commit");
+pub const COMMIT: &str = include_str!("commit");
 
 /// Build profile (debug/release)
 ///
 /// This is `Debug` is `debug_assertions` is detected, else it is `Release`.
-pub const BUILD:             &str = if cfg!(debug_assertions) { "Debug" } else { "Release" };
+pub const BUILD: &str = if cfg!(debug_assertions) { "Debug" } else { "Release" };
 
 /// Copyright notice
 ///
@@ -61,7 +61,7 @@ pub const COLLECTION_VERSION: u8 = 1;
 pub const STATE_VERSION: u8 = 1;
 
 // Log messages.
-pub(crate) const OK: &str   = " ... \x1b[1;92mOK\x1b[0m";
+pub(crate) const OK:   &str = " ... \x1b[1;92mOK\x1b[0m";
 pub(crate) const SKIP: &str = " ... \x1b[1;97mSKIP\x1b[0m";
 pub(crate) const FAIL: &str = " ... \x1b[1;91mFAIL\x1b[0m";
 

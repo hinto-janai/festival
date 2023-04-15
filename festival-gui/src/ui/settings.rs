@@ -15,8 +15,13 @@ use egui::{
 };
 use crate::constants::{
 	BONE,
-	ALBUM_ART_MIN_SIZE,
-	ALBUM_ART_MAX_SIZE,
+	ALBUM_ART_SIZE_MIN,
+	ALBUM_ART_SIZE_MAX,
+	ALBUMS_PER_ROW_MIN,
+	ALBUMS_PER_ROW_MAX,
+};
+use crate::data::{
+	AlbumSizing,
 };
 use shukusai::sort::AlbumSort;
 use shukusai::kernel::{
@@ -116,12 +121,30 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 		);
 		ui.add_sized([width, text], label).on_hover_text("TODO");
 
+		// SelectableLabel.
+		ui.add_space(10.0);
+		ui.group(|ui| { ui.horizontal(|ui| {
+			let width = (width / 2.0) - 22.0;
+			if ui.add_sized([width, text], SelectableLabel::new(self.settings.album_sizing == AlbumSizing::Pixel, "Static Pixel Size")).clicked() {
+				self.settings.album_sizing = AlbumSizing::Pixel;
+			}
+			ui.separator();
+			if ui.add_sized([width, text], SelectableLabel::new(self.settings.album_sizing == AlbumSizing::Row,  "[x] Albums Per Row")).clicked() {
+				self.settings.album_sizing = AlbumSizing::Row;
+			}
+		})});
+
 		// Slider.
 		// FIXME:
 		// Same issue as above. Slider centering is pain.
 		ui.spacing_mut().slider_width = width - 75.0;
 		ui.add_space(10.0);
-		let slider = Slider::new(&mut self.settings.album_art_size, ALBUM_ART_MIN_SIZE..=ALBUM_ART_MAX_SIZE)
+		let slider = match self.settings.album_sizing {
+			AlbumSizing::Pixel => Slider::new(&mut self.settings.album_pixel_size, ALBUM_ART_SIZE_MIN..=ALBUM_ART_SIZE_MAX),
+			AlbumSizing::Row   => Slider::new(&mut self.settings.albums_per_row, ALBUMS_PER_ROW_MIN..=ALBUMS_PER_ROW_MAX),
+		};
+
+		let slider = slider
 			.step_by(1.0)
 			.thickness(text)
 			.fixed_decimals(0)

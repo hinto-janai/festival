@@ -11,7 +11,8 @@ use disk::prelude::*;
 use disk::{Bincode,bincode_file};
 use crate::constants::{
 	SETTINGS_VERSION,
-	ALBUM_ART_DEFAULT_SIZE,
+	ALBUM_ART_SIZE_DEFAULT,
+	ALBUMS_PER_ROW_DEFAULT,
 	ACCENT_COLOR,
 	VISUALS,
 };
@@ -25,6 +26,7 @@ use shukusai::collection::{
 use shukusai::sort::{
 	AlbumSort,
 };
+use super::AlbumSizing;
 
 //---------------------------------------------------------------------------------------------------- Settings
 bincode_file!(Settings, Dir::Data, FESTIVAL, "gui", "settings", FESTIVAL_HEADER, SETTINGS_VERSION);
@@ -40,8 +42,11 @@ pub struct Settings {
 	/// Collection sorting of album view.
 	pub sort_order: AlbumSort,
 
-	/// Static pixel width/height for each album cover.
-	pub album_art_size: f32,
+	/// Does the user want a certain amount of
+	//// `Album`'s per row or a static pixel size?
+	pub album_sizing: AlbumSizing,
+	pub album_pixel_size: f32,
+	pub albums_per_row: u8,
 
 	/// Restore playback on re-open.
 	pub restore_state: bool,
@@ -65,8 +70,9 @@ impl Settings {
 		Self {
 			accent_color: ACCENT_COLOR,
 			restore_state: true,
-			album_art_size: ALBUM_ART_DEFAULT_SIZE,
 			collection_paths: vec![],
+			album_pixel_size: ALBUM_ART_SIZE_DEFAULT,
+			albums_per_row: ALBUMS_PER_ROW_DEFAULT,
 			..Default::default()
 		}
 	}

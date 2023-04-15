@@ -11,7 +11,7 @@ use disk::{Bincode,bincode_file};
 //use disk::{Toml,toml_file};
 use crate::constants::{
 	STATE_VERSION,
-	ALBUM_ART_DEFAULT_SIZE,
+	ALBUM_ART_SIZE_DEFAULT,
 };
 use shukusai::{
 	FESTIVAL,
