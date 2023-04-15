@@ -48,6 +48,7 @@ use rolock::RoLock;
 use disk::Toml;
 use disk::Bincode;
 use std::time::Instant;
+use super::AlbumSizing;
 
 //---------------------------------------------------------------------------------------------------- GUI struct. This hold ALL data.
 pub struct Gui {
@@ -175,6 +176,76 @@ impl Gui {
 		self.format_count_assign();
 	}
 
+	/// Increments the [`Album`] art size.
+	///
+	/// - If `AlbumSizing::Pixel`, increment by `1.0`
+	/// - If `AlbumSizing::Row`, increment by `1`
+	///
+	/// If over the max, this function does nothing.
+	///
+	/// If close to the max, this sets `self` to the max.
+	pub fn increment_art_size(&mut self) {
+		match self.settings.album_sizing {
+			AlbumSizing::Pixel => {
+				let new = self.settings.album_pixel_size + 1.0;
+				if new > ALBUM_ART_SIZE_MAX + 1.0 {
+					self.settings.album_pixel_size = ALBUM_ART_SIZE_MAX;
+				} else {
+					self.settings.album_pixel_size = new;
+				}
+			},
+			AlbumSizing::Row => {
+				let new = self.settings.albums_per_row + 1;
+				if new > ALBUMS_PER_ROW_MAX {
+					self.settings.albums_per_row = ALBUMS_PER_ROW_MAX;
+				} else {
+					self.settings.albums_per_row = new;
+				}
+			},
+		}
+	}
+
+	/// Decrements the [`Album`] art size.
+	///
+	/// - If `AlbumSizing::Pixel`, decrement by `1.0`
+	/// - If `AlbumSizing::Row`, decrement by `1`
+	///
+	/// If at the minimum, this function does nothing.
+	pub fn decrement_art_size(&mut self) {
+		match self.settings.album_sizing {
+			AlbumSizing::Pixel => {
+				let new = self.settings.album_pixel_size - 1.0;
+				if new < ALBUM_ART_SIZE_MIN - 1.0 {
+					self.settings.album_pixel_size = ALBUM_ART_SIZE_MIN;
+				} else {
+					self.settings.album_pixel_size = new;
+				}
+			},
+			AlbumSizing::Row => {
+				let new = self.settings.albums_per_row - 1;
+				if new >= ALBUMS_PER_ROW_MIN {
+					self.settings.albums_per_row = new;
+				}
+			},
+		}
+	}
+
+	/// Returns true if the current setting `<=` the minimum size.
+	pub fn album_size_is_min(&self) -> bool {
+		match self.settings.album_sizing {
+			AlbumSizing::Pixel => self.settings.album_pixel_size <= ALBUM_ART_SIZE_MIN,
+			AlbumSizing::Row => self.settings.albums_per_row <= ALBUMS_PER_ROW_MIN,
+		}
+	}
+
+	/// Returns true if the current setting `>=` the maximum size.
+	pub fn album_size_is_max(&self) -> bool {
+		match self.settings.album_sizing {
+			AlbumSizing::Pixel => self.settings.album_pixel_size >= ALBUM_ART_SIZE_MAX,
+			AlbumSizing::Row => self.settings.albums_per_row >= ALBUMS_PER_ROW_MAX,
+		}
+	}
+
 	#[inline(always)]
 	/// Copies the data from our current [`Collection`],
 	/// formats it, and assigns it to [`Self`]'s `count_*` fields.
@@ -201,6 +272,7 @@ impl Gui {
 				(TextStyle::Monospace, FontId::new(20.0, FontFamily::Monospace)),
 				(TextStyle::Heading,   FontId::new(40.0, FontFamily::Monospace)),
 			].into(),
+			spacing: SPACING.clone(),
 			..Default::default()
 		};
 
@@ -266,8 +338,8 @@ impl Gui {
 
 		// The rest
 		let options = eframe::NativeOptions {
-			min_window_size: Some(egui::Vec2::from(APP_RESOLUTION_MIN)),
-			initial_window_size: Some(egui::Vec2::from(APP_RESOLUTION_MIN)),
+			min_window_size: Some(egui::vec2(APP_RESOLUTION_MIN[0], APP_RESOLUTION_MIN[1])),
+			initial_window_size: Some(egui::vec2(APP_RESOLUTION_MIN[0], APP_RESOLUTION_MIN[1])),
 			follow_system_theme: false,
 			default_theme: eframe::Theme::Dark,
 			renderer: eframe::Renderer::Wgpu,

@@ -8,6 +8,7 @@ use egui::epaint::{
 use egui::{
 	Color32,
 	Visuals,
+	style::Spacing,
 };
 
 use egui::style::{
@@ -32,7 +33,7 @@ lazy_static::lazy_static! {
 				bg_fill:      Color32::from_gray(27),
 				bg_stroke:    Stroke::new(1.0, Color32::from_gray(60)), // separators, indentation lines
 				fg_stroke:    Stroke::new(1.0, Color32::from_gray(140)), // normal text color
-				rounding:     Rounding::same(2.0),
+				rounding:     Rounding::same(10.0),
 				expansion:    0.0,
 			},
 			inactive: WidgetVisuals {
@@ -42,15 +43,15 @@ lazy_static::lazy_static! {
 //				bg_fill:      Color32::from_gray(60),      // checkbox background
 				bg_stroke:    Default::default(),
 				fg_stroke:    Stroke::new(1.0, Color32::from_gray(180)), // button text
-				rounding:     Rounding::same(2.0),
+				rounding:     Rounding::same(10.0),
 				expansion:    0.0,
 			},
 			hovered: WidgetVisuals {
-				weak_bg_fill: Color32::from_gray(70),
-				bg_fill:      Color32::from_gray(70),
+				weak_bg_fill: Color32::from_gray(80),
+				bg_fill:      Color32::from_gray(80),
 				bg_stroke:    Stroke::new(1.0, Color32::from_gray(150)), // e.g. hover over window edge or button
 				fg_stroke:    Stroke::new(1.5, Color32::from_gray(240)),
-				rounding:     Rounding::same(3.0),
+				rounding:     Rounding::same(10.0),
 				expansion:    1.0,
 			},
 			active: WidgetVisuals {
@@ -58,7 +59,7 @@ lazy_static::lazy_static! {
 				bg_fill:      Color32::from_gray(55),
 				bg_stroke:    Stroke::new(1.0, Color32::WHITE),
 				fg_stroke:    Stroke::new(2.0, Color32::WHITE),
-				rounding:     Rounding::same(2.0),
+				rounding:     Rounding::same(10.0),
 				expansion:    1.0,
 			},
 			open: WidgetVisuals {
@@ -66,7 +67,7 @@ lazy_static::lazy_static! {
 				bg_fill:      Color32::from_gray(27),
 				bg_stroke:    Stroke::new(1.0, Color32::from_gray(60)),
 				fg_stroke:    Stroke::new(1.0, Color32::from_gray(210)),
-				rounding:     Rounding::same(2.0),
+				rounding:     Rounding::same(10.0),
 				expansion:    0.0,
 			},
 		};
@@ -105,6 +106,14 @@ lazy_static::lazy_static! {
 // Pinkish red.
 pub const ACCENT_COLOR: Color32 = Color32::from_rgb(200, 100, 100);
 
+//---------------------------------------------------------------------------------------------------- `egui` Spacing
+lazy_static::lazy_static! {
+	pub static ref SPACING: Spacing = Spacing {
+		scroll_bar_width: 12.5,
+		..Default::default()
+	};
+}
+
 //---------------------------------------------------------------------------------------------------- Version
 /// Current major version of `State`
 pub const STATE_VERSION: u8 = 1;
@@ -121,7 +130,7 @@ pub const ALBUM_ART_SIZE_MAX:     f32 = 600.0;
 pub const ALBUM_ART_SIZE_DEFAULT: f32 = 300.0;
 pub const ALBUMS_PER_ROW_MIN:      u8 = 1;
 pub const ALBUMS_PER_ROW_MAX:      u8 = 20;
-pub const ALBUMS_PER_ROW_DEFAULT:  u8 = 10;
+pub const ALBUMS_PER_ROW_DEFAULT:  u8 = 5;
 
 //---------------------------------------------------------------------------------------------------- Fonts
 pub const FONT_SOURCECODE_PRO: &[u8] = include_bytes!("../../assets/fonts/SourceCodePro-Regular.otf");

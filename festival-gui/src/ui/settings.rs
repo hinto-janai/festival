@@ -34,6 +34,7 @@ use benri::{
 	atomic_load,
 };
 use std::sync::Arc;
+use crate::text::*;
 
 //---------------------------------------------------------------------------------------------------- Settings
 impl crate::data::Gui {
@@ -64,11 +65,11 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 
 		ui.set_enabled(self.diff_settings());
 
-		if ui.add_sized([width, text], reset).on_hover_text("TODO").clicked() {
+		if ui.add_sized([width, text], reset).on_hover_text(RESET).clicked() {
 			self.reset_settings();
 		}
 
-		if ui.add_sized([width, text], save).on_hover_text("TODO").clicked() {
+		if ui.add_sized([width, text], save).on_hover_text(SAVE).clicked() {
 			self.set_settings();
 		}
 	})});
@@ -92,13 +93,13 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 			.color(BONE)
 			.text_style(TextStyle::Heading)
 		);
-		ui.add_sized([width, text], label).on_hover_text("TODO");
+		ui.add_sized([width, text], label).on_hover_text(ALBUM_SORT_ORDER);
 
 		// ComboBox.
 		// FIXME:
 		// Trying to center `ComboBox` uncovers all sorts
 		// of `egui` bugs, so instead, just make it max width.
-		ui.spacing_mut().combo_width = width - 10.0;
+		ui.spacing_mut().combo_width = width - 15.0;
 		ui.spacing_mut().icon_width = height / 15.0;
 		ui.add_space(10.0);
 		ComboBox::from_id_source("sort_order").selected_text(RichText::new(self.settings.sort_order.as_str()).color(BONE)).show_ui(ui, |ui| {
@@ -119,17 +120,21 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 			.color(BONE)
 			.text_style(TextStyle::Heading)
 		);
-		ui.add_sized([width, text], label).on_hover_text("TODO");
+		ui.add_sized([width, text], label).on_hover_text(ALBUM_ART_SIZE);
 
 		// SelectableLabel.
 		ui.add_space(10.0);
 		ui.group(|ui| { ui.horizontal(|ui| {
-			let width = (width / 2.0) - 22.0;
-			if ui.add_sized([width, text], SelectableLabel::new(self.settings.album_sizing == AlbumSizing::Pixel, "Static Pixel Size")).clicked() {
+			let width = (width / 2.0) - 25.0;
+			if ui.add_sized([width, text], SelectableLabel::new(self.settings.album_sizing == AlbumSizing::Pixel, "Static Pixel Size"))
+				.on_hover_text(STATIC_PIXEL_SIZE).clicked()
+			{
 				self.settings.album_sizing = AlbumSizing::Pixel;
 			}
 			ui.separator();
-			if ui.add_sized([width, text], SelectableLabel::new(self.settings.album_sizing == AlbumSizing::Row,  "[x] Albums Per Row")).clicked() {
+			if ui.add_sized([width, text], SelectableLabel::new(self.settings.album_sizing == AlbumSizing::Row,  "[x] Albums Per Row"))
+				.on_hover_text(ALBUM_PER_ROW).clicked()
+			{
 				self.settings.album_sizing = AlbumSizing::Row;
 			}
 		})});
@@ -139,9 +144,15 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 		// Same issue as above. Slider centering is pain.
 		ui.spacing_mut().slider_width = width - 75.0;
 		ui.add_space(10.0);
-		let slider = match self.settings.album_sizing {
-			AlbumSizing::Pixel => Slider::new(&mut self.settings.album_pixel_size, ALBUM_ART_SIZE_MIN..=ALBUM_ART_SIZE_MAX),
-			AlbumSizing::Row   => Slider::new(&mut self.settings.albums_per_row, ALBUMS_PER_ROW_MIN..=ALBUMS_PER_ROW_MAX),
+		let (slider, hover) = match self.settings.album_sizing {
+			AlbumSizing::Pixel => {
+				let size = self.settings.album_pixel_size;
+				(Slider::new(&mut self.settings.album_pixel_size, ALBUM_ART_SIZE_MIN..=ALBUM_ART_SIZE_MAX), format!("{0}x{0} album art pixel size", size))
+			},
+			AlbumSizing::Row => {
+				let size = self.settings.albums_per_row;
+				(Slider::new(&mut self.settings.albums_per_row, ALBUMS_PER_ROW_MIN..=ALBUMS_PER_ROW_MAX), format!("{} albums per row", size))
+			},
 		};
 
 		let slider = slider
@@ -149,7 +160,7 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 			.thickness(text)
 			.fixed_decimals(0)
 			.trailing_fill(false);
-		ui.add_sized([width, text], slider).on_hover_text("TODO");
+		ui.add_sized([width, text], slider).on_hover_text(hover);
 
 		ui.add_space(60.0);
 		ui.separator();
@@ -162,12 +173,12 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 			.color(BONE)
 			.text_style(TextStyle::Heading)
 		);
-		ui.add_sized([width, text], label).on_hover_text("TODO");
+		ui.add_sized([width, text], label).on_hover_text(RESTORE_STATE);
 
 		// SelectableLabel.
 		ui.add_space(10.0);
 		ui.group(|ui| { ui.horizontal(|ui| {
-			let width = (width / 2.0) - 22.0;
+			let width = (width / 2.0) - 25.0;
 			if ui.add_sized([width, text], SelectableLabel::new(!self.settings.restore_state, "No")).clicked()  { flip!(self.settings.restore_state); }
 			ui.separator();
 			if ui.add_sized([width, text], SelectableLabel::new(self.settings.restore_state,  "Yes")).clicked() { flip!(self.settings.restore_state); }
@@ -184,10 +195,10 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 			.color(BONE)
 			.text_style(TextStyle::Heading)
 		);
-		ui.add_sized([width, text], label).on_hover_text("TODO");
+		ui.add_sized([width, text], label).on_hover_text(ACCENT_COLOR);
 
 		// Color picker.
-		ui.spacing_mut().interact_size = egui::Vec2::new(width - 10.0, text);
+		ui.spacing_mut().interact_size = egui::vec2(width - 15.0, text);
 		egui::widgets::color_picker::color_edit_button_srgba(
 			ui,
 			&mut self.settings.accent_color,
@@ -205,7 +216,7 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 			.color(BONE)
 			.text_style(TextStyle::Heading)
 		);
-		ui.add_sized([width, text], label).on_hover_text("TODO");
+		ui.add_sized([width, text], label).on_hover_text(COLLECTION);
 
 		// Add folder (max 10).
 		let collection_paths_len = self.settings.collection_paths.len();
@@ -213,7 +224,7 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 		ui.scope(|ui| {
 			ui.set_enabled(collection_paths_len < 10);
 
-			if ui.add_sized([width - 10.0, text], Button::new("Add folder")).on_hover_text("Add a maximum of 10 folders").clicked() {
+			if ui.add_sized([width - 15.0, text], Button::new("Add folder")).on_hover_text(ADD_FOLDER).clicked() {
 				if atomic_load!(self.rfd_open) {
 					warn!("GUI - Add folder button pressed, but RFD is already open");
 				} else {
@@ -234,7 +245,7 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 				let width = width / 20.0;
 
 				// Delete button.
-				if ui.add_sized([width, text], Button::new("-")).on_hover_text("Remove this folder").clicked() {
+				if ui.add_sized([width, text], Button::new("-")).on_hover_text(REMOVE_FOLDER).clicked() {
 					self.deleted_paths.push(i);
 				}
 
@@ -261,7 +272,7 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 		ui.scope(|ui| {
 			ui.set_enabled(collection_paths_len > 0 && !self.resetting_collection);
 
-			if ui.add_sized([width - 10.0, text], Button::new("Reset Collection")).on_hover_text("Scan the folders listed and create a new Collection").clicked() {
+			if ui.add_sized([width - 15.0, text], Button::new("Reset Collection")).on_hover_text(RESET_COLLECTION).clicked() {
 				// Drop our real `Collection`.
 				self.collection = Collection::dummy();
 
@@ -285,7 +296,7 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 			.color(BONE)
 			.text_style(TextStyle::Heading)
 		);
-		ui.add_sized([width, text], label).on_hover_text("TODO");
+		ui.add_sized([width, text], label).on_hover_text(STATS);
 
 		// Stats.
 		ui.add_sized([width, text], Label::new(&self.count_artist));

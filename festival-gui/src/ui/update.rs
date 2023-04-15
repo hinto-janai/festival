@@ -43,6 +43,7 @@ use std::sync::Arc;
 use crate::constants::{
 	VISUALS,
 };
+use crate::text::*;
 
 //---------------------------------------------------------------------------------------------------- `GUI`'s eframe impl.
 impl eframe::App for Gui {
@@ -229,12 +230,32 @@ fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f
 		ui.vertical_centered_justified(|ui| {
 
 			// Display `SelectableLabel` for each `Tab`.
+			ui.add_space(2.5);
 			for tab in Tab::iter() {
 				if ui.add_sized([tab_width, tab_height], SelectableLabel::new(self.state.tab == *tab, tab.as_str())).clicked() {
 					self.state.tab = *tab;
 				}
 				ui.separator();
 			}
+
+			// Album art size.
+			ui.horizontal(|ui| { ui.group(|ui| {
+				let width  = (tab_width / 2.0) - 5.0;
+				let height = tab_height / 2.0;
+				ui.scope(|ui| {
+					ui.set_enabled(!self.album_size_is_min());
+					if ui.add_sized([width, tab_height], Button::new("-")).on_hover_text(DECREMENT_ALBUM_SIZE).clicked() {
+						self.decrement_art_size();
+					}
+				});
+				ui.separator();
+				ui.scope(|ui| {
+					ui.set_enabled(!self.album_size_is_max());
+					if ui.add_sized([width, tab_height], Button::new("+")).on_hover_text(INCREMENT_ALBUM_SIZE).clicked() {
+						self.increment_art_size();
+					}
+				});
+			})});
 
 			// Volume slider
 			let slider_height = ui.available_height() - 20.0;
@@ -254,7 +275,7 @@ fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f
 					.vertical()
 					.thickness(unit*2.0)
 					.circle_size(unit)
-				);
+				).on_hover_text(VOLUME_SLIDER);
 			});
 		});
 	});
