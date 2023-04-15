@@ -240,7 +240,7 @@ fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f
 
 			// Album art size.
 			ui.horizontal(|ui| { ui.group(|ui| {
-				let width  = (tab_width / 2.0) - 5.0;
+				let width  = (ui.available_width() / 2.0) - 10.0;
 				let height = tab_height / 2.0;
 				ui.scope(|ui| {
 					ui.set_enabled(!self.album_size_is_min());
