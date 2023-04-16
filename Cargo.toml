@@ -65,6 +65,7 @@ path = "festival-cli/src/main.rs"
 doc = false
 
 [profile.release]
+panic = "abort"
 debug = false
 strip = "symbols"
 codegen-units = 1

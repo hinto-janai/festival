@@ -1,12 +1,12 @@
 [submodule "external/egui"]
 	path = external/egui
-	url = git@github.com:hinto-janaiyo/egui.git
+	url = https://github.com/hinto-janaiyo/egui.git
 [submodule "external/fast_image_resize"]
 	path = external/fast_image_resize
-	url = git@github.com:hinto-janaiyo/fast_image_resize.git
+	url = https://github.com:/hinto-janaiyo/fast_image_resize.git
 [submodule "external/image"]
 	path = external/image
-	url = git@github.com:hinto-janaiyo/image.git
+	url = https://github.com:/hinto-janaiyo/image.git
 [submodule "lofty-rs"]
 	path = external/lofty-rs
-	url = git@github.com:hinto-janai/lofty-rs.git
+	url = https://github.com:/hinto-janai/lofty-rs.git
