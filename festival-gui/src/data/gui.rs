@@ -80,6 +80,12 @@ pub struct Gui {
 	/// A buffer of the indicies of the PATHs the user wants deleted.
 	pub deleted_paths: Vec<usize>,
 
+	// Search state.
+	/// If we're currently searching.
+	pub searching: bool,
+	/// Our current search input.
+	pub search_string: String,
+
 	// Local cached variables.
 	/// A cached, formatted version of [`Collection::count_artist`]
 	pub count_artist: String,
@@ -393,6 +399,10 @@ impl Gui {
 			rfd_open: Arc::new(AtomicBool::new(false)),
 			rfd_new: Arc::new(Mutex::new(None)),
 			deleted_paths: vec![],
+
+			// Search state.
+			searching: false,
+			search_string: String::new(),
 
 			// Local cache.
 			count_artist: "Artists: 0".to_string(),
