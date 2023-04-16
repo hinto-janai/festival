@@ -210,6 +210,20 @@ impl Keychain {
 			songs,
 		}
 	}
+
+	#[inline(always)]
+	/// Returns `true` if all inner [`Vec`]'s are empty.
+	pub fn is_empty(&self) -> bool {
+		self.artists.is_empty() && self.albums.is_empty() && self.songs.is_empty()
+	}
+
+	#[inline(always)]
+	/// [`Vec::clear`] all inner [`Vec`]'s.
+	pub fn clear(&mut self) {
+		self.artists.clear();
+		self.albums.clear();
+		self.songs.clear();
+	}
 }
 
 //---------------------------------------------------------------------------------------------------- ArtistKey
