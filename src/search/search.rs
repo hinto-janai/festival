@@ -59,20 +59,32 @@ impl Search {
 			return v.clone()
 		}
 
-		// Search and collect results.
-		let mut artists: Vec<(f64, ArtistKey)> = self.collection.artists.iter().enumerate().map(|(i, x)| (strsim::jaro(&x.name, &input), ArtistKey::from(i))).collect();
-		let mut albums:  Vec<(f64, AlbumKey)>  = self.collection.albums.iter().enumerate().map(|(i, x)| (strsim::jaro(&x.title, &input), AlbumKey::from(i))).collect();
-		let mut songs:   Vec<(f64, SongKey)>   = self.collection.songs.iter().enumerate().map(|(i, x)| (strsim::jaro(&x.title, &input), SongKey::from(i))).collect();
+		// Convert input to lowercase.
+		let input = input.to_ascii_lowercase();
 
-		// Sort by highest similarity value first.
+		// Search and collect results.
+		let mut artists: Vec<(f64, ArtistKey)> = self.collection.artists
+			.iter()
+			.enumerate()
+			.map(|(i, x)| (strsim::jaro(&x.name.to_ascii_lowercase(), &input), ArtistKey::from(i))).collect();
+		let mut albums:  Vec<(f64, AlbumKey)> = self.collection.albums
+			.iter()
+			.enumerate()
+			.map(|(i, x)| (strsim::jaro(&x.title.to_ascii_lowercase(), &input), AlbumKey::from(i))).collect();
+		let mut songs:   Vec<(f64, SongKey)>  = self.collection.songs
+			.iter()
+			.enumerate()
+			.map(|(i, x)| (strsim::jaro(&x.title.to_ascii_lowercase(), &input), SongKey::from(i))).collect();
+
+		// Sort by lowest-to-highest similarity value first.
 		artists.sort_by(|a, b| Self::cmp_f64(&a.0, &b.0));
 		albums.sort_by(|a, b| Self::cmp_f64(&a.0, &b.0));
 		songs.sort_by(|a, b| Self::cmp_f64(&a.0, &b.0));
 
-		// Collect just the Keys.
-		let artists: Vec<ArtistKey> = artists.iter().map(|tuple| tuple.1).collect();
-		let albums:  Vec<AlbumKey>  = albums.iter().map(|tuple| tuple.1).collect();
-		let songs:   Vec<SongKey>   = songs.iter().map(|tuple| tuple.1).collect();
+		// Collect just the Keys (reverse, highest sim first).
+		let artists: Vec<ArtistKey> = artists.iter().rev().map(|tuple| tuple.1).collect();
+		let albums:  Vec<AlbumKey>  = albums.iter().rev().map(|tuple| tuple.1).collect();
+		let songs:   Vec<SongKey>   = songs.iter().rev().map(|tuple| tuple.1).collect();
 
 		// Create keychain.
 		let keychain = Keychain::from_vecs(artists, albums, songs);
