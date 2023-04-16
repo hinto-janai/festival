@@ -86,6 +86,7 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 
 	//-------------------------------------------------- Main ScrollArea.
 	let scroll_area = ScrollArea::vertical()
+		.id_source("Settings")
 		.always_show_scroll(true)
 		.max_width(f32::INFINITY)
 		.max_height(f32::INFINITY)

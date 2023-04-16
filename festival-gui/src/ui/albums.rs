@@ -25,7 +25,7 @@ pub fn show_tab_albums(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame:
 	//---------------------------------------------------------------------------------------------------- If `AlbumSizing::Pixel`
 	if let AlbumSizing::Pixel = self.settings.album_sizing {
 
-	ScrollArea::vertical().max_width(f32::INFINITY).max_height(f32::INFINITY).auto_shrink([false; 2]).show_viewport(ui, |ui, _| {
+	ScrollArea::vertical().id_source("AlbumPixel").max_width(f32::INFINITY).max_height(f32::INFINITY).auto_shrink([false; 2]).show_viewport(ui, |ui, _| {
 		// Get width.
 		let width = ui.available_width();
 
@@ -62,7 +62,7 @@ pub fn show_tab_albums(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame:
 	//---------------------------------------------------------------------------------------------------- If `AlbumSizing::Row`
 	if let AlbumSizing::Row = self.settings.album_sizing {
 
-	ScrollArea::vertical().max_width(f32::INFINITY).max_height(f32::INFINITY).auto_shrink([false; 2]).show_viewport(ui, |ui, _| {
+	ScrollArea::vertical().id_source("AlbumRow").max_width(f32::INFINITY).max_height(f32::INFINITY).auto_shrink([false; 2]).show_viewport(ui, |ui, _| {
 		// Get width.
 		let width = ui.available_width();
 

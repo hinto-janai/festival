@@ -98,6 +98,10 @@ impl eframe::App for Gui {
 				NewKernelState(k)      => self.kernel_state = k,
 				NewResetState(r)      => self.reset_state = r,
 				Failed((old_collection, error_string)) => println!("failed"),
+				SearchSim(keychain) => {
+					self.search_result = keychain;
+					self.searching     = false;
+				},
 				_ => todo!(),
 			}
 		}
@@ -238,24 +242,26 @@ fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f
 				ui.separator();
 			}
 
-			// Album art size.
-			ui.horizontal(|ui| { ui.group(|ui| {
-				let width  = (ui.available_width() / 2.0) - 10.0;
-				let height = tab_height / 2.0;
-				ui.scope(|ui| {
-					ui.set_enabled(!self.album_size_is_min());
-					if ui.add_sized([width, tab_height], Button::new("-")).on_hover_text(DECREMENT_ALBUM_SIZE).clicked() {
-						self.decrement_art_size();
-					}
-				});
-				ui.separator();
-				ui.scope(|ui| {
-					ui.set_enabled(!self.album_size_is_max());
-					if ui.add_sized([width, tab_height], Button::new("+")).on_hover_text(INCREMENT_ALBUM_SIZE).clicked() {
-						self.increment_art_size();
-					}
-				});
-			})});
+			// Album art size (only on `Albums` tab)
+			if self.state.tab == Tab::Albums {
+				ui.horizontal(|ui| { ui.group(|ui| {
+					let width  = (ui.available_width() / 2.0) - 10.0;
+					let height = tab_height / 2.0;
+					ui.scope(|ui| {
+						ui.set_enabled(!self.album_size_is_min());
+						if ui.add_sized([width, tab_height], Button::new("-")).on_hover_text(DECREMENT_ALBUM_SIZE).clicked() {
+							self.decrement_art_size();
+						}
+					});
+					ui.separator();
+					ui.scope(|ui| {
+						ui.set_enabled(!self.album_size_is_max());
+						if ui.add_sized([width, tab_height], Button::new("+")).on_hover_text(INCREMENT_ALBUM_SIZE).clicked() {
+							self.increment_art_size();
+						}
+					});
+				})});
+			}
 
 			// Volume slider
 			let slider_height = ui.available_height() - 20.0;

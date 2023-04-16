@@ -19,6 +19,9 @@ use shukusai::kernel::{
 use shukusai::collection::{
 	Collection,
 };
+use shukusai::key::{
+	Keychain,
+};
 use shukusai::sort::{
 };
 use benri::{
@@ -85,6 +88,8 @@ pub struct Gui {
 	pub searching: bool,
 	/// Our current search input.
 	pub search_string: String,
+	/// The search result [`Keychain`] we got from `Kernel`.
+	pub search_result: Keychain,
 
 	// Local cached variables.
 	/// A cached, formatted version of [`Collection::count_artist`]
@@ -403,6 +408,7 @@ impl Gui {
 			// Search state.
 			searching: false,
 			search_string: String::new(),
+			search_result: Keychain::new(),
 
 			// Local cache.
 			count_artist: "Artists: 0".to_string(),
