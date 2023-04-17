@@ -97,6 +97,12 @@ impl Album {
 	pub fn art(&self) -> Option<&egui_extras::RetainedImage> {
 		self.art.get()
 	}
+
+	#[inline]
+	/// Calls [`egui::extras::texture_id`].
+	pub fn texture_id(&self, ctx: &egui::Context) -> egui::TextureId {
+		self.art.texture_id(ctx)
+	}
 }
 
 //impl Default for Album {

@@ -7,6 +7,7 @@
 //use disk::{};
 //use std::{};
 //use std::sync::{Arc,Mutex,RwLock};
+use egui::TextureId;
 use egui_extras::image::RetainedImage;
 use super::Album;
 
@@ -58,6 +59,15 @@ impl Art {
 		match self {
 			Self::Known(art) => Some(art),
 			Self::Unknown    => None,
+		}
+	}
+
+	#[inline]
+	/// Calls [`egui::extras::texture_id`].
+	pub(crate) fn texture_id(&self, ctx: &egui::Context) -> egui::TextureId {
+		match self {
+			Self::Known(a) => a.texture_id(ctx),
+			Self::Unknown  => UNKNOWN_ALBUM.texture_id(ctx),
 		}
 	}
 }
