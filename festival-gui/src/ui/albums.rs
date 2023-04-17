@@ -4,10 +4,12 @@
 //use serde::{Serialize,Deserialize};
 use egui::{
 	Rounding,Vec2,Color32,Stroke,
-	ScrollArea,Frame,
-	SelectableLabel,Label,
+	ScrollArea,Frame,RichText,
+	SelectableLabel,Label,Button,
+	ImageButton,
 };
 use crate::data::AlbumSizing;
+use crate::ui::Tab;
 
 //----------------------------------------------------------------------------------------------------
 impl crate::data::Gui {
@@ -22,6 +24,16 @@ pub fn show_tab_albums(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame:
 		.iter()
 		.peekable();
 
+	{
+		// Reduce rounding corners.
+		let widgets = &mut ui.visuals_mut().widgets;
+		widgets.hovered.rounding  = egui::Rounding::none();
+		widgets.inactive.rounding = egui::Rounding::none();
+		widgets.active.rounding   = egui::Rounding::none();
+		// Reduced padding.
+		ui.spacing_mut().button_padding.x -= 2.0;
+	}
+
 	//---------------------------------------------------------------------------------------------------- If `AlbumSizing::Pixel`
 	if let AlbumSizing::Pixel = self.settings.album_sizing {
 
@@ -34,8 +46,8 @@ pub fn show_tab_albums(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame:
 
 		// How many `Album`'s can fit in one row?
 		let album_width = width / pixel;
-		// Account for separation space (10.0).
-		let pixel = pixel - 10.0;
+		// Account for separation space and padding.
+		let pixel = pixel - 13.0;
 
 		// How many rows?
 		let rows = (self.collection.count_album.inner() as f32 / album_width).ceil() as usize;
@@ -72,8 +84,8 @@ pub fn show_tab_albums(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame:
 		// How many pixels per `Album`'s in one row? (rounded down)
 		let per_f32 = per as f32;
 		let per_width = width / per_f32;
-		// Account for separation space.
-		let per_width = per_width - 10.0;
+		// Account for separation space and padding.
+		let per_width = per_width - 13.0;
 
 		// How many rows?
 		let rows = (self.collection.count_album.inner() as f32 / per_f32).ceil() as usize;
@@ -85,7 +97,17 @@ pub fn show_tab_albums(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame:
 				// Paint as many `Album`'s that can fit.
 				for _ in 0..per {
 					match iter.next() {
-						Some(key) => self.collection.albums[key].art_or().show_size(ui, egui::vec2(per_width, per_width)),
+						Some(key) => {
+							// ImageButton.
+							let img_button = ImageButton::new(self.collection.albums[key].texture_id(ctx), egui::vec2(per_width, per_width));
+
+							if ui.add(img_button).clicked() {
+								// Can't do this due to `&` + `&mut` rules.
+//								self.set_album_tab_view(*key);
+								self.state.album = Some(*key);
+								self.state.tab   = Tab::View;
+							}
+						},
 
 						// We're at the end, no more `Album`'s left.
 						None => break,

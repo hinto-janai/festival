@@ -4,9 +4,6 @@ use artist::*;
 mod albums;
 use albums::*;
 
-mod current;
-use current::*;
-
 mod exit;
 use exit::*;
 
@@ -27,3 +24,6 @@ use update::*;
 
 mod queue;
 use queue::*;
+
+mod view;
+use view::*;

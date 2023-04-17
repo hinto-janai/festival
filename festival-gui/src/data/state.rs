@@ -50,7 +50,7 @@ pub struct State {
 	///
 	/// This doesn't necessarily mean we're listening to _this_
 	/// [`Album`], but rather, it means _this_ is the [`Album`]
-	/// that the user is looking at right now.
+	/// that the user will see when clicking the `Album` tab.
 	///
 	/// [`Option::None`] indicates we aren't looking at
 	/// any [`Album`] and are in the full [`Album`] art view.

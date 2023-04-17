@@ -117,7 +117,7 @@ impl eframe::App for Gui {
 			// when exiting really quickly, rack up enough
 			// time (100ms) before showing the spinner.
 			if self.exit_instant.elapsed().as_secs_f32() > 0.1 {
-				Self::show_exit_spinner(self, ctx, frame, width, height);
+				self.show_exit_spinner(ctx, frame, width, height);
 				return;
 			}
 		}
@@ -125,7 +125,7 @@ impl eframe::App for Gui {
 		// If resetting the `Collection`,
 		// show fullscreen spinner with info.
 		if self.resetting_collection {
-			Self::show_resetting_collection(self, ctx, frame, width, height);
+			self.show_resetting_collection(ctx, frame, width, height);
 			return;
 		}
 
@@ -162,18 +162,18 @@ impl eframe::App for Gui {
 		let side_panel_height   = height - (bottom_panel_height*2.0);
 
 		// Bottom Panel
-		Self::show_bottom(self, ctx, frame, width, bottom_panel_height);
+		self.show_bottom(ctx, frame, width, bottom_panel_height);
 
 		// Left Panel
-		Self::show_left(self, ctx, frame, side_panel_width, side_panel_height);
+		self.show_left(ctx, frame, side_panel_width, side_panel_height);
 
-		// Right Panel (only if viewing an album)
-		if let Some(album_key) = self.state.album {
-			Self::show_right(self, album_key, ctx, frame, side_panel_width, side_panel_height);
+		// If `Tab::View`, show right panel.
+		if self.state.tab == Tab::View {
+			self.show_tab_view_right_panel(self.state.album.unwrap(), ctx, frame, side_panel_width, height);
 		}
 
 		// Central Panel
-		Self::show_central(self, ctx, frame, width, height);
+		self.show_central(ctx, frame, width, height, side_panel_width, side_panel_height);
 	}
 }
 
@@ -227,7 +227,7 @@ fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f
 
 		// Size definitions of the elements within the left panel.
 		let half_height = height / 2.0;
-		let tab_height  = half_height / 6.0;
+		let tab_height  = half_height / 8.0;
 		let tab_width   = width / 1.2;
 
 		// Main UI
@@ -287,93 +287,22 @@ fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f
 	});
 }}
 
-//---------------------------------------------------------------------------------------------------- Right Panel
-impl Gui {
-#[inline(always)]
-fn show_right(&mut self, album_key: AlbumKey, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
-	SidePanel::right("right").resizable(false).show(ctx, |ui| {
-		self.set_visuals(ui);
-		ui.set_width(width);
-
-		// The scrollable section to the RIGHT side of an album.
-		//
-		// We only show this if the user has an album selected.
-		// We must:
-		// - Find the artist of this album
-		// - Iterate over all the albums of that artist
-		// - Make the album we're on pop out
-		let artist = self.collection.artist_from_album(album_key);
-		let albums = artist.albums.iter();
-
-		// How big the albums (on the right side) should be.
-		let album_size = width / 1.4;
-
-		// The scrollable area.
-		ScrollArea::vertical().max_width(width).max_height(f32::INFINITY).auto_shrink([false; 2]).show_viewport(ui, |ui, _| {
-			ui.vertical_centered(|ui| {
-
-			// For each album...
-			for album in albums {
-				// Get the actual `Album`.
-				let key   = album;
-				let album = &self.collection.albums[key];
-
-				// Draw the art with the title.
-				ui.add_space(5.0);
-				ui.scope(|ui| {
-					ui.set_width(album_size);
-
-					// Draw the frame.
-	 				Frame::window(&ctx.style()).rounding(Rounding::none()).inner_margin(1.0).show(ui, |ui| {
-						let mut rect = ui.cursor();
-						rect.max.x += 2.0;
-						rect.max.y = rect.min.y + album_size;
-
-						// If user clicks this album, set our state to that album.
-						if ui.put(rect, Button::new("").rounding(Rounding::none())).clicked() {
-							self.state.album = Some(*key);
-						};
-
-						// Draw art.
-						rect.max.x = rect.min.x;
-						ui.allocate_ui_at_rect(rect, |ui| {
-							ui.horizontal_centered(|ui| {
-								// Index `Collection` for this `Album`'s art.
-								album.art_or().show_size(ui, Vec2::new(album_size, album_size));
-							});
-						});
-					});
-				});
-
-				// If this is the album we're on, make it pop.
-				if *key == album_key {
-					ui.add(Label::new(RichText::new(album.title.to_string()).color(Color32::LIGHT_BLUE)));
-				} else {
-					ui.label(album.title.to_string());
-				}
-				ui.add_space(5.0);
-			}
-
-			});
-		});
-	});
-}}
-
 //---------------------------------------------------------------------------------------------------- Central Panel
 impl Gui {
 #[inline(always)]
-fn show_central(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
+fn show_central(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32, side_panel_width: f32, side_panel_height: f32) {
 	CentralPanel::default().show(ctx, |ui| {
 		self.set_visuals(ui);
 		match self.state.tab {
-			Tab::Albums    => Self::show_tab_albums(self, ui, ctx, frame, width, height),
-			Tab::Artists   => Self::show_tab_artists(self, ui, ctx, frame, width, height),
-			Tab::Songs     => Self::show_tab_songs(self, ui, ctx, frame, width, height),
-			Tab::Queue     => Self::show_tab_queue(self, ui, ctx, frame, width, height),
+			Tab::View      => self.show_tab_view(ui, ctx, frame, width, height),
+			Tab::Albums    => self.show_tab_albums(ui, ctx, frame, width, height),
+			Tab::Artists   => self.show_tab_artists(ui, ctx, frame, width, height),
+			Tab::Songs     => self.show_tab_songs(ui, ctx, frame, width, height),
+			Tab::Queue     => self.show_tab_queue(ui, ctx, frame, width, height),
 			// TODO: Make `shukusai` playlists suck less.
 //			Tab::Playlists => (),
-			Tab::Search    => Self::show_tab_search(self, ui, ctx, frame, width, height),
-			Tab::Settings  => Self::show_tab_settings(self, ui, ctx, frame, width, height),
+			Tab::Search    => self.show_tab_search(ui, ctx, frame, width, height),
+			Tab::Settings  => self.show_tab_settings(ui, ctx, frame, width, height),
 		}
 	});
 }}

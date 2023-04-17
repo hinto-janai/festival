@@ -20,6 +20,7 @@ use shukusai::collection::{
 	Collection,
 };
 use shukusai::key::{
+	AlbumKey,
 	Keychain,
 };
 use shukusai::sort::{
@@ -264,6 +265,13 @@ impl Gui {
 		self.count_artist = format!("Artists: {}", self.collection.count_artist);
 		self.count_album  = format!("Albums: {}", self.collection.count_album);
 		self.count_song   = format!("Songs: {}", self.collection.count_song);
+	}
+
+	#[inline(always)]
+	/// Sets the current [`State::album`] and switches the current tab to [`Tab::View`].
+	pub fn set_album_tab_view(&mut self, album_key: AlbumKey) {
+		self.state.album = Some(album_key);
+		self.state.tab = Tab::View;
 	}
 }
 
