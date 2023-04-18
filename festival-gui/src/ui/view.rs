@@ -10,13 +10,26 @@ use egui::{
 use shukusai::key::{
 	AlbumKey,
 };
+use crate::constants::{
+	GRAY,
+};
 
 //---------------------------------------------------------------------------------------------------- Main central panel.
 impl crate::data::Gui {
 #[inline(always)]
 pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
-	// TODO: fix temp unwrap
-	let album_key = self.state.album.unwrap();
+	// Extract `AlbumKey`.
+	let album_key = match self.state.album {
+		Some(k) => k,
+
+		// If no `AlbumKey` selected, show text.
+		None => {
+			let label = Label::new(RichText::new("🗋 Select an album in the [Album] tab").color(GRAY));
+			ui.add_sized(ui.available_size(), label);
+
+			return;
+		}
+	};
 
 	let album = &self.collection.albums[album_key];
 
@@ -59,7 +72,12 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &
 //---------------------------------------------------------------------------------------------------- Right Panel
 impl crate::data::Gui {
 #[inline(always)]
-pub(super) fn show_tab_view_right_panel(&mut self, album_key: AlbumKey, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
+pub(super) fn show_tab_view_right_panel(&mut self, album_key: Option<AlbumKey>, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
+	let album_key = match album_key {
+		Some(k) => k,
+		None    => return,
+	};
+
 	SidePanel::right("right").resizable(false).show(ctx, |ui| {
 		self.set_visuals(ui);
 		ui.set_width(width);
@@ -108,9 +126,9 @@ pub(super) fn show_tab_view_right_panel(&mut self, album_key: AlbumKey, ctx: &eg
 
 				// If this is the album we're on, make it pop.
 				if *key == album_key {
-					ui.add(Label::new(RichText::new(album.title.to_string()).color(Color32::LIGHT_BLUE)));
+					ui.add(Label::new(RichText::new(&album.title).color(Color32::LIGHT_BLUE)));
 				} else {
-					ui.label(album.title.to_string());
+					ui.label(&album.title);
 				}
 				ui.add_space(5.0);
 			}

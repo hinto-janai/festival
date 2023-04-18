@@ -285,11 +285,12 @@ impl Gui {
 	fn init_style() -> egui::Style {
 		let style = Style {
 			text_styles: [
-				(TextStyle::Small,     FontId::new(10.0, FontFamily::Monospace)),
-				(TextStyle::Body,      FontId::new(20.0, FontFamily::Monospace)),
-				(TextStyle::Button,    FontId::new(20.0, FontFamily::Monospace)),
-				(TextStyle::Monospace, FontId::new(20.0, FontFamily::Monospace)),
-				(TextStyle::Heading,   FontId::new(40.0, FontFamily::Monospace)),
+				(TextStyle::Small,                 FontId::new(10.0, FontFamily::Monospace)),
+				(TextStyle::Name("Medium".into()), FontId::new(15.0, FontFamily::Monospace)),
+				(TextStyle::Body,                  FontId::new(20.0, FontFamily::Monospace)),
+				(TextStyle::Button,                FontId::new(20.0, FontFamily::Monospace)),
+				(TextStyle::Monospace,             FontId::new(20.0, FontFamily::Monospace)),
+				(TextStyle::Heading,               FontId::new(40.0, FontFamily::Monospace)),
 			].into(),
 			spacing: SPACING.clone(),
 			..Default::default()

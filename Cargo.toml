@@ -106,6 +106,7 @@ lofty       = { version = "0.11.0", path = "external/lofty-rs" }
 clap = { version = "4", features = ["derive"] }
 rfd = "0.11.3"
 paste = "1.0.12"
+compact_str = "0.7.0"
 
 ### Regular libraries.
 anyhow = "1.0.70"

@@ -63,7 +63,7 @@ CentralPanel::default().show(ctx, |ui| {
 	// Return if the `Collection` is empty.
 	if self.collection.empty {
 		let label = Label::new(RichText::new("The Collection is empty. There is nothing to search.").color(GRAY));
-		ui.add_sized([width, half], label);
+		ui.add_sized(ui.available_size(), label);
 
 		return;
 	}

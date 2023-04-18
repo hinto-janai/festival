@@ -2,6 +2,7 @@ mod cli;
 mod constants;
 mod data;
 mod text;
+mod slice;
 mod ui;
 
 fn main() {

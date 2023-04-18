@@ -169,7 +169,7 @@ impl eframe::App for Gui {
 
 		// If `Tab::View`, show right panel.
 		if self.state.tab == Tab::View {
-			self.show_tab_view_right_panel(self.state.album.unwrap(), ctx, frame, side_panel_width, height);
+			self.show_tab_view_right_panel(self.state.album, ctx, frame, side_panel_width, height);
 		}
 
 		// Central Panel

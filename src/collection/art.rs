@@ -67,6 +67,7 @@ impl Art {
 	pub(crate) fn texture_id(&self, ctx: &egui::Context) -> egui::TextureId {
 		match self {
 			Self::Known(a) => a.texture_id(ctx),
+			// TODO: `lazy_static` this id, no need to lock
 			Self::Unknown  => UNKNOWN_ALBUM.texture_id(ctx),
 		}
 	}
