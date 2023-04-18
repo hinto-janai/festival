@@ -18,7 +18,6 @@ and the `Collection`.  While this is happening, `GUI` will loop forever, renderi
 | `artist.rs`   | `Artist` tab
 | `search.rs`   | `Search` tab
 | `settings.rs` | `Settings` tab
-| `tab.rs`      | Tab enum definition
 | `exit.rs`     | What to do when the GUI is closed
 | `update.rs`   | The main `eframe::App::update()` loop
 | `queue.rs`    | `Queue` tab

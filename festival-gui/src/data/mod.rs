@@ -12,3 +12,6 @@ pub use gui::*;
 
 mod file;
 pub use file::*;
+
+mod tab;
+pub use tab::*;

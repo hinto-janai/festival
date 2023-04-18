@@ -8,8 +8,10 @@ use egui::{
 	SelectableLabel,Label,Button,
 	ImageButton,TextStyle,
 };
-use crate::data::AlbumSizing;
-use crate::ui::Tab;
+use crate::data::{
+	AlbumSizing,
+	Tab,
+};
 use crate::slice::Head;
 use crate::constants::{
 	BONE,

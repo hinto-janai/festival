@@ -2,7 +2,7 @@
 //use anyhow::{bail,ensure,Error};
 //use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
-use crate::ui::{
+use super::{
 	Tab,
 };
 use std::path::PathBuf;

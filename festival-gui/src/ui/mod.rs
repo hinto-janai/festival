@@ -7,9 +7,6 @@ use albums::*;
 mod exit;
 use exit::*;
 
-mod tab;
-pub use tab::*;
-
 mod search;
 use search::*;
 

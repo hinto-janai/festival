@@ -16,9 +16,8 @@ use egui::widgets::{
 	Slider,Button,Spinner,
 	SelectableLabel,Label,
 };
-use super::{
+use crate::data::{
 	Tab,
-	tab,
 };
 use disk::Toml;
 use log::{error,warn,info,debug,trace};

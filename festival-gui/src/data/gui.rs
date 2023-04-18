@@ -6,7 +6,7 @@ use crate::data::{
 	State,
 	Settings,
 };
-use crate::ui::{
+use super::{
 	Tab,
 };
 use shukusai::kernel::{
