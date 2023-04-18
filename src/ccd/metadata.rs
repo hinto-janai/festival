@@ -616,12 +616,16 @@ mod tests {
 	#[test]
 	#[ignore]
 	fn vecs() {
+		// Set-up logger.
+		crate::logger::init_logger(log::LevelFilter::Trace);
+
 		// Convert `PathBuf` into `Vec`.
 		let paths = vec![
 			PathBuf::from("assets/audio/rain.mp3"),
 			PathBuf::from("assets/audio/rain.flac"),
 			PathBuf::from("assets/audio/rain.ogg"),
 		];
+		// Prepare inputs.
 		let (to_kernel, _) = crossbeam_channel::unbounded::<super::CcdToKernel>();
 		let (vec_artist, mut vec_album, vec_song) = Ccd::audio_paths_to_incomplete_vecs(&to_kernel, paths);
 

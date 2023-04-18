@@ -31,10 +31,10 @@ jobs:
     - uses: actions/checkout@v3
       with:
         submodules: recursive
-#    - name: Install dependencies
-#      run: |
-#        sudo apt update
-#        sudo apt install -y libgtk-3-dev
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y libgtk-3-dev
     - name: Vecs
       run: cargo test --all-features -- --ignored --exact "ccd::metadata::tests::vecs"
     - name: New
