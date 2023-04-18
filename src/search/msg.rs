@@ -18,6 +18,8 @@ pub(crate) enum SearchToKernel {
 
 pub(crate) enum KernelToSearch {
 	SearchSim(String),              // Start a (similarity) search on string input.
+//	NewCache(String),               // Here's a new `String` key from a recently created `Collection`, add it to your cache.
+//	NewCacheVec(Vec<String>),       // Here's a `Vec` of `String` keys, add it to cache
 	DropCollection,                 // Drop your pointer.
 	NewCollection(Arc<Collection>), // Here's a new `Collection` pointer.
 }

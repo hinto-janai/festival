@@ -24,11 +24,21 @@ use super::msg::{
 };
 use crossbeam_channel::{Sender,Receiver};
 
+//---------------------------------------------------------------------------------------------------- Constants
+// How many `(String, Keychain)` results to
+// hold in cache before resetting.
+//
+// This will be set to the `total_count` when
+// a new `Collection` is received, meaning
+// all `count_*` fields added together.
+const DEFAULT_CACHE_SIZE: usize = 1000;
+
 //---------------------------------------------------------------------------------------------------- Search thread.
 // This represents the `Search` thread.
 pub(crate) struct Search {
 	cache:       HashMap<String, Keychain>, // Search index cache
 	collection:  Arc<Collection>,           // Pointer to `Collection`
+	total_count: usize,                     // Local cache of all total `Collection` objects
 	to_kernel:   Sender<SearchToKernel>,    // Channel TO `Kernel`
 	from_kernel: Receiver<KernelToSearch>,  // Channel FROM `Kernel`
 }
@@ -43,8 +53,9 @@ impl Search {
 	) {
 		// Init data.
 		let search = Self {
-			cache: HashMap::with_capacity(1000),
+			cache: HashMap::with_capacity(DEFAULT_CACHE_SIZE),
 			collection,
+			total_count: DEFAULT_CACHE_SIZE,
 			to_kernel,
 			from_kernel,
 		};
@@ -53,14 +64,9 @@ impl Search {
 		Self::main(search);
 	}
 
-	fn sim(&mut self, input: String) -> Keychain {
-		// Return early if search input is in cache.
-		if let Some(v) = self.cache.get(&input) {
-			return v.clone()
-		}
-
+	fn calculate_sim(&self, input: &str) -> Keychain {
 		// Convert input to lowercase.
-		let input = input.to_ascii_lowercase();
+		let input = input.to_string().to_ascii_lowercase();
 
 		// Search and collect results.
 		let mut artists: Vec<(f64, ArtistKey)> = self.collection.artists
@@ -88,15 +94,6 @@ impl Search {
 
 		// Create keychain.
 		let keychain = Keychain::from_vecs(artists, albums, songs);
-
-		// (Maybe) clear cache.
-		if self.cache.len() > 1000 {
-			// Clear.
-			self.cache.clear();
-		}
-
-		// Add to cache.
-		self.cache.insert(input, keychain.clone());
 
 		// Return.
 		keychain
@@ -135,43 +132,89 @@ impl Search {
 			use KernelToSearch::*;
 			match msg {
 				SearchSim(input)   => self.msg_sim(input),
-				DropCollection     => self = self.msg_drop(),
+//				NewCache(string)   => self.msg_cache(string),
+//				NewCacheVec(vec)   => self.msg_vec_cache(vec),
+				DropCollection     => self.msg_drop(),
 
 				// Other messages shouldn't be received here, e.g:
 				// `DropCollection` should _always_ be first before `NewCollection`.
-				// Something buggy is happening if we randomly get a new `NweCollection`.
+				// Something buggy is happening if we randomly get a new `NewCollection`.
 				NewCollection(_) => error!("Search: Incorrect message received - NewCollection"),
 			}
 		}
 	}
 
 	#[inline(always)]
+	// Reset the cache if it's filled up.
+	fn check_cache(&mut self) {
+		if self.cache.len() > self.total_count {
+			// Clear.
+			debug!("Search: Cache length more than '{}', clearing.", self.total_count);
+			self.cache.clear();
+		}
+	}
+
+	#[inline(always)]
 	fn msg_sim(&mut self, input: String) {
-		// Get result.
-		let result = self.sim(input);
+		let result = match self.cache.get(&input) {
+			Some(r) => r.clone(),
+			None    => self.calculate_sim(&input),
+		};
+
+		self.check_cache();
+		self.cache.insert(input, result.clone());
 
 		// Send to Kernel.
 		send!(self.to_kernel, SearchToKernel::SearchSim(result));
 	}
 
+//	#[inline(always)]
+//	// We got a `String` key from a recently
+//	// created `Collection`, add it to cache.
+//	fn msg_cache(&mut self, input: String) {
+//		trace!("Search: Adding input to cache: {}", &input);
+//		let result = self.calculate_sim(&input);
+//		self.add_to_cache(input, result);
+//	}
+//
+//	#[inline(always)]
+//	// We got a `Vec` of `String` keys, add it to cache.
+//	fn msg_vec_cache(&mut self, inputs: Vec<String>) {
+//		for input in inputs {
+//			trace!("Search: Adding Vec<input> to cache: {}", &input);
+//			let result = self.calculate_sim(&input);
+//			self.add_to_cache(input, result);
+//		}
+//	}
+
 	#[inline(always)]
-	fn msg_drop(mut self) -> Self {
+	fn msg_drop(&mut self) {
 		// Drop pointer.
-		drop(self.collection);
+		self.collection = Collection::dummy();
+
+		// Reset cache.
+		self.cache.clear();
 
 		// Hang until we get the new one.
 		debug!("Search: Dropped Collection, waiting...");
 
-		// Ignore messages until it's a pointer.
-		// (`Kernel` should only be sending a pointer at this point anyway).
+		// Listen to `Kernel`.
 		loop {
-			if let KernelToSearch::NewCollection(arc) = recv!(self.from_kernel) {
-				ok_debug!("Search: New Collection");
-				self.collection = arc;
-				return self
+			match recv!(self.from_kernel) {
+				// We got the new `Collection` pointer.
+				KernelToSearch::NewCollection(arc) => {
+					ok_debug!("Search: New Collection");
+					self.collection = arc;
+					self.total_count = {
+						self.collection.count_artist.usize() +
+						self.collection.count_album.usize() +
+						self.collection.count_song.usize()
+					};
+					return
+				},
+				_ => error!("Search: Incorrect message received"),
 			}
 
-			error!("Search: Incorrect message received");
 		}
 	}
 }
