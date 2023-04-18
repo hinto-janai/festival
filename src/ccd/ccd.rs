@@ -275,6 +275,7 @@ mod tests {
 
 		// Set-up inputs.
 		let (to_kernel, from_ccd) = crossbeam_channel::unbounded::<CcdToKernel>();
+		let ctx = egui::Context::default();
 
 		// Serialize.
 		let now = now!();
@@ -283,7 +284,7 @@ mod tests {
 
 		// Convert.
 		let now = now!();
-		Ccd::convert_art(to_kernel, collection);
+		Ccd::convert_art(to_kernel, collection, ctx);
 		let collection = match from_ccd.recv().unwrap() {
 			CcdToKernel::NewCollection(c) => c,
 			_ => panic!("wrong msg received"),
@@ -312,6 +313,7 @@ mod tests {
 		let (to_ccd, from_kernel) = crossbeam_channel::unbounded::<KernelToCcd>();
 		let kernel_state   = Arc::new(RwLock::new(KernelState::new()));
 		let old_collection = Arc::new(Collection::new());
+		let ctx = egui::Context::default();
 		let paths = vec![
 			PathBuf::from("src"),
 			PathBuf::from("assets"),
@@ -323,15 +325,16 @@ mod tests {
 
 		// Spawn `CCD`.
 		let old_clone = Arc::clone(&old_collection);
-		std::thread::spawn(move || Ccd::new_collection(to_kernel, from_kernel, kernel_state, old_clone, paths));
+		std::thread::spawn(move || Ccd::new_collection(to_kernel, from_kernel, kernel_state, old_clone, paths, ctx));
 
 		// Act as `Kernel`.
 		// Receive.
 		let collection = loop {
 			match recv!(from_ccd) {
 				CcdToKernel::NewCollection(collection) => break collection,
-				CcdToKernel::Failed(error)             => panic!("{}", error),
-				CcdToKernel::Update(string)            => eprintln!("{}", string),
+				CcdToKernel::Failed(error)                    => panic!("{}", error),
+				CcdToKernel::UpdatePhase((float, string))     => eprintln!("percent: {float}, string: {string}"),
+				CcdToKernel::UpdateIncrement((float, string)) => eprintln!("percent: {float}, string: {string}"),
 			}
 		};
 

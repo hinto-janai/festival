@@ -63,7 +63,7 @@ impl Default for Volume {
 
 impl std::fmt::Display for Volume {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		write!(f, "{}", self)
+		write!(f, "{}", self.0)
 	}
 }
 
@@ -74,11 +74,11 @@ impl std::ops::Add for Volume {
 	///
 	/// If an overflow occurs, [`Volume::new_100`] is returned.
     fn add(self, other: Self) -> Self {
-		let f = self.0 + other.0;
+		if u16::from(self.0) + u16::from(other.0) > 100 {
+			return Self::new_100();
+		}
 
-		if f > 100 { return Self::new_100() }
-
-		Self(f)
+		Self(self.0 + other.0)
 	}
 }
 
@@ -89,11 +89,11 @@ impl std::ops::Sub for Volume {
 	///
 	/// If the result is negative, [`Volume::new_0`] is returned.
     fn sub(self, other: Self) -> Self {
-		let f = self.0 - other.0;
+		if self.0 < other.0 {
+			return Self(0);
+		}
 
-		if f < 0 { return Self(0) }
-
-		Self(f)
+		Self(self.0 - other.0)
 	}
 }
 
@@ -138,8 +138,9 @@ mod tests {
 		// Make sure result is `100`.
 		assert!(v3 + v3 == v4);
 
-		// Make sure overflowed result is `51`.
-		assert!(v5 + v4 == v5);
+		// Make sure overflowed result is `100`.
+		println!("{}", v3 + v5);
+		assert!(v3 + v5 == v4);
 
 		// Make sure underflowed result is `0`.
 		assert!(v3 - v4 == v1);

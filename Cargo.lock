@@ -2289,6 +2289,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "inherent"
+version = "1.0.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "20cc83c51f04b1ad3b24cbac53d2ec1a138d699caabe05d315cb8538e8624d01"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.14",
+]
+
+[[package]]
 name = "inotify"
 version = "0.9.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3360,11 +3371,12 @@ checksum = "3b42e27ef78c35d3998403c1d26f3efd9e135d3e5121b0a4845cc5cc27547f4f"
 
 [[package]]
 name = "readable"
-version = "0.7.4"
+version = "0.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f77f760a46e92c98bf2863ea73842ad0e8f0ca2944fc60c430d56e10dc36c9a"
+checksum = "0e20c3bf20fe35c2bd217563e8ab7bd729561946d28e38689a902794d76484f8"
 dependencies = [
  "compact_str",
+ "inherent",
  "lazy_static",
  "num-format",
  "paste",

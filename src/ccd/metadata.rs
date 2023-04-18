@@ -641,9 +641,9 @@ mod tests {
 		// Assert `Album` is correct.
 		assert!(vec_album[0].title          == "Festival");
 		assert!(vec_album[0].artist.inner() == 0);
-		assert!(vec_album[0].release_human  == "2023-03-08");
 		assert!(vec_album[0].songs.len()    == 3);
-		assert!(vec_album[0].release        == (Some(2023), Some(3), Some(8)));
+		assert!(vec_album[0].release        == "2023-03-08");
+		assert!(vec_album[0].release        == (2023, 3, 8));
 		// TODO: this should be true
 //		assert!(vec_album[0].compilation    == true);
 
@@ -655,10 +655,10 @@ mod tests {
 		println!("{:#?}", vec_song);
 
 		// Assert metadata is fixed.
-		assert!(vec_album[0].runtime_human.to_f64() >= readable::Runtime::from(3.8).to_f64());
-		assert!(vec_album[0].song_count             == "3");
-		assert!(vec_album[0].runtime                >= 3.8);
-		assert!(vec_album[0].song_count             == 3);
+		assert!(vec_album[0].runtime    >= readable::Runtime::from(3.8));
+		assert!(vec_album[0].runtime    >= 3);
+		assert!(vec_album[0].song_count == "3");
+		assert!(vec_album[0].song_count == 3);
 	}
 
 	fn mp3() -> TaggedFile {
