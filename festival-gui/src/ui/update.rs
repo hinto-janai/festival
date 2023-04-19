@@ -8,7 +8,7 @@
 //use std::sync::{Arc,Mutex,RwLock};
 use crate::data::Gui;
 use egui::{
-	ScrollArea,Frame,ProgressBar,
+	ScrollArea,Frame,ProgressBar,TextStyle,
 	Color32,Vec2,Stroke,Rounding,RichText,
 	TopBottomPanel,SidePanel,CentralPanel,
 };
@@ -18,6 +18,8 @@ use egui::widgets::{
 };
 use crate::data::{
 	Tab,
+	KeyPress,
+	ALPHABET_KEY_PRESSES,
 };
 use disk::Toml;
 use log::{error,warn,info,debug,trace};
@@ -136,6 +138,20 @@ impl eframe::App for Gui {
 			self.copy_kernel_audio();
 		}
 
+		// Check for key presses.
+		if !ctx.wants_keyboard_input() {
+			ctx.input_mut(|input| {
+				for key in ALPHABET_KEY_PRESSES {
+					if input.consume_key(egui::Modifiers::NONE, key) {
+						self.state.tab = Tab::Search;
+						self.search_string = KeyPress::from_egui_key(&key).to_string();
+						self.search_focus = true;
+						break
+					}
+				}
+			});
+		}
+
 //		// Determine if there is a diff in `Settings`'s.
 		let diff_settings = self.diff_settings();
 
@@ -193,9 +209,9 @@ fn show_bottom(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width:
 		ui.horizontal(|ui| {
 			// Media control buttons
 			ui.group(|ui| {
-				ui.add_sized([unit, height], Button::new("⏪"));
-				ui.add_sized([unit*1.5, height], Button::new("▶"));
-				ui.add_sized([unit, height], Button::new("⏩"));
+				ui.add_sized([unit, height], Button::new(RichText::new("⏪").size(35.0)));
+				ui.add_sized([unit*1.5, height], Button::new(RichText::new("▶").size(20.0)));
+				ui.add_sized([unit, height], Button::new(RichText::new("⏩").size(35.0)));
 			});
 
 			// Song time elapsed
@@ -259,14 +275,14 @@ fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f
 						let height = tab_height / 2.0;
 						ui.scope(|ui| {
 							ui.set_enabled(!self.album_size_is_min());
-							if ui.add_sized([width, tab_height], Button::new("-")).on_hover_text(DECREMENT_ALBUM_SIZE).clicked() {
+							if ui.add_sized([width, tab_height], Button::new(RichText::new("-").size(30.0))).on_hover_text(DECREMENT_ALBUM_SIZE).clicked() {
 								self.decrement_art_size();
 							}
 						});
 						ui.separator();
 						ui.scope(|ui| {
 							ui.set_enabled(!self.album_size_is_max());
-							if ui.add_sized([width, tab_height], Button::new("+")).on_hover_text(INCREMENT_ALBUM_SIZE).clicked() {
+							if ui.add_sized([width, tab_height], Button::new(RichText::new("+").size(25.0))).on_hover_text(INCREMENT_ALBUM_SIZE).clicked() {
 								self.increment_art_size();
 							}
 						});

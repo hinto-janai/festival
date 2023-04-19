@@ -27,7 +27,6 @@ pub fn show_tab_search(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame:
 CentralPanel::default().show(ctx, |ui| {
 	self.set_visuals(ui);
 
-
 	// Sizing.
 	let width  = ui.available_width();
 	let height = ui.available_height();
@@ -48,9 +47,17 @@ CentralPanel::default().show(ctx, |ui| {
 
 		// Search bar.
 		let width = ui.available_width();
-		let text_edit = TextEdit::singleline(&mut self.search_string);
+		let id = egui::Id::new("Search TextEdit");
+		let text_edit = TextEdit::singleline(&mut self.search_string).id(id);
 		ui.spacing_mut().text_edit_width = width;
 		let response = ui.add_sized([width, 35.0], text_edit);
+
+		// Check if we came from a different
+		// tab and need to lock focus.
+		if self.search_focus {
+			self.search_focus = false;
+			ctx.memory_mut(|m| m.request_focus(id));
+		}
 
 		// Only update if user input has changed.
 		if response.changed() {

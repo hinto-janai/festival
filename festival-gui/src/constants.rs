@@ -141,6 +141,16 @@ pub const FONT_SOURCECODE_KR:  &[u8] = include_bytes!("../../assets/fonts/Source
 pub const FONT_SOURCECODE_JP:  &[u8] = include_bytes!("../../assets/fonts/SourceHanSansJP-Regular.otf");
 pub const FONT_JULIAMONO:      &[u8] = include_bytes!("../../assets/fonts/JuliaMono-Regular.ttf");
 
+pub const FONT_ARRAY: [(&str, &[u8]); 7] = [
+	("SourceCode-JP",  FONT_SOURCECODE_JP),
+	("SourceCode-Pro", FONT_SOURCECODE_PRO),
+	("JuliaMono",      FONT_JULIAMONO),
+	("SourceCode-KR",  FONT_SOURCECODE_KR),
+	("SourceCode-CN",  FONT_SOURCECODE_CN),
+	("SourceCode-HK",  FONT_SOURCECODE_HK),
+	("SourceCode-TW",  FONT_SOURCECODE_TW),
+];
+
 //---------------------------------------------------------------------------------------------------- Icon
 pub const ICON: &[u8] = include_bytes!("../../assets/images/icon/512.png");
 

@@ -44,9 +44,11 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &
 	});
 	ui.vertical_centered(|ui| {
 		ui.set_max_width(ui.available_width());
+		ui.add_space(8.0);
 		ui.heading(&album.title);
 		ui.label(&self.collection.artists[album.artist].name);
 		ui.label(album.release.as_str());
+		ui.add_space(8.0);
 	});
 
 	ui.separator();

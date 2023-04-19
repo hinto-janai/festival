@@ -87,6 +87,11 @@ pub struct Gui {
 	// Search state.
 	/// If we're currently searching.
 	pub searching: bool,
+	/// If the user types English from anywhere,
+	/// we switch to the `Search` tab, input the
+	/// `String` and set this [`bool`] so that
+	/// the GUI knows to `request_focus()` the search `TextEdit`.
+	pub search_focus: bool,
 	/// Our current search input.
 	pub search_string: String,
 	/// The search result [`Keychain`] we got from `Kernel`.
@@ -290,6 +295,9 @@ impl Gui {
 				(TextStyle::Body,                  FontId::new(20.0, FontFamily::Monospace)),
 				(TextStyle::Button,                FontId::new(20.0, FontFamily::Monospace)),
 				(TextStyle::Monospace,             FontId::new(20.0, FontFamily::Monospace)),
+				(TextStyle::Name("25".into()),     FontId::new(25.0, FontFamily::Monospace)),
+				(TextStyle::Name("30".into()),     FontId::new(30.0, FontFamily::Monospace)),
+				(TextStyle::Name("35".into()),     FontId::new(35.0, FontFamily::Monospace)),
 				(TextStyle::Heading,               FontId::new(40.0, FontFamily::Monospace)),
 			].into(),
 			spacing: SPACING.clone(),
@@ -309,28 +317,13 @@ impl Gui {
 	#[inline(always)]
 	fn init_fonts() -> egui::FontDefinitions {
 		let mut fonts = FontDefinitions::default();
-		// TODO:
-		// Only 2 fonts for debugging.
-		// Make sure all fonts are enabled at v1.0.0.
-		fonts.font_data.insert("0".to_string(), FontData::from_static(FONT_SOURCECODE_PRO));
-		fonts.font_data.insert("1".to_string(), FontData::from_static(FONT_SOURCECODE_JP).tweak(
-			FontTweak {
-				y_offset_factor: -0.38, // Move it up
-				..Default::default()
-			},
-		));
-//		fonts.font_data.insert("SourceCode-Pro".to_string(), FontData::from_static(FONT_SOURCECODE_PRO));
-//		fonts.font_data.insert("SourceCode-CN".to_string(), FontData::from_static(FONT_SOURCECODE_CN));
-//		fonts.font_data.insert("SourceCode-HK".to_string(), FontData::from_static(FONT_SOURCECODE_HK));
-//		fonts.font_data.insert("SourceCode-TW".to_string(), FontData::from_static(FONT_SOURCECODE_TW));
-//		fonts.font_data.insert("SourceCode-KR".to_string(), FontData::from_static(FONT_SOURCECODE_KR));
-//		fonts.font_data.insert("SourceCode-JP".to_string(), FontData::from_static(FONT_SOURCECODE_JP));
-//		fonts.font_data.insert("JuliaMono".to_string(), FontData::from_static(FONT_JULIAMONO));
 
-		for i in 0..=1 {
+		for (i, (font, bytes)) in FONT_ARRAY.iter().enumerate() {
+			fonts.font_data.insert(font.to_string(), FontData::from_static(bytes));
+
 			fonts.families.get_mut(&FontFamily::Monospace)
 				.expect("Failed to get: egui::FontFamily::Monospace")
-				.insert(i, i.to_string());
+				.insert(i, font.to_string());
 			fonts.families.get_mut(&FontFamily::Proportional)
 				.expect("Failed to get: egui::FontFamily::Proportional")
 				.push(i.to_string());
@@ -416,6 +409,7 @@ impl Gui {
 
 			// Search state.
 			searching: false,
+			search_focus: false,
 			search_string: String::new(),
 			search_result: Keychain::new(),
 
