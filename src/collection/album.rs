@@ -99,7 +99,7 @@ impl Album {
 	}
 
 	#[inline]
-	/// Calls [`egui::extras::texture_id`].
+	/// Calls [`egui_extras::RetainedImage::texture_id`].
 	pub fn texture_id(&self, ctx: &egui::Context) -> egui::TextureId {
 		self.art.texture_id(ctx)
 	}

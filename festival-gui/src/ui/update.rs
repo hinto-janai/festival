@@ -387,7 +387,7 @@ fn show_resetting_collection(&mut self, ctx: &egui::Context, frame: &mut eframe:
 			// Percent.
 			ui.add_sized([width, height], Label::new(lock_read!(self.reset_state).percent.as_str()));
 			// Phase.
-			ui.add_sized([width, height], Label::new(&lock_read!(self.reset_state).phase));
+			ui.add_sized([width, height], Label::new(lock_read!(self.reset_state).phase.as_str()));
 			// Specific.
 			ui.add_sized([width, height], Label::new(&lock_read!(self.reset_state).specific));
 			// ProgressBar.

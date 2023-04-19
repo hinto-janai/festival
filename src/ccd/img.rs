@@ -183,7 +183,7 @@ pub(super) fn alloc_textures(albums: &crate::collection::Albums, ctx: &egui::Con
 			let string = String::new();
 
 			// Wait 300 microseconds before locking. (aka: prevent `GUI` from reader starvation)
-			std::thread::sleep(std::time::Duration::from_micros(315));
+//			std::thread::sleep(std::time::Duration::from_micros(315));
 
 			// Allocate to `TextureManager`.
 			let tex_id = tex_mngr.write().alloc(string, image, art.options);

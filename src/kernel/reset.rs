@@ -25,6 +25,7 @@ use super::Volume;
 use crate::kernel::Kernel;
 use crate::collection::Collection;
 use readable::Percent;
+use crate::ccd::Phase;
 
 //---------------------------------------------------------------------------------------------------- Lazy
 lazy_static::lazy_static! {
@@ -40,7 +41,7 @@ lazy_static::lazy_static! {
 /// This holds a:
 /// - [`bool`] representing: Are we currently resetting the [`Collection`]?
 /// - [`Percent`] representing the total work done out of `100%`
-/// - [`String`] representing what phase we're on
+/// - [`Phase`] representing what phase we're on
 /// - [`String`] representing what work we're currently doing
 ///
 /// This values in this struct will be updated during the process.
@@ -56,11 +57,8 @@ pub struct ResetState {
 	/// [`Percent`] representing the total work done out of `100%`
 	pub percent: Percent,
 
-	/// [`String`] representing what phase we're on
-	///
-	/// Example: `Walking Directories`, `Parsing Metadata`, etc.
-
-	pub phase: String,
+	/// Represents what [`Phase`] we're on
+	pub phase: Phase,
 
 	/// [`String`] representing the specific work we're currently doing
 	///
@@ -85,7 +83,7 @@ impl ResetState {
 		Self {
 			resetting: false,
 			percent: Percent::zero(),
-			phase: "...".to_string(),
+			phase: Phase::None,
 			specific: "".to_string(),
 		}
 	}
@@ -100,7 +98,7 @@ impl ResetState {
 		*self = Self {
 			resetting: true,
 			percent: Percent::zero(),
-			phase: "Starting...".to_string(),
+			phase: Phase::Start,
 			specific: "".to_string(),
 		};
 	}
@@ -110,7 +108,7 @@ impl ResetState {
 		*self = Self {
 			resetting: false,
 			percent: Percent::const_100(),
-			phase: "Done".to_string(),
+			phase: Phase::None,
 			specific: "".to_string(),
 		};
 	}

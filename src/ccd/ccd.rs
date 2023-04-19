@@ -26,6 +26,9 @@ use crate::key::{
 	AlbumKey,
 	SongKey,
 };
+use super::phase::{
+	Phase,
+};
 use super::msg::{
 	CcdToKernel,
 	KernelToCcd,
@@ -108,26 +111,26 @@ impl Ccd {
 
 		// 1.
 		let now = now!();
-		send!(to_kernel, CcdToKernel::UpdatePhase((0.00, "Walking Directories".to_string())));
+		send!(to_kernel, CcdToKernel::UpdatePhase((0.00, Phase::WalkDir)));
 		let paths = Self::walkdir_audio(&to_kernel, paths);
 		debug!("CCD [1/12] - WalkDir: {}", secs_f64!(now));
 
 		// 2.
 		let now = now!();
-		send!(to_kernel, CcdToKernel::UpdatePhase((5.00, "Parsing Metadata".to_string())));
+		send!(to_kernel, CcdToKernel::UpdatePhase((5.00, Phase::Parse)));
 		let (vec_artist, mut vec_album, vec_song) = Self::audio_paths_to_incomplete_vecs(&to_kernel, paths);
 		// Update should be < 50% at this point.
 		debug!("CCD [2/12] - Metadata: {}", secs_f64!(now));
 
 		// 3.
 		let now = now!();
-		send!(to_kernel, CcdToKernel::UpdatePhase((50.00, "Fixing Metadata".to_string())));
+		send!(to_kernel, CcdToKernel::UpdatePhase((50.00, Phase::Fix)));
 		Self::fix_album_metadata_from_songs(&mut vec_album, &vec_song);
 		debug!("CCD [3/12] - Fix: {}", secs_f64!(now));
 
 		// 4.
 		let now = now!();
-		send!(to_kernel, CcdToKernel::UpdatePhase((52.50, "Sorting".to_string())));
+		send!(to_kernel, CcdToKernel::UpdatePhase((52.50, Phase::Sort)));
 		let sort_artist_lexi                    = Self::sort_artist_lexi(&vec_artist);
 		let sort_artist_album_count             = Self::sort_artist_album_count(&vec_artist);
 		let sort_artist_song_count              = Self::sort_artist_song_count(&vec_artist, &vec_album);
@@ -147,13 +150,13 @@ impl Ccd {
 
 		// 5.
 		let now = now!();
-		send!(to_kernel, CcdToKernel::UpdatePhase((55.00, "Creating Search Engine".to_string())));
+		send!(to_kernel, CcdToKernel::UpdatePhase((55.00, Phase::Search)));
 		let map = Map::from_3_vecs(&vec_artist, &vec_album, &vec_song);
 		debug!("CCD [5/12] - Map: {}", secs_f64!(now));
 
 		// 6.
 		let now = now!();
-		send!(to_kernel, CcdToKernel::UpdatePhase((60.00, "Preparing Collection".to_string())));
+		send!(to_kernel, CcdToKernel::UpdatePhase((60.00, Phase::Prepare)));
 		let collection = Collection {
 			// These will be fixed after construction.
 			empty: false,
@@ -190,14 +193,14 @@ impl Ccd {
 
 		// 7.
 		let now = now!();
-		send!(to_kernel, CcdToKernel::UpdatePhase((60.00, "Resizing Album Art".to_string())));
+		send!(to_kernel, CcdToKernel::UpdatePhase((60.00, Phase::Resize)));
 		let collection = Self::priv_convert_art(&to_kernel, collection);
 		// Update should be <= 99% at this point.
 		debug!("CCD [7/12] - Image: {}", secs_f64!(now));
 
 		// 8.
 		let now = now!();
-		send!(to_kernel, CcdToKernel::UpdatePhase((100.00, "Finalizing Collection".to_string())));
+		send!(to_kernel, CcdToKernel::UpdatePhase((100.00, Phase::Finalize)));
 		// FIXME:
 		// This is a huge workaround around `egui`'s lack of bulk texture
 		// allocation. Although this is good enough for now, figure out
@@ -205,6 +208,7 @@ impl Ccd {
 		// to freeze. Currently it's done with `try_write()` which doesn't
 		// starve GUI, but can take way longer (0.00008 secs -> 1.xx secs...!!!).
 		super::alloc_textures(&collection.albums, &ctx);
+//		ctx.request_repaint();
 		debug!("CCD [8/12] - Textures: {}", secs_f64!(now));
 
 		// 9.
