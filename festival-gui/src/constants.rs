@@ -31,7 +31,7 @@ lazy_static::lazy_static! {
 			noninteractive: WidgetVisuals {
 				weak_bg_fill: Color32::from_gray(27),
 				bg_fill:      Color32::from_gray(27),
-				bg_stroke:    Stroke::new(1.0, Color32::from_gray(60)), // separators, indentation lines
+				bg_stroke:    Stroke::new(1.0, Color32::from_gray(80)), // separators, indentation lines
 				fg_stroke:    Stroke::new(1.0, Color32::from_gray(140)), // normal text color
 				rounding:     Rounding::same(10.0),
 				expansion:    0.0,
@@ -127,7 +127,7 @@ pub const APP_HEIGHT_MIN:         f32 = 800.0;
 pub const APP_RESOLUTION_MIN:     [f32; 2] = [APP_WIDTH_MIN, APP_HEIGHT_MIN];
 pub const ALBUM_ART_SIZE_MIN:     f32 = 50.0;
 pub const ALBUM_ART_SIZE_MAX:     f32 = 600.0;
-pub const ALBUM_ART_SIZE_DEFAULT: f32 = 300.0;
+pub const ALBUM_ART_SIZE_DEFAULT: f32 = 227.0;
 pub const ALBUMS_PER_ROW_MIN:      u8 = 1;
 pub const ALBUMS_PER_ROW_MAX:      u8 = 20;
 pub const ALBUMS_PER_ROW_DEFAULT:  u8 = 5;
@@ -151,11 +151,17 @@ pub const YELLOW:        Color32 = Color32::from_rgb(230, 230, 100);
 pub const BRIGHT_YELLOW: Color32 = Color32::from_rgb(250, 250, 100);
 pub const BONE:          Color32 = Color32::from_rgb(190, 190, 190); // In between LIGHT_GRAY <-> GRAY
 pub const WHITE:         Color32 = Color32::WHITE;
+pub const LESS_WHITE:    Color32 = Color32::from_rgb(240, 240, 240);
 pub const GRAY:          Color32 = Color32::GRAY;
 pub const LIGHT_GRAY:    Color32 = Color32::LIGHT_GRAY;
 pub const BLACK:         Color32 = Color32::BLACK;
 pub const DARK_GRAY:     Color32 = Color32::from_rgb(18, 18, 18);
 pub const BG:            Color32 = Color32::from_rgb(20, 20, 20);
+
+//---------------------------------------------------------------------------------------------------- Custom Widget Colors
+pub const SLIDER_CIRCLE_INACTIVE: egui::Stroke = Stroke{ width: 1.5, color: BLACK };
+pub const SLIDER_CIRCLE_HOVERED:  egui::Stroke = Stroke{ width: 2.0, color: BLACK };
+pub const SLIDER_CIRCLE_ACTIVE:   egui::Stroke = Stroke{ width: 2.5, color: WHITE };
 
 //---------------------------------------------------------------------------------------------------- TESTS
 //#[cfg(test)]

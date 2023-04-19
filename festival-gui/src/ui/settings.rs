@@ -19,6 +19,9 @@ use crate::constants::{
 	ALBUM_ART_SIZE_MAX,
 	ALBUMS_PER_ROW_MIN,
 	ALBUMS_PER_ROW_MAX,
+	SLIDER_CIRCLE_INACTIVE,
+	SLIDER_CIRCLE_HOVERED,
+	SLIDER_CIRCLE_ACTIVE,
 };
 use crate::data::{
 	AlbumSizing,
@@ -134,13 +137,13 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 		ui.add_space(10.0);
 		ui.group(|ui| { ui.horizontal(|ui| {
 			let width = (width / 2.0) - 25.0;
-			if ui.add_sized([width, text], SelectableLabel::new(self.settings.album_sizing == AlbumSizing::Pixel, "Static Pixel Size"))
+			if ui.add_sized([width, text], SelectableLabel::new(self.settings.album_sizing == AlbumSizing::Pixel, format!("[{}] Pixels", self.settings.album_pixel_size)))
 				.on_hover_text(STATIC_PIXEL_SIZE).clicked()
 			{
 				self.settings.album_sizing = AlbumSizing::Pixel;
 			}
 			ui.separator();
-			if ui.add_sized([width, text], SelectableLabel::new(self.settings.album_sizing == AlbumSizing::Row,  "[x] Albums Per Row"))
+			if ui.add_sized([width, text], SelectableLabel::new(self.settings.album_sizing == AlbumSizing::Row,  format!("[{}] Albums Per Row", self.settings.albums_per_row)))
 				.on_hover_text(ALBUM_PER_ROW).clicked()
 			{
 				self.settings.album_sizing = AlbumSizing::Row;
@@ -150,7 +153,7 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 		// Slider.
 		// FIXME:
 		// Same issue as above. Slider centering is pain.
-		ui.spacing_mut().slider_width = width - 75.0;
+		ui.spacing_mut().slider_width = width - 15.0;
 		ui.add_space(10.0);
 		let (slider, hover) = match self.settings.album_sizing {
 			AlbumSizing::Pixel => {
@@ -163,12 +166,21 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 			},
 		};
 
-		let slider = slider
-			.step_by(1.0)
-			.thickness(text)
-			.fixed_decimals(0)
-			.trailing_fill(false);
-		ui.add_sized([width, text], slider).on_hover_text(hover);
+		ui.scope(|ui| {
+			{
+				let v = &mut ui.visuals_mut().widgets;
+				v.inactive.fg_stroke = SLIDER_CIRCLE_INACTIVE;
+				v.hovered.fg_stroke  = SLIDER_CIRCLE_HOVERED;
+				v.active.fg_stroke   = SLIDER_CIRCLE_ACTIVE;
+			}
+			let slider = slider
+				.step_by(1.0)
+				.thickness(text)
+				.fixed_decimals(0)
+				.show_value(false)
+				.trailing_fill(false);
+			ui.add_sized([width, text], slider).on_hover_text(hover);
+		});
 
 		ui.add_space(60.0);
 		ui.separator();

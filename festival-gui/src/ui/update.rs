@@ -41,6 +41,9 @@ use rolock::RoLock;
 use std::sync::Arc;
 use crate::constants::{
 	VISUALS,
+	SLIDER_CIRCLE_INACTIVE,
+	SLIDER_CIRCLE_HOVERED,
+	SLIDER_CIRCLE_ACTIVE,
 };
 use crate::text::*;
 
@@ -156,8 +159,8 @@ impl eframe::App for Gui {
 		}
 
 		// Size definitions of the major UI panels.
-		let bottom_panel_height = height / 15.0;
-		let side_panel_width    = width / 8.0;
+		let bottom_panel_height = (height / 15.0).clamp(50.0, 60.0);
+		let side_panel_width    = (width / 8.0).clamp(125.0, 250.0);
 		let side_panel_height   = height - (bottom_panel_height*2.0);
 
 		// Bottom Panel
@@ -200,6 +203,12 @@ fn show_bottom(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width:
 
 			// Slider (playback)
 			ui.spacing_mut().slider_width = ui.available_width();
+			{
+				let v = &mut ui.visuals_mut().widgets;
+				v.inactive.fg_stroke = SLIDER_CIRCLE_INACTIVE;
+				v.hovered.fg_stroke  = SLIDER_CIRCLE_HOVERED;
+				v.active.fg_stroke   = SLIDER_CIRCLE_ACTIVE;
+			}
 			let h = height / 5.0;
 			ui.add_sized(
 				[ui.available_width(), height],
@@ -275,6 +284,12 @@ fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f
 			ui.horizontal(|ui| {
 				let unit = width / 10.0;
 				ui.add_space(unit*4.0);
+				{
+					let v = &mut ui.visuals_mut().widgets;
+					v.inactive.fg_stroke = SLIDER_CIRCLE_INACTIVE;
+					v.hovered.fg_stroke  = SLIDER_CIRCLE_HOVERED;
+					v.active.fg_stroke   = SLIDER_CIRCLE_ACTIVE;
+				}
 				// TODO:
 				// Send signal on slider mutation by user.
 				ui.add(Slider::new(&mut self.state.audio.volume.inner(), 0..=100)

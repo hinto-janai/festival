@@ -111,6 +111,7 @@ compact_str = "0.7.0"
 ### Regular libraries.
 anyhow = "1.0.70"
 crossbeam-channel = "0.5.7"
+const_format = "0.2.30"
 #egui-notify = "0.5.1"
 env_logger = "0.10.0"
 fast_image_resize = "2.7.0"
