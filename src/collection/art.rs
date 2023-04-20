@@ -83,9 +83,11 @@ impl std::fmt::Debug for Art {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//  #[test]
-//  fn __TEST__() {
-//  }
-//}
+#[cfg(test)]
+mod tests {
+	#[test]
+	fn unknown_art() {
+		// Make sure the `.unwrap()` doesn't panic.
+		assert!(*UNKNOWN_ALBUM == *UNKNOWN_ALBUM);
+	}
+}
