@@ -11,6 +11,14 @@ use egui::TextureId;
 use egui_extras::image::RetainedImage;
 use super::Album;
 
+//---------------------------------------------------------------------------------------------------- Constant
+/// The [`Album`] art size in pixels
+///
+/// 600x600 pixels.
+///
+/// Album art will _always_ be resized internally to this size.
+pub const ALBUM_ART_SIZE: u16 = 600;
+
 //---------------------------------------------------------------------------------------------------- Unknown Art (lazy) Constant
 lazy_static::lazy_static! {
 	pub(crate) static ref UNKNOWN_ALBUM: RetainedImage = RetainedImage::from_image_bytes("Unknown", include_bytes!("../../assets/images/art/unknown.png")).unwrap();
@@ -35,6 +43,34 @@ pub(crate) enum Art {
 	Unknown,
 }
 
+//---------------------------------------------------------------------------------------------------- Art Serde
+//use serde::{Serialize,Deserialize,Serializer,Deserializer};
+//
+//impl Serialize for Art {
+//	fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+//		where
+//		S: Serializer,
+//	{
+//		match self {
+//			Self::Known(img) => {
+//				match &img.texture.lock().as_ref().unwrap().tex_mngr.read().delta.set[0].1.image {
+//					epaint::image::ImageData::Color(c) => {
+//						use serde::ser::{Serialize, Serializer, SerializeSeq};
+//						let mut seq = serializer.serialize_seq(Some(c.pixels.len())).unwrap();
+//						for p in &c.pixels {
+//							seq.serialize_element(&p.to_array());
+//						}
+//						seq.end()
+//					},
+//					_ => panic!(),
+//				}
+//			},
+//			Self::Unknown => serializer.serialize_unit_variant("Art", 1, "Unknown"),
+//		}
+//	}
+//}
+
+//---------------------------------------------------------------------------------------------------- Art Impl
 impl Art {
 	#[inline(always)]
 	/// Returns [`Self::Unknown`].

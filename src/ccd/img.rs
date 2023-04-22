@@ -21,16 +21,12 @@ use fir::{
 };
 use std::num::NonZeroU32;
 use std::sync::Arc;
+use crate::collection::ALBUM_ART_SIZE;
 
 //---------------------------------------------------------------------------------------------------- Album Art Constants.
-// 600x600 pixels.
-pub(crate) const ALBUM_ART_MAX_SIZE: u32 = 600;
-
 // SAFETY:
 // The constant above can't be `0`.
-pub(crate) const ALBUM_ART_MAX_SIZE_NUM: NonZeroU32 = unsafe { NonZeroU32::new_unchecked(ALBUM_ART_MAX_SIZE) };
-
-pub(crate) const ALBUM_ART_MAX_SIZE_ARRAY: [usize; 2] = [ALBUM_ART_MAX_SIZE as usize; 2];
+pub(crate) const ALBUM_ART_SIZE_NUM: NonZeroU32 = unsafe { NonZeroU32::new_unchecked(ALBUM_ART_SIZE as u32) };
 
 //---------------------------------------------------------------------------------------------------- Image Manipulation Functions.
 // Image pipeline, from raw/unedited bytes to an actually displayable `egui::RetainedImage`:
@@ -119,7 +115,7 @@ fn resize_dyn_image(img: image::DynamicImage, resizer: &mut fir::Resizer) -> Res
 	let old_img = Image::from_vec_u8(width, height, img.to_rgb8().into_raw(), PixelType::U8x3)?;
 
 	// Create the image we'll resize into.
-	let mut new_img = Image::new(ALBUM_ART_MAX_SIZE_NUM, ALBUM_ART_MAX_SIZE_NUM, PixelType::U8x3);
+	let mut new_img = Image::new(ALBUM_ART_SIZE_NUM, ALBUM_ART_SIZE_NUM, PixelType::U8x3);
 
 	// Resize old into new.
 	if let Err(e) = resizer.resize(&old_img.view(), &mut new_img.view_mut()) {
@@ -136,7 +132,7 @@ fn resize_dyn_image(img: image::DynamicImage, resizer: &mut fir::Resizer) -> Res
 // Original `egui` function has an `assert!()`.
 fn rgb_bytes_to_color_img(bytes: &[u8]) -> egui::ColorImage {
 	egui::ColorImage {
-		size: ALBUM_ART_MAX_SIZE_ARRAY,
+		size: [ALBUM_ART_SIZE as usize; 2],
 		pixels: bytes.chunks_exact(3).map(|p| egui::Color32::from_rgb(p[0], p[1], p[2])).collect(),
 	}
 }
@@ -218,8 +214,8 @@ mod tests {
 
 		// DynamicImage -> FIR Image.
 		let fir_img = resize_dyn_image(dyn_img, &mut resizer).unwrap();
-		assert!(fir_img.width()  == ALBUM_ART_MAX_SIZE_NUM);
-		assert!(fir_img.height() == ALBUM_ART_MAX_SIZE_NUM);
+		assert!(fir_img.width()  == ALBUM_ART_SIZE_NUM);
+		assert!(fir_img.height() == ALBUM_ART_SIZE_NUM);
 
 		// Bytes of FIR Image should be in perfect `3` chunks (RGB).
 		assert!(fir_img.buffer().len() % 3 == 0);
