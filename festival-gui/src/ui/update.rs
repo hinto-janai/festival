@@ -68,15 +68,16 @@ impl eframe::App for Gui {
 		};
 
 		// Clone things to send to exit thread.
-		let to_kernel    = self.to_kernel.clone();
-		let from_kernel  = self.from_kernel.clone();
-		let kernel_state = self.kernel_state.clone();
-		let settings     = self.settings.clone();
-		let state        = self.state; // `copy`-able
+		let to_kernel      = self.to_kernel.clone();
+		let from_kernel    = self.from_kernel.clone();
+		let kernel_state   = self.kernel_state.clone();
+		let settings       = self.settings.clone();
+		let state          = self.state; // `copy`-able
+		let exit_countdown = self.exit_countdown.clone();
 
 		// Spawn `exit` thread.
 		std::thread::spawn(move || {
-			Self::exit(to_kernel, from_kernel, state, settings, kernel_state);
+			Self::exit(to_kernel, from_kernel, state, settings, kernel_state, exit_countdown);
 		});
 
 		// Set the exit `Instant`.
@@ -90,23 +91,27 @@ impl eframe::App for Gui {
 	#[inline(always)]
 	fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
 		// Check for `Kernel` messages.
-		if let Ok(msg) = self.from_kernel.try_recv() {
-			use KernelToFrontend::*;
-			match msg {
-				NewCollection(collection) => {
-					ok_debug!("GUI: New Collection");
-					self.collection = collection;
-					self.resetting_collection = false;
-					self.cache_collection();
-				},
-				NewKernelState(k)      => self.kernel_state = k,
-				NewResetState(r)      => self.reset_state = r,
-				Failed((old_collection, error_string)) => println!("failed"),
-				SearchSim(keychain) => {
-					self.search_result = keychain;
-					self.searching     = false;
-				},
-				_ => todo!(),
+		// Only if we're not exiting, to prevent stealing
+		// the message intended for the exit thread.
+		if !self.exiting {
+			if let Ok(msg) = self.from_kernel.try_recv() {
+				use KernelToFrontend::*;
+				match msg {
+					NewCollection(collection) => {
+						ok_debug!("GUI: New Collection");
+						self.collection = collection;
+						self.resetting_collection = false;
+						self.cache_collection();
+					},
+					NewKernelState(k)      => self.kernel_state = k,
+					NewResetState(r)      => self.reset_state = r,
+					Failed((old_collection, error_string)) => println!("failed"),
+					SearchSim(keychain) => {
+						self.search_result = keychain;
+						self.searching     = false;
+					},
+					_ => todo!(),
+				}
 			}
 		}
 
@@ -124,6 +129,7 @@ impl eframe::App for Gui {
 				self.show_exit_spinner(ctx, frame, width, height);
 				return;
 			}
+			ctx.request_repaint();
 		}
 
 		// If resetting the `Collection`,
@@ -353,12 +359,12 @@ fn show_exit_spinner(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, 
 			let half = height / 2.0;
 			let hh   = half / 2.0;
 
-			let text = RichText::new("Saving...")
+			let text = RichText::new(format!("--- Saving ---\nForce exiting in {}...", atomic_load!(self.exit_countdown)))
 				.size(hh / 4.0)
 				.color(crate::constants::BONE);
 
 			ui.add_sized([width, half], Label::new(text));
-			ui.add_sized([width, hh], Spinner::new().size(hh));
+			ui.add_sized([width, hh], Spinner::new().size(hh / 2.0));
 		});
 	});
 }}

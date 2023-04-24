@@ -33,6 +33,11 @@ use crossbeam_channel::{
 };
 use std::time::Duration;
 use rolock::RoLock;
+use std::sync::{
+	Arc,
+	atomic::AtomicU8,
+};
+use crate::constants::EXIT_COUNTDOWN;
 
 //---------------------------------------------------------------------------------------------------- Gui::exit() - The thread that handles exiting.
 impl Gui {
@@ -43,6 +48,7 @@ pub(super) fn exit(
 	state: State,
 	settings: Settings,
 	kernel_state: RoLock<KernelState>,
+	exit_countdown: Arc<AtomicU8>,
 ) {
 	// Tell `Kernel` to save stuff.
 	send!(to_kernel, FrontendToKernel::Exit);
@@ -80,20 +86,22 @@ pub(super) fn exit(
 		}
 	}
 
-	// Wait max `10` seconds if a
-	// `Collection` is being saved.
-	let mut n = 0;
+	// Wait until `Collection` is saved,
+	// or until we've elapsed total time.
+	atomic_store!(exit_countdown, EXIT_COUNTDOWN);
 	loop {
-		if n == 10 {
+		let e = atomic_load!(exit_countdown);
+
+		if e == 0 {
 			// Exit with error.
-			error!("GUI - Collection save is taking more than 10 seconds, skipping save...!");
+			error!("GUI - Collection save is taking more than {e} seconds, skipping save...!");
 			std::process::exit(1);
 		}
 
 		if lock_read!(kernel_state).saving {
-			n += 1;
-			info!("GUI - Waiting to Collection to be saved...");
-			sleep!(1000);
+			atomic_sub!(exit_countdown, 1);
+			info!("GUI - Waiting to Collection to be saved, force exit in [{e}] seconds");
+			sleep!(1);
 		} else {
 			// Exit.
 			std::process::exit(0);

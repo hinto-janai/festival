@@ -47,6 +47,7 @@ use std::sync::{
 	Arc,
 	Mutex,
 	atomic::AtomicBool,
+	atomic::AtomicU8,
 };
 use rolock::RoLock;
 use disk::Toml;
@@ -111,6 +112,8 @@ pub struct Gui {
 	/// when exiting really quickly, this `Instant`
 	/// needs to rack up some time before showing the spinner.
 	pub exit_instant: Instant,
+	/// How long before we force quit without saving.
+	pub exit_countdown: Arc<AtomicU8>,
 
 	/// Are we in the middle of resetting the [`Collection`]?
 	pub resetting_collection: bool,
@@ -420,6 +423,7 @@ impl Gui {
 
 			exiting: false,
 			exit_instant: now!(),
+			exit_countdown: Arc::new(AtomicU8::new(EXIT_COUNTDOWN)),
 
 			resetting_collection: false,
 		};

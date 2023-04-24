@@ -114,6 +114,11 @@ lazy_static::lazy_static! {
 	};
 }
 
+//---------------------------------------------------------------------------------------------------- Exit
+/// How many seconds to wait for the `Collection`
+/// to be saved to disk before force-quitting the `GUI`.
+pub const EXIT_COUNTDOWN: u8 = 30;
+
 //---------------------------------------------------------------------------------------------------- Version
 /// Current major version of `State`
 pub const STATE_VERSION: u8 = 1;
