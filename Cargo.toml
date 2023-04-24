@@ -83,10 +83,11 @@ all-features = true
 
 [dependencies]
 ### Personal libraries.
-benri    = { version = "0.1.2", features = ["log"] }
-disk     = { version = "0.0.6", features = ["bincode", "toml", "empty"] }
-#disk     = { path = "/home/main/git/disk", features = ["bincode", "toml", "empty"] }
-readable = { version = "0.7.6", features = ["full"] }
+benri    = { version = "0.1.3", features = ["log"] }
+#disk     = { version = "0.0.6", features = ["bincode", "toml", "empty", "json"] }
+disk     = { path = "../disk", features = ["bincode", "empty", "toml"] }
+readable = { path = "../readable", features = ["full"] }
+#readable = { version = "0.7.6", features = ["full"] }
 rolock   = { version = "0.1.2" }
 
 ### External patched libraries `external/`.
@@ -123,8 +124,6 @@ log = "0.4.17"
 notify = "5.1.0"
 mime_guess = "2.0.4"
 rand = { version = "0.8.5", features = ["small_rng"] }
-#regex = "1.7.1"
-#rodio = "0.16.0"
 serde_bytes = "0.11.9"
 serde = { version = "1.0.159", features = ["derive"] }
 seq-macro = "0.3.3"

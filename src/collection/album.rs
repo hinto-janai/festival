@@ -25,7 +25,7 @@ use readable::{
 };
 
 //---------------------------------------------------------------------------------------------------- Album
-#[derive(Debug,Serialize,Deserialize)]
+#[derive(Clone,Debug,Serialize,Deserialize)]
 /// Struct holding [`Album`] metadata, with pointers to an [`Artist`] and [`Song`]\(s\)
 ///
 /// This struct holds all the metadata about a particular [`Album`].
@@ -60,13 +60,10 @@ pub struct Album {
 	/// Key\(s\) to the [`Song`]\(s\).
 	pub songs: Vec<SongKey>,
 
-	// Art data.
-	#[serde(skip)]
 	// The `Album`'s art.
 	// `Frontend`'s don't access this field
 	// directly, but use `album.art_or()`.
-	pub(crate) art: Art,                   // Always initialized after `CCD`.
-	pub(crate) art_bytes: Option<Vec<u8>>, // May or may not exist (`None` == default `???` art)
+	pub(crate) art: Art, // Always initialized after `CCD`.
 
 	// Misc data.
 	/// Boolean representing if this is a compilation or not.

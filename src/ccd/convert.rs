@@ -118,18 +118,18 @@ impl super::Ccd {
 			send!(to_kernel, CcdToKernel::UpdateIncrement((increment, format!("{}", album.title))));
 
 			// Take raw image bytes.
-			let bytes = album.art_bytes.take();
+//			let bytes = album.art_bytes.take();
 
 			// If bytes exist, convert, else provide the `Unknown` art.
-			let art = match bytes {
-				Some(b) => {
+			let art = match &album.art {
+				Art::Bytes(b) => {
 					ok_trace!("{}", album.title);
 					match super::art_from_raw(&b, &mut resizer) {
 						Ok(a) => Art::Known(a),
 						_ => Art::Unknown,
 					}
 				},
-				None => {
+				_ => {
 					skip_trace!("{}", album.title);
 					Art::Unknown
 				},

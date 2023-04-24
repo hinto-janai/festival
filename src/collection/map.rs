@@ -21,7 +21,8 @@ use crate::key::{
 };
 
 //---------------------------------------------------------------------------------------------------- Map
-#[derive(Debug,Default,Serialize,Deserialize)]
+#[derive(Clone,Debug,Default,Serialize,Deserialize)]
+#[serde(transparent)]
 pub(crate) struct Map(pub(crate) HashMap<String, (ArtistKey, AlbumMap)>);
 
 impl Map {
@@ -66,11 +67,13 @@ impl Map {
 }
 
 //---------------------------------------------------------------------------------------------------- AlbumMap
-#[derive(Debug,Default,Serialize,Deserialize)]
+#[derive(Clone,Debug,Default,Serialize,Deserialize)]
+#[serde(transparent)]
 pub(crate) struct AlbumMap(pub(crate) HashMap<String, (AlbumKey, SongMap)>);
 
 //---------------------------------------------------------------------------------------------------- SongMap
-#[derive(Debug,Default,Serialize,Deserialize)]
+#[derive(Clone,Debug,Default,Serialize,Deserialize)]
+#[serde(transparent)]
 pub(crate) struct SongMap(pub(crate) HashMap<String, SongKey>);
 
 //---------------------------------------------------------------------------------------------------- TESTS

@@ -18,7 +18,8 @@ use crate::key::{
 //---------------------------------------------------------------------------------------------------- Plural newtypes around `Vec<T>`.
 macro_rules! impl_plural {
 	($name:ident, $plural:ident, $key:ident) => {
-		#[derive(Debug,Serialize,Deserialize)]
+		#[derive(Clone,Debug,Serialize,Deserialize)]
+		#[serde(transparent)]
 		/// Type-safe wrapper around [`Vec`].
 		///
 		/// This struct's inner value is just [`Vec<T>`], where `T` is the non-plural version of this `struct`'s name.

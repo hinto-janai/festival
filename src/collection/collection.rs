@@ -24,6 +24,7 @@ use crate::kernel::Kernel;
 use std::collections::HashMap;
 use disk::prelude::*;
 use disk::{Bincode,bincode_file};
+//use disk::{Json,json_file};
 use crate::constants::{
 	FESTIVAL,
 	FESTIVAL_HEADER,
@@ -59,7 +60,8 @@ lazy_static::lazy_static! {
 
 //---------------------------------------------------------------------------------------------------- The Collection™
 bincode_file!(Collection, Dir::Data, FESTIVAL, "", "collection", FESTIVAL_HEADER, COLLECTION_VERSION);
-#[derive(Debug,Serialize,Deserialize)]
+//json_file!(Collection, Dir::Data, FESTIVAL, "", "collection");
+#[derive(Clone,Debug,Serialize,Deserialize)]
 /// The main music `Collection`
 ///
 /// This is the `struct` that holds all the (meta)data about the user's music.

@@ -251,8 +251,10 @@ impl super::Ccd {
 			let album_title   = album.to_string();
 			let song_count    = Unsigned::zero();
 			let runtime_album = Runtime::zero();
-			let art           = Art::Unknown;
-			let art_bytes     = picture;
+			let art = match picture {
+				Some(bytes) => Art::Bytes(bytes),
+				_ => Art::Unknown,
+			};
 
 			// Lock.
 			let mut vec_artist = lock!(vec_artist);
@@ -274,7 +276,6 @@ impl super::Ccd {
 			let album_struct = Album {
 				title: album_title,
 				release,
-				art_bytes,
 				compilation,
 
 				artist: ArtistKey::from(vec_artist.len() - 1),
@@ -318,8 +319,10 @@ impl super::Ccd {
 		let album_title   = album.to_string();
 		let song_count    = Unsigned::zero();
 		let runtime_album = Runtime::zero();
-		let art           = Art::Unknown;
-		let art_bytes     = picture;
+		let art = match picture {
+			Some(bytes) => Art::Bytes(bytes),
+			_ => Art::Unknown,
+		};
 
 		// Prepare `Artist`.
 		let name = artist.to_string();
@@ -344,7 +347,6 @@ impl super::Ccd {
 		let album_struct = Album {
 			title: album_title,
 			release,
-			art_bytes,
 			compilation,
 
 			artist: ArtistKey::from(vec_artist.len()),

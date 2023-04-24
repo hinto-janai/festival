@@ -228,6 +228,7 @@ impl Keychain {
 
 //---------------------------------------------------------------------------------------------------- ArtistKey
 #[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
+#[serde(transparent)]
 /// A key representing the index of an [`Artist`] in the [`Collection`]
 ///
 /// The inner type is just a `usize`.
@@ -236,6 +237,7 @@ impl_common!(ArtistKey);
 
 //---------------------------------------------------------------------------------------------------- AlbumKey
 #[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
+#[serde(transparent)]
 /// A key representing the index of an [`Album`] in the [`Collection`]
 ///
 /// The inner type is just a `usize`.
@@ -244,6 +246,7 @@ impl_common!(AlbumKey);
 
 //---------------------------------------------------------------------------------------------------- SongKey
 #[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
+#[serde(transparent)]
 /// A key representing the index of a [`Song`] in the [`Collection`]
 ///
 /// The inner type is just a `usize`.
@@ -252,6 +255,7 @@ impl_common!(SongKey);
 
 //---------------------------------------------------------------------------------------------------- QueueKey
 #[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
+#[serde(transparent)]
 /// A key representing an index in the `Queue`
 ///
 /// This is used to index `Queue`, e.g:
@@ -268,6 +272,7 @@ impl_common!(QueueKey);
 
 //---------------------------------------------------------------------------------------------------- PlaylistKey
 #[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
+#[serde(transparent)]
 /// A key representing an index in a `Playlist`
 ///
 /// This is the same as [`QueueKey`] but for a `Playlist`.

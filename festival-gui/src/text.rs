@@ -14,6 +14,9 @@ pub const DECREMENT_ALBUM_SIZE: &str = "Decrease the album art size";
 
 pub const VOLUME_SLIDER: &str = "Increase/decrease audio volume";
 
+//---------------------------------------------------------------------------------------------------- Bottom Bar
+pub const SAVING: &str = "Festival is still saving a recently created Collection";
+
 //---------------------------------------------------------------------------------------------------- Settings Tab
 pub const RESET:             &str = "Reset changes";
 pub const SAVE:              &str = "Save changes to disk";

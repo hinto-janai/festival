@@ -41,6 +41,7 @@ use crossbeam_channel::{Sender,Receiver};
 use std::path::{Path,PathBuf};
 use std::sync::{Arc,RwLock};
 use disk::Bincode;
+//use disk::Json;
 use readable::{
 	Unsigned,
 	Percent,
@@ -191,6 +192,34 @@ impl Ccd {
 		let collection = collection.set_metadata();
 		debug!("CCD [6/12] - Collection: {}", secs_f64!(now));
 
+		// FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
+		// We need to serialize `Collection` and save to disk while we
+		// have the art bytes as an actual `Vec<u8>`. `egui` does not
+		// make it easy to retrieve the original bytes after you turn
+		// it into a `RetainedImage`, specifically, you have to access:
+		//
+		// `Art` -> `RetainedImage` -> `TextureHandle` -> `TextureManager` ->
+		// `TextureDelta` -> `ImageDelta` -> `ImageData` -> `ColorImage` which
+		// can finally be serialized by serde.
+		//
+		// In this conversion, there are multiple locks, unwraps and some
+		// fields aren't public so I'd have to fork epaint and make things `pub`.
+		//
+		// Instead of doing this, we `.clone()` the `Collection` before
+		// converting the `Art`. `CCD` will save this copy to disk later on.
+		//
+		// This is terrible. We're using 2x the memory we should be using.
+		//
+		// Q. Why not save right now?
+		// A. We want to return to the user
+		//    as soon as possible, even if
+		//    it means being sneaky and saving
+		//    the `Collection` to disk in the
+		//    background while they are
+		//    accessing it in the `GUI`.
+		let collection_for_disk = collection.clone();
+		// FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
+
 		// 7.
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((60.00, Phase::Resize)));
@@ -230,14 +259,14 @@ impl Ccd {
 		// Set `saving` state.
 		lock_write!(kernel_state).saving = true;
 		// Attempt atomic save.
-		if let Err(e) = collection.save_atomic() {
+		if let Err(e) = collection_for_disk.save_atomic() {
 			fail!("CCD - Collection write to disk: {}", e);
 		}
 		// Set `saving` state.
 		lock_write!(kernel_state).saving = false;
 		debug!("CCD [11/12] - Disk: {}", secs_f64!(now));
 		// Don't need these anymore.
-		drop!(kernel_state, collection);
+		drop!(kernel_state, collection_for_disk);
 
 		// 12.
 		// Try 3 times before giving up.
