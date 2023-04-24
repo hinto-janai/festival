@@ -31,7 +31,7 @@ lazy_static::lazy_static! {
 			noninteractive: WidgetVisuals {
 				weak_bg_fill: Color32::from_gray(27),
 				bg_fill:      Color32::from_gray(27),
-				bg_stroke:    Stroke::new(1.0, Color32::from_gray(80)), // separators, indentation lines
+				bg_stroke:    Stroke::new(2.0, Color32::from_gray(40)), // separators, indentation lines
 				fg_stroke:    Stroke::new(1.0, Color32::from_gray(140)), // normal text color
 				rounding:     Rounding::same(10.0),
 				expansion:    0.0,
