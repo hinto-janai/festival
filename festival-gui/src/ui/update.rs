@@ -101,11 +101,15 @@ impl eframe::App for Gui {
 						ok_debug!("GUI: New Collection");
 						self.collection = collection;
 						self.resetting_collection = false;
+						self.kernel_returned = true;
 						self.cache_collection();
+					},
+					Failed((old_collection, error_string)) => {
+						println!("failed");
+						self.kernel_returned = true;
 					},
 					NewKernelState(k)      => self.kernel_state = k,
 					NewResetState(r)      => self.reset_state = r,
-					Failed((old_collection, error_string)) => println!("failed"),
 					SearchSim(keychain) => {
 						self.search_result = keychain;
 						self.searching     = false;
@@ -130,6 +134,13 @@ impl eframe::App for Gui {
 				return;
 			}
 			ctx.request_repaint();
+		}
+
+		// If `Kernel` hasn't finished startup yet,
+		// show fullscreen spinner with info.
+		if !self.kernel_returned {
+			self.show_startup(ctx, frame, width, height);
+			return;
 		}
 
 		// If resetting the `Collection`,
@@ -347,7 +358,7 @@ fn show_central(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width
 }}
 
 
-//---------------------------------------------------------------------------------------------------- Exit spinner
+//---------------------------------------------------------------------------------------------------- Spinner (Exit)
 // This is a fullscreen spinner.
 // Used when exiting and waiting for everything to save.
 impl Gui {
@@ -369,7 +380,41 @@ fn show_exit_spinner(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, 
 	});
 }}
 
-//---------------------------------------------------------------------------------------------------- Reset Collection
+//---------------------------------------------------------------------------------------------------- Spinner (Startup)
+// This is a fullscreen spinner.
+// Used when waiting for `Kernel` to finish startup.
+impl Gui {
+#[inline(always)]
+fn show_startup(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
+	CentralPanel::default().show(ctx, |ui| {
+		self.set_visuals(ui);
+		ui.vertical_centered(|ui| {
+			let half = height / 2.0;
+
+			// Header.
+			let text = RichText::new("Loading the Collection...")
+				.heading()
+				.color(crate::constants::BONE);
+			ui.add_sized([width, half], Label::new(text));
+
+			let height = half / 6.0;
+
+			// Spinner.
+			ui.add_sized([width, height], Spinner::new().size(height));
+			// Percent.
+			ui.add_sized([width, height], Label::new(lock_read!(self.reset_state).percent.as_str()));
+			// Phase.
+			ui.add_sized([width, height], Label::new(lock_read!(self.reset_state).phase.as_str()));
+			// Specific Album.
+			ui.add_sized([width, height], Label::new(&lock_read!(self.reset_state).specific));
+			// ProgressBar.
+			ui.add_sized([width / 1.1, height], ProgressBar::new(lock_read!(self.reset_state).percent.inner() as f32 / 100.0));
+
+		});
+	});
+}}
+
+//---------------------------------------------------------------------------------------------------- Spinner (Reset Collection)
 // This is a fullscreen spinner.
 // Used when waiting on `Kernel` to hand over the new `Collection`.
 impl Gui {

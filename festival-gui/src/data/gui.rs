@@ -117,6 +117,13 @@ pub struct Gui {
 
 	/// Are we in the middle of resetting the [`Collection`]?
 	pub resetting_collection: bool,
+	/// This is a [`bool`] that is `false` until `Kernel`
+	/// responds with any message after it's done startup.
+	///
+	/// Once we get our first message from `Kernel`, this
+	/// will always be `true`. This is used for things like
+	/// the initial album art spinner screen.
+	pub kernel_returned: bool,
 }
 
 //---------------------------------------------------------------------------------------------------- GUI convenience functions.
@@ -426,6 +433,7 @@ impl Gui {
 			exit_countdown: Arc::new(AtomicU8::new(EXIT_COUNTDOWN)),
 
 			resetting_collection: false,
+			kernel_returned: false,
 		};
 
 		// Style
