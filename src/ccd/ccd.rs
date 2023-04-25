@@ -46,6 +46,9 @@ use readable::{
 	Unsigned,
 	Percent,
 };
+use super::convert::{
+	ArtConvertType,
+};
 
 //---------------------------------------------------------------------------------------------------- CCD
 pub(crate) struct Ccd;
@@ -60,6 +63,7 @@ impl Ccd {
 		collection: Collection,
 		ctx: egui::Context,
 	) {
+		let beginning = now!();
 		debug!("CCD - Purpose in life: convert_art()");
 
 		// If no albums, return.
@@ -67,9 +71,11 @@ impl Ccd {
 			send!(to_kernel, CcdToKernel::NewCollection(Arc::new(collection)));
 		// Else, convert art, send to `Kernel`.
 		} else {
-			let collection = Arc::new(Self::priv_convert_art(&to_kernel, collection));
+			let collection = Arc::new(Self::priv_convert_art(&to_kernel, collection, ArtConvertType::Startup));
 			send!(to_kernel, CcdToKernel::NewCollection(collection));
 		}
+
+		debug!("CCD ... Took {} seconds, bye!", secs_f64!(beginning));
 	}
 
 	#[inline(always)]
@@ -223,7 +229,7 @@ impl Ccd {
 		// 7.
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((60.00, Phase::Resize)));
-		let collection = Self::priv_convert_art(&to_kernel, collection);
+		let collection = Self::priv_convert_art(&to_kernel, collection, ArtConvertType::Reset);
 		// Update should be <= 99% at this point.
 		debug!("CCD [7/12] - Image: {}", secs_f64!(now));
 
@@ -237,7 +243,6 @@ impl Ccd {
 		// to freeze. Currently it's done with `try_write()` which doesn't
 		// starve GUI, but can take way longer (0.00008 secs -> 1.xx secs...!!!).
 		super::alloc_textures(&collection.albums, &ctx);
-//		ctx.request_repaint();
 		debug!("CCD [8/12] - Textures: {}", secs_f64!(now));
 
 		// 9.

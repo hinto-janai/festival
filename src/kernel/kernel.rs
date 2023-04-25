@@ -22,7 +22,7 @@ use disk::Bincode;
 //use disk::Json;
 use super::{KernelToFrontend, FrontendToKernel};
 use crate::{
-	ccd::{KernelToCcd, CcdToKernel, Ccd},
+	ccd::{KernelToCcd, CcdToKernel, Ccd, Phase},
 	search::{KernelToSearch, SearchToKernel, Search},
 	audio::{KernelToAudio, AudioToKernel, Audio},
 	watch::{WatchToKernel, Watch},
@@ -90,9 +90,9 @@ impl Kernel {
 	/// });
 	/// ```
 	pub fn bios(
-		to_frontend: Sender<KernelToFrontend>,
+		to_frontend:   Sender<KernelToFrontend>,
 		from_frontend: Receiver<FrontendToKernel>,
-		ctx: egui::Context,
+		ctx:           egui::Context,
 	) {
 		debug!("Kernel [1/12] ... entering bios()");
 
@@ -104,16 +104,20 @@ impl Kernel {
 		let pls_dont_optimize_away_2 = std::hint::black_box(lazy_static::initialize(&DUMMY_KERNEL_STATE));
 		let pls_dont_optimize_away_3 = std::hint::black_box(lazy_static::initialize(&DUMMY_RESET_STATE));
 
+		// Create `ResetState`, send to `Frontend`.
+		let reset = ResetState::from_dummy();
+		send!(to_frontend, KernelToFrontend::NewResetState(RoLock::new(&reset)));
+
 		// Attempt to load `Collection` from file.
 		match Collection::from_file() {
 			// If success, continue to `boot_loader` to convert
 			// bytes to actual usable `egui` images.
-			Ok(collection) => Self::boot_loader(collection, to_frontend, from_frontend, ctx),
+			Ok(collection) => Self::boot_loader(collection, to_frontend, from_frontend, reset, ctx),
 
 			// Else, straight to `init` with default flag set.
 			Err(e) => {
 				warn!("Kernel - Collection from file error: {}", e);
-				Self::init(None, None, to_frontend, from_frontend, ctx);
+				Self::init(None, None, to_frontend, from_frontend, reset, ctx);
 			},
 		}
 	}
@@ -121,10 +125,11 @@ impl Kernel {
 	//-------------------------------------------------- boot_loader()
 	#[inline(always)]
 	fn boot_loader(
-		collection: Collection,
-		to_frontend: Sender<KernelToFrontend>,
+		collection:    Collection,
+		to_frontend:   Sender<KernelToFrontend>,
 		from_frontend: Receiver<FrontendToKernel>,
-		ctx: egui::Context,
+		reset:         Arc<RwLock<ResetState>>,
+		ctx:           egui::Context,
 	) {
 		debug!("Kernel [2/12] ... entering boot_loader()");
 
@@ -142,20 +147,67 @@ impl Kernel {
 		debug!("Kernel [4/12] ... reading KernelState");
 		let state = KernelState::from_file();
 
+		// Set `ResetState` to `Start` + `PREPARE` phase.
+		lock_write!(reset).start();
+		lock_write!(reset).phase = Phase::Prepare;
+
 		// Wait for `Collection` to be returned by `CCD`.
 		debug!("Kernel [5/12] ... waiting on CCD");
 		let collection = loop {
 			use CcdToKernel::*;
 			match recv!(from_ccd) {
-				UpdateIncrement((increment, string)) => (), // TODO: Forward to `GUI`.
-				UpdatePhase((phase, string))         => (), // TODO: Forward to `GUI`.
-				NewCollection(collection)            => break collection,
-				Failed(string)                       => (), // TODO: Forward to `GUI`.
+				// We received an incremental update.
+				// Update the current `KernelState.ResetState` values to match.
+				UpdateIncrement((increment, specific)) => {
+					let current    = lock_read!(reset).percent.inner();
+					let percent    = Percent::from(current + increment);
+					let mut reset  = lock_write!(reset);
+					reset.percent  = percent;
+					reset.specific = specific;
+				},
+
+				// We're onto the next phase in `Collection` creation process.
+				// Update the current `ResetState` values to match.
+				//
+				// If we're on the last step, clear the `specific` field.
+				UpdatePhase((percent, phase)) => {
+					if percent == 100.0 {
+						let percent    = Percent::from(percent);
+						let mut reset  = lock_write!(reset);
+						reset.percent  = percent;
+						reset.phase    = phase;
+						reset.specific = "".to_string();
+					} else {
+						let percent   = Percent::from(percent);
+						let mut reset = lock_write!(reset);
+						reset.percent = percent;
+						reset.phase   = phase;
+					}
+				},
+
+				// `CCD` was successful. We got the new `Collection`.
+				NewCollection(collection) => break Some(collection),
+
+				// `CCD` failed, tell `GUI` and give the
+				// old `Collection` pointer to everyone
+				// and return out of this function.
+				Failed(anyhow) => {
+					error!("Kernel: Collection failed: {}", anyhow.to_string());
+					break None;
+				},
 			}
 		};
 
-		// Continue to `kernel` to verify data.
-		Self::kernel(collection, state, to_frontend, from_frontend, ctx);
+		// We're done with `CCD`.
+		lock_write!(reset).done();
+
+		// If everything went ok, continue to `kernel` to verify data.
+		if let Some(collection) = collection {
+			Self::kernel(collection, state, to_frontend, from_frontend, reset, ctx);
+		// Else, skip to `init()`.
+		} else {
+			Self::init(None, None, to_frontend, from_frontend, reset, ctx);
+		}
 	}
 
 	//-------------------------------------------------- kernel()
@@ -165,13 +217,14 @@ impl Kernel {
 		state:         Result<KernelState, anyhow::Error>,
 		to_frontend:   Sender<KernelToFrontend>,
 		from_frontend: Receiver<FrontendToKernel>,
-		ctx: egui::Context,
+		reset:         Arc<RwLock<ResetState>>,
+		ctx:           egui::Context,
 	) {
 		/* TODO: initialize and sanitize collection & misc data */
 		debug!("Kernel [6/12] ... entering kernel()");
 		let state = state.unwrap();
 
-		Self::init(Some(collection), Some(state), to_frontend, from_frontend, ctx);
+		Self::init(Some(collection), Some(state), to_frontend, from_frontend, reset, ctx);
 	}
 
 	//-------------------------------------------------- init()
@@ -181,6 +234,7 @@ impl Kernel {
 		state:         Option<KernelState>,
 		to_frontend:   Sender<KernelToFrontend>,
 		from_frontend: Receiver<FrontendToKernel>,
+		reset:         Arc<RwLock<ResetState>>,
 		ctx:           egui::Context,
 	) {
 		debug!("Kernel [7/12] ... entering init()");
@@ -197,13 +251,11 @@ impl Kernel {
 			None    => { debug!("Kernel [9/12] ... KernelState NOT found, returning default"); Arc::new(RwLock::new(KernelState::new())) },
 		};
 
-		// Create `ResetState`.
-		let reset = ResetState::from_dummy();
-
 		// Send `Collection/State` to `Frontend`.
 		send!(to_frontend, KernelToFrontend::NewCollection(Arc::clone(&collection)));
 		send!(to_frontend, KernelToFrontend::NewKernelState(RoLock::new(&state)));
-		send!(to_frontend, KernelToFrontend::NewResetState(RoLock::new(&reset)));
+		// TODO: Only with `egui` feature flag.
+		ctx.request_repaint();
 
 		// Create `To` channels.
 		let (to_search, search_recv) = crossbeam_channel::unbounded::<KernelToSearch>();
@@ -421,6 +473,9 @@ impl Kernel {
 		// Get `egui::Context` pointer.
 		let ctx = self.ctx.clone();
 
+		// Set `ResetState` to `Start` phase.
+		lock_write!(self.reset).start();
+
 		// Spawn `CCD`.
 		std::thread::Builder::new()
 			.name("CCD".to_string())
@@ -472,6 +527,8 @@ impl Kernel {
 					send!(self.to_search,   KernelToSearch::NewCollection(Arc::clone(&self.collection)));
 					send!(self.to_audio,    KernelToAudio::NewCollection(Arc::clone(&self.collection)));
 					send!(self.to_frontend, KernelToFrontend::Failed((Arc::clone(&self.collection), anyhow.to_string())));
+					// TODO: Only with `egui` feature flag.
+					self.ctx.request_repaint();
 					return;
 				},
 			}
@@ -484,6 +541,8 @@ impl Kernel {
 		send!(self.to_search,   KernelToSearch::NewCollection(Arc::clone(&self.collection)));
 		send!(self.to_audio,    KernelToAudio::NewCollection(Arc::clone(&self.collection)));
 		send!(self.to_frontend, KernelToFrontend::NewCollection(Arc::clone(&self.collection)));
+		// TODO: Only with `egui` feature flag.
+		self.ctx.request_repaint();
 
 		// Set our `ResetState`, we're done.
 		lock_write!(self.reset).done();

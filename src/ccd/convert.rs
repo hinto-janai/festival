@@ -28,6 +28,16 @@ use crate::key::{
 	SongKey,
 };
 
+//---------------------------------------------------------------------------------------------------- Types of conversions
+pub (super) enum ArtConvertType {
+	// The user requested a new `Collection`,
+	// and this conversion is part of a bigger reset.
+	Reset,
+	// We're converting an existing `Collection`
+	// that was just read from disk at startup.
+	Startup,
+}
+
 //---------------------------------------------------------------------------------------------------- Conversion (bytes <-> egui image) functions
 impl super::Ccd {
 	#[inline(always)]
@@ -42,6 +52,9 @@ impl super::Ccd {
 	pub(super) fn priv_convert_art(
 		to_kernel: &Sender<CcdToKernel>,
 		collection: Collection,
+		// Is this a startup convert
+		// or a `Collection` reset?
+		art_convert_type: ArtConvertType,
 	) -> Collection {
 		// How many albums total?
 		let total = collection.albums.len();
@@ -50,7 +63,10 @@ impl super::Ccd {
 		let threads = super::threads_for_albums(total);
 
 		// ResetUpdate.
-		let increment = 39.0 / total as f64;
+		let increment = match art_convert_type {
+			ArtConvertType::Reset   => 39.0 / total as f64,
+			ArtConvertType::Startup => 100.0 / total as f64,
+		};
 
 		// Single-threaded.
 		if threads == 1 {
@@ -137,9 +153,6 @@ impl super::Ccd {
 
 			// Insert the `Art`.
 			album.art = art;
-
-			// TODO: send progress report
-			// send!(to_kernel, ...);
 		}
 	}
 }
