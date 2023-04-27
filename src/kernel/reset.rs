@@ -3,8 +3,6 @@ use anyhow::{anyhow,bail,ensure};
 use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
 //use crate::macros::*;
-use disk::prelude::*;
-use disk::{Bincode,bincode_file};
 //use std::{};
 use std::sync::{Arc,RwLock};
 use crate::key::{
@@ -84,7 +82,7 @@ impl ResetState {
 			resetting: false,
 			percent: Percent::zero(),
 			phase: Phase::None,
-			specific: "".to_string(),
+			specific: String::new(),
 		}
 	}
 
@@ -99,7 +97,17 @@ impl ResetState {
 			resetting: true,
 			percent: Percent::zero(),
 			phase: Phase::Start,
-			specific: "".to_string(),
+			specific: String::new(),
+		};
+	}
+
+	// Sets the special `Disk` phase.
+	pub(super) fn disk(&mut self) {
+		*self = Self {
+			resetting: true,
+			percent: Percent::zero(),
+			phase: Phase::Disk,
+			specific: String::new(),
 		};
 	}
 
@@ -109,8 +117,28 @@ impl ResetState {
 			resetting: false,
 			percent: Percent::const_100(),
 			phase: Phase::None,
-			specific: "".to_string(),
+			specific: String::new(),
 		};
+	}
+
+	// Set a new increment update, this increments the current values.
+	pub(super) fn new_increment(&mut self, increment: f64, specific: String) {
+		let current    = self.percent.inner();
+		*self = Self {
+			percent: Percent::from(self.percent.inner() + increment),
+			specific,
+			..*self
+		};
+	}
+
+	// Set a new phase and percent.
+	pub(super) fn new_phase(&mut self, percent: f64, phase: Phase) {
+		*self = Self {
+			percent: Percent::from(percent),
+			specific: String::new(),
+			phase,
+			..*self
+		}
 	}
 }
 

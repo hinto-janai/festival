@@ -32,10 +32,11 @@ use crate::key::{
 pub (super) enum ArtConvertType {
 	// The user requested a new `Collection`,
 	// and this conversion is part of a bigger reset.
-	Reset,
-	// We're converting an existing `Collection`
-	// that was just read from disk at startup.
-	Startup,
+	// This resizes existing `Art::Bytes`.
+	Resize,
+
+	// We're converting `Art::Bytes` -> `Art::Known`.
+	ToKnown,
 }
 
 //---------------------------------------------------------------------------------------------------- Conversion (bytes <-> egui image) functions
@@ -52,9 +53,8 @@ impl super::Ccd {
 	pub(super) fn priv_convert_art(
 		to_kernel: &Sender<CcdToKernel>,
 		collection: Collection,
-		// Is this a startup convert
-		// or a `Collection` reset?
 		art_convert_type: ArtConvertType,
+		increment: f64,
 	) -> Collection {
 		// How many albums total?
 		let total = collection.albums.len();
@@ -62,18 +62,12 @@ impl super::Ccd {
 		// How many threads should we use?
 		let threads = super::threads_for_albums(total);
 
-		// ResetUpdate.
-		let increment = match art_convert_type {
-			ArtConvertType::Reset   => 39.0 / total as f64,
-			ArtConvertType::Startup => 100.0 / total as f64,
-		};
-
 		// Single-threaded.
 		if threads == 1 {
-			Self::convert_art_singlethread(to_kernel, collection, total, increment)
+			Self::convert_art_singlethread(to_kernel, collection, total, increment, art_convert_type)
 		// Multi-threaded.
 		} else {
-			Self::convert_art_multithread(to_kernel, collection, threads, total, increment)
+			Self::convert_art_multithread(to_kernel, collection, threads, total, increment, art_convert_type)
 		}
 	}
 
@@ -85,6 +79,7 @@ impl super::Ccd {
 		threads: usize,
 		total: usize,
 		increment: f64,
+		art_convert_type: ArtConvertType,
 	) -> Collection {
 		// Multi-thread & scoped process of `Collection` album art:
 		//
@@ -93,13 +88,23 @@ impl super::Ccd {
 		// 3. Process data.
 		// 4. Join threads, return.
 		std::thread::scope(|scope| {
-			// Divide albums (mostly) evenly across threads.
-			for albums in collection.albums.0.chunks_mut(threads) {
-
-				// Spawn scoped thread with chunked workload.
-				scope.spawn(|| {
-					Self::convert_art_worker(to_kernel, albums, total, increment);
-				});
+			match art_convert_type {
+				ArtConvertType::Resize => {
+					// Divide albums (mostly) evenly across threads.
+					for albums in collection.albums.0.chunks_mut(threads) {
+						// Spawn scoped thread with chunked workload.
+						scope.spawn(|| {
+							Self::resize_worker(to_kernel, albums, total, increment);
+						});
+					}
+				},
+				ArtConvertType::ToKnown => {
+					for albums in collection.albums.0.chunks_mut(threads) {
+						scope.spawn(|| {
+							Self::toknown_worker(to_kernel, albums, total, increment);
+						});
+					}
+				},
 			}
 		});
 
@@ -113,15 +118,20 @@ impl super::Ccd {
 		mut collection: Collection,
 		total: usize,
 		increment: f64,
+		art_convert_type: ArtConvertType,
 	) -> Collection {
-		Self::convert_art_worker(to_kernel, &mut collection.albums.0, total, increment);
+		match art_convert_type {
+			ArtConvertType::Resize  => Self::resize_worker(to_kernel, &mut collection.albums.0, total, increment),
+			ArtConvertType::ToKnown => Self::toknown_worker(to_kernel, &mut collection.albums.0, total, increment),
+		};
 
 		collection
 	}
 
 	#[inline(always)]
 	// The actual art conversion "processing" work.
-	fn convert_art_worker(
+	// This is for `ArtConvertType::Resize`.
+	fn resize_worker(
 		to_kernel: &Sender<CcdToKernel>,
 		albums: &mut [Album],
 		total: usize,
@@ -141,9 +151,37 @@ impl super::Ccd {
 				Art::Bytes(b) => {
 					ok_trace!("{}", album.title);
 					match super::art_from_raw(&b, &mut resizer) {
-						Ok(a) => Art::Known(a),
+						Ok(b) => Art::Bytes(b),
 						_ => Art::Unknown,
 					}
+				},
+				_ => {
+					skip_trace!("{}", album.title);
+					Art::Unknown
+				},
+			};
+
+			// Insert the `Art`.
+			album.art = art;
+		}
+	}
+
+	#[inline(always)]
+	// This is for `ArtConvertType::ToKnown`.
+	fn toknown_worker(
+		to_kernel: &Sender<CcdToKernel>,
+		albums: &mut [Album],
+		total: usize,
+		increment: f64,
+	) {
+		for album in albums {
+			send!(to_kernel, CcdToKernel::UpdateIncrement((increment, format!("{}", album.title))));
+
+			// If bytes exist, convert, else provide the `Unknown` art.
+			let art = match &album.art {
+				Art::Bytes(b) => {
+					ok_trace!("{}", album.title);
+					Art::Known(super::art_from_known(&b))
 				},
 				_ => {
 					skip_trace!("{}", album.title);

@@ -5,6 +5,7 @@ use log::info;
 
 //---------------------------------------------------------------------------------------------------- Logger init function
 #[inline(always)]
+#[must_use]
 /// Initializes the logger.
 ///
 /// This enables console logging on all the internals of `Festival`.

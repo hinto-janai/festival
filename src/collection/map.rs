@@ -23,7 +23,11 @@ use crate::key::{
 //---------------------------------------------------------------------------------------------------- Map
 #[derive(Clone,Debug,Default,Serialize,Deserialize)]
 #[serde(transparent)]
-pub(crate) struct Map(pub(crate) HashMap<String, (ArtistKey, AlbumMap)>);
+/// A [`HashMap`] that knows all [`Artist`]'s, [`Album`]'s and [`Song`]'s.
+///
+/// No public functions are implemented on this type directly,
+/// use [`Collection`]'s functions instead.
+pub struct Map(pub(crate) HashMap<String, (ArtistKey, AlbumMap)>);
 
 impl Map {
 	#[inline(always)]

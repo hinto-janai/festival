@@ -13,10 +13,6 @@ use crate::collection::{
 //use disk::{};
 //use std::{};
 
-// `usize` needs to always `== u64`.
-#[cfg(not(target_pointer_width = "64"))]
-compile_error!("Festival is only built for 64-bit systems.");
-
 //---------------------------------------------------------------------------------------------------- Macros to implement common traits.
 macro_rules! impl_common {
 	($type:ty) => {
@@ -55,6 +51,7 @@ macro_rules! impl_common {
 				Self(index as usize)
 			}
 		}
+		#[cfg(target_pointer_width = "64")]
 		impl From<u64> for $type {
 			#[inline(always)]
 			fn from(index: u64) -> Self {
@@ -150,20 +147,16 @@ impl Key {
 	}
 }
 
-// INVARIANT:
-// Since the target will always be `x86_64`,
-// the cast from `u64` to `usize` is should be lossless.
-//
 // Converts any tuple of 3 integers that can losslessly `.into()` a `u64`.
 impl<A, B, C> From<(A, B, C)> for Key
 where
-	A: Into<u64>,
-	B: Into<u64>,
-	C: Into<u64>,
+	A: Into<usize>,
+	B: Into<usize>,
+	C: Into<usize>,
 {
 	#[inline]
 	fn from(tuple: (A, B, C)) -> Self {
-		Self(ArtistKey(tuple.0.into() as usize), AlbumKey(tuple.1.into() as usize), SongKey(tuple.2.into() as usize))
+		Self(ArtistKey(tuple.0.into()), AlbumKey(tuple.1.into()), SongKey(tuple.2.into()))
 	}
 }
 
@@ -175,8 +168,11 @@ where
 ///
 /// Each inner [`Vec`] in [`Keychain`] hold separate keys types.
 pub struct Keychain {
+	/// [`Vec`] of [`ArtistKey`]'s.
 	pub artists: Vec<ArtistKey>,
+	/// [`Vec`] of [`AlbumKey`]'s.
 	pub albums: Vec<AlbumKey>,
+	/// [`Vec`] of [`SongKey`]'s.
 	pub songs: Vec<SongKey>,
 }
 

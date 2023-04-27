@@ -3,8 +3,6 @@ use anyhow::{anyhow,bail,ensure};
 use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
 //use crate::macros::*;
-use disk::prelude::*;
-use disk::{Bincode,bincode_file};
 //use std::{};
 use std::sync::{Arc,RwLock};
 use crate::key::{
@@ -80,7 +78,7 @@ impl Default for AudioState {
 }
 
 //---------------------------------------------------------------------------------------------------- KernelState
-bincode_file!(KernelState, Dir::Data, FESTIVAL, "", "state", FESTIVAL_HEADER, STATE_VERSION);
+disk::bincode!(KernelState, disk::Dir::Data, FESTIVAL, "", "state", FESTIVAL_HEADER, STATE_VERSION);
 #[derive(Clone,Debug,PartialOrd,PartialEq,Serialize,Deserialize)]
 /// Kernel State
 ///

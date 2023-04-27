@@ -55,18 +55,20 @@ pub(crate) const ALBUM_ART_SIZE_NUM: NonZeroU32 = unsafe { NonZeroU32::new_unche
 //-------------------------- CONVENIENCE WRAPPER FUNCTIONS
 // These 2 just apply the pipeline above.
 // The real functions are below.
+
+// Input: abritary image bytes.
+// Output: `600x600` RGB image bytes.
 #[inline(always)]
-pub(crate) fn art_from_raw(bytes: &[u8], resizer: &mut fir::Resizer) -> Result<egui_extras::RetainedImage, anyhow::Error> {
+pub(crate) fn art_from_raw(bytes: &[u8], resizer: &mut fir::Resizer) -> Result<Vec<u8>, anyhow::Error> {
 	// `.buffer()` must be called on `fir::Image`
 	// before passing it to the next function.
 	// It's cheap, it just returns a `&[u8]`.
-	Ok(color_img_to_retained(
-		rgb_bytes_to_color_img(
-			resize_dyn_image(
-				bytes_to_dyn_image(bytes)?, resizer)?.buffer()
-			)
-		)
-	)
+	Ok(resize_dyn_image(bytes_to_dyn_image(bytes)?, resizer)?.into_vec())
+}
+
+#[inline(always)]
+pub(crate) fn art_raw_to_egui(bytes: &[u8]) -> egui_extras::RetainedImage {
+	color_img_to_retained(rgb_bytes_to_color_img(bytes))
 }
 
 #[inline(always)]
@@ -126,8 +128,11 @@ fn resize_dyn_image(img: image::DynamicImage, resizer: &mut fir::Resizer) -> Res
 }
 
 #[inline(always)]
-// Input to this function _must_ be bytes that are
+// INVARIANT:
+// Input to this function _must_ be bytes that are perfectly
 // seperated into `3` chunks, as in `[R,G,B ... R,G,B]`.
+//
+// The image size must also be `600x600` or this will cause `egui` to `panic!()`.
 //
 // Original `egui` function has an `assert!()`.
 fn rgb_bytes_to_color_img(bytes: &[u8]) -> egui::ColorImage {
@@ -179,7 +184,7 @@ pub(super) fn alloc_textures(albums: &crate::collection::Albums, ctx: &egui::Con
 			let string = String::new();
 
 			// Wait 300 microseconds before locking. (aka: prevent `GUI` from reader starvation)
-//			std::thread::sleep(std::time::Duration::from_micros(315));
+			std::thread::sleep(std::time::Duration::from_micros(315));
 
 			// Allocate to `TextureManager`.
 			let tex_id = tex_mngr.write().alloc(string, image, art.options);

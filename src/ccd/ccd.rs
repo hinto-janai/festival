@@ -41,7 +41,6 @@ use crossbeam_channel::{Sender,Receiver};
 use std::path::{Path,PathBuf};
 use std::sync::{Arc,RwLock};
 use disk::Bincode;
-//use disk::Json;
 use readable::{
 	Unsigned,
 	Percent,
@@ -71,7 +70,13 @@ impl Ccd {
 			send!(to_kernel, CcdToKernel::NewCollection(Arc::new(collection)));
 		// Else, convert art, send to `Kernel`.
 		} else {
-			let collection = Arc::new(Self::priv_convert_art(&to_kernel, collection, ArtConvertType::Startup));
+			let increment = 99.0 / collection.albums.len() as f64;
+			let collection = Arc::new(Self::priv_convert_art(&to_kernel, collection, ArtConvertType::ToKnown, increment));
+			// FIXME:
+			// See below `new_collection()` FIXME for info.
+			send!(to_kernel, CcdToKernel::UpdatePhase((100.00, Phase::Finalize)));
+//			super::alloc_textures_no_sleep(&collection.albums, &ctx);
+			super::alloc_textures(&collection.albums, &ctx);
 			send!(to_kernel, CcdToKernel::NewCollection(collection));
 		}
 
@@ -101,39 +106,33 @@ impl Ccd {
 		// 4. Create sorted `Key`'s.
 		// 5. Create the "Map"
 		// 6. Create our `Collection`.
-		// 7. Transform in-memory `Collection` with `priv_convert_art()`
-		// 8. Pre-allocate the `RetainedImage`'s into `egui`
-		// 9. Send to `Kernel`
-		// 10. Wait for `Die` signal.
-		// 11. Save `Collection` to disk.
-		// 12. Destruct the old `Collection`.
-
-		// TODO: Handle potential errors:
-		// 1. No albums
-		// 2. Path error
-		// 3. Permission error
-		// 4. Disk error
-
-		// TODO: Send updates to `Kernel` throughout and `log!()`.
+		// 7. Transform in-memory `Collection` album art to bytes
+		// 8. Clone `Collection` for later saving
+		// 9. Transform in-memory `Collection` album art bytes to `egui`'s `RetainedImage`
+		// 10. Pre-allocate the `RetainedImage`'s into `egui`
+		// 11. Send to `Kernel`
+		// 12. Wait for `Die` signal.
+		// 13. Save `Collection` to disk.
+		// 14. Destruct the old `Collection`.
 
 		// 1.
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((0.00, Phase::WalkDir)));
 		let paths = Self::walkdir_audio(&to_kernel, paths);
-		debug!("CCD [1/12] - WalkDir: {}", secs_f64!(now));
+		debug!("CCD [1/14] - WalkDir: {}", secs_f64!(now));
 
 		// 2.
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((5.00, Phase::Parse)));
 		let (vec_artist, mut vec_album, vec_song) = Self::audio_paths_to_incomplete_vecs(&to_kernel, paths);
 		// Update should be < 50% at this point.
-		debug!("CCD [2/12] - Metadata: {}", secs_f64!(now));
+		debug!("CCD [2/14] - Metadata: {}", secs_f64!(now));
 
 		// 3.
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((50.00, Phase::Fix)));
 		Self::fix_album_metadata_from_songs(&mut vec_album, &vec_song);
-		debug!("CCD [3/12] - Fix: {}", secs_f64!(now));
+		debug!("CCD [3/14] - Fix: {}", secs_f64!(now));
 
 		// 4.
 		let now = now!();
@@ -153,13 +152,13 @@ impl Ccd {
 		let sort_song_lexi                      = Self::sort_song_lexi(&vec_song);
 		let sort_song_release                   = Self::sort_song_iterating_over_albums(&sort_album_release, &vec_artist, &vec_album);
 		let sort_song_runtime                   = Self::sort_song_runtime(&vec_song);
-		debug!("CCD [4/12] - Sort: {}", secs_f64!(now));
+		debug!("CCD [4/14] - Sort: {}", secs_f64!(now));
 
 		// 5.
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((55.00, Phase::Search)));
 		let map = Map::from_3_vecs(&vec_artist, &vec_album, &vec_song);
-		debug!("CCD [5/12] - Map: {}", secs_f64!(now));
+		debug!("CCD [5/14] - Map: {}", secs_f64!(now));
 
 		// 6.
 		let now = now!();
@@ -196,8 +195,17 @@ impl Ccd {
 		};
 		// Fix metadata.
 		let collection = collection.set_metadata();
-		debug!("CCD [6/12] - Collection: {}", secs_f64!(now));
+		debug!("CCD [6/14] - Collection: {}", secs_f64!(now));
 
+		// 7.
+		let now = now!();
+		send!(to_kernel, CcdToKernel::UpdatePhase((60.00, Phase::Art)));
+		let increment = 30.0 / collection.albums.len() as f64;
+		let collection = Self::priv_convert_art(&to_kernel, collection, ArtConvertType::Resize, increment);
+		// Update should be <= 90% at this point.
+		debug!("CCD [7/14] - Resize: {}", secs_f64!(now));
+
+		// 8.
 		// FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 		// We need to serialize `Collection` and save to disk while we
 		// have the art bytes as an actual `Vec<u8>`. `egui` does not
@@ -223,17 +231,30 @@ impl Ccd {
 		//    the `Collection` to disk in the
 		//    background while they are
 		//    accessing it in the `GUI`.
+		let now = now!();
+		send!(to_kernel, CcdToKernel::UpdatePhase((90.00, Phase::Clone)));
 		let collection_for_disk = collection.clone();
+		debug!("CCD [8/14] - Clone: {}", secs_f64!(now));
 		// FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
-		// 7.
+		// 9.
+		// FIXME:
+		// Consider using a threadpool.
+		//
+		// We're spinning up threads 3 times:
+		// - "The Loop"
+		// - Art Resize
+		// - Art ToKnown
+		//
+		// Spawning threads is surprisingly fast but still.
 		let now = now!();
-		send!(to_kernel, CcdToKernel::UpdatePhase((60.00, Phase::Resize)));
-		let collection = Self::priv_convert_art(&to_kernel, collection, ArtConvertType::Reset);
+		send!(to_kernel, CcdToKernel::UpdatePhase((95.00, Phase::Convert)));
+		let increment = 4.0 / collection.albums.len() as f64;
+		let collection = Self::priv_convert_art(&to_kernel, collection, ArtConvertType::ToKnown, increment);
 		// Update should be <= 99% at this point.
-		debug!("CCD [7/12] - Image: {}", secs_f64!(now));
+		debug!("CCD [9/14] - Convert: {}", secs_f64!(now));
 
-		// 8.
+		// 10.
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((100.00, Phase::Finalize)));
 		// FIXME:
@@ -243,23 +264,23 @@ impl Ccd {
 		// to freeze. Currently it's done with `try_write()` which doesn't
 		// starve GUI, but can take way longer (0.00008 secs -> 1.xx secs...!!!).
 		super::alloc_textures(&collection.albums, &ctx);
-		debug!("CCD [8/12] - Textures: {}", secs_f64!(now));
+		debug!("CCD [10/14] - Textures: {}", secs_f64!(now));
 
-		// 9.
+		// 11.
 		let now = now!();
 		let collection = Arc::new(collection);
 		send!(to_kernel, CcdToKernel::NewCollection(Arc::clone(&collection)));
-		debug!("CCD [9/12] - ToKernel: {}", secs_f64!(now));
+		debug!("CCD [11/14] - ToKernel: {}", secs_f64!(now));
 
 		debug!("CCD - Created Collection and sent to Kernel: {}", secs_f64!(beginning));
 
-		// 10.
+		// 12.
 		let now = now!();
 		match recv!(from_kernel) {
-			KernelToCcd::Die => debug!("CCD [10/12] - Die: {}", secs_f64!(now)),
+			KernelToCcd::Die => debug!("CCD [12/14] - Die: {}", secs_f64!(now)),
 		}
 
-		// 11.
+		// 13.
 		let now = now!();
 		// Set `saving` state.
 		lock_write!(kernel_state).saving = true;
@@ -269,26 +290,26 @@ impl Ccd {
 		}
 		// Set `saving` state.
 		lock_write!(kernel_state).saving = false;
-		debug!("CCD [11/12] - Disk: {}", secs_f64!(now));
+		debug!("CCD [13/14] - Disk: {}", secs_f64!(now));
 		// Don't need these anymore.
 		drop!(kernel_state, collection_for_disk);
 
-		// 12.
+		// 14.
 		// Try 3 times before giving up.
 		for i in 1..=4 {
 			if i == 4 {
-				error!("CCD [12/12] - Someone else is pointing to the old Collection...! I can't deconstruct it noooooooooo~");
+				error!("CCD [14/14] - Someone else is pointing to the old Collection...! I can't deconstruct it noooooooooo~");
 				break
 			}
 
 			if Arc::strong_count(&old_collection) == 1 {
 				let now = now!();
 				drop(old_collection);
-				debug!("CCD [12/12] - Deconstruct: {}", secs_f64!(now));
+				debug!("CCD [14/14] - Deconstruct: {}", secs_f64!(now));
 				break
 			}
 
-			warn!("CCD [12/12] Attempt ({}/3) - Failed to deconstruct old Collection...", i);
+			warn!("CCD [14/14] Attempt ({}/3) - Failed to deconstruct old Collection...", i);
 			sleep!(1000); // Sleep 1 second.
 		}
 

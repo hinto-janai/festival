@@ -1,6 +1,7 @@
 //---------------------------------------------------------------------------------------------------- Use
 use crate::collection::Collection;
 use crate::kernel::KernelState;
+use crate::const_assert;
 
 //---------------------------------------------------------------------------------------------------- General Strings
 /// Festival Version
@@ -8,18 +9,27 @@ use crate::kernel::KernelState;
 /// This is the version of the `Festival`'s internals.
 ///
 /// It uses `CARGO_PKG_VERSION`, or `version` found in `Cargo.toml`.
-pub const FESTIVAL_VERSION: &str = concat!("v", env!("CARGO_PKG_VERSION"));
+pub const FESTIVAL_VERSION: &str = {
+	const_assert!(env!("CARGO_PKG_VERSION").len() != 0, "CARGO_PKG_VERSION is 0 length");
+	concat!("v", env!("CARGO_PKG_VERSION"))
+};
 
 /// Festival + Version
 ///
 /// Just a string concatenating "Festival" and the current version, e.g: `Festival v1.0.0`
-pub const FESTIVAL_NAME_VER: &str = concat!("Festival v", env!("CARGO_PKG_VERSION"));
+pub const FESTIVAL_NAME_VER: &str = {
+	const_assert!(env!("CARGO_PKG_VERSION").len() != 0, "CARGO_PKG_VERSION is 0 length");
+	concat!("Festival v", env!("CARGO_PKG_VERSION"))
+};
 
 /// "Festival", as a `&'static str`
 pub const FESTIVAL: &str = "Festival";
 
 /// Current `git` commit of `festival`
-pub const COMMIT: &str = include_str!("commit");
+pub const COMMIT: &str = {
+	const_assert!(include_str!("commit").len() != 0, "Commit file is 0 length");
+	include_str!("commit")
+};
 
 /// Build profile (debug/release)
 ///
@@ -59,11 +69,6 @@ pub const COLLECTION_VERSION: u8 = 1;
 
 /// Current major version of the [`KernelState`]
 pub const STATE_VERSION: u8 = 1;
-
-// Log messages.
-pub(crate) const OK:   &str = " ... \x1b[1;92mOK\x1b[0m";
-pub(crate) const SKIP: &str = " ... \x1b[1;97mSKIP\x1b[0m";
-pub(crate) const FAIL: &str = " ... \x1b[1;91mFAIL\x1b[0m";
 
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]

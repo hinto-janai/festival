@@ -9,13 +9,11 @@
 use crate::kernel::Kernel;
 use crate::FESTIVAL;
 use serde::{Serialize,Deserialize};
-use disk::prelude::*;
-use disk::{Empty, empty_file};
 
 //---------------------------------------------------------------------------------------------------- Signals
 macro_rules! impl_signal {
 	($type:ident, $file_name:literal) => {
-		empty_file!($type, Dir::Data, FESTIVAL, "signal", $file_name);
+		disk::empty!($type, disk::Dir::Data, FESTIVAL, "signal", $file_name);
 		#[derive(Copy,Clone,Debug,PartialEq,Eq)]
 		/// File representing a signal
 		///

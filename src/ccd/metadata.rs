@@ -32,9 +32,6 @@ use benri::{
 	sync::*,
 	panic::*,
 };
-use crate::constants::{
-	SKIP
-};
 use crossbeam_channel::Sender;
 use super::CcdToKernel;
 use readable::{
@@ -176,15 +173,15 @@ impl super::Ccd {
 		// out all picture ops. Not that much faster.
 		let mut tagged_file = match Self::path_to_tagged_file(&path) {
 			Ok(t)  => t,
-			Err(e) => { warn!("CCD - TaggedFile fail: {}{}", path.display(), SKIP); continue; },
+			Err(e) => { skip_warn!("CCD - TaggedFile fail: {}", path.display()); continue; },
 		};
 		let mut tag = match Self::tagged_file_to_tag(&mut tagged_file) {
 			Ok(t)  => t,
-			Err(e) => { warn!("CCD - Tag fail: {}{}", path.display(), SKIP); continue; },
+			Err(e) => { skip_warn!("CCD - Tag fail: {}", path.display()); continue; },
 		};
 		let metadata = match Self::extract_tag_metadata(tagged_file, &mut tag) {
 			Ok(t)  => t,
-			Err(e) => { warn!("CCD - Metadata fail: {}{}", path.display(), SKIP); continue; },
+			Err(e) => { skip_warn!("CCD - Metadata fail: {}", path.display()); continue; },
 		};
 		// Destructure tag metadata
 		// into individual variables.
@@ -533,7 +530,7 @@ impl super::Ccd {
 
 	#[inline(always)]
 	// Find out if this `TaggedFile` belongs to a compilation.
-	fn tag_compilation<'a>(artist: &str, tag: &'a lofty::Tag) -> bool {
+	fn tag_compilation(artist: &str, tag: &lofty::Tag) -> bool {
 		// `FlagCompilation`.
 		if let Some(t) = tag.get(&lofty::ItemKey::FlagCompilation) {
 			if let Some(s) = Self::item_value_to_str(t.value()) {

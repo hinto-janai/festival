@@ -19,7 +19,6 @@ use benri::{
 	log::*,
 };
 use disk::Bincode;
-//use disk::Json;
 use super::{KernelToFrontend, FrontendToKernel};
 use crate::{
 	ccd::{KernelToCcd, CcdToKernel, Ccd, Phase},
@@ -106,10 +105,26 @@ impl Kernel {
 
 		// Create `ResetState`, send to `Frontend`.
 		let reset = ResetState::from_dummy();
+		lock_write!(reset).disk();
 		send!(to_frontend, KernelToFrontend::NewResetState(RoLock::new(&reset)));
 
 		// Attempt to load `Collection` from file.
-		match Collection::from_file() {
+		debug!("Kernel - Reading `Collection` from disk...");
+		// SAFETY:
+		// `Collection` is `memmap`'ed from disk.
+		//
+		// We (`Kernel`) are the only "entity" that should
+		// be touching `collection.bin` at this point.
+		//
+		// `CCD` saves to `collection.bin`, but that function can
+		// only be called after `Kernel` initially loads this one.
+		// (we aren't in `userland()` yet, `Kernel` won't respond
+		//  to `FrontendToKernel::NewCollection` messages yet)
+		//
+		// I can't prevent other programs from touching this file
+		// although they shouldn't be messing around in other program's
+		// data directories anyway.
+		match unsafe { Collection::from_file_memmap() } {
 			// If success, continue to `boot_loader` to convert
 			// bytes to actual usable `egui` images.
 			Ok(collection) => Self::boot_loader(collection, to_frontend, from_frontend, reset, ctx),
@@ -147,9 +162,9 @@ impl Kernel {
 		debug!("Kernel [4/12] ... reading KernelState");
 		let state = KernelState::from_file();
 
-		// Set `ResetState` to `Start` + `PREPARE` phase.
+		// Set `ResetState` to `Start` + `Art` phase.
 		lock_write!(reset).start();
-		lock_write!(reset).phase = Phase::Prepare;
+		lock_write!(reset).phase = Phase::Art;
 
 		// Wait for `Collection` to be returned by `CCD`.
 		debug!("Kernel [5/12] ... waiting on CCD");
@@ -158,32 +173,11 @@ impl Kernel {
 			match recv!(from_ccd) {
 				// We received an incremental update.
 				// Update the current `KernelState.ResetState` values to match.
-				UpdateIncrement((increment, specific)) => {
-					let current    = lock_read!(reset).percent.inner();
-					let percent    = Percent::from(current + increment);
-					let mut reset  = lock_write!(reset);
-					reset.percent  = percent;
-					reset.specific = specific;
-				},
+				UpdateIncrement((increment, specific)) => lock_write!(reset).new_increment(increment, specific),
 
 				// We're onto the next phase in `Collection` creation process.
 				// Update the current `ResetState` values to match.
-				//
-				// If we're on the last step, clear the `specific` field.
-				UpdatePhase((percent, phase)) => {
-					if percent == 100.0 {
-						let percent    = Percent::from(percent);
-						let mut reset  = lock_write!(reset);
-						reset.percent  = percent;
-						reset.phase    = phase;
-						reset.specific = "".to_string();
-					} else {
-						let percent   = Percent::from(percent);
-						let mut reset = lock_write!(reset);
-						reset.percent = percent;
-						reset.phase   = phase;
-					}
-				},
+				UpdatePhase((percent, phase)) => lock_write!(reset).new_phase(percent, phase),
 
 				// `CCD` was successful. We got the new `Collection`.
 				NewCollection(collection) => break Some(collection),
@@ -192,7 +186,7 @@ impl Kernel {
 				// old `Collection` pointer to everyone
 				// and return out of this function.
 				Failed(anyhow) => {
-					error!("Kernel: Collection failed: {}", anyhow.to_string());
+					error!("Kernel - Collection failed: {}", anyhow.to_string());
 					break None;
 				},
 			}
@@ -490,32 +484,11 @@ impl Kernel {
 			match recv!(from_ccd) {
 				// We received an incremental update.
 				// Update the current `KernelState.ResetState` values to match.
-				UpdateIncrement((increment, specific)) => {
-					let current    = lock_read!(self.reset).percent.inner();
-					let percent    = Percent::from(current + increment);
-					let mut reset  = lock_write!(self.reset);
-					reset.percent  = percent;
-					reset.specific = specific;
-				},
+				UpdateIncrement((increment, specific)) => lock_write!(self.reset).new_increment(increment, specific),
 
 				// We're onto the next phase in `Collection` creation process.
 				// Update the current `ResetState` values to match.
-				//
-				// If we're on the last step, clear the `specific` field.
-				UpdatePhase((percent, phase)) => {
-					if percent == 100.0 {
-						let percent    = Percent::from(percent);
-						let mut reset  = lock_write!(self.reset);
-						reset.percent  = percent;
-						reset.phase    = phase;
-						reset.specific = "".to_string();
-					} else {
-						let percent   = Percent::from(percent);
-						let mut reset = lock_write!(self.reset);
-						reset.percent = percent;
-						reset.phase   = phase;
-					}
-				},
+				UpdatePhase((percent, phase)) => lock_write!(self.reset).new_phase(percent, phase),
 
 				// `CCD` was successful. We got the new `Collection`.
 				NewCollection(collection) => break collection,

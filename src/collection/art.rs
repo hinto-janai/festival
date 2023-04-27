@@ -45,6 +45,56 @@ pub(crate) enum Art {
 	Unknown,
 }
 
+
+//---------------------------------------------------------------------------------------------------- Art Impl
+impl Art {
+	#[inline(always)]
+	/// Returns [`Self::Unknown`].
+	pub(crate) const fn new() -> Self {
+		Self::Unknown
+	}
+}
+
+impl Art {
+	#[inline]
+	/// Return the associated art or the default `[?]` image if [`Art::Unknown`]
+	pub(crate) fn art_or(&self) -> &RetainedImage {
+		match self {
+			Self::Known(art) => art,
+			_ => &UNKNOWN_ALBUM,
+		}
+	}
+
+	#[inline]
+	/// Same as [`Art::art_or`] but with no backup image.
+	pub(crate) fn get(&self) -> Option<&RetainedImage> {
+		match self {
+			Self::Known(art) => Some(art),
+			_ => None,
+		}
+	}
+
+	#[inline]
+	/// Calls [`egui::extras::texture_id`].
+	pub(crate) fn texture_id(&self, ctx: &egui::Context) -> egui::TextureId {
+		match self {
+			Self::Known(a) => a.texture_id(ctx),
+			// TODO: `lazy_static` this id, no need to lock
+			_ => UNKNOWN_ALBUM.texture_id(ctx),
+		}
+	}
+}
+
+impl std::fmt::Debug for Art {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		match self {
+			Self::Known(_) => write!(f, "Art::Known(RetainedImage)"),
+			Self::Bytes(b) => write!(f, "Art::Bytes({})", b.len()),
+			Self::Unknown  => write!(f, "Art::Unknown"),
+		}
+	}
+}
+
 //---------------------------------------------------------------------------------------------------- Art Clone
 impl Clone for Art {
 	fn clone(&self) -> Self {
@@ -270,55 +320,6 @@ const _: () = {
         }
     }
 };
-
-//---------------------------------------------------------------------------------------------------- Art Impl
-impl Art {
-	#[inline(always)]
-	/// Returns [`Self::Unknown`].
-	pub(crate) const fn new() -> Self {
-		Self::Unknown
-	}
-}
-
-impl Art {
-	#[inline]
-	/// Return the associated art or the default `[?]` image if [`Art::Unknown`]
-	pub(crate) fn art_or(&self) -> &RetainedImage {
-		match self {
-			Self::Known(art) => art,
-			_ => &UNKNOWN_ALBUM,
-		}
-	}
-
-	#[inline]
-	/// Same as [`Art::art_or`] but with no backup image.
-	pub(crate) fn get(&self) -> Option<&RetainedImage> {
-		match self {
-			Self::Known(art) => Some(art),
-			_ => None,
-		}
-	}
-
-	#[inline]
-	/// Calls [`egui::extras::texture_id`].
-	pub(crate) fn texture_id(&self, ctx: &egui::Context) -> egui::TextureId {
-		match self {
-			Self::Known(a) => a.texture_id(ctx),
-			// TODO: `lazy_static` this id, no need to lock
-			_ => UNKNOWN_ALBUM.texture_id(ctx),
-		}
-	}
-}
-
-impl std::fmt::Debug for Art {
-	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		match self {
-			Self::Known(_) => write!(f, "Art::Known(RetainedImage)"),
-			Self::Bytes(b) => write!(f, "Art::Bytes({})", b.len()),
-			Self::Unknown  => write!(f, "Art::Unknown"),
-		}
-	}
-}
 
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]

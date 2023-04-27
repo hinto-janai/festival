@@ -22,8 +22,6 @@ use crate::sort::{
 };
 use crate::kernel::Kernel;
 use std::collections::HashMap;
-use disk::prelude::*;
-use disk::{Bincode,bincode_file};
 //use disk::{Json,json_file};
 use crate::constants::{
 	FESTIVAL,
@@ -59,8 +57,7 @@ lazy_static::lazy_static! {
 }
 
 //---------------------------------------------------------------------------------------------------- The Collection™
-bincode_file!(Collection, Dir::Data, FESTIVAL, "", "collection", FESTIVAL_HEADER, COLLECTION_VERSION);
-//json_file!(Collection, Dir::Data, FESTIVAL, "", "collection");
+disk::bincode!(Collection, disk::Dir::Data, FESTIVAL, "", "collection", FESTIVAL_HEADER, COLLECTION_VERSION);
 #[derive(Clone,Debug,Serialize,Deserialize)]
 /// The main music `Collection`
 ///
@@ -124,14 +121,14 @@ bincode_file!(Collection, Dir::Data, FESTIVAL, "", "collection", FESTIVAL_HEADER
 /// you ask [`Kernel`] to produce one for you. You will receive an immutable `Arc<Collection>`.
 ///
 /// ### Late initialization
-/// Waiting on [`Kernel`] to hand you the _real_ [`Collection`] may take a while
+/// Waiting on [`Kernel`] to hand you the _real_ [`Collection`] may take a while.
 ///
 /// This prevents your `Frontend` from finishing initializing beforehand, so instead, use [`Collection::dummy`]
 /// to _cheaply_ obtain an empty, dummy [`Collection`], then wait for [`Kernel`]'s signal later on.
 pub struct Collection {
 	// The "Map".
 	/// A [`HashMap`] that knows all [`Artist`]'s, [`Album`]'s and [`Song`]'s.
-	pub(crate) map: Map,
+	pub map: Map,
 
 	// The "3 Vecs".
 	/// All the [`Artist`]'s in mostly random order.

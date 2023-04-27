@@ -3,8 +3,6 @@
 //use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
 //use crate::macros::*;
-use disk::prelude::*;
-use disk::{Bincode,bincode_file};
 use std::collections::VecDeque;
 use crate::collection::Collection;
 use crate::key::{

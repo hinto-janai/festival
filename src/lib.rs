@@ -52,16 +52,69 @@
 //! Since _I_ will most likely be creating all the frontends, there are no plans
 //! to fully flesh out this documentation for now (it's a lot of work).
 
+//---------------------------------------------------------------------------------------------------- Lints
+#![forbid(
+	future_incompatible,
+	let_underscore,
+	break_with_label_and_loop,
+	coherence_leak_check,
+	deprecated,
+	duplicate_macro_attributes,
+	exported_private_dependencies,
+	for_loops_over_fallibles,
+	large_assignments,
+	overlapping_range_endpoints,
+	private_in_public,
+	semicolon_in_expressions_from_macros,
+	redundant_semicolons,
+	unconditional_recursion,
+	unreachable_patterns,
+	unused_allocation,
+	unused_braces,
+	unused_comparisons,
+	unused_doc_comments,
+	unused_labels,
+	unused_unsafe,
+	while_true,
+	keyword_idents,
+	missing_docs,
+	non_ascii_idents,
+	noop_method_call,
+	unreachable_pub,
+	single_use_lifetimes,
+	variant_size_differences,
+)]
+#![deny(
+	nonstandard_style,
+	unused_mut,
+)]
+
+#[cfg(not(any(target_pointer_width = "64", target_pointer_width = "32")))]
+compile_error!("shukusai is only compatible with 64-bit/32bit CPUs");
+#[cfg(not(any(
+	target_os = "windows",
+	target_os = "macos",
+	target_os = "linux",
+	target_family = "wasm",
+)))]
+compile_error!("shukusai is only compatible with Window/macOS/Linux/WASM");
+
 //---------------------------------------------------------------------------------------------------- Private `shukusai` internals.
 mod audio;
 mod ccd;
 mod search;
 mod watch;
 
-//---------------------------------------------------------------------------------------------------- Re-exports.
+//---------------------------------------------------------------------------------------------------- Public Re-exports.
 pub use disk;
 pub use readable;
 pub use rolock;
+
+//---------------------------------------------------------------------------------------------------- Hidden Re-exports.
+#[doc(hidden)]
+pub use const_format::assertcp as const_assert;
+#[doc(hidden)]
+pub use const_format::formatcp as const_format;
 
 //---------------------------------------------------------------------------------------------------- Public `/` stuff.
 mod constants;

@@ -2,8 +2,6 @@
 //use anyhow::{bail,ensure,Error};
 //use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
-use disk::prelude::*;
-use disk::{Bincode,bincode_file};
 use super::{
 	Collection,
 	Artist,
