@@ -448,9 +448,9 @@ impl super::Ccd {
 	fn tagged_file_to_tag(tagged_file: &mut lofty::TaggedFile) -> Result<lofty::Tag, anyhow::Error> {
 		if let Some(t) = tagged_file.remove(lofty::TagType::VorbisComments) {
 			Ok(t)
-		} else if let Some(t) = tagged_file.remove(lofty::TagType::ID3v2) {
+		} else if let Some(t) = tagged_file.remove(lofty::TagType::Id3v2) {
 			Ok(t)
-		} else if let Some(t) = tagged_file.remove(lofty::TagType::ID3v1) {
+		} else if let Some(t) = tagged_file.remove(lofty::TagType::Id3v1) {
 			Ok(t)
 		} else {
 			Err(anyhow!("No tag"))
