@@ -13,6 +13,7 @@ use serde::{Serialize,Deserialize};
 //---------------------------------------------------------------------------------------------------- Signals
 macro_rules! impl_signal {
 	($type:ident, $file_name:literal) => {
+		use disk::*;
 		disk::empty!($type, disk::Dir::Data, FESTIVAL, "signal", $file_name);
 		#[derive(Copy,Clone,Debug,PartialEq,Eq)]
 		/// File representing a signal

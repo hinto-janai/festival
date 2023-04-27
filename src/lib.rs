@@ -123,6 +123,19 @@ mod logger;
 pub use logger::*;
 
 //---------------------------------------------------------------------------------------------------- Public modules.
+/// Custom panic hook + backtrace log
+///
+/// The first thing `Kernel` will do when you spawn it
+/// with `Kernel::bios()` is set a custom [`panic!()`] hook.
+///
+/// Since it is unsafe to carry on operating if any one of the threads
+/// within `shukusai` panics, all threads are forcefully exited if any
+/// single thread panics, even outside of `shukusai`.
+///
+/// But before that, a full stack backtrace is printed to console
+/// and is also written to disk in the `festival` folder as `panic.txt`.
+pub mod panic;
+
 /// The main music `Collection` and it's inner data
 pub mod collection;
 

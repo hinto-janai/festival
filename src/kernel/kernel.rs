@@ -18,8 +18,10 @@ use benri::{
 	ops::*,
 	sync::*,
 	log::*,
+	mass_panic,
 };
 use disk::Bincode;
+use disk::Plain;
 use super::{KernelToFrontend, FrontendToKernel};
 use crate::{
 	ccd::{KernelToCcd, CcdToKernel, Ccd},
@@ -94,6 +96,30 @@ impl Kernel {
 		from_frontend: Receiver<FrontendToKernel>,
 		ctx:           egui::Context,
 	) {
+		// Set panic hook.
+		//
+		// If `Kernel` or anyone else `panic!()`'s,
+		// we want _everyone_ to exit.
+		std::panic::set_hook(Box::new(|panic_info| {
+			// Re-format panic info.
+			let panic_info = format!(
+				"{}\nstack backtrace:\n{}",
+				panic_info,
+				std::backtrace::Backtrace::force_capture()
+			);
+			// Attempt to write panic info to disk.
+			let panic = crate::panic::Panic(panic_info.clone());
+			let path  = crate::panic::Panic::absolute_path();
+			let save  = panic.save();
+			match (save, path) {
+				(Ok(_), Ok(p)) => error!("mass_panic!() - Saved panic log to: {}", p.display()),
+				(Ok(_), _)     => error!("mass_panic!() - Saved panic log in festival folder."),
+				_              => error!("mass_panic!() - Could not save panic log"),
+			}
+			// Exit all threads.
+			mass_panic!(panic_info);
+		}));
+
 		debug!("Kernel [1/12] ... entering bios()");
 
 		// Initialize the dummy `Collection/KernelState/ResetState`.
