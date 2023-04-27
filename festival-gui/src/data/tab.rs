@@ -69,6 +69,38 @@ impl Tab {
 			Self::Settings,
 		].iter()
 	}
+
+	#[inline]
+	/// Returns the next sequential [`Tab`] variant.
+	///
+	/// This returns the _first_ tab if at the _last_ tab.
+	pub fn next(&self) -> Self {
+		match self {
+			Self::View      => Self::Albums,
+			Self::Albums    => Self::Artists,
+			Self::Artists   => Self::Songs,
+			Self::Songs     => Self::Queue,
+			Self::Queue     => Self::Search,
+			Self::Search    => Self::Settings,
+			Self::Settings  => Self::View,
+		}
+	}
+
+	#[inline]
+	/// Returns the previous sequential [`Tab`] variant.
+	///
+	/// This returns the _last_ tab if at the _first_ tab.
+	pub fn previous(&self) -> Self {
+		match self {
+			Self::View      => Self::Settings,
+			Self::Albums    => Self::View,
+			Self::Artists   => Self::Albums,
+			Self::Songs     => Self::Artists,
+			Self::Queue     => Self::Songs,
+			Self::Search    => Self::Queue,
+			Self::Settings  => Self::Search,
+		}
+	}
 }
 
 impl std::fmt::Display for Tab {

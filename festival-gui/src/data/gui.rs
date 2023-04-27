@@ -139,6 +139,17 @@ impl Gui {
 	}
 
 	#[inline(always)]
+	/// Set the current [`Settings`] to disk.
+	pub fn save_settings(&mut self) {
+		self.set_settings();
+		// TODO: handle save error.
+		match self.settings.save_atomic() {
+			Ok(_)  => ok_debug!("GUI - Settings save"),
+			Err(e) => error!("GUI - Settings could not be saved to disk: {e}"),
+		}
+	}
+
+	#[inline(always)]
 	/// Set the original [`Settings`] to reflect live [`Settings`].
 	pub fn set_settings(&mut self) {
 		self.og_settings = self.settings.clone();
@@ -192,6 +203,35 @@ impl Gui {
 		// assignment for small `copy`-able structs like `AudioState`,
 		// so don't even check for diffs, just always copy.
 		self.state.audio = k.audio;
+	}
+
+	#[inline(always)]
+	/// Perform all the necessary steps to add a folder
+	/// to add to the Collection (spawns RFD thread).
+	pub fn add_folder(&self) {
+		if atomic_load!(self.rfd_open) {
+			warn!("GUI - Add folder requested, but RFD is already open");
+		} else {
+			crate::data::spawn_rfd_thread(
+				Arc::clone(&self.rfd_open),
+				Arc::clone(&self.rfd_new),
+			);
+		}
+	}
+
+	#[inline(always)]
+	/// Perform all the necessary steps to reset
+	/// the [`Collection`] and enter the proper state.
+	pub fn reset_collection(&mut self) {
+		// Drop our real `Collection`.
+		self.collection = Collection::dummy();
+
+		// Send signal to `Kernel`.
+		send!(self.to_kernel, FrontendToKernel::NewCollection(self.settings.collection_paths.clone()));
+
+		// Go into collection mode.
+		self.resetting_collection = true;
+
 	}
 
 	#[inline(always)]

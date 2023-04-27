@@ -20,7 +20,12 @@ use crate::constants::{
 	RED,
 	SEARCH_MAX_LEN
 };
-use crate::text::SEARCH_MAX;
+use crate::text::{
+	SEARCH_MAX,
+	SEARCH_BAR,
+	SEARCH_HELP,
+	SEARCH_EMPTY_COLLECTION,
+};
 use log::debug;
 
 //---------------------------------------------------------------------------------------------------- Search
@@ -55,7 +60,7 @@ CentralPanel::default().show(ctx, |ui| {
 		let id = egui::Id::new("Search TextEdit");
 		let text_edit = TextEdit::singleline(&mut self.search_string).id(id);
 		ui.spacing_mut().text_edit_width = width;
-		let response = ui.add_sized([width, 35.0], text_edit);
+		let response = ui.add_sized([width, 35.0], text_edit).on_hover_text(SEARCH_BAR);
 
 		// Check if we came from a different
 		// tab and need to lock focus.
@@ -78,21 +83,24 @@ CentralPanel::default().show(ctx, |ui| {
 
 	// Return if the `Collection` is empty.
 	if self.collection.empty {
-		let label = Label::new(RichText::new("The Collection is empty. There is nothing to search.").color(GRAY));
+		let label = Label::new(RichText::new(SEARCH_EMPTY_COLLECTION).color(GRAY));
 		ui.add_sized(ui.available_size(), label);
 
 		return;
 	}
 
-	// If search input is empty, reset result, show guide.
+	// If search input is empty, reset result, show help.
 	if self.search_string.is_empty() {
 		if !self.search_result.is_empty() {
 			self.search_result.clear();
 			self.searching = false;
 		}
 
-		let label = Label::new(RichText::new("🔍 Search for albums, artists, and songs.").color(GRAY));
-		ui.add_sized([width, half], label);
+		let label = Label::new(RichText::new(SEARCH_HELP).color(GRAY));
+		ui.add_sized([width, hh], label);
+		ui.add_sized([width, hhh], Label::new(RichText::new(&self.count_artist).color(GRAY)));
+		ui.add_sized([width, hhh], Label::new(RichText::new(&self.count_album).color(GRAY)));
+		ui.add_sized([width, hhh], Label::new(RichText::new(&self.count_song).color(GRAY)));
 
 		return;
 	}

@@ -47,7 +47,17 @@ use crate::constants::{
 	SLIDER_CIRCLE_HOVERED,
 	SLIDER_CIRCLE_ACTIVE,
 };
-use crate::text::*;
+use crate::text::{
+	COLLECTION_LOADING,
+	COLLECTION_RESETTING,
+	UI_PREVIOUS,
+	UI_PLAY,
+	UI_PAUSE,
+	UI_FORWARDS,
+	DECREMENT_ALBUM_SIZE,
+	INCREMENT_ALBUM_SIZE,
+	VOLUME_SLIDER,
+};
 
 //---------------------------------------------------------------------------------------------------- `GUI`'s eframe impl.
 impl eframe::App for Gui {
@@ -139,14 +149,14 @@ impl eframe::App for Gui {
 		// If `Kernel` hasn't finished startup yet,
 		// show fullscreen spinner with info.
 		if !self.kernel_returned {
-			self.show_collection_spinner(ctx, frame, width, height, "Loading Collection...");
+			self.show_collection_spinner(ctx, frame, width, height, COLLECTION_LOADING);
 			return;
 		}
 
 		// If resetting the `Collection`,
 		// show fullscreen spinner with info.
 		if self.resetting_collection {
-			self.show_collection_spinner(ctx, frame, width, height, "Resetting Collection...");
+			self.show_collection_spinner(ctx, frame, width, height, COLLECTION_RESETTING);
 			return;
 		}
 
@@ -158,12 +168,35 @@ impl eframe::App for Gui {
 		// Check for key presses.
 		if !ctx.wants_keyboard_input() {
 			ctx.input_mut(|input| {
-				for key in ALPHABET_KEY_PRESSES {
-					if input.consume_key(egui::Modifiers::NONE, key) {
-						self.state.tab = Tab::Search;
-						self.search_string = KeyPress::from_egui_key(&key).to_string();
-						self.search_focus = true;
-						break
+				// Check for arrow keys (Tab switch)
+				if input.consume_key(egui::Modifiers::NONE, egui::Key::ArrowDown) {
+					self.state.tab = self.state.tab.next();
+				} else if input.consume_key(egui::Modifiers::NONE, egui::Key::ArrowUp) {
+					self.state.tab = self.state.tab.previous();
+				// Check for `F11` (Fullscreen)
+				} else if input.consume_key(egui::Modifiers::NONE, egui::Key::F11) {
+					frame.set_fullscreen(!frame.info().window_info.fullscreen);
+				// Check for `Ctrl+R` (Reset Collection)
+				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::R) {
+					self.reset_collection();
+				// Check for `Ctrl+S` (Save Settings)
+				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::S) {
+					self.save_settings();
+				// Check for `Ctrl+Z` (Reset Settings)
+				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::Z) {
+					self.reset_settings();
+				// Check for `Ctrl+A` (Add Folder)
+				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::A) {
+					self.add_folder();
+				// Check for [A-Za-z] (Search)
+				} else {
+					for key in ALPHABET_KEY_PRESSES {
+						if input.consume_key(egui::Modifiers::NONE, key) {
+							self.state.tab = Tab::Search;
+							self.search_string = KeyPress::from_egui_key(&key).to_string();
+							self.search_focus = true;
+							break
+						}
 					}
 				}
 			});
@@ -226,9 +259,9 @@ fn show_bottom(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width:
 		ui.horizontal(|ui| {
 			// Media control buttons
 			ui.group(|ui| {
-				ui.add_sized([unit, height], Button::new(RichText::new("⏪").size(35.0)));
-				ui.add_sized([unit*1.5, height], Button::new(RichText::new("▶").size(20.0)));
-				ui.add_sized([unit, height], Button::new(RichText::new("⏩").size(35.0)));
+				ui.add_sized([unit, height], Button::new(RichText::new(UI_PREVIOUS).size(35.0)));
+				ui.add_sized([unit*1.5, height], Button::new(RichText::new(UI_PLAY).size(20.0)));
+				ui.add_sized([unit, height], Button::new(RichText::new(UI_FORWARDS).size(35.0)));
 			});
 
 			// Song time elapsed

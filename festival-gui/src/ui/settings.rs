@@ -75,12 +75,7 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 		}
 
 		if ui.add_sized([width, text], save).on_hover_text(SAVE).clicked() {
-			self.set_settings();
-			// TODO: handle save error.
-			match self.settings.save_atomic() {
-				Ok(_)  => ok_debug!("GUI - Settings save"),
-				Err(e) => error!("GUI - Settings could not be saved to disk: {e}"),
-			}
+			self.save_settings();
 		}
 	})});
 
@@ -245,14 +240,7 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 			ui.set_enabled(collection_paths_len < 10);
 
 			if ui.add_sized([width - 15.0, text], Button::new("Add folder")).on_hover_text(ADD_FOLDER).clicked() {
-				if atomic_load!(self.rfd_open) {
-					warn!("GUI - Add folder button pressed, but RFD is already open");
-				} else {
-					crate::data::spawn_rfd_thread(
-						Arc::clone(&self.rfd_open),
-						Arc::clone(&self.rfd_new),
-					);
-				}
+				self.add_folder();
 			}
 		});
 
@@ -293,15 +281,7 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 			ui.set_enabled(collection_paths_len > 0 && !self.resetting_collection);
 
 			if ui.add_sized([width - 15.0, text], Button::new("Reset Collection")).on_hover_text(RESET_COLLECTION).clicked() {
-				// Drop our real `Collection`.
-				self.collection = Collection::dummy();
-
-				// Send signal to `Kernel`.
-				send!(self.to_kernel, FrontendToKernel::NewCollection(self.settings.collection_paths.clone()));
-
-				// Go into collection mode.
-				self.resetting_collection = true;
-				return;
+				self.reset_collection();
 			}
 		});
 
