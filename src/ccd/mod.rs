@@ -13,9 +13,6 @@ pub(crate) use ccd::*;
 mod img;
 pub(crate) use img::*;
 
-mod phase;
-pub use phase::*;
-
 // ----- CCD internal functions.
 mod convert;
 use convert::*;

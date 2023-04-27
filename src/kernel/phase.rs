@@ -40,6 +40,7 @@ const FINALIZE: &str = "Finalizing Collection";
 ///
 /// Use [`Phase::as_str()`] to get a more `Frontend` friendly message related to the [`Phase`]:
 /// ```rust
+/// # use shukusai::kernel::Phase;
 /// assert!(Phase::None.as_str()     == "...");
 /// assert!(Phase::Disk.as_str()     == "Reading From Disk");
 ///

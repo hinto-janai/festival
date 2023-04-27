@@ -225,6 +225,6 @@ mod tests {
 		// Bytes of FIR Image should be in perfect `3` chunks (RGB).
 		assert!(fir_img.buffer().len() % 3 == 0);
 
-		let _ = art_from_known(&fir_img.buffer());
+		art_from_known(&fir_img.buffer());
 	}
 }

@@ -7,7 +7,10 @@
 //use disk::{};
 //use std::{};
 //use std::sync::{Arc,Mutex,RwLock};
-use egui::TextureId;
+use egui::{
+	TextureId,
+	ColorImage,
+};
 use egui_extras::image::RetainedImage;
 use super::Album;
 use serde::{Serialize,Deserialize,Serializer,Deserializer};
@@ -18,12 +21,12 @@ use serde::{Serialize,Deserialize,Serializer,Deserializer};
 /// 600x600 pixels.
 ///
 /// Album art will _always_ be resized internally to this size.
-pub const ALBUM_ART_SIZE: u16 = 600;
+pub const ALBUM_ART_SIZE: usize = 600;
 
 //---------------------------------------------------------------------------------------------------- Unknown Art (lazy) Constant
 lazy_static::lazy_static! {
-	pub(crate) static ref UNKNOWN_ALBUM: RetainedImage = RetainedImage::from_image_bytes("Unknown", include_bytes!("../../assets/images/art/unknown.png")).unwrap();
 	pub(crate) static ref UNKNOWN_ALBUM_BYTES: &'static [u8] = include_bytes!("../../assets/images/art/unknown.png");
+	pub(crate) static ref UNKNOWN_ALBUM: RetainedImage = RetainedImage::from_image_bytes("Unknown", include_bytes!("../../assets/images/art/unknown.png")).unwrap();
 }
 
 //---------------------------------------------------------------------------------------------------- Art
@@ -44,7 +47,6 @@ pub(crate) enum Art {
 	#[default]
 	Unknown,
 }
-
 
 //---------------------------------------------------------------------------------------------------- Art Impl
 impl Art {
@@ -324,9 +326,11 @@ const _: () = {
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
 mod tests {
+	use super::*;
+
 	#[test]
 	fn unknown_art() {
 		// Make sure the `.unwrap()` doesn't panic.
-		assert!(*UNKNOWN_ALBUM == *UNKNOWN_ALBUM);
+		assert!(UNKNOWN_ALBUM.size() == [ALBUM_ART_SIZE; 2]);
 	}
 }

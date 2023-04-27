@@ -680,7 +680,7 @@ mod tests {
 	#[test]
 	fn release() {
 		let mut mp3 = mp3();
-		let mut tag = Ccd::tagged_file_to_tag(&mut mp3).unwrap();
+		let tag = Ccd::tagged_file_to_tag(&mut mp3).unwrap();
 		let release = Ccd::tag_release(&tag).unwrap();
 		eprintln!("{}", release);
 		assert!(release == "2023-03-08");

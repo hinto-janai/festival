@@ -23,7 +23,7 @@ use super::Volume;
 use crate::kernel::Kernel;
 use crate::collection::Collection;
 use readable::Percent;
-use crate::ccd::Phase;
+use super::phase::Phase;
 
 //---------------------------------------------------------------------------------------------------- Lazy
 lazy_static::lazy_static! {

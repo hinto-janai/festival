@@ -12,6 +12,7 @@ use super::state::{
 use super::DUMMY_RESET_STATE;
 use super::volume::Volume;
 use super::reset::ResetState;
+use super::phase::Phase;
 use rolock::RoLock;
 use benri::{
 	ops::*,
@@ -21,7 +22,7 @@ use benri::{
 use disk::Bincode;
 use super::{KernelToFrontend, FrontendToKernel};
 use crate::{
-	ccd::{KernelToCcd, CcdToKernel, Ccd, Phase},
+	ccd::{KernelToCcd, CcdToKernel, Ccd},
 	search::{KernelToSearch, SearchToKernel, Search},
 	audio::{KernelToAudio, AudioToKernel, Audio},
 	watch::{WatchToKernel, Watch},
