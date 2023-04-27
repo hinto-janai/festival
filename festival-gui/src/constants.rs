@@ -119,6 +119,10 @@ lazy_static::lazy_static! {
 /// to be saved to disk before force-quitting the `GUI`.
 pub const EXIT_COUNTDOWN: u8 = 30;
 
+//---------------------------------------------------------------------------------------------------- Search
+/// How many bytes to allow in the search bar before truncating.
+pub const SEARCH_MAX_LEN: usize = u8::MAX as usize;
+
 //---------------------------------------------------------------------------------------------------- Version
 /// Current major version of `State`
 pub const STATE_VERSION: u8 = 1;

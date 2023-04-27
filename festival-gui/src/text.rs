@@ -4,6 +4,7 @@ use crate::constants::{
 	ALBUMS_PER_ROW_MAX,
 	ALBUM_ART_SIZE_MIN,
 	ALBUM_ART_SIZE_MAX,
+	SEARCH_MAX_LEN,
 };
 use const_format::formatcp;
 
@@ -35,6 +36,10 @@ pub const ADD_FOLDER:        &str = "Add a maximum of 10 folders";
 pub const REMOVE_FOLDER:     &str = "Remove this folder";
 pub const RESET_COLLECTION:  &str = "Scan the folders listed and create a new Collection";
 pub const STATS:             &str = "Stats about your current Collection";
+
+//---------------------------------------------------------------------------------------------------- Search Tab
+// This is inaccurate because `char` != `u8` but meh.
+pub const SEARCH_MAX: &str = formatcp!("Search character limit has been reached ({SEARCH_MAX_LEN})");
 
 //---------------------------------------------------------------------------------------------------- TESTS
 //#[cfg(test)]

@@ -18,7 +18,10 @@ use crate::constants::{
 	WHITE,
 	GREEN,
 	RED,
+	SEARCH_MAX_LEN
 };
+use crate::text::SEARCH_MAX;
+use log::debug;
 
 //---------------------------------------------------------------------------------------------------- Search
 impl crate::data::Gui {
@@ -39,6 +42,8 @@ CentralPanel::default().show(ctx, |ui| {
 		// If searching, show spinner.
 		if self.searching {
 			ui.add_sized([s, s], Spinner::new().size(s));
+		} else if self.search_string.len() >= SEARCH_MAX_LEN {
+			ui.add_sized([s, s], Label::new(RichText::new("❌").color(RED))).on_hover_text(SEARCH_MAX);
 		} else if !self.search_result.is_empty() {
 			ui.add_sized([s, s], Label::new(RichText::new("✔").color(GREEN)));
 		} else {
@@ -61,9 +66,13 @@ CentralPanel::default().show(ctx, |ui| {
 
 		// Only update if user input has changed.
 		if response.changed() {
-			// Else, send.
-			send!(self.to_kernel, FrontendToKernel::SearchSim(self.search_string.clone()));
-			self.searching = true;
+			if self.search_string.len() > SEARCH_MAX_LEN {
+				debug!("GUI - Search string is longer than {SEARCH_MAX_LEN}, truncating");
+				self.search_string.truncate(SEARCH_MAX_LEN);
+			} else {
+				send!(self.to_kernel, FrontendToKernel::SearchSim(self.search_string.clone()));
+				self.searching = true;
+			}
 		}
 	});
 
