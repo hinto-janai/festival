@@ -139,14 +139,14 @@ impl eframe::App for Gui {
 		// If `Kernel` hasn't finished startup yet,
 		// show fullscreen spinner with info.
 		if !self.kernel_returned {
-			self.show_startup(ctx, frame, width, height);
+			self.show_collection_spinner(ctx, frame, width, height, "Loading Collection...");
 			return;
 		}
 
 		// If resetting the `Collection`,
 		// show fullscreen spinner with info.
 		if self.resetting_collection {
-			self.show_resetting_collection(ctx, frame, width, height);
+			self.show_collection_spinner(ctx, frame, width, height, "Resetting Collection...");
 			return;
 		}
 
@@ -380,53 +380,28 @@ fn show_exit_spinner(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, 
 	});
 }}
 
-//---------------------------------------------------------------------------------------------------- Spinner (Startup)
-// This is a fullscreen spinner.
-// Used when waiting for `Kernel` to finish startup.
-impl Gui {
-#[inline(always)]
-fn show_startup(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
-	CentralPanel::default().show(ctx, |ui| {
-		self.set_visuals(ui);
-		ui.vertical_centered(|ui| {
-			let half = height / 2.0;
-
-			// Header.
-			let text = RichText::new("Loading the Collection...")
-				.heading()
-				.color(crate::constants::BONE);
-			ui.add_sized([width, half], Label::new(text));
-
-			let height = half / 6.0;
-
-			// Spinner.
-			ui.add_sized([width, height], Spinner::new().size(height));
-			// Percent.
-			ui.add_sized([width, height], Label::new(lock_read!(self.reset_state).percent.as_str()));
-			// Phase.
-			ui.add_sized([width, height], Label::new(lock_read!(self.reset_state).phase.as_str()));
-			// Specific Album.
-			ui.add_sized([width, height], Label::new(&lock_read!(self.reset_state).specific));
-			// ProgressBar.
-			ui.add_sized([width / 1.1, height], ProgressBar::new(lock_read!(self.reset_state).percent.inner() as f32 / 100.0));
-
-		});
-	});
-}}
-
-//---------------------------------------------------------------------------------------------------- Spinner (Reset Collection)
+//---------------------------------------------------------------------------------------------------- Spinner (Collection)
 // This is a fullscreen spinner.
 // Used when waiting on `Kernel` to hand over the new `Collection`.
+//
+// Activated when either resetting the `Collection` or at GUI startup.
 impl Gui {
 #[inline(always)]
-fn show_resetting_collection(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
+fn show_collection_spinner(
+	&mut self,
+	ctx: &egui::Context,
+	frame: &mut eframe::Frame,
+	width: f32,
+	height: f32,
+	text: &'static str,
+) {
 	CentralPanel::default().show(ctx, |ui| {
 		self.set_visuals(ui);
 		ui.vertical_centered(|ui| {
 			let half = height / 2.0;
 
 			// Header.
-			let text = RichText::new("Resetting the Collection...")
+			let text = RichText::new(text)
 				.heading()
 				.color(crate::constants::BONE);
 			ui.add_sized([width, half], Label::new(text));

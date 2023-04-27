@@ -6,9 +6,6 @@ use super::{
 	Tab,
 };
 use std::path::PathBuf;
-use disk::prelude::*;
-//use disk::{Toml,toml_file};
-use disk::{Bincode,bincode_file};
 use crate::constants::{
 	SETTINGS_VERSION,
 	ALBUM_ART_SIZE_DEFAULT,
@@ -29,7 +26,7 @@ use shukusai::sort::{
 use super::AlbumSizing;
 
 //---------------------------------------------------------------------------------------------------- Settings
-bincode_file!(Settings, Dir::Data, FESTIVAL, "gui", "settings", FESTIVAL_HEADER, SETTINGS_VERSION);
+disk::bincode!(Settings, disk::Dir::Data, FESTIVAL, "gui", "settings", FESTIVAL_HEADER, SETTINGS_VERSION);
 //toml_file!(Settings, Dir::Data, FESTIVAL, "gui", "settings");
 #[derive(Clone,Debug,Default,PartialEq,Serialize,Deserialize)]
 /// `GUI`'s settings.
