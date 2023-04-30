@@ -15,12 +15,13 @@ use super::reset::ResetState;
 use super::phase::Phase;
 use rolock::RoLock;
 use benri::{
+	time::*,
 	ops::*,
 	sync::*,
 	log::*,
 	mass_panic,
 };
-use disk::Bincode;
+use disk::Bincode2;
 use disk::Plain;
 use super::{KernelToFrontend, FrontendToKernel};
 use crate::{
@@ -96,29 +97,15 @@ impl Kernel {
 		from_frontend: Receiver<FrontendToKernel>,
 		ctx:           egui::Context,
 	) {
+		// Set `Kernel`'s init time.
+		let beginning = now!();
+
+		#[cfg(feature = "panic")]
 		// Set panic hook.
 		//
 		// If `Kernel` or anyone else `panic!()`'s,
 		// we want _everyone_ to exit.
-		std::panic::set_hook(Box::new(|panic_info| {
-			// Re-format panic info.
-			let panic_info = format!(
-				"{}\nstack backtrace:\n{}",
-				panic_info,
-				std::backtrace::Backtrace::force_capture()
-			);
-			// Attempt to write panic info to disk.
-			let panic = crate::panic::Panic(panic_info.clone());
-			let path  = crate::panic::Panic::absolute_path();
-			let save  = panic.save();
-			match (save, path) {
-				(Ok(_), Ok(p)) => error!("mass_panic!() - Saved panic log to: {}", p.display()),
-				(Ok(_), _)     => error!("mass_panic!() - Saved panic log in festival folder."),
-				_              => error!("mass_panic!() - Could not save panic log"),
-			}
-			// Exit all threads.
-			mass_panic!(panic_info);
-		}));
+		crate::panic::set_panic_hook();
 
 		debug!("Kernel [1/12] ... entering bios()");
 
@@ -136,7 +123,7 @@ impl Kernel {
 		send!(to_frontend, KernelToFrontend::NewResetState(RoLock::new(&reset)));
 
 		// Attempt to load `Collection` from file.
-		debug!("Kernel - Reading `Collection` from disk...");
+		debug!("Kernel - Reading 'Collection' from disk...");
 		// SAFETY:
 		// `Collection` is `memmap`'ed from disk.
 		//
@@ -151,15 +138,18 @@ impl Kernel {
 		// I can't prevent other programs from touching this file
 		// although they shouldn't be messing around in other program's
 		// data directories anyway.
+		let now = now!();
 		match unsafe { Collection::from_file_memmap() } {
 			// If success, continue to `boot_loader` to convert
 			// bytes to actual usable `egui` images.
-			Ok(collection) => Self::boot_loader(collection, to_frontend, from_frontend, reset, ctx),
-
+			Ok(collection) => {
+				ok_debug!("Kernel - Collection deserialization ... Took {} seconds", secs_f32!(now));
+				Self::boot_loader(collection, to_frontend, from_frontend, reset, ctx, beginning);
+			},
 			// Else, straight to `init` with default flag set.
 			Err(e) => {
 				warn!("Kernel - Collection from file error: {}", e);
-				Self::init(None, None, to_frontend, from_frontend, reset, ctx);
+				Self::init(None, None, to_frontend, from_frontend, reset, ctx, beginning);
 			},
 		}
 	}
@@ -172,6 +162,7 @@ impl Kernel {
 		from_frontend: Receiver<FrontendToKernel>,
 		reset:         Arc<RwLock<ResetState>>,
 		ctx:           egui::Context,
+		beginning:     std::time::Instant,
 	) {
 		debug!("Kernel [2/12] ... entering boot_loader()");
 
@@ -224,10 +215,10 @@ impl Kernel {
 
 		// If everything went ok, continue to `kernel` to verify data.
 		if let Some(collection) = collection {
-			Self::kernel(collection, state, to_frontend, from_frontend, reset, ctx);
+			Self::kernel(collection, state, to_frontend, from_frontend, reset, ctx, beginning);
 		// Else, skip to `init()`.
 		} else {
-			Self::init(None, None, to_frontend, from_frontend, reset, ctx);
+			Self::init(None, None, to_frontend, from_frontend, reset, ctx, beginning);
 		}
 	}
 
@@ -240,12 +231,13 @@ impl Kernel {
 		from_frontend: Receiver<FrontendToKernel>,
 		reset:         Arc<RwLock<ResetState>>,
 		ctx:           egui::Context,
+		beginning:     std::time::Instant,
 	) {
 		/* TODO: initialize and sanitize collection & misc data */
 		debug!("Kernel [6/12] ... entering kernel()");
 		let state = state.unwrap();
 
-		Self::init(Some(collection), Some(state), to_frontend, from_frontend, reset, ctx);
+		Self::init(Some(collection), Some(state), to_frontend, from_frontend, reset, ctx, beginning);
 	}
 
 	//-------------------------------------------------- init()
@@ -257,6 +249,7 @@ impl Kernel {
 		from_frontend: Receiver<FrontendToKernel>,
 		reset:         Arc<RwLock<ResetState>>,
 		ctx:           egui::Context,
+		beginning:     std::time::Instant,
 	) {
 		debug!("Kernel [7/12] ... entering init()");
 
@@ -324,7 +317,7 @@ impl Kernel {
 			.spawn(move || Watch::init(watch_send));
 
 		// We're done, enter main `userspace` loop.
-		debug!("Kernel: entering userspace()");
+		ok_debug!("Kernel - Entering 'userspace()' ... Took {} seconds total", secs_f32!(beginning));
 		Self::userspace(kernel);
 	}
 

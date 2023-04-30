@@ -2,6 +2,7 @@
 //use anyhow::{bail,ensure,Error};
 //use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
+use bincode::{Encode,Decode};
 use super::{
 	Album,
 	Collection,
@@ -9,8 +10,7 @@ use super::{
 use crate::key::AlbumKey;
 
 //----------------------------------------------------------------------------------------------------
-//#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
-#[derive(Clone,Debug,Serialize,Deserialize)]
+#[derive(Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
 /// Struct holding [`Artist`] metadata, with pointers to [`Album`]\(s\)
 ///
 /// This struct holds all the metadata about a particular [`Artist`].

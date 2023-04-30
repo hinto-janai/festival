@@ -2,6 +2,7 @@
 //use anyhow::{anyhow,bail,ensure};
 //use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
+use bincode::{Encode,Decode};
 //use crate::macros::*;
 //use disk::prelude::*;
 //use disk::{};
@@ -18,7 +19,7 @@ use crate::key::{
 //---------------------------------------------------------------------------------------------------- Plural newtypes around `Vec<T>`.
 macro_rules! impl_plural {
 	($name:ident, $plural:ident, $key:ident) => {
-		#[derive(Clone,Debug,Serialize,Deserialize)]
+		#[derive(Clone,Debug,Serialize,Deserialize,PartialEq,PartialOrd,Encode,Decode)]
 		#[serde(transparent)]
 		/// Type-safe wrapper around [`Vec`].
 		///
@@ -83,12 +84,6 @@ macro_rules! impl_plural {
 			}
 
 			#[inline(always)]
-			/// Calls [`slice::iter`] then [`std::iter::Iterator::rev`].
-			pub fn iter_rev(&self) -> std::iter::Rev<std::slice::Iter<'_, $name>> {
-				self.0.iter().rev()
-			}
-
-			#[inline(always)]
 			/// Calls [`slice::get`].
 			pub fn get(&self, key: $key) -> Option<&$name> {
 				self.0.get(key.inner())
@@ -117,13 +112,16 @@ macro_rules! impl_plural {
 			pub fn is_empty(&self) -> bool {
 				self.0.is_empty()
 			}
-		}
+			//-------------------------------------------------- `pub(crate)` functions
+			#[inline(always)]
+			/// Calls [`slice::iter_mut`].
+			pub(crate) fn iter_mut(&mut self) -> std::slice::IterMut<'_, $name> {
+				self.0.iter_mut()
+			}
 
-		//-------------------------------------------------- From a `Vec`.
-		// This is only used internally.
-		impl From<Vec<$name>> for $plural {
-			#[inline]
-			fn from(vec: Vec<$name>) -> Self {
+			#[inline(always)]
+			/// Create self from a [`Vec`].
+			pub(crate) fn from_vec(vec: Vec<$name>) -> Self {
 				Self(vec)
 			}
 		}

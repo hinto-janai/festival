@@ -2,6 +2,7 @@
 //use anyhow::{anyhow,bail,ensure};
 //use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
+use bincode::{Encode,Decode};
 //use crate::macros::*;
 //use disk::prelude::*;
 //use disk::{};
@@ -17,7 +18,7 @@ use super::Kernel;
 /// It guarantees the inner [`u8`] is between `0..100` so that
 /// frontends can't just send random numbers that make no sense in the
 /// context of changing the volume level, like `253`.
-#[derive(Copy,Clone,Debug,PartialEq,PartialOrd,Serialize,Deserialize)]
+#[derive(Copy,Clone,Debug,Hash,Eq,Ord,PartialEq,PartialOrd,Serialize,Deserialize,Encode,Decode)]
 pub struct Volume(u8);
 
 impl Volume {

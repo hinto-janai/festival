@@ -1,7 +1,8 @@
 //---------------------------------------------------------------------------------------------------- Use
 //use anyhow::{bail,ensure,Error};
-use log::{info,error,warn,trace,debug};
+use log::{error,warn,info,debug,trace};
 use serde::{Serialize,Deserialize};
+use bincode::{Encode,Decode};
 use super::{
 	album::Album,
 	artist::Artist,
@@ -57,8 +58,8 @@ lazy_static::lazy_static! {
 }
 
 //---------------------------------------------------------------------------------------------------- The Collection™
-disk::bincode!(Collection, disk::Dir::Data, FESTIVAL, "", "collection", FESTIVAL_HEADER, COLLECTION_VERSION);
-#[derive(Clone,Debug,Serialize,Deserialize)]
+disk::bincode2!(Collection, disk::Dir::Data, FESTIVAL, "", "collection", FESTIVAL_HEADER, COLLECTION_VERSION);
+#[derive(Clone,Debug,Serialize,Deserialize,PartialEq,Encode,Decode)]
 /// The main music `Collection`
 ///
 /// This is the `struct` that holds all the (meta)data about the user's music.

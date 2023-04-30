@@ -109,6 +109,7 @@ These are top-level `src/` files for miscellaneous stuff:
 | `constants.rs` | General constants
 | `logger.rs`    | Console logging initialization
 | `lib.rs`       | `pub` re-exposing, `doc` comments
+| `panic.rs`     | Custom panic hook
 
 # Overview
 <div align="center">

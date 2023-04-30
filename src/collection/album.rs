@@ -2,6 +2,7 @@
 //use anyhow::{bail,ensure,Error};
 //use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
+use bincode::{Encode,Decode};
 use super::{
 	Collection,
 	Artist,
@@ -23,7 +24,7 @@ use readable::{
 };
 
 //---------------------------------------------------------------------------------------------------- Album
-#[derive(Clone,Debug,Serialize,Deserialize)]
+#[derive(Clone,Debug,Default,PartialEq,PartialOrd,Serialize,Deserialize,Encode,Decode)]
 /// Struct holding [`Album`] metadata, with pointers to an [`Artist`] and [`Song`]\(s\)
 ///
 /// This struct holds all the metadata about a particular [`Album`].
@@ -58,10 +59,11 @@ pub struct Album {
 	/// Key\(s\) to the [`Song`]\(s\).
 	pub songs: Vec<SongKey>,
 
-	// The `Album`'s art.
-	// `Frontend`'s don't access this field
-	// directly, but use `album.art_or()`.
-	pub(crate) art: Art, // Always initialized after `CCD`.
+//	#[bincode(with_serde)]
+	/// The `Album`'s art.
+	/// `Frontend`'s don't need to access this field
+	/// directly, instead, use `album.art_or()`.
+	pub art: Art, // Always initialized after `CCD`.
 
 	// Misc data.
 	/// Boolean representing if this is a compilation or not.

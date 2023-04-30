@@ -2,6 +2,7 @@
 //use anyhow::{anyhow,bail,ensure};
 //use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
+use bincode::{Encode,Decode};
 //use crate::macros::*;
 use std::collections::VecDeque;
 use crate::collection::Collection;
@@ -14,7 +15,7 @@ use crate::key::{
 //---------------------------------------------------------------------------------------------------- Queue/Playlist
 macro_rules! impl_slice {
 	($name:ident, $key:ident) => {
-		#[derive(Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
+		#[derive(Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
 		/// Type-safe wrapper around [`VecDeque`].
 		///
 		/// Dynamically-sized view into a contiguous [`Key`] sequence.

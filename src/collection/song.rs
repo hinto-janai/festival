@@ -2,6 +2,7 @@
 //use anyhow::{bail,ensure,Error};
 //use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
+use bincode::{Encode,Decode};
 use std::path::PathBuf;
 use readable::Runtime;
 use super::{
@@ -15,7 +16,7 @@ use crate::key::{
 };
 
 //----------------------------------------------------------------------------------------------------
-#[derive(Clone,Debug,Serialize,Deserialize)]
+#[derive(Clone,Debug,Default,Hash,PartialEq,PartialOrd,Serialize,Deserialize,Encode,Decode)]
 /// Struct holding [`Song`] metadata, with a pointer to the [`Album`] it belongs to
 ///
 /// This struct holds all the metadata about a particular [`Song`].
@@ -35,9 +36,8 @@ pub struct Song {
 	pub track_artists: Option<String>,
 	/// The disc number of this [`Song`].
 	pub disc: Option<u32>,
-
-	// "Raw" data.
-	pub(crate) path: PathBuf,
+	/// The [`PathBuf`] this [`Song`] is located at.
+	pub path: PathBuf,
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

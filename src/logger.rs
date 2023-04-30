@@ -3,6 +3,11 @@ use std::io::Write;
 use benri::log::ok;
 use log::info;
 
+//---------------------------------------------------------------------------------------------------- Start of logger.
+lazy_static::lazy_static! {
+	pub static ref NOW: std::time::Instant = std::time::Instant::now();
+}
+
 //---------------------------------------------------------------------------------------------------- Logger init function
 #[inline(always)]
 #[must_use]
@@ -32,7 +37,7 @@ pub fn init_logger(filter: log::LevelFilter) {
 		_     => std::env::set_var("RUST_LOG", format!("off,shukusai={},festival={}", filter, filter)),
 	}
 
-	let now = std::time::Instant::now();
+	let now = *NOW;
 
 	env_logger::Builder::new().format(move |buf, record| {
 		let mut style = buf.style();

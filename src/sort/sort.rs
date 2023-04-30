@@ -2,6 +2,7 @@
 //use anyhow::{bail,ensure,Error};
 //use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
+use bincode::{Encode,Decode};
 use crate::collection::{
 	Collection,
 	Artist,
@@ -43,7 +44,7 @@ pub const SONG_RUNTIME:                   &str = "Songs shortest to longest";
 /// String sorting is done lexicographically as per the `std` [`Ord` implementation.](https://doc.rust-lang.org/std/primitive.str.html#impl-Ord)
 ///
 /// `lexi` is shorthand for `lexicographically`.
-#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
+#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
 pub enum ArtistSort {
 	#[default]
 	/// [`Artist`] in `lexi`. Field: [`Collection::sort_artist_lexi`].
@@ -59,7 +60,7 @@ pub enum ArtistSort {
 /// String sorting is done lexicographically as per the `std` [`Ord` implementation.](https://doc.rust-lang.org/std/primitive.str.html#impl-Ord)
 ///
 /// `lexi` is shorthand for `lexicographically`.
-#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
+#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
 pub enum AlbumSort {
 	#[default]
 	/// [`Artist`] `lexi`, [`Album`]'s oldest release to latest. Field: [`Collection::sort_album_release_artist_lexi`].
@@ -79,7 +80,7 @@ pub enum AlbumSort {
 /// String sorting is done lexicographically as per the `std` [`Ord` implementation.](https://doc.rust-lang.org/std/primitive.str.html#impl-Ord)
 ///
 /// `lexi` is shorthand for `lexicographically`.
-#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
+#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
 pub enum SongSort {
 	#[default]
 	/// [`Artist`] lexi, [`Album`] release, [`Song`] track_number. Field: [`Collection::sort_song_album_release_artist_lexi`].

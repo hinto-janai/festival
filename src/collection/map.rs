@@ -2,6 +2,7 @@
 //use anyhow::{anyhow,bail,ensure};
 //use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
+use bincode::{Encode,Decode};
 //use crate::macros::*;
 //use disk::prelude::*;
 //use disk::{};
@@ -21,7 +22,7 @@ use crate::key::{
 };
 
 //---------------------------------------------------------------------------------------------------- Map
-#[derive(Clone,Debug,Default,Serialize,Deserialize)]
+#[derive(Clone,Debug,Default,Serialize,Deserialize,PartialEq,Encode,Decode)]
 #[serde(transparent)]
 /// A [`HashMap`] that knows all [`Artist`]'s, [`Album`]'s and [`Song`]'s.
 ///
@@ -71,12 +72,12 @@ impl Map {
 }
 
 //---------------------------------------------------------------------------------------------------- AlbumMap
-#[derive(Clone,Debug,Default,Serialize,Deserialize)]
+#[derive(Clone,Debug,Default,Serialize,Deserialize,PartialEq,Encode,Decode)]
 #[serde(transparent)]
 pub(crate) struct AlbumMap(pub(crate) HashMap<String, (AlbumKey, SongMap)>);
 
 //---------------------------------------------------------------------------------------------------- SongMap
-#[derive(Clone,Debug,Default,Serialize,Deserialize)]
+#[derive(Clone,Debug,Default,Serialize,Deserialize,PartialEq,Encode,Decode)]
 #[serde(transparent)]
 pub(crate) struct SongMap(pub(crate) HashMap<String, SongKey>);
 

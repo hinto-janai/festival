@@ -2,6 +2,7 @@
 //use anyhow::{anyhow,bail,ensure};
 //use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
+use bincode::{Encode,Decode};
 use crate::collection::{
 	Collection,
 	Artist,
@@ -90,7 +91,7 @@ macro_rules! impl_common {
 }
 
 //---------------------------------------------------------------------------------------------------- Key
-#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
+#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
 /// [`Key`] into the [`Collection`]
 ///
 /// This represents an _absolute_ index into:
@@ -161,7 +162,7 @@ where
 }
 
 //---------------------------------------------------------------------------------------------------- Keychain
-#[derive(Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
+#[derive(Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
 /// A separated collection of keys
 ///
 /// These keys aren't linked like in [`Key`].
@@ -223,7 +224,7 @@ impl Keychain {
 }
 
 //---------------------------------------------------------------------------------------------------- ArtistKey
-#[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
+#[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
 #[serde(transparent)]
 /// A key representing the index of an [`Artist`] in the [`Collection`]
 ///
@@ -232,7 +233,7 @@ pub struct ArtistKey(usize);
 impl_common!(ArtistKey);
 
 //---------------------------------------------------------------------------------------------------- AlbumKey
-#[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
+#[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
 #[serde(transparent)]
 /// A key representing the index of an [`Album`] in the [`Collection`]
 ///
@@ -241,7 +242,7 @@ pub struct AlbumKey(usize);
 impl_common!(AlbumKey);
 
 //---------------------------------------------------------------------------------------------------- SongKey
-#[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
+#[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
 #[serde(transparent)]
 /// A key representing the index of a [`Song`] in the [`Collection`]
 ///
@@ -250,7 +251,7 @@ pub struct SongKey(usize);
 impl_common!(SongKey);
 
 //---------------------------------------------------------------------------------------------------- QueueKey
-#[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
+#[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
 #[serde(transparent)]
 /// A key representing an index in the `Queue`
 ///
@@ -267,7 +268,7 @@ pub struct QueueKey(usize);
 impl_common!(QueueKey);
 
 //---------------------------------------------------------------------------------------------------- PlaylistKey
-#[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
+#[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
 #[serde(transparent)]
 /// A key representing an index in a `Playlist`
 ///

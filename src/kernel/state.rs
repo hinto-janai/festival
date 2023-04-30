@@ -2,6 +2,7 @@
 use anyhow::{anyhow,bail,ensure};
 use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
+use bincode::{Encode,Decode};
 //use crate::macros::*;
 //use std::{};
 use std::sync::{Arc,RwLock};
@@ -37,7 +38,7 @@ lazy_static::lazy_static! {
 /// It is included within [`KernelState`], and can easily
 /// be `copied` to `Frontend`'s cheaply so [`KernelState`]
 /// doesn't have to be directly locked all the time.
-#[derive(Copy,Clone,Debug,PartialOrd,PartialEq,Serialize,Deserialize)]
+#[derive(Copy,Clone,Debug,PartialOrd,PartialEq,Serialize,Deserialize,Encode,Decode)]
 pub struct AudioState {
 	/// Are we playing audio right now?
 	pub playing: bool,
@@ -78,8 +79,8 @@ impl Default for AudioState {
 }
 
 //---------------------------------------------------------------------------------------------------- KernelState
-disk::bincode!(KernelState, disk::Dir::Data, FESTIVAL, "", "state", FESTIVAL_HEADER, STATE_VERSION);
-#[derive(Clone,Debug,PartialOrd,PartialEq,Serialize,Deserialize)]
+disk::bincode2!(KernelState, disk::Dir::Data, FESTIVAL, "", "state", FESTIVAL_HEADER, STATE_VERSION);
+#[derive(Clone,Debug,PartialOrd,PartialEq,Serialize,Deserialize,Encode,Decode)]
 /// Kernel State
 ///
 /// This hold various bits of state that `Kernel` controls

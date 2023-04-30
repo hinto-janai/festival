@@ -14,6 +14,7 @@ use egui::{
 use egui_extras::image::RetainedImage;
 use super::Album;
 use serde::{Serialize,Deserialize,Serializer,Deserializer};
+use bincode::{Encode,Decode};
 
 //---------------------------------------------------------------------------------------------------- Constant
 /// The [`Album`] art size in pixels
@@ -31,21 +32,76 @@ lazy_static::lazy_static! {
 
 //---------------------------------------------------------------------------------------------------- Art
 #[derive(Default)]
-// An `enum` that is _always_ an image.
-//
-// Some [`Album`]'s may not have art. In this case, we'd like to show a "unknown" image anyway.
-//
-// This `enum` and the associate function [`Art::art_or()`] will always return
-// a valid [`egui_extras::RetainedImage`], the real art if it exists, or an "unknown" image.
-//
-// The returned "unknown" image is actually just a pointer to the single image created with [`lazy_static`].
-//
-// The "unknown" image is from `assets/images/art/unknown.png`.
-pub(crate) enum Art {
+/// An `enum` that is _always_ an image.
+///
+/// Some [`Album`]'s may not have art. In this case, we'd like to show a "unknown" image anyway.
+///
+/// This `enum` and the associated function [`Album::art_or()`] will always return
+/// a valid [`egui_extras::RetainedImage`], the real art if it exists, or an "unknown" image.
+///
+/// The returned "unknown" image is actually just a pointer to the single image created with [`lazy_static`].
+///
+/// The "unknown" image is from `assets/images/art/unknown.png`.
+pub enum Art {
+	/// This is a known-good, already resized [`RetainedImage`] that
+	/// can be used in `egui`.
+	///
+	/// This image's width/height is guaranteed to be [`ALBUM_ART_SIZE`].
 	Known(RetainedImage),
+	/// This is raw image bytes that have not yet been transformed into [`Art::Known`].
+	///
+	/// This variant is never exposed to a `Frontend`, as `Kernel` turns all [`Art`]
+	/// into either [`Art::Known`] or [`Art::Unknown`].
 	Bytes(Vec<u8>),
 	#[default]
+	/// A gray background, white question-mark image representing an unknown image.
+	///
+	/// This image's width/height is guaranteed to be [`ALBUM_ART_SIZE`].
 	Unknown,
+}
+
+//---------------------------------------------------------------------------------------------------- Art `Ord`
+impl Ord for Art {
+	fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+		match (self, other) {
+			(Self::Unknown, Self::Unknown) => std::cmp::Ordering::Equal,
+			(Self::Bytes(_), Self::Bytes(_)) => std::cmp::Ordering::Equal,
+			(Self::Known(_), Self::Known(_)) => std::cmp::Ordering::Equal,
+			(Self::Known(_), _) => std::cmp::Ordering::Greater,
+			(_, Self::Known(_)) => std::cmp::Ordering::Less,
+			(Self::Bytes(_), _) => std::cmp::Ordering::Greater,
+			(_, Self::Bytes(_)) => std::cmp::Ordering::Less,
+		}
+	}
+}
+impl PartialOrd for Art {
+	fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+		Some(self.cmp(other))
+	}
+}
+
+//---------------------------------------------------------------------------------------------------- Art `Eq`
+impl Eq for Art {}
+impl PartialEq for Art {
+	fn eq(&self, other: &Self) -> bool {
+		match (self, other) {
+			(Self::Unknown, Self::Unknown) => true,
+			(Self::Bytes(b1), Self::Bytes(b2)) => {
+				b1 == b2
+			}
+			(Self::Known(r1), Self::Known(r2)) => {
+				match (&*r1.texture.lock(), &*r2.texture.lock()) {
+					(None, None) => true,
+					(Some(_), None) => false,
+					(None, Some(_)) => false,
+					(Some(t1), Some(t2)) => {
+						t1 == t2
+					},
+				}
+			}
+			_ => false,
+		}
+	}
 }
 
 //---------------------------------------------------------------------------------------------------- Art Impl
@@ -59,7 +115,7 @@ impl Art {
 
 impl Art {
 	#[inline]
-	/// Return the associated art or the default `[?]` image if [`Art::Unknown`]
+	// Return the associated art or the default `[?]` image if [`Art::Unknown`]
 	pub(crate) fn art_or(&self) -> &RetainedImage {
 		match self {
 			Self::Known(art) => art,
@@ -68,7 +124,7 @@ impl Art {
 	}
 
 	#[inline]
-	/// Same as [`Art::art_or`] but with no backup image.
+	// Same as [`Art::art_or`] but with no backup image.
 	pub(crate) fn get(&self) -> Option<&RetainedImage> {
 		match self {
 			Self::Known(art) => Some(art),
@@ -77,7 +133,7 @@ impl Art {
 	}
 
 	#[inline]
-	/// Calls [`egui::extras::texture_id`].
+	// Calls [`egui::extras::texture_id`].
 	pub(crate) fn texture_id(&self, ctx: &egui::Context) -> egui::TextureId {
 		match self {
 			Self::Known(a) => a.texture_id(ctx),
@@ -322,6 +378,57 @@ const _: () = {
         }
     }
 };
+
+//---------------------------------------------------------------------------------------------------- Art Bincode
+// Same thing as above, but for `bincode`'s `Encode` & `Decode`
+impl ::bincode::Encode for Art {
+    fn encode<__E: ::bincode::enc::Encoder>(
+        &self,
+        encoder: &mut __E,
+    ) -> core::result::Result<(), ::bincode::error::EncodeError> {
+        match self {
+            Self::Bytes(field_0) => {
+                <u32 as ::bincode::Encode>::encode(&(1u32), encoder)?;
+                ::bincode::Encode::encode(field_0, encoder)?;
+                Ok(())
+            }
+            _ => {
+                <u32 as ::bincode::Encode>::encode(&(2u32), encoder)?;
+                Ok(())
+            }
+        }
+    }
+}
+impl ::bincode::Decode for Art {
+    fn decode<__D: ::bincode::de::Decoder>(
+        decoder: &mut __D,
+    ) -> core::result::Result<Self, ::bincode::error::DecodeError> {
+        let variant_index = <u32 as ::bincode::Decode>::decode(decoder)?;
+        match variant_index {
+            1u32 => {
+                Ok(Self::Bytes {
+                    0: ::bincode::Decode::decode(decoder)?,
+                })
+            }
+            _ => Ok(Self::Unknown {}),
+        }
+    }
+}
+impl<'__de> ::bincode::BorrowDecode<'__de> for Art {
+    fn borrow_decode<__D: ::bincode::de::BorrowDecoder<'__de>>(
+        decoder: &mut __D,
+    ) -> core::result::Result<Self, ::bincode::error::DecodeError> {
+        let variant_index = <u32 as ::bincode::Decode>::decode(decoder)?;
+        match variant_index {
+            1u32 => {
+                Ok(Self::Bytes {
+                    0: ::bincode::BorrowDecode::borrow_decode(decoder)?,
+                })
+            }
+            _ => Ok(Self::Unknown {}),
+        }
+    }
+}
 
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
