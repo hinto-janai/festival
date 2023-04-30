@@ -71,6 +71,15 @@ strip = "symbols"
 codegen-units = 1
 lto = true
 
+[profile.dev]
+opt-level = 1
+debug = true
+strip = "none"
+debug-assertions = true
+overflow-checks = true
+panic = "abort"
+incremental = true
+
 # Run tests in `--release` mode.
 #[profile.test]
 #debug = false

@@ -41,9 +41,9 @@ stack backtrace:\n{}",
 			std::env::args_os(),
 			crate::constants::BUILD,
 			crate::constants::COMMIT,
-			*crate::ccd::AVAILABLE_THREADS,
+			crate::thread::threads_available(),
 			crate::constants::FESTIVAL_NAME_VER,
-			crate::logger::NOW.elapsed().as_secs_f64(),
+			crate::logger::init_instant().elapsed().as_secs_f64(),
 			stack_trace,
 		);
 		// Attempt to write panic info to disk.
@@ -63,6 +63,7 @@ stack backtrace:\n{}",
 //----------------------------------------------------------------------------------------------------
 disk::plain!(Panic, disk::Dir::Data, FESTIVAL, "", "panic");
 #[derive(Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
+#[serde(transparent)]
 /// File representing a `panic!()` log.
 ///
 /// This gets written in the `festival` folder as `panic.txt`.

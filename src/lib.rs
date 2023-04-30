@@ -106,7 +106,6 @@ mod search;
 mod watch;
 
 //---------------------------------------------------------------------------------------------------- Public Re-exports.
-pub use disk;
 pub use readable;
 pub use rolock;
 
@@ -121,7 +120,9 @@ mod constants;
 pub use constants::*;
 mod logger;
 pub use logger::init_logger;
-pub(crate) use logger::NOW;
+pub use logger::init_instant;
+mod thread;
+pub use thread::*;
 
 //---------------------------------------------------------------------------------------------------- Public modules.
 /// Custom panic hook + backtrace log

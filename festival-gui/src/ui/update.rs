@@ -13,7 +13,7 @@ use egui::{
 	TopBottomPanel,SidePanel,CentralPanel,
 };
 use egui::widgets::{
-	Slider,Button,Spinner,
+	Slider,Button,Spinner,TextEdit,
 	SelectableLabel,Label,
 };
 use crate::data::{
@@ -21,7 +21,7 @@ use crate::data::{
 	KeyPress,
 	ALPHABET_KEY_PRESSES,
 };
-use disk::Toml;
+use disk::{Toml,Plain};
 use log::{error,warn,info,debug,trace};
 use shukusai::kernel::{
 	FrontendToKernel,
@@ -34,6 +34,7 @@ use benri::{
 	log::*,
 	sync::*,
 	panic::*,
+	flip,
 };
 use std::time::{
 	Instant,
@@ -46,6 +47,8 @@ use crate::constants::{
 	SLIDER_CIRCLE_INACTIVE,
 	SLIDER_CIRCLE_HOVERED,
 	SLIDER_CIRCLE_ACTIVE,
+	BONE,
+	BLACK,
 };
 use crate::text::{
 	COLLECTION_LOADING,
@@ -188,6 +191,25 @@ impl eframe::App for Gui {
 				// Check for `Ctrl+A` (Add Folder)
 				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::A) {
 					self.add_folder();
+				// Check for `Ctrl+Shift+P` (force `panic!()`)
+				} else if
+					input.modifiers.matches(egui::Modifiers::CTRL.plus(egui::Modifiers::SHIFT))
+					&&
+					input.key_pressed(egui::Key::P)
+				{
+					info!("GUI - CTRL+SHIFT+P was pressed, forcefully panic!()'ing...!");
+					panic!("GUI - CTRL+SHIFT+P force panic");
+				// Check for `Ctrl+Shift+D` (toggle debug screen)
+				} else if
+					input.modifiers.matches(egui::Modifiers::CTRL.plus(egui::Modifiers::SHIFT))
+					&&
+					input.key_pressed(egui::Key::D)
+				{
+					flip!(self.debug_screen);
+					// Refresh stats if true.
+					if self.debug_screen {
+						self.update_debug_info();
+					}
 				// Check for [A-Za-z] (Search)
 				} else {
 					for key in ALPHABET_KEY_PRESSES {
@@ -222,6 +244,12 @@ impl eframe::App for Gui {
 				}
 			},
 			None    => (),
+		}
+
+		// Show debug screen if `true`.
+		if self.debug_screen {
+			self.show_debug_screen(ctx, frame, width, height);
+			return;
 		}
 
 		// Size definitions of the major UI panels.
@@ -405,7 +433,7 @@ fn show_exit_spinner(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, 
 
 			let text = RichText::new(format!("--- Saving ---\nForce exiting in {}...", atomic_load!(self.exit_countdown)))
 				.size(hh / 4.0)
-				.color(crate::constants::BONE);
+				.color(BONE);
 
 			ui.add_sized([width, half], Label::new(text));
 			ui.add_sized([width, hh], Spinner::new().size(hh / 2.0));
@@ -436,7 +464,7 @@ fn show_collection_spinner(
 			// Header.
 			let text = RichText::new(text)
 				.heading()
-				.color(crate::constants::BONE);
+				.color(BONE);
 			ui.add_sized([width, half], Label::new(text));
 
 			let height = half / 6.0;
@@ -452,6 +480,53 @@ fn show_collection_spinner(
 			// ProgressBar.
 			ui.add_sized([width / 1.1, height], ProgressBar::new(lock_read!(self.reset_state).percent.inner() as f32 / 100.0));
 
+		});
+	});
+}}
+
+//---------------------------------------------------------------------------------------------------- Debug scren
+// This is a fullscreen debug screen, showing
+// a bunch of useful runtime information.
+// Toggled with `CTRL+SHIFT+D`.
+impl Gui {
+#[inline(always)]
+fn show_debug_screen(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
+	CentralPanel::default().show(ctx, |ui| {
+		self.set_visuals(ui);
+		ui.vertical_centered(|ui| {
+			let header = height / 25.0;
+
+			let text = RichText::new("--- Debug Info ---\nCTRL+SHIFT+D to toggle")
+				.size(header)
+				.color(BONE);
+
+			// Header.
+			ui.add_sized([width, header], Label::new(text));
+
+			// Save button.
+			ui.add_space(header);
+			if ui.add_sized([width, header], Button::new("Save to disk")).clicked() {
+				match self.debug_info.save_atomic() {
+					Ok(_)  => {
+						let path = match crate::data::DebugInfo::absolute_path() {
+							Ok(p) => p.display().to_string(),
+							_ => String::from("???"),
+						};
+						ok!("GUI - DebugInfo @ {path}");
+					},
+					Err(e) => error!("GUI - DebugInfo save to disk error: {e}"),
+				}
+			}
+			ui.add_space(header);
+
+			// Debug Info.
+			Frame::none().fill(BLACK).show(ui, |ui| {
+				let width = ui.available_width();
+				let height = ui.available_height();
+				egui::ScrollArea::vertical().max_width(width).max_height(height).auto_shrink([false; 2]).show_viewport(ui, |ui, _| {
+					ui.add_sized([width-20.0, height], TextEdit::multiline(&mut self.debug_info.as_str()));
+				});
+			});
 		});
 	});
 }}

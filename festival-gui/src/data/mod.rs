@@ -18,3 +18,6 @@ pub use tab::*;
 
 mod key;
 pub use key::*;
+
+mod debug;
+pub use debug::*;

@@ -656,6 +656,30 @@ impl Collection {
 	}
 }
 
+//---------------------------------------------------------------------------------------------------- Display
+impl std::fmt::Display for Collection {
+	/// Displays the [`Collection`] in a _slightly_ more human readable way.
+	///
+	/// [`Debug`] will flood the screen with recursive data, this does not.
+	///
+	/// This still shouldn't be used for any public facing interfaces.
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
+		write!(f,
+"Collection:
+    empty     | {}
+    timestamp | {}
+    artists   | {}
+    albums    | {}
+    songs     | {}",
+			self.empty,
+			self.timestamp,
+			self.count_artist,
+			self.count_album,
+			self.count_song,
+		)
+	}
+}
+
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
 mod tests {

@@ -2,12 +2,25 @@
 use std::io::Write;
 use benri::log::ok;
 use log::info;
+use std::time::Instant;
+use crate::kernel::Kernel;
 
 //---------------------------------------------------------------------------------------------------- Start of logger.
 // This will get initialized by `Kernel`
 // regardless if `init_logger()` is called or not.
 lazy_static::lazy_static! {
-	pub static ref NOW: std::time::Instant = std::time::Instant::now();
+	pub static ref INIT_INSTANT: Instant = Instant::now();
+}
+
+/// Returns the init [`Instant`]
+///
+/// This returns the [`Instant`] of either:
+/// - When [`init_logger()`] was first called
+/// - When [`Kernel`] was first spawned
+///
+/// (which ever one came first)
+pub fn init_instant() -> std::time::Instant {
+	*INIT_INSTANT
 }
 
 //---------------------------------------------------------------------------------------------------- Logger init function
@@ -39,7 +52,7 @@ pub fn init_logger(filter: log::LevelFilter) {
 		_     => std::env::set_var("RUST_LOG", format!("off,shukusai={},festival={}", filter, filter)),
 	}
 
-	let now = *NOW;
+	let now = init_instant();
 
 	env_logger::Builder::new().format(move |buf, record| {
 		let mut style = buf.style();

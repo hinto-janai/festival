@@ -7,6 +7,7 @@ use crate::data::{
 	Settings,
 };
 use super::{
+	DebugInfo,
 	Tab,
 };
 use shukusai::kernel::{
@@ -106,6 +107,7 @@ pub struct Gui {
 	/// A cached, formatted version of [`Collection::count_song`]
 	pub count_song: String,
 
+	// Exit state.
 	/// Are we currently in the process of exiting?
 	pub exiting: bool,
 	/// To prevent showing a flash of the spinner
@@ -115,6 +117,7 @@ pub struct Gui {
 	/// How long before we force quit without saving.
 	pub exit_countdown: Arc<AtomicU8>,
 
+	// Reset/Collection state.
 	/// Are we in the middle of resetting the [`Collection`]?
 	pub resetting_collection: bool,
 	/// This is a [`bool`] that is `false` until `Kernel`
@@ -124,6 +127,14 @@ pub struct Gui {
 	/// will always be `true`. This is used for things like
 	/// the initial album art spinner screen.
 	pub kernel_returned: bool,
+
+	// Debug screen.
+	/// Are we showing the debug screen?
+	///
+	/// (User pressed CTRL+SHIFT+D)
+	pub debug_screen: bool,
+	/// The debug info displayed on the debug screen.
+	pub debug_info: DebugInfo,
 }
 
 //---------------------------------------------------------------------------------------------------- GUI convenience functions.
@@ -474,7 +485,11 @@ impl Gui {
 
 			resetting_collection: false,
 			kernel_returned: false,
+
+			debug_screen: false,
+			debug_info: DebugInfo::new(),
 		};
+
 
 		// Style
 		cc.egui_ctx.set_style(Self::init_style());
