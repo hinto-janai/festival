@@ -139,7 +139,7 @@ impl Search {
 				// Other messages shouldn't be received here, e.g:
 				// `DropCollection` should _always_ be first before `NewCollection`.
 				// Something buggy is happening if we randomly get a new `NewCollection`.
-				NewCollection(_) => error!("Search: Incorrect message received - NewCollection"),
+				NewCollection(_) => error!("Search - Incorrect message received - NewCollection"),
 			}
 		}
 	}
@@ -149,7 +149,7 @@ impl Search {
 	fn check_cache(&mut self) {
 		if self.cache.len() > self.total_count {
 			// Clear.
-			debug!("Search: Cache length more than '{}', clearing.", self.total_count);
+			debug!("Search - Cache length more than '{}', clearing.", self.total_count);
 			self.cache.clear();
 		}
 	}
@@ -172,7 +172,7 @@ impl Search {
 //	// We got a `String` key from a recently
 //	// created `Collection`, add it to cache.
 //	fn msg_cache(&mut self, input: String) {
-//		trace!("Search: Adding input to cache: {}", &input);
+//		trace!("Search - Adding input to cache: {}", &input);
 //		let result = self.calculate_sim(&input);
 //		self.add_to_cache(input, result);
 //	}
@@ -181,7 +181,7 @@ impl Search {
 //	// We got a `Vec` of `String` keys, add it to cache.
 //	fn msg_vec_cache(&mut self, inputs: Vec<String>) {
 //		for input in inputs {
-//			trace!("Search: Adding Vec<input> to cache: {}", &input);
+//			trace!("Search - Adding Vec<input> to cache: {}", &input);
 //			let result = self.calculate_sim(&input);
 //			self.add_to_cache(input, result);
 //		}
@@ -196,14 +196,14 @@ impl Search {
 		self.cache.clear();
 
 		// Hang until we get the new one.
-		debug!("Search: Dropped Collection, waiting...");
+		debug!("Search - Dropped Collection, waiting...");
 
 		// Listen to `Kernel`.
 		loop {
 			match recv!(self.from_kernel) {
 				// We got the new `Collection` pointer.
 				KernelToSearch::NewCollection(arc) => {
-					ok_debug!("Search: New Collection");
+					ok_debug!("Search - New Collection");
 					self.collection = arc;
 					self.total_count = {
 						self.collection.count_artist.usize() +
@@ -212,7 +212,7 @@ impl Search {
 					};
 					return
 				},
-				_ => error!("Search: Incorrect message received"),
+				_ => error!("Search - Incorrect message received"),
 			}
 
 		}

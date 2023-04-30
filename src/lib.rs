@@ -74,7 +74,6 @@
 	unused_comparisons,
 	unused_doc_comments,
 	unused_labels,
-	unused_unsafe,
 	while_true,
 	keyword_idents,
 	missing_docs,
@@ -86,6 +85,7 @@
 )]
 #![deny(
 	nonstandard_style,
+	unused_unsafe,
 	unused_mut,
 )]
 

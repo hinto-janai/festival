@@ -2700,7 +2700,6 @@ dependencies = [
  "hound",
  "lofty_attr",
  "log",
- "memmap2",
  "ogg_pager",
  "once_cell",
  "paste",
@@ -3512,7 +3511,7 @@ checksum = "3b42e27ef78c35d3998403c1d26f3efd9e135d3e5121b0a4845cc5cc27547f4f"
 
 [[package]]
 name = "readable"
-version = "0.8.0"
+version = "0.8.1"
 dependencies = [
  "bincode",
  "compact_str",
@@ -3529,15 +3528,15 @@ dependencies = [
 
 [[package]]
 name = "readable-inlined-date"
-version = "0.1.1"
+version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d217dfe23dcecff3cb4f8b7005445b03a6150b4d6dbf5c2ef579cc4e6e660a19"
+checksum = "2450f90ad1dcbca0dc17b95fedab53fd1030e5d2d38766bd14c04ce3ef23dda6"
 
 [[package]]
 name = "readable-inlined-runtime"
-version = "0.1.0"
+version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ca2d8d7c91d98b93b95f336b45da36fd098d52581ed72cb0f1f9b9b87e27f2ea"
+checksum = "d80ef33e9e28c62044fd0f1be084c6afff3f7439ac2fc64ac94ce5890a5b0689"
 
 [[package]]
 name = "readable-inlined-time"

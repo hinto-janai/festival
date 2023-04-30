@@ -17,6 +17,12 @@ use std::fmt::Write;
 /// Set `shukusai`'s custom panic hook.
 pub(crate) fn set_panic_hook() {
 	std::panic::set_hook(Box::new(|panic_info| {
+		// Set stack-trace (bunch of <???> on release builds, so ignore.)
+		#[cfg(debug_assertions)]
+		let stack_trace = std::backtrace::Backtrace::force_capture();
+		#[cfg(not(debug_assertions))]
+		let stack_trace = "<Release builds stack symbols were stripped>";
+
 		// Re-format panic info.
 		let panic_info = format!(
 "{:#?}\n\n{:#?}\n
@@ -38,7 +44,7 @@ stack backtrace:\n{}",
 			*crate::ccd::AVAILABLE_THREADS,
 			crate::constants::FESTIVAL_NAME_VER,
 			crate::logger::NOW.elapsed().as_secs_f64(),
-			std::backtrace::Backtrace::force_capture()
+			stack_trace,
 		);
 		// Attempt to write panic info to disk.
 		let panic = crate::panic::Panic(panic_info.clone());

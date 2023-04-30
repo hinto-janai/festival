@@ -4,6 +4,8 @@ use benri::log::ok;
 use log::info;
 
 //---------------------------------------------------------------------------------------------------- Start of logger.
+// This will get initialized by `Kernel`
+// regardless if `init_logger()` is called or not.
 lazy_static::lazy_static! {
 	pub static ref NOW: std::time::Instant = std::time::Instant::now();
 }

@@ -116,6 +116,7 @@ impl Kernel {
 		let pls_dont_optimize_away   = std::hint::black_box(lazy_static::initialize(&DUMMY_COLLECTION));
 		let pls_dont_optimize_away_2 = std::hint::black_box(lazy_static::initialize(&DUMMY_KERNEL_STATE));
 		let pls_dont_optimize_away_3 = std::hint::black_box(lazy_static::initialize(&DUMMY_RESET_STATE));
+		let pls_dont_optimize_away_4 = std::hint::black_box(lazy_static::initialize(&crate::NOW));
 
 		// Create `ResetState`, send to `Frontend`.
 		let reset = ResetState::from_dummy();
@@ -446,6 +447,7 @@ impl Kernel {
 		}
 
 		// Hang forever.
+		info!("Kernel - Entering exit() loop - Total uptime: {} seconds", secs_f32!(crate::NOW));
 		loop {
 			std::thread::park();
 		}
