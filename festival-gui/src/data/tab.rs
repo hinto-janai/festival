@@ -2,6 +2,7 @@
 //use anyhow::{bail,ensure,Error};
 //use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
+use bincode::{Encode,Decode};
 
 //---------------------------------------------------------------------------------------------------- Tab Constants
 // This is the text actually displayed in the `GUI`.
@@ -15,7 +16,7 @@ pub const SEARCH:    &str = "Search";
 pub const SETTINGS:  &str = "Settings";
 
 //---------------------------------------------------------------------------------------------------- Tab Enum
-#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
+#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
 pub enum Tab {
 	/// The tab that represents a full-view of a
 	/// particular `Album`, showing the full art,

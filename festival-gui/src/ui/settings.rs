@@ -39,7 +39,7 @@ use benri::{
 };
 use std::sync::Arc;
 use crate::text::*;
-use disk::Bincode;
+use disk::Bincode2;
 
 //---------------------------------------------------------------------------------------------------- Settings
 impl crate::data::Gui {

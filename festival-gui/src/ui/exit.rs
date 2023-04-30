@@ -24,7 +24,7 @@ use shukusai::kernel::{
 	KernelToFrontend,
 	KernelState,
 };
-use disk::Bincode;
+use disk::Bincode2;
 use disk::Toml;
 use crate::data::Gui;
 use crossbeam_channel::{

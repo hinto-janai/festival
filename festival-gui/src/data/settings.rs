@@ -2,6 +2,7 @@
 //use anyhow::{bail,ensure,Error};
 //use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
+use bincode::{Encode,Decode};
 use super::{
 	Tab,
 };
@@ -26,9 +27,9 @@ use shukusai::sort::{
 use super::AlbumSizing;
 
 //---------------------------------------------------------------------------------------------------- Settings
-disk::bincode!(Settings, disk::Dir::Data, FESTIVAL, "gui", "settings", FESTIVAL_HEADER, SETTINGS_VERSION);
+disk::bincode2!(Settings, disk::Dir::Data, FESTIVAL, "gui", "settings", FESTIVAL_HEADER, SETTINGS_VERSION);
 //toml_file!(Settings, Dir::Data, FESTIVAL, "gui", "settings");
-#[derive(Clone,Debug,Default,PartialEq,Serialize,Deserialize)]
+#[derive(Clone,Debug,Default,PartialEq,Serialize,Deserialize,Encode,Decode)]
 /// `GUI`'s settings.
 ///
 /// Holds user-mutable `GUI` settings, e.g:
@@ -48,6 +49,7 @@ pub struct Settings {
 	/// Restore playback on re-open.
 	pub restore_state: bool,
 
+	#[bincode(with_serde)]
 	/// Our accent color.
 	pub accent_color: egui::Color32,
 

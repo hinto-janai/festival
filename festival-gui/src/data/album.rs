@@ -1,9 +1,10 @@
 //---------------------------------------------------------------------------------------------------- Use
 use serde::{Serialize,Deserialize};
+use bincode::{Encode,Decode};
 use crate::constants::ALBUM_ART_SIZE_DEFAULT;
 
 //---------------------------------------------------------------------------------------------------- Settings
-#[derive(Clone,Debug,Default,PartialEq,Serialize,Deserialize)]
+#[derive(Clone,Debug,Default,PartialEq,Serialize,Deserialize,Encode,Decode)]
 /// Does the user want a certain amount of `Album`'s per row or a static pixel size?
 pub enum AlbumSizing {
 	#[default]

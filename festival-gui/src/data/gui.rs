@@ -51,7 +51,7 @@ use std::sync::{
 };
 use rolock::RoLock;
 use disk::Toml;
-use disk::Bincode;
+use disk::Bincode2;
 use std::time::Instant;
 use super::AlbumSizing;
 

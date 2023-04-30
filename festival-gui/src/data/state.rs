@@ -2,6 +2,7 @@
 //use anyhow::{bail,ensure,Error};
 //use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
+use bincode::{Encode,Decode};
 use super::{
 	Tab,
 };
@@ -29,9 +30,9 @@ use shukusai::kernel::{
 };
 
 //---------------------------------------------------------------------------------------------------- State
-disk::bincode!(State, disk::Dir::Data, FESTIVAL, "gui", "state", FESTIVAL_HEADER, STATE_VERSION);
+disk::bincode2!(State, disk::Dir::Data, FESTIVAL, "gui", "state", FESTIVAL_HEADER, STATE_VERSION);
 //toml_file!(State, Dir::Data, FESTIVAL, "gui", "state");
-#[derive(Copy,Clone,Debug,Default,PartialEq,PartialOrd,Serialize,Deserialize)]
+#[derive(Copy,Clone,Debug,Default,PartialEq,PartialOrd,Serialize,Deserialize,Encode,Decode)]
 /// `GUI`'s State.
 ///
 /// Holds `copy`-able, user-mutable `GUI` state.

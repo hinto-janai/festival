@@ -17,7 +17,6 @@ use egui::style::{
 	WidgetVisuals,
 };
 
-
 //---------------------------------------------------------------------------------------------------- `egui` Visuals
 lazy_static::lazy_static! {
 	/// This is based off [`Visuals::dark()`].
@@ -135,7 +134,7 @@ pub const APP_WIDTH_MIN:          f32 = 1000.0;
 pub const APP_HEIGHT_MIN:         f32 = 800.0;
 pub const APP_RESOLUTION_MIN:     [f32; 2] = [APP_WIDTH_MIN, APP_HEIGHT_MIN];
 pub const ALBUM_ART_SIZE_MIN:     f32 = 50.0;
-pub const ALBUM_ART_SIZE_MAX:     f32 = 600.0;
+pub const ALBUM_ART_SIZE_MAX:     f32 = shukusai::collection::ALBUM_ART_SIZE as f32;
 pub const ALBUM_ART_SIZE_DEFAULT: f32 = 227.0;
 pub const ALBUMS_PER_ROW_MIN:      u8 = 1;
 pub const ALBUMS_PER_ROW_MAX:      u8 = 20;

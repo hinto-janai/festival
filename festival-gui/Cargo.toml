@@ -18,8 +18,9 @@ shukusai = { path = "../", version = "0.0.0" }
 
 ### Personal Libraries.
 benri    = { version = "0.1.4", features = ["log"] }
-disk     = { version = "0.1.4", features = ["bincode", "toml", "empty"] }
-readable = { version = "0.7.6", git = "https://github.com/hinto-janai/readable", features = ["full"] }
+disk     = { version = "0.1.6", features = ["bincode2", "toml", "empty"] }
+#readable = { version = "0.8.0", git = "https://github.com/hinto-janai/readable", features = ["full"] }
+readable = { path = "../../readable", features = ["full"] }
 rolock   = "0.1.2"
 
 ### External patched libraries `external/`.
