@@ -120,7 +120,8 @@ pub use const_format::formatcp as const_format;
 mod constants;
 pub use constants::*;
 mod logger;
-pub use logger::*;
+pub use logger::init_logger;
+pub(crate) use logger::NOW;
 
 //---------------------------------------------------------------------------------------------------- Public modules.
 /// Custom panic hook + backtrace log
