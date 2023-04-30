@@ -84,7 +84,8 @@ all-features = true
 [dependencies]
 ### Personal libraries.
 benri    = { version = "0.1.4", features = ["log"] }
-disk     = { version = "0.1.4", features = ["bincode", "empty", "toml"] }
+disk     = { version = "0.1.5", features = ["bincode", "empty", "toml", "plain"] }
+#disk     = { path = "../disk", features = ["bincode", "empty", "toml", "plain"] }
 readable = { version = "0.7.6", git = "https://github.com/hinto-janai/readable", features = ["full"] }
 rolock   = { version = "0.1.2" }
 

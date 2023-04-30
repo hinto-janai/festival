@@ -1362,9 +1362,9 @@ dependencies = [
 
 [[package]]
 name = "disk"
-version = "0.1.4"
+version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "155cfba57697e04f8d981977312d661bbd66a64500ea8058a4fbe610f6332398"
+checksum = "062d645a3e5d046d581dc3de4c05544e15d0f24b33553af6dfd5c7b731f795f3"
 dependencies = [
  "anyhow",
  "bincode",
@@ -1377,6 +1377,7 @@ dependencies = [
  "paste",
  "seq-macro",
  "serde",
+ "serde_plain",
  "toml_edit",
 ]
 
@@ -3700,6 +3701,15 @@ checksum = "057d394a50403bcac12672b2b18fb387ab6d289d957dab67dd201875391e52f1"
 dependencies = [
  "itoa",
  "ryu",
+ "serde",
+]
+
+[[package]]
+name = "serde_plain"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d6018081315db179d0ce57b1fe4b62a12a0028c9cf9bbef868c9cf477b3c34ae"
+dependencies = [
  "serde",
 ]
 

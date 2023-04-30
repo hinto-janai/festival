@@ -2,7 +2,7 @@ mod mime;
 use mime::*;
 
 mod thread;
-use thread::*;
+pub(crate) use thread::*;
 
 mod msg;
 pub(crate) use msg::*;

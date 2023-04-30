@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------------------------------- Use
 use anyhow::{anyhow,bail,ensure};
-use log::{info,error,warn,trace,debug};
+use log::{error,warn,info,debug,trace};
 //use serde::{Serialize,Deserialize};
 //use disk::prelude::*;
 //use disk::{};
@@ -40,7 +40,7 @@ use crate::collection::Art;
 use crossbeam_channel::{Sender,Receiver};
 use std::path::{Path,PathBuf};
 use std::sync::{Arc,RwLock};
-use disk::Bincode;
+use disk::Bincode2;
 use readable::{
 	Unsigned,
 	Percent,
@@ -173,9 +173,9 @@ impl Ccd {
 
 			map,
 
-			artists: Artists::from(vec_artist),
-			albums: Albums::from(vec_album),
-			songs: Songs::from(vec_song),
+			artists: Artists::from_vec(vec_artist),
+			albums: Albums::from_vec(vec_album),
+			songs: Songs::from_vec(vec_song),
 
 			sort_artist_lexi,
 			sort_artist_album_count,
@@ -268,8 +268,7 @@ impl Ccd {
 
 		// 11.
 		let now = now!();
-		let collection = Arc::new(collection);
-		send!(to_kernel, CcdToKernel::NewCollection(Arc::clone(&collection)));
+		send!(to_kernel, CcdToKernel::NewCollection(Arc::new(collection)));
 		debug!("CCD [11/14] - ToKernel: {}", secs_f64!(now));
 
 		debug!("CCD - Created Collection and sent to Kernel: {}", secs_f64!(beginning));
@@ -285,7 +284,13 @@ impl Ccd {
 		// Set `saving` state.
 		lock_write!(kernel_state).saving = true;
 		// Attempt atomic save.
-		if let Err(e) = collection_for_disk.save_atomic() {
+		//
+		// SAFETY:
+		// `Collection` is saved to disk via `memmap`.
+		//
+		// We (`CCD`) are the only "entity" that should
+		// be touching `collection.bin` at this point.
+		if let Err(e) = unsafe { collection_for_disk.save_atomic_memmap() } {
 			fail!("CCD - Collection write to disk: {}", e);
 		}
 		// Set `saving` state.

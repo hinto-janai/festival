@@ -63,7 +63,7 @@ pub(crate) fn art_from_raw(bytes: &[u8], resizer: &mut fir::Resizer) -> Result<V
 	// `.buffer()` must be called on `fir::Image`
 	// before passing it to the next function.
 	// It's cheap, it just returns a `&[u8]`.
-	Ok(resize_dyn_image(bytes_to_dyn_image(bytes)?, resizer)?.into_vec())
+	Ok(resize_dyn_image(bytes_to_dyn_image(bytes)?, resizer)?)
 }
 
 #[inline(always)]
@@ -100,7 +100,7 @@ fn bytes_to_dyn_image(bytes: &[u8]) -> Result<image::DynamicImage, anyhow::Error
 }
 
 #[inline(always)]
-fn resize_dyn_image(img: image::DynamicImage, resizer: &mut fir::Resizer) -> Result<fir::Image<'static>, anyhow::Error> {
+fn resize_dyn_image(img: image::DynamicImage, resizer: &mut fir::Resizer) -> Result<Vec<u8>, anyhow::Error> {
 	// Make sure the image width/height is not 0.
 	let width = match NonZeroU32::new(img.width()) {
 		Some(w) => w,
@@ -112,9 +112,7 @@ fn resize_dyn_image(img: image::DynamicImage, resizer: &mut fir::Resizer) -> Res
 	};
 
 	// Convert image to RGB, then into a `fir::Image`.
-	// `.to_rgb8()` is expensive and copies.
-	// `.into_raw()` is cheap and returns the inner `Vec`.
-	let old_img = Image::from_vec_u8(width, height, img.to_rgb8().into_raw(), PixelType::U8x3)?;
+	let old_img = Image::from_vec_u8(width, height, img.into_rgb8().into_raw(), PixelType::U8x3)?;
 
 	// Create the image we'll resize into.
 	let mut new_img = Image::new(ALBUM_ART_SIZE_NUM, ALBUM_ART_SIZE_NUM, PixelType::U8x3);
@@ -124,7 +122,7 @@ fn resize_dyn_image(img: image::DynamicImage, resizer: &mut fir::Resizer) -> Res
 		bail!(e);
 	}
 
-	Ok(new_img)
+	Ok(new_img.into_vec())
 }
 
 #[inline(always)]

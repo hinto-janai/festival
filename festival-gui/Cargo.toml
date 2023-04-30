@@ -12,8 +12,6 @@ readme = "README.md"
 keywords = ["music", "player", "audio", "festival", "gui"]
 license = "MIT"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 ### Festival Internals.
 shukusai = { path = "../", version = "0.0.0" }

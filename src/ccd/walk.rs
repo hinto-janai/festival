@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------------------------------- Use
 //use anyhow::{anyhow,bail,ensure};
-use log::{info,warn,debug,trace};
+use log::{error,warn,info,debug,trace};
 //use serde::{Serialize,Deserialize};
 //use crate::macros::*;
 //use disk::prelude::*;

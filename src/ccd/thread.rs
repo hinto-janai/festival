@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------------------------------- Use
 //use anyhow::{anyhow,bail,ensure};
-use log::{info,error,warn,trace,debug};
+use log::{error,warn,info,debug,trace};
 //use serde::{Serialize,Deserialize};
 //use crate::macros::*;
 //use disk::prelude::*;
@@ -18,6 +18,43 @@ const ALBUM_THREAD_THRESHOLD: usize = 9;
 // until it's actually worth the cost of spawning threads?
 const PATH_THREAD_THRESHOLD: usize = 40;
 
+lazy_static::lazy_static! {
+	pub static ref AVAILABLE_THREADS: usize = {
+		match std::thread::available_parallelism() {
+			Ok(t)  => t.get(),
+			Err(_) => {
+				warn!("Available thread function failed, defaulting to 1!");
+				ONE_THREAD
+			}
+		}
+	};
+
+	static ref __50: usize = (*AVAILABLE_THREADS as f64 * 0.5).floor() as usize;
+	pub static ref HALF_AVAILABLE_THREADS: usize = {
+		match *AVAILABLE_THREADS {
+			// Special cases (low thread-count).
+			1|2 => 1,
+
+			// Around 50%.
+			_ => *__50,
+		}
+	};
+
+	static ref __75: usize = (*AVAILABLE_THREADS as f64 * 0.75).floor() as usize;
+	pub static ref MOST_AVAILABLE_THREADS: usize = {
+		match *AVAILABLE_THREADS {
+			// Special cases (low thread-count).
+			1 => 1,
+			2 => 1,
+			3 => 2,
+			4 => 3,
+
+			// Around 75%.
+			_ => *__75,
+		}
+	};
+}
+
 //---------------------------------------------------------------------------------------------------- Thread Functions.
 // Get a reasonable amount of threads for processing `n` amount of albums.
 pub(crate) fn threads_for_albums(albums: usize) -> usize {
@@ -28,16 +65,14 @@ pub(crate) fn threads_for_albums(albums: usize) -> usize {
 		return ONE_THREAD
 	}
 
-	let threads = most_threads(available_threads());
-
 	// Make sure each thread has at least 1 album.
-	if threads > albums {
+	if *MOST_AVAILABLE_THREADS > albums {
 		debug!("Album threads: {}", albums);
 		return albums
 	}
 
-	debug!("Album threads: {}", threads);
-	threads
+	debug!("Album threads: {}", *MOST_AVAILABLE_THREADS);
+	*MOST_AVAILABLE_THREADS
 }
 
 // Get a reasonable amount of threads for processing `n` amount of PATHs.
@@ -47,49 +82,14 @@ pub(crate) fn threads_for_paths(paths: usize) -> usize {
 		return ONE_THREAD
 	}
 
-	let threads = half_threads(available_threads());
-
 	// Make sure each thread has at least 1 PATH.
-	if threads > paths {
+	if *HALF_AVAILABLE_THREADS > paths {
 		debug!("PATH threads: {}", paths);
 		return paths
 	}
 
-	debug!("PATH threads: {}", threads);
-	threads
-}
-
-fn available_threads() -> usize {
-	match std::thread::available_parallelism() {
-		Ok(t)  => t.get(),
-		Err(_) => {
-			warn!("Available thread function failed, defaulting to 1!");
-			ONE_THREAD
-		}
-	}
-}
-
-fn half_threads(threads: usize) -> usize {
-	match threads {
-		// Special cases (low thread-count).
-		1|2 => 1,
-
-		// Around 50%.
-		_ => (threads as f64 * 0.5).floor() as usize,
-	}
-}
-
-fn most_threads(threads: usize) -> usize {
-	match threads {
-		// Special cases (low thread-count).
-		1 => 1,
-		2 => 1,
-		3 => 2,
-		4 => 3,
-
-		// Around 75%.
-		_ => (threads as f64 * 0.75).floor() as usize,
-	}
+	debug!("PATH threads: {}", *HALF_AVAILABLE_THREADS);
+	*HALF_AVAILABLE_THREADS
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

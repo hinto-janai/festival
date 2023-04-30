@@ -67,12 +67,12 @@ impl Cli {
 		}
 
 		// Signals.
-		if cli.toggle  { if let Err(e) = Toggle::touch()  { error!("Failed: {}", e); exit(1); } else { exit(0); } }
-		if cli.stop    { if let Err(e) = Stop::touch()    { error!("Failed: {}", e); exit(1); } else { exit(0); } }
-		if cli.play    { if let Err(e) = Play::touch()    { error!("Failed: {}", e); exit(1); } else { exit(0); } }
-		if cli.next    { if let Err(e) = Next::touch()    { error!("Failed: {}", e); exit(1); } else { exit(0); } }
-		if cli.last    { if let Err(e) = Last::touch()    { error!("Failed: {}", e); exit(1); } else { exit(0); } }
-		if cli.shuffle { if let Err(e) = Shuffle::touch() { error!("Failed: {}", e); exit(1); } else { exit(0); } }
-		if cli.repeat  { if let Err(e) = Repeat::touch()  { error!("Failed: {}", e); exit(1); } else { exit(0); } }
+		if cli.toggle  { if let Err(e) = Toggle::touch()  { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if cli.stop    { if let Err(e) = Stop::touch()    { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if cli.play    { if let Err(e) = Play::touch()    { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if cli.next    { if let Err(e) = Next::touch()    { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if cli.last    { if let Err(e) = Last::touch()    { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if cli.shuffle { if let Err(e) = Shuffle::touch() { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if cli.repeat  { if let Err(e) = Repeat::touch()  { error!("Failed: {e}"); exit(1); } else { exit(0); } }
 	}
 }
