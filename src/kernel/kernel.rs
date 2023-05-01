@@ -86,13 +86,26 @@ impl Kernel {
 	///
 	/// This channel _should never_ be closed.
 	///
-	/// This function doesn't itself spawn a new thread for [`Kernel`], so make sure you do that:
+	/// This function itself spawns a new thread for [`Kernel`] and returns the `Result`.
 	/// ```rust,ignore
-	/// std::thread::spawn(|| {
-	///     Kernel::bios()
-	/// });
+	/// // Don't do this.
+	/// std::thread::spawn(|| Kernel::spawn());
+	///
+	/// // Do this.
+	/// Kernel::spawn();
 	/// ```
-	pub fn bios(
+	pub fn spawn(
+		to_frontend:   Sender<KernelToFrontend>,
+		from_frontend: Receiver<FrontendToKernel>,
+		ctx:           egui::Context,
+	) -> Result<std::thread::JoinHandle<()>, std::io::Error> {
+		std::thread::Builder::new()
+			.name("Kernel".to_string())
+			.stack_size(16_000_000) // 16MB stack.
+			.spawn(move || Self::bios(to_frontend, from_frontend, ctx))
+	}
+
+	fn bios(
 		to_frontend:   Sender<KernelToFrontend>,
 		from_frontend: Receiver<FrontendToKernel>,
 		ctx:           egui::Context,
@@ -359,7 +372,7 @@ impl Kernel {
 				i if i == search   => self.msg_search(recv!(self.from_search)),
 				i if i == audio    => self.msg_audio(recv!(self.from_audio)),
 				i if i == watch    => self.msg_watch(recv!(self.from_watch)),
-				_ => error!("Kernel: Received an unknown message"),
+				_ => error!("Kernel - Received an unknown message"),
 			}
 		}
 	}
@@ -495,7 +508,7 @@ impl Kernel {
 		// Spawn `CCD`.
 		std::thread::Builder::new()
 			.name("CCD".to_string())
-			.stack_size(4_000_000) // 4MB stack.
+			.stack_size(16_000_000) // 16MB stack.
 			.spawn(move || Ccd::new_collection(ccd_send, ccd_recv, kernel_state, old_collection, paths, ctx));
 
 		// Listen to `CCD`.

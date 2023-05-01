@@ -184,6 +184,8 @@ pub struct Collection {
 	pub count_album: Unsigned,
 	/// How many [`Song`]'s in this [`Collection`]?
 	pub count_song: Unsigned,
+	/// How many unique [`Album`] covers are there in this [`Collection`]?
+	pub count_art: Unsigned,
 }
 
 impl Collection {
@@ -218,6 +220,7 @@ impl Collection {
 			count_artist: Unsigned::zero(),
 			count_album: Unsigned::zero(),
 			count_song: Unsigned::zero(),
+			count_art: Unsigned::zero(),
 		}
 	}
 

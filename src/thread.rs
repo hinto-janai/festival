@@ -18,28 +18,26 @@ lazy_static::lazy_static! {
 		}
 	};
 
-	static ref __50: usize = (*AVAILABLE_THREADS as f64 * 0.5).floor() as usize;
-	static ref HALF_AVAILABLE_THREADS: usize = {
+	static ref AVAILABLE_THREADS_25: usize = {
 		match *AVAILABLE_THREADS {
-			// Special cases (low thread-count).
-			1|2 => 1,
-
-			// Around 50%.
-			_ => *__50,
+			0|1|2|3|4 => 1,
+			_ => (*AVAILABLE_THREADS as f64 * 0.25).floor() as usize,
 		}
 	};
 
-	static ref __75: usize = (*AVAILABLE_THREADS as f64 * 0.75).floor() as usize;
-	static ref MOST_AVAILABLE_THREADS: usize = {
+	static ref AVAILABLE_THREADS_50: usize = {
 		match *AVAILABLE_THREADS {
-			// Special cases (low thread-count).
-			1 => 1,
-			2 => 1,
+			0|1|2 => 1,
+			_ => (*AVAILABLE_THREADS as f64 * 0.5).floor() as usize,
+		}
+	};
+
+	static ref AVAILABLE_THREADS_75: usize = {
+		match *AVAILABLE_THREADS {
+			0|1|2 => 1,
 			3 => 2,
 			4 => 3,
-
-			// Around 75%.
-			_ => *__75,
+			_ => (*AVAILABLE_THREADS as f64 * 0.75).floor() as usize,
 		}
 	};
 }
@@ -51,18 +49,25 @@ pub fn threads_available() -> usize {
 	*AVAILABLE_THREADS
 }
 
-/// Get half the available amount of system threads.
+/// Get `25%` of available amount of system threads.
 ///
 /// This is lazily evaluated and returns 1 on errors.
-pub fn threads_half_available() -> usize {
-	*HALF_AVAILABLE_THREADS
+pub fn threads_available_25() -> usize {
+	*AVAILABLE_THREADS_25
+}
+
+/// Get `50%` the available amount of system threads.
+///
+/// This is lazily evaluated and returns 1 on errors.
+pub fn threads_available_50() -> usize {
+	*AVAILABLE_THREADS_50
 }
 
 /// Get `75%` of available amount of system threads.
 ///
 /// This is lazily evaluated and returns 1 on errors.
-pub fn threads_most_available() -> usize {
-	*MOST_AVAILABLE_THREADS
+pub fn threads_available_75() -> usize {
+	*AVAILABLE_THREADS_75
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

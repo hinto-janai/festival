@@ -118,17 +118,17 @@ impl Audio {
 		drop(self.collection);
 
 		// Hang until we get the new one.
-		debug!("Audio: Dropped Collection, waiting...");
+		debug!("Audio - Dropped Collection, waiting...");
 
 		// Ignore messages until it's a pointer.
 		loop {
 			if let KernelToAudio::NewCollection(arc) = recv!(self.from_kernel) {
-				ok_debug!("Audio: New Collection");
+				ok_debug!("Audio - New Collection");
 				self.collection = arc;
 				return self
 			}
 
-			error!("Audio: Incorrect message received");
+			error!("Audio - Incorrect message received");
 		}
 	}
 }

@@ -103,7 +103,7 @@ rustdoc-args = ["--cfg", "docsrs"]
 ### Personal libraries.
 benri    = { version = "0.1.5", features = ["log"] }
 #disk     = { version = "0.1.6", features = ["bincode2", "empty", "toml", "plain"] }
-disk     = { path = "../disk", features = ["bincode2", "empty", "toml", "plain"] }
+disk     = { path = "../disk", features = ["bincode2", "empty", "toml", "plain", "json"] }
 #readable = { version = "0.8.0", git = "https://github.com/hinto-janai/readable", features = ["serde"] }
 readable = { path = "../readable", features = ["full"] }
 rolock   = { version = "0.1.2" }
@@ -135,6 +135,7 @@ const_format = { version = "0.2.30", features = ["rust_1_51", "assertcp", "rust_
 #egui-notify = "0.5.1"
 env_logger = "0.10.0"
 fast_image_resize = "2.7.0"
+garde = { version = "0.11.2", default-features = false, features = ["derive"] }
 #id3 = "1.6.0"
 image = { version = "0.24.6", features = ["jpeg", "png"], default-features = false }
 infer = "0.13.0"
@@ -150,5 +151,4 @@ seq-macro = "0.3.3"
 strsim = "0.10.0"
 #symphonia = "0.5.2"
 walkdir = "2.3.3"
-cached = "0.43.0"
 memmap2 = "0.5.10"
