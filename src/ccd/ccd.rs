@@ -40,7 +40,7 @@ use crate::collection::Art;
 use crossbeam_channel::{Sender,Receiver};
 use std::path::{Path,PathBuf};
 use std::sync::{Arc,RwLock};
-use disk::Bincode2;
+use disk::{Bincode2,Json};
 use readable::{
 	Unsigned,
 	Percent,
@@ -80,7 +80,7 @@ impl Ccd {
 			send!(to_kernel, CcdToKernel::NewCollection(collection));
 		}
 
-		debug!("CCD ... Took {} seconds, bye!", secs_f64!(beginning));
+		debug!("CCD ... Took {} seconds, bye!", secs_f32!(beginning));
 	}
 
 	#[inline(always)]
@@ -119,20 +119,23 @@ impl Ccd {
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((0.00, Phase::WalkDir)));
 		let paths = Self::walkdir_audio(&to_kernel, paths);
-		debug!("CCD [1/14] - WalkDir: {}", secs_f64!(now));
+		let perf_walkdir = secs_f32!(now);
+		debug!("CCD [1/14] - WalkDir: {perf_walkdir}");
 
 		// 2.
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((5.00, Phase::Parse)));
-		let (vec_artist, mut vec_album, vec_song) = Self::audio_paths_to_incomplete_vecs(&to_kernel, paths);
+		let (vec_artist, mut vec_album, vec_song, count_art) = Self::audio_paths_to_incomplete_vecs(&to_kernel, paths);
 		// Update should be < 50% at this point.
-		debug!("CCD [2/14] - Metadata: {}", secs_f64!(now));
+		let perf_metadata = secs_f32!(now);
+		debug!("CCD [2/14] - Metadata: {perf_metadata}");
 
 		// 3.
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((50.00, Phase::Fix)));
 		Self::fix_album_metadata_from_songs(&mut vec_album, &vec_song);
-		debug!("CCD [3/14] - Fix: {}", secs_f64!(now));
+		let perf_fix = secs_f32!(now);
+		debug!("CCD [3/14] - Fix: {perf_fix}");
 
 		// 4.
 		let now = now!();
@@ -152,13 +155,15 @@ impl Ccd {
 		let sort_song_lexi                      = Self::sort_song_lexi(&vec_song);
 		let sort_song_release                   = Self::sort_song_iterating_over_albums(&sort_album_release, &vec_artist, &vec_album);
 		let sort_song_runtime                   = Self::sort_song_runtime(&vec_song);
-		debug!("CCD [4/14] - Sort: {}", secs_f64!(now));
+		let perf_sort = secs_f32!(now);
+		debug!("CCD [4/14] - Sort: {perf_sort}");
 
 		// 5.
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((55.00, Phase::Search)));
 		let map = Map::from_3_vecs(&vec_artist, &vec_album, &vec_song);
-		debug!("CCD [5/14] - Map: {}", secs_f64!(now));
+		let perf_map = secs_f32!(now);
+		debug!("CCD [5/14] - Map: {perf_map}");
 
 		// 6.
 		let now = now!();
@@ -170,6 +175,9 @@ impl Ccd {
 			count_artist: Unsigned::zero(),
 			count_album: Unsigned::zero(),
 			count_song: Unsigned::zero(),
+
+			// We calculated this during "The Loop".
+			count_art: Unsigned::from(count_art),
 
 			map,
 
@@ -195,7 +203,8 @@ impl Ccd {
 		};
 		// Fix metadata.
 		let collection = collection.set_metadata();
-		debug!("CCD [6/14] - Collection: {}", secs_f64!(now));
+		let perf_prepare = secs_f32!(now);
+		debug!("CCD [6/14] - Prepare: {perf_prepare}");
 
 		// 7.
 		let now = now!();
@@ -203,7 +212,8 @@ impl Ccd {
 		let increment = 30.0 / collection.albums.len() as f64;
 		let collection = Self::priv_convert_art(&to_kernel, collection, ArtConvertType::Resize, increment);
 		// Update should be <= 90% at this point.
-		debug!("CCD [7/14] - Resize: {}", secs_f64!(now));
+		let perf_resize = secs_f32!(now);
+		debug!("CCD [7/14] - Resize: {perf_resize}");
 
 		// 8.
 		// FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
@@ -234,7 +244,8 @@ impl Ccd {
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((90.00, Phase::Clone)));
 		let collection_for_disk = collection.clone();
-		debug!("CCD [8/14] - Clone: {}", secs_f64!(now));
+		let perf_clone = secs_f32!(now);
+		debug!("CCD [8/14] - Clone: {perf_clone}");
 		// FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
 		// 9.
@@ -252,7 +263,8 @@ impl Ccd {
 		let increment = 4.0 / collection.albums.len() as f64;
 		let collection = Self::priv_convert_art(&to_kernel, collection, ArtConvertType::ToKnown, increment);
 		// Update should be <= 99% at this point.
-		debug!("CCD [9/14] - Convert: {}", secs_f64!(now));
+		let perf_convert = secs_f32!(now);
+		debug!("CCD [9/14] - Convert: {perf_convert}");
 
 		// 10.
 		let now = now!();
@@ -264,20 +276,30 @@ impl Ccd {
 		// to freeze. Currently it's done with `try_write()` which doesn't
 		// starve GUI, but can take way longer (0.00008 secs -> 1.xx secs...!!!).
 		super::alloc_textures(&collection.albums, &ctx);
-		debug!("CCD [10/14] - Textures: {}", secs_f64!(now));
+		let perf_textures = secs_f32!(now);
+		debug!("CCD [10/14] - Textures: {perf_textures}");
 
 		// 11.
 		let now = now!();
 		send!(to_kernel, CcdToKernel::NewCollection(Arc::new(collection)));
-		debug!("CCD [11/14] - ToKernel: {}", secs_f64!(now));
-
-		debug!("CCD - Created Collection and sent to Kernel: {}", secs_f64!(beginning));
+		let perf_to_kernel = secs_f32!(now);
+		debug!("CCD [11/14] - ToKernel: {perf_to_kernel}");
 
 		// 12.
+		// INVARIANT:
+		// In order to access `perf_die` out of scope
+		// there is not match/if_else here.
+		//
+		// Instead, we just block on `recv!()` assuming
+		// `KernelToCcd::Die` is the only message `CCD`
+		// can receive.
 		let now = now!();
-		match recv!(from_kernel) {
-			KernelToCcd::Die => debug!("CCD [12/14] - Die: {}", secs_f64!(now)),
-		}
+		let _ = recv!(from_kernel);
+		let perf_die = secs_f32!(now);
+		debug!("CCD [12/14] - Die: {perf_die}");
+
+		let user_time = secs_f32!(beginning);
+		debug!("CCD - User time: {}", user_time);
 
 		// 13.
 		let now = now!();
@@ -290,17 +312,27 @@ impl Ccd {
 		//
 		// We (`CCD`) are the only "entity" that should
 		// be touching `collection.bin` at this point.
-		if let Err(e) = unsafe { collection_for_disk.save_atomic_memmap() } {
-			fail!("CCD - Collection write to disk: {}", e);
-		}
+		let total_bytes = match unsafe { collection_for_disk.save_atomic_memmap() } {
+			Ok(b)  => b,
+			Err(e) => { fail!("CCD - Collection write to disk: {}", e); 0 },
+		};
 		// Set `saving` state.
 		lock_write!(kernel_state).saving = false;
-		debug!("CCD [13/14] - Disk: {}", secs_f64!(now));
+		let perf_disk = secs_f32!(now);
+		debug!("CCD [13/14] - Disk: {perf_disk}");
+
+		// Get perf stats.
+		let objects_artists = collection_for_disk.count_artist.usize();
+		let objects_albums  = collection_for_disk.count_album.usize();
+		let objects_songs   = collection_for_disk.count_song.usize();
+		let objects_art     = count_art;
+
 		// Don't need these anymore.
 		drop!(kernel_state, collection_for_disk);
 
 		// 14.
 		// Try 3 times before giving up.
+		let now = now!();
 		for i in 1..=4 {
 			if i == 4 {
 				error!("CCD [14/14] - Someone else is pointing to the old Collection...! I can't deconstruct it noooooooooo~");
@@ -310,16 +342,55 @@ impl Ccd {
 			if Arc::strong_count(&old_collection) == 1 {
 				let now = now!();
 				drop(old_collection);
-				debug!("CCD [14/14] - Deconstruct: {}", secs_f64!(now));
 				break
 			}
 
 			warn!("CCD [14/14] Attempt ({}/3) - Failed to deconstruct old Collection...", i);
 			sleep!(1000); // Sleep 1 second.
 		}
+		let perf_deconstruct = secs_f32!(now);
+		debug!("CCD [14/14] - Deconstruct: {perf_deconstruct}");
+
+		// Gather and save perf data.
+		let phases = crate::ccd::perf::Phases {
+			walkdir:     perf_walkdir,
+			metadata:    perf_metadata,
+			fix:         perf_fix,
+			sort:        perf_sort,
+			map:         perf_map,
+			prepare:     perf_prepare,
+			resize:      perf_resize,
+			clone:       perf_clone,
+			convert:     perf_convert,
+			textures:    perf_textures,
+			to_kernel:   perf_to_kernel,
+			die:         perf_die,
+			disk:        perf_disk,
+			deconstruct: perf_deconstruct,
+		};
+		let objects = crate::ccd::perf::Objects {
+			artists: objects_artists,
+			albums:  objects_albums,
+			songs:   objects_songs,
+			art:     objects_art,
+		};
+		let total = crate::ccd::perf::Total {
+			bytes: total_bytes,
+			user: user_time,
+			ccd: secs_f32!(beginning),
+		};
+		let perf = crate::ccd::perf::Perf {
+			objects,
+			phases,
+			total,
+		};
+		format!("{perf}").lines().for_each(|l| debug!("{l}"));
+		if let Err(e) = perf.save() {
+			warn!("CCD - Couldn't save perf data: {e}");
+		}
 
 		// Thank you CCD, you can rest now.
-		debug!("CCD ... Took {} seconds, bye!", secs_f64!(beginning));
+		ok_debug!("CCD");
 	}
 }
 
@@ -344,7 +415,7 @@ mod tests {
 		// Serialize.
 		let now = now!();
 		let collection = Collection::from_file().unwrap();
-		info!("Read: {}", secs_f64!(now));
+		info!("Read: {}", secs_f32!(now));
 
 		// Convert.
 		let now = now!();
@@ -353,7 +424,7 @@ mod tests {
 			CcdToKernel::NewCollection(c) => c,
 			_ => panic!("wrong msg received"),
 		};
-		info!("Convert: {}", secs_f64!(now));
+		info!("Convert: {}", secs_f32!(now));
 
 		// Print.
 		info!("{:#?}", collection);

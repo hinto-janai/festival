@@ -8,8 +8,9 @@ use log::{error,warn,info,debug,trace};
 use std::num::NonZeroUsize;
 use crate::{
 	threads_available,
-	threads_most_available,
-	threads_half_available,
+	threads_available_25,
+	threads_available_50,
+	threads_available_75,
 };
 
 //---------------------------------------------------------------------------------------------------- Constants.
@@ -22,8 +23,8 @@ const ALBUM_THREAD_THRESHOLD: usize = 9;
 const PATH_THREAD_THRESHOLD: usize = 40;
 
 //---------------------------------------------------------------------------------------------------- Thread Functions.
-// Get a reasonable amount of threads for processing `n` amount of albums.
-pub(crate) fn threads_for_albums(albums: usize) -> usize {
+// Get a reasonable amount of threads for processing `n` amount of album art.
+pub(crate) fn threads_for_album_art(albums: usize) -> usize {
 	// Return 1 if it's not even worth spawning
 	// threads due to small amount of albums.
 	if albums <= ALBUM_THREAD_THRESHOLD {
@@ -32,13 +33,13 @@ pub(crate) fn threads_for_albums(albums: usize) -> usize {
 	}
 
 	// Make sure each thread has at least 1 album.
-	if threads_half_available() > albums {
+	if threads_available_50() > albums {
 		debug!("Album threads: {}", albums);
 		return albums
 	}
 
-	debug!("Album threads: {}", threads_half_available());
-	threads_half_available()
+	debug!("Album threads: {}", threads_available_50());
+	threads_available_50()
 }
 
 // Get a reasonable amount of threads for processing `n` amount of PATHs.
@@ -49,13 +50,13 @@ pub(crate) fn threads_for_paths(paths: usize) -> usize {
 	}
 
 	// Make sure each thread has at least 1 PATH.
-	if threads_half_available() > paths {
+	if threads_available_50() > paths {
 		debug!("PATH threads: {}", paths);
 		return paths
 	}
 
-	debug!("PATH threads: {}", threads_half_available());
-	threads_half_available()
+	debug!("PATH threads: {}", threads_available_50());
+	threads_available_50()
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

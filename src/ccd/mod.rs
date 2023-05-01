@@ -1,6 +1,8 @@
 mod mime;
 use mime::*;
 
+mod perf;
+
 mod thread;
 pub(crate) use thread::*;
 

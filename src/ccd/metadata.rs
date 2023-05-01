@@ -96,7 +96,7 @@ impl super::Ccd {
 	pub(super) fn audio_paths_to_incomplete_vecs(
 		to_kernel: &Sender<CcdToKernel>,
 		vec_paths: Vec<PathBuf>
-	) -> (Vec<Artist>, Vec<Album>, Vec<Song>) {
+	) -> (Vec<Artist>, Vec<Album>, Vec<Song>, usize) {
 		// TODO:
 		// Send messages to `Kernel` & log.
 
@@ -138,6 +138,7 @@ impl super::Ccd {
 		let vec_artist:   Mutex<Vec<Artist>> = Mutex::new(Vec::with_capacity(artist_len_maybe));
 		let vec_album:    Mutex<Vec<Album>>  = Mutex::new(Vec::with_capacity(album_len_maybe));
 		let vec_song:     Mutex<Vec<Song>>   = Mutex::new(Vec::with_capacity(song_len_maybe));
+		let count_art:    Mutex<usize>       = Mutex::new(0);
 
 		// In this loop, each `PathBuf` represents a new `Song` with metadata.
 		// There are 3 logical possibilities with 3 actions associated with them:
@@ -249,7 +250,10 @@ impl super::Ccd {
 			let song_count    = Unsigned::zero();
 			let runtime_album = Runtime::zero();
 			let art = match picture {
-				Some(bytes) => Art::Bytes(bytes),
+				Some(bytes) => {
+					*lock!(count_art) += 1;
+					Art::Bytes(bytes)
+				},
 				_ => Art::Unknown,
 			};
 
@@ -317,7 +321,10 @@ impl super::Ccd {
 		let song_count    = Unsigned::zero();
 		let runtime_album = Runtime::zero();
 		let art = match picture {
-			Some(bytes) => Art::Bytes(bytes),
+			Some(bytes) => {
+				*lock!(count_art) += 1;
+				Art::Bytes(bytes)
+			},
 			_ => Art::Unknown,
 		};
 
@@ -396,6 +403,7 @@ impl super::Ccd {
 			unwrap_or_mass!(vec_artist.into_inner()),
 			unwrap_or_mass!(vec_album.into_inner()),
 			unwrap_or_mass!(vec_song.into_inner()),
+			unwrap_or_mass!(count_art.into_inner()),
 		)
 	}
 

@@ -60,7 +60,7 @@ impl super::Ccd {
 		let total = collection.albums.len();
 
 		// How many threads should we use?
-		let threads = super::threads_for_albums(total);
+		let threads = super::threads_for_album_art(total);
 
 		// Single-threaded.
 		if threads == 1 {
