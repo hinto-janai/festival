@@ -111,7 +111,7 @@ impl eframe::App for Gui {
 				use KernelToFrontend::*;
 				match msg {
 					NewCollection(collection) => {
-						ok_debug!("GUI: New Collection");
+						ok_debug!("GUI - New Collection");
 						self.collection = collection;
 						self.resetting_collection = false;
 						self.kernel_returned = true;
@@ -171,11 +171,16 @@ impl eframe::App for Gui {
 		// Check for key presses.
 		if !ctx.wants_keyboard_input() {
 			ctx.input_mut(|input| {
-				// Check for arrow keys (Tab switch)
+				// Check for `Up/Down` (Tab switch)
 				if input.consume_key(egui::Modifiers::NONE, egui::Key::ArrowDown) {
 					self.state.tab = self.state.tab.next();
 				} else if input.consume_key(egui::Modifiers::NONE, egui::Key::ArrowUp) {
 					self.state.tab = self.state.tab.previous();
+				// Check for `Left/Right` (Volume)
+				} else if self.state.tab == Tab::Albums && input.consume_key(egui::Modifiers::NONE, egui::Key::ArrowRight) {
+					self.increment_art_size()
+				} else if self.state.tab == Tab::Albums && input.consume_key(egui::Modifiers::NONE, egui::Key::ArrowLeft) {
+					self.decrement_art_size()
 				// Check for `F11` (Fullscreen)
 				} else if input.consume_key(egui::Modifiers::NONE, egui::Key::F11) {
 					frame.set_fullscreen(!frame.info().window_info.fullscreen);

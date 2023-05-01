@@ -55,6 +55,7 @@ use disk::Toml;
 use disk::Bincode2;
 use std::time::Instant;
 use super::AlbumSizing;
+use garde::Validate;
 
 //---------------------------------------------------------------------------------------------------- GUI struct. This hold ALL data.
 pub struct Gui {
@@ -266,7 +267,7 @@ impl Gui {
 		match self.settings.album_sizing {
 			AlbumSizing::Pixel => {
 				let new = self.settings.album_pixel_size + 1.0;
-				if new > ALBUM_ART_SIZE_MAX + 1.0 {
+				if new > ALBUM_ART_SIZE_MAX {
 					self.settings.album_pixel_size = ALBUM_ART_SIZE_MAX;
 				} else {
 					self.settings.album_pixel_size = new;
@@ -293,7 +294,7 @@ impl Gui {
 		match self.settings.album_sizing {
 			AlbumSizing::Pixel => {
 				let new = self.settings.album_pixel_size - 1.0;
-				if new < ALBUM_ART_SIZE_MIN - 1.0 {
+				if new < ALBUM_ART_SIZE_MIN {
 					self.settings.album_pixel_size = ALBUM_ART_SIZE_MIN;
 				} else {
 					self.settings.album_pixel_size = new;
@@ -436,7 +437,7 @@ impl Gui {
 
 		// Read `Settings` from disk.
 		let settings = match Settings::from_file() {
-			Ok(s)  => { ok!("GUI - Settings from disk"); s },
+			Ok(s)  => { ok!("GUI - Settings from disk"); s.validate(&()).map(|_| s).unwrap_or_default() },
 			Err(e) => { warn!("GUI - Settings failed from disk: {}", e); Settings::new() },
 		};
 
