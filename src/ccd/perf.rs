@@ -58,7 +58,7 @@ pub(super) struct Objects {
 
 #[derive(Copy,Clone,Debug,Default,PartialEq,PartialOrd,Serialize,Deserialize)]
 pub(super) struct Total {
-	pub(super) bytes: usize,
+	pub(super) bytes: u64,
 	pub(super) user: f32,
 	pub(super) ccd: f32,
 }

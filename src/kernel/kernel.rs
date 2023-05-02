@@ -460,7 +460,7 @@ impl Kernel {
 		}
 
 		// Hang forever.
-		info!("Kernel - Entering exit() loop - Total uptime: {} seconds", secs_f32!(crate::init_instant()));
+		info!("Kernel - Entering exit() loop - Total uptime: {}", readable::Time::from(crate::init_instant()));
 		loop {
 			std::thread::park();
 		}

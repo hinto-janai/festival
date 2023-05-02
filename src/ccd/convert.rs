@@ -55,13 +55,9 @@ impl super::Ccd {
 		collection: Collection,
 		art_convert_type: ArtConvertType,
 		increment: f64,
+		total: usize,
+		threads: usize,
 	) -> Collection {
-		// How many albums total?
-		let total = collection.albums.len();
-
-		// How many threads should we use?
-		let threads = super::threads_for_album_art(total);
-
 		// Single-threaded.
 		if threads == 1 {
 			Self::convert_art_singlethread(to_kernel, collection, total, increment, art_convert_type)

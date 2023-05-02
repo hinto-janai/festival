@@ -102,10 +102,9 @@ rustdoc-args = ["--cfg", "docsrs"]
 [dependencies]
 ### Personal libraries.
 benri    = { version = "0.1.5", features = ["log"] }
-#disk     = { version = "0.1.6", features = ["bincode2", "empty", "toml", "plain"] }
-disk     = { path = "../disk", features = ["bincode2", "empty", "toml", "plain", "json"] }
-#readable = { version = "0.8.0", git = "https://github.com/hinto-janai/readable", features = ["serde"] }
-readable = { path = "../readable", features = ["full"] }
+disk     = { version = "0.1.8", features = ["bincode2", "empty", "toml", "plain", "json"] }
+readable = { version = "0.8.1", features = ["full"] }
+#readable = { path = "../readable", features = ["full"] }
 rolock   = { version = "0.1.2" }
 
 ### External patched libraries `external/`.
@@ -128,13 +127,13 @@ paste = "1.0.12"
 compact_str = "0.7.0"
 
 ### Regular libraries.
-anyhow = "1.0.70"
+anyhow = "1.0.71"
 bincode = { version = "2.0.0-rc.3", features = ["serde"] }
 crossbeam-channel = "0.5.8"
 const_format = { version = "0.2.30", features = ["rust_1_51", "assertcp", "rust_1_64"] }
 #egui-notify = "0.5.1"
 env_logger = "0.10.0"
-fast_image_resize = "2.7.0"
+fast_image_resize = "2.7.1"
 garde = { version = "0.11.2", default-features = false, features = ["derive"] }
 #id3 = "1.6.0"
 image = { version = "0.24.6", features = ["jpeg", "png"], default-features = false }
