@@ -117,7 +117,7 @@ impl Watch {
 			}
 
 			// Toggle.
-			if let Ok(true) = Toggle::exists() {
+			if Toggle::exists().is_ok() {
 				send_or_die!(self.to_kernel, WatchToKernel::Toggle)
 			}
 
@@ -125,28 +125,28 @@ impl Watch {
 			//
 			// `Stop` will always take priority
 			// if both `Stop` and `Play` files exist.
-			if let Ok(true) = Stop::exists() {
+			if Stop::exists().is_ok() {
 				send_or_die!(self.to_kernel, WatchToKernel::Stop)
-			} else if let Ok(true) = Play::exists() {
+			} else if Play::exists().is_ok() {
 				send_or_die!(self.to_kernel, WatchToKernel::Play)
 			}
 
 			// Next/Last.
 			//
 			// `Next` takes priority.
-			if let Ok(true) = Next::exists() {
+			if Next::exists().is_ok() {
 				send_or_die!(self.to_kernel, WatchToKernel::Next)
-			} else if let Ok(true) = Last::exists() {
+			} else if Last::exists().is_ok() {
 				send_or_die!(self.to_kernel, WatchToKernel::Last)
 			}
 
 			// Shuffle.
-			if let Ok(true) = Shuffle::exists() {
+			if Shuffle::exists().is_ok() {
 				send_or_die!(self.to_kernel, WatchToKernel::Shuffle)
 			}
 
 			// Repeat.
-			if let Ok(true) = Repeat::exists() {
+			if Repeat::exists().is_ok() {
 				send_or_die!(self.to_kernel, WatchToKernel::Repeat)
 			}
 
