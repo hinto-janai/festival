@@ -31,10 +31,15 @@ jobs:
         sudo apt update
         sudo apt install -y libgtk-3-dev
     - name: Clippy
-      run: cargo clippy --all-features
+      run: cargo clippy --all-features --release
     - name: Doc
-      run: cargo doc --workspace --no-deps --all-features
+      run: cargo doc --workspace --no-deps --all-features --release
     - name: Test
-      run: cargo test --all-features
+      run: cargo test --all-features --release
     - name: Build
-      run: cargo build --all-features
+      run: cargo build --all-features --release
+    - name: Archive
+      uses: actions/upload-artifact@v3
+      with:
+        name: festival
+        path: target/release/festival

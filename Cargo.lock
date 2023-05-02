@@ -1749,6 +1749,7 @@ name = "festival-gui"
 version = "0.0.0"
 dependencies = [
  "benri",
+ "bincode 2.0.0-rc.3",
  "clap 4.2.5",
  "compact_str",
  "const_format",
@@ -1761,7 +1762,7 @@ dependencies = [
  "image",
  "lazy_static",
  "log",
- "readable 0.8.1",
+ "readable",
  "rfd",
  "rolock",
  "serde",
@@ -3488,23 +3489,6 @@ checksum = "3b42e27ef78c35d3998403c1d26f3efd9e135d3e5121b0a4845cc5cc27547f4f"
 [[package]]
 name = "readable"
 version = "0.8.1"
-dependencies = [
- "bincode 2.0.0-rc.3",
- "compact_str",
- "itoa",
- "lazy_static",
- "paste",
- "readable-inlined-date",
- "readable-inlined-runtime",
- "readable-inlined-time",
- "regex",
- "seq-macro",
- "serde",
-]
-
-[[package]]
-name = "readable"
-version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2135da3d51e72481dd3c3647353b73da4f07978e06498ae843a72eac79ac5722"
 dependencies = [
@@ -3904,7 +3888,7 @@ dependencies = [
  "notify",
  "paste",
  "rand",
- "readable 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "readable",
  "rfd",
  "rolock",
  "seq-macro",

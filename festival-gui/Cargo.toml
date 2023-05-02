@@ -19,8 +19,8 @@ shukusai = { path = "../", version = "0.0.0" }
 ### Personal Libraries.
 benri    = { version = "0.1.5", features = ["log"] }
 disk     = { version = "0.1.8", features = ["bincode2", "toml", "empty"] }
-#readable = { version = "0.8.0", git = "https://github.com/hinto-janai/readable", features = ["full"] }
-readable = { path = "../../readable", features = ["full"] }
+readable = { version = "0.8.1", features = ["full"] }
+#readable = { path = "../../readable", features = ["full"] }
 rolock   = "0.1.2"
 
 ### External patched libraries `external/`.
@@ -29,6 +29,7 @@ eframe      = { version = "0.21.0", path = "../external/egui/crates/eframe",    
 egui_extras = { version = "0.21.0", path = "../external/egui/crates/egui_extras", features = ["image"] }
 
 ### Regular libraries.
+bincode = { version = "2.0.0-rc.3", features = ["serde"] }
 clap  = { version = "4.2.5", features = ["derive"] }
 compact_str = "0.7.0"
 crossbeam-channel = "0.5.8"
