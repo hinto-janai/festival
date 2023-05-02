@@ -21,7 +21,7 @@ pub(crate) fn set_panic_hook() {
 		#[cfg(debug_assertions)]
 		let stack_trace = std::backtrace::Backtrace::force_capture();
 		#[cfg(not(debug_assertions))]
-		let stack_trace = "<Release builds stack symbols were stripped>";
+		let stack_trace = "<Release build stack symbols were stripped>";
 
 		// Re-format panic info.
 		let panic_info = format!(
@@ -61,12 +61,12 @@ stack backtrace:\n{}",
 }
 
 //----------------------------------------------------------------------------------------------------
-disk::plain!(Panic, disk::Dir::Data, FESTIVAL, "", "panic");
+disk::plain!(Panic, disk::Dir::Data, FESTIVAL, "txt", "panic");
 #[derive(Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
 #[serde(transparent)]
 /// File representing a `panic!()` log.
 ///
-/// This gets written in the `festival` folder as `panic.txt`.
+/// This gets written in the `festival/txt` folder as `panic.txt`.
 pub struct Panic(pub(crate) String);
 
 //---------------------------------------------------------------------------------------------------- TESTS

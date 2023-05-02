@@ -5,11 +5,11 @@ use crate::collection::Collection;
 use serde::{Serialize,Deserialize};
 
 //---------------------------------------------------------------------------------------------------- __NAME__
-disk::json!(Perf, disk::Dir::Data, FESTIVAL, "", "perf");
+disk::json!(Perf, disk::Dir::Data, FESTIVAL, "txt", "perf");
 #[derive(Copy,Clone,Debug,Default,PartialEq,PartialOrd,Serialize,Deserialize)]
 /// File representing some stats and performance of creating a [`Collection`]
 ///
-/// This gets written in the `festival` folder as `perf.json`.
+/// This gets written in the `festival/txt` folder as `perf.json`.
 pub(super) struct Perf {
 	// The specific timings of each step in `CCD`.
 	pub(super) phases: Phases,
