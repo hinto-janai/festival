@@ -21,13 +21,13 @@ macro_rules! impl_plural {
 	($name:ident, $plural:ident, $key:ident) => {
 		#[derive(Clone,Debug,Serialize,Deserialize,PartialEq,PartialOrd,Encode,Decode)]
 		#[serde(transparent)]
-		/// Type-safe wrapper around [`Vec`].
+		/// Type-safe wrapper around a [`Box`]'ed [`slice`].
 		///
-		/// This struct's inner value is just [`Vec<T>`], where `T` is the non-plural version of this `struct`'s name.
+		/// This struct's inner value is just [`Box<[T]>`], where `T` is the non-plural version of this `struct`'s name.
 		///
-		/// E.g: `Albums` is just a `Vec<Album>`.
+		/// E.g: `Albums` is just a `Box<[Album]>`.
 		///
-		/// This reimplements common [`Vec`] functions/traits, notably [`std::ops::Index`]. This allows for type-safe indexing.
+		/// This reimplements common [`slice`] functions/traits, notably [`std::ops::Index`]. This allows for type-safe indexing.
 		///
 		/// For example, `Albums` is ONLY allowed to be indexed with a `AlbumKey`:
 		/// ```rust,ignore
@@ -41,7 +41,7 @@ macro_rules! impl_plural {
 		/// collection.albums[key];
 		/// ```
 		//-------------------------------------------------- Define plural `struct`.
-		pub struct $plural(pub(crate) Vec<$name>);
+		pub struct $plural(pub(crate) Box<[$name]>);
 
 		//-------------------------------------------------- Implement `[]` indexing.
 		impl std::ops::Index<$key> for $plural {
@@ -72,8 +72,8 @@ macro_rules! impl_plural {
 		impl $plural {
 			//-------------------------------------------------- New (private).
 			#[inline(always)]
-			pub(crate) const fn new() -> Self {
-				Self(vec![])
+			pub(crate) fn new() -> Self {
+				Self(Box::new([]))
 			}
 
 			//-------------------------------------------------- Common `Vec` and related functions.
@@ -122,7 +122,7 @@ macro_rules! impl_plural {
 			#[inline(always)]
 			/// Create self from a [`Vec`].
 			pub(crate) fn from_vec(vec: Vec<$name>) -> Self {
-				Self(vec)
+				Self(vec.into_boxed_slice())
 			}
 		}
 	}

@@ -92,7 +92,7 @@ CentralPanel::default().show(ctx, |ui| {
 	// If search input is empty, reset result, show help.
 	if self.search_string.is_empty() {
 		if !self.search_result.is_empty() {
-			self.search_result.clear();
+			self.search_result = Default::default();
 			self.searching = false;
 		}
 
@@ -117,7 +117,7 @@ CentralPanel::default().show(ctx, |ui| {
 	ui.add_sized([width, hhh], label).on_hover_text("TODO");
 	ScrollArea::horizontal().id_source("SearchAlbum").max_width(f32::INFINITY).max_height(100.0).auto_shrink([false; 2]).show_viewport(ui, |ui, _| {
 		ui.horizontal(|ui| {
-			for album in &self.search_result.albums {
+			for album in self.search_result.albums.iter() {
 				self.collection.albums[album].art_or().show_size(ui, egui::vec2(100.0, 100.0));
 			}
 		});
@@ -132,7 +132,7 @@ CentralPanel::default().show(ctx, |ui| {
 	);
 	ui.add_sized([width, hhh], label).on_hover_text("TODO");
 	ScrollArea::both().id_source("SearchArtist").max_width(f32::INFINITY).max_height(110.0).auto_shrink([false; 2]).show_viewport(ui, |ui, _| {
-		for artist in &self.search_result.artists {
+		for artist in self.search_result.artists.iter() {
 			ui.horizontal(|ui| {
 				let artist = &self.collection.artists[artist];
 				ui.add_sized([100.0, 100.0], Label::new(&artist.name));
@@ -152,7 +152,7 @@ CentralPanel::default().show(ctx, |ui| {
 	);
 	ui.add_sized([width, hhh], label).on_hover_text("TODO");
 	ScrollArea::vertical().id_source("SearchSong").max_width(f32::INFINITY).max_height(ui.available_width()).auto_shrink([false; 2]).show_viewport(ui, |ui, _| {
-		for song in &self.search_result.songs {
+		for song in self.search_result.songs.iter() {
 			ui.horizontal(|ui| {
 				let song = &self.collection.songs[song];
 				ui.add_sized([100.0, 100.0], Label::new(&song.title));

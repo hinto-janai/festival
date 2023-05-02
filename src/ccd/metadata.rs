@@ -252,7 +252,7 @@ impl super::Ccd {
 			let art = match picture {
 				Some(bytes) => {
 					*lock!(count_art) += 1;
-					Art::Bytes(bytes)
+					Art::Bytes(bytes.into())
 				},
 				_ => Art::Unknown,
 			};
@@ -323,7 +323,7 @@ impl super::Ccd {
 		let art = match picture {
 			Some(bytes) => {
 				*lock!(count_art) += 1;
-				Art::Bytes(bytes)
+				Art::Bytes(bytes.into())
 			},
 			_ => Art::Unknown,
 		};

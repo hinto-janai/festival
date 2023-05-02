@@ -59,7 +59,7 @@ pub(crate) const ALBUM_ART_SIZE_NUM: NonZeroU32 = unsafe { NonZeroU32::new_unche
 // Input: abritary image bytes.
 // Output: `600x600` RGB image bytes.
 #[inline(always)]
-pub(crate) fn art_from_raw(bytes: &[u8], resizer: &mut fir::Resizer) -> Result<Vec<u8>, anyhow::Error> {
+pub(crate) fn art_from_raw(bytes: &[u8], resizer: &mut fir::Resizer) -> Result<Box<[u8]>, anyhow::Error> {
 	// `.buffer()` must be called on `fir::Image`
 	// before passing it to the next function.
 	// It's cheap, it just returns a `&[u8]`.
@@ -100,7 +100,7 @@ fn bytes_to_dyn_image(bytes: &[u8]) -> Result<image::DynamicImage, anyhow::Error
 }
 
 #[inline(always)]
-fn resize_dyn_image(img: image::DynamicImage, resizer: &mut fir::Resizer) -> Result<Vec<u8>, anyhow::Error> {
+fn resize_dyn_image(img: image::DynamicImage, resizer: &mut fir::Resizer) -> Result<Box<[u8]>, anyhow::Error> {
 	// Make sure the image width/height is not 0.
 	let width = match NonZeroU32::new(img.width()) {
 		Some(w) => w,
@@ -122,7 +122,7 @@ fn resize_dyn_image(img: image::DynamicImage, resizer: &mut fir::Resizer) -> Res
 		bail!(e);
 	}
 
-	Ok(new_img.into_vec())
+	Ok(new_img.into_vec().into_boxed_slice())
 }
 
 #[inline(always)]

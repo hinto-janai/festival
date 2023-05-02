@@ -52,7 +52,7 @@ pub enum Art {
 	///
 	/// This variant is never exposed to a `Frontend`, as `Kernel` turns all [`Art`]
 	/// into either [`Art::Known`] or [`Art::Unknown`].
-	Bytes(Vec<u8>),
+	Bytes(Box<[u8]>),
 	#[default]
 	/// A gray background, white question-mark image representing an unknown image.
 	///
@@ -347,7 +347,7 @@ const _: () = {
                         (__Field::__field1, __variant) => {
                             _serde::__private::Result::map(
                                 _serde::de::VariantAccess::newtype_variant::<
-                                    Vec<u8>,
+                                    Box<[u8]>,
                                 >(__variant),
                                 Art::Bytes,
                             )

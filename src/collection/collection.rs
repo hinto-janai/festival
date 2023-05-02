@@ -141,35 +141,35 @@ pub struct Collection {
 
 	// Sorted `Artist` keys.
 	/// [`Artist`] `lexi`.
-	pub sort_artist_lexi: Vec<ArtistKey>,
+	pub sort_artist_lexi: Box<[ArtistKey]>,
 	/// [`Artist`] with most [`Album`]'s to least.
-	pub sort_artist_album_count: Vec<ArtistKey>,
+	pub sort_artist_album_count: Box<[ArtistKey]>,
 	/// [`Artist`] with most [`Song`]'s to least.
-	pub sort_artist_song_count: Vec<ArtistKey>,
+	pub sort_artist_song_count: Box<[ArtistKey]>,
 
 	// Sorted `Album` keys.
 	/// [`Artist`] `lexi`, [`Album`]'s oldest release to latest.
-	pub sort_album_release_artist_lexi: Vec<AlbumKey>,
+	pub sort_album_release_artist_lexi: Box<[AlbumKey]>,
 	/// [`Artist`] `lexi`, [`Album`]'s `lexi`.
-	pub sort_album_lexi_artist_lexi: Vec<AlbumKey>,
+	pub sort_album_lexi_artist_lexi: Box<[AlbumKey]>,
 	/// [`Album`] lexi.
-	pub sort_album_lexi: Vec<AlbumKey>,
+	pub sort_album_lexi: Box<[AlbumKey]>,
 	/// [`Album`] oldest to latest.
-	pub sort_album_release: Vec<AlbumKey>,
+	pub sort_album_release: Box<[AlbumKey]>,
 	/// [`Album`] shortest to longest.
-	pub sort_album_runtime: Vec<AlbumKey>,
+	pub sort_album_runtime: Box<[AlbumKey]>,
 
 	// Sorted `Song` keys.
 	/// [`Artist`] lexi, [`Album`] release, [`Song`] track_number
-	pub sort_song_album_release_artist_lexi: Vec<SongKey>,
+	pub sort_song_album_release_artist_lexi: Box<[SongKey]>,
 	/// [`Artist`] lexi, [`Album`] lexi, [`Song`] track_number.
-	pub sort_song_album_lexi_artist_lexi: Vec<SongKey>,
+	pub sort_song_album_lexi_artist_lexi: Box<[SongKey]>,
 	/// [`Song`] lexi.
-	pub sort_song_lexi: Vec<SongKey>,
+	pub sort_song_lexi: Box<[SongKey]>,
 	/// [`Song`] oldest to latest.
-	pub sort_song_release: Vec<SongKey>,
+	pub sort_song_release: Box<[SongKey]>,
 	/// [`Song`] shortest to longest.
-	pub sort_song_runtime: Vec<SongKey>,
+	pub sort_song_runtime: Box<[SongKey]>,
 
 	// Metadata about the `Collection` itself.
 	/// Is this [`Collection`] empty?
@@ -199,21 +199,21 @@ impl Collection {
 
 			map: Map::new(),
 
-			sort_artist_lexi: vec![],
-			sort_artist_album_count: vec![],
-			sort_artist_song_count: vec![],
+			sort_artist_lexi: Box::new([]),
+			sort_artist_album_count: Box::new([]),
+			sort_artist_song_count: Box::new([]),
 
-			sort_album_release_artist_lexi: vec![],
-			sort_album_lexi_artist_lexi: vec![],
-			sort_album_lexi: vec![],
-			sort_album_release: vec![],
-			sort_album_runtime: vec![],
+			sort_album_release_artist_lexi: Box::new([]),
+			sort_album_lexi_artist_lexi: Box::new([]),
+			sort_album_lexi: Box::new([]),
+			sort_album_release: Box::new([]),
+			sort_album_runtime: Box::new([]),
 
-			sort_song_album_release_artist_lexi: vec![],
-			sort_song_album_lexi_artist_lexi: vec![],
-			sort_song_lexi: vec![],
-			sort_song_release: vec![],
-			sort_song_runtime: vec![],
+			sort_song_album_release_artist_lexi: Box::new([]),
+			sort_song_album_lexi_artist_lexi: Box::new([]),
+			sort_song_lexi: Box::new([]),
+			sort_song_release: Box::new([]),
+			sort_song_runtime: Box::new([]),
 
 			empty: true,
 			timestamp: 0,
@@ -480,7 +480,7 @@ impl Collection {
 
 	//-------------------------------------------------- Sorting
 	/// Access a particular `sort_artist_` field in the [`Collection`] via a [`ArtistSort`].
-	pub const fn artist_sort(&self, sort: ArtistSort) -> &Vec<ArtistKey> {
+	pub const fn artist_sort(&self, sort: ArtistSort) -> &Box<[ArtistKey]> {
 		use ArtistSort::*;
 		match sort {
 			Lexi       => &self.sort_artist_lexi,
@@ -490,7 +490,7 @@ impl Collection {
 	}
 
 	/// Access a particular `sort_album_` field in the [`Collection`] via a [`AlbumSort`].
-	pub const fn album_sort(&self, sort: AlbumSort) -> &Vec<AlbumKey> {
+	pub const fn album_sort(&self, sort: AlbumSort) -> &Box<[AlbumKey]> {
 		use AlbumSort::*;
 		match sort {
 			ReleaseArtistLexi => &self.sort_album_release_artist_lexi,
@@ -502,7 +502,7 @@ impl Collection {
 	}
 
 	/// Access a particular `sort_song_` field in the [`Collection`] via a [`SongSort`].
-	pub const fn song_sort(&self, sort: SongSort) -> &Vec<SongKey> {
+	pub const fn song_sort(&self, sort: SongSort) -> &Box<[SongKey]> {
 		use SongSort::*;
 		match sort {
 			AlbumReleaseArtistLexi => &self.sort_song_album_release_artist_lexi,
@@ -604,12 +604,12 @@ impl Collection {
 	///
 	/// # Notes
 	/// - If there are _no_ [`Artist`]'s in the [`Collection`], [`Option::None`] is returned.
-	pub fn rand_artists(&self) -> Option<Vec<ArtistKey>> {
+	pub fn rand_artists(&self) -> Option<Box<[ArtistKey]>> {
 		match self.count_artist.usize() {
 			0 => None,
-			1 => Some(vec![ArtistKey::zero()]),
+			1 => Some(Box::new([ArtistKey::zero()])),
 			_ => {
-				let mut vec: Vec<ArtistKey> = (0..self.count_artist.usize())
+				let mut vec: Box<[ArtistKey]> = (0..self.count_artist.usize())
 					.map(ArtistKey::from)
 					.collect();
 				vec.shuffle(&mut *lock!(RNG));
@@ -624,12 +624,12 @@ impl Collection {
 	///
 	/// # Notes
 	/// - If there are _no_ [`Album`]'s in the [`Collection`], [`Option::None`] is returned.
-	pub fn rand_albums(&self) -> Option<Vec<AlbumKey>> {
+	pub fn rand_albums(&self) -> Option<Box<[AlbumKey]>> {
 		match self.count_album.usize() {
 			0 => None,
-			1 => Some(vec![AlbumKey::zero()]),
+			1 => Some(Box::new([AlbumKey::zero()])),
 			_ => {
-				let mut vec: Vec<AlbumKey> = (0..self.count_album.usize())
+				let mut vec: Box<[AlbumKey]> = (0..self.count_album.usize())
 					.map(AlbumKey::from)
 					.collect();
 				vec.shuffle(&mut *lock!(RNG));
@@ -644,12 +644,12 @@ impl Collection {
 	///
 	/// # Notes
 	/// - If there are _no_ [`Song`]'s in the [`Collection`], [`Option::None`] is returned.
-	pub fn rand_songs(&self) -> Option<Vec<SongKey>> {
+	pub fn rand_songs(&self) -> Option<Box<[SongKey]>> {
 		match self.count_song.usize() {
 			0 => None,
-			1 => Some(vec![SongKey::zero()]),
+			1 => Some(Box::new([SongKey::zero()])),
 			_ => {
-				let mut vec: Vec<SongKey> = (0..self.count_song.usize())
+				let mut vec: Box<[SongKey]> = (0..self.count_song.usize())
 					.map(SongKey::from)
 					.collect();
 				vec.shuffle(&mut *lock!(RNG));

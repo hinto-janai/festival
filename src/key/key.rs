@@ -167,44 +167,50 @@ where
 ///
 /// These keys aren't linked like in [`Key`].
 ///
-/// Each inner [`Vec`] in [`Keychain`] hold separate keys types.
+/// Each inner [`Vec`] in [`Keychain`] hold separate key types.
 pub struct Keychain {
 	/// [`Vec`] of [`ArtistKey`]'s.
-	pub artists: Vec<ArtistKey>,
+	pub artists: Box<[ArtistKey]>,
 	/// [`Vec`] of [`AlbumKey`]'s.
-	pub albums: Vec<AlbumKey>,
+	pub albums: Box<[AlbumKey]>,
 	/// [`Vec`] of [`SongKey`]'s.
-	pub songs: Vec<SongKey>,
+	pub songs: Box<[SongKey]>,
 }
 
 impl Keychain {
 	#[inline(always)]
-	/// Returns [`Keychain`] with empty [`Vec`]'s.
-	pub const fn new() -> Self {
-		Self {
-			artists: vec![],
-			albums: vec![],
-			songs: vec![]
-		}
+	/// Returns [`Keychain`] with empty [`Box`]'s
+	pub fn new() -> Self {
+		Self { ..Default::default() }
 	}
 
 	#[inline(always)]
-	/// Consumes [`Keychain`], returning the inner [`Vec`]'s.
-	pub fn into_vecs(self) -> (Vec<ArtistKey>, Vec<AlbumKey>, Vec<SongKey>) {
+	/// Consumes [`Keychain`], returning the inner [`Box`]'s.
+	pub fn into_vecs(self) -> (Box<[ArtistKey]>, Box<[AlbumKey]>, Box<[SongKey]>) {
 		(self.artists, self.albums, self.songs)
 	}
 
 	#[inline(always)]
+	/// Creates a [`Keychain`] from [`Box`]'s.
+	pub fn from_boxes(
+		artists: Box<[ArtistKey]>,
+		albums: Box<[AlbumKey]>,
+		songs: Box<[SongKey]>,
+	) -> Self {
+		Self { artists, albums, songs }
+	}
+
+	#[inline(always)]
 	/// Creates a [`Keychain`] from [`Vec`]'s.
-	pub const fn from_vecs(
+	pub fn from_vecs(
 		artists: Vec<ArtistKey>,
 		albums: Vec<AlbumKey>,
 		songs: Vec<SongKey>,
 	) -> Self {
 		Self {
-			artists,
-			albums,
-			songs,
+			artists: artists.into_boxed_slice(),
+			albums: albums.into_boxed_slice(),
+			songs: songs.into_boxed_slice(),
 		}
 	}
 
@@ -212,14 +218,6 @@ impl Keychain {
 	/// Returns `true` if all inner [`Vec`]'s are empty.
 	pub fn is_empty(&self) -> bool {
 		self.artists.is_empty() && self.albums.is_empty() && self.songs.is_empty()
-	}
-
-	#[inline(always)]
-	/// [`Vec::clear`] all inner [`Vec`]'s.
-	pub fn clear(&mut self) {
-		self.artists.clear();
-		self.albums.clear();
-		self.songs.clear();
 	}
 }
 
