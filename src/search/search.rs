@@ -23,6 +23,9 @@ use super::msg::{
 	KernelToSearch,
 };
 use crossbeam_channel::{Sender,Receiver};
+use benri::time::{
+	now,secs_f32,
+};
 
 //---------------------------------------------------------------------------------------------------- Constants
 // How many `(String, Keychain)` results to
@@ -65,35 +68,36 @@ impl Search {
 	}
 
 	fn calculate_sim(&self, input: &str) -> Keychain {
-		// Convert input to lowercase.
-		let input = input.to_string().to_ascii_lowercase();
+		let now = now!();
 
 		// Search and collect results.
 		let mut artists: Box<[(f64, ArtistKey)]> = self.collection.artists
 			.iter()
 			.enumerate()
-			.map(|(i, x)| (strsim::jaro(&x.name.to_ascii_lowercase(), &input), ArtistKey::from(i))).collect();
+			.map(|(i, x)| (strsim::jaro(&x.name, &input), ArtistKey::from(i))).collect();
 		let mut albums:  Box<[(f64, AlbumKey)]> = self.collection.albums
 			.iter()
 			.enumerate()
-			.map(|(i, x)| (strsim::jaro(&x.title.to_ascii_lowercase(), &input), AlbumKey::from(i))).collect();
+			.map(|(i, x)| (strsim::jaro(&x.title, &input), AlbumKey::from(i))).collect();
 		let mut songs:   Box<[(f64, SongKey)]>  = self.collection.songs
 			.iter()
 			.enumerate()
-			.map(|(i, x)| (strsim::jaro(&x.title.to_ascii_lowercase(), &input), SongKey::from(i))).collect();
+			.map(|(i, x)| (strsim::jaro(&x.title, &input), SongKey::from(i))).collect();
 
 		// Sort by lowest-to-highest similarity value first.
-		artists.sort_by(|a, b| Self::cmp_f64(&a.0, &b.0));
-		albums.sort_by(|a, b| Self::cmp_f64(&a.0, &b.0));
-		songs.sort_by(|a, b| Self::cmp_f64(&a.0, &b.0));
+		artists.sort_by(|a, b| Self::cmp_f64(a.0, b.0));
+		albums.sort_by(|a, b| Self::cmp_f64(a.0, b.0));
+		songs.sort_by(|a, b| Self::cmp_f64(a.0, b.0));
 
 		// Collect just the Keys (reverse, highest sim first).
-		let artists: Box<[ArtistKey]> = artists.iter().rev().map(|tuple| tuple.1).collect();
-		let albums:  Box<[AlbumKey]>  = albums.iter().rev().map(|tuple| tuple.1).collect();
-		let songs:   Box<[SongKey]>   = songs.iter().rev().map(|tuple| tuple.1).collect();
+		let artists: Box<[ArtistKey]> = artists.into_iter().rev().map(|tuple| tuple.1).collect();
+		let albums:  Box<[AlbumKey]>  = albums.into_iter().rev().map(|tuple| tuple.1).collect();
+		let songs:   Box<[SongKey]>   = songs.into_iter().rev().map(|tuple| tuple.1).collect();
 
 		// Create keychain.
 		let keychain = Keychain::from_boxes(artists, albums, songs);
+
+		trace!("Search - calculate_sim() ... {}", secs_f32!(now));
 
 		// Return.
 		keychain
@@ -106,8 +110,8 @@ impl Search {
 	//
 	// `cmp_f64()` just returns `Less` on error
 	// (which should never happen... right strsim?)
-	pub(crate) fn cmp_f64(a: &f64, b: &f64) -> std::cmp::Ordering {
-		match (*a <= *b, *a >= *b) {
+	pub(crate) fn cmp_f64(a: f64, b: f64) -> std::cmp::Ordering {
+		match (a <= b, a >= b) {
 			(false, true) => std::cmp::Ordering::Greater,
 			(true, false) => std::cmp::Ordering::Less,
 			(true, true) => std::cmp::Ordering::Equal,
