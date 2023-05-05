@@ -122,14 +122,11 @@ impl Kernel {
 
 		debug!("Kernel [1/12] ... entering bios()");
 
-		// Initialize the dummy `Collection/KernelState/ResetState`.
-		//
-		// Make sure the compiler doesn't optimize away this call.
-		// We need this so that `lazy_static` _actually_ creates the values here.
-		let pls_dont_optimize_away   = std::hint::black_box(lazy_static::initialize(&DUMMY_COLLECTION));
-		let pls_dont_optimize_away_2 = std::hint::black_box(lazy_static::initialize(&DUMMY_KERNEL_STATE));
-		let pls_dont_optimize_away_3 = std::hint::black_box(lazy_static::initialize(&DUMMY_RESET_STATE));
-		let pls_dont_optimize_away_4 = std::hint::black_box(lazy_static::initialize(&crate::logger::INIT_INSTANT));
+		// Initialize lazy statics.
+		lazy_static::initialize(&DUMMY_COLLECTION);
+		lazy_static::initialize(&DUMMY_KERNEL_STATE);
+		lazy_static::initialize(&DUMMY_RESET_STATE);
+		lazy_static::initialize(&crate::logger::INIT_INSTANT);
 
 		// Create `ResetState`, send to `Frontend`.
 		let reset = ResetState::from_dummy();
@@ -138,22 +135,8 @@ impl Kernel {
 
 		// Attempt to load `Collection` from file.
 		debug!("Kernel - Reading 'Collection' from disk...");
-		// SAFETY:
-		// `Collection` is `memmap`'ed from disk.
-		//
-		// We (`Kernel`) are the only "entity" that should
-		// be touching `collection.bin` at this point.
-		//
-		// `CCD` saves to `collection.bin`, but that function can
-		// only be called after `Kernel` initially loads this one.
-		// (we aren't in `userland()` yet, `Kernel` won't respond
-		//  to `FrontendToKernel::NewCollection` messages yet)
-		//
-		// I can't prevent other programs from touching this file
-		// although they shouldn't be messing around in other program's
-		// data directories anyway.
 		let now = now!();
-		match unsafe { Collection::from_file_memmap() } {
+		match Collection::from_file() {
 			// If success, continue to `boot_loader` to convert
 			// bytes to actual usable `egui` images.
 			Ok(collection) => {
@@ -455,12 +438,15 @@ impl Kernel {
 	fn exit(&mut self) -> ! {
 		// Save `KernelState`.
 		match lock_read!(self.state).save() {
-			Ok(_)  => send!(self.to_frontend, KernelToFrontend::Exit(Ok(()))),
+			Ok(o)  => {
+				debug!("Kernel - State save: {o}");
+				send!(self.to_frontend, KernelToFrontend::Exit(Ok(())));
+			},
 			Err(e) => send!(self.to_frontend, KernelToFrontend::Exit(Err(e.to_string()))),
 		}
 
 		// Hang forever.
-		info!("Kernel - Entering exit() loop - Total uptime: {}", readable::Time::from(crate::init_instant()));
+		debug!("Kernel - Entering exit() loop - Total uptime: {}", readable::Time::from(crate::init_instant()));
 		loop {
 			std::thread::park();
 		}
