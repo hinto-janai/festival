@@ -204,3 +204,6 @@ pub mod slice;
 /// `Kernel` will immediately respond to the signal, in this example,
 /// `Kernel` will start audio playback, then delete the file that was created.
 pub mod signal;
+
+/// `Frontend`-specific compatability layers
+pub mod frontend;
