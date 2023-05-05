@@ -22,6 +22,12 @@ use fir::{
 use std::num::NonZeroU32;
 use std::sync::Arc;
 use crate::collection::ALBUM_ART_SIZE;
+use benri::{
+	sync::*,
+	time::*,
+};
+use log::trace;
+use benri::log::fail;
 
 //---------------------------------------------------------------------------------------------------- Album Art Constants.
 // SAFETY:
@@ -119,6 +125,7 @@ fn resize_dyn_image(img: image::DynamicImage, resizer: &mut fir::Resizer) -> Res
 
 	// Resize old into new.
 	if let Err(e) = resizer.resize(&old_img.view(), &mut new_img.view_mut()) {
+		fail!("CCD - Failed to resize art: {e}");
 		bail!(e);
 	}
 
@@ -171,6 +178,12 @@ pub(super) fn alloc_textures(albums: &crate::collection::Albums, ctx: &egui::Con
 	// Get `Arc<RwLock<TextureManager>>`.
 	let arc = ctx.tex_manager();
 
+	// Wait until `GUI` has loaded at least 1 frame.
+	while !atomic_load!(crate::frontend::UPDATING) {
+		std::hint::spin_loop();
+	}
+	let mut now = now!();
+
 	// For each `Album`...
 	for album in albums.iter() {
 		// Continue only if this is a real `Art`.
@@ -181,8 +194,18 @@ pub(super) fn alloc_textures(albums: &crate::collection::Albums, ctx: &egui::Con
 			let image = egui::ImageData::Color(std::mem::take(&mut art.image.lock()));
 			let string = String::new();
 
-			// Wait 300 microseconds before locking. (aka: prevent `GUI` from reader starvation)
-			std::thread::sleep(std::time::Duration::from_micros(315));
+			// Prevent `GUI` from reader starvation.
+			if micros!(now) > 15 {
+				trace!("CCD - GUI starve prevention hit");
+				// Wait until `GUI` is in the middle of animating.
+				// This guarantees the below `tex_mngr..write()`
+				// will be _after_ `GUI` has rendered it's frame.
+				while !atomic_load!(crate::frontend::UPDATING) {
+					std::hint::spin_loop();
+				}
+
+				now = now!();
+			}
 
 			// Allocate to `TextureManager`.
 			let tex_id = tex_mngr.write().alloc(string, image, art.options);

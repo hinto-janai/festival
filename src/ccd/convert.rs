@@ -137,16 +137,16 @@ impl super::Ccd {
 		let mut resizer = crate::ccd::create_resizer();
 
 		for album in albums {
-			send!(to_kernel, CcdToKernel::UpdateIncrement((increment, format!("{}", album.title))));
+			send!(to_kernel, CcdToKernel::UpdateIncrement((increment, album.title.clone())));
 
 			// Take raw image bytes.
 //			let bytes = album.art_bytes.take();
 
 			// If bytes exist, convert, else provide the `Unknown` art.
-			let art = match &album.art {
+			let art = match &mut album.art {
 				Art::Bytes(b) => {
 					ok_trace!("{}", album.title);
-					match super::art_from_raw(&b, &mut resizer) {
+					match super::art_from_raw(b, &mut resizer) {
 						Ok(b) => Art::Bytes(b),
 						_ => Art::Unknown,
 					}
@@ -171,13 +171,13 @@ impl super::Ccd {
 		increment: f64,
 	) {
 		for album in albums {
-			send!(to_kernel, CcdToKernel::UpdateIncrement((increment, format!("{}", album.title))));
+			send!(to_kernel, CcdToKernel::UpdateIncrement((increment, album.title.clone())));
 
 			// If bytes exist, convert, else provide the `Unknown` art.
-			let art = match &album.art {
+			let art = match &mut album.art {
 				Art::Bytes(b) => {
 					ok_trace!("{}", album.title);
-					Art::Known(super::art_from_known(&b))
+					Art::Known(super::art_from_known(b))
 				},
 				_ => {
 					skip_trace!("{}", album.title);

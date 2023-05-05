@@ -318,8 +318,8 @@ impl Ccd {
 		// We (`CCD`) are the only "entity" that should
 		// be touching `collection.bin` at this point.
 		let total_bytes = match unsafe { collection_for_disk.save_atomic_memmap() } {
-			Ok(md) => { trace!("CCD - Save: {}", md); md.size()},
-			Err(e) => { fail!("CCD - Save: {}", e); 0 },
+			Ok(md) => { debug!("CCD - Collection: {}", md); md.size()},
+			Err(e) => { fail!("CCD - Collection: {}", e); 0 },
 		};
 		// Set `saving` state.
 		lock_write!(kernel_state).saving = false;
@@ -390,8 +390,9 @@ impl Ccd {
 			total,
 		};
 		format!("{perf}").lines().for_each(|l| debug!("{l}"));
-		if let Err(e) = perf.save() {
-			warn!("CCD - Couldn't save perf data: {e}");
+		match perf.save() {
+			Ok(i)  => debug!("CCD - Perf: {i}"),
+			Err(e) => warn!("CCD - Couldn't save perf data: {e}"),
 		}
 
 		// Thank you CCD, you can rest now.
