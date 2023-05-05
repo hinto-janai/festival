@@ -20,12 +20,12 @@ macro_rules! impl_common {
 		impl $type {
 			#[inline(always)]
 			/// Returns `Self(0)`.
-			pub const fn new() -> Self {
+			pub(crate) const fn new() -> Self {
 				Self(0)
 			}
 			#[inline(always)]
 			/// Returns `Self(0)`.
-			pub const fn zero() -> Self {
+			pub(crate) const fn zero() -> Self {
 				Self(0)
 			}
 			#[inline(always)]
@@ -90,74 +90,143 @@ macro_rules! impl_common {
 	}
 }
 
+//---------------------------------------------------------------------------------------------------- ArtistKey
+#[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
+#[repr(transparent)]
+#[serde(transparent)]
+/// A key representing the index of an [`Artist`] in the [`Collection`]
+///
+/// The inner type is just a `usize`.
+pub struct ArtistKey(usize);
+impl_common!(ArtistKey);
+
+//---------------------------------------------------------------------------------------------------- AlbumKey
+#[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
+#[repr(transparent)]
+#[serde(transparent)]
+/// A key representing the index of an [`Album`] in the [`Collection`]
+///
+/// The inner type is just a `usize`.
+pub struct AlbumKey(usize);
+impl_common!(AlbumKey);
+
+//---------------------------------------------------------------------------------------------------- SongKey
+#[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
+#[repr(transparent)]
+#[serde(transparent)]
+/// A key representing the index of a [`Song`] in the [`Collection`]
+///
+/// The inner type is just a `usize`.
+pub struct SongKey(usize);
+impl_common!(SongKey);
+
+//---------------------------------------------------------------------------------------------------- QueueKey
+#[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
+#[repr(transparent)]
+#[serde(transparent)]
+/// A key representing an index in the `Queue`
+///
+/// This is used to index `Queue`, e.g:
+///
+/// 1. user clicks 'remove song #4 from queue'
+/// 2. gui sends QueueKey(3) to helper
+/// 3. kernel deletes queue\[3\]
+///
+/// This is just for type safety.
+///
+/// The inner type is just a [`usize`].
+pub struct QueueKey(usize);
+impl_common!(QueueKey);
+
+//---------------------------------------------------------------------------------------------------- PlaylistKey
+#[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
+#[repr(transparent)]
+#[serde(transparent)]
+/// A key representing an index in a `Playlist`
+///
+/// This is the same as [`QueueKey`] but for a `Playlist`.
+///
+/// The inner type is just a [`usize`].
+pub struct PlaylistKey(usize);
+impl_common!(PlaylistKey);
+
 //---------------------------------------------------------------------------------------------------- Key
 #[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
+// INVARIANT:
+// User's should never be able to construct this.
+//
+// This is an _opaque_ index into the `Collection`.
 /// [`Key`] into the [`Collection`]
 ///
 /// This represents an _absolute_ index into:
 /// - a particular [`Song`] in
 /// - a particular [`Album`] by
 /// - a particular [`Artist`]
-pub struct Key(ArtistKey, AlbumKey, SongKey);
+pub struct Key {
+	artist: ArtistKey,
+	album: AlbumKey,
+	song: SongKey
+}
 
 impl Key {
 	#[inline(always)]
-	// Private function.
+	// Create a new [`Key`] from existing keys.
 	pub(crate) const fn from_keys(
 		artist: ArtistKey,
 		album: AlbumKey,
 		song: SongKey,
 	) -> Self {
-		Self(artist, album, song)
+		Self { artist, album, song }
+	}
+
+	#[inline(always)]
+	// Create a [`Key`] from raw [`usize`]'s.
+	pub(crate) const fn from_raw(
+		artist: usize,
+		album: usize,
+		song: usize,
+	) -> Self {
+		Self {
+			artist: ArtistKey(artist),
+			album: AlbumKey(album),
+			song: SongKey(song),
+		}
 	}
 
 	#[inline(always)]
 	/// Returns [`Key`] with all inner keys set to `0`.
 	pub const fn new() -> Self {
-		Self(ArtistKey::new(), AlbumKey::new(), SongKey::new())
+		Self { artist: ArtistKey::new(), album: AlbumKey::new(), song: SongKey::new() }
 	}
 
 	#[inline(always)]
 	/// Returns the inner [`ArtistKey`]
 	pub const fn artist(&self) -> ArtistKey {
-		self.0
+		self.artist
 	}
 
 	#[inline(always)]
 	/// Returns the inner [`AlbumKey`]
 	pub const fn album(&self) -> AlbumKey {
-		self.1
+		self.album
 	}
 
 	#[inline(always)]
 	/// Returns the inner [`SongKey`]
 	pub const fn song(&self) -> SongKey {
-		self.2
+		self.song
 	}
 
 	#[inline(always)]
 	/// Returns the inner keys.
 	pub const fn inner(&self) -> (ArtistKey, AlbumKey, SongKey) {
-		(self.0, self.1, self.2)
+		(self.artist, self.album, self.song)
 	}
 
 	#[inline(always)]
 	/// Returns the inner usize's of the inner keys.
 	pub const fn inner_usize(&self) -> (usize, usize, usize) {
-		(self.0.inner(), self.1.inner(), self.2.inner())
-	}
-}
-
-// Converts any tuple of 3 integers that can losslessly `.into()` a `u64`.
-impl<A, B, C> From<(A, B, C)> for Key
-where
-	A: Into<usize>,
-	B: Into<usize>,
-	C: Into<usize>,
-{
-	#[inline]
-	fn from(tuple: (A, B, C)) -> Self {
-		Self(ArtistKey(tuple.0.into()), AlbumKey(tuple.1.into()), SongKey(tuple.2.into()))
+		(self.artist.inner(), self.album.inner(), self.song.inner())
 	}
 }
 
@@ -167,13 +236,13 @@ where
 ///
 /// These keys aren't linked like in [`Key`].
 ///
-/// Each inner [`Vec`] in [`Keychain`] hold separate key types.
+/// Each inner [`Box`] in [`Keychain`] hold separate key types.
 pub struct Keychain {
-	/// [`Vec`] of [`ArtistKey`]'s.
+	/// [`Box`] of [`ArtistKey`]'s.
 	pub artists: Box<[ArtistKey]>,
-	/// [`Vec`] of [`AlbumKey`]'s.
+	/// [`Box`] of [`AlbumKey`]'s.
 	pub albums: Box<[AlbumKey]>,
-	/// [`Vec`] of [`SongKey`]'s.
+	/// [`Box`] of [`SongKey`]'s.
 	pub songs: Box<[SongKey]>,
 }
 
@@ -186,7 +255,7 @@ impl Keychain {
 
 	#[inline(always)]
 	/// Consumes [`Keychain`], returning the inner [`Box`]'s.
-	pub fn into_vecs(self) -> (Box<[ArtistKey]>, Box<[AlbumKey]>, Box<[SongKey]>) {
+	pub fn into_boxes(self) -> (Box<[ArtistKey]>, Box<[AlbumKey]>, Box<[SongKey]>) {
 		(self.artists, self.albums, self.songs)
 	}
 
@@ -215,66 +284,28 @@ impl Keychain {
 	}
 
 	#[inline(always)]
-	/// Returns `true` if all inner [`Vec`]'s are empty.
+	// Creates a [`Keychain`] from raw [`Box<usize>`]'s.
+	pub(crate) const unsafe fn from_boxes_raw(
+		artists: Box<[usize]>,
+		albums: Box<[usize]>,
+		songs: Box<[usize]>,
+	) -> Self {
+		// SAFETY: The `Key` types _must_ be `#[repr(transparent)]`
+		unsafe {
+			Self {
+				artists: std::mem::transmute::<Box<[usize]>, Box<[ArtistKey]>>(artists),
+				albums: std::mem::transmute::<Box<[usize]>, Box<[AlbumKey]>>(albums),
+				songs: std::mem::transmute::<Box<[usize]>, Box<[SongKey]>>(songs),
+			}
+		}
+	}
+
+	#[inline(always)]
+	/// Returns `true` if all inner [`Box`]'s are empty.
 	pub fn is_empty(&self) -> bool {
 		self.artists.is_empty() && self.albums.is_empty() && self.songs.is_empty()
 	}
 }
-
-//---------------------------------------------------------------------------------------------------- ArtistKey
-#[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
-#[serde(transparent)]
-/// A key representing the index of an [`Artist`] in the [`Collection`]
-///
-/// The inner type is just a `usize`.
-pub struct ArtistKey(usize);
-impl_common!(ArtistKey);
-
-//---------------------------------------------------------------------------------------------------- AlbumKey
-#[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
-#[serde(transparent)]
-/// A key representing the index of an [`Album`] in the [`Collection`]
-///
-/// The inner type is just a `usize`.
-pub struct AlbumKey(usize);
-impl_common!(AlbumKey);
-
-//---------------------------------------------------------------------------------------------------- SongKey
-#[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
-#[serde(transparent)]
-/// A key representing the index of a [`Song`] in the [`Collection`]
-///
-/// The inner type is just a `usize`.
-pub struct SongKey(usize);
-impl_common!(SongKey);
-
-//---------------------------------------------------------------------------------------------------- QueueKey
-#[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
-#[serde(transparent)]
-/// A key representing an index in the `Queue`
-///
-/// This is used to index `Queue`, e.g:
-///
-/// 1. user clicks 'remove song #4 from queue'
-/// 2. gui sends QueueKey(3) to helper
-/// 3. kernel deletes queue\[3\]
-///
-/// This is just for type safety.
-///
-/// The inner type is just a [`usize`].
-pub struct QueueKey(usize);
-impl_common!(QueueKey);
-
-//---------------------------------------------------------------------------------------------------- PlaylistKey
-#[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
-#[serde(transparent)]
-/// A key representing an index in a `Playlist`
-///
-/// This is the same as [`QueueKey`] but for a `Playlist`.
-///
-/// The inner type is just a [`usize`].
-pub struct PlaylistKey(usize);
-impl_common!(PlaylistKey);
 
 //---------------------------------------------------------------------------------------------------- TESTS
 //#[cfg(test)]
