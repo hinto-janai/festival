@@ -55,14 +55,14 @@ pub(super) fn exit(
 
 	// Save `State`.
 	match state.save() {
-		Ok(_)  => ok!("GUI - State save"),
-		Err(e) => fail!("GUI - State save: {}", e),
+		Ok(o)  => ok!("GUI - State save: {o}"),
+		Err(e) => fail!("GUI - State save: {e}"),
 	}
 
 	// Save `Settings`.
 	match settings.save() {
-		Ok(_)  => ok!("GUI - Settings save"),
-		Err(e) => fail!("GUI - Settings save: {}", e),
+		Ok(o)  => ok!("GUI - Settings save: {o}"),
+		Err(e) => fail!("GUI - Settings save: {e}"),
 	}
 
 	// Check if `Kernel` succeeded.

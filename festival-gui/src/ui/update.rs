@@ -103,6 +103,15 @@ impl eframe::App for Gui {
 	//-------------------------------------------------------------------------------- Main event loop.
 	#[inline(always)]
 	fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+		atomic_store!(shukusai::frontend::UPDATING, true);
+		self.__update(ctx, frame);
+		atomic_store!(shukusai::frontend::UPDATING, false);
+	}
+}
+
+impl Gui {
+	#[inline(always)]
+	fn __update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
 		// Check for `Kernel` messages.
 		// Only if we're not exiting, to prevent stealing
 		// the message intended for the exit thread.
