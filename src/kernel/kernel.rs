@@ -4,6 +4,10 @@ use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
 //use disk::prelude::*;
 //use disk::{};
+use crate::constants::{
+	COLLECTION_VERSION,
+	STATE_VERSION,
+};
 use std::sync::{Arc,RwLock};
 use super::state::{
 	KernelState,
@@ -134,7 +138,7 @@ impl Kernel {
 		send!(to_frontend, KernelToFrontend::NewResetState(RoLock::new(&reset)));
 
 		// Attempt to load `Collection` from file.
-		debug!("Kernel - Reading 'Collection' from disk...");
+		debug!("Kernel - Reading Collection{COLLECTION_VERSION} from disk...");
 		let now = now!();
 		// SAFETY:
 		// `Collection` is `memmap`'ed from disk.
@@ -154,12 +158,12 @@ impl Kernel {
 			// If success, continue to `boot_loader` to convert
 			// bytes to actual usable `egui` images.
 			Ok(collection) => {
-				ok_debug!("Kernel - Collection deserialization ... Took {} seconds", secs_f32!(now));
+				ok_debug!("Kernel - Collection{COLLECTION_VERSION} deserialization ... Took {} seconds", secs_f32!(now));
 				Self::boot_loader(collection, to_frontend, from_frontend, reset, ctx, beginning);
 			},
 			// Else, straight to `init` with default flag set.
 			Err(e) => {
-				warn!("Kernel - Collection from file error: {}", e);
+				warn!("Kernel - Collection{COLLECTION_VERSION} from file error: {}", e);
 				Self::init(None, None, to_frontend, from_frontend, reset, ctx, beginning);
 			},
 		}
@@ -246,7 +250,16 @@ impl Kernel {
 	) {
 		/* TODO: initialize and sanitize collection & misc data */
 		debug!("Kernel [6/12] ... entering kernel()");
-		let state = state.unwrap();
+		let state = match state {
+			Ok(state) => {
+				ok_debug!("Kernel - State{STATE_VERSION} deserialization");
+				state
+			},
+			Err(e) => {
+				warn!("Kernel - State{STATE_VERSION} from file error: {}", e);
+				KernelState::new()
+			},
+		};
 
 		Self::init(Some(collection), Some(state), to_frontend, from_frontend, reset, ctx, beginning);
 	}

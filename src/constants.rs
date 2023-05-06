@@ -65,10 +65,10 @@ pub const FESTIVAL_HEADER: [u8; 24] = [
 ];
 
 /// Current major version of the [`Collection`]
-pub const COLLECTION_VERSION: u8 = 1;
+pub const COLLECTION_VERSION: u8 = 0;
 
 /// Current major version of the [`KernelState`]
-pub const STATE_VERSION: u8 = 1;
+pub const STATE_VERSION: u8 = 0;
 
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]

@@ -483,6 +483,13 @@ checksum = "a4a4ddaa51a5bc52a6948f74c06d20aaaddb71924eab79b8c97a8c556e942d6a"
 [[package]]
 name = "benri"
 version = "0.1.5"
+dependencies = [
+ "log",
+]
+
+[[package]]
+name = "benri"
+version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4a1454aeaa35192d45d97066b56e9cbdf170c6385e8b93a50932b969e6638cec"
 dependencies = [
@@ -647,6 +654,12 @@ name = "bytes"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "89b2fd2a0dcf38d7971e2194b6b6eebab45ae01067456a7fd93d5547a61b70be"
+
+[[package]]
+name = "bytesize"
+version = "1.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "38fcc2979eff34a4b84e1cf9a1e3da42a7d44b3b690a40cdcb23e3d556cfb2e5"
 
 [[package]]
 name = "cairo-sys-rs"
@@ -846,9 +859,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.2.5"
+version = "4.2.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8a1f23fa97e1d1641371b51f35535cb26959b8e27ab50d167a8b996b5bada819"
+checksum = "34d21f9bf1b425d2968943631ec91202fe5e837264063503708b83013f8fc938"
 dependencies = [
  "clap_builder",
  "clap_derive",
@@ -857,9 +870,9 @@ dependencies = [
 
 [[package]]
 name = "clap_builder"
-version = "4.2.5"
+version = "4.2.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0fdc5d93c358224b4d6867ef1356d740de2303e9892edc06c5340daeccd96bab"
+checksum = "914c8c79fb560f238ef6429439a30023c862f7a28e688c58f7203f12b29970bd"
 dependencies = [
  "anstream",
  "anstyle",
@@ -1389,42 +1402,43 @@ dependencies = [
 
 [[package]]
 name = "disk"
-version = "0.1.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "43120f82616234b69b2bc89b9b3fc5085552188998bc3d2325ecc005726a5f7c"
-dependencies = [
- "anyhow",
- "bincode 2.0.0-rc.3",
- "const-str",
- "const_format",
- "directories",
- "flate2",
- "lazy_static",
- "memmap2",
- "paste",
- "seq-macro",
- "serde",
- "toml_edit",
-]
-
-[[package]]
-name = "disk"
 version = "0.1.10"
-source = "git+https://github.com/hinto-janai/disk#55a1851564475dca233b62cfd78212c0855bbd7d"
 dependencies = [
  "anyhow",
  "bincode 2.0.0-rc.3",
+ "bytesize",
  "const-str",
  "const_format",
  "directories",
  "flate2",
  "lazy_static",
+ "libc",
  "memmap2",
  "paste",
  "seq-macro",
  "serde",
  "serde_json",
  "serde_plain",
+ "toml_edit",
+]
+
+[[package]]
+name = "disk"
+version = "0.1.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "324ee3d650814f62f9881d761165980a5e29e962f0d7e2523f7d4ebd1f675a66"
+dependencies = [
+ "anyhow",
+ "bincode 2.0.0-rc.3",
+ "const-str",
+ "const_format",
+ "directories",
+ "flate2",
+ "lazy_static",
+ "memmap2",
+ "paste",
+ "seq-macro",
+ "serde",
  "toml_edit",
 ]
 
@@ -1733,9 +1747,9 @@ checksum = "0206175f82b8d6bf6652ff7d71a1e27fd2e4efde587fd368662814d6ec1d9ce0"
 
 [[package]]
 name = "fast_image_resize"
-version = "2.7.1"
+version = "2.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f9b6b039ef8d0d6ae9e55dc53da0ee544bcff3e960cb033cb917e19e735cb86b"
+checksum = "96b758d4361841076b6eb911a4405bfa8835d9afa6310a84ae0f5ebbd6dbd372"
 dependencies = [
  "num-traits",
  "thiserror",
@@ -1767,13 +1781,13 @@ version = "0.0.0"
 name = "festival-gui"
 version = "0.0.0"
 dependencies = [
- "benri",
+ "benri 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "bincode 2.0.0-rc.3",
- "clap 4.2.5",
+ "clap 4.2.7",
  "compact_str",
  "const_format",
  "crossbeam-channel",
- "disk 0.1.8",
+ "disk 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "eframe",
  "egui",
  "egui_extras",
@@ -1781,9 +1795,9 @@ dependencies = [
  "image",
  "lazy_static",
  "log",
- "readable",
+ "readable 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "rfd",
- "rolock",
+ "rolock 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde",
  "shukusai",
  "static_vcruntime",
@@ -2153,9 +2167,9 @@ dependencies = [
 
 [[package]]
 name = "gpu-alloc"
-version = "0.5.3"
+version = "0.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7fc59e5f710e310e76e6707f86c561dd646f69a8876da9131703b2f717de818d"
+checksum = "22beaafc29b38204457ea030f6fb7a84c9e4dd1b86e311ba0542533453d87f62"
 dependencies = [
  "bitflags",
  "gpu-alloc-types",
@@ -2587,9 +2601,9 @@ checksum = "830d08ce1d1d941e6b30645f1a0eb5643013d835ce3779a5fc208261dbe10f55"
 
 [[package]]
 name = "libc"
-version = "0.2.142"
+version = "0.2.143"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6a987beff54b60ffa6d51982e1aa1146bc42f19bd26be28b0586f252fccf5317"
+checksum = "edc207893e85c5d6be840e969b496b53d94cec8be2d501b214f50daa97fa8024"
 
 [[package]]
 name = "libloading"
@@ -2618,9 +2632,9 @@ checksum = "0717cef1bc8b636c6e1c1bbdefc09e6322da8a9321966e8928ef80d20f7f770f"
 
 [[package]]
 name = "linux-raw-sys"
-version = "0.3.6"
+version = "0.3.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b64f40e5e03e0d54f03845c8197d0291253cdbedfb1cb46b13c2c117554a9f4c"
+checksum = "ece97ea872ece730aed82664c424eb4c8291e1ff2480247ccf7409044bc6479f"
 
 [[package]]
 name = "litrs"
@@ -3274,9 +3288,9 @@ checksum = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
 
 [[package]]
 name = "pkg-config"
-version = "0.3.26"
+version = "0.3.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6ac9a59f73473f1b8d852421e59e64809f025994837ef743615c6d0c5b305160"
+checksum = "26072860ba924cbfa98ea39c8c19b4dd6a4a25423dbdf219c1eca91aa0cf6964"
 
 [[package]]
 name = "plotters"
@@ -3507,9 +3521,26 @@ checksum = "3b42e27ef78c35d3998403c1d26f3efd9e135d3e5121b0a4845cc5cc27547f4f"
 
 [[package]]
 name = "readable"
-version = "0.8.1"
+version = "0.8.2"
+dependencies = [
+ "bincode 2.0.0-rc.3",
+ "compact_str",
+ "itoa",
+ "lazy_static",
+ "paste",
+ "readable-inlined-date",
+ "readable-inlined-runtime",
+ "readable-inlined-time",
+ "regex",
+ "seq-macro",
+ "serde",
+]
+
+[[package]]
+name = "readable"
+version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2135da3d51e72481dd3c3647353b73da4f07978e06498ae843a72eac79ac5722"
+checksum = "22dc8157954b00bbe721f356a84a663892eb53b67d23251daa70eecfd9ec8c2a"
 dependencies = [
  "bincode 2.0.0-rc.3",
  "compact_str",
@@ -3663,6 +3694,10 @@ dependencies = [
 [[package]]
 name = "rolock"
 version = "0.1.2"
+
+[[package]]
+name = "rolock"
+version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9715db66489e53c33ec88f8f5339ef22c3ea901af604ae5d2346c4595c227c3f"
 
@@ -3710,9 +3745,9 @@ checksum = "08d43f7aa6b08d49f382cde6a7982047c3426db949b1424bc4b7ec9ae12c6ce2"
 
 [[package]]
 name = "rustix"
-version = "0.37.18"
+version = "0.37.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8bbfc1d1c7c40c01715f47d71444744a81669ca84e8b63e25a55e169b1f86433"
+checksum = "acf8729d8542766f1b2cf77eb034d52f40d375bb8b615d0b147089946e16613d"
 dependencies = [
  "bitflags",
  "errno",
@@ -3883,9 +3918,9 @@ name = "shukusai"
 version = "0.0.0"
 dependencies = [
  "anyhow",
- "benri",
+ "benri 0.1.5",
  "bincode 2.0.0-rc.3",
- "clap 4.2.5",
+ "clap 4.2.7",
  "compact_str",
  "const_format",
  "crossbeam-channel",
@@ -3907,9 +3942,9 @@ dependencies = [
  "notify",
  "paste",
  "rand",
- "readable",
+ "readable 0.8.2",
  "rfd",
- "rolock",
+ "rolock 0.1.2",
  "seq-macro",
  "serde",
  "serde_bytes",
@@ -5058,9 +5093,9 @@ checksum = "1a515f5799fe4961cb532f983ce2b23082366b898e52ffbce459c86f67c8378a"
 
 [[package]]
 name = "winit"
-version = "0.28.3"
+version = "0.28.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4f504e8c117b9015f618774f8d58cd4781f5a479bc41079c064f974cbb253874"
+checksum = "94c9651471cd576737671fbf7081edfea43de3e06846dd9bd4e49ea803c9f55f"
 dependencies = [
  "android-activity",
  "bitflags",
@@ -5093,9 +5128,9 @@ dependencies = [
 
 [[package]]
 name = "winnow"
-version = "0.4.5"
+version = "0.4.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "69af645a61644c6dd379ade8b77cc87efb5393c988707bad12d3c8e00c50f669"
+checksum = "61de7bac303dc551fe038e2b3cef0f571087a47571ea6e79a87692ac99b99699"
 dependencies = [
  "memchr",
 ]
@@ -5172,9 +5207,9 @@ dependencies = [
 
 [[package]]
 name = "xml-rs"
-version = "0.8.4"
+version = "0.8.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d2d7d3948613f75c98fd9328cfdcc45acc4d360655289d0a7d4ec931392200a3"
+checksum = "40e1a60e6e271dfb0db2db95987551348db75ebd6a78be07b9039b036f7dae2a"
 
 [[package]]
 name = "xmlparser"

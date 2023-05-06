@@ -124,10 +124,10 @@ pub const SEARCH_MAX_LEN: usize = u8::MAX as usize;
 
 //---------------------------------------------------------------------------------------------------- Version
 /// Current major version of `State`
-pub const STATE_VERSION: u8 = 1;
+pub const STATE_VERSION: u8 = 0;
 
 /// Current major version of `Settings`
-pub const SETTINGS_VERSION: u8 = 1;
+pub const SETTINGS_VERSION: u8 = 0;
 
 //---------------------------------------------------------------------------------------------------- Resolution
 pub const APP_WIDTH_MIN:          f32 = 1000.0;

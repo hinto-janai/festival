@@ -6,6 +6,9 @@ mod slice;
 mod ui;
 
 fn main() {
+	// Set `umask`.
+	disk::umask(0o027);
+
 	// Handle CLI arguments.
 	cli::Cli::handle_args();
 
