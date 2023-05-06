@@ -1404,6 +1404,25 @@ dependencies = [
  "paste",
  "seq-macro",
  "serde",
+ "toml_edit",
+]
+
+[[package]]
+name = "disk"
+version = "0.1.10"
+source = "git+https://github.com/hinto-janai/disk#55a1851564475dca233b62cfd78212c0855bbd7d"
+dependencies = [
+ "anyhow",
+ "bincode 2.0.0-rc.3",
+ "const-str",
+ "const_format",
+ "directories",
+ "flate2",
+ "lazy_static",
+ "memmap2",
+ "paste",
+ "seq-macro",
+ "serde",
  "serde_json",
  "serde_plain",
  "toml_edit",
@@ -1754,7 +1773,7 @@ dependencies = [
  "compact_str",
  "const_format",
  "crossbeam-channel",
- "disk",
+ "disk 0.1.8",
  "eframe",
  "egui",
  "egui_extras",
@@ -3763,9 +3782,9 @@ checksum = "e6b44e8fc93a14e66336d230954dda83d18b4605ccace8fe09bc7514a71ad0bc"
 
 [[package]]
 name = "serde"
-version = "1.0.160"
+version = "1.0.162"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bb2f3770c8bce3bcda7e149193a069a0f4365bda1fa5cd88e03bca26afc1216c"
+checksum = "71b2f6e1ab5c2b98c05f0f35b236b22e8df7ead6ffbf51d7808da7f8817e7ab6"
 dependencies = [
  "serde_derive",
 ]
@@ -3793,9 +3812,9 @@ dependencies = [
 
 [[package]]
 name = "serde_derive"
-version = "1.0.160"
+version = "1.0.162"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "291a097c63d8497e00160b166a967a4a79c64f3facdd01cbd7502231688d77df"
+checksum = "a2a0814352fd64b58489904a44ea8d90cb1a91dcb6b4f5ebabc32c8318e93cb6"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3870,7 +3889,7 @@ dependencies = [
  "compact_str",
  "const_format",
  "crossbeam-channel",
- "disk",
+ "disk 0.1.10",
  "eframe",
  "egui",
  "egui_extras",

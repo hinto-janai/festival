@@ -65,7 +65,7 @@ path = "festival-cli/src/main.rs"
 doc = false
 
 [profile.release]
-panic = "abort"
+#panic = "abort"
 debug = false
 strip = "symbols"
 codegen-units = 1
@@ -77,7 +77,6 @@ debug = true
 strip = "none"
 debug-assertions = true
 overflow-checks = true
-panic = "abort"
 incremental = true
 
 # Run tests in `--release` mode.
@@ -101,11 +100,12 @@ rustdoc-args = ["--cfg", "docsrs"]
 
 [dependencies]
 ### Personal libraries.
-benri    = { version = "0.1.5", features = ["log"] }
-disk     = { version = "0.1.8", features = ["bincode2", "empty", "toml", "plain", "json"] }
-readable = { version = "0.8.1", features = ["full"] }
-#readable = { path = "../readable", features = ["full"] }
-rolock   = { version = "0.1.2" }
+### FIXME:
+### Lock in versions on `v1.0.0` release.
+benri    = { version = "*", features = ["log"] }
+disk     = { version = "*", git = "https://github.com/hinto-janai/disk", features = ["bincode2", "empty", "toml", "plain", "json"] }
+readable = { version = "*", features = ["full"] }
+rolock   = { version = "*" }
 
 ### External patched libraries `external/`.
 # TODO:

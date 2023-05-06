@@ -136,7 +136,21 @@ impl Kernel {
 		// Attempt to load `Collection` from file.
 		debug!("Kernel - Reading 'Collection' from disk...");
 		let now = now!();
-		match Collection::from_file() {
+		// SAFETY:
+		// `Collection` is `memmap`'ed from disk.
+		//
+		// We (`Kernel`) are the only "entity" that should
+		// be touching `collection.bin` at this point.
+		//
+		// `CCD` saves to `collection.bin`, but that function can
+		// only be called after `Kernel` initially loads this one.
+		// (we aren't in `userland()` yet, `Kernel` won't respond
+		//  to `FrontendToKernel::NewCollection` messages yet)
+		//
+		// I can't prevent other programs from touching this file
+		// although they shouldn't be messing around in other program's
+		// data directories anyway.
+		match unsafe { Collection::from_file_memmap() } {
 			// If success, continue to `boot_loader` to convert
 			// bytes to actual usable `egui` images.
 			Ok(collection) => {

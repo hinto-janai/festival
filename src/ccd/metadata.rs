@@ -174,15 +174,15 @@ impl super::Ccd {
 		// out all picture ops. Not that much faster.
 		let mut tagged_file = match Self::path_to_tagged_file(&path) {
 			Ok(t)  => t,
-			Err(e) => { skip_warn!("CCD - TaggedFile fail: {}", path.display()); continue; },
+			Err(e) => { warn!("CCD - TaggedFile fail: {}", path.display()); continue; },
 		};
 		let mut tag = match Self::tagged_file_to_tag(&mut tagged_file) {
 			Ok(t)  => t,
-			Err(e) => { skip_warn!("CCD - Tag fail: {}", path.display()); continue; },
+			Err(e) => { warn!("CCD - Tag fail: {}", path.display()); continue; },
 		};
 		let metadata = match Self::extract_tag_metadata(tagged_file, &mut tag) {
 			Ok(t)  => t,
-			Err(e) => { skip_warn!("CCD - Metadata fail: {}", path.display()); continue; },
+			Err(e) => { warn!("CCD - Metadata fail: {}", path.display()); continue; },
 		};
 		// Destructure tag metadata
 		// into individual variables.
