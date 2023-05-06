@@ -19,70 +19,80 @@ use super::SUPPORTED_AUDIO_MIME_TYPES;
 //---------------------------------------------------------------------------------------------------- __NAME__
 impl super::Ccd {
 	#[inline(always)]
+	// TODO:
+	// Handle no PATHs.
+	//
 	// `WalkDir` given PATHs and filter for audio files.
 	// Ignore non-existing PATHs in the array.
 	pub(super) fn walkdir_audio(
 		to_kernel: &Sender<CcdToKernel>,
-		paths: Vec<PathBuf>,
+		mut paths: Vec<PathBuf>,
 	) -> Vec<PathBuf> {
 
 		// Test PATHs, collect valid ones.
-		let mut vec: Vec<PathBuf> = Vec::with_capacity(paths.len());
-		for path in &paths {
-			if let Ok(true) = path.try_exists() {
-				vec.push(path.to_path_buf());
-			} else {
-				warn!("CCD - Ignoring non-existent PATH: {}", path.display());
-			}
-		}
-
 		// Sort, remove duplicates.
-		vec.sort();
-		vec.dedup();
+		paths.retain(|p| p.exists());
+		paths.sort();
+		paths.dedup();
 
-		// Create our result `Vec`.
-		let mut result: Vec<PathBuf> = Vec::with_capacity(paths.len());
+		// Create our `WalkDir` entries.
+		// This showcases some iterator black magic.
+		//
+		// Feeds `PathBuf`'s into that closure, flattening
+		// all the iterators, and only collecting valid paths.
+		let mut entries: Vec<PathBuf> = paths
+			.into_iter()
+			.flat_map(|p| WalkDir::new(p).follow_links(true))
+			.filter_map(Result::ok)
+			.map(walkdir::DirEntry::into_path)
+			.filter_map(Self::path_is_audio)
+			.collect();
 
-		for path in paths {
-			debug!("CCD - Walking PATH: {}", path.display());
+		entries.sort();
+		entries.dedup();
+		entries
 
-			for entry in WalkDir::new(path).follow_links(true) {
-				// Handle potential PATH error.
-				let entry = match entry {
-					Ok(e)    => e,
-					Err(err) => { warn!("CCD - PATH failed: {}", err); continue; },
-				};
-
-				// To `PathBuf`.
-				let path_buf = entry.into_path();
-
-				// Push to result if MIME type was audio.
-				if Self::path_is_audio(&path_buf) {
-					result.push(path_buf);
-				} else {
-					trace!("CCD - Skipping non-audio PATH: {}", path_buf.display());
-				}
-			}
-		}
-
-		result.sort();
-		result.dedup();
-		result
+		//--- The old `for` loop version is below.
+//		let len       = entries.len();
+//		let increment = 5.0 / len as f64;
+//
+//		// Create our result `Vec`.
+//		let mut result: Vec<PathBuf> = Vec::with_capacity(len);
+//
+//		for entry in entries.iter_mut() {
+//			// To `PathBuf`.
+//			let path = entry.into_path();
+//			trace!("CCD - Walking PATH: {}", path.display());
+//
+//			// Push to result if MIME type was audio.
+//			if Self::path_is_audio(&path) {
+//				result.push(path);
+//			} else {
+//				debug!("CCD - Skipping non-audio PATH: {}", path.display());
+//			}
+//		}
+//
+//		result.sort();
+//		result.dedup();
+//		result
 	}
 
 	#[inline(always)]
-	fn path_is_audio(path: &Path) -> bool {
+	fn path_is_audio(path: PathBuf) -> Option<PathBuf> {
+		trace!("CCD - Walking PATH: {}", path.display());
+
 		// Attempt MIME via file magic bytes first.
-		if Self::path_infer_audio(path) {
-			return true
+		if Self::path_infer_audio(&path) {
+			return Some(path)
 		}
 
 		// Attempt guess via file extension.
-		if Self::path_guess_audio(path) {
-			return true
+		if Self::path_guess_audio(&path) {
+			return Some(path)
 		}
 
-		false
+		debug!("CCD - Skipping non-audio PATH: {}", path.display());
+		None
 	}
 
 	#[inline(always)]
