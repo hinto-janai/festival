@@ -98,7 +98,7 @@ pub(super) fn exit(
 			std::process::exit(1);
 		}
 
-		if lock_read!(kernel_state).saving {
+		if lockr!(kernel_state).saving {
 			atomic_sub!(exit_countdown, 1);
 			info!("GUI - Waiting to Collection to be saved, force exit in [{e}] seconds");
 			sleep!(1);

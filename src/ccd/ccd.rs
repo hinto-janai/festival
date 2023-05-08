@@ -309,7 +309,7 @@ impl Ccd {
 		// 13.
 		let now = now!();
 		// Set `saving` state.
-		lock_write!(kernel_state).saving = true;
+		lockw!(kernel_state).saving = true;
 		// Attempt atomic save.
 		//
 		// SAFETY:
@@ -322,7 +322,7 @@ impl Ccd {
 			Err(e) => { fail!("CCD - Collection: {}", e); 0 },
 		};
 		// Set `saving` state.
-		lock_write!(kernel_state).saving = false;
+		lockw!(kernel_state).saving = false;
 		let perf_disk = secs_f32!(now);
 		trace!("CCD [13/14] - Disk: {perf_disk}");
 

@@ -486,13 +486,13 @@ fn show_collection_spinner(
 			// Spinner.
 			ui.add_sized([width, height], Spinner::new().size(height));
 			// Percent.
-			ui.add_sized([width, height], Label::new(lock_read!(self.reset_state).percent.as_str()));
+			ui.add_sized([width, height], Label::new(lockr!(self.reset_state).percent.as_str()));
 			// Phase.
-			ui.add_sized([width, height], Label::new(lock_read!(self.reset_state).phase.as_str()));
+			ui.add_sized([width, height], Label::new(lockr!(self.reset_state).phase.as_str()));
 			// Specific.
-			ui.add_sized([width, height], Label::new(&lock_read!(self.reset_state).specific));
+			ui.add_sized([width, height], Label::new(&lockr!(self.reset_state).specific));
 			// ProgressBar.
-			ui.add_sized([width / 1.1, height], ProgressBar::new(lock_read!(self.reset_state).percent.inner() as f32 / 100.0));
+			ui.add_sized([width / 1.1, height], ProgressBar::new(lockr!(self.reset_state).percent.inner() as f32 / 100.0));
 
 		});
 	});

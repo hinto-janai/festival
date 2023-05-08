@@ -134,7 +134,7 @@ impl Kernel {
 
 		// Create `ResetState`, send to `Frontend`.
 		let reset = ResetState::from_dummy();
-		lock_write!(reset).disk();
+		lockw!(reset).disk();
 		send!(to_frontend, KernelToFrontend::NewResetState(RoLock::new(&reset)));
 
 		// Attempt to load `Collection` from file.
@@ -196,8 +196,8 @@ impl Kernel {
 		let state = KernelState::from_file();
 
 		// Set `ResetState` to `Start` + `Art` phase.
-		lock_write!(reset).start();
-		lock_write!(reset).phase = Phase::Art;
+		lockw!(reset).start();
+		lockw!(reset).phase = Phase::Art;
 
 		// Wait for `Collection` to be returned by `CCD`.
 		debug!("Kernel [5/12] ... waiting on CCD");
@@ -206,11 +206,11 @@ impl Kernel {
 			match recv!(from_ccd) {
 				// We received an incremental update.
 				// Update the current `KernelState.ResetState` values to match.
-				UpdateIncrement((increment, specific)) => lock_write!(reset).new_increment(increment, specific),
+				UpdateIncrement((increment, specific)) => lockw!(reset).new_increment(increment, specific),
 
 				// We're onto the next phase in `Collection` creation process.
 				// Update the current `ResetState` values to match.
-				UpdatePhase((percent, phase)) => lock_write!(reset).new_phase(percent, phase),
+				UpdatePhase((percent, phase)) => lockw!(reset).new_phase(percent, phase),
 
 				// `CCD` was successful. We got the new `Collection`.
 				NewCollection(collection) => break Some(collection),
@@ -226,7 +226,7 @@ impl Kernel {
 		};
 
 		// We're done with `CCD`.
-		lock_write!(reset).done();
+		lockw!(reset).done();
 
 		// If everything went ok, continue to `kernel` to verify data.
 		if let Some(collection) = collection {
@@ -403,8 +403,8 @@ impl Kernel {
 			PlayQueueKey(key)    => send!(self.to_audio, KernelToAudio::PlayQueueKey(key)),
 			Volume(volume)       => send!(self.to_audio, KernelToAudio::Volume(volume.inner())),
 			// Audio settings.
-			Shuffle              => flip!(lock_write!(self.state).audio.shuffle),
-			Repeat               => flip!(lock_write!(self.state).audio.repeat),
+			Shuffle              => flip!(lockw!(self.state).audio.shuffle),
+			Repeat               => flip!(lockw!(self.state).audio.repeat),
 			// Collection.
 			NewCollection(paths) => self.ccd_mode(paths),
 			SearchSim(string)    => send!(self.to_search, KernelToSearch::SearchSim(string)),
@@ -427,7 +427,7 @@ impl Kernel {
 	fn msg_audio(&self, msg: AudioToKernel) {
 		use crate::audio::AudioToKernel::*;
 		match msg {
-			TimestampUpdate(float) => lock_write!(self.state).audio.current_runtime = float,
+			TimestampUpdate(float) => lockw!(self.state).audio.current_runtime = float,
 			PathError(string)      => send!(self.to_frontend, KernelToFrontend::PathError(string)),
 		}
 	}
@@ -442,8 +442,8 @@ impl Kernel {
 			Stop    => send!(self.to_audio, KernelToAudio::Stop),
 			Next    => send!(self.to_audio, KernelToAudio::Next),
 			Last    => send!(self.to_audio, KernelToAudio::Last),
-			Shuffle => flip!(lock_write!(self.state).audio.shuffle),
-			Repeat  => flip!(lock_write!(self.state).audio.repeat),
+			Shuffle => flip!(lockw!(self.state).audio.shuffle),
+			Repeat  => flip!(lockw!(self.state).audio.repeat),
 		}
 	}
 
@@ -451,11 +451,11 @@ impl Kernel {
 	#[inline(always)]
 	// Verify the `seek` is valid before sending to `Audio`.
 	fn seek(&self, float: f64) {
-		if !lock_read!(self.state).audio.playing {
+		if !lockr!(self.state).audio.playing {
 			return
 		}
 
-		if float <= lock_read!(self.state).audio.current_runtime {
+		if float <= lockr!(self.state).audio.current_runtime {
 			send!(self.to_audio, KernelToAudio::Play);
 		}
 	}
@@ -464,7 +464,7 @@ impl Kernel {
 	// The `Frontend` is exiting, save everything.
 	fn exit(&mut self) -> ! {
 		// Save `KernelState`.
-		match lock_read!(self.state).save() {
+		match lockr!(self.state).save() {
 			Ok(o)  => {
 				debug!("Kernel - State save: {o}");
 				send!(self.to_frontend, KernelToFrontend::Exit(Ok(())));
@@ -492,7 +492,7 @@ impl Kernel {
 	// 7. Give new `Arc<Collection>` to everyone
 	fn ccd_mode(&mut self, paths: Vec<PathBuf>) {
 		// Set our `ResetState`.
-		lock_write!(self.reset).start();
+		lockw!(self.reset).start();
 
 		// INVARIANT:
 		// `GUI` is expected to drop its pointer by itself
@@ -516,7 +516,7 @@ impl Kernel {
 		let ctx = self.ctx.clone();
 
 		// Set `ResetState` to `Start` phase.
-		lock_write!(self.reset).start();
+		lockw!(self.reset).start();
 
 		// Spawn `CCD`.
 		std::thread::Builder::new()
@@ -532,11 +532,11 @@ impl Kernel {
 			match recv!(from_ccd) {
 				// We received an incremental update.
 				// Update the current `KernelState.ResetState` values to match.
-				UpdateIncrement((increment, specific)) => lock_write!(self.reset).new_increment(increment, specific),
+				UpdateIncrement((increment, specific)) => lockw!(self.reset).new_increment(increment, specific),
 
 				// We're onto the next phase in `Collection` creation process.
 				// Update the current `ResetState` values to match.
-				UpdatePhase((percent, phase)) => lock_write!(self.reset).new_phase(percent, phase),
+				UpdatePhase((percent, phase)) => lockw!(self.reset).new_phase(percent, phase),
 
 				// `CCD` was successful. We got the new `Collection`.
 				NewCollection(collection) => break collection,
@@ -566,7 +566,7 @@ impl Kernel {
 		self.ctx.request_repaint();
 
 		// Set our `ResetState`, we're done.
-		lock_write!(self.reset).done();
+		lockw!(self.reset).done();
 	}
 }
 

@@ -97,9 +97,6 @@ impl Watch {
 	}
 
 	#[inline(always)]
-	// Since `Watch` dying isn't _that_ bad, instead of calling
-	// `mass_panic!()` on failures and killing everything, we'll
-	// just call `send_or_die!()` which only panics `Watch` itself.
 	fn main(self) {
 		ok_debug!("Watch");
 
@@ -118,7 +115,7 @@ impl Watch {
 
 			// Toggle.
 			if Toggle::exists().is_ok() {
-				send_or_die!(self.to_kernel, WatchToKernel::Toggle)
+				send!(self.to_kernel, WatchToKernel::Toggle);
 			}
 
 			// Stop/Play.
@@ -126,28 +123,28 @@ impl Watch {
 			// `Stop` will always take priority
 			// if both `Stop` and `Play` files exist.
 			if Stop::exists().is_ok() {
-				send_or_die!(self.to_kernel, WatchToKernel::Stop)
+				send!(self.to_kernel, WatchToKernel::Stop);
 			} else if Play::exists().is_ok() {
-				send_or_die!(self.to_kernel, WatchToKernel::Play)
+				send!(self.to_kernel, WatchToKernel::Play);
 			}
 
 			// Next/Last.
 			//
 			// `Next` takes priority.
 			if Next::exists().is_ok() {
-				send_or_die!(self.to_kernel, WatchToKernel::Next)
+				send!(self.to_kernel, WatchToKernel::Next);
 			} else if Last::exists().is_ok() {
-				send_or_die!(self.to_kernel, WatchToKernel::Last)
+				send!(self.to_kernel, WatchToKernel::Last);
 			}
 
 			// Shuffle.
 			if Shuffle::exists().is_ok() {
-				send_or_die!(self.to_kernel, WatchToKernel::Shuffle)
+				send!(self.to_kernel, WatchToKernel::Shuffle);
 			}
 
 			// Repeat.
 			if Repeat::exists().is_ok() {
-				send_or_die!(self.to_kernel, WatchToKernel::Repeat)
+				send!(self.to_kernel, WatchToKernel::Repeat);
 			}
 
 			// Clean folder.

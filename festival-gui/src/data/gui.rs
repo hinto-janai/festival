@@ -208,7 +208,7 @@ impl Gui {
 	#[inline(always)]
 	/// Copies the _audio_ values from [`KernelState`] into [`State`].
 	pub fn copy_kernel_audio(&mut self) {
-		let k = lock_read!(self.kernel_state);
+		let k = lockr!(self.kernel_state);
 
 		// PERF:
 		// Comparison seems to be slower than un-conditional
