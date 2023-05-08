@@ -19,10 +19,10 @@ exclude = [
     "utils/*",
     "CHANGELOG.md",
 	".github",
-	"festival-gui/*",
-	"festival-web/*",
-	"festivald/*",
-	"festival-cli/*",
+	"gui/*",
+	"web/*",
+	"daemon/*",
+	"cli/*",
 ]
 include = [
 	"src",
@@ -34,34 +34,34 @@ include = [
 
 [workspace]
 members = [
-	"festival-gui",
-	"festival-web",
-	"festivald",
-	"festival-cli",
+	"gui",
+	"web",
+	"daemon",
+	"cli",
 ]
 
 # GUI
 [[bin]]
 name = "festival"
-path = "festival-gui/src/main.rs"
+path = "gui/src/main.rs"
 doc = false
 
 # Web
 [[bin]]
 name = "festival-web"
-path = "festival-web/src/main.rs"
+path = "web/src/main.rs"
 doc = false
 
 # Daemon
 [[bin]]
 name = "festivald"
-path = "festivald/src/main.rs"
+path = "daemon/src/main.rs"
 doc = false
 
 # CLI
 [[bin]]
 name = "festival-cli"
-path = "festival-cli/src/main.rs"
+path = "cli/src/main.rs"
 doc = false
 
 [profile.release]

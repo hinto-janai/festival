@@ -37,15 +37,15 @@ Input data:
 ## Frontends
 | Frontend                    | Released | Description |
 |-----------------------------|----------|-------------|
-| [`festival-gui`](https://github.com/hinto-janai/festival/tree/main/festival-gui) | 🔴       | `egui` GUI
-| [`festival-web`](https://github.com/hinto-janai/festival/tree/main/festival-web) | 🔴       | `WASM` version of `egui` GUI
-| [`festivald`](https://github.com/hinto-janai/festival/tree/main/festivald)       | 🔴       | Daemon ([`mpd`](https://github.com/MusicPlayerDaemon/MPD)-like)
-| [`festival-cli`](https://github.com/hinto-janai/festival/tree/main/festival-cli) | 🔴       | CLI client that connects to `festivald`
+| [`festival`](https://github.com/hinto-janai/festival/tree/main/gui)     | 🔴       | `egui` GUI
+| [`festival-web`](https://github.com/hinto-janai/festival/tree/main/web) | 🔴       | `WASM` version of `egui` GUI
+| [`festivald`](https://github.com/hinto-janai/festival/tree/main/daemon) | 🔴       | Daemon ([`mpd`](https://github.com/MusicPlayerDaemon/MPD)-like)
+| [`festival-cli`](https://github.com/hinto-janai/festival/tree/main/cli) | 🔴       | CLI client that connects to `festivald`
 
 ## Documentation
 1. For a broad overview of Festival's internals, see [`src/`](https://github.com/hinto-janai/festival/tree/main/src).
 2. For library docs, see [`docs.rs`](https://docs.rs/shukusai).
-3. For frontend docs, see the associated folder (e.g: [`festival-gui`](https://github.com/hinto-janai/festival/tree/main/festival-gui))
+3. For frontend docs, see the associated folder (e.g: [`gui`](https://github.com/hinto-janai/festival/tree/main/gui))
 
 The crate [`festival`](https://crates.io/crates/festival) is being squatted, so instead, Festival's
 original name, [`shukusai`](https://crates.io/crates/shukusai), is the name used to represent the internals.
