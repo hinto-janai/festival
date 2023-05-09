@@ -20,16 +20,6 @@ pub(super) struct Perf {
 	pub(super) total: Total,
 }
 
-impl std::fmt::Display for Perf {
-	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		let string = match disk::Json::to_string(self) {
-			Ok(s) => s,
-			Err(e) => e.to_string(),
-		};
-		write!(f, "Perf {}", string)
-	}
-}
-
 #[derive(Copy,Clone,Debug,Default,PartialEq,PartialOrd,Serialize,Deserialize)]
 pub(super) struct Phases {
 	pub(super) walkdir:     f32,

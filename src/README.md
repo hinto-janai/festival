@@ -12,7 +12,8 @@ The code itself is also littered with comments. Some `grep`-able keywords:
 | `FIXME`     | This code works but isn't ideal
 | `HACK`      | This code is a brittle workaround
 | `PERF`      | This code is weird for performance reasons
-| `TODO`      | This should be implemented... someday
+| `TODO`      | This has to be implemented
+| `SOMEDAY`   | This should be implemented... someday
 
 ---
 

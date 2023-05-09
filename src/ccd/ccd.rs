@@ -389,7 +389,7 @@ impl Ccd {
 			phases,
 			total,
 		};
-		format!("{perf}").lines().for_each(|l| debug!("{l}"));
+ 		format!("{perf:#?}").lines().for_each(|l| debug!("{l}"));
 		match perf.save() {
 			Ok(i)  => debug!("CCD - Perf: {i}"),
 			Err(e) => warn!("CCD - Couldn't save perf data: {e}"),
