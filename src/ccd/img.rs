@@ -179,7 +179,7 @@ pub(super) fn alloc_textures(albums: &crate::collection::Albums, ctx: &egui::Con
 	let arc = ctx.tex_manager();
 
 	// Wait until `GUI` has loaded at least 1 frame.
-	while !atomic_load!(crate::frontend::UPDATING) {
+	while !atomic_load!(crate::frontend::egui::UPDATING) {
 		std::hint::spin_loop();
 	}
 	let mut now = now!();
@@ -200,7 +200,7 @@ pub(super) fn alloc_textures(albums: &crate::collection::Albums, ctx: &egui::Con
 				// Wait until `GUI` is in the middle of animating.
 				// This guarantees the below `tex_mngr..write()`
 				// will be _after_ `GUI` has rendered it's frame.
-				while !atomic_load!(crate::frontend::UPDATING) {
+				while !atomic_load!(crate::frontend::egui::UPDATING) {
 					std::hint::spin_loop();
 				}
 

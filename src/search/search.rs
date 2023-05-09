@@ -7,8 +7,6 @@ use benri::{
 };
 use crate::collection::{
 	Collection,
-};
-use crate::key::{
 	Keychain,
 	ArtistKey,
 	AlbumKey,

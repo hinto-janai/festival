@@ -67,6 +67,16 @@ disk::plain!(Panic, disk::Dir::Data, FESTIVAL, "txt", "panic");
 /// File representing a `panic!()` log.
 ///
 /// This gets written in the `festival/txt` folder as `panic.txt`.
+///
+/// The first thing `Kernel` will do when you spawn it
+/// with `Kernel::spawn()` is set a custom [`panic!()`] hook.
+///
+/// Since it is unsafe to carry on operating if any one of the threads
+/// within `shukusai` panics, all threads are forcefully exited if any
+/// single thread panics, even outside of `shukusai`.
+///
+/// But before that, a full stack backtrace is printed to console
+/// and is also written to disk in the `festival` folder as `panic.txt`.
 pub struct Panic(pub(crate) String);
 
 //---------------------------------------------------------------------------------------------------- TESTS

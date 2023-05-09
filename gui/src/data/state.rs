@@ -18,8 +18,6 @@ use shukusai::{
 use shukusai::collection::{
 	Album,
 	Collection,
-};
-use shukusai::key::{
 	Key,
 	AlbumKey,
 };

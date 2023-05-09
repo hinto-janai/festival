@@ -3,14 +3,12 @@
 use log::{error,warn,info,debug,trace};
 use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
-use super::{
+use crate::collection::{
 	album::Album,
 	artist::Artist,
 	song::Song,
 	plural::{Artists,Albums,Songs},
 	Map,
-};
-use crate::key::{
 	Key,
 	ArtistKey,
 	AlbumKey,

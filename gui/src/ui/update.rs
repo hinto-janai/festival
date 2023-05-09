@@ -27,7 +27,7 @@ use shukusai::kernel::{
 	FrontendToKernel,
 	KernelToFrontend,
 };
-use shukusai::key::{
+use shukusai::collection::{
 	AlbumKey,
 };
 use benri::{
@@ -103,9 +103,9 @@ impl eframe::App for Gui {
 	//-------------------------------------------------------------------------------- Main event loop.
 	#[inline(always)]
 	fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
-		atomic_store!(shukusai::frontend::UPDATING, true);
+		atomic_store!(shukusai::frontend::egui::UPDATING, true);
 		self.__update(ctx, frame);
-		atomic_store!(shukusai::frontend::UPDATING, false);
+		atomic_store!(shukusai::frontend::egui::UPDATING, false);
 	}
 }
 

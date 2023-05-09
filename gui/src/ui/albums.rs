@@ -16,9 +16,12 @@ use crate::slice::Head;
 use crate::constants::{
 	LESS_WHITE,
 };
-use shukusai::key::AlbumKey;
+use shukusai::collection::{
+	AlbumKey,
+};
 use std::slice::Iter;
 use std::iter::Peekable;
+
 //---------------------------------------------------------------------------------------------------- Constants
 // How many `char`'s before we cut it off with `...`?
 const ALBUM_TITLE_LIMIT: usize = 30;

@@ -19,8 +19,6 @@ use crate::collection::{
 	Albums,
 	Songs,
 	Map,
-};
-use crate::key::{
 	Keychain,
 	ArtistKey,
 	AlbumKey,

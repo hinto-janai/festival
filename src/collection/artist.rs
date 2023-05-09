@@ -3,11 +3,11 @@
 //use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
-use super::{
+use crate::collection::{
 	Album,
 	Collection,
+	AlbumKey,
 };
-use crate::key::AlbumKey;
 
 //----------------------------------------------------------------------------------------------------
 #[derive(Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]

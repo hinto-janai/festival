@@ -1,19 +1,10 @@
 //---------------------------------------------------------------------------------------------------- Use
-//use anyhow::{anyhow,bail,ensure};
-//use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
-//use crate::macros::*;
-//use disk::prelude::*;
-//use disk::{};
-//use std::{};
-//use std::sync::{Arc,Mutex,RwLock};
 use crate::collection::{
-	{Artist,Album,Song},
-};
-use crate::key::{
-	{ArtistKey,AlbumKey,SongKey},
-	{QueueKey,PlaylistKey},
+	Artist,Album,Song,
+	ArtistKey,AlbumKey,SongKey,
+	QueueKey,PlaylistKey,
 };
 
 //---------------------------------------------------------------------------------------------------- Plural newtypes around `Vec<T>`.

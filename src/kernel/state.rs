@@ -6,11 +6,10 @@ use bincode::{Encode,Decode};
 //use crate::macros::*;
 //use std::{};
 use std::sync::{Arc,RwLock};
-use crate::key::{
+use crate::collection::{
+	Collection,
 	Key,
 	Keychain,
-};
-use crate::slice::{
 	Queue,
 	Playlist,
 };
@@ -22,7 +21,6 @@ use crate::constants::{
 use rolock::RoLock;
 use super::Volume;
 use crate::kernel::Kernel;
-use crate::collection::Collection;
 use readable::Percent;
 
 //---------------------------------------------------------------------------------------------------- Lazy

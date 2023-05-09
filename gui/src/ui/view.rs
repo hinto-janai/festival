@@ -7,7 +7,7 @@ use egui::{
 	ScrollArea,Frame,RichText,ImageButton,
 	SelectableLabel,Label,Button,SidePanel,
 };
-use shukusai::key::{
+use shukusai::collection::{
 	AlbumKey,
 };
 use crate::constants::{

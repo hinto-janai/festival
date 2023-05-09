@@ -1,5 +1,5 @@
 //! # Festival
-//! [`Festival`](https://github.com/hinto-janai/festival)'s internals that powers all of its frontends.
+//! [`Festival`](https://github.com/hinto-janai/festival)'s internals.
 //!
 //! The crate [`festival`](https://crates.io/crates/festival) is being squatted, so instead, `Festival`'s
 //! original name, [`shukusai`](https://crates.io/crates/shukusai), is used.
@@ -11,7 +11,7 @@
 //! - `shukusai` _specifically_ means `Festival`'s internals
 //! - `Festival` means a frontend OR the project as a whole
 //!
-//! # Warning
+//! ## Warning
 //! **The internals are not stable.**
 //!
 //! **If you're implementing a frontend, you are expected to implement the `Kernel`'s messages correctly.**
@@ -19,7 +19,7 @@
 //! You can look at [`festival-gui`](https://github.com/hinto-janai/festival/festival-gui)'s code as an example,
 //! and the [internal documentation](https://github.com/hinto-janai/festival/src) as reference.
 //!
-//! # API
+//! ## API
 //! The "API" between `shukusai` and the frontends are:
 //! - [`kernel::KernelToFrontend`]
 //! - [`kernel::FrontendToKernel`]
@@ -37,14 +37,11 @@
 //! - Properly implement the messages `To/From` the `Kernel`
 //! - Properly handle shared data
 //!
-//! # Shared Data
+//! ## Shared Data
 //! There are shared functions/data that `shukusai` exposes, notably:
 //! - [`collection::Collection`] (and everything within it)
+//! - [`collection::Key`] (and other keys)
 //! - [`kernel::KernelState`]
-//! - [`kernel::Volume`]
-//! - [`key::Key`] (and other keys)
-//! - `CONSTANTS`
-//! - etc...
 //!
 //! It is up to the frontend on how to use these functions/data.
 //!
@@ -125,24 +122,11 @@ mod thread;
 pub use thread::*;
 
 //---------------------------------------------------------------------------------------------------- Public modules.
-/// Custom panic hook + backtrace log
-///
-/// The first thing `Kernel` will do when you spawn it
-/// with `Kernel::bios()` is set a custom [`panic!()`] hook.
-///
-/// Since it is unsafe to carry on operating if any one of the threads
-/// within `shukusai` panics, all threads are forcefully exited if any
-/// single thread panics, even outside of `shukusai`.
-///
-/// But before that, a full stack backtrace is printed to console
-/// and is also written to disk in the `festival` folder as `panic.txt`.
-pub mod panic;
+mod panic;
+pub use panic::Panic;
 
-/// The main music `Collection` and it's inner data
+/// The main music `Collection` and its inner data
 pub mod collection;
-
-/// `Key`'s to index the `Collection` in a type-safe way
-pub mod key;
 
 /// `Kernel`, the messenger and coordinator
 ///
@@ -169,17 +153,6 @@ pub mod kernel;
 /// collection.sort_album_release_artist_lexi;
 /// ```
 pub mod sort;
-
-/// `Queue` and `Playlist`
-///
-/// Both `Queue` and `Playlist` are practically the same thing:
-///   - A slice of the `Collection`
-///
-/// They contain a bunch of `Key`'s that point
-/// to "segments" of the `Collection` (it's a slice).
-///
-/// Both `Queue` and `Playlist` inner values are `VecDeque<Key>`.
-pub mod slice;
 
 /// Audio Signals to `Kernel`
 ///

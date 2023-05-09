@@ -20,8 +20,6 @@ use crate::collection::{
 	Art,
 	Album,
 	Collection,
-};
-use crate::key::{
 	Keychain,
 	ArtistKey,
 	AlbumKey,

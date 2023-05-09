@@ -1,2 +1,3 @@
-mod egui;
-pub use crate::frontend::egui::*;
+/// `egui`-specific
+pub mod egui;
+

@@ -5,12 +5,10 @@ use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
 use std::path::PathBuf;
 use readable::Runtime;
-use super::{
+use crate::collection::{
 	Collection,
 	Artist,
 	Album,
-};
-use crate::key::{
 	AlbumKey,
 	SongKey,
 };

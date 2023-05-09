@@ -10,8 +10,8 @@ use benri::{
 	log::*,
 	sync::*,
 };
-use crate::collection::Collection;
-use crate::key::{
+use crate::collection::{
+	Collection,
 	Keychain,
 	ArtistKey,
 	AlbumKey,

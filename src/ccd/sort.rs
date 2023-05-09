@@ -12,8 +12,6 @@ use crate::collection::{
 	Album,
 	Song,
 	Collection,
-};
-use crate::key::{
 	ArtistKey,
 	AlbumKey,
 	SongKey,
