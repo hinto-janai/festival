@@ -37,17 +37,6 @@ impl Volume {
 	}
 
 	#[inline(always)]
-	/// Creates [`Volume`] without checking if the [`u8`] is between `0..100`.
-	///
-	/// # Safety
-	///
-	/// You must ensure:
-	/// 1. The input is between `0..100`
-	pub const unsafe fn new_unchecked(volume: u8) -> Self {
-		Self(volume)
-	}
-
-	#[inline(always)]
 	/// Returns the inner `u8`.
 	pub const fn inner(&self) -> u8 {
 		self.0

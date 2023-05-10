@@ -277,22 +277,22 @@ impl Keychain {
 		}
 	}
 
-	#[inline(always)]
-	// Creates a [`Keychain`] from raw [`Box<usize>`]'s.
-	pub(crate) const unsafe fn from_boxes_raw(
-		artists: Box<[usize]>,
-		albums: Box<[usize]>,
-		songs: Box<[usize]>,
-	) -> Self {
-		// SAFETY: The `Key` types _must_ be `#[repr(transparent)]`
-		unsafe {
-			Self {
-				artists: std::mem::transmute::<Box<[usize]>, Box<[ArtistKey]>>(artists),
-				albums: std::mem::transmute::<Box<[usize]>, Box<[AlbumKey]>>(albums),
-				songs: std::mem::transmute::<Box<[usize]>, Box<[SongKey]>>(songs),
-			}
-		}
-	}
+//	#[inline(always)]
+//	// Creates a [`Keychain`] from raw [`Box<usize>`]'s.
+//	pub(crate) const unsafe fn from_boxes_raw(
+//		artists: Box<[usize]>,
+//		albums: Box<[usize]>,
+//		songs: Box<[usize]>,
+//	) -> Self {
+//		// SAFETY: The `Key` types _must_ be `#[repr(transparent)]`
+//		unsafe {
+//			Self {
+//				artists: std::mem::transmute::<Box<[usize]>, Box<[ArtistKey]>>(artists),
+//				albums: std::mem::transmute::<Box<[usize]>, Box<[AlbumKey]>>(albums),
+//				songs: std::mem::transmute::<Box<[usize]>, Box<[SongKey]>>(songs),
+//			}
+//		}
+//	}
 
 	#[inline(always)]
 	/// Returns `true` if all inner [`Box`]'s are empty.

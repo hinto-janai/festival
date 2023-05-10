@@ -30,9 +30,10 @@ use log::trace;
 use benri::log::fail;
 
 //---------------------------------------------------------------------------------------------------- Album Art Constants.
-// SAFETY:
-// The constant above can't be `0`.
-pub(crate) const ALBUM_ART_SIZE_NUM: NonZeroU32 = unsafe { NonZeroU32::new_unchecked(ALBUM_ART_SIZE as u32) };
+pub(crate) const ALBUM_ART_SIZE_NUM: NonZeroU32 = match NonZeroU32::new(ALBUM_ART_SIZE as u32) {
+	Some(n) => n,
+	None    => panic!(),
+};
 
 //---------------------------------------------------------------------------------------------------- Image Manipulation Functions.
 // Image pipeline, from raw/unedited bytes to an actually displayable `egui::RetainedImage`:
