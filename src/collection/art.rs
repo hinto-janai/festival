@@ -15,6 +15,7 @@ use egui_extras::image::RetainedImage;
 use super::Album;
 use serde::{Serialize,Deserialize,Serializer,Deserializer};
 use bincode::{Encode,Decode};
+use once_cell::sync::Lazy;
 
 //---------------------------------------------------------------------------------------------------- Constant
 /// The [`Album`] art size in pixels
@@ -25,10 +26,8 @@ use bincode::{Encode,Decode};
 pub const ALBUM_ART_SIZE: usize = 600;
 
 //---------------------------------------------------------------------------------------------------- Unknown Art (lazy) Constant
-lazy_static::lazy_static! {
-	pub(crate) static ref UNKNOWN_ALBUM_BYTES: &'static [u8] = include_bytes!("../../assets/images/art/unknown.png");
-	pub(crate) static ref UNKNOWN_ALBUM: RetainedImage = RetainedImage::from_image_bytes("Unknown", include_bytes!("../../assets/images/art/unknown.png")).unwrap();
-}
+pub(crate) const UNKNOWN_ALBUM_BYTES: &'static [u8] = include_bytes!("../../assets/images/art/unknown.png");
+pub(crate) static UNKNOWN_ALBUM: Lazy<RetainedImage> = Lazy::new(|| RetainedImage::from_image_bytes("Unknown", UNKNOWN_ALBUM_BYTES).unwrap());
 
 //---------------------------------------------------------------------------------------------------- Art
 #[derive(Default)]
@@ -39,7 +38,7 @@ lazy_static::lazy_static! {
 /// This `enum` and the associated function [`Album::art_or()`] will always return
 /// a valid [`egui_extras::RetainedImage`], the real art if it exists, or an "unknown" image.
 ///
-/// The returned "unknown" image is actually just a pointer to the single image created with [`lazy_static`].
+/// The returned "unknown" image is actually just a pointer to a single image.
 ///
 /// The "unknown" image is from `assets/images/art/unknown.png`.
 pub enum Art {
@@ -137,7 +136,7 @@ impl Art {
 	pub(crate) fn texture_id(&self, ctx: &egui::Context) -> egui::TextureId {
 		match self {
 			Self::Known(a) => a.texture_id(ctx),
-			// TODO: `lazy_static` this id, no need to lock
+			// TODO: `lazy` this id, no need to lock
 			_ => UNKNOWN_ALBUM.texture_id(ctx),
 		}
 	}

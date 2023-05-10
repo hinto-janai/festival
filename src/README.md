@@ -777,7 +777,7 @@ image in the same directory as the file itself.
 
 If both are not found, a [default question mark](https://github.com/hinto-janai/festival/assets/images/art/unknown.png) cover will be used.
 
-This default art is actually just a pointer to a single image in memory (`lazy_static`), so it doesn't take up extra memory even if all your `Album`'s have no art.
+This default art is actually just a pointer to a single image, so it doesn't take up extra memory even if all your `Album`'s have no art.
 
 # Alternative Frontends
 Some other frontends I have in mind:

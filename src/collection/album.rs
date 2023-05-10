@@ -78,7 +78,7 @@ impl Album {
 	/// 1. The real [`Album`] art (if it exists)
 	/// 2. An "unknown" image
 	///
-	/// The returned "unknown" image is actually just a pointer to the single image created with [`lazy_static`].
+	/// The returned "unknown" image is actually just a pointer to a single lazily evaluated image.
 	///
 	/// The "unknown" image is from `assets/images/art/unknown.png`.
 	pub fn art_or(&self) -> &egui_extras::RetainedImage {

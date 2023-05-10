@@ -22,12 +22,11 @@ use rolock::RoLock;
 use super::Volume;
 use crate::kernel::Kernel;
 use readable::Percent;
+use once_cell::sync::Lazy;
 
 //---------------------------------------------------------------------------------------------------- Lazy
-lazy_static::lazy_static! {
-	// This is an empty, dummy `KernelState`.
-	pub(crate) static ref DUMMY_KERNEL_STATE: Arc<RwLock<KernelState>> = Arc::new(RwLock::new(KernelState::new()));
-}
+// This is an empty, dummy `KernelState`.
+pub(crate) static DUMMY_KERNEL_STATE: Lazy<Arc<RwLock<KernelState>>> = Lazy::new(|| Arc::new(RwLock::new(KernelState::new())));
 
 //---------------------------------------------------------------------------------------------------- AudioState
 /// Audio State

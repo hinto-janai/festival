@@ -22,12 +22,11 @@ use super::Volume;
 use crate::kernel::Kernel;
 use readable::Percent;
 use super::phase::Phase;
+use once_cell::sync::Lazy;
 
 //---------------------------------------------------------------------------------------------------- Lazy
-lazy_static::lazy_static! {
-	// This is an empty, dummy `ResetState`.
-	pub(crate) static ref DUMMY_RESET_STATE: Arc<RwLock<ResetState>> = Arc::new(RwLock::new(ResetState::new()));
-}
+// This is an empty, dummy `ResetState`.
+pub(crate) static DUMMY_RESET_STATE: Lazy<Arc<RwLock<ResetState>>> = Lazy::new(|| Arc::new(RwLock::new(ResetState::new())));
 
 //---------------------------------------------------------------------------------------------------- ResetState
 /// Reset State.

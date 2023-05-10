@@ -38,6 +38,7 @@ use crate::{
 use crossbeam_channel::{Sender,Receiver};
 use std::path::PathBuf;
 use readable::Percent;
+use once_cell::sync::Lazy;
 
 //---------------------------------------------------------------------------------------------------- Kernel
 /// The [`Kernel`] of `Festival`
@@ -114,8 +115,10 @@ impl Kernel {
 		from_frontend: Receiver<FrontendToKernel>,
 		ctx:           egui::Context,
 	) {
-		// Set `Kernel`'s init time.
-		let beginning = now!();
+		// Initialize lazy statics.
+		let _         = Lazy::force(&DUMMY_COLLECTION);
+		let _         = Lazy::force(&DUMMY_KERNEL_STATE);
+		let beginning = Lazy::force(&crate::logger::INIT_INSTANT);
 
 		#[cfg(feature = "panic")]
 		// Set panic hook.
@@ -125,12 +128,6 @@ impl Kernel {
 		crate::panic::set_panic_hook();
 
 		debug!("Kernel [1/12] ... entering bios()");
-
-		// Initialize lazy statics.
-		lazy_static::initialize(&DUMMY_COLLECTION);
-		lazy_static::initialize(&DUMMY_KERNEL_STATE);
-		lazy_static::initialize(&DUMMY_RESET_STATE);
-		lazy_static::initialize(&crate::logger::INIT_INSTANT);
 
 		// Create `ResetState`, send to `Frontend`.
 		let reset = ResetState::from_dummy();
@@ -159,12 +156,12 @@ impl Kernel {
 			// bytes to actual usable `egui` images.
 			Ok(collection) => {
 				ok_debug!("Kernel - Collection{COLLECTION_VERSION} deserialization ... Took {} seconds", secs_f32!(now));
-				Self::boot_loader(collection, to_frontend, from_frontend, reset, ctx, beginning);
+				Self::boot_loader(collection, to_frontend, from_frontend, reset, ctx, *beginning);
 			},
 			// Else, straight to `init` with default flag set.
 			Err(e) => {
 				warn!("Kernel - Collection{COLLECTION_VERSION} from file error: {}", e);
-				Self::init(None, None, to_frontend, from_frontend, reset, ctx, beginning);
+				Self::init(None, None, to_frontend, from_frontend, reset, ctx, *beginning);
 			},
 		}
 	}
@@ -473,7 +470,7 @@ impl Kernel {
 		}
 
 		// Hang forever.
-		debug!("Kernel - Entering exit() loop - Total uptime: {}", readable::Time::from(crate::init_instant()));
+		debug!("Kernel - Entering exit() loop - Total uptime: {}", readable::Time::from(*crate::INIT_INSTANT));
 		loop {
 			std::thread::park();
 		}

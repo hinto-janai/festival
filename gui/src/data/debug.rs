@@ -8,8 +8,8 @@ use shukusai::{
 	FESTIVAL_NAME_VER,
 };
 use shukusai::{
-	threads_available,
-	init_instant,
+	INIT_INSTANT,
+	THREADS,
 };
 use benri::atomic_load;
 use serde::{Serialize,Deserialize};
@@ -91,8 +91,8 @@ kernel_returned      | {}
 			std::env::consts::OS,
 			std::env::consts::ARCH,
 			std::env::args_os(),
-			threads_available(),
-			init_instant().elapsed().as_secs_f64(),
+			*THREADS,
+			INIT_INSTANT.elapsed().as_secs_f64(),
 			BUILD,
 			COMMIT,
 			FESTIVAL_NAME_VER,

@@ -7,10 +7,10 @@ use log::{error,warn,info,debug,trace};
 //use disk::{};
 use std::num::NonZeroUsize;
 use crate::{
-	threads_available,
-	threads_available_25,
-	threads_available_50,
-	threads_available_75,
+	THREADS,
+	THREADS_25,
+	THREADS_50,
+	THREADS_75,
 };
 
 //---------------------------------------------------------------------------------------------------- Constants.
@@ -33,13 +33,13 @@ pub(crate) fn threads_for_album_art(albums: usize) -> usize {
 	}
 
 	// Make sure each thread has at least 1 album.
-	if threads_available_50() > albums {
+	if *THREADS_50 > albums {
 		debug!("Album threads: {}", albums);
 		return albums
 	}
 
-	debug!("Album threads: {}", threads_available_50());
-	threads_available_50()
+	debug!("Album threads: {}", *THREADS_50);
+	*THREADS_50
 }
 
 // Get a reasonable amount of threads for processing `n` amount of PATHs.
@@ -50,13 +50,13 @@ pub(crate) fn threads_for_paths(paths: usize) -> usize {
 	}
 
 	// Make sure each thread has at least 1 PATH.
-	if threads_available_50() > paths {
+	if *THREADS_50 > paths {
 		debug!("PATH threads: {}", paths);
 		return paths
 	}
 
-	debug!("PATH threads: {}", threads_available_50());
-	threads_available_50()
+	debug!("PATH threads: {}", *THREADS_50);
+	*THREADS_50
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

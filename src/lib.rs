@@ -117,7 +117,7 @@ mod constants;
 pub use constants::*;
 mod logger;
 pub use logger::init_logger;
-pub use logger::init_instant;
+pub use logger::INIT_INSTANT;
 mod thread;
 pub use thread::*;
 

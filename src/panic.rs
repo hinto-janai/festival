@@ -41,9 +41,9 @@ stack backtrace:\n{}",
 			std::env::args_os(),
 			crate::constants::BUILD,
 			crate::constants::COMMIT,
-			crate::thread::threads_available(),
+			*crate::thread::THREADS,
 			crate::constants::FESTIVAL_NAME_VER,
-			crate::logger::init_instant().elapsed().as_secs_f64(),
+			crate::logger::INIT_INSTANT.elapsed().as_secs_f64(),
 			stack_trace,
 		);
 		// Attempt to write panic info to disk.
@@ -71,7 +71,7 @@ disk::plain!(Panic, disk::Dir::Data, FESTIVAL, "txt", "panic");
 /// The first thing `Kernel` will do when you spawn it
 /// with `Kernel::spawn()` is set a custom [`panic!()`] hook.
 ///
-/// Since it is unsafe to carry on operating if any one of the threads
+/// Since it is dangerous to carry on operating if any one of the threads
 /// within `shukusai` panics, all threads are forcefully exited if any
 /// single thread panics, even outside of `shukusai`.
 ///

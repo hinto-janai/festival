@@ -4,14 +4,10 @@ use benri::log::ok;
 use log::info;
 use std::time::Instant;
 use crate::kernel::Kernel;
+use once_cell::sync::Lazy;
 
 //---------------------------------------------------------------------------------------------------- Start of logger.
-// This will get initialized by `Kernel`
-// regardless if `init_logger()` is called or not.
-lazy_static::lazy_static! {
-	pub static ref INIT_INSTANT: Instant = Instant::now();
-}
-
+// This will get initialized below.
 /// Returns the init [`Instant`]
 ///
 /// This returns the [`Instant`] of either:
@@ -19,9 +15,7 @@ lazy_static::lazy_static! {
 /// - When [`Kernel`] was first spawned
 ///
 /// (which ever one came first)
-pub fn init_instant() -> std::time::Instant {
-	*INIT_INSTANT
-}
+pub static INIT_INSTANT: Lazy<Instant> = Lazy::new(|| Instant::now());
 
 //---------------------------------------------------------------------------------------------------- Logger init function
 #[inline(always)]
@@ -42,6 +36,9 @@ pub fn init_instant() -> std::time::Instant {
 /// # Panics
 /// This must only be called _once_.
 pub fn init_logger(filter: log::LevelFilter) {
+	// Initialize timer.
+	let now = Lazy::force(&INIT_INSTANT);
+
 	// If `RUST_LOG` isn't set, override it and disables
 	// all library crate logs except for `festival` & `shukusai`.
 	let mut env = String::new();
@@ -51,8 +48,6 @@ pub fn init_logger(filter: log::LevelFilter) {
 		// Support frontend names without *festival*.
 		_     => std::env::set_var("RUST_LOG", format!("off,shukusai={},festival={}", filter, filter)),
 	}
-
-	let now = init_instant();
 
 	env_logger::Builder::new().format(move |buf, record| {
 		let mut style = buf.style();

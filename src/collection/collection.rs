@@ -41,19 +41,14 @@ use readable::{
 	Time,
 	Unsigned,
 };
+use once_cell::sync::Lazy;
 
 //---------------------------------------------------------------------------------------------------- Lazy
-lazy_static::lazy_static! {
-	// `RNG`: Global RNG state for `Collection`'s `rand_*` functions.
-	//
-	// This could be a `once_cell::Lazy`, but that limits `RNG` usage
-	// to a single caller. If `Kernel` (or any other thread) needs to
-	// access `Collection`'s `rand_*` methods, a `Mutex` is required.
-	static ref RNG: Mutex<rand::rngs::SmallRng> = Mutex::new(rand::rngs::SmallRng::from_entropy());
+// `RNG`: Global RNG state for `Collection`'s `rand_*` functions.
+static RNG: Lazy<Mutex<rand::rngs::SmallRng>> = Lazy::new(|| Mutex::new(rand::rngs::SmallRng::from_entropy()));
 
-	// This is an empty, dummy `Collection`.
-	pub(crate) static ref DUMMY_COLLECTION: Arc<Collection> = Arc::new(Collection::new());
-}
+// This is an empty, dummy `Collection`.
+pub(crate) static DUMMY_COLLECTION: Lazy<Arc<Collection>> = Lazy::new(|| Arc::new(Collection::new()));
 
 //---------------------------------------------------------------------------------------------------- The Collection™
 disk::bincode2!(Collection, disk::Dir::Data, FESTIVAL, "", "collection", FESTIVAL_HEADER, COLLECTION_VERSION);
@@ -234,24 +229,8 @@ impl Collection {
 	/// - The `timestamp` and `count_*` fields are set to `0`
 	/// - `empty` is set to `true`
 	///
-	/// This [`Collection`] is [`Arc::clone`]'ed from a `lazy_static`
+	/// This [`Collection`] is [`Arc::clone`]'ed from a lazily
 	/// evaluated, empty [`Collection`] that has static lifetime.
-	///
-	/// [`Kernel`] initializes this data the second it gets spawned, so most likely your
-	/// `Frontend` will just be [`Arc::clone`]'ing instead of initializing the value
-	/// (which is still insanely cheap anyway, see below).
-	///
-	/// # Cost
-	/// The bulk of [`Collection`]'s insides are [`Vec`]'s. [`Vec`]'s themselves are basically:
-	/// - `len`, the length, which is a `usize`
-	/// - `cap`, the capacity, which is a `usize`
-	/// - `ptr`, the pointer to the data, which is just an `isize`
-	///
-	/// Creating an empty, dummy [`Collection`] is akin to creating 60-ish [`usize`]'s and an [`Arc`].
-	///
-	/// For reference, creating the initial value takes `0.000003` seconds on my PC.
-	///
-	/// [`Arc::clone`]'ing takes `0.000000007` seconds, aka, this function is basically free.
 	pub fn dummy() -> Arc<Self> {
 		Arc::clone(&DUMMY_COLLECTION)
 	}
