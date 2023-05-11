@@ -10,7 +10,17 @@
 //use std::sync::{Arc,Mutex,RwLock};
 
 //---------------------------------------------------------------------------------------------------- __NAME__
-pub const ALPHABET_KEY_PRESSES: [egui::Key; 27] = [
+pub const ALPHANUMERIC_KEY: [egui::Key; 37] = [
+	egui::Key::Num0,
+	egui::Key::Num1,
+	egui::Key::Num2,
+	egui::Key::Num3,
+	egui::Key::Num4,
+	egui::Key::Num5,
+	egui::Key::Num6,
+	egui::Key::Num7,
+	egui::Key::Num8,
+	egui::Key::Num9,
 	egui::Key::A,
 	egui::Key::A,
 	egui::Key::B,
@@ -46,6 +56,16 @@ impl KeyPress {
 	pub fn from_egui_key(key: &egui::Key) -> &'static str {
 		use egui::Key::*;
 		match key {
+			Num0 => "0",
+			Num1 => "1",
+			Num2 => "2",
+			Num3 => "3",
+			Num4 => "4",
+			Num5 => "5",
+			Num6 => "6",
+			Num7 => "7",
+			Num8 => "8",
+			Num9 => "9",
 			A => "a",
 			B => "b",
 			C => "c",

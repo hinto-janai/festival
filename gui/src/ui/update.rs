@@ -19,7 +19,7 @@ use egui::widgets::{
 use crate::data::{
 	Tab,
 	KeyPress,
-	ALPHABET_KEY_PRESSES,
+	ALPHANUMERIC_KEY,
 };
 use disk::{Toml,Plain};
 use log::{error,warn,info,debug,trace};
@@ -226,11 +226,11 @@ impl Gui {
 					}
 				// Check for [A-Za-z] (Search)
 				} else {
-					for key in ALPHABET_KEY_PRESSES {
+					for key in ALPHANUMERIC_KEY {
 						if input.consume_key(egui::Modifiers::NONE, key) {
-							self.state.tab = Tab::Search;
+							self.state.tab     = Tab::Search;
 							self.search_string = KeyPress::from_egui_key(&key).to_string();
-							self.search_focus = true;
+							self.search_focus  = true;
 							break
 						}
 					}
