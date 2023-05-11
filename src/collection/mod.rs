@@ -16,3 +16,9 @@ pub use plural::*;
 pub use map::*;
 pub use key::*;
 pub use slice::*;
+
+// Pointer related code. To be used... eventually... maybe.
+//mod decode;
+//pub(crate) use decode::*;
+//mod ptr;
+//pub(crate) use ptr::*;

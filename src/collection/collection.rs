@@ -52,7 +52,8 @@ pub(crate) static DUMMY_COLLECTION: Lazy<Arc<Collection>> = Lazy::new(|| Arc::ne
 
 //---------------------------------------------------------------------------------------------------- The Collection™
 disk::bincode2!(Collection, disk::Dir::Data, FESTIVAL, "", "collection", FESTIVAL_HEADER, COLLECTION_VERSION);
-#[derive(Clone,Debug,Serialize,Deserialize,PartialEq,Encode,Decode)]
+#[derive(Clone,Debug,PartialEq,Encode,Decode)]
+//#[derive(Clone,Debug,Serialize,Deserialize,PartialEq,Encode,Decode)]
 /// The main music `Collection`
 ///
 /// This is the `struct` that holds all the (meta)data about the user's music.

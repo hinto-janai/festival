@@ -2,6 +2,7 @@
 use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
 use crate::collection::{
+	Collection,
 	Artist,Album,Song,
 	ArtistKey,AlbumKey,SongKey,
 	QueueKey,PlaylistKey,
@@ -9,18 +10,16 @@ use crate::collection::{
 
 //---------------------------------------------------------------------------------------------------- Plural newtypes around `Vec<T>`.
 macro_rules! impl_plural {
-	($name:ident, $plural:ident, $key:ident) => {
+	($name:ident, $plural:ident, $key:ident) => { paste::paste! {
 		#[derive(Clone,Debug,Serialize,Deserialize,PartialEq,PartialOrd,Encode,Decode)]
 		#[serde(transparent)]
 		/// Type-safe wrapper around a [`Box`]'ed [`slice`].
 		///
-		/// This struct's inner value is just [`Box<[T]>`], where `T` is the non-plural version of this `struct`'s name.
-		///
-		/// E.g: `Albums` is just a `Box<[Album]>`.
+		#[doc = "This struct's inner value is just `Box<[" $name "]>`"]
 		///
 		/// This reimplements common [`slice`] functions/traits, notably [`std::ops::Index`]. This allows for type-safe indexing.
 		///
-		/// For example, `Albums` is ONLY allowed to be indexed with a `AlbumKey`:
+		/// For example, [`Albums`] is ONLY allowed to be indexed with an [`AlbumKey`]:
 		/// ```rust,ignore
 		/// let my_usize = 0;
 		/// let key = AlbumKey::from(my_usize);
@@ -30,7 +29,8 @@ macro_rules! impl_plural {
 		///
 		/// // Type-safe, compiles.
 		/// collection.albums[key];
-		/// ```
+		///```
+		#[doc = "[`Collection`] itself can also be directly index with [`" $key "`]."]
 		//-------------------------------------------------- Define plural `struct`.
 		pub struct $plural(pub(crate) Box<[$name]>);
 
@@ -39,7 +39,7 @@ macro_rules! impl_plural {
 			type Output = $name;
 
 			#[inline(always)]
-			/// Index [`Self`] with its appropriate key instead of a [`usize`].
+			#[doc = "Index [`" $plural "`] with [`" $key "`]."]
 			///
 			/// # Panics:
 			/// The key must be a valid index.
@@ -51,7 +51,7 @@ macro_rules! impl_plural {
 			type Output = $name;
 
 			#[inline(always)]
-			/// Index [`Self`] with its appropriate key instead of a [`usize`].
+			#[doc = "Index [`" $plural "`] with [`" $key "`]."]
 			///
 			/// # Panics:
 			/// The key must be a valid index.
@@ -116,7 +116,7 @@ macro_rules! impl_plural {
 				Self(vec.into_boxed_slice())
 			}
 		}
-	}
+	}}
 }
 
 impl_plural!(Artist, Artists, ArtistKey);
