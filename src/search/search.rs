@@ -72,15 +72,18 @@ impl Search {
 		let mut artists: Box<[(f64, ArtistKey)]> = self.collection.artists
 			.iter()
 			.enumerate()
-			.map(|(i, x)| (strsim::jaro(&x.name, &input), ArtistKey::from(i))).collect();
+			.map(|(i, x)| (strsim::jaro(&x.name, &input), ArtistKey::from(i)))
+			.collect();
 		let mut albums:  Box<[(f64, AlbumKey)]> = self.collection.albums
 			.iter()
 			.enumerate()
-			.map(|(i, x)| (strsim::jaro(&x.title, &input), AlbumKey::from(i))).collect();
+			.map(|(i, x)| (strsim::jaro(&x.title, &input), AlbumKey::from(i)))
+			.collect();
 		let mut songs:   Box<[(f64, SongKey)]>  = self.collection.songs
 			.iter()
 			.enumerate()
-			.map(|(i, x)| (strsim::jaro(&x.title, &input), SongKey::from(i))).collect();
+			.map(|(i, x)| (strsim::jaro(&x.title, &input), SongKey::from(i)))
+			.collect();
 
 		// Sort by lowest-to-highest similarity value first.
 		artists.sort_by(|a, b| Self::cmp_f64(a.0, b.0));
@@ -94,8 +97,6 @@ impl Search {
 
 		// Create keychain.
 		let keychain = Keychain::from_boxes(artists, albums, songs);
-
-		trace!("Search - calculate_sim() ... {}", secs_f32!(now));
 
 		// Return.
 		keychain
@@ -158,16 +159,24 @@ impl Search {
 
 	#[inline(always)]
 	fn msg_sim(&mut self, input: String) {
-		let result = match self.cache.get(&input) {
-			Some(r) => r.clone(),
-			None    => self.calculate_sim(&input),
+		let now = now!();
+		let keychain = match self.cache.get(&input) {
+			Some(k) => {
+				let k = k.clone();
+				trace!("Search - cache ... {}", secs_f32!(now));
+				k
+			},
+			None => {
+				let k = self.calculate_sim(&input);
+				self.check_cache();
+				self.cache.insert(input, k.clone());
+				trace!("Search - calculate_sim() ... {}", secs_f32!(now));
+				k
+			},
 		};
 
-		self.check_cache();
-		self.cache.insert(input, result.clone());
-
 		// Send to Kernel.
-		send!(self.to_kernel, SearchToKernel::SearchSim(result));
+		send!(self.to_kernel, SearchToKernel::SearchSim(keychain));
 	}
 
 //	#[inline(always)]
