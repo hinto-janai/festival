@@ -144,12 +144,6 @@ impl KernelState {
 	}
 }
 
-impl Default for KernelState {
-	fn default() -> Self {
-		Self::new()
-	}
-}
-
 //---------------------------------------------------------------------------------------------------- TESTS
 //#[cfg(test)]
 //mod tests {

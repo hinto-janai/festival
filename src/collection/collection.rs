@@ -182,9 +182,8 @@ pub struct Collection {
 	/// [`Song`] shortest to longest.
 	pub sort_song_runtime: Box<[SongKey]>,
 
-	// Reserved fields.
-	// Probably keys/pointers.
-	pub(crate) _reserved1: PhantomData<Box<[usize]>>,
+	// Reserved fields and their `size_of()`.
+	pub(crate) _reserved1: PhantomData<Box<[usize]>>, // 16
 	pub(crate) _reserved2: PhantomData<Box<[usize]>>,
 	pub(crate) _reserved4: PhantomData<Box<[usize]>>,
 	pub(crate) _reserved5: PhantomData<Box<[usize]>>,
@@ -199,14 +198,13 @@ pub struct Collection {
 	pub(crate) _reserved14: PhantomData<Box<[usize]>>,
 	pub(crate) _reserved15: PhantomData<Box<[usize]>>,
 	pub(crate) _reserved16: PhantomData<Box<[usize]>>,
-	// Other basic types.
-	pub(crate) _reserved17: PhantomData<String>,
+	pub(crate) _reserved17: PhantomData<String>, // 24
 	pub(crate) _reserved18: PhantomData<String>,
-	pub(crate) _reserved19: PhantomData<usize>,
+	pub(crate) _reserved19: PhantomData<usize>, // 8
 	pub(crate) _reserved20: PhantomData<usize>,
 	pub(crate) _reserved21: PhantomData<usize>,
 	pub(crate) _reserved22: PhantomData<usize>,
-	pub(crate) _reserved23: PhantomData<bool>,
+	pub(crate) _reserved23: PhantomData<bool>, // 1
 	pub(crate) _reserved24: PhantomData<bool>,
 }
 
@@ -288,7 +286,6 @@ impl Collection {
 	}
 
 	//-------------------------------------------------- Metadata functions.
-	#[inline(always)] // This only gets called once.
 	// Set the proper metadata for this `Collection`.
 	pub(crate) fn set_metadata(mut self) -> Self {
 		// Get `Vec` lengths.
@@ -309,22 +306,9 @@ impl Collection {
 		self.count_song   = Unsigned::from(songs);
 
 		// Set `timestamp`.
-		self.timestamp = Self::unix_now();
+		self.timestamp = benri::unix!();
 
 		self
-	}
-
-	#[inline(always)] // This only gets called once.
-	// Get the current UNIX time.
-	pub(crate) fn unix_now() -> u64 {
-		let now = std::time::SystemTime::now();
-		match now.duration_since(std::time::SystemTime::UNIX_EPOCH) {
-			Ok(ts) => ts.as_secs(),
-			Err(e) => {
-				warn!("Failed to get timestamp, returning UNIX_EPOCH (0)");
-				0
-			}
-		}
 	}
 
 	//-------------------------------------------------- Searching.

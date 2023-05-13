@@ -219,6 +219,7 @@ impl super::Ccd {
 					track_artists,
 					disc,
 					path,
+					..Default::default()
 				};
 
 				// Lock.
@@ -269,6 +270,7 @@ impl super::Ccd {
 				disc,
 				path,
 				album: AlbumKey::from(vec_song.len()),
+				..Default::default()
 			};
 
 			// Create `Album`.
@@ -284,6 +286,7 @@ impl super::Ccd {
 				runtime: runtime_album,
 				song_count,
 				art,
+				..Default::default()
 			};
 
 			// Update `Artist`.
@@ -343,6 +346,7 @@ impl super::Ccd {
 			disc,
 			path,
 			album: AlbumKey::from(vec_album.len()),
+			..Default::default()
 		};
 
 		// Create `Album`.
@@ -358,6 +362,7 @@ impl super::Ccd {
 			runtime: runtime_album,
 			song_count,
 			art,
+			..Default::default()
 		};
 
 		// Create `Artist`.
@@ -366,6 +371,7 @@ impl super::Ccd {
 		let artist_struct = Artist {
 			name,
 			albums: vec![AlbumKey::from(count_album)],
+			..Default::default()
 		};
 
 		// Push `Artist/Album/Song`.

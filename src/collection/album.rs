@@ -3,6 +3,7 @@
 //use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
+use std::marker::PhantomData;
 use super::{
 	Collection,
 	Artist,
@@ -57,7 +58,6 @@ pub struct Album {
 	/// Key\(s\) to the [`Song`]\(s\).
 	pub songs: Vec<SongKey>,
 
-//	#[bincode(with_serde)]
 	/// The `Album`'s art.
 	/// `Frontend`'s don't need to access this field
 	/// directly, instead, use `album.art_or()`.
@@ -66,6 +66,14 @@ pub struct Album {
 	// Misc data.
 	/// Boolean representing if this is a compilation or not.
 	pub compilation: bool, //
+
+	// Reserved fields and their `size_of()`.
+	pub(crate) _reserved1: PhantomData<Box<[usize]>>, // 16
+	pub(crate) _reserved2: PhantomData<Box<[usize]>>, // 16
+	pub(crate) _reserved3: PhantomData<Box<[usize]>>, // 16
+	pub(crate) _reserved4: PhantomData<Box<[usize]>>, // 16
+	pub(crate) _reserved5: PhantomData<String>,       // 24
+	pub(crate) _reserved6: PhantomData<usize>,        // 8
 }
 
 impl Album {

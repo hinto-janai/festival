@@ -3,6 +3,7 @@
 //use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
+use std::marker::PhantomData;
 use crate::collection::{
 	Album,
 	Collection,
@@ -21,6 +22,14 @@ pub struct Artist {
 	pub name: String,
 	/// Keys to the associated [`Album`]\(s\).
 	pub albums: Vec<AlbumKey>,
+
+	// Reserved fields and their `size_of()`.
+	pub(crate) _reserved1: PhantomData<Box<[usize]>>, // 16
+	pub(crate) _reserved2: PhantomData<Box<[usize]>>, // 16
+	pub(crate) _reserved3: PhantomData<Box<[usize]>>, // 16
+	pub(crate) _reserved4: PhantomData<Box<[usize]>>, // 16
+	pub(crate) _reserved5: PhantomData<String>,       // 24
+	pub(crate) _reserved6: PhantomData<usize>,        // 8
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
