@@ -42,6 +42,7 @@ use readable::{
 	Unsigned,
 };
 use once_cell::sync::Lazy;
+use std::marker::PhantomData;
 
 //---------------------------------------------------------------------------------------------------- Lazy
 // `RNG`: Global RNG state for `Collection`'s `rand_*` functions.
@@ -121,6 +122,22 @@ disk::bincode2!(Collection, disk::Dir::Data, FESTIVAL, "", "collection", FESTIVA
 /// This prevents your `Frontend` from finishing initializing beforehand, so instead, use [`Collection::dummy`]
 /// to _cheaply_ obtain an empty, dummy [`Collection`], then wait for [`Kernel`]'s signal later on.
 pub struct Collection {
+	// Metadata about the `Collection` itself.
+	/// Is this [`Collection`] empty?
+	///
+	/// Meaning, are there absolutely no [`Artist`]'s, [`Album`]'s and [`Song`]'s?
+	pub empty: bool,
+	/// UNIX timestamp of the [`Collection`]'s creation date.
+	pub timestamp: u64,
+	/// How many [`Artist`]'s in this [`Collection`]?
+	pub count_artist: Unsigned,
+	/// How many [`Album`]'s in this [`Collection`]?
+	pub count_album: Unsigned,
+	/// How many [`Song`]'s in this [`Collection`]?
+	pub count_song: Unsigned,
+	/// How many unique [`Album`] covers are there in this [`Collection`]?
+	pub count_art: Unsigned,
+
 	// The "Map".
 	/// A [`HashMap`] that knows all [`Artist`]'s, [`Album`]'s and [`Song`]'s.
 	pub map: Map,
@@ -165,21 +182,32 @@ pub struct Collection {
 	/// [`Song`] shortest to longest.
 	pub sort_song_runtime: Box<[SongKey]>,
 
-	// Metadata about the `Collection` itself.
-	/// Is this [`Collection`] empty?
-	///
-	/// Meaning, are there absolutely no [`Artist`]'s, [`Album`]'s and [`Song`]'s?
-	pub empty: bool,
-	/// UNIX timestamp of the [`Collection`]'s creation date.
-	pub timestamp: u64,
-	/// How many [`Artist`]'s in this [`Collection`]?
-	pub count_artist: Unsigned,
-	/// How many [`Album`]'s in this [`Collection`]?
-	pub count_album: Unsigned,
-	/// How many [`Song`]'s in this [`Collection`]?
-	pub count_song: Unsigned,
-	/// How many unique [`Album`] covers are there in this [`Collection`]?
-	pub count_art: Unsigned,
+	// Reserved fields.
+	// Probably keys/pointers.
+	pub(crate) _reserved1: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved2: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved4: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved5: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved6: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved7: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved8: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved9: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved10: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved11: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved12: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved13: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved14: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved15: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved16: PhantomData<Box<[usize]>>,
+	// Other basic types.
+	pub(crate) _reserved17: PhantomData<String>,
+	pub(crate) _reserved18: PhantomData<String>,
+	pub(crate) _reserved19: PhantomData<usize>,
+	pub(crate) _reserved20: PhantomData<usize>,
+	pub(crate) _reserved21: PhantomData<usize>,
+	pub(crate) _reserved22: PhantomData<usize>,
+	pub(crate) _reserved23: PhantomData<bool>,
+	pub(crate) _reserved24: PhantomData<bool>,
 }
 
 impl Collection {
@@ -187,11 +215,17 @@ impl Collection {
 	// Creates an empty [`Collection`].
 	pub(crate) fn new() -> Self {
 		Self {
+			empty: true,
+			timestamp: 0,
+			count_artist: Unsigned::zero(),
+			count_album: Unsigned::zero(),
+			count_song: Unsigned::zero(),
+			count_art: Unsigned::zero(),
+
+			map: Map::new(),
 			artists: Artists::new(),
 			albums: Albums::new(),
 			songs: Songs::new(),
-
-			map: Map::new(),
 
 			sort_artist_lexi: Box::new([]),
 			sort_artist_album_count: Box::new([]),
@@ -209,12 +243,29 @@ impl Collection {
 			sort_song_release: Box::new([]),
 			sort_song_runtime: Box::new([]),
 
-			empty: true,
-			timestamp: 0,
-			count_artist: Unsigned::zero(),
-			count_album: Unsigned::zero(),
-			count_song: Unsigned::zero(),
-			count_art: Unsigned::zero(),
+			_reserved1: PhantomData,
+			_reserved2: PhantomData,
+			_reserved4: PhantomData,
+			_reserved5: PhantomData,
+			_reserved6: PhantomData,
+			_reserved7: PhantomData,
+			_reserved8: PhantomData,
+			_reserved9: PhantomData,
+			_reserved10: PhantomData,
+			_reserved11: PhantomData,
+			_reserved12: PhantomData,
+			_reserved13: PhantomData,
+			_reserved14: PhantomData,
+			_reserved15: PhantomData,
+			_reserved16: PhantomData,
+			_reserved17: PhantomData,
+			_reserved18: PhantomData,
+			_reserved19: PhantomData,
+			_reserved20: PhantomData,
+			_reserved21: PhantomData,
+			_reserved22: PhantomData,
+			_reserved23: PhantomData,
+			_reserved24: PhantomData,
 		}
 	}
 

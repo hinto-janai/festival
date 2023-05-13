@@ -46,6 +46,7 @@ use readable::{
 use super::convert::{
 	ArtConvertType,
 };
+use std::marker::PhantomData;
 
 //---------------------------------------------------------------------------------------------------- CCD
 pub(crate) struct Ccd;
@@ -200,6 +201,30 @@ impl Ccd {
 			sort_song_lexi,
 			sort_song_release,
 			sort_song_runtime,
+
+			_reserved1: PhantomData,
+			_reserved2: PhantomData,
+			_reserved4: PhantomData,
+			_reserved5: PhantomData,
+			_reserved6: PhantomData,
+			_reserved7: PhantomData,
+			_reserved8: PhantomData,
+			_reserved9: PhantomData,
+			_reserved10: PhantomData,
+			_reserved11: PhantomData,
+			_reserved12: PhantomData,
+			_reserved13: PhantomData,
+			_reserved14: PhantomData,
+			_reserved15: PhantomData,
+			_reserved16: PhantomData,
+			_reserved17: PhantomData,
+			_reserved18: PhantomData,
+			_reserved19: PhantomData,
+			_reserved20: PhantomData,
+			_reserved21: PhantomData,
+			_reserved22: PhantomData,
+			_reserved23: PhantomData,
+			_reserved24: PhantomData,
 		};
 		// Fix metadata.
 		let collection = collection.set_metadata();
