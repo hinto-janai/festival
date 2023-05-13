@@ -183,9 +183,12 @@ impl Kernel {
 		debug!("Kernel [3/12] ... spawning CCD");
 		let (ccd_send, from_ccd) = crossbeam_channel::unbounded::<CcdToKernel>();
 		let ctx_clone = ctx.clone();
-		std::thread::Builder::new()
+		if let Err(e) = std::thread::Builder::new()
 			.name("CCD".to_string())
-			.spawn(move || Ccd::convert_art(ccd_send, collection, ctx_clone));
+			.spawn(move || Ccd::convert_art(ccd_send, collection, ctx_clone))
+		{
+			panic!("Kernel - failed to spawn CCD: {e}");
+		}
 
 		// Before hanging on `CCD`, read `KernelState` file.
 		// Note: This is a `Result`.
@@ -319,23 +322,32 @@ impl Kernel {
 		// Spawn `Search`.
 		debug!("Kernel [10/12] ... spawning Search");
 		let collection = Arc::clone(&kernel.collection);
-		std::thread::Builder::new()
+		if let Err(e) = std::thread::Builder::new()
 			.name("Search".to_string())
-			.spawn(move || Search::init(collection, search_send, search_recv));
+			.spawn(move || Search::init(collection, search_send, search_recv))
+		{
+			panic!("Kernel - failed to spawn Search: {e}");
+		}
 
 		// Spawn `Audio`.
 		debug!("Kernel [11/12] ... spawning Audio");
 		let collection = Arc::clone(&kernel.collection);
 		let state      = RoLock::new(&kernel.state);
-		std::thread::Builder::new()
+		if let Err(e) = std::thread::Builder::new()
 			.name("Audio".to_string())
-			.spawn(move || Audio::init(collection, state, audio_send, audio_recv));
+			.spawn(move || Audio::init(collection, state, audio_send, audio_recv))
+		{
+			panic!("Kernel - failed to spawn Audio: {e}");
+		}
 
 		// Spawn `Watch`.
 		debug!("Kernel [12/12] ... spawning Watch");
-		std::thread::Builder::new()
+		if let Err(e) = std::thread::Builder::new()
 			.name("Watch".to_string())
-			.spawn(move || Watch::init(watch_send));
+			.spawn(move || Watch::init(watch_send))
+		{
+			panic!("Kernel - failed to spawn Audio: {e}");
+		}
 
 		// We're done, enter main `userspace` loop.
 		ok_debug!("Kernel - Entering 'userspace()' ... Took {} seconds total", secs_f32!(beginning));
@@ -516,10 +528,13 @@ impl Kernel {
 		lockw!(self.reset).start();
 
 		// Spawn `CCD`.
-		std::thread::Builder::new()
+		if let Err(e) = std::thread::Builder::new()
 			.name("CCD".to_string())
 			.stack_size(16_000_000) // 16MB stack.
-			.spawn(move || Ccd::new_collection(ccd_send, ccd_recv, kernel_state, old_collection, paths, ctx));
+			.spawn(move || Ccd::new_collection(ccd_send, ccd_recv, kernel_state, old_collection, paths, ctx))
+		{
+			panic!("Kernel - failed to spawn CCD: {e}");
+		}
 
 		// Listen to `CCD`.
 		self.collection = loop {

@@ -100,15 +100,15 @@ impl Watch {
 	fn main(self) {
 		ok_debug!("Watch");
 
+		use notify::event::{EventKind,CreateKind};
+
 		loop {
 			// Wait for a change in the filesystem.
 			// We only care if it was a file creation.
 			loop {
-				if let Ok(Ok(event)) = self.from_notify.recv() {                 // If we got a msg...
-					if let notify::event::EventKind::Create(kind) = event.kind { // and it was a `Create`...
-						if let notify::event::CreateKind::File = kind {          // and it was a `File`...
-							break                                                // break, and check files.
-						}
+				if let Ok(Ok(event)) = self.from_notify.recv() {              // If we got a msg...
+					if let EventKind::Create(CreateKind::File) = event.kind { // and it was a `Create` and it was a `File`...
+						break                                                 // break, and check files.
 					}
 				}
 			}

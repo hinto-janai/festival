@@ -28,19 +28,23 @@ fn main() {
 	let (gui_to_kernel, kernel_recv) = crossbeam_channel::unbounded::<shukusai::kernel::FrontendToKernel>();
 
 	// Start `egui/eframe`.
-	eframe::run_native(
+	if let Err(e) = eframe::run_native(
 		shukusai::FESTIVAL_NAME_VER,
 		data::Gui::options(),
 		Box::new(|cc| {
 			// Spawn `Kernel`, pass it `egui::Context`.
-			shukusai::kernel::Kernel::spawn(
+			if let Err(e) = shukusai::kernel::Kernel::spawn(
 				kernel_to_gui,
 				kernel_recv,
 				cc.egui_ctx.clone()
-			).expect("Kernel::spawn() failed");
+			) {
+				panic!("Kernel::spawn() failed: {e}");
+			}
 
 			// Start `GUI`.
 			Box::new(data::Gui::init(cc, gui_to_kernel, gui_recv))
 		})
-	).expect("eframe::run_native() failed");
+	) {
+		panic!("eframe::run_native() failed: {e}");
+	}
 }
