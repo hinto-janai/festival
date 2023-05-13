@@ -15,11 +15,10 @@ use once_cell::sync::Lazy;
 /// - When [`Kernel`] was first spawned
 ///
 /// (which ever one came first)
-pub static INIT_INSTANT: Lazy<Instant> = Lazy::new(|| Instant::now());
+pub static INIT_INSTANT: Lazy<Instant> = Lazy::new(Instant::now);
 
 //---------------------------------------------------------------------------------------------------- Logger init function
 #[inline(always)]
-#[must_use]
 /// Initializes the logger.
 ///
 /// This enables console logging on all the internals of `Festival`.

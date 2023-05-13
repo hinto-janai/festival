@@ -70,7 +70,7 @@ pub(crate) fn art_from_raw(bytes: &[u8], resizer: &mut fir::Resizer) -> Result<B
 	// `.buffer()` must be called on `fir::Image`
 	// before passing it to the next function.
 	// It's cheap, it just returns a `&[u8]`.
-	Ok(resize_dyn_image(bytes_to_dyn_image(bytes)?, resizer)?)
+	resize_dyn_image(bytes_to_dyn_image(bytes)?, resizer)
 }
 
 #[inline(always)]
@@ -143,7 +143,7 @@ fn resize_dyn_image(img: image::DynamicImage, resizer: &mut fir::Resizer) -> Res
 // Original `egui` function has an `assert!()`.
 fn rgb_bytes_to_color_img(bytes: &[u8]) -> egui::ColorImage {
 	egui::ColorImage {
-		size: [ALBUM_ART_SIZE as usize; 2],
+		size: [ALBUM_ART_SIZE; 2],
 		pixels: bytes.chunks_exact(3).map(|p| egui::Color32::from_rgb(p[0], p[1], p[2])).collect(),
 	}
 }

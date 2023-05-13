@@ -75,7 +75,7 @@ fn show_album_sizing_pixel(
 	let album_width = (width / pixel).trunc();
 	// Remainder (space between `Album`'s).
 	let remainder = width - ((pixel * album_width) - album_width);
-	let remainder = (remainder / album_width);
+	let remainder = remainder / album_width;
 	ui.spacing_mut().item_spacing.x += remainder;
 	let first_album_padding = ui.spacing().item_spacing.x / 2.5;
 	// Account for separation space and padding.

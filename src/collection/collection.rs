@@ -493,7 +493,7 @@ impl Collection {
 
 	//-------------------------------------------------- Sorting
 	/// Access a particular `sort_artist_` field in the [`Collection`] via a [`ArtistSort`].
-	pub const fn artist_sort(&self, sort: ArtistSort) -> &Box<[ArtistKey]> {
+	pub const fn artist_sort(&self, sort: ArtistSort) -> &[ArtistKey] {
 		use ArtistSort::*;
 		match sort {
 			Lexi       => &self.sort_artist_lexi,
@@ -503,7 +503,7 @@ impl Collection {
 	}
 
 	/// Access a particular `sort_album_` field in the [`Collection`] via a [`AlbumSort`].
-	pub const fn album_sort(&self, sort: AlbumSort) -> &Box<[AlbumKey]> {
+	pub const fn album_sort(&self, sort: AlbumSort) -> &[AlbumKey] {
 		use AlbumSort::*;
 		match sort {
 			ReleaseArtistLexi => &self.sort_album_release_artist_lexi,
@@ -515,7 +515,7 @@ impl Collection {
 	}
 
 	/// Access a particular `sort_song_` field in the [`Collection`] via a [`SongSort`].
-	pub const fn song_sort(&self, sort: SongSort) -> &Box<[SongKey]> {
+	pub const fn song_sort(&self, sort: SongSort) -> &[SongKey] {
 		use SongSort::*;
 		match sort {
 			AlbumReleaseArtistLexi => &self.sort_song_album_release_artist_lexi,

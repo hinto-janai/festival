@@ -244,20 +244,17 @@ impl Gui {
 		// Set global UI [Style/Visual]'s
 
 		// Check if `RFD` thread added some PATHs.
-		match lock!(self.rfd_new).take() {
-			Some(p) => {
-				let mut exists = false;
-				for path in &self.settings.collection_paths {
-					if p == *path {
-						exists = true;
-					}
+		if let Some(p) = lock!(self.rfd_new).take() {
+			let mut exists = false;
+			for path in &self.settings.collection_paths {
+				if p == *path {
+					exists = true;
 				}
-				match exists {
-					true  => info!("GUI - PATH exists, not adding: {}", p.display()),
-					false => self.settings.collection_paths.push(p),
-				}
-			},
-			None    => (),
+			}
+			match exists {
+				true  => info!("GUI - PATH exists, not adding: {}", p.display()),
+				false => self.settings.collection_paths.push(p),
+			}
 		}
 
 		// Show debug screen if `true`.

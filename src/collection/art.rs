@@ -26,7 +26,7 @@ use once_cell::sync::Lazy;
 pub const ALBUM_ART_SIZE: usize = 600;
 
 //---------------------------------------------------------------------------------------------------- Unknown Art (lazy) Constant
-pub(crate) const UNKNOWN_ALBUM_BYTES: &'static [u8] = include_bytes!("../../assets/images/art/unknown.png");
+pub(crate) const UNKNOWN_ALBUM_BYTES: &[u8] = include_bytes!("../../assets/images/art/unknown.png");
 pub(crate) static UNKNOWN_ALBUM: Lazy<RetainedImage> = Lazy::new(|| RetainedImage::from_image_bytes("Unknown", UNKNOWN_ALBUM_BYTES).unwrap());
 
 //---------------------------------------------------------------------------------------------------- Art
@@ -364,7 +364,7 @@ const _: () = {
                 }
             }
             #[doc(hidden)]
-            const VARIANTS: &'static [&'static str] = &["Known", "Bytes", "Unknown"];
+            const VARIANTS: &[&str] = &["Known", "Bytes", "Unknown"];
             _serde::Deserializer::deserialize_enum(
                 __deserializer,
                 "Art",
@@ -380,53 +380,42 @@ const _: () = {
 
 //---------------------------------------------------------------------------------------------------- Art Bincode
 // Same thing as above, but for `bincode`'s `Encode` & `Decode`
-impl ::bincode::Encode for Art {
-    fn encode<__E: ::bincode::enc::Encoder>(
-        &self,
-        encoder: &mut __E,
-    ) -> core::result::Result<(), ::bincode::error::EncodeError> {
-        match self {
-            Self::Bytes(field_0) => {
-                <u32 as ::bincode::Encode>::encode(&(1u32), encoder)?;
-                ::bincode::Encode::encode(field_0, encoder)?;
-                Ok(())
-            }
-            _ => {
-                <u32 as ::bincode::Encode>::encode(&(2u32), encoder)?;
-                Ok(())
-            }
-        }
-    }
+impl bincode::Encode for Art {
+	fn encode<E: bincode::enc::Encoder>(&self, encoder: &mut E) -> std::result::Result<(), bincode::error::EncodeError> {
+		match self {
+			Self::Bytes(field_0) => {
+				<u32 as bincode::Encode>::encode(&(1u32), encoder)?;
+				bincode::Encode::encode(field_0, encoder)?;
+				Ok(())
+			},
+			_ => {
+				<u32 as bincode::Encode>::encode(&(2u32), encoder)?;
+				Ok(())
+			},
+		}
+	}
 }
-impl ::bincode::Decode for Art {
-    fn decode<__D: ::bincode::de::Decoder>(
-        decoder: &mut __D,
-    ) -> core::result::Result<Self, ::bincode::error::DecodeError> {
-        let variant_index = <u32 as ::bincode::Decode>::decode(decoder)?;
-        match variant_index {
-            1u32 => {
-                Ok(Self::Bytes {
-                    0: ::bincode::Decode::decode(decoder)?,
-                })
-            }
-            _ => Ok(Self::Unknown {}),
-        }
-    }
+impl bincode::Decode for Art {
+	fn decode<D: bincode::de::Decoder>(decoder: &mut D) -> std::result::Result<Self, bincode::error::DecodeError> {
+		let variant_index = <u32 as bincode::Decode>::decode(decoder)?;
+		match variant_index {
+			1u32 => {
+				Ok(Self::Bytes(bincode::Decode::decode(decoder)?))
+			},
+			_ => Ok(Self::Unknown),
+		}
+	}
 }
-impl<'__de> ::bincode::BorrowDecode<'__de> for Art {
-    fn borrow_decode<__D: ::bincode::de::BorrowDecoder<'__de>>(
-        decoder: &mut __D,
-    ) -> core::result::Result<Self, ::bincode::error::DecodeError> {
-        let variant_index = <u32 as ::bincode::Decode>::decode(decoder)?;
-        match variant_index {
-            1u32 => {
-                Ok(Self::Bytes {
-                    0: ::bincode::BorrowDecode::borrow_decode(decoder)?,
-                })
-            }
-            _ => Ok(Self::Unknown {}),
-        }
-    }
+impl<'de> bincode::BorrowDecode<'de> for Art {
+	fn borrow_decode<D: bincode::de::BorrowDecoder<'de>>(decoder: &mut D) -> std::result::Result<Self, bincode::error::DecodeError> {
+		let variant_index = <u32 as bincode::Decode>::decode(decoder)?;
+		match variant_index {
+			1u32 => {
+				Ok(Self::Bytes(bincode::BorrowDecode::borrow_decode(decoder)?))
+			},
+			_ => Ok(Self::Unknown),
+		}
+	}
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

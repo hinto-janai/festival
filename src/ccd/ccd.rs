@@ -10,7 +10,6 @@ use benri::{
 	sync::*,
 	thread::*,
 	time::*,
-	drop,
 };
 use crate::collection::{
 	Album,
@@ -356,7 +355,8 @@ impl Ccd {
 		let objects_art     = count_art;
 
 		// Don't need these anymore.
-		drop!(kernel_state, collection_for_disk);
+		drop(kernel_state);
+		drop(collection_for_disk);
 
 		// 14.
 		// Try 3 times before giving up.

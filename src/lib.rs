@@ -50,6 +50,23 @@
 //! to fully flesh out this documentation for now (it's a lot of work).
 
 //---------------------------------------------------------------------------------------------------- Lints
+#![allow(
+	clippy::len_zero,
+	clippy::type_complexity,
+	clippy::module_inception,
+
+	// Should be cleaned up after v1.0.0.
+	dead_code,
+	unused_variables,
+	unused_imports,
+)]
+
+#![deny(
+	nonstandard_style,
+	unused_unsafe,
+	unused_mut,
+)]
+
 #![forbid(
 	future_incompatible,
 	let_underscore,
@@ -70,6 +87,7 @@
 	unused_braces,
 	unused_comparisons,
 	unused_doc_comments,
+	unused_parens,
 	unused_labels,
 	while_true,
 	keyword_idents,
@@ -80,21 +98,16 @@
 	single_use_lifetimes,
 	variant_size_differences,
 )]
-#![deny(
-	nonstandard_style,
-	unused_unsafe,
-	unused_mut,
-)]
 
 #[cfg(not(any(target_pointer_width = "64", target_pointer_width = "32")))]
 compile_error!("shukusai is only compatible with 64-bit/32bit CPUs");
+
 #[cfg(not(any(
 	target_os = "windows",
 	target_os = "macos",
 	target_os = "linux",
-	target_family = "wasm",
 )))]
-compile_error!("shukusai is only compatible with Window/macOS/Linux/WASM");
+compile_error!("shukusai is only compatible with Window/macOS/Linux");
 
 //---------------------------------------------------------------------------------------------------- Private `shukusai` internals.
 mod audio;
