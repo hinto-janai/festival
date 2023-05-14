@@ -35,7 +35,7 @@ use crate::{
 	watch::{WatchToKernel, Watch},
 	collection::{Collection,DUMMY_COLLECTION},
 };
-use crossbeam_channel::{Sender,Receiver};
+use crossbeam::channel::{Sender,Receiver};
 use std::path::PathBuf;
 use readable::Percent;
 use once_cell::sync::Lazy;
@@ -87,7 +87,7 @@ impl Kernel {
 	///
 	/// For more info, see [here.](https://github.com/hinto-janai/festival/src/kernel)
 	///
-	/// You must provide [`Kernel`] with a `crossbeam_channel` between it and your frontend.
+	/// You must provide [`Kernel`] with a `crossbeam::channel` between it and your frontend.
 	///
 	/// This channel _should never_ be closed.
 	///
@@ -181,7 +181,7 @@ impl Kernel {
 		// We successfully loaded `Collection`.
 		// Create `CCD` channel + thread and make it convert images.
 		debug!("Kernel [3/12] ... spawning CCD");
-		let (ccd_send, from_ccd) = crossbeam_channel::unbounded::<CcdToKernel>();
+		let (ccd_send, from_ccd) = crossbeam::channel::unbounded::<CcdToKernel>();
 		let ctx_clone = ctx.clone();
 		if let Err(e) = std::thread::Builder::new()
 			.name("CCD".to_string())
@@ -296,13 +296,13 @@ impl Kernel {
 		ctx.request_repaint();
 
 		// Create `To` channels.
-		let (to_search, search_recv) = crossbeam_channel::unbounded::<KernelToSearch>();
-		let (to_audio,  audio_recv)  = crossbeam_channel::unbounded::<KernelToAudio>();
+		let (to_search, search_recv) = crossbeam::channel::unbounded::<KernelToSearch>();
+		let (to_audio,  audio_recv)  = crossbeam::channel::unbounded::<KernelToAudio>();
 
 		// Create `From` channels.
-		let (search_send, from_search) = crossbeam_channel::unbounded::<SearchToKernel>();
-		let (audio_send,  from_audio)  = crossbeam_channel::unbounded::<AudioToKernel>();
-		let (watch_send,  from_watch)  = crossbeam_channel::unbounded::<WatchToKernel>();
+		let (search_send, from_search) = crossbeam::channel::unbounded::<SearchToKernel>();
+		let (audio_send,  from_audio)  = crossbeam::channel::unbounded::<AudioToKernel>();
+		let (watch_send,  from_watch)  = crossbeam::channel::unbounded::<WatchToKernel>();
 
 		// Create `Kernel`.
 		let kernel = Self {
@@ -363,7 +363,7 @@ impl Kernel {
 		ok_debug!("Kernel");
 
 		// Array of our channels we can `select` from.
-		let mut select = crossbeam_channel::Select::new();
+		let mut select = crossbeam::channel::Select::new();
 		// FIXME:
 		// These channels need to be cloned first because
 		// `select.recv()` requires a `&`, but we need a
@@ -512,8 +512,8 @@ impl Kernel {
 		send!(self.to_audio,  KernelToAudio::DropCollection);
 
 		// Create `CCD` channels.
-		let (to_ccd,   ccd_recv) = crossbeam_channel::unbounded::<KernelToCcd>();
-		let (ccd_send, from_ccd) = crossbeam_channel::unbounded::<CcdToKernel>();
+		let (to_ccd,   ccd_recv) = crossbeam::channel::unbounded::<KernelToCcd>();
+		let (ccd_send, from_ccd) = crossbeam::channel::unbounded::<CcdToKernel>();
 
 		// Get `KernelState` pointer.
 		let kernel_state = Arc::clone(&self.state);

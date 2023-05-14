@@ -34,7 +34,7 @@ use crate::kernel::{
 	KernelState,
 };
 use crate::collection::Art;
-use crossbeam_channel::{Sender,Receiver};
+use crossbeam::channel::{Sender,Receiver};
 use std::path::{Path,PathBuf};
 use std::sync::{Arc,RwLock};
 use disk::{Bincode2,Json};
@@ -438,7 +438,7 @@ mod tests {
 		crate::logger::init_logger(log::LevelFilter::Trace);
 
 		// Set-up inputs.
-		let (to_kernel, from_ccd) = crossbeam_channel::unbounded::<CcdToKernel>();
+		let (to_kernel, from_ccd) = crossbeam::channel::unbounded::<CcdToKernel>();
 		let ctx = egui::Context::default();
 
 		// Serialize.
@@ -473,8 +473,8 @@ mod tests {
 		crate::logger::init_logger(log::LevelFilter::Trace);
 
 		// Set-up inputs.
-		let (to_kernel, from_ccd) = crossbeam_channel::unbounded::<CcdToKernel>();
-		let (to_ccd, from_kernel) = crossbeam_channel::unbounded::<KernelToCcd>();
+		let (to_kernel, from_ccd) = crossbeam::channel::unbounded::<CcdToKernel>();
+		let (to_ccd, from_kernel) = crossbeam::channel::unbounded::<KernelToCcd>();
 		let kernel_state   = Arc::new(RwLock::new(KernelState::new()));
 		let old_collection = Arc::new(Collection::new());
 		let ctx = egui::Context::default();

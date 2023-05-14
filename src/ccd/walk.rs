@@ -12,7 +12,7 @@ use super::msg::{
 	KernelToCcd,
 };
 use walkdir::WalkDir;
-use crossbeam_channel::{Sender,Receiver};
+use crossbeam::channel::{Sender,Receiver};
 use std::path::{Path,PathBuf};
 use super::SUPPORTED_AUDIO_MIME_TYPES;
 
@@ -142,7 +142,7 @@ mod tests {
 	// 3. Remove duplicates
 	fn _walkdir_audio() {
 		// Set-up PATHs.
-		let (to_kernel, _) = crossbeam_channel::unbounded::<CcdToKernel>();
+		let (to_kernel, _) = crossbeam::channel::unbounded::<CcdToKernel>();
 		let paths = vec![
 			PathBuf::from("src"),
 			PathBuf::from("assets/audio"),

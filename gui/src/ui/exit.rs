@@ -27,7 +27,7 @@ use shukusai::kernel::{
 use disk::Bincode2;
 use disk::Toml;
 use crate::data::Gui;
-use crossbeam_channel::{
+use crossbeam::channel::{
 	Sender,
 	Receiver,
 };

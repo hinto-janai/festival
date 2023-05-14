@@ -20,7 +20,7 @@ use super::msg::{
 	SearchToKernel,
 	KernelToSearch,
 };
-use crossbeam_channel::{Sender,Receiver};
+use crossbeam::channel::{Sender,Receiver};
 use benri::time::{
 	now,secs_f32,
 };

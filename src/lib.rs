@@ -149,7 +149,7 @@ pub mod collection;
 /// Your `Frontend` will communicate with `Kernel`, and
 /// `Kernel` will talk with the rest of `shukusai`'s internals.
 ///
-/// Messages are sent via `crossbeam_channel`'s with these messages:
+/// Messages are sent via `crossbeam::channel`'s with these messages:
 /// - [`kernel::KernelToFrontend`]
 /// - [`kernel::FrontendToKernel`]
 pub mod kernel;

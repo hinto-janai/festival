@@ -24,7 +24,7 @@ use super::msg::{
 	AudioToKernel,
 	KernelToAudio,
 };
-use crossbeam_channel::{Sender,Receiver};
+use crossbeam::channel::{Sender,Receiver};
 
 //---------------------------------------------------------------------------------------------------- Audio
 pub(crate) struct Audio {

@@ -85,7 +85,7 @@ All of the libraries `festival-gui` (directly) uses:
 |---------|---------|---------|
 | [benri](https://github.com/hinto-janai/benri)                      | General purpose macros   | `MIT`
 | [clap](https://github.com/clap-rs/clap)                            | CLI arguments            | `MIT` & `Apache-2.0`
-| [crossbeam_channel](https://github.com/crossbeam-rs/crossbeam)     | Thread message passing   | `MIT` & `Apache-2.0`
+| [crossbeam](https://github.com/crossbeam-rs/crossbeam)             | Thread message passing   | `MIT` & `Apache-2.0`
 | [egui](https://github.com/emilk/egui)                              | GUI                      | `MIT` & `Apache-2.0`
 | [egui_extras](https://github.com/emilk/egui/crates/egui_extras)    | GUI                      | `MIT` & `Apache-2.0`
 | [eframe](https://github.com/emilk/egui/crates/eframe)              | GUI                      | `MIT` & `Apache-2.0`

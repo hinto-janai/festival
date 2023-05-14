@@ -38,7 +38,7 @@ use egui::{
 	TopBottomPanel,SidePanel,CentralPanel,
 	TextStyle,FontId,FontData,FontDefinitions,FontFamily,FontTweak,
 };
-use crossbeam_channel::{Sender,Receiver};
+use crossbeam::channel::{Sender,Receiver};
 use std::path::PathBuf;
 use std::sync::{
 	Arc,

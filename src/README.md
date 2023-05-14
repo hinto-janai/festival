@@ -115,7 +115,7 @@ These are top-level `src/` files for miscellaneous stuff:
 # Overview
 <div align="center">
 
-The relationship between the main threads and data. Threads communicate via `crossbeam_channels`.
+The relationship between the main threads and data. Threads communicate via `crossbeam::channels`.
 
 <img src="../assets/images/diagram/overview.png" width="66%"/>
 
@@ -594,7 +594,7 @@ If _all_ messages were sent/received from `GUI`:
 
 The channel between `Kernel` and every part of the system is _unique_ and only the proper thread can send them.
 ```rust
-let (tx, rx) = crossbeam_channel::unbounded::<CcdToKernel>();
+let (tx, rx) = crossbeam::channel::unbounded::<CcdToKernel>();
 ```
 That channel only gets passed to `CCD` and `Kernel`, meaning `Audio` or other threads _cannot_ "fake" send messages:
 ```rust

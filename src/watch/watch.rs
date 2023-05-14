@@ -10,7 +10,7 @@ use disk::Empty;
 //use std::{};
 //use std::sync::{Arc,Mutex,RwLock};
 use crate::constants::FESTIVAL;
-use crossbeam_channel::{
+use crossbeam::channel::{
 	Sender,
 };
 use super::msg::WatchToKernel;

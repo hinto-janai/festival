@@ -30,7 +30,7 @@ use benri::{
 	sync::*,
 	panic::*,
 };
-use crossbeam_channel::Sender;
+use crossbeam::channel::Sender;
 use super::CcdToKernel;
 use readable::{
 	Runtime,
@@ -637,7 +637,7 @@ mod tests {
 			PathBuf::from("assets/audio/rain.ogg"),
 		];
 		// Prepare inputs.
-		let (to_kernel, _) = crossbeam_channel::unbounded::<super::CcdToKernel>();
+		let (to_kernel, _) = crossbeam::channel::unbounded::<super::CcdToKernel>();
 		let (vec_artist, mut vec_album, vec_song, count_art) = Ccd::the_loop(&to_kernel, paths);
 
 		println!("{:#?}", vec_artist);

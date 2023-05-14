@@ -24,8 +24,8 @@ fn main() {
 	cli::Cli::handle_args();
 
 	// Create `Kernel` <-> `GUI` channels.
-	let (kernel_to_gui, gui_recv)    = crossbeam_channel::unbounded::<shukusai::kernel::KernelToFrontend>();
-	let (gui_to_kernel, kernel_recv) = crossbeam_channel::unbounded::<shukusai::kernel::FrontendToKernel>();
+	let (kernel_to_gui, gui_recv)    = crossbeam::channel::unbounded::<shukusai::kernel::KernelToFrontend>();
+	let (gui_to_kernel, kernel_recv) = crossbeam::channel::unbounded::<shukusai::kernel::FrontendToKernel>();
 
 	// Start `egui/eframe`.
 	if let Err(e) = eframe::run_native(

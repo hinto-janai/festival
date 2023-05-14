@@ -11,7 +11,7 @@ use super::msg::{
 	CcdToKernel,
 	KernelToCcd,
 };
-use crossbeam_channel::{Sender,Receiver};
+use crossbeam::channel::{Sender,Receiver};
 use benri::{
 	log::*,
 	sync::*,

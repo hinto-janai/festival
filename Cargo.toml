@@ -129,7 +129,7 @@ compact_str = "0.7.0"
 ### Regular libraries.
 anyhow = "1.0.71"
 bincode = { version = "2.0.0-rc.3", features = ["serde"] }
-crossbeam-channel = "0.5.8"
+crossbeam = { version = "0.8.2", features = ["crossbeam-channel"] }
 const_format = { version = "0.2.30", features = ["rust_1_51", "assertcp", "rust_1_64"] }
 #egui-notify = "0.5.1"
 env_logger = "0.10.0"
