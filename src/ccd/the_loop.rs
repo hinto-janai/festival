@@ -91,7 +91,7 @@ impl super::Ccd {
 	//
 	// Although, it hits diminishing returns quickly, which is why
 	// only `25%~` of the user's available threads are used.
-	pub(super) fn audio_paths_to_incomplete_vecs(
+	pub(super) fn the_loop(
 		to_kernel: &Sender<CcdToKernel>,
 		vec_paths: Vec<PathBuf>
 	) -> (Vec<Artist>, Vec<Album>, Vec<Song>, usize) {
@@ -638,16 +638,18 @@ mod tests {
 		];
 		// Prepare inputs.
 		let (to_kernel, _) = crossbeam_channel::unbounded::<super::CcdToKernel>();
-		let (vec_artist, mut vec_album, vec_song) = Ccd::audio_paths_to_incomplete_vecs(&to_kernel, paths);
+		let (vec_artist, mut vec_album, vec_song, count_art) = Ccd::the_loop(&to_kernel, paths);
 
 		println!("{:#?}", vec_artist);
 		println!("{:#?}", vec_album);
 		println!("{:#?}", vec_song);
+		println!("{:#?}", count_art);
 
 		// Assert `Vec`s are correct.
 		assert!(vec_artist.len() == 1);
 		assert!(vec_album.len()  == 1);
 		assert!(vec_song.len()   == 3);
+		assert!(count_art        == 1);
 
 		// Assert `Artist` is correct.
 		assert!(vec_artist[0].name         == "hinto");

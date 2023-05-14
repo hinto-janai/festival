@@ -59,14 +59,14 @@ pub fn init_logger(filter: log::LevelFilter) {
 		};
 		writeln!(
 			buf,
-			// Longest PATH in the repo: `festival-gui/src/data/settings.rs` - `33` characters
-			// Longest file in the repo: `703 src/ccd/metadata.rs`           - `3` digits
+			// Longest PATH in the repo: `src/collection/collection.rs` - `28` characters
+			// Longest file in the repo: `src/ccd/metadata.rs`          - `3` digits
 			//
 			// Use `utils/longest.sh` to find this.
 			//
-			//        Longest PATH ---|         |--- Longest file
-			//                        |         |
-			//                        v         v
+			//          Longest PATH ---|         |--- Longest file
+			//                          |         |
+			//                          v         v
 			"| {: >5} | {: >10.3} | {: >33} @ {: <3} | {}",
 			style.set_bold(true).value(level),
 			buf.style().set_dimmed(true).value(now.elapsed().as_secs_f32()),

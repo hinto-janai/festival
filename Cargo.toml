@@ -102,10 +102,10 @@ rustdoc-args = ["--cfg", "docsrs"]
 ### Personal libraries.
 ### FIXME:
 ### Lock in versions on `v1.0.0` release.
-benri    = { version = "*", path = "../benri", features = ["log"] }
-disk     = { version = "*", path = "../disk", features = ["bincode2", "empty", "toml", "plain", "json", "bytesize"] }
-readable = { version = "*", path = "../readable", features = ["full"] }
-rolock   = { version = "*", path = "../rolock" }
+benri    = { version = "*", git = "https://github.com/hinto-janai/benri", features = ["log"] }
+disk     = { version = "0.1.13", git = "https://github.com/hinto-janai/disk", features = ["bincode2", "empty", "toml", "plain", "json", "bytesize"] }
+readable = { version = "*", git = "https://github.com/hinto-janai/readable", features = ["full"] }
+rolock   = { version = "*", git = "https://github.com/hinto-janai/rolock" }
 
 ### External patched libraries `external/`.
 # TODO:

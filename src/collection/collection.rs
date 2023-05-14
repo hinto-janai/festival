@@ -51,7 +51,7 @@ static RNG: Lazy<Mutex<rand::rngs::SmallRng>> = Lazy::new(|| Mutex::new(rand::rn
 // This is an empty, dummy `Collection`.
 pub(crate) static DUMMY_COLLECTION: Lazy<Arc<Collection>> = Lazy::new(|| Arc::new(Collection::new()));
 
-//---------------------------------------------------------------------------------------------------- The Collection™
+//---------------------------------------------------------------------------------------------------- Collection
 disk::bincode2!(Collection, disk::Dir::Data, FESTIVAL, "", "collection", FESTIVAL_HEADER, COLLECTION_VERSION);
 #[derive(Clone,Debug,PartialEq,Encode,Decode)]
 //#[derive(Clone,Debug,Serialize,Deserialize,PartialEq,Encode,Decode)]
@@ -700,7 +700,7 @@ impl std::fmt::Display for Collection {
 #[cfg(test)]
 mod tests {
 	use super::*;
-	use disk::Bincode;
+	use disk::*;
 
 	#[test]
 	fn serde() {

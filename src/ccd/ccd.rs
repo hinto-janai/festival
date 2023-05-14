@@ -125,7 +125,7 @@ impl Ccd {
 		// 2.
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((5.00, Phase::Parse)));
-		let (vec_artist, mut vec_album, vec_song, count_art) = Self::audio_paths_to_incomplete_vecs(&to_kernel, paths);
+		let (vec_artist, mut vec_album, vec_song, count_art) = Self::the_loop(&to_kernel, paths);
 		// Update should be < 50% at this point.
 		let perf_metadata = secs_f32!(now);
 		trace!("CCD [2/14] - Metadata: {perf_metadata}");
@@ -429,7 +429,7 @@ mod tests {
 	use super::*;
 	use crate::ccd::*;
 	use std::path::PathBuf;
-	use disk::Bincode;
+	use disk::*;
 
 	#[test]
 	#[ignore]

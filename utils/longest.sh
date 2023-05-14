@@ -14,9 +14,9 @@ set -e
 
 # Use `fd` if found.
 if [[ -f /usr/bin/fd ]]; then
-	FIND=$(fd .*.rs "festival"* "src")
+	FIND=$(fd .*.rs "cli" "daemon" "gui" "web" "src")
 else
-	FIND=$(find "festival"* src -type f -iname *.rs)
+	FIND=$(find "cli" "daemon" "gui" "web" "src" -type f -iname *.rs)
 fi
 
 # PATH.

@@ -38,4 +38,4 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: festival
-        path: target/release/festival
+        path: target/release/festival.exe

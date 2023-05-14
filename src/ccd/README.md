@@ -21,8 +21,8 @@ Some important but more miscellaneous files.
 | thread.rs      | Thread availability functions
 | msg.rs         | Types of messages `CCD` and `Kernel` can send to each other
 
-# The Loop™
-`metadata.rs` contains the function `audio_paths_to_incomplete_vecs()`, or, "The Loop".
+# "The Loop"
+`the_loop.rs` contains the function `the_loop()`, or, "The Loop".
 
 When creating the `Collection`, most of the time is spent here.
 

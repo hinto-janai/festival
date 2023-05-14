@@ -241,12 +241,12 @@ mod tests {
 
 		// DynamicImage -> FIR Image.
 		let fir_img = resize_dyn_image(dyn_img, &mut resizer).unwrap();
-		assert!(fir_img.width()  == ALBUM_ART_SIZE_NUM);
-		assert!(fir_img.height() == ALBUM_ART_SIZE_NUM);
 
 		// Bytes of FIR Image should be in perfect `3` chunks (RGB).
-		assert!(fir_img.buffer().len() % 3 == 0);
+		assert!(fir_img.len() % 3 == 0);
 
-		art_from_known(&fir_img.buffer());
+		let retained = art_from_known(&fir_img);
+		assert!(retained.width() == 600);
+		assert!(retained.height() == 600);
 	}
 }
