@@ -79,7 +79,7 @@ fn show_album_sizing_pixel(
 	ui.spacing_mut().item_spacing.x += remainder;
 	let first_album_padding = ui.spacing().item_spacing.x / 2.5;
 	// Account for separation space and padding.
-	let pixel = pixel - 15.0;
+	let pixel = pixel - 16.0;
 	// How many rows?
 	let rows = (self.collection.count_album.inner() as f32 / album_width).ceil() as usize;
 
@@ -155,7 +155,7 @@ fn show_album_sizing_row(
 	let per_f32 = album_width as f32;
 	let pixel = width / per_f32;
 	// Account for separation space and padding.
-	let pixel = pixel - 15.0;
+	let pixel = pixel - 16.0;
 	// How many rows?
 	let rows = (self.collection.count_album.inner() as f32 / per_f32).ceil() as usize;
 
