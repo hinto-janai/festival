@@ -98,8 +98,8 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 		// Heading.
 		let label = Label::new(
 			RichText::new("Album Sort Order")
-			.color(BONE)
-			.text_style(TextStyle::Heading)
+				.color(BONE)
+				.text_style(TextStyle::Heading)
 		);
 		ui.add_sized([width, text], label).on_hover_text(ALBUM_SORT_ORDER);
 

@@ -3,7 +3,7 @@
 //use log::{info,error,warn,trace,debug};
 //use serde::{Serialize,Deserialize};
 use egui::{
-	Rounding,Vec2,Color32,Stroke,
+	Rounding,Vec2,Color32,Stroke,TextStyle,
 	ScrollArea,Frame,RichText,ImageButton,
 	SelectableLabel,Label,Button,SidePanel,
 };
@@ -11,7 +11,7 @@ use shukusai::collection::{
 	AlbumKey,
 };
 use crate::constants::{
-	GRAY,
+	BONE,GRAY,
 };
 use crate::slice::Head;
 
@@ -55,9 +55,24 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &
 	ui.vertical_centered(|ui| {
 		ui.set_max_width(width);
 		ui.add_space(8.0);
-		ui.heading(&album.title);
+
+		// `Album` title.
+		let label = Label::new(
+			RichText::new(&album.title)
+				.color(BONE)
+				.text_style(TextStyle::Name("25".into()))
+		);
+		ui.add(label);
+
+		// `Artist` name.
 		ui.label(&self.collection.artists[album.artist].name);
+
+		// `Album` release.
 		ui.label(album.release.as_str());
+
+		// `Album` runtime.
+		ui.label(album.runtime.as_str());
+
 		ui.add_space(8.0);
 	});
 
