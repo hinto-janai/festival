@@ -152,34 +152,60 @@ pub struct Collection {
 	// Sorted `Artist` keys.
 	/// [`Artist`] `lexi`.
 	pub sort_artist_lexi: Box<[ArtistKey]>,
+	/// [`Artist`] `lexi` (reversed).
+	pub sort_artist_lexi_rev: Box<[ArtistKey]>,
 	/// [`Artist`] with most [`Album`]'s to least.
 	pub sort_artist_album_count: Box<[ArtistKey]>,
+	/// [`Artist`] with least [`Album`]'s to most.
+	pub sort_artist_album_count_rev: Box<[ArtistKey]>,
 	/// [`Artist`] with most [`Song`]'s to least.
 	pub sort_artist_song_count: Box<[ArtistKey]>,
+	/// [`Artist`] with least [`Song`]'s to most.
+	pub sort_artist_song_count_rev: Box<[ArtistKey]>,
 
 	// Sorted `Album` keys.
 	/// [`Artist`] `lexi`, [`Album`]'s oldest release to latest.
 	pub sort_album_release_artist_lexi: Box<[AlbumKey]>,
+	/// [`Artist`] `lexi` (reversed), [`Album`]'s oldest release to latest.
+	pub sort_album_release_artist_lexi_rev: Box<[AlbumKey]>,
 	/// [`Artist`] `lexi`, [`Album`]'s `lexi`.
 	pub sort_album_lexi_artist_lexi: Box<[AlbumKey]>,
+	/// [`Artist`] `lexi` (reversed), [`Album`]'s `lexi`.
+	pub sort_album_lexi_artist_lexi_rev: Box<[AlbumKey]>,
 	/// [`Album`] lexi.
 	pub sort_album_lexi: Box<[AlbumKey]>,
+	/// [`Album`] lexi (reversed).
+	pub sort_album_lexi_rev: Box<[AlbumKey]>,
 	/// [`Album`] oldest to latest.
 	pub sort_album_release: Box<[AlbumKey]>,
+	/// [`Album`] latest to oldest.
+	pub sort_album_release_rev: Box<[AlbumKey]>,
 	/// [`Album`] shortest to longest.
 	pub sort_album_runtime: Box<[AlbumKey]>,
+	/// [`Album`] longest to shortest.
+	pub sort_album_runtime_rev: Box<[AlbumKey]>,
 
 	// Sorted `Song` keys.
 	/// [`Artist`] lexi, [`Album`] release, [`Song`] track_number
 	pub sort_song_album_release_artist_lexi: Box<[SongKey]>,
+	/// [`Artist`] lexi (reversed), [`Album`] release, [`Song`] track_number
+	pub sort_song_album_release_artist_lexi_rev: Box<[SongKey]>,
 	/// [`Artist`] lexi, [`Album`] lexi, [`Song`] track_number.
 	pub sort_song_album_lexi_artist_lexi: Box<[SongKey]>,
+	/// [`Artist`] lexi (reversed), [`Album`] lexi, [`Song`] track_number.
+	pub sort_song_album_lexi_artist_lexi_rev: Box<[SongKey]>,
 	/// [`Song`] lexi.
 	pub sort_song_lexi: Box<[SongKey]>,
+	/// [`Song`] lexi (reversed).
+	pub sort_song_lexi_rev: Box<[SongKey]>,
 	/// [`Song`] oldest to latest.
 	pub sort_song_release: Box<[SongKey]>,
+	/// [`Song`] latest to oldest.
+	pub sort_song_release_rev: Box<[SongKey]>,
 	/// [`Song`] shortest to longest.
 	pub sort_song_runtime: Box<[SongKey]>,
+	/// [`Song`] longest to shortest.
+	pub sort_song_runtime_rev: Box<[SongKey]>,
 
 	// Reserved fields and their `size_of()`.
 	pub(crate) _reserved1: PhantomData<Box<[usize]>>, // 16
@@ -225,20 +251,33 @@ impl Collection {
 			songs: Songs::new(),
 
 			sort_artist_lexi: Box::new([]),
+			sort_artist_lexi_rev: Box::new([]),
 			sort_artist_album_count: Box::new([]),
+			sort_artist_album_count_rev: Box::new([]),
 			sort_artist_song_count: Box::new([]),
+			sort_artist_song_count_rev: Box::new([]),
 
 			sort_album_release_artist_lexi: Box::new([]),
+			sort_album_release_artist_lexi_rev: Box::new([]),
 			sort_album_lexi_artist_lexi: Box::new([]),
+			sort_album_lexi_artist_lexi_rev: Box::new([]),
 			sort_album_lexi: Box::new([]),
+			sort_album_lexi_rev: Box::new([]),
 			sort_album_release: Box::new([]),
+			sort_album_release_rev: Box::new([]),
 			sort_album_runtime: Box::new([]),
+			sort_album_runtime_rev: Box::new([]),
 
 			sort_song_album_release_artist_lexi: Box::new([]),
+			sort_song_album_release_artist_lexi_rev: Box::new([]),
 			sort_song_album_lexi_artist_lexi: Box::new([]),
+			sort_song_album_lexi_artist_lexi_rev: Box::new([]),
 			sort_song_lexi: Box::new([]),
+			sort_song_lexi_rev: Box::new([]),
 			sort_song_release: Box::new([]),
+			sort_song_release_rev: Box::new([]),
 			sort_song_runtime: Box::new([]),
+			sort_song_runtime_rev: Box::new([]),
 
 			_reserved1: PhantomData,
 			_reserved2: PhantomData,
@@ -491,38 +530,51 @@ impl Collection {
 	}
 
 	//-------------------------------------------------- Sorting
-	/// Access a particular `sort_artist_` field in the [`Collection`] via a [`ArtistSort`].
-	pub const fn artist_sort(&self, sort: ArtistSort) -> &[ArtistKey] {
+	/// Access `sort_artist` fields in the [`Collection`] as an iterator via a [`ArtistSort`].
+	pub fn artist_iter(&self, sort: ArtistSort) -> std::slice::Iter<'_, ArtistKey> {
 		use ArtistSort::*;
 		match sort {
-			Lexi       => &self.sort_artist_lexi,
-			AlbumCount => &self.sort_artist_album_count,
-			SongCount  => &self.sort_artist_song_count,
-		}
+			Lexi          => &self.sort_artist_lexi,
+			LexiRev       => &self.sort_artist_lexi_rev,
+			AlbumCount    => &self.sort_artist_album_count,
+			AlbumCountRev => &self.sort_artist_album_count_rev,
+			SongCount     => &self.sort_artist_song_count,
+			SongCountRev  => &self.sort_artist_song_count_rev,
+		}.iter()
 	}
 
-	/// Access a particular `sort_album_` field in the [`Collection`] via a [`AlbumSort`].
-	pub const fn album_sort(&self, sort: AlbumSort) -> &[AlbumKey] {
+	/// Access `sort_album` fields in the [`Collection`] as an iterator via a [`AlbumSort`].
+	pub fn album_iter(&self, sort: AlbumSort) -> std::slice::Iter<'_, AlbumKey> {
 		use AlbumSort::*;
 		match sort {
-			ReleaseArtistLexi => &self.sort_album_release_artist_lexi,
-			LexiArtistLexi    => &self.sort_album_lexi_artist_lexi,
-			Lexi              => &self.sort_album_lexi,
-			Release           => &self.sort_album_release,
-			Runtime           => &self.sort_album_runtime,
-		}
+			ReleaseArtistLexi    => &self.sort_album_release_artist_lexi,
+			ReleaseArtistLexiRev => &self.sort_album_release_artist_lexi_rev,
+			LexiArtistLexi       => &self.sort_album_lexi_artist_lexi,
+			LexiArtistLexiRev    => &self.sort_album_lexi_artist_lexi_rev,
+			Lexi                 => &self.sort_album_lexi,
+			LexiRev              => &self.sort_album_lexi_rev,
+			Release              => &self.sort_album_release,
+			ReleaseRev           => &self.sort_album_release_rev,
+			Runtime              => &self.sort_album_runtime,
+			RuntimeRev           => &self.sort_album_runtime_rev,
+		}.iter()
 	}
 
-	/// Access a particular `sort_song_` field in the [`Collection`] via a [`SongSort`].
-	pub const fn song_sort(&self, sort: SongSort) -> &[SongKey] {
+	/// Access `sort_song` fields in the [`Collection`] as an iterator via a [`SongSort`].
+	pub fn song_iter(&self, sort: SongSort) -> std::slice::Iter<'_, SongKey> {
 		use SongSort::*;
 		match sort {
-			AlbumReleaseArtistLexi => &self.sort_song_album_release_artist_lexi,
-			AlbumLexiArtistLexi    => &self.sort_song_album_lexi_artist_lexi,
-			Lexi                   => &self.sort_song_lexi,
-			Release                => &self.sort_song_release,
-			Runtime                => &self.sort_song_runtime,
-		}
+			AlbumReleaseArtistLexi    => &self.sort_song_album_release_artist_lexi,
+			AlbumReleaseArtistLexiRev => &self.sort_song_album_release_artist_lexi_rev,
+			AlbumLexiArtistLexi       => &self.sort_song_album_lexi_artist_lexi,
+			AlbumLexiArtistLexiRev    => &self.sort_song_album_lexi_artist_lexi_rev,
+			Lexi                      => &self.sort_song_lexi,
+			LexiRev                   => &self.sort_song_lexi_rev,
+			Release                   => &self.sort_song_release,
+			ReleaseRev                => &self.sort_song_release_rev,
+			Runtime                   => &self.sort_song_runtime,
+			RuntimeRev                => &self.sort_song_runtime_rev,
+		}.iter()
 	}
 
 	//-------------------------------------------------- Random
