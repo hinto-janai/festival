@@ -654,7 +654,7 @@ mod tests {
 		];
 		// Prepare inputs.
 		let (to_kernel, _) = crossbeam::channel::unbounded::<super::CcdToKernel>();
-		let (vec_artist, mut vec_album, vec_song, count_art) = Ccd::the_loop(&to_kernel, paths);
+		let (mut vec_artist, mut vec_album, vec_song, count_art) = Ccd::the_loop(&to_kernel, paths);
 
 		println!("{:#?}", vec_artist);
 		println!("{:#?}", vec_album);
@@ -681,7 +681,7 @@ mod tests {
 //		assert!(vec_album[0].compilation    == true);
 
 		// Fix the metadata.
-		Ccd::fix_album_metadata_from_songs(&mut vec_album, &vec_song);
+		Ccd::fix_metadata(&mut vec_artist, &mut vec_album, &vec_song);
 
 		println!("{:#?}", vec_artist);
 		println!("{:#?}", vec_album);
