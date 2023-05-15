@@ -36,7 +36,8 @@ pub const SAVING: &str = "Festival is still saving a recently created Collection
 //---------------------------------------------------------------------------------------------------- Settings Tab
 pub const RESET:             &str = "Reset changes (CTRL+Z)";
 pub const SAVE:              &str = "Save changes to disk (CTRL+S)";
-pub const ALBUM_SORT_ORDER:  &str = "Which method to sort the albums by";
+pub const ALBUM_SORT_ORDER:  &str = "Which method to sort the albums by in the [Albums] tab";
+pub const ARTIST_SORT_ORDER: &str = "Which method to sort the artists by in the [Artists] tab";
 pub const ALBUM_ART_SIZE:    &str = "How big the album art cover should be in the [Albums] tab";
 pub const STATIC_PIXEL_SIZE: &str = formatcp!(
 	"Always show album art at a static pixel size regardless of the window size ({}-{})",

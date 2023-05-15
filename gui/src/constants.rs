@@ -101,8 +101,11 @@ pub static VISUALS: Lazy<Visuals> = Lazy::new(|| {
 	}
 });
 
+// Dark blue.
+pub const ACCENT_COLOR: Color32 = Color32::from_rgb(30, 45, 85);
+
 // Pinkish red.
-pub const ACCENT_COLOR: Color32 = Color32::from_rgb(200, 100, 100);
+//pub const ACCENT_COLOR: Color32 = Color32::from_rgb(200, 100, 100);
 
 //---------------------------------------------------------------------------------------------------- `egui` Spacing
 pub static SPACING: Lazy<Spacing> = Lazy::new(|| {
@@ -172,6 +175,7 @@ pub const LESS_WHITE:    Color32 = Color32::from_rgb(240, 240, 240);
 pub const GRAY:          Color32 = Color32::GRAY;
 pub const LIGHT_GRAY:    Color32 = Color32::LIGHT_GRAY;
 pub const BLACK:         Color32 = Color32::BLACK;
+pub const MEDIUM_GRAY:   Color32 = Color32::from_rgb(90, 90, 90);
 pub const DARK_GRAY:     Color32 = Color32::from_rgb(18, 18, 18);
 pub const BG:            Color32 = Color32::from_rgb(20, 20, 20);
 

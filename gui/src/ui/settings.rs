@@ -26,7 +26,9 @@ use crate::constants::{
 use crate::data::{
 	AlbumSizing,
 };
-use shukusai::sort::AlbumSort;
+use shukusai::sort::{
+	ArtistSort,AlbumSort,
+};
 use shukusai::kernel::{
 	FrontendToKernel,
 };
@@ -108,10 +110,36 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 		ui.spacing_mut().combo_width = width - 15.0;
 		ui.spacing_mut().icon_width = height / 15.0;
 		ui.add_space(10.0);
-		ComboBox::from_id_source("sort_order").selected_text(RichText::new(self.settings.sort_order.as_str()).color(BONE)).show_ui(ui, |ui| {
+		ComboBox::from_id_source("album_sort_order").selected_text(RichText::new(self.settings.album_sort_order.as_str()).color(BONE)).show_ui(ui, |ui| {
 			// Album Sort methods.
 			for i in AlbumSort::iter() {
-				ui.selectable_value(&mut self.settings.sort_order, *i, i.as_str());
+				ui.selectable_value(&mut self.settings.album_sort_order, *i, i.as_str());
+			}
+		});
+
+		ui.add_space(60.0);
+		ui.separator();
+		ui.add_space(60.0);
+
+        //-------------------------------------------------- Artist Sort Order.
+		// Heading.
+		let label = Label::new(
+			RichText::new("Artist Sort Order")
+			.color(BONE)
+			.text_style(TextStyle::Heading)
+		);
+		ui.add_sized([width, text], label).on_hover_text(ARTIST_SORT_ORDER);
+
+		// ComboBox.
+		// FIXME:
+		// Same as above `Album`.
+		ui.spacing_mut().combo_width = width - 15.0;
+		ui.spacing_mut().icon_width = height / 15.0;
+		ui.add_space(10.0);
+		ComboBox::from_id_source("artist_sort_order").selected_text(RichText::new(self.settings.artist_sort_order.as_str()).color(BONE)).show_ui(ui, |ui| {
+			// Album Sort methods.
+			for i in ArtistSort::iter() {
+				ui.selectable_value(&mut self.settings.artist_sort_order, *i, i.as_str());
 			}
 		});
 

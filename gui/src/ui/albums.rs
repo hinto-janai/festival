@@ -65,8 +65,7 @@ fn show_album_sizing_pixel(
 ) {
 	// The iterator over sorted `Album`'s.
 	let mut iter = self.collection
-		.album_sort(self.settings.sort_order)
-		.iter()
+		.album_iter(self.settings.album_sort_order)
 		.peekable();
 
 	// Get pixel size.
@@ -110,10 +109,13 @@ fn show_album_sizing_pixel(
 									self.state.tab   = Tab::View;
 								}
 
+								// Closure is only called on hover.
+								let hover = |ui: &mut egui::Ui| { ui.add(Label::new(format!("{} ({})", album.title, album.release))); };
+
 								// `0.0` will cause the text to expand
 								// the `ui` to however much space it needs.
 								// Album title.
-								ui.add_sized([pixel, 0.0], Label::new(RichText::new(album.title.head_dot(ALBUM_TITLE_LIMIT).as_str()).color(LESS_WHITE))).on_hover_text(&album.title);
+								ui.add_sized([pixel, 0.0], Label::new(RichText::new(album.title.head_dot(ALBUM_TITLE_LIMIT).as_str()).color(LESS_WHITE))).on_hover_ui(hover);
 								// Artist name.
 								let artist = &self.collection.artist_from_album(*key);
 								ui.add_sized([pixel, 0.0], Label::new(artist.name.head_dot(label_width).as_str())).on_hover_text(&artist.name);
@@ -144,8 +146,7 @@ fn show_album_sizing_row(
 ) {
 	// The iterator over sorted `Album`'s.
 	let mut iter = self.collection
-		.album_sort(self.settings.sort_order)
-		.iter()
+		.album_iter(self.settings.album_sort_order)
 		.peekable();
 
 	// Get spacing.
@@ -182,10 +183,13 @@ fn show_album_sizing_row(
 									self.state.tab   = Tab::View;
 								}
 
+								// Closure is only called on hover.
+								let hover = |ui: &mut egui::Ui| { ui.add(Label::new(format!("{} ({})", album.title, album.release))); };
+
 								// `0.0` will cause the text to expand
 								// the `ui` to however much space it needs.
 								// Album title.
-								ui.add_sized([pixel, 0.0], Label::new(RichText::new(album.title.head_dot(ALBUM_TITLE_LIMIT).as_str()).color(LESS_WHITE)));
+								ui.add_sized([pixel, 0.0], Label::new(RichText::new(album.title.head_dot(ALBUM_TITLE_LIMIT).as_str()).color(LESS_WHITE))).on_hover_ui(hover);
 								// Artist name.
 								let artist = &self.collection.artist_from_album(*key);
 								ui.add_sized([pixel, 0.0], Label::new(artist.name.head_dot(label_width).as_str()));
