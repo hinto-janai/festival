@@ -1,5 +1,5 @@
 /* Bincode decoding code, for use with
- * translating indicies into the `*Ptr` types.
+ * translating indices into the `*Ptr` types.
  *
  * As long as this comment is here, this is not
  * actually in use. If the day comes where the

@@ -34,5 +34,5 @@ jobs:
         cargo miri setup
     - name: Miri
       env:
-        RUSTLOG: "-A warnings"
-      run: cargo miri test --release --all-features
+        RUSTFLAGS: "-A warnings"
+      run: cargo miri test --all-features

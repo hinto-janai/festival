@@ -89,7 +89,7 @@ disk::bincode2!(Collection, disk::Dir::Data, FESTIVAL, "", "collection", HEADER,
 /// - [`Collection::song`]
 ///
 /// These three functions are akin to a [`HashMap::get`] and accept arbitrary
-/// [`str`] input instead of raw indicies or a [`Key`]. This is more flexible
+/// [`str`] input instead of raw indices or a [`Key`]. This is more flexible
 /// but obviously is much slower if you already know the proper index.
 ///
 /// A [`Song`] or [`Album`] cannot be directly searched without an [`Artist`]
@@ -425,7 +425,7 @@ impl Collection {
 	///
 	/// # Panics:
 	/// The [`ArtistKey`], [`AlbumKey`] and [`SongKey`] within
-	/// the [`Key`] must be valid indicies into the [`Collection`].
+	/// the [`Key`] must be valid indices into the [`Collection`].
 	#[inline(always)]
 	pub fn index(&self, key: Key) -> (&Artist, &Album, &Song) {
 		let (artist, album, song) = key.inner_usize();
@@ -436,7 +436,7 @@ impl Collection {
 	///
 	/// # Errors:
 	/// The [`ArtistKey`], [`AlbumKey`] and [`SongKey`] within
-	/// the [`Key`] must be valid indicies into the [`Collection`].
+	/// the [`Key`] must be valid indices into the [`Collection`].
 	pub fn get(&self, key: Key) -> Option<(&Artist, &Album, &Song)> {
 		let (artist, album, song) = key.inner_usize();
 

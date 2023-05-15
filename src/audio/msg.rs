@@ -18,7 +18,7 @@ use rolock::RoLock;
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
 pub(crate) enum AudioToKernel {
 	TimestampUpdate(f64), // We've played the current song for `x` seconds.
-	PathError(String),    // `Path` error occured when trying to play a song.
+	PathError(String),    // `Path` error occurred when trying to play a song.
 }
 
 pub(crate) enum KernelToAudio {

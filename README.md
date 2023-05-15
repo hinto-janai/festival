@@ -5,4 +5,4 @@
 
 `Music (player|client|server)`
 
-[![Build](https://github.com/hinto-janai/festival/actions/workflows/build.yml/badge.svg)](https://github.com/hinto-janai/festival/actions/workflows/build.yml) [![crates.io](https://img.shields.io/crates/v/shukusai.svg)](https://crates.io/crates/shukusai) [![docs.rs](https://docs.rs/shukusai/badge.svg)](https://docs.rs/shukusai)
+[![CI](https://github.com/hinto-janai/festival/actions/workflows/ci.yml/badge.svg)](https://github.com/hinto-janai/festival/actions/workflows/ci.yml) [![crates.io](https://img.shields.io/crates/v/shukusai.svg)](https://crates.io/crates/shukusai) [![docs.rs](https://docs.rs/shukusai/badge.svg)](https://docs.rs/shukusai)

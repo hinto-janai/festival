@@ -126,7 +126,7 @@ impl super::Ccd {
 		// - We have 3 `Vec`'s (that will eventually become the `Collection`).
 		//
 		// The "Working Memory" is a `HashMap` that takes in `String` input of an artist name and returns the `index` to it,
-		// along with another `HashMap` which represents that `Artist`'s `Album`'s and its appropriate `indicies`.
+		// along with another `HashMap` which represents that `Artist`'s `Album`'s and its appropriate `indices`.
 		//
 		//                           Artist  Artist's index     Album  Album's index
 		//                            Name   in `Vec<Artist>`   Name   in `Vec<Album>`

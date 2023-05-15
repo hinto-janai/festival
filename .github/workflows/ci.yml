@@ -10,16 +10,15 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  RUSTFLAGS: -Awarnings
   RUST_BACKTRACE: "full"
 
 jobs:
-  build:
+  ci:
     runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
-        os: [windows-2022, windows-2019, macos-12, macos-11, ubuntu-22.04, ubuntu-20.04]
+        os: [windows-2019, macos-11, ubuntu-20.04]
         build: [dev, release]
 
     steps:
@@ -34,7 +33,7 @@ jobs:
         path: |
           ~/.cargo
           target
-        key: ${{ matrix.os }}
+        key: ${{ matrix.os }}-${{ matrix.build }}
 
     - name: Install dependencies
       run: |
@@ -49,6 +48,8 @@ jobs:
 
     - name: Doc
       run: cargo doc --workspace --no-deps --all-features --profile ${{ matrix.build }}
+      env:
+        RUSTFLAGS: -Awarnings
 
     - name: Test
       run: cargo test --all-features --profile ${{ matrix.build }}
@@ -60,10 +61,10 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: festival-debug-${{ matrix.os }}
-        path: target/debug/festival[.exe]
+        path: target/debug/festival*
 
     - name: Archive (release)
       uses: actions/upload-artifact@v3
       with:
         name: festival-release-${{ matrix.os }}
-        path: target/release/festival[.exe]
+        path: target/release/festival*

@@ -75,7 +75,7 @@ pub enum FrontendToKernel {
 	/// [`KernelToFrontend::Exit`] that contains either a [`Result::Ok`] meaning everything went okay,
 	/// or [`Result::Err`] with a [`String`] payload containing an error message.
 	///
-	/// After the reponse (regardless of the [`Result`]), [`Kernel`] will
+	/// After the response (regardless of the [`Result`]), [`Kernel`] will
 	/// - [`std::thread::park`] forever
 	/// - Ignore all channel messages
 	///

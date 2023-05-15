@@ -191,5 +191,5 @@ pub mod sort;
 /// `Kernel` will start audio playback, then delete the file that was created.
 pub mod signal;
 
-/// `Frontend`-specific compatability layers
+/// `Frontend`-specific compatibility layers
 pub mod frontend;

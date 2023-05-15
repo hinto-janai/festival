@@ -16,7 +16,7 @@ use crate::collection::{
 ///
 /// This struct holds all the metadata about a particular [`Artist`].
 ///
-/// It contains an [`Vec`] of [`AlbumKey`]\(s\) that are the indicies of the associated [`Album`]\(s\), in the [`Collection`].
+/// It contains an [`Vec`] of [`AlbumKey`]\(s\) that are the indices of the associated [`Album`]\(s\), in the [`Collection`].
 pub struct Artist {
 	/// The [`Artist`]'s name.
 	pub name: String,

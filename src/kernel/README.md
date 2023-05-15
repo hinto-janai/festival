@@ -5,7 +5,7 @@ When initially spawned in `main()`, `Kernel` starts off a sequential 5-step proc
 ```
 bios() ---> boot_loader() ---> kernel() ---> init() ---> userspace()
          |                                          |
-         |--- (bios error occured, skip to init) ---|
+         |--- (bios error occurred, skip to init) ---|
 ```
 Ignore the fact that the name of this thing is `Kernel` and it kinda makes sense.
 

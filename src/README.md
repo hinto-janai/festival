@@ -119,7 +119,7 @@ The relationship between the main threads and data. Threads communicate via `cro
 
 <img src="../assets/images/diagram/overview.png" width="66%"/>
 
-A simplified explaination of what happens at `main()`:
+A simplified explanation of what happens at `main()`:
 
 (although, reading `main.rs` might be easier, it's only `30` lines long)
 
@@ -199,7 +199,7 @@ is equivalent.
 The filesystem watching functionality is provided by [`notify`](https://github.com/notify-rs/notify).
 
 ## Search
-`Search` sleeps waiting for arbitrary `String` inputs from `Kernel` and searchs the `Collection` with it.
+`Search` sleeps waiting for arbitrary `String` inputs from `Kernel` and searches the `Collection` with it.
 
 `Search` returns sorted `Artist`'s, `Album`'s, and `Song`'s that go from most similar, to least similar to the input.
 
@@ -266,19 +266,19 @@ The three main `Vec`'s that the `Collection` is made up of are:
 2. `Vec<Album>`
 3. `Vec<Song>`
 
-These 3 are completely seperate and contain relatively scoped data.
+These 3 are completely separate and contain relatively scoped data.
 
 Pros of having completely separate `Vec`'s:
 
 - Processing a _specific_ type of data is much easier, e.g: only iterating over `Album`'s
 - Lots of operations only need `Song` data and `collection.songs[0].title` is much prettier than `collection.artists[92].albums[3].songs[0].title`
-- Indicies refer to an "absolute" index, e.g: `collection.songs[0]` is the 1st song in the `Vec` containing ***all songs***, whereas in the nested version, it would be the 1st song within some particular `Album` belonging to some particular `Artist`.
+- Indices refer to an "absolute" index, e.g: `collection.songs[0]` is the 1st song in the `Vec` containing ***all songs***, whereas in the nested version, it would be the 1st song within some particular `Album` belonging to some particular `Artist`.
 - Multiple flat data structures are easier to reason about than their nested counterparts
 
 Cons:
 
 - All relational data is lost (embedding `Song` within `Album` within `Artist` "automatically" links them)
-- Using indicies instead of text keys means playlists/queues are connected with a _particular_ `Collection` and cannot be transferred
+- Using indices instead of text keys means playlists/queues are connected with a _particular_ `Collection` and cannot be transferred
 
 ## Keys
 `Key`'s are just simple wrappers around a `usize`, literally defined like so:
@@ -324,7 +324,7 @@ The problem of relational data being lost between the 3 `Vec`'s is solved by emb
 
 </div>
 
-This is essentially a doubly-linked-list, but across vectors. Since the `Collection` is _static_ for its entire lifetime, we also get to use indicies instead of pointers, meaning `artist[0]` will always `== artist[0]` and that saving to disk is possible (it's just a `usize`).
+This is essentially a doubly-linked-list, but across vectors. Since the `Collection` is _static_ for its entire lifetime, we also get to use indices instead of pointers, meaning `artist[0]` will always `== artist[0]` and that saving to disk is possible (it's just a `usize`).
 
 This relational-link only needs to be done once, when the `Collection` is initially created, where-after, when given _any_ `Song`, you can traverse to the `Album`, and then to the `Artist` or vice-versa.
 
@@ -395,17 +395,17 @@ In the meanwhile, `Kernel` is sending signals to all the main threads, giving th
 ## Lifetime
 `Collection` gets created _once_, (its core data) never gets mutated, and lives in memory as long as `Festival` is open or until the user requests a new one.
 
-To prevent invalidating all the indicies to the inner `Vec`'s, `Collection` _must_ be static.
+To prevent invalidating all the indices to the inner `Vec`'s, `Collection` _must_ be static.
 
 This unfortunately means the lifetime of user-created playlists are tied with the `Collection`.
 
-Since playlists are just `Slice`'s, they will be invalidated if indicies are changed.
+Since playlists are just `Slice`'s, they will be invalidated if indices are changed.
 
 This can be fixed by:
 
 1. Storing `Artist`, `Album` and `Song` names by text
 2. Comparing those with the new files when the user creates a new `Collection`
-3. Connect the known names with the new indicies
+3. Connect the known names with the new indices
 4. Do ??? with names that don't exist anymore
 
 This isn't implemented because I personally never use playlists (it would be a lot of work, too).
@@ -436,7 +436,7 @@ After `CCD` hands off the finished `Collection` to `Kernel`, `Kernel` wraps it i
 
 This is for when I eventually realize the `Collection` has a mistake in it's structure, or that something should be changed.
 
-Having a versioning system allows for backwards compatability, and also could allow for different "types" of `Collection`'s based off the use-case, for example: `Daemon + CLI Client` would not need album art, so that could be removed which would save a lot of processing time and disk space.
+Having a versioning system allows for backwards compatibility, and also could allow for different "types" of `Collection`'s based off the use-case, for example: `Daemon + CLI Client` would not need album art, so that could be removed which would save a lot of processing time and disk space.
 
 The versioning system is quite simple, `25` bytes of data are just added to the front of the file before saving.
 
@@ -518,7 +518,7 @@ Cons:
 
 ---
 
-Option 3 - Separate `Vec`'s with connecting `usize` indicies, wrapped in `Arc`:
+Option 3 - Separate `Vec`'s with connecting `usize` indices, wrapped in `Arc`:
 ```rust
 struct Collection {
 	artists: Vec<Artist>,
@@ -537,7 +537,7 @@ let collection: Arc<Collection> = [...];
 Pros:
 
 - **Extremely fast**
-- Indicies will _always_ point to the same object (`artist[0]` will always `== artist[0]`)
+- Indices will _always_ point to the same object (`artist[0]` will always `== artist[0]`)
 - Saving to disk is as easy as saving the `usize`
 - Can sort the `usize` based off the objects instead of the objects themselves
 - Sorted iteration is extremely easy (`collection.albums.iter()`)
@@ -574,7 +574,7 @@ Instead of that, `Kernel` acts as the middleman, so that _all_ threads go throug
 
 <img src="../assets/images/diagram/frontend.png" width="66%"/>
 
-Each thread communicates with `Kernel` and `Kernel` only, sending well-defined messsages. This is literally the message implementation between `CCD` and `Kernel`:
+Each thread communicates with `Kernel` and `Kernel` only, sending well-defined messages. This is literally the message implementation between `CCD` and `Kernel`:
 ```rust
 enum CcdToKernel {
     NewCollection(Collection),

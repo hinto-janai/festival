@@ -76,7 +76,7 @@ pub struct Kernel {
 //
 //`bios()` ---> `boot_loader()` ---> `kernel()` ---> `init()` ---> `userspace()`
 //         |                                          |
-//         |--- (bios error occured, skip to init) ---|
+//         |--- (bios error occurred, skip to init) ---|
 //
 impl Kernel {
 	//-------------------------------------------------- bios()

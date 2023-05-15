@@ -136,7 +136,7 @@ fn resize_dyn_image(img: image::DynamicImage, resizer: &mut fir::Resizer) -> Res
 #[inline(always)]
 // INVARIANT:
 // Input to this function _must_ be bytes that are perfectly
-// seperated into `3` chunks, as in `[R,G,B ... R,G,B]`.
+// separated into `3` chunks, as in `[R,G,B ... R,G,B]`.
 //
 // The image size must also be `600x600` or this will cause `egui` to `panic!()`.
 //

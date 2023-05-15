@@ -79,7 +79,7 @@ pub struct Gui {
 	pub rfd_open: Arc<AtomicBool>,
 	/// If a file was selected with RFD.
 	pub rfd_new: Arc<Mutex<Option<PathBuf>>>,
-	/// A buffer of the indicies of the PATHs the user wants deleted.
+	/// A buffer of the indices of the PATHs the user wants deleted.
 	pub deleted_paths: Vec<usize>,
 
 	// Search state.

@@ -30,7 +30,7 @@ use readable::{
 ///
 /// It contains an [`ArtistKey`] that is the index of the owning [`Artist`], in the [`Collection`].
 ///
-/// It also contains [`SongKey`]\(s\) that are the indicies of [`Song`]\(s\) belonging to this [`Album`], in the [`Collection`].
+/// It also contains [`SongKey`]\(s\) that are the indices of [`Song`]\(s\) belonging to this [`Album`], in the [`Collection`].
 pub struct Album {
 	// User-facing data.
 	/// Title of the [`Album`].

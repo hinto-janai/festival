@@ -88,7 +88,7 @@ impl Ccd {
 	// Public facing "front-end" function for making a new `Collection`.
 	//
 	// These operations are split up into different private
-	// functions mostly for testing flexability.
+	// functions mostly for testing flexibility.
 	pub(crate) fn new_collection(
 		to_kernel: Sender<CcdToKernel>,
 		from_kernel: Receiver<KernelToCcd>,
