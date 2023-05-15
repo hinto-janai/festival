@@ -430,9 +430,10 @@ impl super::Ccd {
 			album.song_count = Unsigned::from(album.songs.len());
 
 			// Total runtime.
-			let mut runtime = 0;
-			album.songs.iter().for_each(|key| runtime += vec_song[key.inner()].runtime.inner());
-			album.runtime = Runtime::from(runtime);
+			album.runtime = Runtime::from(album.songs
+				.iter()
+				.map(|key| vec_song[key.inner()].runtime.inner())
+				.sum::<u32>());
 
 			// Sort songs based off `track`.
 			album.songs.sort_by(|a, b|
