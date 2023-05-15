@@ -22,8 +22,12 @@ pub const FESTIVAL_NAME_VER: &str = {
 	concat!("Festival v", env!("CARGO_PKG_VERSION"))
 };
 
-/// "Festival", as a `&'static str`
+/// "Festival", the main project folder.
 pub const FESTIVAL: &str = "Festival";
+/// "shukusai", the internals sub-directory.
+pub const SHUKUSAI: &str = "shukusai";
+/// "txt", the internals sub-directory for misc text files.
+pub const TXT: &str = "txt";
 
 /// Current `git` commit of `festival`
 pub const COMMIT: &str = {
@@ -41,7 +45,7 @@ pub const BUILD: &str = if cfg!(debug_assertions) { "Debug" } else { "Release" }
 /// Festival's copyright.
 pub const COPYRIGHT: &str =
 r#"Festival is licensed under the MIT License.
-For more information on the project, see link below:
+For more information on the project, see below:
 <https://github.com/hinto-janai/festival>"#;
 
 /// Logging separator
@@ -56,7 +60,7 @@ pub const DASH: &str = "--------------------------------------------";
 /// It is the UTF-8 encoded string `-----BEGIN FESTIVAL-----` as bytes.
 ///
 /// The next byte _should_ be our `VERSION`, then our actual data.
-pub const FESTIVAL_HEADER: [u8; 24] = [
+pub const HEADER: [u8; 24] = [
 	45, 45, 45, 45, 45,             // -----
 	66, 69, 71, 73, 78,             // BEGIN
 	32,                             //

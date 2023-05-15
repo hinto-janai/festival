@@ -24,8 +24,7 @@ use shukusai::kernel::{
 	KernelToFrontend,
 	KernelState,
 };
-use disk::Bincode2;
-use disk::Toml;
+use disk::{Bincode2,Toml,Json};
 use crate::data::Gui;
 use crossbeam::channel::{
 	Sender,

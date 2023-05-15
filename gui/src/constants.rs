@@ -124,7 +124,10 @@ pub const EXIT_COUNTDOWN: u8 = 30;
 /// How many bytes to allow in the search bar before truncating.
 pub const SEARCH_MAX_LEN: usize = u8::MAX as usize;
 
-//---------------------------------------------------------------------------------------------------- Version
+//---------------------------------------------------------------------------------------------------- Disk
+/// "gui", `GUI`'s sub-directory in the `Festival` project folder.
+pub const GUI: &str = "gui";
+
 /// Current major version of `State`
 pub const STATE_VERSION: u8 = 0;
 
@@ -135,7 +138,7 @@ pub const SETTINGS_VERSION: u8 = 0;
 pub const APP_WIDTH_MIN:          f32 = 1000.0;
 pub const APP_HEIGHT_MIN:         f32 = 800.0;
 pub const APP_RESOLUTION_MIN:     [f32; 2] = [APP_WIDTH_MIN, APP_HEIGHT_MIN];
-pub const ALBUM_ART_SIZE_MIN:     f32 = 50.0;
+pub const ALBUM_ART_SIZE_MIN:     f32 = 100.0;
 pub const ALBUM_ART_SIZE_MAX:     f32 = shukusai::collection::ALBUM_ART_SIZE as f32;
 pub const ALBUM_ART_SIZE_DEFAULT: f32 = 227.0;
 pub const ALBUMS_PER_ROW_MIN:      u8 = 1;

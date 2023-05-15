@@ -9,11 +9,12 @@ use super::{
 use std::path::PathBuf;
 use crate::constants::{
 	STATE_VERSION,
+	GUI,
 	ALBUM_ART_SIZE_DEFAULT,
 };
 use shukusai::{
 	FESTIVAL,
-	FESTIVAL_HEADER,
+	HEADER,
 };
 use shukusai::collection::{
 	Album,
@@ -28,8 +29,10 @@ use shukusai::kernel::{
 };
 
 //---------------------------------------------------------------------------------------------------- State
-disk::bincode2!(State, disk::Dir::Data, FESTIVAL, "gui", "state", FESTIVAL_HEADER, STATE_VERSION);
-//toml_file!(State, Dir::Data, FESTIVAL, "gui", "state");
+#[cfg(debug_assertions)]
+disk::json!(State, disk::Dir::Data, FESTIVAL, GUI, "state");
+#[cfg(not(debug_assertions))]
+disk::bincode2!(State, disk::Dir::Data, FESTIVAL, GUI, "state", HEADER, STATE_VERSION);
 #[derive(Copy,Clone,Debug,Default,PartialEq,PartialOrd,Serialize,Deserialize,Encode,Decode)]
 /// `GUI`'s State.
 ///

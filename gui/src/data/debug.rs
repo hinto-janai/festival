@@ -1,5 +1,6 @@
 //---------------------------------------------------------------------------------------------------- Use
 use super::Gui;
+use crate::constants::GUI;
 use shukusai::{
 	DASH,
 	BUILD,
@@ -15,7 +16,7 @@ use benri::atomic_load;
 use serde::{Serialize,Deserialize};
 
 //---------------------------------------------------------------------------------------------------- Debug screen formatter.
-disk::plain!(DebugInfo, disk::Dir::Data, FESTIVAL, "gui", "debug");
+disk::plain!(DebugInfo, disk::Dir::Data, FESTIVAL, GUI, "debug");
 #[derive(Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
 #[serde(transparent)]
 /// File representing GUI debug info.

@@ -24,8 +24,7 @@ use benri::{
 	sync::*,
 	log::*,
 };
-use disk::Bincode2;
-use disk::Plain;
+use disk::{Bincode2,Json,Plain};
 use super::{KernelToFrontend, FrontendToKernel};
 use crate::{
 	ccd::{KernelToCcd, CcdToKernel, Ccd},

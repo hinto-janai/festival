@@ -47,8 +47,7 @@ use std::sync::{
 	atomic::AtomicU8,
 };
 use rolock::RoLock;
-use disk::Toml;
-use disk::Bincode2;
+use disk::{Bincode2,Toml,Json};
 use std::time::Instant;
 use super::AlbumSizing;
 use garde::Validate;

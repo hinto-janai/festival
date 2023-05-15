@@ -60,12 +60,13 @@ stack backtrace:\n{}",
 }
 
 //----------------------------------------------------------------------------------------------------
-disk::plain!(Panic, disk::Dir::Data, FESTIVAL, "txt", "panic");
+disk::plain!(Panic, disk::Dir::Data, FESTIVAL, "txt", "crash");
 #[derive(Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
 #[serde(transparent)]
 /// File representing a `panic!()` log.
 ///
-/// This gets written in the `festival/txt` folder as `panic.txt`.
+/// This gets written in the `festival/txt` folder as `crash.txt`
+/// (not `panic.txt` since `p` collides with `perf.txt`).
 ///
 /// The first thing `Kernel` will do when you spawn it
 /// with `Kernel::spawn()` is set a custom [`panic!()`] hook.

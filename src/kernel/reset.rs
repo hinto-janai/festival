@@ -12,11 +12,6 @@ use crate::collection::{
 	Queue,
 	Playlist,
 };
-use crate::constants::{
-	FESTIVAL,
-	FESTIVAL_HEADER,
-	STATE_VERSION,
-};
 use rolock::RoLock;
 use super::Volume;
 use crate::kernel::Kernel;

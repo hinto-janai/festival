@@ -24,7 +24,7 @@ use std::collections::HashMap;
 //use disk::{Json,json_file};
 use crate::constants::{
 	FESTIVAL,
-	FESTIVAL_HEADER,
+	HEADER,
 	COLLECTION_VERSION,
 };
 use rand::{
@@ -51,7 +51,7 @@ static RNG: Lazy<Mutex<rand::rngs::SmallRng>> = Lazy::new(|| Mutex::new(rand::rn
 pub(crate) static DUMMY_COLLECTION: Lazy<Arc<Collection>> = Lazy::new(|| Arc::new(Collection::new()));
 
 //---------------------------------------------------------------------------------------------------- Collection
-disk::bincode2!(Collection, disk::Dir::Data, FESTIVAL, "", "collection", FESTIVAL_HEADER, COLLECTION_VERSION);
+disk::bincode2!(Collection, disk::Dir::Data, FESTIVAL, "", "collection", HEADER, COLLECTION_VERSION);
 #[derive(Clone,Debug,PartialEq,Encode,Decode)]
 //#[derive(Clone,Debug,Serialize,Deserialize,PartialEq,Encode,Decode)]
 /// The main music `Collection`

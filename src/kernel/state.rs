@@ -15,7 +15,8 @@ use crate::collection::{
 };
 use crate::constants::{
 	FESTIVAL,
-	FESTIVAL_HEADER,
+	SHUKUSAI,
+	HEADER,
 	STATE_VERSION,
 };
 use rolock::RoLock;
@@ -76,7 +77,10 @@ impl Default for AudioState {
 }
 
 //---------------------------------------------------------------------------------------------------- KernelState
-disk::bincode2!(KernelState, disk::Dir::Data, FESTIVAL, "", "state", FESTIVAL_HEADER, STATE_VERSION);
+#[cfg(debug_assertions)]
+disk::json!(KernelState, disk::Dir::Data, FESTIVAL, SHUKUSAI, "state");
+#[cfg(not(debug_assertions))]
+disk::bincode2!(KernelState, disk::Dir::Data, FESTIVAL, SHUKUSAI, "state", HEADER, STATE_VERSION);
 #[derive(Clone,Debug,PartialOrd,PartialEq,Serialize,Deserialize,Encode,Decode)]
 /// Kernel State
 ///
