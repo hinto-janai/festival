@@ -13,11 +13,18 @@ use shukusai::collection::{
 use crate::constants::{
 	GRAY,
 };
+use crate::slice::Head;
 
 //---------------------------------------------------------------------------------------------------- Main central panel.
 impl crate::data::Gui {
 #[inline(always)]
 pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
+	self.set_visuals(ui);
+
+	// Sizing.
+	let width  = ui.available_width();
+	let height = ui.available_height();
+
 	// Extract `AlbumKey`.
 	let album_key = match self.state.album {
 		Some(k) => k,
@@ -25,7 +32,7 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &
 		// If no `AlbumKey` selected, show text.
 		None => {
 			let label = Label::new(RichText::new("🗋 Select an album in the [Album] tab").color(GRAY));
-			ui.add_sized(ui.available_size(), label);
+			ui.add_sized([width, height], label);
 
 			return;
 		}
@@ -35,6 +42,7 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &
 
 	ui.add_space(height/50.0);
 
+	// `Album` art.
 	ui.vertical_centered(|ui| {
 		ui.set_max_width(height/3.0);
 		Frame::window(&ctx.style()).rounding(Rounding::none()).inner_margin(1.0).show(ui, |ui| {
@@ -42,8 +50,10 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &
 			album.art_or().show_size(ui, Vec2::new(size, size));
 		});
 	});
+
+	// `Artist/Album` info.
 	ui.vertical_centered(|ui| {
-		ui.set_max_width(ui.available_width());
+		ui.set_max_width(width);
 		ui.add_space(8.0);
 		ui.heading(&album.title);
 		ui.label(&self.collection.artists[album.artist].name);
@@ -51,22 +61,32 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &
 		ui.add_space(8.0);
 	});
 
+	// `Song` list.
 	ui.separator();
-	ui.visuals_mut().selection.bg_fill = Color32::from_rgb(200, 100, 100);
-	ui.visuals_mut().selection.stroke = Stroke { width: 5.0, color: Color32::from_rgb(255, 255, 255) };
 	ScrollArea::vertical().max_width(f32::INFINITY).max_height(f32::INFINITY).auto_shrink([false; 2]).show_viewport(ui, |ui, _| {
-	for key in &self.collection.artists[album.artist].albums {
+
+	// How many char's before we need
+	// to cut off the song title?
+	// (scales based on pixels available).
+	let head = (width / 18.5) as usize;
+
+	for key in album.songs.iter() {
 		let mut rect = ui.cursor();
 		rect.max.y = rect.min.y + 35.0;
-		if ui.put(rect, SelectableLabel::new(*key == self.state.album.unwrap(), "")).clicked() {
-			self.state.album = Some(*key);
+		if ui.put(rect, SelectableLabel::new(false, "")).clicked() {
+		// TODO: Implement song key state.
+//		if ui.put(rect, SelectableLabel::new(self.state.audio.current_key.song() == Some(*key), "")).clicked() {
+//			self.state.audio.current_key = Some(*key);
 		}
 		rect.max.x = rect.min.x;
 		ui.allocate_ui_at_rect(rect, |ui| {
 			ui.horizontal_centered(|ui| {
-//				ui.add(Label::new(format!("{: >6}{: >10}      {}", i, time, name)).wrap(false));
+				let song = &self.collection.songs[key];
+				ui.add(Label::new(format!("{: >3}    {: >8}    {}", song.track.unwrap_or(0), song.runtime, song.title.head_dot(head).as_str())).wrap(false));
 			});
 		});
+
+//		ui.separator();
 	}
 	});
 }}
