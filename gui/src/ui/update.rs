@@ -51,6 +51,7 @@ use crate::constants::{
 	BLACK,
 };
 use crate::text::{
+	EMPTY_COLLECTION,
 	COLLECTION_LOADING,
 	COLLECTION_RESETTING,
 	UI_PREVIOUS,
@@ -356,28 +357,28 @@ fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f
 			}
 
 			// Album art size (only on `Albums` tab, only in `DEBUG` build).
-			#[cfg(debug_assertions)]
-			{
-				if self.state.tab == Tab::Albums {
-					ui.horizontal(|ui| { ui.group(|ui| {
-						let width  = (ui.available_width() / 2.0) - 10.0;
-						let height = tab_height / 2.0;
-						ui.scope(|ui| {
-							ui.set_enabled(!self.album_size_is_min());
-							if ui.add_sized([width, tab_height], Button::new(RichText::new("-").size(30.0))).on_hover_text(DECREMENT_ALBUM_SIZE).clicked() {
-								self.decrement_art_size();
-							}
-						});
-						ui.separator();
-						ui.scope(|ui| {
-							ui.set_enabled(!self.album_size_is_max());
-							if ui.add_sized([width, tab_height], Button::new(RichText::new("+").size(25.0))).on_hover_text(INCREMENT_ALBUM_SIZE).clicked() {
-								self.increment_art_size();
-							}
-						});
-					})});
-				}
-			}
+//			#[cfg(debug_assertions)]
+//			{
+//				if self.state.tab == Tab::Albums {
+//					ui.horizontal(|ui| { ui.group(|ui| {
+//						let width  = (ui.available_width() / 2.0) - 10.0;
+//						let height = tab_height / 2.0;
+//						ui.scope(|ui| {
+//							ui.set_enabled(!self.album_size_is_min());
+//							if ui.add_sized([width, tab_height], Button::new(RichText::new("-").size(30.0))).on_hover_text(DECREMENT_ALBUM_SIZE).clicked() {
+//								self.decrement_art_size();
+//							}
+//						});
+//						ui.separator();
+//						ui.scope(|ui| {
+//							ui.set_enabled(!self.album_size_is_max());
+//							if ui.add_sized([width, tab_height], Button::new(RichText::new("+").size(25.0))).on_hover_text(INCREMENT_ALBUM_SIZE).clicked() {
+//								self.increment_art_size();
+//							}
+//						});
+//					})});
+//				}
+//			}
 
 			// Volume slider
 			let slider_height = ui.available_height() - 20.0;
@@ -415,13 +416,20 @@ impl Gui {
 fn show_central(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32, side_panel_width: f32, side_panel_height: f32) {
 	CentralPanel::default().show(ctx, |ui| {
 		self.set_visuals(ui);
+
+		// Handle empty `Collection`.
+		if self.collection.empty && self.state.tab != Tab::Settings {
+			self.show_empty_collection(ui, ctx, frame, width, height);
+			return;
+		}
+
 		match self.state.tab {
 			Tab::View      => self.show_tab_view(ui, ctx, frame, width, height),
 			Tab::Albums    => self.show_tab_albums(ui, ctx, frame, width, height),
 			Tab::Artists   => self.show_tab_artists(ui, ctx, frame, width, height),
 			Tab::Songs     => self.show_tab_songs(ui, ctx, frame, width, height),
 			Tab::Queue     => self.show_tab_queue(ui, ctx, frame, width, height),
-			// TODO: Make `shukusai` playlists suck less.
+			// SOMEDAY: Make `shukusai` playlists suck less.
 //			Tab::Playlists => (),
 			Tab::Search    => self.show_tab_search(ui, ctx, frame, width, height),
 			Tab::Settings  => self.show_tab_settings(ui, ctx, frame, width, height),
@@ -429,6 +437,25 @@ fn show_central(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width
 	});
 }}
 
+//---------------------------------------------------------------------------------------------------- Empty Collection
+// Shows a button that resets the `Collection`.
+// Used for tabs when the `Collection` is empty.
+impl Gui {
+#[inline(always)]
+fn show_empty_collection(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
+	// Handle empty or no `Collection`.
+	let button = Button::new(RichText::new("🔃 Empty Collection. Click to scan.").color(BONE));
+	let width  = width / 1.5;
+	let height = height / 10.0;
+
+	ui.vertical_centered(|ui| {
+		ui.add_space(height * 4.0);
+
+		if ui.add_sized([width, height], button).on_hover_text(EMPTY_COLLECTION).clicked() {
+			self.reset_collection();
+		}
+	});
+}}
 
 //---------------------------------------------------------------------------------------------------- Spinner (Exit)
 // This is a fullscreen spinner.

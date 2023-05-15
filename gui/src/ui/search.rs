@@ -81,14 +81,6 @@ CentralPanel::default().show(ctx, |ui| {
 		}
 	});
 
-	// Return if the `Collection` is empty.
-	if self.collection.empty {
-		let label = Label::new(RichText::new(SEARCH_EMPTY_COLLECTION).color(GRAY));
-		ui.add_sized(ui.available_size(), label);
-
-		return;
-	}
-
 	// If search input is empty, reset result, show help.
 	if self.search_string.is_empty() {
 		if !self.search_result.is_empty() {

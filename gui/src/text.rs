@@ -33,6 +33,12 @@ pub const VOLUME_SLIDER:        &str = "Increase/decrease audio volume";
 //---------------------------------------------------------------------------------------------------- Bottom Bar
 pub const SAVING: &str = "Festival is still saving a recently created Collection";
 
+//---------------------------------------------------------------------------------------------------- Albums tab
+pub const EMPTY_COLLECTION: &str =
+r#"This scans the system's Music directory.
+
+Configure which directories to scan in the [Settings] tab."#;
+
 //---------------------------------------------------------------------------------------------------- Settings Tab
 pub const RESET:             &str = "Reset changes (CTRL+Z)";
 pub const SAVE:              &str = "Save changes to disk (CTRL+S)";
@@ -53,7 +59,7 @@ pub const REMOVE_FOLDER:     &str = "Remove this folder";
 pub const RESET_COLLECTION:  &str =
 r#"Scan the folders listed and create a new Collection (CTRL+R).
 
-If no directories are listed, the default Audio/Music directory is scanned."#;
+If no directories are listed, the default Music directory is scanned."#;
 pub const STATS:             &str = "Stats about your current Collection";
 
 //---------------------------------------------------------------------------------------------------- Search Tab
