@@ -50,7 +50,10 @@ pub const ACCENT_COLOR:      &str = "Which accent color to use (RGB)";
 pub const COLLECTION:        &str = "The main music Collection that stores all (meta)data about the audio files";
 pub const ADD_FOLDER:        &str = "Add a maximum of 10 folders to scan for the Collection (CTRL+A)";
 pub const REMOVE_FOLDER:     &str = "Remove this folder";
-pub const RESET_COLLECTION:  &str = "Scan the folders listed and create a new Collection (CTRL+R)";
+pub const RESET_COLLECTION:  &str =
+r#"Scan the folders listed and create a new Collection (CTRL+R).
+
+If no directories are listed, the default Audio/Music directory is scanned."#;
 pub const STATS:             &str = "Stats about your current Collection";
 
 //---------------------------------------------------------------------------------------------------- Search Tab

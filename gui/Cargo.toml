@@ -39,6 +39,7 @@ rfd = "0.11.3"
 const_format = "0.2.30"
 garde = "0.11.2"
 once_cell = "1.17.1"
+dirs = "5.0.1"
 
 # For Windows build (icon)
 [target.'cfg(windows)'.build-dependencies]

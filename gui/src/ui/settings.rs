@@ -305,13 +305,9 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 		ui.add_space(10.0);
 
 		// Reset collection.
-		ui.scope(|ui| {
-			ui.set_enabled(collection_paths_len > 0 && !self.resetting_collection);
-
-			if ui.add_sized([width - 15.0, text], Button::new("Reset Collection")).on_hover_text(RESET_COLLECTION).clicked() {
-				self.reset_collection();
-			}
-		});
+		if ui.add_sized([width - 15.0, text], Button::new("Reset Collection")).on_hover_text(RESET_COLLECTION).clicked() {
+			self.reset_collection();
+		}
 
 		ui.add_space(60.0);
 		ui.separator();

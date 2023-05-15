@@ -234,6 +234,17 @@ impl Gui {
 		self.collection = Collection::dummy();
 
 		// Send signal to `Kernel`.
+		if self.settings.collection_paths.is_empty() {
+			match dirs::audio_dir() {
+				Some(p) => {
+					info!("GUI - Collection reset requested but no PATHs, adding: {}", p.display());
+					self.settings.collection_paths.push(p);
+				},
+				None => {
+					warn!("GUI - Collection reset requested but no PATHs and could not find user's audio PATH");
+				}
+			}
+		}
 		send!(self.to_kernel, FrontendToKernel::NewCollection(self.settings.collection_paths.clone()));
 
 		// Go into collection mode.
