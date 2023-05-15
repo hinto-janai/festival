@@ -1,0 +1,69 @@
+# This clippys, docs, tests, builds.
+
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: -Awarnings
+  RUST_BACKTRACE: "full"
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [windows-2022, windows-2019, macos-12, macos-11, ubuntu-22.04, ubuntu-20.04]
+        build: [dev, release]
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - name: Cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cargo
+          target
+        key: ${{ matrix.os }}
+
+    - name: Install dependencies
+      run: |
+        if [ "$RUNNER_OS" == "Linux" ]; then
+          sudo apt update
+          sudo apt install -y libgtk-3-dev
+        fi
+      shell: bash
+
+    - name: Clippy
+      run: cargo clippy --all-features --profile ${{ matrix.build }}
+
+    - name: Doc
+      run: cargo doc --workspace --no-deps --all-features --profile ${{ matrix.build }}
+
+    - name: Test
+      run: cargo test --all-features --profile ${{ matrix.build }}
+
+    - name: Build
+      run: cargo build --all-features --profile ${{ matrix.build }}
+
+    - name: Archive (debug)
+      uses: actions/upload-artifact@v3
+      with:
+        name: festival-debug-${{ matrix.os }}
+        path: target/debug/festival[.exe]
+
+    - name: Archive (release)
+      uses: actions/upload-artifact@v3
+      with:
+        name: festival-release-${{ matrix.os }}
+        path: target/release/festival[.exe]
