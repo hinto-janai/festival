@@ -125,7 +125,7 @@ impl Ccd {
 		// 2.
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((5.00, Phase::Parse)));
-		let (vec_artist, mut vec_album, vec_song, count_art) = Self::the_loop(&to_kernel, paths);
+		let (mut vec_artist, mut vec_album, vec_song, count_art) = Self::the_loop(&to_kernel, paths);
 		// Update should be < 50% at this point.
 		let perf_metadata = secs_f32!(now);
 		trace!("CCD [2/14] - Metadata: {perf_metadata}");
@@ -133,7 +133,7 @@ impl Ccd {
 		// 3.
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((50.00, Phase::Fix)));
-		Self::fix_album_metadata_from_songs(&mut vec_album, &vec_song);
+		Self::fix_metadata(&mut vec_artist, &mut vec_album, &vec_song);
 		let perf_fix = secs_f32!(now);
 		trace!("CCD [3/14] - Fix: {perf_fix}");
 

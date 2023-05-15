@@ -412,11 +412,19 @@ impl super::Ccd {
 	}
 
 	#[inline(always)]
-	// Takes in the incomplete `Vec`'s from above.
-	// Adds the ancillary metadata to the `Album`'s based off the `Song`'s within it.
+	// Takes in the incomplete `Vec`'s from above and fixes some stuff.
 	//
-	// The last field after this, `Art`, will be completed in the `convert` phase.
-	pub(super) fn fix_album_metadata_from_songs(vec_album: &mut [Album], vec_song: &[Song]) {
+	// The last `Album` field after this, `Art`, will be completed in the `convert` phase.
+	pub(super) fn fix_metadata(vec_artist: &mut [Artist], vec_album: &mut [Album], vec_song: &[Song]) {
+		// Fix `Album` order in the `Artist` (release order).
+		for artist in vec_artist {
+			artist.albums.sort_by(|a, b| {
+				vec_album[a.inner()].release.cmp(
+					&vec_album[b.inner()].release
+				)
+			});
+		}
+
 		for album in vec_album {
 			// Song count.
 			album.song_count = Unsigned::from(album.songs.len());
@@ -425,6 +433,13 @@ impl super::Ccd {
 			let mut runtime = 0;
 			album.songs.iter().for_each(|key| runtime += vec_song[key.inner()].runtime.inner());
 			album.runtime = Runtime::from(runtime);
+
+			// Sort songs based off `track`.
+			album.songs.sort_by(|a, b|
+				vec_song[a.inner()].track.cmp(
+					&vec_song[b.inner()].track
+				)
+			);
 		}
 	}
 
