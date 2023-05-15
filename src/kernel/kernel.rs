@@ -23,7 +23,6 @@ use benri::{
 	ops::*,
 	sync::*,
 	log::*,
-	mass_panic,
 };
 use disk::Bincode2;
 use disk::Plain;

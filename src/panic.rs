@@ -9,7 +9,6 @@
 use crate::kernel::Kernel;
 use crate::FESTIVAL;
 use serde::{Serialize,Deserialize};
-use benri::mass_panic;
 use disk::Plain;
 use std::fmt::Write;
 
@@ -56,7 +55,7 @@ stack backtrace:\n{}",
 			_              => eprintln!("\nmass_panic!() - Could not save panic log\n"),
 		}
 		// Exit all threads.
-		mass_panic!(panic_info);
+		benri::mass_panic!(panic_info);
 	}));
 }
 

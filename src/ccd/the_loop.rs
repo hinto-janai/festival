@@ -404,10 +404,10 @@ impl super::Ccd {
 		// As long as none of the above `scoped` threads
 		// `panic()!`'ed, these `.into_inner()`'s are safe.
 		(
-			unwrap_or_mass!(vec_artist.into_inner()),
-			unwrap_or_mass!(vec_album.into_inner()),
-			unwrap_or_mass!(vec_song.into_inner()),
-			unwrap_or_mass!(count_art.into_inner()),
+			vec_artist.into_inner().unwrap(),
+			vec_album.into_inner().unwrap(),
+			vec_song.into_inner().unwrap(),
+			count_art.into_inner().unwrap(),
 		)
 	}
 

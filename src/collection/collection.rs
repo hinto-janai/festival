@@ -35,7 +35,6 @@ use rand::{
 use std::sync::{Arc,Mutex};
 use benri::{
 	lock,
-	mass_panic,
 };
 use readable::{
 	Time,
