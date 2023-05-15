@@ -269,7 +269,7 @@ impl super::Ccd {
 				track_artists,
 				disc,
 				path,
-				album: AlbumKey::from(vec_song.len()),
+				album: AlbumKey::from(vec_album.len()),
 				..Default::default()
 			};
 
@@ -279,7 +279,7 @@ impl super::Ccd {
 				release,
 				compilation,
 
-				artist: ArtistKey::from(vec_artist.len() - 1),
+				artist: ArtistKey::from(*artist_idx),
 				songs: vec![SongKey::from(vec_song.len())],
 
 				// Needs to be updated later.
