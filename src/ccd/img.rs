@@ -100,6 +100,13 @@ pub(crate) fn create_resizer() -> fir::Resizer {
 }
 
 #[inline(always)]
+// FIXME:
+// This function is really slow.
+// The image probably doesn't need to be dynamic.
+// We should only expect RGB/RGBA images.
+//
+// This is the `heaviest` function within the entire `new_collection()` function.
+// It accounts for around 70% of the total time spent making the `Collection`.
 fn bytes_to_dyn_image(bytes: &[u8]) -> Result<image::DynamicImage, anyhow::Error> {
 	match image::load_from_memory(bytes) {
 		Ok(img) => Ok(img),

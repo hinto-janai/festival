@@ -448,8 +448,8 @@ impl super::Ccd {
 	#[inline(always)]
 	// Attempts to probe a `Path`.
 	//
-	// This is the `heaviest` function within the entire `new_collection()` function.
-	// It accounts for around 90% of the total time spent making the `Collection`.
+	// This is the 2nd `heaviest` function within the entire `new_collection()` function.
+	// It accounts for around 20% of the total time spent making the `Collection`.
 	fn path_to_tagged_file(path: &Path) -> Result<lofty::TaggedFile, anyhow::Error> {
 		use std::fs::File;
 		use std::io::BufReader;
