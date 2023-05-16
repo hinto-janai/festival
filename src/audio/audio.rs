@@ -7,6 +7,7 @@ use log::{error,warn,info,debug,trace};
 //use disk::{};
 //use std::{};
 use benri::{
+	debug_panic,
 	log::*,
 	sync::*,
 };
@@ -128,6 +129,7 @@ impl Audio {
 				return self
 			}
 
+			debug_panic!("Audio - Incorrect message received");
 			error!("Audio - Incorrect message received");
 		}
 	}

@@ -2,6 +2,7 @@
 //use anyhow::{anyhow,bail,ensure};
 use log::{error,warn,info,debug,trace};
 use benri::{
+	debug_panic,
 	log::*,
 	sync::*,
 };
@@ -112,7 +113,9 @@ impl Search {
 			(true, false) => std::cmp::Ordering::Less,
 			(true, true) => std::cmp::Ordering::Equal,
 			_ => {
-				error!("cmp_f64() has failed, input: {} - {}", a, b);
+				debug_panic!("cmp_f64() has failed, input: {a} - {b}");
+
+				error!("cmp_f64() has failed, input: {a} - {b}");
 				std::cmp::Ordering::Less
 			},
 		}
@@ -139,7 +142,10 @@ impl Search {
 				// Other messages shouldn't be received here, e.g:
 				// `DropCollection` should _always_ be first before `NewCollection`.
 				// Something buggy is happening if we randomly get a new `NewCollection`.
-				NewCollection(_) => error!("Search - Incorrect message received - NewCollection"),
+				NewCollection(_) => {
+					debug_panic!("Search - Incorrect message received - NewCollection");
+					error!("Search - Incorrect message received - NewCollection");
+				},
 			}
 		}
 	}
@@ -220,7 +226,10 @@ impl Search {
 					};
 					return
 				},
-				_ => error!("Search - Incorrect message received"),
+				_ => {
+					debug_panic!("Search - Incorrect message received");
+					error!("Search - Incorrect message received");
+				},
 			}
 
 		}

@@ -19,6 +19,7 @@ use super::reset::ResetState;
 use super::phase::Phase;
 use rolock::RoLock;
 use benri::{
+	debug_panic,
 	time::*,
 	ops::*,
 	sync::*,
@@ -217,7 +218,9 @@ impl Kernel {
 				// old `Collection` pointer to everyone
 				// and return out of this function.
 				Failed(anyhow) => {
-					error!("Kernel - Collection failed: {}", anyhow.to_string());
+					debug_panic!("{anyhow}");
+
+					error!("Kernel - Collection failed: {anyhow}");
 					break None;
 				},
 			}
@@ -247,6 +250,7 @@ impl Kernel {
 		beginning:     std::time::Instant,
 	) {
 		/* TODO: initialize and sanitize collection & misc data */
+
 		debug!("Kernel [6/12] ... entering kernel()");
 		let state = match state {
 			Ok(state) => {
@@ -476,7 +480,10 @@ impl Kernel {
 				debug!("Kernel - State save: {o}");
 				send!(self.to_frontend, KernelToFrontend::Exit(Ok(())));
 			},
-			Err(e) => send!(self.to_frontend, KernelToFrontend::Exit(Err(e.to_string()))),
+			Err(e) => {
+				debug_panic!("{e}");
+				send!(self.to_frontend, KernelToFrontend::Exit(Err(e.to_string())));
+			},
 		}
 
 		// Hang forever.
@@ -555,6 +562,8 @@ impl Kernel {
 				// old `Collection` pointer to everyone
 				// and return out of this function.
 				Failed(anyhow) => {
+					debug_panic!("{anyhow}");
+
 					send!(self.to_search,   KernelToSearch::NewCollection(Arc::clone(&self.collection)));
 					send!(self.to_audio,    KernelToAudio::NewCollection(Arc::clone(&self.collection)));
 					send!(self.to_frontend, KernelToFrontend::Failed((Arc::clone(&self.collection), anyhow.to_string())));

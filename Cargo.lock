@@ -482,8 +482,8 @@ checksum = "a4a4ddaa51a5bc52a6948f74c06d20aaaddb71924eab79b8c97a8c556e942d6a"
 
 [[package]]
 name = "benri"
-version = "0.1.6"
-source = "git+https://github.com/hinto-janai/benri#0d47fd9c9735841eac019325599dc20522e1ba21"
+version = "0.1.11"
+source = "git+https://github.com/hinto-janai/benri#9cb8995f34768e946052bc85f3b515f2c6511e3d"
 dependencies = [
  "log",
 ]

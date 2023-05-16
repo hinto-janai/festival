@@ -103,7 +103,7 @@ rustdoc-args = ["--cfg", "docsrs"]
 ### FIXME:
 ### Lock in versions on `v1.0.0` release.
 benri    = { version = "*", git = "https://github.com/hinto-janai/benri", features = ["log"] }
-disk     = { version = "0.1.13", git = "https://github.com/hinto-janai/disk", features = ["bincode2", "empty", "toml", "plain", "json", "bytesize"] }
+disk     = { version = "*", git = "https://github.com/hinto-janai/disk", features = ["bincode2", "empty", "toml", "plain", "json", "bytesize"] }
 readable = { version = "*", git = "https://github.com/hinto-janai/readable", features = ["full"] }
 rolock   = { version = "*", git = "https://github.com/hinto-janai/rolock" }
 

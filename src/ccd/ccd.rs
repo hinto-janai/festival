@@ -6,6 +6,7 @@ use log::{error,warn,info,debug,trace};
 //use disk::{};
 //use std::{};
 use benri::{
+	debug_panic,
 	log::*,
 	sync::*,
 	thread::*,
@@ -366,8 +367,12 @@ impl Ccd {
 		// We (`CCD`) are the only "entity" that should
 		// be touching `collection.bin` at this point.
 		let total_bytes = match unsafe { collection_for_disk.save_atomic_memmap() } {
-			Ok(md) => { debug!("CCD - Collection: {}", md); md.size()},
-			Err(e) => { fail!("CCD - Collection: {}", e); 0 },
+			Ok(md) => { debug!("CCD - Collection: {md}"); md.size()},
+			Err(e) => {
+				debug_panic!("CCD - Collection: {e}");
+				fail!("CCD - Collection: {e}");
+				0
+			},
 		};
 		// Set `saving` state.
 		lockw!(kernel_state).saving = false;
@@ -389,6 +394,8 @@ impl Ccd {
 		let now = now!();
 		for i in 1..=4 {
 			if i == 4 {
+				debug_panic!("CCD couldn't deconstruct the Collection");
+
 				error!("CCD [14/14] - Someone else is pointing to the old Collection...! I can't deconstruct it noooooooooo~");
 				break
 			}

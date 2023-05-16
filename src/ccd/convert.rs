@@ -145,8 +145,8 @@ impl super::Ccd {
 				Art::Bytes(b) => {
 					ok_trace!("{}", album.title);
 					match super::art_from_raw(b, &mut resizer) {
-						Ok(b) => Art::Bytes(b),
-						_ => Art::Unknown,
+						Ok(b)  => Art::Bytes(b),
+						Err(e) => { warn!("CCD - Art fail: {e} ... {}", album.title); Art::Unknown },
 					}
 				},
 				_ => {

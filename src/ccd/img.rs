@@ -23,10 +23,11 @@ use std::num::NonZeroU32;
 use std::sync::Arc;
 use crate::collection::ALBUM_ART_SIZE;
 use benri::{
+	debug_panic,
 	sync::*,
 	time::*,
 };
-use log::trace;
+use log::{warn,trace};
 use benri::log::fail;
 
 //---------------------------------------------------------------------------------------------------- Album Art Constants.
@@ -102,13 +103,26 @@ pub(crate) fn create_resizer() -> fir::Resizer {
 fn bytes_to_dyn_image(bytes: &[u8]) -> Result<image::DynamicImage, anyhow::Error> {
 	match image::load_from_memory(bytes) {
 		Ok(img) => Ok(img),
-		Err(e)  => bail!(e),
+		Err(e)  => {
+			use image::error::ImageError::*;
+			match e {
+				Decoding(e)    => { debug_panic!("{e}"); bail!(e); },
+				Encoding(e)    => { debug_panic!("{e}"); bail!(e); },
+				Parameter(e)   => { debug_panic!("{e}"); bail!(e); },
+				Limits(e)      => { debug_panic!("{e}"); bail!(e); },
+				IoError(e)     => { debug_panic!("{e}"); bail!(e); },
+				Unsupported(e) => { bail!(e); },
+			}
+		},
 	}
 }
 
 #[inline(always)]
 fn resize_dyn_image(img: image::DynamicImage, resizer: &mut fir::Resizer) -> Result<Box<[u8]>, anyhow::Error> {
 	// Make sure the image width/height is not 0.
+	debug_assert!(img.width() != 0);
+	debug_assert!(img.height() != 0);
+
 	let width = match NonZeroU32::new(img.width()) {
 		Some(w) => w,
 		None    => bail!("Album art width was 0"),
@@ -142,6 +156,8 @@ fn resize_dyn_image(img: image::DynamicImage, resizer: &mut fir::Resizer) -> Res
 //
 // Original `egui` function has an `assert!()`.
 fn rgb_bytes_to_color_img(bytes: &[u8]) -> egui::ColorImage {
+	debug_assert!(bytes.len() % 3 == 0);
+
 	egui::ColorImage {
 		size: [ALBUM_ART_SIZE; 2],
 		pixels: bytes.chunks_exact(3).map(|p| egui::Color32::from_rgb(p[0], p[1], p[2])).collect(),

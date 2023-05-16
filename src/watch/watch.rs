@@ -46,7 +46,7 @@ impl Watch {
 				p
 			},
 			Err(e) => {
-				fail!("Watch - {}", e);
+				fail!("Watch - {e}");
 				error!("Watch - Failed to get PATH. Signals will be ignored!");
 				panic!("{e}");
 			},
@@ -57,7 +57,7 @@ impl Watch {
 		let mut watcher = match RecommendedWatcher::new(tx, Config::default()) {
 			Ok(w) => w,
 			Err(e) => {
-				fail!("Watch - {}", e);
+				fail!("Watch - {e}");
 				error!("Watch - Failed to create watcher. Signals will be ignored!");
 				panic!("{e}");
 			},
@@ -65,7 +65,7 @@ impl Watch {
 
 		// Add PATH to watcher.
 		if let Err(e) = watcher.watch(&path, RecursiveMode::NonRecursive) {
-			fail!("Watch - {}", e);
+			fail!("Watch - {e}");
 			error!("Watch - Failed to watch. Signals will be ignored!");
 			panic!("{e}");
 		}
