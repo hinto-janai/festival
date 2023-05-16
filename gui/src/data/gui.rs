@@ -361,7 +361,17 @@ impl Gui {
 				(TextStyle::Name("35".into()),     FontId::new(35.0, FontFamily::Monospace)),
 				(TextStyle::Heading,               FontId::new(40.0, FontFamily::Monospace)),
 			].into(),
+
 			spacing: SPACING.clone(),
+
+			// Smooths out some resizing animations.
+			// Default is `1.0 / 12.0` (very fast).
+			animation_time: 0.25,
+
+			// This gets rid of the delay for tooltips.
+			// (It wants to wait until the pointer is still).
+			interaction: egui::style::Interaction { show_tooltips_only_when_still: false, ..Default::default() },
+
 			..Default::default()
 		};
 
