@@ -148,7 +148,6 @@ pub(super) fn show_tab_view_right_panel(&mut self, album_key: Option<AlbumKey>, 
 
 		// The scrollable area.
 		ScrollArea::vertical()
-			.id_source(album_key)
 			.max_width(width)
 			.max_height(f32::INFINITY)
 			.auto_shrink([false; 2])
