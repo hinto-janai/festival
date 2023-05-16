@@ -68,6 +68,12 @@ pub const HEADER: [u8; 24] = [
 	45, 45, 45, 45, 45              // -----
 ];
 
+/// [`HEADER`] as a `&'static str`.
+pub const HEADER_STR: &str = match std::str::from_utf8(&HEADER) {
+	Ok(s)  => s,
+	Err(_) => panic!(),
+};
+
 /// Current major version of the [`Collection`]
 pub const COLLECTION_VERSION: u8 = 0;
 

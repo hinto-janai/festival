@@ -128,11 +128,16 @@ pub use const_format::formatcp as const_format;
 //---------------------------------------------------------------------------------------------------- Public `/` stuff.
 mod constants;
 pub use constants::*;
+
 mod logger;
 pub use logger::init_logger;
 pub use logger::INIT_INSTANT;
+
 mod thread;
 pub use thread::*;
+
+mod metadata;
+pub use metadata::collection_metadata;
 
 //---------------------------------------------------------------------------------------------------- Public modules.
 mod panic;

@@ -38,8 +38,12 @@ pub struct Cli {
 	repeat: bool,
 
 	/// Set filter level for console logs
-	#[arg(long, value_name = "TRACE|DEBUG|WARN|INFO|ERROR")]
+	#[arg(long, value_name = "TRACE|DEBUG|WARN|INFO|ERROR|OFF")]
 	log_level: Option<log::LevelFilter>,
+
+	/// Print JSON metadata about the current `Collection` on disk
+	#[arg(long)]
+	metadata: bool,
 
 	/// Print version
 	#[arg(short, long)]
@@ -57,7 +61,15 @@ impl Cli {
 		// Version.
 		if cli.version {
 			println!("Festival {} {}\n{}", FESTIVAL_VERSION, COMMIT, COPYRIGHT);
-			exit(88);
+			exit(0);
+		}
+
+		// Metadata.
+		if cli.metadata {
+			match shukusai::collection_metadata() {
+				Ok(md) => { println!("{md}"); exit(0); },
+				Err(e) => { println!("ERROR: {e}"); exit(1); },
+			}
 		}
 
 		// Logger.
