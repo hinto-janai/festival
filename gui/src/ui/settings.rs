@@ -93,8 +93,70 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 		.auto_shrink([false; 2]);
 
 	scroll_area.show_viewport(ui, |ui, _| {
-		//-------------------------------------------------- Album Sort Order.
 		ui.add_space(45.0);
+
+		//-------------------------------------------------- Collection paths.
+		// Heading.
+		let label = Label::new(
+			RichText::new("Collection")
+			.color(BONE)
+			.text_style(TextStyle::Heading)
+		);
+		ui.add_sized([width, text], label).on_hover_text(COLLECTION);
+
+		// Add folder (max 10).
+		let collection_paths_len = self.settings.collection_paths.len();
+
+		ui.scope(|ui| {
+			ui.set_enabled(collection_paths_len < 10);
+
+			if ui.add_sized([width - 15.0, text], Button::new("Add folder")).on_hover_text(ADD_FOLDER).clicked() {
+				self.add_folder();
+			}
+		});
+
+		ui.add_space(10.0);
+
+		// List folders (max 10)
+		for i in 0..collection_paths_len {
+			ui.horizontal(|ui| {
+				let path  = format!("{}", self.settings.collection_paths[i].display());
+				let width = width / 20.0;
+
+				// Delete button.
+				if ui.add_sized([width, text], Button::new("-")).on_hover_text(REMOVE_FOLDER).clicked() {
+					self.deleted_paths.push(i);
+				}
+
+				// Show PATH.
+				ui.label(path.as_str()).on_hover_text(path.as_str());
+			});
+		}
+
+		// Delete folders.
+		// The PATHs cannot be deleted above
+		// because it will invalidate the next
+		// index and cause a panic, so the results
+		// are stored in `deleted_path`, which are used here.
+		if self.deleted_paths.len() > 0 {
+			for i in &self.deleted_paths {
+				self.settings.collection_paths.remove(*i);
+			}
+			self.deleted_paths.clear();
+		}
+
+		ui.add_space(10.0);
+
+		// Reset collection.
+		if ui.add_sized([width - 15.0, text], Button::new("Reset Collection")).on_hover_text(RESET_COLLECTION).clicked() {
+			self.reset_collection();
+		}
+
+		ui.add_space(60.0);
+		ui.separator();
+		ui.add_space(60.0);
+
+		//-------------------------------------------------- Album Sort Order.
 		// Heading.
 		let label = Label::new(
 			RichText::new("Album Sort Order")
@@ -252,67 +314,6 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 		ui.separator();
 		ui.add_space(60.0);
 
-		//-------------------------------------------------- Collection paths.
-		// Heading.
-		let label = Label::new(
-			RichText::new("Collection")
-			.color(BONE)
-			.text_style(TextStyle::Heading)
-		);
-		ui.add_sized([width, text], label).on_hover_text(COLLECTION);
-
-		// Add folder (max 10).
-		let collection_paths_len = self.settings.collection_paths.len();
-
-		ui.scope(|ui| {
-			ui.set_enabled(collection_paths_len < 10);
-
-			if ui.add_sized([width - 15.0, text], Button::new("Add folder")).on_hover_text(ADD_FOLDER).clicked() {
-				self.add_folder();
-			}
-		});
-
-		ui.add_space(10.0);
-
-		// List folders (max 10)
-		for i in 0..collection_paths_len {
-			ui.horizontal(|ui| {
-				let path  = format!("{}", self.settings.collection_paths[i].display());
-				let width = width / 20.0;
-
-				// Delete button.
-				if ui.add_sized([width, text], Button::new("-")).on_hover_text(REMOVE_FOLDER).clicked() {
-					self.deleted_paths.push(i);
-				}
-
-				// Show PATH.
-				ui.label(path.as_str()).on_hover_text(path.as_str());
-			});
-		}
-
-		// Delete folders.
-		// The PATHs cannot be deleted above
-		// because it will invalidate the next
-		// index and cause a panic, so the results
-		// are stored in `deleted_path`, which are used here.
-		if self.deleted_paths.len() > 0 {
-			for i in &self.deleted_paths {
-				self.settings.collection_paths.remove(*i);
-			}
-			self.deleted_paths.clear();
-		}
-
-		ui.add_space(10.0);
-
-		// Reset collection.
-		if ui.add_sized([width - 15.0, text], Button::new("Reset Collection")).on_hover_text(RESET_COLLECTION).clicked() {
-			self.reset_collection();
-		}
-
-		ui.add_space(60.0);
-		ui.separator();
-		ui.add_space(60.0);
-
 		//-------------------------------------------------- Stats.
 		// Heading.
 		let label = Label::new(
@@ -326,6 +327,10 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 		ui.add_sized([width, text], Label::new(&self.count_artist));
 		ui.add_sized([width, text], Label::new(&self.count_album));
 		ui.add_sized([width, text], Label::new(&self.count_song));
+
+		ui.add_space(60.0);
+//		ui.separator();
+//		ui.add_space(60.0);
 	});
 }}
 

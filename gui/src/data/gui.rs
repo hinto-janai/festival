@@ -331,10 +331,9 @@ impl Gui {
 		}
 	}
 
-	#[inline(always)]
 	/// Copies the data from our current [`Collection`],
 	/// formats it, and assigns it to [`Self`]'s `count_*` fields.
-	fn format_count_assign(&mut self) {
+	pub fn format_count_assign(&mut self) {
 		self.count_artist = format!("Artists: {}", self.collection.count_artist);
 		self.count_album  = format!("Albums: {}", self.collection.count_album);
 		self.count_song   = format!("Songs: {}", self.collection.count_song);
