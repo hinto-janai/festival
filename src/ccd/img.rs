@@ -211,12 +211,6 @@ pub(super) fn alloc_textures(albums: &crate::collection::Albums, ctx: &egui::Con
 	for album in albums.iter() {
 		// Continue only if this is a real `Art`.
 		if let crate::collection::Art::Known(art) = &album.art {
-			// Get `TextureManager`.
-			let tex_mngr = Arc::clone(&arc);
-
-			let image = egui::ImageData::Color(std::mem::take(&mut art.image.lock()));
-			let string = String::new();
-
 			// Prevent `GUI` from reader starvation.
 			if micros!(now) > 15 {
 				trace!("CCD - GUI starve prevention hit");
@@ -230,9 +224,15 @@ pub(super) fn alloc_textures(albums: &crate::collection::Albums, ctx: &egui::Con
 				now = now!();
 			}
 
-			// Allocate to `TextureManager`.
-			let tex_id = tex_mngr.write().alloc(string, image, art.options);
-			*art.texture.lock() = Some(egui::TextureHandle::new(tex_mngr, tex_id));
+			// INVARIANT:
+			// As of `egui_extras 0.21.0`, this function makes sure
+			// the inner image is allocated before returning the id.
+			//
+			// This behavior must exist for this to actually allocate the image.
+			match art.texture_id(ctx) {
+				egui::TextureId::User(id)    => trace!("CCD - User Allocated: {id}"),
+				egui::TextureId::Managed(id) => trace!("CCD - Managed Allocated: {id}"),
+			}
 		}
 	}
 }

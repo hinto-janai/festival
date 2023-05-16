@@ -85,19 +85,8 @@ impl PartialEq for Art {
 	fn eq(&self, other: &Self) -> bool {
 		match (self, other) {
 			(Self::Unknown, Self::Unknown) => true,
-			(Self::Bytes(b1), Self::Bytes(b2)) => {
-				b1 == b2
-			}
-			(Self::Known(r1), Self::Known(r2)) => {
-				match (&*r1.texture.lock(), &*r2.texture.lock()) {
-					(None, None) => true,
-					(Some(_), None) => false,
-					(None, Some(_)) => false,
-					(Some(t1), Some(t2)) => {
-						t1 == t2
-					},
-				}
-			}
+			(Self::Bytes(b1), Self::Bytes(b2)) => b1 == b2,
+			(Self::Known(_), Self::Known(_)) => true,
 			_ => false,
 		}
 	}
