@@ -1,18 +1,3 @@
-//---------------------------------------------------------------------------------------------------- Use
-//use anyhow::{anyhow,bail,ensure};
-//use log::{info,error,warn,trace,debug};
-//use serde::{Serialize,Deserialize};
-//use benri::{
-//};
-//use disk::prelude::*;
-//use disk::{};
-//use std::{};
-//use std::sync::{Arc,Mutex,RwLock};
-use compact_str::{
-	format_compact,
-	CompactString,
-};
-
 //---------------------------------------------------------------------------------------------------- Impl
 impl<T: AsRef<str> + std::fmt::Display> Head for T {}
 impl<T: AsRef<str> + std::fmt::Display> Tail for T {}
@@ -28,30 +13,30 @@ pub trait Head: AsRef<str> + std::fmt::Display {
 	///
 	/// ## Note
 	/// Input is split by [`char`]'s, not bytes.
-	fn head(&self, len: usize) -> CompactString {
+	fn head(&self, len: usize) -> String {
 		let s = self.as_ref();
 
 		if let Some((index, _)) = s.char_indices().nth(len) {
-			CompactString::new(&s[..index])
+			String::from(&s[..index])
 		} else {
-			CompactString::new(s)
+			String::from(s)
 		}
 	}
 
-	/// Same as [`head()`] but the [`CompactString`] ends with `...`
+	/// Same as [`head()`] but the [`String`] ends with `...`
 	///
 	/// This will return the full string without `...` if
 	/// the `len` is longer than the actual inner [`str`].
 	///
 	/// ## Note
 	/// Input is split by [`char`]'s, not bytes.
-	fn head_dot(&self, len: usize) -> CompactString {
+	fn head_dot(&self, len: usize) -> String {
 		let s = self.as_ref();
 
 		if let Some((index, _)) = s.char_indices().nth(len) {
-			format_compact!("{}...", &s[..index])
+			format!("{}...", &s[..index])
 		} else {
-			CompactString::new(s)
+			String::from(s)
 		}
 	}
 }
@@ -66,20 +51,20 @@ pub trait Tail: AsRef<str> + std::fmt::Display {
 	///
 	/// ## Note
 	/// Input is split by [`char`]'s, not bytes.
-	fn tail(&self, len: usize) -> CompactString {
+	fn tail(&self, len: usize) -> String {
 		let s = self.as_ref();
 
 		let end = s.chars().count();
 
 		if len >= end {
-			return CompactString::new(s);
+			return String::from(s);
 		}
 
 		if let Some((index, _)) = s.char_indices().nth(end - len) {
-			return CompactString::new(&s[index..]);
+			return String::from(&s[index..]);
 		}
 
-		CompactString::new(s)
+		String::from(s)
 	}
 
 	/// Same as [`tail()`] but returns a [`String`] starting with `...`
@@ -89,24 +74,24 @@ pub trait Tail: AsRef<str> + std::fmt::Display {
 	///
 	/// ## Note
 	/// Input is split by [`char`]'s, not bytes.
-	fn tail_dot(&self, len: usize) -> CompactString {
+	fn tail_dot(&self, len: usize) -> String {
 		let s = self.as_ref();
 
 		let end = s.chars().count();
 
 		if len >= end {
-			format_compact!("...{}", s);
+			format!("...{s}");
 		}
 
 		if let Some((index, _)) = s.char_indices().nth(end - len) {
-			return format_compact!("...{}", &s[index..]);
+			return format!("...{}", &s[index..]);
 		}
 
-		format_compact!("...{}", s)
+		format!("...{s}")
 	}
 }
 
-////---------------------------------------------------------------------------------------------------- HeadTail
+//---------------------------------------------------------------------------------------------------- HeadTail
 /// Get the head + tail part of a `str`.
 pub trait HeadTail: AsRef<str> + std::fmt::Display {
 	/// Return the first `head` bytes and last `tail`
@@ -114,13 +99,13 @@ pub trait HeadTail: AsRef<str> + std::fmt::Display {
 	///
 	/// ## Note
 	/// Input is split by [`char`]'s, not bytes.
-	fn head_tail(&self, head: usize, tail: usize) -> CompactString {
+	fn head_tail(&self, head: usize, tail: usize) -> String {
 		let s = self.as_ref();
 
 		let end = s.chars().count();
 
 		if head >= end || tail >= end || head + tail >= end {
-			return CompactString::new(s);
+			return String::from(s);
 		}
 
 		// Iterator is consumed, must create twice.
@@ -128,10 +113,10 @@ pub trait HeadTail: AsRef<str> + std::fmt::Display {
 		let tail = s.char_indices().nth(end - tail);
 
 		if let (Some((head, _)), Some((tail, _))) = (head, tail) {
-			return format_compact!("{}...{}", &s[..head], &s[tail..]);
+			return format!("{}...{}", &s[..head], &s[tail..]);
 		}
 
-		CompactString::new(s)
+		String::from(s)
 	}
 }
 

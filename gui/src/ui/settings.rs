@@ -85,14 +85,14 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 	ui.separator();
 
 	//-------------------------------------------------- Main ScrollArea.
-	let scroll_area = ScrollArea::vertical()
+	ScrollArea::vertical()
 		.id_source("Settings")
 		.always_show_scroll(true)
 		.max_width(f32::INFINITY)
 		.max_height(f32::INFINITY)
-		.auto_shrink([false; 2]);
-
-	scroll_area.show_viewport(ui, |ui, _| {
+		.auto_shrink([false; 2])
+		.show_viewport(ui, |ui, _|
+	{
 		ui.add_space(45.0);
 
 		//-------------------------------------------------- Collection paths.

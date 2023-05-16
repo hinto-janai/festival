@@ -46,7 +46,9 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &
 	ui.vertical_centered(|ui| {
 		ui.set_max_width(height/3.0);
 		Frame::window(&ctx.style()).rounding(Rounding::none()).inner_margin(1.0).show(ui, |ui| {
-			let size = height / 2.5;
+			// += `0.02` allows 7 songs to perfectly fit
+			// without a scrollbar on the min resolution.
+			let size = height / 2.52;
 			album.art_or().show_size(ui, Vec2::new(size, size));
 		});
 	});
@@ -76,33 +78,45 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &
 		ui.add_space(8.0);
 	});
 
-	// `Song` list.
 	ui.separator();
-	ScrollArea::vertical().max_width(f32::INFINITY).max_height(f32::INFINITY).auto_shrink([false; 2]).show_viewport(ui, |ui, _| {
 
-	// How many char's before we need
-	// to cut off the song title?
-	// (scales based on pixels available).
-	let head = (width / 18.5) as usize;
+	// `Song` list.
+	ScrollArea::vertical()
+		.id_source(album_key)
+		.max_width(f32::INFINITY)
+		.max_height(f32::INFINITY)
+		.auto_shrink([false; 2])
+		.show_viewport(ui, |ui, _|
+	{
+		// How many char's before we need
+		// to cut off the song title?
+		// (scales based on pixels available).
+		let head = (width / 22.0) as usize;
 
-	for key in album.songs.iter() {
-		let mut rect = ui.cursor();
-		rect.max.y = rect.min.y + 35.0;
-		if ui.put(rect, SelectableLabel::new(false, "")).clicked() {
-		// TODO: Implement song key state.
-//		if ui.put(rect, SelectableLabel::new(self.state.audio.current_key.song() == Some(*key), "")).clicked() {
-//			self.state.audio.current_key = Some(*key);
-		}
-		rect.max.x = rect.min.x;
-		ui.allocate_ui_at_rect(rect, |ui| {
-			ui.horizontal_centered(|ui| {
-				let song = &self.collection.songs[key];
-				ui.add(Label::new(format!("{: >3}    {: >8}    {}", song.track.unwrap_or(0), song.runtime, song.title.head_dot(head).as_str())).wrap(false));
+		for key in album.songs.iter() {
+			let mut rect = ui.cursor();
+			rect.max.y = rect.min.y + 35.0;
+			if ui.put(rect, SelectableLabel::new(false, "")).clicked() {
+			// TODO: Implement song key state.
+//			if ui.put(rect, SelectableLabel::new(self.state.audio.current_key.song() == Some(*key), "")).clicked() {
+//				self.state.audio.current_key = Some(*key);
+			}
+			rect.max.x = rect.min.x;
+			ui.allocate_ui_at_rect(rect, |ui| {
+				ui.horizontal_centered(|ui| {
+					let song = &self.collection.songs[key];
+
+					// Show the full title on hover
+					// if we chopped it with head.
+					let head = song.title.head_dot(head);
+					if &song.title != &head {
+						ui.add(Label::new(format!("{: >3}    {: >8}    {}", song.track.unwrap_or(0), &song.runtime, &head))).on_hover_text(&song.title);
+					} else {
+						ui.add(Label::new(format!("{: >3}    {: >8}    {}", song.track.unwrap_or(0), &song.runtime, &song.title)));
+					}
+				});
 			});
-		});
-
-//		ui.separator();
-	}
+		}
 	});
 }}
 
@@ -133,42 +147,48 @@ pub(super) fn show_tab_view_right_panel(&mut self, album_key: Option<AlbumKey>, 
 		let album_size = width / 1.4;
 
 		// The scrollable area.
-		ScrollArea::vertical().max_width(width).max_height(f32::INFINITY).auto_shrink([false; 2]).show_viewport(ui, |ui, _| {
+		ScrollArea::vertical()
+			.id_source(album_key)
+			.max_width(width)
+			.max_height(f32::INFINITY)
+			.auto_shrink([false; 2])
+			.show_viewport(ui, |ui, _|
+		{
 			ui.vertical_centered(|ui| {
 
-			ui.add_space(5.0);
-
-			{
-				// Reduce rounding corners.
-				let widgets = &mut ui.visuals_mut().widgets;
-				widgets.hovered.rounding  = egui::Rounding::none();
-				widgets.inactive.rounding = egui::Rounding::none();
-				widgets.active.rounding   = egui::Rounding::none();
-				// Reduced padding.
-				ui.spacing_mut().button_padding.x -= 2.0;
-			}
-
-			// For each album...
-			for album in albums {
-				// Get the actual `Album`.
-				let key   = album;
-				let album = &self.collection.albums[key];
-
-				// Draw the art with the title.
-				let img_button = ImageButton::new(self.collection.albums[key].texture_id(ctx), egui::vec2(album_size, album_size));
-
-				if ui.add(img_button).clicked() {
-					self.state.album = Some(*key);
-				}
-
-				// If this is the album we're on, make it pop.
-				if *key == album_key {
-					ui.add(Label::new(RichText::new(&album.title).color(Color32::LIGHT_BLUE)));
-				} else {
-					ui.label(&album.title);
-				}
 				ui.add_space(5.0);
-			}
+
+				{
+					// Reduce rounding corners.
+					let widgets = &mut ui.visuals_mut().widgets;
+					widgets.hovered.rounding  = egui::Rounding::none();
+					widgets.inactive.rounding = egui::Rounding::none();
+					widgets.active.rounding   = egui::Rounding::none();
+					// Reduced padding.
+					ui.spacing_mut().button_padding.x -= 2.0;
+				}
+
+				// For each album...
+				for album in albums {
+					// Get the actual `Album`.
+					let key   = album;
+					let album = &self.collection.albums[key];
+
+					// Draw the art with the title.
+					let img_button = ImageButton::new(self.collection.albums[key].texture_id(ctx), egui::vec2(album_size, album_size));
+
+					if ui.add(img_button).clicked() {
+						self.state.album = Some(*key);
+					}
+
+					// If this is the album we're on, make it pop.
+					if *key == album_key {
+						ui.add(Label::new(RichText::new(&album.title).color(Color32::LIGHT_BLUE)));
+					} else {
+						ui.label(&album.title);
+					}
+					ui.add_space(5.0);
+				}
 
 			});
 		});

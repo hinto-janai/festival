@@ -561,7 +561,13 @@ fn show_debug_screen(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, 
 			Frame::none().fill(BLACK).show(ui, |ui| {
 				let width = ui.available_width();
 				let height = ui.available_height();
-				egui::ScrollArea::vertical().max_width(width).max_height(height).auto_shrink([false; 2]).show_viewport(ui, |ui, _| {
+				ScrollArea::vertical()
+					.id_source("debug_info")
+					.max_width(width)
+					.max_height(height)
+					.auto_shrink([false; 2])
+					.show_viewport(ui, |ui, _|
+				{
 					ui.add_sized([width-20.0, height], TextEdit::multiline(&mut self.debug_info.as_str()));
 				});
 			});
