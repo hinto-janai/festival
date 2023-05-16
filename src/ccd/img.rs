@@ -176,7 +176,6 @@ fn color_img_to_retained(img: egui::ColorImage) -> egui_extras::RetainedImage {
 	egui_extras::RetainedImage::from_color_image("", img)
 }
 
-#[inline(always)]
 // The image must be turned into a `texture` before
 // it can properly be painted in `egui`.
 //

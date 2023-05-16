@@ -31,28 +31,24 @@ use crate::collection::{
 // So, these functions should be called from top to bottom as defined here, such
 // that the output of the previous function can be used as the input to the next.
 impl super::Ccd {
-	#[inline]
 	// Returns a `Vec` filled with a specified amount of `usize`.
 	fn filled_vec_usize(len: usize) -> Vec<usize> {
 		(0..len).collect()
 	}
 
 	//--------------------------------------------------------------- `ArtistKey` sorts.
-	#[inline]
 	pub(super) fn sort_artist_lexi(artists: &[Artist]) -> Vec<ArtistKey> {
 		let mut vec_artist = Self::filled_vec_usize(artists.len());
 		vec_artist.sort_by(|a, b| artists[*a].name.to_lowercase().cmp(&artists[*b].name.to_lowercase()));
 		vec_artist.into_iter().map(ArtistKey::from).collect()
 	}
 
-	#[inline]
 	pub(super) fn sort_artist_album_count(artists: &[Artist]) -> Vec<ArtistKey> {
 		let mut vec_artist = Self::filled_vec_usize(artists.len());
 		vec_artist.sort_by(|a, b| artists[*a].albums.len().cmp(&artists[*b].albums.len()));
 		vec_artist.into_iter().map(ArtistKey::from).collect()
 	}
 
-	#[inline]
 	pub(super) fn sort_artist_song_count(artists: &[Artist], albums: &[Album]) -> Vec<ArtistKey> {
 		let mut vec_artist = Self::filled_vec_usize(artists.len());
 		vec_artist.sort_by(|a, b| {
@@ -64,7 +60,6 @@ impl super::Ccd {
 	}
 
 	//--------------------------------------------------------------- `AlbumKey` sorts.
-	#[inline]
 	// INVARIANT:
 	// These album functions require an already lexi-sorted `Vec<ArtistKey>`
 	// since this iterates over the artists, and gets their albums along the way.
@@ -84,7 +79,6 @@ impl super::Ccd {
 		vec_album.into_iter().flatten().collect()
 	}
 
-	#[inline]
 	pub(super) fn sort_album_lexi_artist_lexi(sorted_artists: &[ArtistKey], artists: &[Artist], albums: &[Album]) -> Vec<AlbumKey> {
 		let mut vec_album: Vec<Vec<AlbumKey>> = Vec::with_capacity(albums.len());
 
@@ -101,7 +95,6 @@ impl super::Ccd {
 		vec_album.into_iter().flatten().collect()
 	}
 
-	#[inline]
 	// Doesn't require `Vec<Artist>`.
 	pub(super) fn sort_album_lexi(albums: &[Album]) -> Vec<AlbumKey> {
 		let mut vec_album = Self::filled_vec_usize(albums.len());
@@ -115,7 +108,6 @@ impl super::Ccd {
 		vec_album.into_iter().map(AlbumKey::from).collect()
 	}
 
-	#[inline]
 	pub(super) fn sort_album_release(albums: &[Album]) -> Vec<AlbumKey> {
 		let mut vec_album = Self::filled_vec_usize(albums.len());
 
@@ -128,7 +120,6 @@ impl super::Ccd {
 		vec_album.into_iter().map(AlbumKey::from).collect()
 	}
 
-	#[inline]
 	// INVARIANT:
 	// `runtime` is a `f64` which could be `NaN`.
 	// Except I (CCD) control this and it's always at least
@@ -144,7 +135,6 @@ impl super::Ccd {
 	}
 
 	//--------------------------------------------------------------- `SongKey` sorts.
-	#[inline]
 	// INVARIANT:
 	// Needs a already sorted `Vec<Album>`
 	// in the variant of: `sort_song_artist_lexi_album_release`.
@@ -160,7 +150,6 @@ impl super::Ccd {
 		vec_song.into_iter().map(SongKey::from).collect()
 	}
 
-	#[inline]
 	// INVARIANT:
 	// Needs an already sorted `Vec<AlbumKey>`.
 	//
@@ -172,7 +161,6 @@ impl super::Ccd {
 		vec_song.into_iter().flatten().collect()
 	}
 
-	#[inline]
 	pub(super) fn sort_song_lexi(songs: &[Song]) -> Vec<SongKey> {
 		let mut vec_song = Self::filled_vec_usize(songs.len());
 
@@ -185,7 +173,6 @@ impl super::Ccd {
 		vec_song.into_iter().map(SongKey::from).collect()
 	}
 
-	#[inline]
 	// INVARIANT:
 	// `f64` must not be a `NaN`.
 	// (It won't be, I control it).

@@ -52,7 +52,6 @@ use std::marker::PhantomData;
 pub(crate) struct Ccd;
 
 impl Ccd {
-	#[inline(always)]
 	//-------------------------------------------------------------------------------- CCD `convert_art()`
 	// Public facing "front-end" function for image conversion.
 	// Dynamically selects internal functions for single/multi-thread.
@@ -84,7 +83,6 @@ impl Ccd {
 		debug!("CCD ... Took {} seconds, bye!", secs_f32!(beginning));
 	}
 
-	#[inline(always)]
 	//-------------------------------------------------------------------------------- CCD `new_collection()`
 	// Public facing "front-end" function for making a new `Collection`.
 	//

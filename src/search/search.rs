@@ -66,6 +66,7 @@ impl Search {
 		Self::main(search);
 	}
 
+	#[inline]
 	fn calculate_sim(&self, input: &str) -> Keychain {
 		let now = now!();
 
@@ -100,6 +101,7 @@ impl Search {
 		Keychain::from_boxes(artists, albums, songs)
 	}
 
+	#[inline]
 	// INVARIANT:
 	// `.partial_cmp()` returns an `Option` because a
 	// floating point might be a `NaN`, but, `strsim::jaro()`

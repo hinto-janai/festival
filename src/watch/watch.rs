@@ -34,7 +34,6 @@ pub(crate) struct Watch {
 }
 
 impl Watch {
-	#[inline(always)]
 	// Kernel starts `Audio` with this.
 	pub(crate) fn init(to_kernel: Sender<WatchToKernel>) {
 		Self::clean();
@@ -96,7 +95,6 @@ impl Watch {
 		if let Err(e) = Repeat::rm()  { error!("Watch - Repeat: {}", e); }
 	}
 
-	#[inline(always)]
 	fn main(self) {
 		ok_debug!("Watch");
 

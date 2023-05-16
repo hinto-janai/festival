@@ -102,7 +102,12 @@ pub static VISUALS: Lazy<Visuals> = Lazy::new(|| {
 });
 
 // Dark blue.
-pub const ACCENT_COLOR: Color32 = Color32::from_rgb(30, 45, 85);
+pub const ACCENT_COLOR_RGB: [u8; 3] = [30, 45, 85];
+pub const ACCENT_COLOR: Color32 = Color32::from_rgb(
+	ACCENT_COLOR_RGB[0],
+	ACCENT_COLOR_RGB[1],
+	ACCENT_COLOR_RGB[2],
+);
 
 // Pinkish red.
 //pub const ACCENT_COLOR: Color32 = Color32::from_rgb(200, 100, 100);

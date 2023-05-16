@@ -69,7 +69,6 @@ struct TagMetadata<'a> {
 
 //---------------------------------------------------------------------------------------------------- Metadata functions.
 impl super::Ccd {
-	#[inline(always)]
 	// `The Loop`.
 	//
 	// Takes in input of a filtered `Vec<PathBuf>` of audio files.
@@ -95,12 +94,6 @@ impl super::Ccd {
 		to_kernel: &Sender<CcdToKernel>,
 		vec_paths: Vec<PathBuf>
 	) -> (Vec<Artist>, Vec<Album>, Vec<Song>, usize) {
-		// TODO:
-		// Send messages to `Kernel` & log.
-
-		// TODO:
-		// Some metadata is missing.
-
 		// ResetUpdate.
 		//
 		// These are sent to `Kernel` for progress updates.
@@ -128,6 +121,14 @@ impl super::Ccd {
 		// The "Working Memory" is a `HashMap` that takes in `String` input of an artist name and returns the `index` to it,
 		// along with another `HashMap` which represents that `Artist`'s `Album`'s and its appropriate `indices`.
 		//
+		// Using a `Vec` and/or `BTreeMap` instead was considered, since 99% of the time,
+		// user's `Artist`'s will have <10 `Album`'s and those `Album`'s will have <20 `Song`'s,
+		// and thus a binary search would (most of the time) end up faster than a hash lookup.
+		//
+		// Although after testing, the speed increase was not much. Having `HashMap`'s all the
+		// way down also means it can scale to ridiculous amounts if the user for whatever reason
+		// has `Artist`'s with 1000s of `Album`s or `Album`'s with 1000s of `Song`'s.
+		//
 		//                           Artist  Artist's index     Album  Album's index
 		//                            Name   in `Vec<Artist>`   Name   in `Vec<Album>`
 		//                              |          |              |         |
@@ -140,9 +141,9 @@ impl super::Ccd {
 
 		// In this loop, each `PathBuf` represents a new `Song` with metadata.
 		// There are 3 logical possibilities with 3 actions associated with them:
-		//     1. `Artist` exists, `Album` exists         => Add `Song`
-		//     2. `Artist` exists, `Album` DOESN'T exist  => Add `Album + Song`
-		//     3. `Artist` DOESN'T exist                  => Add `Artist + Album + Song`
+		//     1. `Artist` exists && `Album` exists         => Add `Song`
+		//     2. `Artist` exists && `Album` DOESN'T exist  => Add `Album + Song`
+		//     3. `Artist` DOESN'T exist                    => Add `Artist + Album + Song`
 		//
 		// Memory must be updated as well.
 
@@ -151,11 +152,14 @@ impl super::Ccd {
 
 		//------------------------------------------------------------- Begin `The Loop`.
 		// No indentation because this function is crazy long.
-		std::thread::scope(|scope| {
-		for paths in vec_paths.chunks(threads) {
-		scope.spawn(|| {
-		for path in paths.iter() {
-		let path = path.clone(); // TODO: figure out how to take ownership of this instead of cloning.
+		std::thread::scope(|scope| {             // Enter thread scope.
+		for paths in vec_paths.chunks(threads) { // Chunk the total paths for each thread.
+		scope.spawn(|| {                         // Spawn a thread.
+		for path in paths.iter() {               // Make thread work over the chunked paths.
+
+		// TODO:
+		// Figure out how to take ownership of this instead of cloning.
+		let path = path.clone();
 
 		// Get the tags for this `PathBuf`, skip on error.
 		//
@@ -182,6 +186,7 @@ impl super::Ccd {
 			Ok(t)  => t,
 			Err(e) => { warn!("CCD - Metadata fail: {}", path.display()); continue; },
 		};
+
 		// Destructure tag metadata
 		// into individual variables.
 		let TagMetadata {
@@ -389,7 +394,6 @@ impl super::Ccd {
 		let map    = HashMap::from([(album.to_string(), count_album)]);
 		let tuple  = (count_artist, map);
 
-//		lock!(memory).insert(artist, tuple);
 		memory.insert(artist, tuple);
 
 		//------------------------------------------------------------- End of `The Loop`.

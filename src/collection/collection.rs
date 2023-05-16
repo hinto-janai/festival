@@ -426,12 +426,13 @@ impl Collection {
 	/// # Panics:
 	/// The [`ArtistKey`], [`AlbumKey`] and [`SongKey`] within
 	/// the [`Key`] must be valid indices into the [`Collection`].
-	#[inline(always)]
+	#[inline]
 	pub fn index(&self, key: Key) -> (&Artist, &Album, &Song) {
 		let (artist, album, song) = key.inner_usize();
 		(&self.artists.0[artist], &self.albums.0[album], &self.songs.0[song])
 	}
 
+	#[inline]
 	/// [`slice::get`] the [`Collection`] with a [`Key`].
 	///
 	/// # Errors:

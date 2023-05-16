@@ -6,6 +6,7 @@
 
 //---------------------------------------------------------------------------------------------------- Use
 use crate::constants::{
+	ACCENT_COLOR_RGB,
 	ALBUMS_PER_ROW_MIN,
 	ALBUMS_PER_ROW_MAX,
 	ALBUM_ART_SIZE_MIN,
@@ -52,8 +53,13 @@ pub const STATIC_PIXEL_SIZE: &str = formatcp!(
 );
 pub const ALBUM_PER_ROW:     &str = formatcp!("Show [x] amount of albums per row, scaling the pixel size to fit ({ALBUMS_PER_ROW_MIN}-{ALBUMS_PER_ROW_MAX})");
 pub const RESTORE_STATE:     &str = "Restore playback state from the last session when opening Festival";
-pub const ACCENT_COLOR:      &str = "Which accent color to use (RGB)";
-pub const COLLECTION:        &str = "The main music Collection that stores all (meta)data about the audio files";
+pub const ACCENT_COLOR:      &str = formatcp!(
+	"Which accent color to use (default: [{}, {}, {}])",
+	ACCENT_COLOR_RGB[0],
+	ACCENT_COLOR_RGB[1],
+	ACCENT_COLOR_RGB[2],
+);
+pub const COLLECTION:        &str = "The main music Collection that stores all metadata about the audio files";
 pub const ADD_FOLDER:        &str = "Add a maximum of 10 folders to scan for the Collection (CTRL+A)";
 pub const REMOVE_FOLDER:     &str = "Remove this folder";
 pub const RESET_COLLECTION:  &str =

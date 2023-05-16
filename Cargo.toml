@@ -65,19 +65,13 @@ path = "cli/src/main.rs"
 doc = false
 
 [profile.release]
-#panic = "abort"
-debug = false
 strip = "symbols"
 codegen-units = 1
 lto = true
 
 [profile.dev]
 opt-level = 1
-debug = true
 strip = "none"
-debug-assertions = true
-overflow-checks = true
-incremental = true
 
 # Run tests in `--release` mode.
 #[profile.test]

@@ -18,7 +18,6 @@ use super::SUPPORTED_AUDIO_MIME_TYPES;
 
 //---------------------------------------------------------------------------------------------------- __NAME__
 impl super::Ccd {
-	#[inline(always)]
 	// TODO:
 	// Handle no PATHs.
 	//

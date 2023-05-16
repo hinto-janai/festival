@@ -81,7 +81,6 @@ pub struct Kernel {
 //
 impl Kernel {
 	//-------------------------------------------------- bios()
-	#[inline(always)]
 	/// [`Kernel`] is started with this.
 	///
 	/// For more info, see [here.](https://github.com/hinto-janai/festival/src/kernel)
@@ -166,7 +165,6 @@ impl Kernel {
 	}
 
 	//-------------------------------------------------- boot_loader()
-	#[inline(always)]
 	fn boot_loader(
 		collection:    Collection,
 		to_frontend:   Sender<KernelToFrontend>,
@@ -239,7 +237,6 @@ impl Kernel {
 	}
 
 	//-------------------------------------------------- kernel()
-	#[inline(always)]
 	fn kernel(
 		collection:    Arc<Collection>,
 		state:         Result<KernelState, anyhow::Error>,
@@ -267,7 +264,6 @@ impl Kernel {
 	}
 
 	//-------------------------------------------------- init()
-	#[inline(always)]
 	fn init(
 		collection:    Option<Arc<Collection>>,
 		state:         Option<KernelState>,
@@ -360,7 +356,6 @@ impl Kernel {
 
 //---------------------------------------------------------------------------------------------------- Main Kernel loop (userspace)
 impl Kernel {
-	#[inline(always)]
 	fn userspace(mut self) {
 		ok_debug!("Kernel");
 
