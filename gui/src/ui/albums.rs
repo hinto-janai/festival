@@ -126,7 +126,9 @@ fn paint_albums(
 
 								// ImageButton.
 								let img_button = ImageButton::new(album.texture_id(ctx), egui::vec2(pixel, pixel));
+
 								let resp = ui.add(img_button);
+
 								if resp.clicked() {
 									self.state.album = Some(*key);
 									self.state.tab   = Tab::View;
