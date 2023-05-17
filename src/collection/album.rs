@@ -21,6 +21,7 @@ use readable::{
 	Unsigned,
 	Date,
 };
+use std::path::PathBuf;
 
 //---------------------------------------------------------------------------------------------------- Album
 #[derive(Clone,Debug,Default,PartialEq,PartialOrd,Serialize,Deserialize,Encode,Decode)]
@@ -57,8 +58,15 @@ pub struct Album {
 	// result in the correct `Song` order for `my_album`.
 	/// Key\(s\) to the [`Song`]\(s\).
 	pub songs: Vec<SongKey>,
+	/// The parent `PATH` of this `Album`.
+	///
+	/// This is always taken from the 1st `Song` that is inserted
+	/// into this `Album`, so if the other `Song`'s are in different
+	/// parent directories, this will not be fully accurate.
+	pub path: PathBuf,
 
 	/// The `Album`'s art.
+	///
 	/// `Frontend`'s don't need to access this field
 	/// directly, instead, use `album.art_or()`.
 	pub art: Art, // Always initialized after `CCD`.

@@ -260,6 +260,10 @@ impl super::Ccd {
 				},
 				_ => Art::Unknown,
 			};
+			let path_parent = match path.parent() {
+				Some(p) => p.to_path_buf(),
+				None    => path.clone(),
+			};
 
 			// Lock.
 			let mut vec_artist = lock!(vec_artist);
@@ -286,6 +290,7 @@ impl super::Ccd {
 
 				artist: ArtistKey::from(*artist_idx),
 				songs: vec![SongKey::from(vec_song.len())],
+				path: path_parent,
 
 				// Needs to be updated later.
 				runtime: runtime_album,
@@ -333,6 +338,10 @@ impl super::Ccd {
 			},
 			_ => Art::Unknown,
 		};
+		let path_parent = match path.parent() {
+			Some(p) => p.to_path_buf(),
+			None    => path.clone(),
+		};
 
 		// Prepare `Artist`.
 		let name = artist.to_string();
@@ -362,6 +371,7 @@ impl super::Ccd {
 
 			artist: ArtistKey::from(vec_artist.len()),
 			songs: vec![SongKey::from(vec_song.len())],
+			path: path_parent,
 
 			// Needs to be updated later.
 			runtime: runtime_album,

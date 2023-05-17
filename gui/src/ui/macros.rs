@@ -29,23 +29,12 @@ macro_rules! album_button {
 		let resp = $ui.add(img_button);
 
 		if resp.clicked() {
-			$self.state.album = Some($key.clone());
+			$self.state.album = Some($key.into());
+			$self.state.tab   = crate::data::Tab::View;
 		} else if resp.secondary_clicked() {
-			// INVARIANT:
-			// We're opening the parent directory
-			// of the 1st song in this album by
-			// directly indexing into it.
-			//
-			// The album _must_ have at least 1 song.
-			let song = &$self.collection.songs[$album.songs[0]];
-
-			match &song.path.parent() {
-				Some(p) => {
-					if let Err(e) = open::that(p) {
-						warn!("GUI - Could not open path: {e}");
-					}
-				}
-				None => warn!("GUI - Could not get parent path: {}", song.path.display()),
+			match open::that(&$album.path) {
+				Ok(_) => log::info!("GUI - Opening path: {}", $album.path.display()),
+				Err(e) => log::warn!("GUI - Could not open path: {e}"),
 			}
 		}
 	}
