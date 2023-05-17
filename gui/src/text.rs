@@ -40,6 +40,9 @@ r#"This scans the system's Music directory.
 
 Configure which directories to scan in the [Settings] tab."#;
 
+//---------------------------------------------------------------------------------------------------- Songs tab
+pub const OPEN_PARENT_FOLDER: &str = "Open the directory containing this song";
+
 //---------------------------------------------------------------------------------------------------- Settings Tab
 pub const RESET:             &str = "Reset changes (CTRL+Z)";
 pub const SAVE:              &str = "Save changes to disk (CTRL+S)";
