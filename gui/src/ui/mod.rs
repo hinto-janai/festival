@@ -24,3 +24,6 @@ use queue::*;
 
 mod view;
 use view::*;
+
+mod macros;
+use macros::*;

@@ -10,6 +10,7 @@ use crate::data::{
 	Tab,
 };
 use readable::Unsigned;
+use log::warn;
 
 //---------------------------------------------------------------------------------------------------- Artists
 impl crate::data::Gui {
@@ -66,15 +67,7 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame
 					for key in &artist.albums {
 						let album = &self.collection.albums[key];
 
-						// Closure is only called on hover.
-						let hover = |ui: &mut egui::Ui| { ui.add(Label::new(format!("{} ({})", album.title, album.release))); };
-
-						// ImageButton.
-						let img_button = ImageButton::new(album.texture_id(ctx), egui::vec2(120.0, 120.0));
-						if ui.add(img_button).on_hover_ui(hover).clicked() {
-							self.state.album = Some(*key);
-							self.state.tab   = Tab::View;
-						}
+						crate::album_button!(self, album, key, ui, ctx, 120.0);
 					}
 				});
 			});

@@ -125,31 +125,7 @@ fn paint_albums(
 								let album = &self.collection.albums[key];
 
 								// ImageButton.
-								let img_button = ImageButton::new(album.texture_id(ctx), egui::vec2(pixel, pixel));
-
-								let resp = ui.add(img_button);
-
-								if resp.clicked() {
-									self.state.album = Some(*key);
-									self.state.tab   = Tab::View;
-								} else if resp.secondary_clicked() {
-									// INVARIANT:
-									// We're opening the parent directory
-									// of the 1st song in this album by
-									// directly indexing into it.
-									//
-									// The album _must_ have at least 1 song.
-									let song = &self.collection.songs[album.songs[0]];
-
-									match &song.path.parent() {
-										Some(p) => {
-											if let Err(e) = open::that(p) {
-												warn!("GUI - Could not open path: {e}");
-											}
-										}
-										None => warn!("GUI - Could not get parent path: {}", song.path.display()),
-									}
-								}
+								crate::album_button!(self, album, key, ui, ctx, pixel);
 
 								// Closure is only called on hover.
 								let hover = |ui: &mut egui::Ui| { ui.add(Label::new(format!("{} ({})", album.title, album.release))); };
