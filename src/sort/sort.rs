@@ -23,6 +23,14 @@ pub const ARTIST_ALBUM_COUNT_REV:         &str = "Artists per album count (most 
 pub const ARTIST_SONG_COUNT:              &str = "Artists per song count (least to most)";
 /// [`ArtistSort::SongCountRev`]
 pub const ARTIST_SONG_COUNT_REV:          &str = "Artists per song count (most to least)";
+/// [`ArtistSort::Runtime`]
+pub const ARTIST_RUNTIME:                 &str = "Artists runtime shortest-longest";
+/// [`ArtistSort::RuntimeRev`]
+pub const ARTIST_RUNTIME_REV:             &str = "Artists runtime longest-shortest";
+/// [`ArtistSort::Name`]
+pub const ARTIST_NAME:                    &str = "Artist name shortest-longest";
+/// [`ArtistSort::NameRev`]
+pub const ARTIST_NAME_REV:                &str = "Artist name longest-shortest";
 
 /// [`AlbumSort::ReleaseArtistLexi`]
 pub const ALBUM_RELEASE_ARTIST_LEXI:      &str = "Artists A-Z, albums oldest-latest";
@@ -44,6 +52,10 @@ pub const ALBUM_RELEASE_REV:              &str = "Albums oldest-latest";
 pub const ALBUM_RUNTIME:                  &str = "Albums shortest-longest";
 /// [`AlbumSort::RuntimeRev`]
 pub const ALBUM_RUNTIME_REV:              &str = "Albums longest-shortest";
+/// [`AlbumSort::Title`]
+pub const ALBUM_TITLE:                    &str = "Album title shortest-longest";
+/// [`AlbumSort::TitleRev`]
+pub const ALBUM_TITLE_REV:                &str = "Album title longest-shortest";
 
 /// [`SongSort::AlbumReleaseArtistLexi`]
 pub const SONG_ALBUM_RELEASE_ARTIST_LEXI:     &str = "Artists A-Z, albums oldest-latest, songs in track order";
@@ -65,6 +77,10 @@ pub const SONG_RELEASE_REV:                   &str = "Songs oldest-latest";
 pub const SONG_RUNTIME:                       &str = "Songs shortest-longest";
 /// [`SongSort::RuntimeRev`]
 pub const SONG_RUNTIME_REV:                   &str = "Songs longest-oldest";
+/// [`SongSort::Title`]
+pub const SONG_TITLE:                         &str = "Song title shortest-longest";
+/// [`SongSort::TitleRev`]
+pub const SONG_TITLE_REV:                     &str = "Song title longest-shortest";
 
 //---------------------------------------------------------------------------------------------------- Sort
 /// All the ways to sort the [`Collection`]'s [`Artist`]'s.
@@ -87,6 +103,14 @@ pub enum ArtistSort {
 	SongCount,
 	/// [`Artist`] with least `Song`'s to most. Field: [`Collection::sort_artist_song_count_rev`].
 	SongCountRev,
+	/// [`Artist`] with least runtime. Field: [`Collection::sort_artist_runtime`].
+	Runtime,
+	/// [`Artist`] with most runtime. Field: [`Collection::sort_artist_runtime_rev`].
+	RuntimeRev,
+	/// [`Artist`] name shortest-longest. Field: [`Collection::sort_artist_name`].
+	Name,
+	/// [`Artist`] name longest-shortest. Field: [`Collection::sort_artist_name_rev`].
+	NameRev,
 }
 
 /// All the ways to sort the [`Collection`]'s [`Album`]'s.
@@ -117,6 +141,10 @@ pub enum AlbumSort {
 	Runtime,
 	/// [`Album`] longest-shortest. Field: [`Collection::sort_album_runtime_rev`].
 	RuntimeRev,
+	/// [`Album`] shortest title, longest title. Field: [`Collection::sort_album_title`].
+	Title,
+	/// [`Album`] longest title, shortest title. Field: [`Collection::sort_album_title_rev`].
+	TitleRev,
 }
 
 /// All the ways to sort the [`Collection`]'s [`Song`]'s.
@@ -147,6 +175,10 @@ pub enum SongSort {
 	Runtime,
 	/// [`Song`] longest-shortest. Field: [`Collection::sort_song_runtime`].
 	RuntimeRev,
+	/// [`Song`] shortest title, longest title. Field: [`Collection::sort_song_title`].
+	Title,
+	/// [`Song`] longest title, shortest title. Field: [`Collection::sort_song_title_rev`].
+	TitleRev,
 }
 
 impl ArtistSort {
@@ -163,6 +195,10 @@ impl ArtistSort {
 			AlbumCountRev => ARTIST_ALBUM_COUNT_REV,
 			SongCount     => ARTIST_SONG_COUNT,
 			SongCountRev  => ARTIST_SONG_COUNT_REV,
+			Runtime       => ARTIST_RUNTIME,
+			RuntimeRev    => ARTIST_RUNTIME_REV,
+			Name          => ARTIST_NAME,
+			NameRev       => ARTIST_NAME_REV,
 		}
 	}
 
@@ -176,6 +212,10 @@ impl ArtistSort {
 			Self::AlbumCountRev,
 			Self::SongCount,
 			Self::SongCountRev,
+			Self::Runtime,
+			Self::RuntimeRev,
+			Self::Name,
+			Self::NameRev,
 		].iter()
 	}
 }
@@ -198,6 +238,8 @@ impl AlbumSort {
 			ReleaseRev           => ALBUM_RELEASE_REV,
 			Runtime              => ALBUM_RUNTIME,
 			RuntimeRev           => ALBUM_RUNTIME_REV,
+			Title                => ALBUM_TITLE,
+			TitleRev             => ALBUM_TITLE_REV,
 		}
 	}
 
@@ -215,6 +257,8 @@ impl AlbumSort {
 			Self::ReleaseRev,
 			Self::Runtime,
 			Self::RuntimeRev,
+			Self::Title,
+			Self::TitleRev,
 		].iter()
 	}
 }
@@ -237,6 +281,8 @@ impl SongSort {
 			ReleaseRev                => SONG_RELEASE_REV,
 			Runtime                   => SONG_RUNTIME,
 			RuntimeRev                => SONG_RUNTIME_REV,
+			Title                     => SONG_TITLE,
+			TitleRev                  => SONG_TITLE_REV,
 		}
 	}
 
@@ -254,6 +300,8 @@ impl SongSort {
 			Self::ReleaseRev,
 			Self::Runtime,
 			Self::RuntimeRev,
+			Self::Title,
+			Self::TitleRev,
 		].iter()
 	}
 }

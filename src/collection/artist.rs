@@ -4,6 +4,7 @@
 use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
 use std::marker::PhantomData;
+use readable::Runtime;
 use crate::collection::{
 	Album,
 	Collection,
@@ -20,6 +21,8 @@ use crate::collection::{
 pub struct Artist {
 	/// The [`Artist`]'s name.
 	pub name: String,
+	/// Total runtime.
+	pub runtime: Runtime,
 	/// Keys to the associated [`Album`]\(s\).
 	pub albums: Vec<AlbumKey>,
 

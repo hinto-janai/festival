@@ -430,16 +430,8 @@ impl super::Ccd {
 	//
 	// The last `Album` field after this, `Art`, will be completed in the `convert` phase.
 	pub(super) fn fix_metadata(vec_artist: &mut [Artist], vec_album: &mut [Album], vec_song: &[Song]) {
-		// Fix `Album` order in the `Artist` (release order).
-		for artist in vec_artist {
-			artist.albums.sort_by(|a, b| {
-				vec_album[a.inner()].release.cmp(
-					&vec_album[b.inner()].release
-				)
-			});
-		}
-
-		for album in vec_album {
+		// `Album`'s.
+		for album in vec_album.iter_mut() {
 			// Song count.
 			album.song_count = Unsigned::from(album.songs.len());
 
@@ -455,6 +447,19 @@ impl super::Ccd {
 					&vec_song[b.inner()].track
 				)
 			);
+		}
+
+		// Fix `Album` order in the `Artist` (release order).
+		for artist in vec_artist {
+			artist.albums.sort_by(|a, b| {
+				vec_album[a.inner()].release.cmp(
+					&vec_album[b.inner()].release
+				)
+			});
+
+			// Total runtime.
+			let runtime: u32 = artist.albums.iter().map(|a| vec_album[a.inner()].runtime.inner()).sum();
+			artist.runtime = Runtime::from(runtime);
 		}
 	}
 

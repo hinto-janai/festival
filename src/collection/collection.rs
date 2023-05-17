@@ -162,6 +162,14 @@ pub struct Collection {
 	pub sort_artist_song_count: Box<[ArtistKey]>,
 	/// [`Artist`] with least [`Song`]'s to most.
 	pub sort_artist_song_count_rev: Box<[ArtistKey]>,
+	/// [`Artist`] runtime least-most.
+	pub sort_artist_runtime: Box<[ArtistKey]>,
+	/// [`Artist`] runtime most-least.
+	pub sort_artist_runtime_rev: Box<[ArtistKey]>,
+	/// [`Artist`] name shortest-longest.
+	pub sort_artist_name: Box<[ArtistKey]>,
+	/// [`Artist`] name longest-shortest
+	pub sort_artist_name_rev: Box<[ArtistKey]>,
 
 	// Sorted `Album` keys.
 	/// [`Artist`] `lexi`, [`Album`]'s oldest release to latest.
@@ -184,6 +192,10 @@ pub struct Collection {
 	pub sort_album_runtime: Box<[AlbumKey]>,
 	/// [`Album`] longest to shortest.
 	pub sort_album_runtime_rev: Box<[AlbumKey]>,
+	/// [`Album`] title shortest to longest.
+	pub sort_album_title: Box<[AlbumKey]>,
+	/// [`Album`] title longest to shortest.
+	pub sort_album_title_rev: Box<[AlbumKey]>,
 
 	// Sorted `Song` keys.
 	/// [`Artist`] lexi, [`Album`] release, [`Song`] track_number
@@ -206,6 +218,10 @@ pub struct Collection {
 	pub sort_song_runtime: Box<[SongKey]>,
 	/// [`Song`] longest to shortest.
 	pub sort_song_runtime_rev: Box<[SongKey]>,
+	/// [`Song`] title shortest to longest.
+	pub sort_song_title: Box<[SongKey]>,
+	/// [`Song`] title longest to shortest.
+	pub sort_song_title_rev: Box<[SongKey]>,
 
 	// Reserved fields and their `size_of()`.
 	pub(crate) _reserved1: PhantomData<Box<[usize]>>, // 16
@@ -256,6 +272,10 @@ impl Collection {
 			sort_artist_album_count_rev: Box::new([]),
 			sort_artist_song_count: Box::new([]),
 			sort_artist_song_count_rev: Box::new([]),
+			sort_artist_runtime: Box::new([]),
+			sort_artist_runtime_rev: Box::new([]),
+			sort_artist_name: Box::new([]),
+			sort_artist_name_rev: Box::new([]),
 
 			sort_album_release_artist_lexi: Box::new([]),
 			sort_album_release_artist_lexi_rev: Box::new([]),
@@ -267,6 +287,8 @@ impl Collection {
 			sort_album_release_rev: Box::new([]),
 			sort_album_runtime: Box::new([]),
 			sort_album_runtime_rev: Box::new([]),
+			sort_album_title: Box::new([]),
+			sort_album_title_rev: Box::new([]),
 
 			sort_song_album_release_artist_lexi: Box::new([]),
 			sort_song_album_release_artist_lexi_rev: Box::new([]),
@@ -278,6 +300,8 @@ impl Collection {
 			sort_song_release_rev: Box::new([]),
 			sort_song_runtime: Box::new([]),
 			sort_song_runtime_rev: Box::new([]),
+			sort_song_title: Box::new([]),
+			sort_song_title_rev: Box::new([]),
 
 			_reserved1: PhantomData,
 			_reserved2: PhantomData,
@@ -564,6 +588,10 @@ impl Collection {
 			AlbumCountRev => &self.sort_artist_album_count_rev,
 			SongCount     => &self.sort_artist_song_count,
 			SongCountRev  => &self.sort_artist_song_count_rev,
+			Runtime       => &self.sort_artist_runtime,
+			RuntimeRev    => &self.sort_artist_runtime_rev,
+			Name          => &self.sort_artist_name,
+			NameRev       => &self.sort_artist_name_rev,
 		}.iter()
 	}
 
@@ -581,6 +609,8 @@ impl Collection {
 			ReleaseRev           => &self.sort_album_release_rev,
 			Runtime              => &self.sort_album_runtime,
 			RuntimeRev           => &self.sort_album_runtime_rev,
+			Title                => &self.sort_album_title,
+			TitleRev             => &self.sort_album_title_rev,
 		}.iter()
 	}
 
@@ -598,6 +628,8 @@ impl Collection {
 			ReleaseRev                => &self.sort_song_release_rev,
 			Runtime                   => &self.sort_song_runtime,
 			RuntimeRev                => &self.sort_song_runtime_rev,
+			Title                     => &self.sort_song_title,
+			TitleRev                  => &self.sort_song_title_rev,
 		}.iter()
 	}
 
