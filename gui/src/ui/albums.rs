@@ -135,7 +135,7 @@ fn paint_albums(
 								// Album title.
 								ui.add_sized([pixel, 0.0], Label::new(RichText::new(album.title.head_dot(ALBUM_TITLE_LIMIT).as_str()).color(LESS_WHITE))).on_hover_ui(hover);
 								// Artist name.
-								let artist = &self.collection.artist_from_album(*key);
+								let artist = &self.collection.artist_from_album(key);
 								ui.add_sized([pixel, 0.0], Label::new(artist.name.head_dot(label_width).as_str())).on_hover_text(&artist.name);
 								ui.add_space(padding);
 							});

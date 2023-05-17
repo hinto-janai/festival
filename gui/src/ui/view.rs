@@ -99,8 +99,8 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &
 			rect.max.y = rect.min.y + 35.0;
 			if ui.put(rect, SelectableLabel::new(false, "")).clicked() {
 			// TODO: Implement song key state.
-//			if ui.put(rect, SelectableLabel::new(self.state.audio.current_key.song() == Some(*key), "")).clicked() {
-//				self.state.audio.current_key = Some(*key);
+//			if ui.put(rect, SelectableLabel::new(self.state.audio.current_key.song() == Some(key), "")).clicked() {
+//				self.state.audio.current_key = Some(key);
 			}
 			rect.max.x = rect.min.x;
 			ui.allocate_ui_at_rect(rect, |ui| {
@@ -178,7 +178,7 @@ pub(super) fn show_tab_view_right_panel(&mut self, album_key: Option<AlbumKey>, 
 					crate::album_button!(self, album, key, ui, ctx, album_size);
 
 					// If this is the album we're on, make it pop.
-					if *key == album_key {
+					if key == album_key {
 						ui.add(Label::new(RichText::new(&album.title).color(Color32::LIGHT_BLUE)));
 					} else {
 						ui.label(&album.title);

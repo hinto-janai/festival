@@ -359,8 +359,8 @@ impl Collection {
 	/// ```
 	/// In the above example, we're searching for a:
 	/// - [`Artist`] called `hinto`
-	pub fn artist(&self, artist_name: &str) -> Option<(&Artist, ArtistKey)> {
-		if let Some((key, _)) = self.map.0.get(artist_name) {
+	pub fn artist<S: AsRef<str>>(&self, artist_name: S) -> Option<(&Artist, ArtistKey)> {
+		if let Some((key, _)) = self.map.0.get(artist_name.as_ref()) {
 			return Some((&self.artists[key], *key))
 		}
 
@@ -377,13 +377,13 @@ impl Collection {
 	/// In the above example, we're searching for a:
 	/// - [`Album`] called `festival` by the
 	/// - [`Artist`] called `hinto`
-	pub fn album(
+	pub fn album<S: AsRef<str>>(
 		&self,
-		artist_name: &str,
-		album_title: &str
+		artist_name: S,
+		album_title: S,
 	) -> Option<(&Album, AlbumKey)> {
-		if let Some((key, albums)) = self.map.0.get(artist_name) {
-			if let Some((key, _)) = albums.0.get(album_title) {
+		if let Some((key, albums)) = self.map.0.get(artist_name.as_ref()) {
+			if let Some((key, _)) = albums.0.get(album_title.as_ref()) {
 				return Some((&self.albums[key], *key))
 			}
 		}
@@ -402,15 +402,15 @@ impl Collection {
 	/// - [`Song`] called `track_1` in an
 	/// - [`Album`] called `festival` by the
 	/// - [`Artist`] called `hinto`
-	pub fn song(
+	pub fn song<S: AsRef<str>>(
 		&self,
-		artist_name: &str,
-		album_title: &str,
-		song_title: &str,
+		artist_name: S,
+		album_title: S,
+		song_title: S,
 	) -> Option<(&Song, Key)> {
-		if let Some((artist_key, albums)) = self.map.0.get(artist_name) {
-			if let Some((album_key, songs)) = albums.0.get(album_title) {
-				if let Some(song_key) = songs.0.get(song_title) {
+		if let Some((artist_key, albums)) = self.map.0.get(artist_name.as_ref()) {
+			if let Some((album_key, songs)) = albums.0.get(album_title.as_ref()) {
+				if let Some(song_key) = songs.0.get(song_title.as_ref()) {
 					let key = Key::from_keys(*artist_key, *album_key, *song_key);
 					return Some((&self.songs[song_key], key))
 				}
@@ -427,16 +427,16 @@ impl Collection {
 	/// The [`ArtistKey`], [`AlbumKey`] and [`SongKey`] within
 	/// the [`Key`] must be valid indices into the [`Collection`].
 	#[inline]
-	pub fn index(&self, key: Key) -> (&Artist, &Album, &Song) {
-		let (artist, album, song) = key.inner_usize();
+	pub fn index<K: Into<Key>>(&self, key: K) -> (&Artist, &Album, &Song) {
+		let (artist, album, song) = key.into().inner_usize();
 		(&self.artists.0[artist], &self.albums.0[album], &self.songs.0[song])
 	}
 
 	/// Walk through the relational data from a
 	/// [`SongKey`] and return the full tuple.
 	#[inline]
-	pub fn walk(&self, key: SongKey) -> (&Artist, &Album, &Song) {
-		let song   = &self.songs[key];
+	pub fn walk<K: Into<SongKey>>(&self, key: K) -> (&Artist, &Album, &Song) {
+		let song   = &self.songs[key.into()];
 		let album  = &self.albums[song.album];
 		let artist = &self.artists[album.artist];
 
@@ -445,14 +445,14 @@ impl Collection {
 
 	/// Get all [`Album`]'s from the same [`Artist`] of this [`AlbumKey`].
 	#[inline]
-	pub fn other_albums(&self, key: AlbumKey) -> &[AlbumKey] {
-		&self.artists[self.albums[key].artist].albums
+	pub fn other_albums<K: Into<AlbumKey>>(&self, key: K) -> &[AlbumKey] {
+		&self.artists[self.albums[key.into()].artist].albums
 	}
 
 	/// Get all [`Song`]'s from the same [`Album`] of this [`SongKey`].
 	#[inline]
-	pub fn other_songs(&self, key: SongKey) -> &[SongKey] {
-		&self.albums[self.songs[key].album].songs
+	pub fn other_songs<K: Into<SongKey>>(&self, key: K) -> &[SongKey] {
+		&self.albums[self.songs[key.into()].album].songs
 	}
 
 	#[inline]
@@ -461,8 +461,8 @@ impl Collection {
 	/// # Errors:
 	/// The [`ArtistKey`], [`AlbumKey`] and [`SongKey`] within
 	/// the [`Key`] must be valid indices into the [`Collection`].
-	pub fn get(&self, key: Key) -> Option<(&Artist, &Album, &Song)> {
-		let (artist, album, song) = key.inner_usize();
+	pub fn get<K: Into<Key>>(&self, key: K) -> Option<(&Artist, &Album, &Song)> {
+		let (artist, album, song) = key.into().inner_usize();
 
 		let artists = match self.artists.0.get(artist) {
 			Some(a) => a,
@@ -488,8 +488,8 @@ impl Collection {
 	///
 	/// # Panics:
 	/// The [`AlbumKey`] must be a valid index.
-	pub fn artist_from_album(&self, key: AlbumKey) -> &Artist {
-		&self.artists[self.albums[key].artist]
+	pub fn artist_from_album<K: Into<AlbumKey>>(&self, key: K) -> &Artist {
+		&self.artists[self.albums[key.into()].artist]
 	}
 
 	#[inline(always)]
@@ -497,8 +497,8 @@ impl Collection {
 	///
 	/// # Panics:
 	/// The [`SongKey`] must be a valid index.
-	pub fn album_from_song(&self, key: SongKey) -> &Album {
-		&self.albums[self.songs[key].album]
+	pub fn album_from_song<K: Into<SongKey>>(&self, key: K) -> &Album {
+		&self.albums[self.songs[key.into()].album]
 	}
 
 	#[inline(always)]
@@ -506,8 +506,8 @@ impl Collection {
 	///
 	/// # Panics:
 	/// The [`SongKey`] must be a valid index.
-	pub fn artist_from_song(&self, key: SongKey) -> &Artist {
-		self.artist_from_album(self.songs[key].album)
+	pub fn artist_from_song<K: Into<SongKey>>(&self, key: K) -> &Artist {
+		self.artist_from_album(self.songs[key.into()].album)
 	}
 
 	//-------------------------------------------------- Key traversal (`.get()`).
@@ -516,8 +516,8 @@ impl Collection {
 	///
 	/// # Errors:
 	/// The [`AlbumKey`] must be a valid index.
-	pub fn get_artist_from_album(&self, key: AlbumKey) -> Option<&Artist> {
-		let artist = match self.albums.get(key) {
+	pub fn get_artist_from_album<K: Into<AlbumKey>>(&self, key: K) -> Option<&Artist> {
+		let artist = match self.albums.get(key.into()) {
 			Some(a) => a.artist,
 			None    => return None,
 		};
@@ -530,8 +530,8 @@ impl Collection {
 	///
 	/// # Errors:
 	/// The [`SongKey`] must be a valid index.
-	pub fn get_album_from_song(&self, key: SongKey) -> Option<&Album> {
-		let album = match self.songs.get(key) {
+	pub fn get_album_from_song<K: Into<SongKey>>(&self, key: K) -> Option<&Album> {
+		let album = match self.songs.get(key.into()) {
 			Some(a) => a.album,
 			None    => return None,
 		};
@@ -544,8 +544,8 @@ impl Collection {
 	///
 	/// # Errors:
 	/// The [`SongKey`] must be a valid index.
-	pub fn get_artist_from_song(&self, key: SongKey) -> Option<&Artist> {
-		let album = match self.songs.get(key) {
+	pub fn get_artist_from_song<K: Into<SongKey>>(&self, key: K) -> Option<&Artist> {
+		let album = match self.songs.get(key.into()) {
 			Some(a) => a.album,
 			None    => return None,
 		};

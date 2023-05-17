@@ -87,6 +87,16 @@ macro_rules! impl_common {
 				self.0 == *other
 			}
 		}
+		impl PartialEq<$type> for &$type {
+			fn eq(&self, other: &$type) -> bool {
+				self.0 == other.0
+			}
+		}
+		impl PartialEq<&$type> for $type {
+			fn eq(&self, other: &&$type) -> bool {
+				self.0 == other.0
+			}
+		}
 	}
 }
 

@@ -81,9 +81,7 @@ pub fn show_tab_songs(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 			// Iterate based off user selection.
 			for key in self.collection.sort_song_album_release_artist_lexi.iter() {
 				body.row(35.0, |mut row| {
-					let song   = &self.collection.songs[key];
-					let album  = &self.collection.albums[song.album];
-					let artist = &self.collection.artists[album.artist];
+					let (artist, album, song) = self.collection.walk(key);
 
 					row.col(|ui| { ui.label(&song.title); });
 					row.col(|ui| { ui.label(&album.title); });
