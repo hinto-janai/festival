@@ -432,6 +432,29 @@ impl Collection {
 		(&self.artists.0[artist], &self.albums.0[album], &self.songs.0[song])
 	}
 
+	/// Walk through the relational data from a
+	/// [`SongKey`] and return the full tuple.
+	#[inline]
+	pub fn walk(&self, key: SongKey) -> (&Artist, &Album, &Song) {
+		let song   = &self.songs[key];
+		let album  = &self.albums[song.album];
+		let artist = &self.artists[album.artist];
+
+		(artist, album, song)
+	}
+
+	/// Get all [`Album`]'s from the same [`Artist`] of this [`AlbumKey`].
+	#[inline]
+	pub fn other_albums(&self, key: AlbumKey) -> &[AlbumKey] {
+		&self.artists[self.albums[key].artist].albums
+	}
+
+	/// Get all [`Song`]'s from the same [`Album`] of this [`SongKey`].
+	#[inline]
+	pub fn other_songs(&self, key: SongKey) -> &[SongKey] {
+		&self.albums[self.songs[key].album].songs
+	}
+
 	#[inline]
 	/// [`slice::get`] the [`Collection`] with a [`Key`].
 	///

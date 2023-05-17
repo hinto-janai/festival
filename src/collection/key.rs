@@ -59,6 +59,12 @@ macro_rules! impl_common {
 				Self(index)
 			}
 		}
+		impl From<&$type> for $type {
+			#[inline(always)]
+			fn from(key: &$type) -> Self {
+				*key
+			}
+		}
 		impl std::default::Default for $type {
 			#[inline(always)]
 			fn default() -> Self {
