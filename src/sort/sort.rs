@@ -254,6 +254,42 @@ impl ArtistSort {
 			Self::NameRev,
 		].iter()
 	}
+
+	/// Returns the next sequential [`ArtistSort`] variant.
+	///
+	/// This returns the _first_ if at the _last_.
+	pub fn next(&self) -> Self {
+		match self {
+			Self::Lexi          => Self::LexiRev,
+			Self::LexiRev       => Self::AlbumCount,
+			Self::AlbumCount    => Self::AlbumCountRev,
+			Self::AlbumCountRev => Self::SongCount,
+			Self::SongCount     => Self::SongCountRev,
+			Self::SongCountRev  => Self::Runtime,
+			Self::Runtime       => Self::RuntimeRev,
+			Self::RuntimeRev    => Self::Name,
+			Self::Name          => Self::NameRev,
+			Self::NameRev       => Self::Lexi,
+		}
+	}
+
+	/// Returns the previous sequential [`ArtistSort`] variant.
+	///
+	/// This returns the _last_ if at the _first_.
+	pub fn previous(&self) -> Self {
+		match self {
+			Self::Lexi          => Self::NameRev,
+			Self::LexiRev       => Self::Lexi,
+			Self::AlbumCount    => Self::LexiRev,
+			Self::AlbumCountRev => Self::AlbumCount,
+			Self::SongCount     => Self::AlbumCountRev,
+			Self::SongCountRev  => Self::SongCount,
+			Self::Runtime       => Self::SongCountRev,
+			Self::RuntimeRev    => Self::Runtime,
+			Self::Name          => Self::RuntimeRev,
+			Self::NameRev       => Self::Name,
+		}
+	}
 }
 
 impl AlbumSort {
@@ -305,6 +341,54 @@ impl AlbumSort {
 			Self::TitleRev,
 		].iter()
 	}
+
+	/// Returns the next sequential [`AlbumSort`] variant.
+	///
+	/// This returns the _first_ if at the _last_.
+	pub fn next(&self) -> Self {
+		match self {
+			Self::ReleaseArtistLexi       => Self::ReleaseArtistLexiRev,
+			Self::ReleaseArtistLexiRev    => Self::ReleaseRevArtistLexi,
+			Self::ReleaseRevArtistLexi    => Self::ReleaseRevArtistLexiRev,
+			Self::ReleaseRevArtistLexiRev => Self::LexiArtistLexi,
+			Self::LexiArtistLexi          => Self::LexiArtistLexiRev,
+			Self::LexiArtistLexiRev       => Self::LexiRevArtistLexi,
+			Self::LexiRevArtistLexi       => Self::LexiRevArtistLexiRev,
+			Self::LexiRevArtistLexiRev    => Self::Lexi,
+			Self::Lexi                    => Self::LexiRev,
+			Self::LexiRev                 => Self::Release,
+			Self::Release                 => Self::ReleaseRev,
+			Self::ReleaseRev              => Self::Runtime,
+			Self::Runtime                 => Self::RuntimeRev,
+			Self::RuntimeRev              => Self::Title,
+			Self::Title                   => Self::TitleRev,
+			Self::TitleRev                => Self::ReleaseArtistLexi,
+		}
+	}
+
+	/// Returns the previous sequential [`AlbumSort`] variant.
+	///
+	/// This returns the _last_ if at the _first_.
+	pub fn previous(&self) -> Self {
+		match self {
+			Self::ReleaseArtistLexi       => Self::TitleRev,
+			Self::ReleaseArtistLexiRev    => Self::ReleaseArtistLexi,
+			Self::ReleaseRevArtistLexi    => Self::ReleaseArtistLexiRev,
+			Self::ReleaseRevArtistLexiRev => Self::ReleaseRevArtistLexi,
+			Self::LexiArtistLexi          => Self::ReleaseRevArtistLexiRev,
+			Self::LexiArtistLexiRev       => Self::LexiArtistLexi,
+			Self::LexiRevArtistLexi       => Self::LexiArtistLexiRev,
+			Self::LexiRevArtistLexiRev    => Self::LexiRevArtistLexi,
+			Self::Lexi                    => Self::LexiRevArtistLexiRev,
+			Self::LexiRev                 => Self::Lexi,
+			Self::Release                 => Self::LexiRev,
+			Self::ReleaseRev              => Self::Release,
+			Self::Runtime                 => Self::ReleaseRev,
+			Self::RuntimeRev              => Self::Runtime,
+			Self::Title                   => Self::RuntimeRev,
+			Self::TitleRev                => Self::Title,
+		}
+	}
 }
 
 impl SongSort {
@@ -355,6 +439,54 @@ impl SongSort {
 			Self::Title,
 			Self::TitleRev,
 		].iter()
+	}
+
+	/// Returns the next sequential [`SongSort`] variant.
+	///
+	/// This returns the _first_ if at the _last_.
+	pub fn next(&self) -> Self {
+		match self {
+			Self::AlbumReleaseArtistLexi       => Self::AlbumReleaseArtistLexiRev,
+			Self::AlbumReleaseArtistLexiRev    => Self::AlbumReleaseRevArtistLexi,
+			Self::AlbumReleaseRevArtistLexi    => Self::AlbumReleaseRevArtistLexiRev,
+			Self::AlbumReleaseRevArtistLexiRev => Self::AlbumLexiArtistLexi,
+			Self::AlbumLexiArtistLexi          => Self::AlbumLexiArtistLexiRev,
+			Self::AlbumLexiArtistLexiRev       => Self::AlbumLexiRevArtistLexi,
+			Self::AlbumLexiRevArtistLexi       => Self::AlbumLexiRevArtistLexiRev,
+			Self::AlbumLexiRevArtistLexiRev    => Self::Lexi,
+			Self::Lexi                         => Self::LexiRev,
+			Self::LexiRev                      => Self::Release,
+			Self::Release                      => Self::ReleaseRev,
+			Self::ReleaseRev                   => Self::Runtime,
+			Self::Runtime                      => Self::RuntimeRev,
+			Self::RuntimeRev                   => Self::Title,
+			Self::Title                        => Self::TitleRev,
+			Self::TitleRev                     => Self::AlbumReleaseArtistLexi,
+		}
+	}
+
+	/// Returns the previous sequential [`SongSort`] variant.
+	///
+	/// This returns the _last_ if at the _first_.
+	pub fn previous(&self) -> Self {
+		match self {
+			Self::AlbumReleaseArtistLexi       => Self::TitleRev,
+			Self::AlbumReleaseArtistLexiRev    => Self::AlbumReleaseArtistLexi,
+			Self::AlbumReleaseRevArtistLexi    => Self::AlbumReleaseArtistLexiRev,
+			Self::AlbumReleaseRevArtistLexiRev => Self::AlbumReleaseRevArtistLexi,
+			Self::AlbumLexiArtistLexi          => Self::AlbumReleaseRevArtistLexiRev,
+			Self::AlbumLexiArtistLexiRev       => Self::AlbumLexiArtistLexi,
+			Self::AlbumLexiRevArtistLexi       => Self::AlbumLexiArtistLexiRev,
+			Self::AlbumLexiRevArtistLexiRev    => Self::AlbumLexiRevArtistLexi,
+			Self::Lexi                         => Self::AlbumLexiRevArtistLexiRev,
+			Self::LexiRev                      => Self::Lexi,
+			Self::Release                      => Self::LexiRev,
+			Self::ReleaseRev                   => Self::Release,
+			Self::Runtime                      => Self::ReleaseRev,
+			Self::RuntimeRev                   => Self::Runtime,
+			Self::Title                        => Self::RuntimeRev,
+			Self::TitleRev                     => Self::Title,
+		}
 	}
 }
 

@@ -193,9 +193,9 @@ impl Gui {
 
 				// Check for `Up/Down` (Tab switch)
 				if input.consume_key(egui::Modifiers::NONE, egui::Key::ArrowDown) {
-					self.state.tab = self.state.tab.next();
+					crate::tab!(self, self.state.tab.next());
 				} else if input.consume_key(egui::Modifiers::NONE, egui::Key::ArrowUp) {
-					self.state.tab = self.state.tab.previous();
+					crate::tab!(self, self.state.tab.previous());
 				// Check for `Left/Right` (Volume)
 				} else if self.state.tab == Tab::Albums && input.consume_key(egui::Modifiers::NONE, egui::Key::ArrowRight) {
 					self.increment_art_size()
@@ -218,16 +218,16 @@ impl Gui {
 					self.add_folder();
 				// Check for `Ctrl+Q` (Next Artist Order)
 				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::Q) {
-					self.state.tab = Tab::Artists;
-					self.next_artist_order();
+					crate::tab!(self, Tab::Artists);
+					self.settings.artist_sort = self.settings.artist_sort.next();
 				// Check for `Ctrl+W` (Next Album Order)
 				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::W) {
-					self.state.tab = Tab::Albums;
-					self.next_album_order();
+					crate::tab!(self, Tab::Albums);
+					self.settings.album_sort = self.settings.album_sort.next();
 				// Check for `Ctrl+E` (Next Song Order)
 				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::E) {
-					self.state.tab = Tab::Songs;
-					self.next_song_order();
+					crate::tab!(self, Tab::Songs);
+					self.settings.song_sort = self.settings.song_sort.next();
 				// Check for `Ctrl+Shift+P` (force `panic!()`)
 				} else if
 					input.modifiers.matches(egui::Modifiers::CTRL.plus(egui::Modifiers::SHIFT))
