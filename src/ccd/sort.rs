@@ -97,6 +97,22 @@ impl super::Ccd {
 		vec_album.into_iter().flatten().collect()
 	}
 
+	pub(super) fn sort_album_release_rev_artist_lexi(sorted_artists: &[ArtistKey], artists: &[Artist], albums: &[Album]) -> Vec<AlbumKey> {
+		let mut vec_album: Vec<Vec<AlbumKey>> = Vec::with_capacity(albums.len());
+
+		for artist in sorted_artists {
+			let mut tmp: Vec<AlbumKey> = artists[artist.inner()].albums.clone();
+			tmp.sort_by(|a, b|
+				albums[a.inner()].release.cmp(
+					&albums[b.inner()].release
+				)
+			);
+			vec_album.push(tmp.into_iter().rev().collect());
+		}
+
+		vec_album.into_iter().flatten().collect()
+	}
+
 	pub(super) fn sort_album_lexi_artist_lexi(sorted_artists: &[ArtistKey], artists: &[Artist], albums: &[Album]) -> Vec<AlbumKey> {
 		let mut vec_album: Vec<Vec<AlbumKey>> = Vec::with_capacity(albums.len());
 
@@ -108,6 +124,22 @@ impl super::Ccd {
 				)
 			);
 			vec_album.push(tmp);
+		}
+
+		vec_album.into_iter().flatten().collect()
+	}
+
+	pub(super) fn sort_album_lexi_rev_artist_lexi(sorted_artists: &[ArtistKey], artists: &[Artist], albums: &[Album]) -> Vec<AlbumKey> {
+		let mut vec_album: Vec<Vec<AlbumKey>> = Vec::with_capacity(albums.len());
+
+		for artist in sorted_artists {
+			let mut tmp: Vec<AlbumKey> = artists[artist.inner()].albums.clone();
+			tmp.sort_by(|a, b|
+				albums[a.inner()].title.to_lowercase().cmp(
+					&albums[b.inner()].title.to_lowercase()
+				)
+			);
+			vec_album.push(tmp.into_iter().rev().collect());
 		}
 
 		vec_album.into_iter().flatten().collect()

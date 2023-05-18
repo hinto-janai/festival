@@ -33,13 +33,23 @@ pub const ARTIST_NAME:                    &str = "Artist name shortest-longest";
 pub const ARTIST_NAME_REV:                &str = "Artist name longest-shortest";
 
 /// [`AlbumSort::ReleaseArtistLexi`]
-pub const ALBUM_RELEASE_ARTIST_LEXI:      &str = "Artists A-Z, albums oldest-latest";
+pub const ALBUM_RELEASE_ARTIST_LEXI:          &str = "Artists A-Z, albums oldest-latest";
 /// [`AlbumSort::ReleaseArtistLexiRev`]
-pub const ALBUM_RELEASE_ARTIST_LEXI_REV:  &str = "Artists Z-A, albums oldest-latest";
+pub const ALBUM_RELEASE_ARTIST_LEXI_REV:      &str = "Artists Z-A, albums oldest-latest";
+/// [`AlbumSort::ReleaseRevArtistLexi`]
+pub const ALBUM_RELEASE_REV_ARTIST_LEXI:      &str = "Artists A-Z, albums latest-oldest";
+/// [`AlbumSort::ReleaseRevArtistLexiRev`]
+pub const ALBUM_RELEASE_REV_ARTIST_LEXI_REV:  &str = "Artists Z-A, albums latest-oldest";
+//---
 /// [`AlbumSort::LexiArtistLexi`]
 pub const ALBUM_LEXI_ARTIST_LEXI:         &str = "Artists A-Z, albums A-Z";
 /// [`AlbumSort::LexiArtistLexiRev`]
 pub const ALBUM_LEXI_ARTIST_LEXI_REV:     &str = "Artists Z-A, albums A-Z";
+/// [`AlbumSort::LexiRevArtistLexi`]
+pub const ALBUM_LEXI_REV_ARTIST_LEXI:         &str = "Artists A-Z, albums Z-A";
+/// [`AlbumSort::LexiRevArtistLexiRev`]
+pub const ALBUM_LEXI_REV_ARTIST_LEXI_REV:     &str = "Artists Z-A, albums Z-A";
+//---
 /// [`AlbumSort::Lexi`]
 pub const ALBUM_LEXI:                     &str = "Albums A-Z";
 /// [`AlbumSort::LexiRev`]
@@ -47,7 +57,7 @@ pub const ALBUM_LEXI_REV:                 &str = "Albums Z-A";
 /// [`AlbumSort::Release`]
 pub const ALBUM_RELEASE:                  &str = "Albums oldest-latest";
 /// [`AlbumSort::ReleaseRev`]
-pub const ALBUM_RELEASE_REV:              &str = "Albums oldest-latest";
+pub const ALBUM_RELEASE_REV:              &str = "Albums latest-oldest";
 /// [`AlbumSort::Runtime`]
 pub const ALBUM_RUNTIME:                  &str = "Albums shortest-longest";
 /// [`AlbumSort::RuntimeRev`]
@@ -58,13 +68,23 @@ pub const ALBUM_TITLE:                    &str = "Album title shortest-longest";
 pub const ALBUM_TITLE_REV:                &str = "Album title longest-shortest";
 
 /// [`SongSort::AlbumReleaseArtistLexi`]
-pub const SONG_ALBUM_RELEASE_ARTIST_LEXI:     &str = "Artists A-Z, albums oldest-latest, songs in track order";
+pub const SONG_ALBUM_RELEASE_ARTIST_LEXI:         &str = "Artists A-Z, albums oldest-latest, songs in track order";
 /// [`SongSort::AlbumReleaseArtistLexiRev`]
-pub const SONG_ALBUM_RELEASE_ARTIST_LEXI_REV: &str = "Artists Z-A, albums oldest-latest, songs in track order";
+pub const SONG_ALBUM_RELEASE_ARTIST_LEXI_REV:     &str = "Artists Z-A, albums oldest-latest, songs in track order";
+/// [`SongSort::AlbumReleaseRevArtistLexi`]
+pub const SONG_ALBUM_RELEASE_REV_ARTIST_LEXI:     &str = "Artists A-Z, albums latest-oldest, songs in track order";
+/// [`SongSort::AlbumReleaseRevArtistLexiRev`]
+pub const SONG_ALBUM_RELEASE_REV_ARTIST_LEXI_REV: &str = "Artists Z-A, albums latest-oldest, songs in track order";
+
 /// [`SongSort::AlbumLexiArtistLexi`]
-pub const SONG_ALBUM_LEXI_ARTIST_LEXI:        &str = "Artists A-Z, albums A-Z, songs in track order";
+pub const SONG_ALBUM_LEXI_ARTIST_LEXI:            &str = "Artists A-Z, albums A-Z, songs in track order";
 /// [`SongSort::AlbumLexiArtistLexiRev`]
-pub const SONG_ALBUM_LEXI_ARTIST_LEXI_REV:    &str = "Artists Z-A, albums A-Z, songs in track order";
+pub const SONG_ALBUM_LEXI_ARTIST_LEXI_REV:        &str = "Artists Z-A, albums A-Z, songs in track order";
+/// [`SongSort::AlbumLexiRevArtistLexi`]
+pub const SONG_ALBUM_LEXI_REV_ARTIST_LEXI:        &str = "Artists A-Z, albums Z-A, songs in track order";
+/// [`SongSort::AlbumLexiArtistLexiRev`]
+pub const SONG_ALBUM_LEXI_REV_ARTIST_LEXI_REV:    &str = "Artists Z-A, albums Z-A, songs in track order";
+
 /// [`SongSort::Lexi`]
 pub const SONG_LEXI:                          &str = "Songs A-Z";
 /// [`SongSort::Lexi`]
@@ -72,7 +92,7 @@ pub const SONG_LEXI_REV:                      &str = "Songs Z-A";
 /// [`SongSort::Release`]
 pub const SONG_RELEASE:                       &str = "Songs oldest-latest";
 /// [`SongSort::ReleaseRev`]
-pub const SONG_RELEASE_REV:                   &str = "Songs oldest-latest";
+pub const SONG_RELEASE_REV:                   &str = "Songs latest-oldest";
 /// [`SongSort::Runtime`]
 pub const SONG_RUNTIME:                       &str = "Songs shortest-longest";
 /// [`SongSort::RuntimeRev`]
@@ -125,10 +145,18 @@ pub enum AlbumSort {
 	ReleaseArtistLexi,
 	/// [`Artist`] Z-A, [`Album`] oldest-latest. Field: [`Collection::sort_album_release_artist_lexi_rev`].
 	ReleaseArtistLexiRev,
+	/// [`Artist`] A-Z, [`Album`] latest-oldest. Field: [`Collection::sort_album_release_rev_artist_lexi`].
+	ReleaseRevArtistLexi,
+	/// [`Artist`] Z-A, [`Album`] latest-oldest. Field: [`Collection::sort_album_release_rev_artist_lexi_rev`].
+	ReleaseRevArtistLexiRev,
 	/// [`Artist`] A-Z, [`Album`]'s A-Z. Field: [`Collection::sort_album_lexi_artist_lexi`].
 	LexiArtistLexi,
 	/// [`Artist`] Z-A, [`Album`]'s A-Z. Field: [`Collection::sort_album_lexi_artist_lexi_rev`].
 	LexiArtistLexiRev,
+	/// [`Artist`] A-Z, [`Album`]'s Z-A. Field: [`Collection::sort_album_lexi_rev_artist_lexi`].
+	LexiRevArtistLexi,
+	/// [`Artist`] Z-A, [`Album`]'s Z-A. Field: [`Collection::sort_album_lexi_rev_artist_lexi_rev`].
+	LexiRevArtistLexiRev,
 	/// [`Album`] A-Z. Field: [`Collection::sort_album_lexi`].
 	Lexi,
 	/// [`Album`] Z-A. Field: [`Collection::sort_album_lexi_rev`].
@@ -158,10 +186,18 @@ pub enum SongSort {
 	AlbumReleaseArtistLexi,
 	/// [`Artist`] Z-A, [`Album`] oldest-latest, [`Song`] track_number. Field: [`Collection::sort_song_album_release_artist_lexi_rev`].
 	AlbumReleaseArtistLexiRev,
+	/// [`Artist`] A-Z, [`Album`] latest-oldest, [`Song`] track_number. Field: [`Collection::sort_song_album_release_rev_artist_lexi`].
+	AlbumReleaseRevArtistLexi,
+	/// [`Artist`] Z-A, [`Album`] oldest-latest, [`Song`] track_number. Field: [`Collection::sort_song_album_release_rev_artist_lexi_rev`].
+	AlbumReleaseRevArtistLexiRev,
 	/// [`Artist`] A-Z, [`Album`] A-Z, [`Song`] track_number. Field: [`Collection::sort_song_album_lexi_artist_lexi`].
 	AlbumLexiArtistLexi,
 	/// [`Artist`] Z-A, [`Album`] A-Z, [`Song`] track_number. Field: [`Collection::sort_song_album_lexi_artist_lexi_rev`].
 	AlbumLexiArtistLexiRev,
+	/// [`Artist`] A-Z, [`Album`] Z-A, [`Song`] track_number. Field: [`Collection::sort_song_album_lexi_rev_artist_lexi`].
+	AlbumLexiRevArtistLexi,
+	/// [`Artist`] Z-A, [`Album`] Z-A, [`Song`] track_number. Field: [`Collection::sort_song_album_lexi_rev_artist_lexi_rev`].
+	AlbumLexiRevArtistLexiRev,
 	/// [`Song`] A-Z. Field: [`Collection::sort_song_lexi`].
 	#[default]
 	Lexi,
@@ -228,18 +264,22 @@ impl AlbumSort {
 	pub const fn as_str(&self) -> &'static str {
 		use AlbumSort::*;
 		match self {
-			ReleaseArtistLexi    => ALBUM_RELEASE_ARTIST_LEXI,
-			ReleaseArtistLexiRev => ALBUM_RELEASE_ARTIST_LEXI_REV,
-			LexiArtistLexi       => ALBUM_LEXI_ARTIST_LEXI,
-			LexiArtistLexiRev    => ALBUM_LEXI_ARTIST_LEXI_REV,
-			Lexi                 => ALBUM_LEXI,
-			LexiRev              => ALBUM_LEXI_REV,
-			Release              => ALBUM_RELEASE,
-			ReleaseRev           => ALBUM_RELEASE_REV,
-			Runtime              => ALBUM_RUNTIME,
-			RuntimeRev           => ALBUM_RUNTIME_REV,
-			Title                => ALBUM_TITLE,
-			TitleRev             => ALBUM_TITLE_REV,
+			ReleaseArtistLexi       => ALBUM_RELEASE_ARTIST_LEXI,
+			ReleaseArtistLexiRev    => ALBUM_RELEASE_ARTIST_LEXI_REV,
+			ReleaseRevArtistLexi    => ALBUM_RELEASE_REV_ARTIST_LEXI,
+			ReleaseRevArtistLexiRev => ALBUM_RELEASE_REV_ARTIST_LEXI_REV,
+			LexiArtistLexi          => ALBUM_LEXI_ARTIST_LEXI,
+			LexiArtistLexiRev       => ALBUM_LEXI_ARTIST_LEXI_REV,
+			LexiRevArtistLexi       => ALBUM_LEXI_REV_ARTIST_LEXI,
+			LexiRevArtistLexiRev    => ALBUM_LEXI_REV_ARTIST_LEXI_REV,
+			Lexi                    => ALBUM_LEXI,
+			LexiRev                 => ALBUM_LEXI_REV,
+			Release                 => ALBUM_RELEASE,
+			ReleaseRev              => ALBUM_RELEASE_REV,
+			Runtime                 => ALBUM_RUNTIME,
+			RuntimeRev              => ALBUM_RUNTIME_REV,
+			Title                   => ALBUM_TITLE,
+			TitleRev                => ALBUM_TITLE_REV,
 		}
 	}
 
@@ -249,8 +289,12 @@ impl AlbumSort {
 		[
 			Self::ReleaseArtistLexi,
 			Self::ReleaseArtistLexiRev,
+			Self::ReleaseRevArtistLexi,
+			Self::ReleaseRevArtistLexiRev,
 			Self::LexiArtistLexi,
 			Self::LexiArtistLexiRev,
+			Self::LexiRevArtistLexi,
+			Self::LexiRevArtistLexiRev,
 			Self::Lexi,
 			Self::LexiRev,
 			Self::Release,
@@ -271,18 +315,22 @@ impl SongSort {
 	pub const fn as_str(&self) -> &'static str {
 		use SongSort::*;
 		match self {
-			AlbumReleaseArtistLexi    => SONG_ALBUM_RELEASE_ARTIST_LEXI,
-			AlbumReleaseArtistLexiRev => SONG_ALBUM_RELEASE_ARTIST_LEXI_REV,
-			AlbumLexiArtistLexi       => SONG_ALBUM_LEXI_ARTIST_LEXI,
-			AlbumLexiArtistLexiRev    => SONG_ALBUM_LEXI_ARTIST_LEXI_REV,
-			Lexi                      => SONG_LEXI,
-			LexiRev                   => SONG_LEXI_REV,
-			Release                   => SONG_RELEASE,
-			ReleaseRev                => SONG_RELEASE_REV,
-			Runtime                   => SONG_RUNTIME,
-			RuntimeRev                => SONG_RUNTIME_REV,
-			Title                     => SONG_TITLE,
-			TitleRev                  => SONG_TITLE_REV,
+			AlbumReleaseArtistLexi       => SONG_ALBUM_RELEASE_ARTIST_LEXI,
+			AlbumReleaseArtistLexiRev    => SONG_ALBUM_RELEASE_ARTIST_LEXI_REV,
+			AlbumReleaseRevArtistLexi    => SONG_ALBUM_RELEASE_REV_ARTIST_LEXI,
+			AlbumReleaseRevArtistLexiRev => SONG_ALBUM_RELEASE_REV_ARTIST_LEXI_REV,
+			AlbumLexiArtistLexi          => SONG_ALBUM_LEXI_ARTIST_LEXI,
+			AlbumLexiArtistLexiRev       => SONG_ALBUM_LEXI_ARTIST_LEXI_REV,
+			AlbumLexiRevArtistLexi       => SONG_ALBUM_LEXI_REV_ARTIST_LEXI,
+			AlbumLexiRevArtistLexiRev    => SONG_ALBUM_LEXI_REV_ARTIST_LEXI_REV,
+			Lexi                         => SONG_LEXI,
+			LexiRev                      => SONG_LEXI_REV,
+			Release                      => SONG_RELEASE,
+			ReleaseRev                   => SONG_RELEASE_REV,
+			Runtime                      => SONG_RUNTIME,
+			RuntimeRev                   => SONG_RUNTIME_REV,
+			Title                        => SONG_TITLE,
+			TitleRev                     => SONG_TITLE_REV,
 		}
 	}
 
@@ -292,8 +340,12 @@ impl SongSort {
 		[
 			Self::AlbumReleaseArtistLexi,
 			Self::AlbumReleaseArtistLexiRev,
+			Self::AlbumReleaseRevArtistLexi,
+			Self::AlbumReleaseRevArtistLexiRev,
 			Self::AlbumLexiArtistLexi,
 			Self::AlbumLexiArtistLexiRev,
+			Self::AlbumLexiRevArtistLexi,
+			Self::AlbumLexiRevArtistLexiRev,
 			Self::Lexi,
 			Self::LexiRev,
 			Self::Release,
