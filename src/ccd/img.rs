@@ -125,6 +125,7 @@ fn bytes_to_dyn_image(bytes: &[u8]) -> Result<image::DynamicImage, anyhow::Error
 }
 
 #[inline(always)]
+// The bool returned represents:
 fn resize_dyn_image(img: image::DynamicImage, resizer: &mut fir::Resizer) -> Result<Box<[u8]>, anyhow::Error> {
 	// Make sure the image width/height is not 0.
 	debug_assert!(img.width() != 0);
@@ -142,11 +143,19 @@ fn resize_dyn_image(img: image::DynamicImage, resizer: &mut fir::Resizer) -> Res
 	// Convert image to RGB, then into a `fir::Image`.
 	let old_img = Image::from_vec_u8(width, height, img.into_rgb8().into_raw(), PixelType::U8x3)?;
 
+
 	// Create the image we'll resize into.
 	let mut new_img = Image::new(ALBUM_ART_SIZE_NUM, ALBUM_ART_SIZE_NUM, PixelType::U8x3);
 
+	// Get image view.
+	// Images might not always be perfect squares.
+	// This sets the resizer to crop a square out of
+	// the middle instead squashing the aspect ratio.
+	let mut old = old_img.view();
+	old.set_crop_box_to_fit_dst_size(ALBUM_ART_SIZE_NUM, ALBUM_ART_SIZE_NUM, Some((0.5, 0.5)));
+
 	// Resize old into new.
-	if let Err(e) = resizer.resize(&old_img.view(), &mut new_img.view_mut()) {
+	if let Err(e) = resizer.resize(&old, &mut new_img.view_mut()) {
 		fail!("CCD - Failed to resize art: {e}");
 		bail!(e);
 	}
@@ -229,10 +238,7 @@ pub(super) fn alloc_textures(albums: &crate::collection::Albums, ctx: &egui::Con
 			// the inner image is allocated before returning the id.
 			//
 			// This behavior must exist for this to actually allocate the image.
-			match art.texture_id(ctx) {
-				egui::TextureId::User(id)    => trace!("CCD - User Allocated: {id}"),
-				egui::TextureId::Managed(id) => trace!("CCD - Managed Allocated: {id}"),
-			}
+			let _ = art.texture_id(ctx);
 		}
 	}
 }
