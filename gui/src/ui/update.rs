@@ -181,6 +181,16 @@ impl Gui {
 		// Check for key presses.
 		if !ctx.wants_keyboard_input() {
 			ctx.input_mut(|input| {
+				// Last tab.
+				if input.pointer.button_clicked(egui::PointerButton::Extra1) ||  // FIXME:
+					input.pointer.button_clicked(egui::PointerButton::Extra2) || // These two don't work with my mouse.
+					input.consume_key(egui::Modifiers::CTRL, egui::Key::W)
+				{
+					if let Some(tab) = self.last_tab {
+						crate::tab!(self, tab);
+					}
+				}
+
 				// Check for `Up/Down` (Tab switch)
 				if input.consume_key(egui::Modifiers::NONE, egui::Key::ArrowDown) {
 					self.state.tab = self.state.tab.next();
@@ -235,7 +245,7 @@ impl Gui {
 				} else {
 					for key in ALPHANUMERIC_KEY {
 						if input.consume_key(egui::Modifiers::NONE, key) {
-							self.state.tab     = Tab::Search;
+							crate::tab!(self, Tab::Search);
 							self.search_string = KeyPress::from_egui_key(&key).to_string();
 							self.search_focus  = true;
 							break
@@ -357,7 +367,7 @@ fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f
 			ui.add_space(2.5);
 			for tab in Tab::iter() {
 				if ui.add_sized([tab_width, tab_height], SelectableLabel::new(self.state.tab == *tab, tab.as_str())).clicked() {
-					self.state.tab = *tab;
+					crate::tab!(self, *tab);
 				}
 				ui.separator();
 			}

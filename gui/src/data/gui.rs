@@ -135,6 +135,10 @@ pub struct Gui {
 	pub debug_screen: bool,
 	/// The debug info displayed on the debug screen.
 	pub debug_info: DebugInfo,
+
+	// Tab history (for mouse).
+	/// The last [`Tab`] the user was on.
+	pub last_tab: Option<Tab>,
 }
 
 //---------------------------------------------------------------------------------------------------- GUI convenience functions.
@@ -533,6 +537,8 @@ impl Gui {
 
 			debug_screen: false,
 			debug_info: DebugInfo::new(),
+
+			last_tab: None,
 		};
 
 

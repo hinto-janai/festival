@@ -1,4 +1,4 @@
-// Some macors for `ui` and some that need `self` and egui's `ui`.
+// Some macros for `ui` and some that need `self` and egui's `ui`.
 //
 // These UI layouts appear in many places, thus reusable macros are here.
 //
@@ -20,6 +20,14 @@ use log::warn;
 
 //---------------------------------------------------------------------------------------------------- `self/ui`-based
 #[macro_export]
+macro_rules! tab {
+	($self:ident, $tab:expr) => {
+		$self.last_tab = Some($self.state.tab);
+		$self.state.tab = $tab;
+	}
+}
+
+#[macro_export]
 /// Adds a clickable `Album` art button that opens the parent directory.
 macro_rules! album_button {
 	($self:ident, $album:ident, $key:ident, $ui:ident, $ctx:ident, $size:tt) => {
@@ -30,7 +38,7 @@ macro_rules! album_button {
 
 		if resp.clicked() {
 			$self.state.album = Some($key.into());
-			$self.state.tab   = crate::data::Tab::View;
+			$crate::tab!($self, crate::data::Tab::View);
 		} else if resp.secondary_clicked() {
 			match open::that(&$album.path) {
 				Ok(_) => log::info!("GUI - Opening path: {}", $album.path.display()),
