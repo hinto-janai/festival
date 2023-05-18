@@ -12,6 +12,7 @@
 mod cli;
 mod constants;
 mod data;
+mod func;
 mod text;
 mod slice;
 mod ui;
@@ -21,7 +22,7 @@ fn main() {
 	disk::umask(0o027);
 
 	// Handle CLI arguments.
-	cli::Cli::handle_args();
+	crate::cli::Cli::handle_args();
 
 	// Create `Kernel` <-> `GUI` channels.
 	let (kernel_to_gui, gui_recv)    = crossbeam::channel::unbounded::<shukusai::kernel::KernelToFrontend>();
@@ -30,7 +31,7 @@ fn main() {
 	// Start `egui/eframe`.
 	if let Err(e) = eframe::run_native(
 		shukusai::FESTIVAL_NAME_VER,
-		data::Gui::options(),
+		crate::data::Gui::options(),
 		Box::new(|cc| {
 			// Spawn `Kernel`, pass it `egui::Context`.
 			if let Err(e) = shukusai::kernel::Kernel::spawn(
@@ -42,7 +43,7 @@ fn main() {
 			}
 
 			// Start `GUI`.
-			Box::new(data::Gui::init(cc, gui_to_kernel, gui_recv))
+			Box::new(crate::data::Gui::init(cc, gui_to_kernel, gui_recv))
 		})
 	) {
 		panic!("eframe::run_native() failed: {e}");

@@ -1,0 +1,309 @@
+//---------------------------------------------------------------------------------------------------- Use
+use crate::{
+	constants::*,
+};
+use crate::data::{
+	State,
+	Settings,
+	DebugInfo,
+	Tab,
+	AlbumSizing,
+};
+use shukusai::kernel::{
+	Kernel,
+	KernelState,
+	ResetState,
+	FrontendToKernel,
+	KernelToFrontend,
+};
+use shukusai::collection::{
+	Collection,
+	AlbumKey,
+	Keychain,
+};
+use shukusai::sort::{
+	ArtistSort,AlbumSort,SongSort,
+};
+use benri::{
+	now,
+	debug_panic,
+	log::*,
+	panic::*,
+	sync::*,
+};
+use log::{
+	info,
+	warn,
+	error
+};
+use egui::{
+	Style,Visuals,Color32,
+	TopBottomPanel,SidePanel,CentralPanel,
+	TextStyle,FontId,FontData,FontDefinitions,FontFamily,FontTweak,
+};
+use crossbeam::channel::{Sender,Receiver};
+use std::path::PathBuf;
+use std::sync::{
+	Arc,
+	Mutex,
+	atomic::AtomicBool,
+	atomic::AtomicU8,
+};
+use rolock::RoLock;
+use disk::{Bincode2,Toml,Json};
+use std::time::Instant;
+
+//---------------------------------------------------------------------------------------------------- GUI convenience functions.
+impl crate::data::Gui {
+	#[inline(always)]
+	// Sets the [`egui::Ui`]'s `Visual` from our current `Settings`
+	//
+	// This should be called at the beginning of every major `Ui` frame.
+	pub fn set_visuals(&mut self, ui: &mut egui::Ui) {
+		// Accent color.
+		let mut visuals = ui.visuals_mut();
+		visuals.selection.bg_fill = self.settings.accent_color;
+	}
+
+	#[inline(always)]
+	/// Set the current [`Settings`] to disk.
+	pub fn save_settings(&mut self) {
+		self.set_settings();
+		// TODO: handle save error.
+		match self.settings.save_atomic() {
+			Ok(_)  => ok_debug!("GUI - Settings save"),
+			Err(e) => error!("GUI - Settings could not be saved to disk: {e}"),
+		}
+	}
+
+	#[inline(always)]
+	/// Set the original [`Settings`] to reflect live [`Settings`].
+	pub fn set_settings(&mut self) {
+		self.og_settings = self.settings.clone();
+	}
+
+	#[inline(always)]
+	/// Reset [`Settings`] to the original.
+	///
+	/// This also resets the [`egui::Visuals`].
+	pub fn reset_settings(&mut self) {
+		self.settings = self.og_settings.clone();
+	}
+
+	#[inline(always)]
+	/// Set the original [`State`] to reflect live [`State`].
+	pub fn set_state(&mut self) {
+		self.og_state = self.state; // `copy`-able
+	}
+
+	#[inline(always)]
+	/// Reset [`State`] to the original.
+	pub fn reset_state(&mut self) {
+		self.state = self.og_state; // `copy`-able
+	}
+
+	#[inline]
+	/// Returns true if either [`Settings`] or [`State`] have diffs.
+	pub fn diff(&self) -> bool {
+		self.diff_settings() && self.diff_state()
+	}
+
+	#[inline(always)]
+	/// Returns true if [`Settings`] and the old version are not `==`.
+	pub fn diff_settings(&self) -> bool {
+		self.settings != self.og_settings
+	}
+
+	#[inline(always)]
+	/// Returns true if [`State`] and the old version are not `==`.
+	pub fn diff_state(&self) -> bool {
+		self.state != self.og_state
+	}
+
+	#[inline(always)]
+	/// Copies the _audio_ values from [`KernelState`] into [`State`].
+	pub fn copy_kernel_audio(&mut self) {
+		let k = lockr!(self.kernel_state);
+
+		// PERF:
+		// Comparison seems to be slower than un-conditional
+		// assignment for small `copy`-able structs like `AudioState`,
+		// so don't even check for diffs, just always copy.
+		self.state.audio = k.audio;
+	}
+
+	#[inline(always)]
+	/// Perform all the necessary steps to add a folder
+	/// to add to the Collection (spawns RFD thread).
+	pub fn add_folder(&self) {
+		if atomic_load!(self.rfd_open) {
+			warn!("GUI - Add folder requested, but RFD is already open");
+		} else {
+			crate::func::spawn_rfd_thread(
+				Arc::clone(&self.rfd_open),
+				Arc::clone(&self.rfd_new),
+			);
+		}
+	}
+
+	#[inline(always)]
+	/// Perform all the necessary steps to reset
+	/// the [`Collection`] and enter the proper state.
+	pub fn reset_collection(&mut self) {
+		// Drop our real `Collection`.
+		self.collection = Collection::dummy();
+
+		// Send signal to `Kernel`.
+		if self.settings.collection_paths.is_empty() {
+			match dirs::audio_dir() {
+				Some(p) => {
+					info!("GUI - Collection reset requested but no PATHs, adding: {}", p.display());
+					self.settings.collection_paths.push(p);
+				},
+				None => {
+					warn!("GUI - Collection reset requested but no PATHs and could not find user's audio PATH");
+				}
+			}
+		}
+		send!(self.to_kernel, FrontendToKernel::NewCollection(self.settings.collection_paths.clone()));
+
+		// Go into collection mode.
+		self.resetting_collection = true;
+
+	}
+
+	#[inline(always)]
+	/// Caches some segments of [`Collection`] for local use
+	/// so don't have to access it all the time.
+	///
+	/// This should be called after we received a new [`Collection`].
+	pub fn cache_collection(&mut self) {
+		self.format_count_assign();
+	}
+
+	/// Increments the [`Album`] art size.
+	///
+	/// - If `AlbumSizing::Pixel`, increment by `1.0`
+	/// - If `AlbumSizing::Row`, increment by `1`
+	///
+	/// If over the max, this function does nothing.
+	///
+	/// If close to the max, this sets `self` to the max.
+	pub fn increment_art_size(&mut self) {
+		match self.settings.album_sizing {
+			AlbumSizing::Pixel => {
+				let new = self.settings.album_pixel_size + 1.0;
+				if new > ALBUM_ART_SIZE_MAX {
+					self.settings.album_pixel_size = ALBUM_ART_SIZE_MAX;
+				} else {
+					self.settings.album_pixel_size = new;
+				}
+			},
+			AlbumSizing::Row => {
+				let new = self.settings.albums_per_row + 1;
+				if new > ALBUMS_PER_ROW_MAX {
+					self.settings.albums_per_row = ALBUMS_PER_ROW_MAX;
+				} else {
+					self.settings.albums_per_row = new;
+				}
+			},
+		}
+	}
+
+	/// Decrements the [`Album`] art size.
+	///
+	/// - If `AlbumSizing::Pixel`, decrement by `1.0`
+	/// - If `AlbumSizing::Row`, decrement by `1`
+	///
+	/// If at the minimum, this function does nothing.
+	pub fn decrement_art_size(&mut self) {
+		match self.settings.album_sizing {
+			AlbumSizing::Pixel => {
+				let new = self.settings.album_pixel_size - 1.0;
+				if new < ALBUM_ART_SIZE_MIN {
+					self.settings.album_pixel_size = ALBUM_ART_SIZE_MIN;
+				} else {
+					self.settings.album_pixel_size = new;
+				}
+			},
+			AlbumSizing::Row => {
+				let new = self.settings.albums_per_row - 1;
+				if new >= ALBUMS_PER_ROW_MIN {
+					self.settings.albums_per_row = new;
+				}
+			},
+		}
+	}
+
+	/// Returns true if the current setting `<=` the minimum size.
+	pub fn album_size_is_min(&self) -> bool {
+		match self.settings.album_sizing {
+			AlbumSizing::Pixel => self.settings.album_pixel_size <= ALBUM_ART_SIZE_MIN,
+			AlbumSizing::Row => self.settings.albums_per_row <= ALBUMS_PER_ROW_MIN,
+		}
+	}
+
+	/// Returns true if the current setting `>=` the maximum size.
+	pub fn album_size_is_max(&self) -> bool {
+		match self.settings.album_sizing {
+			AlbumSizing::Pixel => self.settings.album_pixel_size >= ALBUM_ART_SIZE_MAX,
+			AlbumSizing::Row => self.settings.albums_per_row >= ALBUMS_PER_ROW_MAX,
+		}
+	}
+
+	/// Copies the data from our current [`Collection`],
+	/// formats it, and assigns it to [`Self`]'s `count_*` fields.
+	pub fn format_count_assign(&mut self) {
+		self.count_artist = format!("Artists: {}", self.collection.count_artist);
+		self.count_album  = format!("Albums: {}", self.collection.count_album);
+		self.count_song   = format!("Songs: {}", self.collection.count_song);
+	}
+
+	pub fn next_song_order(&mut self) {
+		let mut iter = SongSort::iter();
+
+		while let Some(i) = iter.next() {
+			if i == &self.settings.song_sort {
+				match iter.next() {
+					Some(i) => self.settings.song_sort = *i,
+					None    => self.settings.song_sort = *SongSort::iter().next().unwrap(),
+				}
+				return;
+			}
+		}
+
+		debug_panic!("Song order");
+	}
+
+	pub fn next_album_order(&mut self) {
+		let mut iter = AlbumSort::iter();
+
+		while let Some(i) = iter.next() {
+			if i == &self.settings.album_sort {
+				match iter.next() {
+					Some(i) => self.settings.album_sort = *i,
+					None    => self.settings.album_sort = *AlbumSort::iter().next().unwrap(),
+				}
+				return;
+			}
+		}
+
+		debug_panic!("Album order");
+	}
+
+	pub fn next_artist_order(&mut self) {
+		let mut iter = shukusai::sort::ArtistSort::iter();
+
+		while let Some(i) = iter.next() {
+			if i == &self.settings.artist_sort {
+				match iter.next() {
+					Some(i) => self.settings.artist_sort = *i,
+					None    => self.settings.artist_sort = *ArtistSort::iter().next().unwrap(),
+				}
+				return;
+			}
+		}
+
+		debug_panic!("Artist order");
+	}
+}
