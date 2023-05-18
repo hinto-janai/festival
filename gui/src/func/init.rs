@@ -1,16 +1,18 @@
 //---------------------------------------------------------------------------------------------------- Use
-use crate::{
-	constants::*,
+use crate::constants::{
+	ICON,
+	VISUALS,
+	SPACING,
+	FONT_ARRAY,
+	APP_RESOLUTION_MIN,
+	EXIT_COUNTDOWN,
 };
 use crate::data::{
 	State,
 	Settings,
 	DebugInfo,
-	Tab,
-	AlbumSizing,
 };
 use shukusai::kernel::{
-	Kernel,
 	KernelState,
 	ResetState,
 	FrontendToKernel,
@@ -18,40 +20,30 @@ use shukusai::kernel::{
 };
 use shukusai::collection::{
 	Collection,
-	AlbumKey,
 	Keychain,
-};
-use shukusai::sort::{
-	ArtistSort,AlbumSort,SongSort,
 };
 use benri::{
 	now,
-	debug_panic,
 	log::*,
-	panic::*,
-	sync::*,
 };
 use log::{
 	info,
 	warn,
-	error
 };
 use egui::{
-	Style,Visuals,Color32,
-	TopBottomPanel,SidePanel,CentralPanel,
-	TextStyle,FontId,FontData,FontDefinitions,FontFamily,FontTweak,
+	FontDefinitions,FontId,TextStyle,
+	Style,FontData,FontFamily,
 };
-use crossbeam::channel::{Sender,Receiver};
-use std::path::PathBuf;
+use crossbeam::channel::{
+	Sender,Receiver
+};
 use std::sync::{
 	Arc,
 	Mutex,
 	atomic::AtomicBool,
 	atomic::AtomicU8,
 };
-use rolock::RoLock;
 use disk::{Bincode2,Toml,Json};
-use std::time::Instant;
 
 //---------------------------------------------------------------------------------------------------- GUI Init.
 // Instead of having [Gui::new()] be 1000s of lines long,

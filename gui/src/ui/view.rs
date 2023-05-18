@@ -110,10 +110,10 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &
 					// Show the full title on hover
 					// if we chopped it with head.
 					let head = song.title.head_dot(head);
-					if &song.title != &head {
-						ui.add(Label::new(format!("{: >3}    {: >8}    {}", song.track.unwrap_or(0), &song.runtime, &head))).on_hover_text(&song.title);
-					} else {
+					if song.title == head {
 						ui.add(Label::new(format!("{: >3}    {: >8}    {}", song.track.unwrap_or(0), &song.runtime, &song.title)));
+					} else {
+						ui.add(Label::new(format!("{: >3}    {: >8}    {}", song.track.unwrap_or(0), &song.runtime, &head))).on_hover_text(&song.title);
 					}
 				});
 			});

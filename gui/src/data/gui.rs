@@ -1,17 +1,11 @@
 //---------------------------------------------------------------------------------------------------- Use
-use crate::{
-	constants::*,
-};
 use crate::data::{
+	Tab,
 	State,
 	Settings,
-};
-use super::{
 	DebugInfo,
-	Tab,
 };
 use shukusai::kernel::{
-	Kernel,
 	KernelState,
 	ResetState,
 	FrontendToKernel,
@@ -19,30 +13,11 @@ use shukusai::kernel::{
 };
 use shukusai::collection::{
 	Collection,
-	AlbumKey,
 	Keychain,
 };
-use shukusai::sort::{
-	ArtistSort,AlbumSort,SongSort,
+use crossbeam::channel::{
+	Sender,Receiver
 };
-use benri::{
-	now,
-	debug_panic,
-	log::*,
-	panic::*,
-	sync::*,
-};
-use log::{
-	info,
-	warn,
-	error
-};
-use egui::{
-	Style,Visuals,Color32,
-	TopBottomPanel,SidePanel,CentralPanel,
-	TextStyle,FontId,FontData,FontDefinitions,FontFamily,FontTweak,
-};
-use crossbeam::channel::{Sender,Receiver};
 use std::path::PathBuf;
 use std::sync::{
 	Arc,
@@ -51,9 +26,7 @@ use std::sync::{
 	atomic::AtomicU8,
 };
 use rolock::RoLock;
-use disk::{Bincode2,Toml,Json};
 use std::time::Instant;
-use super::AlbumSizing;
 
 //---------------------------------------------------------------------------------------------------- GUI struct. This hold ALL data.
 pub struct Gui {
