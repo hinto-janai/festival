@@ -130,7 +130,6 @@ dirs = "5.0.1"
 #egui-notify = "0.5.1"
 env_logger = "0.10.0"
 fast_image_resize = "2.7.1"
-garde = { version = "0.11.2", default-features = false, features = ["derive"] }
 #id3 = "1.6.0"
 image = { version = "0.24.6", features = ["jpeg", "png"], default-features = false }
 infer = "0.13.0"

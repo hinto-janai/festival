@@ -54,7 +54,6 @@ use rolock::RoLock;
 use disk::{Bincode2,Toml,Json};
 use std::time::Instant;
 use super::AlbumSizing;
-use garde::Validate;
 
 //---------------------------------------------------------------------------------------------------- GUI struct. This hold ALL data.
 pub struct Gui {
@@ -485,7 +484,7 @@ impl Gui {
 
 		// Read `Settings` from disk.
 		let settings = match Settings::from_file() {
-			Ok(s)  => { ok!("GUI - Settings from disk"); s.validate(&()).map(|_| s).unwrap_or_default() },
+			Ok(s)  => { ok!("GUI - Settings from disk"); s },
 			Err(e) => { warn!("GUI - Settings failed from disk: {}", e); Settings::new() },
 		};
 
