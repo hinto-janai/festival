@@ -35,7 +35,7 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame
 	// Outer scroll.
 	ScrollArea::vertical().id_source("Artist").max_width(f32::INFINITY).max_height(height).auto_shrink([false; 2]).show_viewport(ui, |ui, _| {
 		// For each `Artist`...
-		for key in self.collection.artist_iter(self.settings.artist_sort_order) {
+		for key in self.collection.artist_iter(self.settings.artist_sort) {
 			let artist = &self.collection.artists[key];
 
 			// `Artist` name.

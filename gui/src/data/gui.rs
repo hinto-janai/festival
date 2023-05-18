@@ -22,8 +22,12 @@ use shukusai::collection::{
 	AlbumKey,
 	Keychain,
 };
+use shukusai::sort::{
+	ArtistSort,AlbumSort,
+};
 use benri::{
 	now,
+	debug_panic,
 	log::*,
 	panic::*,
 	sync::*,
@@ -337,6 +341,38 @@ impl Gui {
 		self.count_artist = format!("Artists: {}", self.collection.count_artist);
 		self.count_album  = format!("Albums: {}", self.collection.count_album);
 		self.count_song   = format!("Songs: {}", self.collection.count_song);
+	}
+
+	pub fn next_album_order(&mut self) {
+		let mut iter = AlbumSort::iter();
+
+		while let Some(i) = iter.next() {
+			if i == &self.settings.album_sort {
+				match iter.next() {
+					Some(i) => self.settings.album_sort = *i,
+					None    => self.settings.album_sort = *AlbumSort::iter().next().unwrap(),
+				}
+				return;
+			}
+		}
+
+		debug_panic!("Album order");
+	}
+
+	pub fn next_artist_order(&mut self) {
+		let mut iter = shukusai::sort::ArtistSort::iter();
+
+		while let Some(i) = iter.next() {
+			if i == &self.settings.artist_sort {
+				match iter.next() {
+					Some(i) => self.settings.artist_sort = *i,
+					None    => self.settings.artist_sort = *ArtistSort::iter().next().unwrap(),
+				}
+				return;
+			}
+		}
+
+		debug_panic!("Artist order");
 	}
 }
 

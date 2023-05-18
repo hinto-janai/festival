@@ -172,10 +172,10 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 		ui.spacing_mut().combo_width = width - 15.0;
 		ui.spacing_mut().icon_width = height / 15.0;
 		ui.add_space(10.0);
-		ComboBox::from_id_source("album_sort_order").selected_text(RichText::new(self.settings.album_sort_order.as_str()).color(BONE)).show_ui(ui, |ui| {
+		ComboBox::from_id_source("album_sort_order").selected_text(RichText::new(self.settings.album_sort.as_str()).color(BONE)).show_ui(ui, |ui| {
 			// Album Sort methods.
 			for i in AlbumSort::iter() {
-				ui.selectable_value(&mut self.settings.album_sort_order, *i, i.as_str());
+				ui.selectable_value(&mut self.settings.album_sort, *i, i.as_str());
 			}
 		});
 
@@ -198,10 +198,10 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 		ui.spacing_mut().combo_width = width - 15.0;
 		ui.spacing_mut().icon_width = height / 15.0;
 		ui.add_space(10.0);
-		ComboBox::from_id_source("artist_sort_order").selected_text(RichText::new(self.settings.artist_sort_order.as_str()).color(BONE)).show_ui(ui, |ui| {
+		ComboBox::from_id_source("artist_sort_order").selected_text(RichText::new(self.settings.artist_sort.as_str()).color(BONE)).show_ui(ui, |ui| {
 			// Album Sort methods.
 			for i in ArtistSort::iter() {
-				ui.selectable_value(&mut self.settings.artist_sort_order, *i, i.as_str());
+				ui.selectable_value(&mut self.settings.artist_sort, *i, i.as_str());
 			}
 		});
 

@@ -29,6 +29,7 @@ use shukusai::collection::{
 use shukusai::sort::{
 	ArtistSort,
 	AlbumSort,
+	SongSort,
 };
 use super::AlbumSizing;
 
@@ -46,12 +47,16 @@ disk::bincode2!(Settings, disk::Dir::Data, FESTIVAL, GUI, "settings", HEADER, SE
 /// - etc
 pub struct Settings {
 	#[garde(skip)]
-	/// Collection sorting of album view.
-	pub album_sort_order: AlbumSort,
+	/// Collection sorting of artist view.
+	pub artist_sort: ArtistSort,
 
 	#[garde(skip)]
-	/// Collection sorting of artist view.
-	pub artist_sort_order: ArtistSort,
+	/// Collection sorting of album view.
+	pub album_sort: AlbumSort,
+
+	#[garde(skip)]
+	/// Collection sorting of album view.
+	pub song_sort: SongSort,
 
 	#[garde(skip)]
 	/// Does the user want a certain amount of

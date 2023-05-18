@@ -1,6 +1,7 @@
 //---------------------------------------------------------------------------------------------------- Use
 use egui::{
-	ScrollArea,
+	ScrollArea,Label,ComboBox,
+	SelectableLabel,RichText,
 };
 use egui_extras::{
 	StripBuilder,Size,
@@ -8,9 +9,16 @@ use egui_extras::{
 };
 use readable::Unsigned;
 use log::warn;
+use crate::constants::{
+	BONE,WHITE,GREEN,
+};
 use crate::text::{
 	OPEN_PARENT_FOLDER,
 };
+use shukusai::sort::{
+	SongSort,
+};
+use crate::data::Tab;
 
 //---------------------------------------------------------------------------------------------------- Songs
 impl crate::data::Gui {
@@ -25,8 +33,9 @@ pub fn show_tab_songs(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 	let c_width   = (width / 10.0) - 10.0; // Account for separators, let `Path` peek a little.
 	let c_title   = c_width * 2.5;
 	let c_album   = c_width * 2.5;
-	let c_artist  = c_width * 1.5;
-	let c_runtime = c_width * 1.5;
+	let c_artist  = c_width;
+	let c_release = c_width;
+	let c_runtime = c_width;
 	let c_track   = c_width;
 	let c_disc    = c_width;
 
@@ -45,47 +54,146 @@ pub fn show_tab_songs(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 			.column(Column::initial(c_title).resizable(true).clip(true))
 			.column(Column::initial(c_album).resizable(true).clip(true))
 			.column(Column::initial(c_artist).resizable(true).clip(true))
+			.column(Column::initial(c_release).resizable(true).clip(true))
 			.column(Column::initial(c_runtime).resizable(true).clip(true))
 			.column(Column::initial(c_track).resizable(true).clip(true))
 			.column(Column::initial(c_disc).resizable(true).clip(true))
 			.column(Column::remainder().clip(true))
 			.auto_shrink([false; 2])
 			.max_scroll_height(height)
-			.header(40.0, |mut header|
+			.header(60.0, |mut header|
 		{
+			let w = width / 1.1;
+			let h = 30.0;
+
+			use SongSort::*;
+
+			// Title.
 			header.col(|ui| {
-				ui.strong("Title");
+				const SORT: [SongSort; 4] = [Lexi, LexiRev, Title, TitleRev];
+
+				ui.spacing_mut().combo_width = ui.available_width() - 5.0;
+				ComboBox::from_id_source("__song_sort_title")
+					.selected_text(RichText::new("Title").color(WHITE))
+					.show_ui(ui, |ui|
+				{
+					for i in SORT {
+						let label = SelectableLabel::new(self.settings.song_sort == i, i.as_str());
+						if ui.add_sized([w, h], label).clicked() { self.settings.song_sort = i; }
+					}
+				});
 			});
+
+			// Album.
 			header.col(|ui| {
-				ui.strong("Album");
+				const SORT: [SongSort; 4] = [
+					AlbumReleaseArtistLexi,
+					AlbumReleaseRevArtistLexi,
+					AlbumLexiArtistLexi,
+					AlbumLexiRevArtistLexi,
+				];
+
+				ui.spacing_mut().combo_width = ui.available_width() - 5.0;
+				ComboBox::from_id_source("__song_sort_album")
+					.selected_text(RichText::new("Album").color(WHITE))
+					.show_ui(ui, |ui|
+				{
+					for i in SORT {
+						let label = SelectableLabel::new(self.settings.song_sort == i, i.as_str());
+						if ui.add_sized([w, h], label).clicked() { self.settings.song_sort = i; }
+					}
+				});
 			});
+
+			// Artist.
 			header.col(|ui| {
-				ui.strong("Artist");
+				const SORT: [SongSort; 6] = [
+					AlbumReleaseArtistLexi,
+					AlbumReleaseArtistLexiRev,
+					AlbumLexiArtistLexi,
+					AlbumLexiArtistLexiRev,
+					AlbumLexiRevArtistLexi,
+					AlbumLexiRevArtistLexiRev,
+				];
+
+				ui.spacing_mut().combo_width = ui.available_width() - 5.0;
+				ComboBox::from_id_source("__song_sort_artist")
+					.selected_text(RichText::new("Artist").color(WHITE))
+					.show_ui(ui, |ui|
+				{
+					for i in SORT {
+						let label = SelectableLabel::new(self.settings.song_sort == i, i.as_str());
+						if ui.add_sized([w, h], label).clicked() { self.settings.song_sort = i; }
+					}
+				});
 			});
+
+			// Release.
 			header.col(|ui| {
-				ui.strong("Runtime");
+				const SORT: [SongSort; 2] = [Release, ReleaseRev];
+
+				ui.spacing_mut().combo_width = ui.available_width() - 5.0;
+				ComboBox::from_id_source("__song_sort_release")
+					.selected_text(RichText::new("Release").color(WHITE))
+					.show_ui(ui, |ui|
+				{
+					for i in SORT {
+						let label = SelectableLabel::new(self.settings.song_sort == i, i.as_str());
+						if ui.add_sized([w, h], label).clicked() { self.settings.song_sort = i; }
+					}
+				});
 			});
+
+			// Runtime.
+			header.col(|ui| {
+				const SORT: [SongSort; 2] = [Runtime, RuntimeRev];
+
+				ui.spacing_mut().combo_width = ui.available_width() - 5.0;
+				ComboBox::from_id_source("__song_sort_runtime")
+					.selected_text(RichText::new("Runtime").color(WHITE))
+					.show_ui(ui, |ui|
+				{
+					for i in SORT {
+						let label = SelectableLabel::new(self.settings.song_sort == i, i.as_str());
+						if ui.add_sized([w, h], label).clicked() { self.settings.song_sort = i; }
+					}
+				});
+			});
+
+			// Track.
 			header.col(|ui| {
 				ui.strong("Track");
 			});
+
+			// Disc.
 			header.col(|ui| {
 				ui.strong("Disc");
 			});
+
+			// Path.
 			header.col(|ui| {
 				ui.strong("Path");
 			});
 		})
 		.body(|mut body| {
 			// Song iterator.
-			// TODO:
-			// Iterate based off user selection.
-			for key in self.collection.sort_song_album_release_artist_lexi.iter() {
+			for key in self.collection.song_iter(self.settings.song_sort) {
 				body.row(35.0, |mut row| {
 					let (artist, album, song) = self.collection.walk(key);
 
 					row.col(|ui| { ui.label(&song.title); });
-					row.col(|ui| { ui.label(&album.title); });
+
+					row.col(|ui| {
+						if ui.button(" View ").clicked() {
+							self.state.album = Some(song.album);
+							self.state.tab   = Tab::View;
+						}
+
+						ui.label(&album.title);
+					});
+
 					row.col(|ui| { ui.label(&artist.name); });
+					row.col(|ui| { ui.label(album.release.as_str()); });
 					row.col(|ui| { ui.label(song.runtime.as_str()); });
 
 					match song.track {

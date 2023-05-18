@@ -206,6 +206,12 @@ impl Gui {
 				// Check for `Ctrl+A` (Add Folder)
 				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::A) {
 					self.add_folder();
+				// Check for `Ctrl+E` (Next Album Order)
+				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::E) {
+					self.next_album_order();
+				// Check for `Ctrl+Q` (Next Artist Order)
+				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::Q) {
+					self.next_artist_order();
 				// Check for `Ctrl+Shift+P` (force `panic!()`)
 				} else if
 					input.modifiers.matches(egui::Modifiers::CTRL.plus(egui::Modifiers::SHIFT))

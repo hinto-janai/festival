@@ -158,7 +158,7 @@ impl Ccd {
 		let sort_album_lexi_artist_lexi            = Self::sort_album_lexi_artist_lexi(&sort_artist_lexi, &vec_artist, &vec_album).into_boxed_slice();
 		let sort_album_lexi_artist_lexi_rev        = sort_album_lexi_artist_lexi.iter().rev().map(|k| *k).collect::<Box<[AlbumKey]>>();
 		let sort_album_lexi_rev_artist_lexi        = Self::sort_album_lexi_rev_artist_lexi(&sort_artist_lexi, &vec_artist, &vec_album).into_boxed_slice();
-		let sort_album_lexi_rev_artist_lexi_rev    = sort_album_lexi_artist_lexi.iter().rev().map(|k| *k).collect::<Box<[AlbumKey]>>();
+		let sort_album_lexi_rev_artist_lexi_rev    = sort_album_lexi_rev_artist_lexi.iter().rev().map(|k| *k).collect::<Box<[AlbumKey]>>();
 		let sort_album_lexi                        = Self::sort_album_lexi(&vec_album).into_boxed_slice();
 		let sort_album_lexi_rev                    = sort_album_lexi.iter().rev().map(|k| *k).collect::<Box<[AlbumKey]>>();
 		let sort_album_release                     = Self::sort_album_release(&vec_album).into_boxed_slice();
@@ -171,11 +171,11 @@ impl Ccd {
 		let sort_song_album_release_artist_lexi         = Self::sort_song_iterating_over_albums(&sort_album_release_artist_lexi, &vec_artist, &vec_album).into_boxed_slice();
 		let sort_song_album_release_artist_lexi_rev     = sort_song_album_release_artist_lexi.iter().rev().map(|k| *k).collect::<Box<[SongKey]>>();
 		let sort_song_album_release_rev_artist_lexi     = Self::sort_song_iterating_over_albums(&sort_album_release_rev_artist_lexi, &vec_artist, &vec_album).into_boxed_slice();
-		let sort_song_album_release_rev_artist_lexi_rev = sort_song_album_release_artist_lexi.iter().rev().map(|k| *k).collect::<Box<[SongKey]>>();
+		let sort_song_album_release_rev_artist_lexi_rev = sort_song_album_release_rev_artist_lexi.iter().rev().map(|k| *k).collect::<Box<[SongKey]>>();
 		let sort_song_album_lexi_artist_lexi            = Self::sort_song_iterating_over_albums(&sort_album_lexi_artist_lexi, &vec_artist, &vec_album).into_boxed_slice();
 		let sort_song_album_lexi_artist_lexi_rev        = sort_song_album_lexi_artist_lexi.iter().rev().map(|k| *k).collect::<Box<[SongKey]>>();
 		let sort_song_album_lexi_rev_artist_lexi        = Self::sort_song_iterating_over_albums(&sort_album_lexi_rev_artist_lexi, &vec_artist, &vec_album).into_boxed_slice();
-		let sort_song_album_lexi_rev_artist_lexi_rev    = sort_song_album_lexi_artist_lexi.iter().rev().map(|k| *k).collect::<Box<[SongKey]>>();
+		let sort_song_album_lexi_rev_artist_lexi_rev    = sort_song_album_lexi_rev_artist_lexi.iter().rev().map(|k| *k).collect::<Box<[SongKey]>>();
 		let sort_song_lexi                              = Self::sort_song_lexi(&vec_song).into_boxed_slice();
 		let sort_song_lexi_rev                          = sort_song_lexi.iter().rev().map(|k| *k).collect::<Box<[SongKey]>>();
 		let sort_song_release                           = Self::sort_song_iterating_over_albums(&sort_album_release, &vec_artist, &vec_album).into_boxed_slice();

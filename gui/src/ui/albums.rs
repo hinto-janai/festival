@@ -103,7 +103,7 @@ fn paint_albums(
 ) {
 	// The iterator over sorted `Album`'s.
 	let mut iter = self.collection
-		.album_iter(self.settings.album_sort_order)
+		.album_iter(self.settings.album_sort)
 		.peekable();
 
 	ScrollArea::vertical().id_source("Albums").max_width(f32::INFINITY).max_height(f32::INFINITY).auto_shrink([false; 2]).show_viewport(ui, |ui, _| {
