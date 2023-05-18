@@ -482,8 +482,8 @@ checksum = "a4a4ddaa51a5bc52a6948f74c06d20aaaddb71924eab79b8c97a8c556e942d6a"
 
 [[package]]
 name = "benri"
-version = "0.1.11"
-source = "git+https://github.com/hinto-janai/benri#9cb8995f34768e946052bc85f3b515f2c6511e3d"
+version = "0.1.12"
+source = "git+https://github.com/hinto-janai/benri#1ecd45d801f5ebe32b30a160a2e1ed81d95867f6"
 dependencies = [
  "log",
 ]
@@ -3421,8 +3421,8 @@ checksum = "3b42e27ef78c35d3998403c1d26f3efd9e135d3e5121b0a4845cc5cc27547f4f"
 
 [[package]]
 name = "readable"
-version = "0.8.3"
-source = "git+https://github.com/hinto-janai/readable#e2f09e0c2c34eb45467d2a3d31de5f7cad081524"
+version = "0.8.5"
+source = "git+https://github.com/hinto-janai/readable#1bde7e0bc14e0f43fa4bc74827116d115f045475"
 dependencies = [
  "bincode",
  "compact_str",
@@ -3433,6 +3433,7 @@ dependencies = [
  "readable-inlined-runtime",
  "readable-inlined-time",
  "regex",
+ "ryu",
  "seq-macro",
  "serde",
 ]

@@ -47,6 +47,25 @@ pub fn show_tab_songs(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 		.auto_shrink([false; 2])
 		.show_viewport(ui, |ui, _|
 	{
+		// FIXME:
+		// The opened ComboBox must be big enough so
+		// that the scrollbar does not appear.
+		//
+		// If the scrollbar appears, some logic makes the
+		// width of the text conform the the column (which might be tiny).
+		// In order to show the full width of text, this is used.
+		//
+//		ui.spacing_mut().combo_height = ui.available_height() / 2.0;
+		// ^
+		// |
+		// -- This should have fixed the issue but....
+		// https://github.com/emilk/egui/blob/7b76161a6a7e33a72e7331c1725758608c16ff30/crates/egui/src/containers/combo_box.rs#L341
+		//
+		// This line does not actually source the `combo_height` correctly.
+		// It doesn't take from the parent `ui` and defaults to `200.0`.
+		//
+		// For now, use `ui.selectable_label()` instead of manually sizing.
+
 		// Create Table.
 		TableBuilder::new(ui)
 			.striped(true)
@@ -61,69 +80,75 @@ pub fn show_tab_songs(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 			.column(Column::remainder().clip(true))
 			.auto_shrink([false; 2])
 			.max_scroll_height(height)
-			.header(60.0, |mut header|
+			.header(80.0, |mut header|
 		{
-			let w = width / 1.1;
-			let h = 30.0;
-
 			use SongSort::*;
 
 			// Title.
 			header.col(|ui| {
 				const SORT: [SongSort; 4] = [Lexi, LexiRev, Title, TitleRev];
 
-				ui.spacing_mut().combo_width = ui.available_width() - 5.0;
 				ComboBox::from_id_source("__song_sort_title")
 					.selected_text(RichText::new("Title").color(WHITE))
+					.width(ui.available_width() - 5.0)
 					.show_ui(ui, |ui|
 				{
 					for i in SORT {
-						let label = SelectableLabel::new(self.settings.song_sort == i, i.as_str());
-						if ui.add_sized([w, h], label).clicked() { self.settings.song_sort = i; }
+						if ui.selectable_label(self.settings.song_sort == i, i.as_str()).clicked() {
+							self.settings.song_sort = i;
+						}
 					}
 				});
 			});
 
 			// Album.
 			header.col(|ui| {
-				const SORT: [SongSort; 4] = [
-					AlbumReleaseArtistLexi,
-					AlbumReleaseRevArtistLexi,
-					AlbumLexiArtistLexi,
-					AlbumLexiRevArtistLexi,
-				];
-
-				ui.spacing_mut().combo_width = ui.available_width() - 5.0;
-				ComboBox::from_id_source("__song_sort_album")
-					.selected_text(RichText::new("Album").color(WHITE))
-					.show_ui(ui, |ui|
-				{
-					for i in SORT {
-						let label = SelectableLabel::new(self.settings.song_sort == i, i.as_str());
-						if ui.add_sized([w, h], label).clicked() { self.settings.song_sort = i; }
-					}
-				});
-			});
-
-			// Artist.
-			header.col(|ui| {
-				const SORT: [SongSort; 6] = [
+				const SORT: [SongSort; 8] = [
 					AlbumReleaseArtistLexi,
 					AlbumReleaseArtistLexiRev,
+					AlbumReleaseRevArtistLexi,
+					AlbumReleaseRevArtistLexiRev,
 					AlbumLexiArtistLexi,
 					AlbumLexiArtistLexiRev,
 					AlbumLexiRevArtistLexi,
 					AlbumLexiRevArtistLexiRev,
 				];
 
-				ui.spacing_mut().combo_width = ui.available_width() - 5.0;
-				ComboBox::from_id_source("__song_sort_artist")
-					.selected_text(RichText::new("Artist").color(WHITE))
+				ComboBox::from_id_source("__song_sort_album")
+					.selected_text(RichText::new("Album").color(WHITE))
+					.width(ui.available_width() - 5.0)
 					.show_ui(ui, |ui|
 				{
 					for i in SORT {
-						let label = SelectableLabel::new(self.settings.song_sort == i, i.as_str());
-						if ui.add_sized([w, h], label).clicked() { self.settings.song_sort = i; }
+						if ui.selectable_label(self.settings.song_sort == i, i.as_str()).clicked() {
+							self.settings.song_sort = i;
+						}
+					}
+				});
+			});
+
+			// Artist.
+			header.col(|ui| {
+				const SORT: [SongSort; 8] = [
+					AlbumReleaseArtistLexi,
+					AlbumReleaseArtistLexiRev,
+					AlbumReleaseRevArtistLexi,
+					AlbumReleaseRevArtistLexiRev,
+					AlbumLexiArtistLexi,
+					AlbumLexiArtistLexiRev,
+					AlbumLexiRevArtistLexi,
+					AlbumLexiRevArtistLexiRev,
+				];
+
+				ComboBox::from_id_source("__song_sort_artist")
+					.selected_text(RichText::new("Artist").color(WHITE))
+					.width(ui.available_width() - 5.0)
+					.show_ui(ui, |ui|
+				{
+					for i in SORT {
+						if ui.selectable_label(self.settings.song_sort == i, i.as_str()).clicked() {
+							self.settings.song_sort = i;
+						}
 					}
 				});
 			});
@@ -132,14 +157,15 @@ pub fn show_tab_songs(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 			header.col(|ui| {
 				const SORT: [SongSort; 2] = [Release, ReleaseRev];
 
-				ui.spacing_mut().combo_width = ui.available_width() - 5.0;
 				ComboBox::from_id_source("__song_sort_release")
 					.selected_text(RichText::new("Release").color(WHITE))
+					.width(ui.available_width() - 5.0)
 					.show_ui(ui, |ui|
 				{
 					for i in SORT {
-						let label = SelectableLabel::new(self.settings.song_sort == i, i.as_str());
-						if ui.add_sized([w, h], label).clicked() { self.settings.song_sort = i; }
+						if ui.selectable_label(self.settings.song_sort == i, i.as_str()).clicked() {
+							self.settings.song_sort = i;
+						}
 					}
 				});
 			});
@@ -148,14 +174,15 @@ pub fn show_tab_songs(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 			header.col(|ui| {
 				const SORT: [SongSort; 2] = [Runtime, RuntimeRev];
 
-				ui.spacing_mut().combo_width = ui.available_width() - 5.0;
 				ComboBox::from_id_source("__song_sort_runtime")
 					.selected_text(RichText::new("Runtime").color(WHITE))
+					.width(ui.available_width() - 5.0)
 					.show_ui(ui, |ui|
 				{
 					for i in SORT {
-						let label = SelectableLabel::new(self.settings.song_sort == i, i.as_str());
-						if ui.add_sized([w, h], label).clicked() { self.settings.song_sort = i; }
+						if ui.selectable_label(self.settings.song_sort == i, i.as_str()).clicked() {
+							self.settings.song_sort = i;
+						}
 					}
 				});
 			});
