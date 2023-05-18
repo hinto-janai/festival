@@ -27,7 +27,7 @@ use crate::data::{
 	AlbumSizing,
 };
 use shukusai::sort::{
-	ArtistSort,AlbumSort,
+	ArtistSort,AlbumSort,SongSort,
 };
 use shukusai::kernel::{
 	FrontendToKernel,
@@ -93,7 +93,7 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 		.auto_shrink([false; 2])
 		.show_viewport(ui, |ui, _|
 	{
-		ui.add_space(45.0);
+		ui.add_space(40.0);
 
 		//-------------------------------------------------- Collection paths.
 		// Heading.
@@ -148,13 +148,47 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 		ui.add_space(10.0);
 
 		// Reset collection.
-		if ui.add_sized([width - 15.0, text], Button::new("Reset Collection")).on_hover_text(RESET_COLLECTION).clicked() {
+		if ui.add_sized([width - 15.0, text], Button::new("Reset Collection"))
+			.on_hover_text(RESET_COLLECTION)
+			.clicked()
+		{
 			self.reset_collection();
 		}
 
-		ui.add_space(60.0);
+		ui.add_space(40.0);
 		ui.separator();
-		ui.add_space(60.0);
+		ui.add_space(40.0);
+
+        //-------------------------------------------------- Artist Sort Order.
+		// Heading.
+		let label = Label::new(
+			RichText::new("Artist Sort Order")
+			.color(BONE)
+			.text_style(TextStyle::Heading)
+		);
+		ui.add_sized([width, text], label).on_hover_text(ARTIST_SORT_ORDER);
+
+		// FIXME:
+		// Trying to center `ComboBox` uncovers all sorts
+		// of `egui` bugs, so instead, just make it max width.
+		ui.spacing_mut().combo_width = width - 15.0;
+		ui.spacing_mut().icon_width = height / 15.0;
+
+		// ComboBox.
+		ui.add_space(10.0);
+		ComboBox::from_id_source("settings_artist_sort_order")
+			.selected_text(RichText::new(self.settings.artist_sort.as_str()).color(BONE))
+			.show_ui(ui, |ui|
+		{
+			// Album Sort methods.
+			for i in ArtistSort::iter() {
+				ui.selectable_value(&mut self.settings.artist_sort, *i, i.as_str());
+			}
+		});
+
+		ui.add_space(40.0);
+		ui.separator();
+		ui.add_space(40.0);
 
 		//-------------------------------------------------- Album Sort Order.
 		// Heading.
@@ -166,48 +200,45 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 		ui.add_sized([width, text], label).on_hover_text(ALBUM_SORT_ORDER);
 
 		// ComboBox.
-		// FIXME:
-		// Trying to center `ComboBox` uncovers all sorts
-		// of `egui` bugs, so instead, just make it max width.
-		ui.spacing_mut().combo_width = width - 15.0;
-		ui.spacing_mut().icon_width = height / 15.0;
 		ui.add_space(10.0);
-		ComboBox::from_id_source("album_sort_order").selected_text(RichText::new(self.settings.album_sort.as_str()).color(BONE)).show_ui(ui, |ui| {
+		ComboBox::from_id_source("settings_album_sort_order")
+			.selected_text(RichText::new(self.settings.album_sort.as_str()).color(BONE))
+			.show_ui(ui, |ui|
+		{
 			// Album Sort methods.
 			for i in AlbumSort::iter() {
 				ui.selectable_value(&mut self.settings.album_sort, *i, i.as_str());
 			}
 		});
 
-		ui.add_space(60.0);
+		ui.add_space(40.0);
 		ui.separator();
-		ui.add_space(60.0);
+		ui.add_space(40.0);
 
-        //-------------------------------------------------- Artist Sort Order.
+		//-------------------------------------------------- Song Sort Order.
 		// Heading.
 		let label = Label::new(
-			RichText::new("Artist Sort Order")
-			.color(BONE)
-			.text_style(TextStyle::Heading)
+			RichText::new("Song Sort Order")
+				.color(BONE)
+				.text_style(TextStyle::Heading)
 		);
-		ui.add_sized([width, text], label).on_hover_text(ARTIST_SORT_ORDER);
+		ui.add_sized([width, text], label).on_hover_text(SONG_SORT_ORDER);
 
 		// ComboBox.
-		// FIXME:
-		// Same as above `Album`.
-		ui.spacing_mut().combo_width = width - 15.0;
-		ui.spacing_mut().icon_width = height / 15.0;
 		ui.add_space(10.0);
-		ComboBox::from_id_source("artist_sort_order").selected_text(RichText::new(self.settings.artist_sort.as_str()).color(BONE)).show_ui(ui, |ui| {
-			// Album Sort methods.
-			for i in ArtistSort::iter() {
-				ui.selectable_value(&mut self.settings.artist_sort, *i, i.as_str());
+		ComboBox::from_id_source("settings_song_sort_order")
+			.selected_text(RichText::new(self.settings.song_sort.as_str()).color(BONE))
+			.show_ui(ui, |ui|
+		{
+			// Song Sort methods.
+			for i in SongSort::iter() {
+				ui.selectable_value(&mut self.settings.song_sort, *i, i.as_str());
 			}
 		});
 
-		ui.add_space(60.0);
+		ui.add_space(40.0);
 		ui.separator();
-		ui.add_space(60.0);
+		ui.add_space(40.0);
 
 		//-------------------------------------------------- Album Art Size.
 		// Heading.
@@ -267,9 +298,9 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 			ui.add_sized([width, text], slider).on_hover_text(hover);
 		});
 
-		ui.add_space(60.0);
+		ui.add_space(40.0);
 		ui.separator();
-		ui.add_space(60.0);
+		ui.add_space(40.0);
 
 		//-------------------------------------------------- Restore state.
 		// Heading.
@@ -289,9 +320,9 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 			if ui.add_sized([width, text], SelectableLabel::new(self.settings.restore_state,  "Yes")).clicked() { flip!(self.settings.restore_state); }
 		})});
 
-		ui.add_space(60.0);
+		ui.add_space(40.0);
 		ui.separator();
-		ui.add_space(60.0);
+		ui.add_space(40.0);
 
 		//-------------------------------------------------- Accent Color.
 		// Heading.
@@ -310,9 +341,9 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 			egui::widgets::color_picker::Alpha::Opaque,
 		);
 
-		ui.add_space(60.0);
+		ui.add_space(40.0);
 		ui.separator();
-		ui.add_space(60.0);
+		ui.add_space(40.0);
 
 		//-------------------------------------------------- Stats.
 		// Heading.
@@ -328,9 +359,9 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 		ui.add_sized([width, text], Label::new(&self.count_album));
 		ui.add_sized([width, text], Label::new(&self.count_song));
 
-		ui.add_space(60.0);
+		ui.add_space(40.0);
 //		ui.separator();
-//		ui.add_space(60.0);
+//		ui.add_space(40.0);
 	});
 }}
 

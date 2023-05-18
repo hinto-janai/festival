@@ -23,7 +23,7 @@ use shukusai::collection::{
 	Keychain,
 };
 use shukusai::sort::{
-	ArtistSort,AlbumSort,
+	ArtistSort,AlbumSort,SongSort,
 };
 use benri::{
 	now,
@@ -344,6 +344,22 @@ impl Gui {
 		self.count_artist = format!("Artists: {}", self.collection.count_artist);
 		self.count_album  = format!("Albums: {}", self.collection.count_album);
 		self.count_song   = format!("Songs: {}", self.collection.count_song);
+	}
+
+	pub fn next_song_order(&mut self) {
+		let mut iter = SongSort::iter();
+
+		while let Some(i) = iter.next() {
+			if i == &self.settings.song_sort {
+				match iter.next() {
+					Some(i) => self.settings.song_sort = *i,
+					None    => self.settings.song_sort = *SongSort::iter().next().unwrap(),
+				}
+				return;
+			}
+		}
+
+		debug_panic!("Song order");
 	}
 
 	pub fn next_album_order(&mut self) {

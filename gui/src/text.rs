@@ -46,8 +46,9 @@ pub const OPEN_PARENT_FOLDER: &str = "Open the directory containing this song";
 //---------------------------------------------------------------------------------------------------- Settings Tab
 pub const RESET:             &str = "Reset changes (CTRL+Z)";
 pub const SAVE:              &str = "Save changes to disk (CTRL+S)";
-pub const ALBUM_SORT_ORDER:  &str = "Which method to sort the albums by in the [Albums] tab";
-pub const ARTIST_SORT_ORDER: &str = "Which method to sort the artists by in the [Artists] tab";
+pub const ARTIST_SORT_ORDER: &str = "Which method to sort the artists by in the [Artists] tab (CTRL+Q)";
+pub const ALBUM_SORT_ORDER:  &str = "Which method to sort the albums by in the [Albums] tab (CTRL+W)";
+pub const SONG_SORT_ORDER:   &str = "Which method to sort the songs by in the [Songs] tab (CTRL+E)";
 pub const ALBUM_ART_SIZE:    &str = "How big the album art cover should be in the [Albums] tab";
 pub const STATIC_PIXEL_SIZE: &str = formatcp!(
 	"Always show album art at a static pixel size regardless of the window size ({}-{})",

@@ -184,7 +184,7 @@ impl Gui {
 				// Last tab.
 				if input.pointer.button_clicked(egui::PointerButton::Extra1) ||  // FIXME:
 					input.pointer.button_clicked(egui::PointerButton::Extra2) || // These two don't work with my mouse.
-					input.consume_key(egui::Modifiers::CTRL, egui::Key::W)
+					input.consume_key(egui::Modifiers::CTRL, egui::Key::D)
 				{
 					if let Some(tab) = self.last_tab {
 						crate::tab!(self, tab);
@@ -216,12 +216,18 @@ impl Gui {
 				// Check for `Ctrl+A` (Add Folder)
 				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::A) {
 					self.add_folder();
-				// Check for `Ctrl+E` (Next Album Order)
-				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::E) {
-					self.next_album_order();
 				// Check for `Ctrl+Q` (Next Artist Order)
 				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::Q) {
+					self.state.tab = Tab::Artists;
 					self.next_artist_order();
+				// Check for `Ctrl+W` (Next Album Order)
+				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::W) {
+					self.state.tab = Tab::Albums;
+					self.next_album_order();
+				// Check for `Ctrl+E` (Next Song Order)
+				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::E) {
+					self.state.tab = Tab::Songs;
+					self.next_song_order();
 				// Check for `Ctrl+Shift+P` (force `panic!()`)
 				} else if
 					input.modifiers.matches(egui::Modifiers::CTRL.plus(egui::Modifiers::SHIFT))
