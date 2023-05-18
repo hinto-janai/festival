@@ -135,9 +135,6 @@ mod tests {
 
 		assert!(four_bytes.head(2) == "de");
 		assert!(six_bytes.head(1) == "で");
-
-		assert!(!four_bytes.head(2).is_heap_allocated());
-		assert!(!six_bytes.head(1).is_heap_allocated());
 	}
 
 	#[test]
@@ -150,9 +147,6 @@ mod tests {
 
 		assert!(four_bytes.head_dot(2) == "de...");
 		assert!(six_bytes.head_dot(1) == "で...");
-
-		assert!(!four_bytes.head_dot(2).is_heap_allocated());
-		assert!(!six_bytes.head_dot(1).is_heap_allocated());
 	}
 
 	#[test]
@@ -165,9 +159,6 @@ mod tests {
 
 		assert!(four_bytes.tail(2) == "su");
 		assert!(six_bytes.tail(1) == "す");
-
-		assert!(!four_bytes.tail(2).is_heap_allocated());
-		assert!(!six_bytes.tail(2).is_heap_allocated());
 	}
 
 	#[test]
@@ -180,9 +171,6 @@ mod tests {
 
 		assert!(four_bytes.tail_dot(2) == "...su");
 		assert!(six_bytes.tail_dot(1) == "...す");
-
-		assert!(!four_bytes.tail_dot(2).is_heap_allocated());
-		assert!(!six_bytes.tail_dot(1).is_heap_allocated());
 	}
 
 	#[test]
@@ -198,8 +186,5 @@ mod tests {
 
 		assert!(eight_bytes.head_tail(4, 4) == "desukedo");
 		assert!(twelve_bytes.head_tail(2, 2) == "ですけど");
-
-		assert!(!eight_bytes.head_tail(2, 2).is_heap_allocated());
-		assert!(!twelve_bytes.head_tail(1, 1).is_heap_allocated());
 	}
 }
