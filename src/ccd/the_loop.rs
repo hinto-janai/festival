@@ -768,13 +768,13 @@ mod tests {
 		assert!(meta.album         == "Festival");
 		assert!(meta.title         == "rain_mp3");
 		assert!(meta.track         == Some(1));
-		assert!(meta.disc          == None);
-		assert!(meta.track_total   == None);
-		assert!(meta.disc_total    == None);
-		assert!(meta.picture       == None);
+		assert!(meta.disc.is_none());
+		assert!(meta.track_total.is_none());
+		assert!(meta.disc_total.is_none());
+		assert!(meta.picture.is_none());
 		assert!(meta.runtime       == 1.968);
 		assert!(meta.release       == Some("2023-03-08"));
 		assert!(meta.track_artists == Some("hinto".to_string()));
-		assert!(meta.compilation   == true);
+		assert!(meta.compilation);
 	}
 }

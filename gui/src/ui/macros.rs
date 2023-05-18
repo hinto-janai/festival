@@ -38,7 +38,7 @@ macro_rules! album_button {
 
 		if resp.clicked() {
 			$self.state.album = Some($key.into());
-			$crate::tab!($self, crate::data::Tab::View);
+			$crate::tab!($self, $crate::data::Tab::View);
 		} else if resp.secondary_clicked() {
 			match open::that(&$album.path) {
 				Ok(_) => log::info!("GUI - Opening path: {}", $album.path.display()),
