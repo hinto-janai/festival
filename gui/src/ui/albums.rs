@@ -37,17 +37,8 @@ pub fn show_tab_albums(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame:
 	// Make each `Album` separated by `10.0x10.0` pixels.
 	ui.spacing_mut().item_spacing = egui::vec2(10.0, 10.0);
 
-	{
-		// Reduce rounding corners.
-		let widgets = &mut ui.visuals_mut().widgets;
-		widgets.hovered.rounding  = egui::Rounding::none();
-		widgets.inactive.rounding = egui::Rounding::none();
-		widgets.active.rounding   = egui::Rounding::none();
-		// Reduced padding.
-		ui.spacing_mut().button_padding.x -= 2.0;
-		// Small font.
-		ui.style_mut().override_text_style = Some(TextStyle::Name("Medium".into()));
-	}
+	// Small font.
+	ui.style_mut().override_text_style = Some(TextStyle::Name("Medium".into()));
 
 	let width = ui.available_width();
 
@@ -110,6 +101,8 @@ fn paint_albums(
 		// Sizing.
 		let label_width = (pixel / 11.5) as usize;
 		let padding     = pixel / 100.0;
+
+		crate::no_rounding!(ui);
 
 		// Start the row.
 		for row in 0..rows {

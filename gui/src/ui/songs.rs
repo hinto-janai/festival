@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------------------------------- Use
 use egui::{
 	ScrollArea,Label,ComboBox,
-	SelectableLabel,RichText,
+	SelectableLabel,RichText,Sense,
 };
 use egui_extras::{
 	StripBuilder,Size,
@@ -66,7 +66,6 @@ pub fn show_tab_songs(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 		//
 		// For now, use `ui.selectable_label()` instead of manually sizing.
 
-		// Create Table.
 		TableBuilder::new(ui)
 			.striped(true)
 			.cell_layout(egui::Layout::left_to_right(egui::Align::Center))
@@ -187,20 +186,9 @@ pub fn show_tab_songs(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 				});
 			});
 
-			// Track.
-			header.col(|ui| {
-				ui.strong("Track");
-			});
-
-			// Disc.
-			header.col(|ui| {
-				ui.strong("Disc");
-			});
-
-			// Path.
-			header.col(|ui| {
-				ui.strong("Path");
-			});
+			header.col(|ui| { ui.strong("Track"); });
+			header.col(|ui| { ui.strong("Disc"); });
+			header.col(|ui| { ui.strong("Path"); });
 		})
 		.body(|mut body| {
 			// Song iterator.
@@ -211,12 +199,9 @@ pub fn show_tab_songs(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 					row.col(|ui| { ui.label(&song.title); });
 
 					row.col(|ui| {
-						if ui.button(" View ").clicked() {
-							self.state.album = Some(song.album);
-							self.state.tab   = Tab::View;
+						if ui.add(Label::new(&album.title).sense(Sense::click())).clicked() {
+							crate::tab!(self, Tab::View);
 						}
-
-						ui.label(&album.title);
 					});
 
 					row.col(|ui| { ui.label(&artist.name); });
@@ -235,7 +220,7 @@ pub fn show_tab_songs(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 					row.col(|ui| {
 						ui.add_space(5.0);
 
-						if ui.button(" 🗁 Open ").on_hover_text(OPEN_PARENT_FOLDER).clicked() {
+						if ui.add(Label::new(&*song.path.to_string_lossy()).sense(Sense::click())).clicked() {
 							match &song.path.parent() {
 								Some(p) => {
 									if let Err(e) = open::that(p) {

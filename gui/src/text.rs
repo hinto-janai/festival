@@ -78,6 +78,9 @@ pub const SEARCH_MAX:              &str = formatcp!("Search character limit has 
 pub const SEARCH_BAR:              &str = "Search for albums, artists, and songs.\nYou can start typing from anywhere in Festival to start searching.";
 pub const SEARCH_HELP:             &str = "🔍 Search for albums, artists, and songs.";
 pub const SEARCH_EMPTY_COLLECTION: &str = "The Collection is empty. There is nothing to search.";
+pub const SEARCH_SORT_SONG:        &str = "Search by song title";
+pub const SEARCH_SORT_ALBUM:       &str = "Search by album title";
+pub const SEARCH_SORT_ARTIST:      &str = "Search by artist name";
 
 //---------------------------------------------------------------------------------------------------- TESTS
 //#[cfg(test)]

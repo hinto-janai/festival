@@ -22,16 +22,6 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame
 	let width  = ui.available_width();
 	let height = ui.available_height();
 
-	{
-		// Reduce rounding corners.
-		let widgets = &mut ui.visuals_mut().widgets;
-		widgets.hovered.rounding  = egui::Rounding::none();
-		widgets.inactive.rounding = egui::Rounding::none();
-		widgets.active.rounding   = egui::Rounding::none();
-		// Reduced padding.
-		ui.spacing_mut().button_padding.x -= 2.0;
-	}
-
 	// Outer scroll.
 	ScrollArea::vertical().id_source("Artist").max_width(f32::INFINITY).max_height(height).auto_shrink([false; 2]).show_viewport(ui, |ui, _| {
 		// For each `Artist`...
@@ -63,6 +53,8 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame
 			// Their `Album`'s.
 			ScrollArea::horizontal().id_source(key).max_width(f32::INFINITY).max_height(120.0).auto_shrink([false; 2]).show_viewport(ui, |ui, _| {
 				ui.horizontal(|ui| {
+					crate::no_rounding!(ui);
+
 					// Album
 					for key in &artist.albums {
 						let album = &self.collection.albums[key];

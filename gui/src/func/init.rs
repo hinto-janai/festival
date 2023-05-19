@@ -182,7 +182,7 @@ impl crate::data::Gui {
 
 			// Search state.
 			searching: false,
-			search_focus: false,
+			search_jump: false,
 			search_string: String::new(),
 			search_result: Keychain::new(),
 

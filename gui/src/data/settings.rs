@@ -31,7 +31,10 @@ use shukusai::sort::{
 	AlbumSort,
 	SongSort,
 };
-use super::AlbumSizing;
+use crate::data::{
+	AlbumSizing,
+	SearchSort,
+};
 
 //---------------------------------------------------------------------------------------------------- Settings
 #[cfg(debug_assertions)]
@@ -54,6 +57,10 @@ pub struct Settings {
 
 	/// Collection sorting of album view.
 	pub song_sort: SongSort,
+
+	/// To sort by `Song` title or
+	/// `Artist` name in the search tab?
+	pub search_sort: SearchSort,
 
 	/// Does the user want a certain amount of
 	//// `Album`'s per row or a static pixel size?

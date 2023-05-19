@@ -253,7 +253,7 @@ impl Gui {
 						if input.consume_key(egui::Modifiers::NONE, key) {
 							crate::tab!(self, Tab::Search);
 							self.search_string = KeyPress::from_egui_key(&key).to_string();
-							self.search_focus  = true;
+							self.search_jump   = true;
 							break
 						}
 					}

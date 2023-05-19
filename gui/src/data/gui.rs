@@ -65,7 +65,7 @@ pub struct Gui {
 	/// we switch to the `Search` tab, input the
 	/// `String` and set this [`bool`] so that
 	/// the GUI knows to `request_focus()` the search `TextEdit`.
-	pub search_focus: bool,
+	pub search_jump: bool,
 	/// Our current search input.
 	pub search_string: String,
 	/// The search result [`Keychain`] we got from `Kernel`.

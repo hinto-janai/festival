@@ -1,10 +1,8 @@
 //---------------------------------------------------------------------------------------------------- Use
-//use anyhow::{bail,ensure,Error};
-//use log::{info,error,warn,trace,debug};
-//use serde::{Serialize,Deserialize};
 use egui::{
 	CentralPanel,ScrollArea,TextStyle,
 	TextEdit,Label,RichText,Spinner,
+	SelectableLabel,Sense,
 };
 use benri::{
 	send,
@@ -27,6 +25,19 @@ use crate::text::{
 	SEARCH_EMPTY_COLLECTION,
 };
 use log::debug;
+use egui_extras::{
+	StripBuilder,Size,
+	TableBuilder,Column,
+};
+use crate::data::{
+	Tab,
+	SearchSort,
+};
+use readable::Unsigned;
+use crate::text::{
+	OPEN_PARENT_FOLDER,
+};
+use log::warn;
 
 //---------------------------------------------------------------------------------------------------- Search
 impl crate::data::Gui {
@@ -40,20 +51,23 @@ CentralPanel::default().show(ctx, |ui| {
 	let height = ui.available_height();
 	let half   = height / 2.0;
 	let hh     = half / 2.0;
-	let hhh    = hh / 2.0;
+	let hhh    = hh / 3.0;
 	let s      = 35.0; // Spinner.
 
 	ui.horizontal(|ui| {
 		// If searching, show spinner.
-		if self.searching {
-			ui.add_sized([s, s], Spinner::new().size(s));
-		} else if self.search_string.len() >= SEARCH_MAX_LEN {
-			ui.add_sized([s, s], Label::new(RichText::new("❌").color(RED))).on_hover_text(SEARCH_MAX);
-		} else if !self.search_result.is_empty() {
-			ui.add_sized([s, s], Label::new(RichText::new("✔").color(GREEN)));
-		} else {
-			ui.add_sized([s, s], Label::new(RichText::new("➖").color(WHITE)));
-		}
+		// 2022-05-18:
+		// The search is so fast it actually
+		// looks kinda buggy. So, maybe don't.
+//		if self.searching {
+//			ui.add_sized([s, s], Spinner::new().size(s));
+//		} else if self.search_string.len() >= SEARCH_MAX_LEN {
+//			ui.add_sized([s, s], Label::new(RichText::new("❌").color(RED))).on_hover_text(SEARCH_MAX);
+//		} else if !self.search_result.is_empty() {
+//			ui.add_sized([s, s], Label::new(RichText::new("✔").color(GREEN)));
+//		} else {
+//			ui.add_sized([s, s], Label::new(RichText::new("➖").color(WHITE)));
+//		}
 
 		// Search bar.
 		let width = ui.available_width();
@@ -64,13 +78,15 @@ CentralPanel::default().show(ctx, |ui| {
 
 		// Check if we came from a different
 		// tab and need to lock focus.
-		if self.search_focus {
-			self.search_focus = false;
+		if self.search_jump {
 			ctx.memory_mut(|m| m.request_focus(id));
 		}
 
-		// Only update if user input has changed.
-		if response.changed() {
+		// Only update if user input has changed
+		// or we jumped from a different tab.
+		if response.changed() || self.search_jump {
+			self.search_jump = false;
+
 			if self.search_string.len() > SEARCH_MAX_LEN {
 				debug!("GUI - Search string is longer than {SEARCH_MAX_LEN}, truncating");
 				self.search_string.truncate(SEARCH_MAX_LEN);
@@ -99,61 +115,231 @@ CentralPanel::default().show(ctx, |ui| {
 
 	// Else, show results.
 
-	// Album.
-	ui.separator();
-	let label = Label::new(
-		RichText::new("Albums")
-		.color(BONE)
-		.text_style(TextStyle::Heading)
-	);
-	ui.add_sized([width, hhh], label).on_hover_text("TODO");
-	ScrollArea::horizontal().id_source("SearchAlbum").max_width(f32::INFINITY).max_height(100.0).auto_shrink([false; 2]).show_viewport(ui, |ui, _| {
-		ui.horizontal(|ui| {
-			for album in self.search_result.albums.iter() {
-				self.collection.albums[album].art_or().show_size(ui, egui::vec2(100.0, 100.0));
+	ui.add_space(10.0);
+
+	//-------------------------------------------------- SearchSort.
+	ui.group(|ui| { ui.horizontal(|ui| {
+		let width = (width / 3.0) - 20.0;
+
+		let mut iter = SearchSort::iter().peekable();
+
+	 	while let Some(sort) = iter.next() {
+			let label = SelectableLabel::new(self.settings.search_sort == *sort, sort.as_str());
+
+			if ui.add_sized([width, 30.0], label).clicked() {
+				self.settings.search_sort = *sort;
 			}
-		});
-	});
 
-	// Artists.
-	ui.separator();
-	let label = Label::new(
-		RichText::new("Artists")
-		.color(BONE)
-		.text_style(TextStyle::Heading)
-	);
-	ui.add_sized([width, hhh], label).on_hover_text("TODO");
-	ScrollArea::both().id_source("SearchArtist").max_width(f32::INFINITY).max_height(110.0).auto_shrink([false; 2]).show_viewport(ui, |ui, _| {
-		for artist in self.search_result.artists.iter() {
-			ui.horizontal(|ui| {
-				let artist = &self.collection.artists[artist];
-				ui.add_sized([100.0, 100.0], Label::new(&artist.name));
-				for album in &artist.albums {
-					self.collection.albums[album].art_or().show_size(ui, egui::vec2(100.0, 100.0));
-				}
-			});
+			if let Some(_) = iter.peek() {
+				ui.separator();
+			}
 		}
-	});
+	})});
 
-	// Songs.
-	ui.separator();
-	let label = Label::new(
-		RichText::new("Songs")
-		.color(BONE)
-		.text_style(TextStyle::Heading)
-	);
-	ui.add_sized([width, hhh], label).on_hover_text("TODO");
-	ScrollArea::vertical().id_source("SearchSong").max_width(f32::INFINITY).max_height(ui.available_width()).auto_shrink([false; 2]).show_viewport(ui, |ui, _| {
-		for song in self.search_result.songs.iter() {
-			ui.horizontal(|ui| {
-				let song = &self.collection.songs[song];
-				ui.add_sized([100.0, 100.0], Label::new(&song.title));
-//				for album in &artist.albums {
-//					self.collection.albums[album].art_or().show_size(ui, egui::vec2(100.0, 100.0));
-//				}
+	ui.add_space(10.0);
+
+	//-------------------------------------------------- Song table.
+	match self.settings.search_sort {
+		SearchSort::Song => {
+			ScrollArea::horizontal()
+				.id_source("SearchSong")
+				.max_width(f32::INFINITY)
+				.max_height(f32::INFINITY)
+				.auto_shrink([false; 2])
+				.show_viewport(ui, |ui, _|
+			{
+				// Sizing.
+				let width  = ui.available_width();
+				let height = ui.available_height();
+				// c == Column sizing
+				let c_width   = (width / 10.0) - 10.0; // Account for separators, let `Path` peek a little.
+				let c_title   = c_width * 2.5;
+				let c_album   = c_width * 2.5;
+				let c_artist  = c_width;
+				let c_release = c_width;
+				let c_runtime = c_width;
+				let c_track   = c_width;
+				let c_disc    = c_width;
+
+				TableBuilder::new(ui)
+					.striped(true)
+					.cell_layout(egui::Layout::left_to_right(egui::Align::Center))
+					.column(Column::initial(c_title).resizable(true).clip(true))
+					.column(Column::initial(c_album).resizable(true).clip(true))
+					.column(Column::initial(c_artist).resizable(true).clip(true))
+					.column(Column::initial(c_release).resizable(true).clip(true))
+					.column(Column::initial(c_runtime).resizable(true).clip(true))
+					.column(Column::initial(c_track).resizable(true).clip(true))
+					.column(Column::initial(c_disc).resizable(true).clip(true))
+					.column(Column::remainder().clip(true))
+					.auto_shrink([false; 2])
+					.max_scroll_height(height)
+					.header(40.0, |mut header|
+				{
+					header.col(|ui| { ui.strong("Title"); });
+					header.col(|ui| { ui.strong("Album"); });
+					header.col(|ui| { ui.strong("Artist"); });
+					header.col(|ui| { ui.strong("Release"); });
+					header.col(|ui| { ui.strong("Runtime"); });
+					header.col(|ui| { ui.strong("Track"); });
+					header.col(|ui| { ui.strong("Disc"); });
+					header.col(|ui| { ui.strong("Path"); });
+				})
+				.body(|mut body| {
+					for key in self.search_result.songs.iter() {
+						body.row(35.0, |mut row| {
+							let (artist, album, song) = self.collection.walk(key);
+
+							row.col(|ui| { ui.label(&song.title); });
+
+							row.col(|ui| {
+								if ui.add(Label::new(&album.title).sense(Sense::click())).clicked() {
+									crate::album!(self, song.album);
+								}
+							});
+
+							row.col(|ui| { ui.label(&artist.name); });
+							row.col(|ui| { ui.label(album.release.as_str()); });
+							row.col(|ui| { ui.label(song.runtime.as_str()); });
+
+							match song.track {
+								Some(t) => row.col(|ui| { ui.label(Unsigned::from(t).as_str()); }),
+								None    => row.col(|ui| { ui.label("???"); }),
+							};
+							match song.disc {
+								Some(d) => row.col(|ui| { ui.label(Unsigned::from(d).as_str()); }),
+								None    => row.col(|ui| { ui.label("???"); }),
+							};
+
+							row.col(|ui| {
+								ui.add_space(5.0);
+
+								if ui.add(Label::new(&*song.path.to_string_lossy()).sense(Sense::click())).clicked() {
+									match &song.path.parent() {
+										Some(p) => {
+											if let Err(e) = open::that(p) {
+												warn!("GUI - Could not open path: {e}");
+											}
+										}
+										None => warn!("GUI - Could not get parent path: {}", song.path.display()),
+									}
+								}
+							});
+						});
+					}
+				});
 			});
-		}
-	});
+		},
+
+	//-------------------------------------------------- Album table.
+		SearchSort::Album => {
+			ScrollArea::horizontal()
+				.id_source("SearchSortAlbum")
+				.max_width(f32::INFINITY)
+				.max_height(f32::INFINITY)
+				.auto_shrink([false; 2])
+				.show_viewport(ui, |ui, _|
+			{
+				// Sizing.
+				let width  = ui.available_width();
+				let height = ui.available_height();
+				// c == Column sizing
+				let c_width   = (width / 10.0) - 10.0;
+				let c_title   = c_width * 4.0;
+				let c_artist  = c_width * 3.0;
+				let c_release = c_width * 2.0;
+
+				crate::no_rounding!(ui);
+
+				TableBuilder::new(ui)
+					.striped(true)
+					.cell_layout(egui::Layout::left_to_right(egui::Align::Center))
+					.column(Column::initial(c_title).resizable(true).clip(true))
+					.column(Column::initial(c_artist).resizable(true).clip(true))
+					.column(Column::initial(c_release).resizable(true).clip(true))
+					.column(Column::remainder().clip(true))
+					.auto_shrink([false; 2])
+					.max_scroll_height(height)
+					.header(80.0, |mut header|
+				{
+					header.col(|ui| { ui.strong("Album"); });
+					header.col(|ui| { ui.strong("Artist"); });
+					header.col(|ui| { ui.strong("Release"); });
+					header.col(|ui| { ui.strong("Runtime"); });
+				})
+				.body(|mut body| {
+					for key in self.search_result.albums.iter() {
+						body.row(130.0, |mut row| {
+							let album  = &self.collection.albums[key];
+							let artist = self.collection.artist_from_album(key);
+
+							row.col(|ui| {
+								crate::album_button!(self, album, key, ui, ctx, 120.0);
+								ui.label(&album.title);
+							});
+
+							row.col(|ui| { ui.label(&artist.name); });
+							row.col(|ui| { ui.label(album.release.as_str()); });
+							row.col(|ui| { ui.label(album.runtime.as_str()); });
+						});
+					}
+				});
+			});
+		},
+
+		SearchSort::Artist => {
+			ScrollArea::horizontal()
+				.id_source("SearchSortArtist")
+				.max_width(f32::INFINITY)
+				.max_height(f32::INFINITY)
+				.auto_shrink([false; 2])
+				.show_viewport(ui, |ui, _|
+			{
+				// Sizing.
+				let width  = ui.available_width();
+				let height = ui.available_height();
+				// c == Column sizing
+				let c_artist  = width / 5.0;
+				let c_runtime = width / 8.0;
+
+				crate::no_rounding!(ui);
+
+				TableBuilder::new(ui)
+					.striped(true)
+					.cell_layout(egui::Layout::left_to_right(egui::Align::Center))
+					.column(Column::initial(c_artist).resizable(true).clip(true))
+					.column(Column::initial(c_runtime).resizable(true).clip(true))
+					.column(Column::remainder().clip(true))
+					.auto_shrink([false; 2])
+					.max_scroll_height(height)
+					.header(80.0, |mut header|
+				{
+					header.col(|ui| { ui.strong("Artist"); });
+					header.col(|ui| { ui.strong("Runtime"); });
+					header.col(|ui| { ui.strong("Albums"); });
+				})
+				.body(|mut body| {
+					for key in self.search_result.artists.iter() {
+
+						body.row(130.0, |mut row| {
+							let artist = &self.collection.artists[key];
+
+							row.col(|ui| { ui.label(&artist.name); });
+							row.col(|ui| { ui.label(artist.runtime.as_str()); });
+
+							row.col(|ui| {
+								for key in artist.albums.iter() {
+									let album = &self.collection.albums[key];
+
+									crate::album_button!(self, album, key, ui, ctx, 120.0, album.title);
+								}
+							});
+						});
+					}
+				});
+			});
+		},
+	} // End of match.
 });
 }}
 
