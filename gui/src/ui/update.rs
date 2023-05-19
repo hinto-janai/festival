@@ -199,12 +199,22 @@ impl Gui {
 				// Check for `Left/Right`
 				} else if input.consume_key(egui::Modifiers::NONE, egui::Key::ArrowRight) {
 					match self.state.tab {
+						Tab::View   => {
+							if let Some(key) = self.state.album {
+								self.state.album = Some(self.collection.next_album(key));
+							}
+						}
 						Tab::Albums => self.increment_art_size(),
 						Tab::Search => self.settings.search_sort = self.settings.search_sort.next(),
 						_ => (),
 					}
 				} else if input.consume_key(egui::Modifiers::NONE, egui::Key::ArrowLeft) {
 					match self.state.tab {
+						Tab::View   => {
+							if let Some(key) = self.state.album {
+								self.state.album = Some(self.collection.previous_album(key));
+							}
+						}
 						Tab::Albums => self.decrement_art_size(),
 						Tab::Search => self.settings.search_sort = self.settings.search_sort.previous(),
 						_ => (),

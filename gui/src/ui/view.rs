@@ -169,9 +169,8 @@ pub(super) fn show_tab_view_right_panel(&mut self, album_key: Option<AlbumKey>, 
 				}
 
 				// For each album...
-				for album in albums {
+				for key in albums {
 					// Get the actual `Album`.
-					let key   = album;
 					let album = &self.collection.albums[key];
 
 					// Album button.
