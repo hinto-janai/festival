@@ -33,6 +33,28 @@ impl SearchSort {
 			Self::Artist,
 		].iter()
 	}
+
+	/// Returns the next sequential [`SearchSort`] variant.
+	///
+	/// This returns the _first_ if at the _last_.
+	pub fn next(&self) -> Self {
+		match self {
+			Self::Song   => Self::Album,
+			Self::Album  => Self::Artist,
+			Self::Artist => Self::Song,
+		}
+	}
+
+	/// Returns the previous sequential [`SongSort`] variant.
+	///
+	/// This returns the _last_ if at the _first_.
+	pub fn previous(&self) -> Self {
+		match self {
+			Self::Song   => Self::Artist,
+			Self::Album  => Self::Song,
+			Self::Artist => Self::Album,
+		}
+	}
 }
 
 impl std::fmt::Display for SearchSort {

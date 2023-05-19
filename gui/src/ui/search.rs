@@ -23,6 +23,9 @@ use crate::text::{
 	SEARCH_BAR,
 	SEARCH_HELP,
 	SEARCH_EMPTY_COLLECTION,
+	SEARCH_SORT_SONG,
+	SEARCH_SORT_ALBUM,
+	SEARCH_SORT_ARTIST,
 };
 use log::debug;
 use egui_extras::{
@@ -121,17 +124,31 @@ CentralPanel::default().show(ctx, |ui| {
 	ui.group(|ui| { ui.horizontal(|ui| {
 		let width = (width / 3.0) - 20.0;
 
-		let mut iter = SearchSort::iter().peekable();
-
-	 	while let Some(sort) = iter.next() {
-			let label = SelectableLabel::new(self.settings.search_sort == *sort, sort.as_str());
-
-			if ui.add_sized([width, 30.0], label).clicked() {
-				self.settings.search_sort = *sort;
+		{
+			const SORT: SearchSort = SearchSort::Song;
+			let label = SelectableLabel::new(self.settings.search_sort == SORT, SORT.as_str());
+			if ui.add_sized([width, 30.0], label).on_hover_text(SEARCH_SORT_SONG).clicked() {
+				self.settings.search_sort = SORT;
 			}
+		}
 
-			if let Some(_) = iter.peek() {
-				ui.separator();
+		ui.separator();
+
+		{
+			const SORT: SearchSort = SearchSort::Album;
+			let label = SelectableLabel::new(self.settings.search_sort == SORT, SORT.as_str());
+			if ui.add_sized([width, 30.0], label).on_hover_text(SEARCH_SORT_ALBUM).clicked() {
+				self.settings.search_sort = SORT;
+			}
+		}
+
+		ui.separator();
+
+		{
+			const SORT: SearchSort = SearchSort::Artist;
+			let label = SelectableLabel::new(self.settings.search_sort == SORT, SORT.as_str());
+			if ui.add_sized([width, 30.0], label).on_hover_text(SEARCH_SORT_ARTIST).clicked() {
+				self.settings.search_sort = SORT;
 			}
 		}
 	})});

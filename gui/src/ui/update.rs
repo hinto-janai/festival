@@ -196,11 +196,19 @@ impl Gui {
 					crate::tab!(self, self.state.tab.next());
 				} else if input.consume_key(egui::Modifiers::NONE, egui::Key::ArrowUp) {
 					crate::tab!(self, self.state.tab.previous());
-				// Check for `Left/Right` (Volume)
-				} else if self.state.tab == Tab::Albums && input.consume_key(egui::Modifiers::NONE, egui::Key::ArrowRight) {
-					self.increment_art_size()
-				} else if self.state.tab == Tab::Albums && input.consume_key(egui::Modifiers::NONE, egui::Key::ArrowLeft) {
-					self.decrement_art_size()
+				// Check for `Left/Right`
+				} else if input.consume_key(egui::Modifiers::NONE, egui::Key::ArrowRight) {
+					match self.state.tab {
+						Tab::Albums => self.increment_art_size(),
+						Tab::Search => self.settings.search_sort = self.settings.search_sort.next(),
+						_ => (),
+					}
+				} else if input.consume_key(egui::Modifiers::NONE, egui::Key::ArrowLeft) {
+					match self.state.tab {
+						Tab::Albums => self.decrement_art_size(),
+						Tab::Search => self.settings.search_sort = self.settings.search_sort.previous(),
+						_ => (),
+					}
 				// Check for `F11` (Fullscreen)
 				} else if input.consume_key(egui::Modifiers::NONE, egui::Key::F11) {
 					frame.set_fullscreen(!frame.info().window_info.fullscreen);
