@@ -501,6 +501,100 @@ impl Collection {
 		&self.albums[self.songs[key.into()].album].songs
 	}
 
+	/// Get the next [`Album`] belonging to this [`Artist`].
+	///
+	/// This:
+	/// - Iterates via release date
+	/// - Wraps around if at the last element
+	#[inline]
+	pub fn next_album<K: Into<AlbumKey>>(&self, key: K) -> AlbumKey {
+		let key = key.into();
+		let other_albums = self.other_albums(key);
+
+		let index = other_albums
+			.iter()
+			.position(|i| i == key)
+			.unwrap_or(0);
+
+		if let Some(key) = other_albums.get(index + 1) {
+			*key
+		} else {
+			other_albums[0]
+		}
+	}
+
+	/// Get the previous [`Album`] belonging to this [`Artist`].
+	///
+	/// This:
+	/// - Iterates via release date
+	/// - Wraps around if at the first element
+	#[inline]
+	pub fn previous_album<K: Into<AlbumKey>>(&self, key: K) -> AlbumKey {
+		let key          = key.into();
+		let other_albums = self.other_albums(key);
+		let len          = other_albums.len();
+
+		let index = other_albums
+			.iter()
+			.position(|i| i == key)
+			.unwrap_or(0);
+
+		if index == 0 {
+			other_albums[len - 1]
+		} else if let Some(key) = other_albums.get(index - 1) {
+			*key
+		} else {
+			other_albums[len - 1]
+		}
+	}
+
+	/// Get the next [`Song`] belonging to this [`Album`].
+	///
+	/// This:
+	/// - Iterates via track order
+	/// - Wraps around if at the last element
+	#[inline]
+	pub fn next_song<K: Into<SongKey>>(&self, key: K) -> SongKey {
+		let key = key.into();
+		let other_songs = self.other_songs(key);
+
+		let index = other_songs
+			.iter()
+			.position(|i| i == key)
+			.unwrap_or(0);
+
+		if let Some(key) = other_songs.get(index + 1) {
+			*key
+		} else {
+			other_songs[0]
+		}
+	}
+
+	/// Get the previous [`Song`] belonging to this [`Album`].
+	///
+	/// This:
+	/// - Iterates via track order
+	/// - Wraps around if at the first element
+	#[inline]
+	pub fn previous_song<K: Into<SongKey>>(&self, key: K) -> SongKey {
+		let key         = key.into();
+		let other_songs = self.other_songs(key);
+		let len         = other_songs.len();
+
+		let index = other_songs
+			.iter()
+			.position(|i| i == key)
+			.unwrap_or(0);
+
+		if index == 0 {
+			other_songs[len - 1]
+		} else if let Some(key) = other_songs.get(index - 1) {
+			*key
+		} else {
+			other_songs[len - 1]
+		}
+	}
+
 	#[inline]
 	/// [`slice::get`] the [`Collection`] with a [`Key`].
 	///
