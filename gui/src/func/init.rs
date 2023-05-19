@@ -157,6 +157,7 @@ impl crate::data::Gui {
 			Ok(s)  => { ok!("GUI - State from disk"); s },
 			Err(e) => { warn!("GUI - State failed from disk: {}", e); State::new() },
 		};
+
 		let app = Self {
 			// `Kernel` channels.
 			to_kernel,
@@ -172,7 +173,7 @@ impl crate::data::Gui {
 			settings,
 
 			// `GUI` state.
-			og_state: state, // `copy`-able
+			og_state: state.clone(),
 			state,
 
 			// `rfd`.
@@ -183,8 +184,6 @@ impl crate::data::Gui {
 			// Search state.
 			searching: false,
 			search_jump: false,
-			search_string: String::new(),
-			search_result: Keychain::new(),
 
 			// Local cache.
 			count_artist: "Artists: 0".to_string(),
@@ -200,8 +199,6 @@ impl crate::data::Gui {
 
 			debug_screen: false,
 			debug_info: DebugInfo::new(),
-
-			last_tab: None,
 		};
 
 

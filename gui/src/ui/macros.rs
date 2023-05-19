@@ -23,8 +23,8 @@ use log::warn;
 /// Jump to a tab, setting the last tab value as well.
 macro_rules! tab {
 	($self:ident, $tab:expr) => {
-		$self.last_tab = Some($self.state.tab);
-		$self.state.tab = $tab;
+		$self.state.last_tab = Some($self.state.tab);
+		$self.state.tab      = $tab;
 	}
 }
 
@@ -32,9 +32,9 @@ macro_rules! tab {
 /// Jump to the view tab, with an album set.
 macro_rules! album {
 	($self:ident, $key:expr) => {
-		$self.state.album = Some($key.into());
-		$self.last_tab    = Some($self.state.tab);
-		$self.state.tab   = crate::data::Tab::View;
+		$self.state.album    = Some($key.into());
+		$self.state.last_tab = Some($self.state.tab);
+		$self.state.tab      = crate::data::Tab::View;
 	}
 }
 

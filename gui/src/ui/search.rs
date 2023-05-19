@@ -64,9 +64,9 @@ CentralPanel::default().show(ctx, |ui| {
 		// looks kinda buggy. So, maybe don't.
 //		if self.searching {
 //			ui.add_sized([s, s], Spinner::new().size(s));
-//		} else if self.search_string.len() >= SEARCH_MAX_LEN {
+//		} else if self.state.search_string.len() >= SEARCH_MAX_LEN {
 //			ui.add_sized([s, s], Label::new(RichText::new("❌").color(RED))).on_hover_text(SEARCH_MAX);
-//		} else if !self.search_result.is_empty() {
+//		} else if !self.state.search_result.is_empty() {
 //			ui.add_sized([s, s], Label::new(RichText::new("✔").color(GREEN)));
 //		} else {
 //			ui.add_sized([s, s], Label::new(RichText::new("➖").color(WHITE)));
@@ -75,7 +75,7 @@ CentralPanel::default().show(ctx, |ui| {
 		// Search bar.
 		let width = ui.available_width();
 		let id = egui::Id::new("Search TextEdit");
-		let text_edit = TextEdit::singleline(&mut self.search_string).id(id);
+		let text_edit = TextEdit::singleline(&mut self.state.search_string).id(id);
 		ui.spacing_mut().text_edit_width = width;
 		let response = ui.add_sized([width, 35.0], text_edit).on_hover_text(SEARCH_BAR);
 
@@ -90,20 +90,20 @@ CentralPanel::default().show(ctx, |ui| {
 		if response.changed() || self.search_jump {
 			self.search_jump = false;
 
-			if self.search_string.len() > SEARCH_MAX_LEN {
+			if self.state.search_string.len() > SEARCH_MAX_LEN {
 				debug!("GUI - Search string is longer than {SEARCH_MAX_LEN}, truncating");
-				self.search_string.truncate(SEARCH_MAX_LEN);
+				self.state.search_string.truncate(SEARCH_MAX_LEN);
 			} else {
-				send!(self.to_kernel, FrontendToKernel::SearchSim(self.search_string.clone()));
+				send!(self.to_kernel, FrontendToKernel::SearchSim(self.state.search_string.clone()));
 				self.searching = true;
 			}
 		}
 	});
 
 	// If search input is empty, reset result, show help.
-	if self.search_string.is_empty() {
-		if !self.search_result.is_empty() {
-			self.search_result = Default::default();
+	if self.state.search_string.is_empty() {
+		if !self.state.search_result.is_empty() {
+			self.state.search_result = Default::default();
 			self.searching = false;
 		}
 
@@ -203,7 +203,7 @@ CentralPanel::default().show(ctx, |ui| {
 					header.col(|ui| { ui.strong("Path"); });
 				})
 				.body(|mut body| {
-					for key in self.search_result.songs.iter() {
+					for key in self.state.search_result.songs.iter() {
 						body.row(35.0, |mut row| {
 							let (artist, album, song) = self.collection.walk(key);
 
@@ -285,7 +285,7 @@ CentralPanel::default().show(ctx, |ui| {
 					header.col(|ui| { ui.strong("Runtime"); });
 				})
 				.body(|mut body| {
-					for key in self.search_result.albums.iter() {
+					for key in self.state.search_result.albums.iter() {
 						body.row(130.0, |mut row| {
 							let album  = &self.collection.albums[key];
 							let artist = self.collection.artist_from_album(key);
@@ -336,7 +336,7 @@ CentralPanel::default().show(ctx, |ui| {
 					header.col(|ui| { ui.strong("Albums"); });
 				})
 				.body(|mut body| {
-					for key in self.search_result.artists.iter() {
+					for key in self.state.search_result.artists.iter() {
 
 						body.row(130.0, |mut row| {
 							let artist = &self.collection.artists[key];

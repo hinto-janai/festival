@@ -54,13 +54,13 @@ pub(super) fn exit(
 
 	// Save `State`.
 	match state.save() {
-		Ok(o)  => ok!("GUI - State save: {o}"),
+		Ok(md) => ok!("GUI - State save: {md}"),
 		Err(e) => fail!("GUI - State save: {e}"),
 	}
 
 	// Save `Settings`.
 	match settings.save() {
-		Ok(o)  => ok!("GUI - Settings save: {o}"),
+		Ok(md) => ok!("GUI - Settings save: {md}"),
 		Err(e) => fail!("GUI - Settings save: {e}"),
 	}
 

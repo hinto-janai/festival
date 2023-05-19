@@ -101,7 +101,7 @@ kernel_returned      | {}
 			self.diff_settings(),
 			atomic_load!(self.rfd_open),
 			self.searching,
-			self.search_string,
+			self.state.search_string,
 			self.count_artist,
 			self.count_album,
 			self.count_song,

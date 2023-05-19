@@ -21,6 +21,7 @@ use shukusai::collection::{
 	Collection,
 	Key,
 	AlbumKey,
+	Keychain,
 };
 use shukusai::kernel::{
 	AudioState,
@@ -33,7 +34,7 @@ use shukusai::kernel::{
 disk::json!(State, disk::Dir::Data, FESTIVAL, GUI, "state");
 #[cfg(not(debug_assertions))]
 disk::bincode2!(State, disk::Dir::Data, FESTIVAL, GUI, "state", HEADER, STATE_VERSION);
-#[derive(Copy,Clone,Debug,Default,PartialEq,PartialOrd,Serialize,Deserialize,Encode,Decode)]
+#[derive(Clone,Debug,Default,PartialEq,PartialOrd,Serialize,Deserialize,Encode,Decode)]
 /// `GUI`'s State.
 ///
 /// Holds `copy`-able, user-mutable `GUI` state.
@@ -42,8 +43,16 @@ disk::bincode2!(State, disk::Dir::Data, FESTIVAL, GUI, "state", HEADER, STATE_VE
 /// This is so that within the `GUI` loop, [`KernelState`] only needs to be locked _once_,
 /// so its values can be locally cached, then used within the frame.
 pub struct State {
+	// Tab.
 	/// Which [`Tab`] are currently on?
 	pub tab: Tab,
+	/// The last [`Tab`] the user was on.
+	pub last_tab: Option<Tab>,
+
+	/// Our current search input.
+	pub search_string: String,
+	/// The search result [`Keychain`] we got from `Kernel`.
+	pub search_result: Keychain,
 
 	/// Which [`Album`] are we on in the `Album` tab?
 	///
@@ -54,9 +63,6 @@ pub struct State {
 	/// [`Option::None`] indicates we aren't looking at
 	/// any [`Album`] and are in the full [`Album`] art view.
 	pub album: Option<AlbumKey>,
-
-	/// `GUI`'s local [`AudioState`].
-	pub audio: AudioState,
 }
 
 impl State {

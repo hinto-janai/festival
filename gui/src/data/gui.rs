@@ -30,6 +30,11 @@ use std::time::Instant;
 
 //---------------------------------------------------------------------------------------------------- GUI struct. This hold ALL data.
 pub struct Gui {
+	//-------------------------------------------------- Long-Term State.
+	// These represent state that pretty much
+	// have a static lifetime and are used everywhere,
+	// and is expected to always exist in some form.
+
 	/// To `Kernel`.
 	pub to_kernel: Sender<FrontendToKernel>,
 	/// From `Kernel`.
@@ -50,6 +55,11 @@ pub struct Gui {
 	/// `GUI` settings (old).
 	pub og_state: State,
 
+	//-------------------------------------------------- Ephemeral State.
+	// These are quick one-off fields that mostly
+	// act as flags or some small thing for
+	// functionality in the GUI.
+
 	// RFD state.
 	/// If a RFD window is currently open.
 	pub rfd_open: Arc<AtomicBool>,
@@ -61,15 +71,11 @@ pub struct Gui {
 	// Search state.
 	/// If we're currently searching.
 	pub searching: bool,
-	/// If the user types English from anywhere,
+	/// If the user types [A-Za-z0-9] from anywhere,
 	/// we switch to the `Search` tab, input the
 	/// `String` and set this [`bool`] so that
 	/// the GUI knows to `request_focus()` the search `TextEdit`.
 	pub search_jump: bool,
-	/// Our current search input.
-	pub search_string: String,
-	/// The search result [`Keychain`] we got from `Kernel`.
-	pub search_result: Keychain,
 
 	// Local cached variables.
 	/// A cached, formatted version of [`Collection::count_artist`]
@@ -107,8 +113,4 @@ pub struct Gui {
 	pub debug_screen: bool,
 	/// The debug info displayed on the debug screen.
 	pub debug_info: DebugInfo,
-
-	// Tab history (for mouse).
-	/// The last [`Tab`] the user was on.
-	pub last_tab: Option<Tab>,
 }

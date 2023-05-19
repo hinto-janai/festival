@@ -86,7 +86,7 @@ impl eframe::App for Gui {
 		let from_kernel    = self.from_kernel.clone();
 		let kernel_state   = self.kernel_state.clone();
 		let settings       = self.settings.clone();
-		let state          = self.state; // `copy`-able
+		let state          = self.state.clone();
 		let exit_countdown = self.exit_countdown.clone();
 
 		// Spawn `exit` thread.
@@ -104,15 +104,18 @@ impl eframe::App for Gui {
 	//-------------------------------------------------------------------------------- Main event loop.
 	#[inline(always)]
 	fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+		// HACK:
+		// The real "update" function is surrounded by these timer
+		// sets for better read/write locking behavior with CCD.
 		atomic_store!(shukusai::frontend::egui::UPDATING, true);
-		self.__update(ctx, frame);
+		self.update(ctx, frame);
 		atomic_store!(shukusai::frontend::egui::UPDATING, false);
 	}
 }
 
 impl Gui {
 	#[inline(always)]
-	fn __update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+	fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
 		// Check for `Kernel` messages.
 		// Only if we're not exiting, to prevent stealing
 		// the message intended for the exit thread.
@@ -134,7 +137,7 @@ impl Gui {
 					NewKernelState(k)      => self.kernel_state = k,
 					NewResetState(r)      => self.reset_state = r,
 					SearchSim(keychain) => {
-						self.search_result = keychain;
+						self.state.search_result = keychain;
 						self.searching     = false;
 					},
 					_ => todo!(),
@@ -174,9 +177,9 @@ impl Gui {
 		}
 
 		// Copy `Kernel`'s `AudioState`.
-		if self.state.audio.playing {
-			self.copy_kernel_audio();
-		}
+//		if self.state.audio.playing {
+//			self.copy_kernel_audio();
+//		}
 
 		// Check for key presses.
 		if !ctx.wants_keyboard_input() {
@@ -186,7 +189,7 @@ impl Gui {
 					input.pointer.button_clicked(egui::PointerButton::Extra2) || // These two don't work with my mouse.
 					input.consume_key(egui::Modifiers::CTRL, egui::Key::D)
 				{
-					if let Some(tab) = self.last_tab {
+					if let Some(tab) = self.state.last_tab {
 						crate::tab!(self, tab);
 					}
 				}
@@ -270,7 +273,7 @@ impl Gui {
 					for key in ALPHANUMERIC_KEY {
 						if input.consume_key(egui::Modifiers::NONE, key) {
 							crate::tab!(self, Tab::Search);
-							self.search_string = KeyPress::from_egui_key(&key).to_string();
+							self.state.search_string = KeyPress::from_egui_key(&key).to_string();
 							self.search_jump   = true;
 							break
 						}
@@ -360,7 +363,8 @@ fn show_bottom(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width:
 				[ui.available_width(), height],
 				// TODO:
 				// Send signal on slider mutation by user.
-				Slider::new(&mut self.state.audio.current_elapsed, 0.0..=100.0)
+//				Slider::new(&mut self.state.audio.current_elapsed, 0.0..=100.0)
+				Slider::new(&mut 0.0, 0.0..=100.0)
 					.smallest_positive(1.0)
 					.show_value(false)
 					.thickness(h*2.0)
@@ -438,7 +442,8 @@ fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f
 				}
 				// TODO:
 				// Send signal on slider mutation by user.
-				ui.add(Slider::new(&mut self.state.audio.volume.inner(), 0..=100)
+//				ui.add(Slider::new(&mut self.state.audio.volume.inner(), 0..=100)
+				ui.add(Slider::new(&mut 0, 0..=100)
 					.smallest_positive(1.0)
 					.show_value(false)
 					.vertical()

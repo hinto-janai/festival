@@ -47,7 +47,6 @@ impl crate::data::Gui {
 		visuals.selection.bg_fill = self.settings.accent_color;
 	}
 
-	#[inline(always)]
 	/// Set the current [`Settings`] to disk.
 	pub fn save_settings(&mut self) {
 		self.set_settings();
@@ -55,6 +54,16 @@ impl crate::data::Gui {
 		match self.settings.save_atomic() {
 			Ok(_)  => ok_debug!("GUI - Settings save"),
 			Err(e) => error!("GUI - Settings could not be saved to disk: {e}"),
+		}
+	}
+
+	/// Set the current [`State`] to disk.
+	pub fn save_state(&mut self) {
+		self.set_state();
+		// TODO: handle save error.
+		match self.state.save_atomic() {
+			Ok(md) => ok_debug!("GUI - State save: {md}"),
+			Err(e) => error!("GUI - State could not be saved to disk: {e}"),
 		}
 	}
 
@@ -75,13 +84,13 @@ impl crate::data::Gui {
 	#[inline(always)]
 	/// Set the original [`State`] to reflect live [`State`].
 	pub fn set_state(&mut self) {
-		self.og_state = self.state; // `copy`-able
+		self.og_state = self.state.clone();
 	}
 
 	#[inline(always)]
 	/// Reset [`State`] to the original.
 	pub fn reset_state(&mut self) {
-		self.state = self.og_state; // `copy`-able
+		self.state = self.og_state.clone();
 	}
 
 	#[inline]
@@ -102,17 +111,17 @@ impl crate::data::Gui {
 		self.state != self.og_state
 	}
 
-	#[inline(always)]
-	/// Copies the _audio_ values from [`KernelState`] into [`State`].
-	pub fn copy_kernel_audio(&mut self) {
-		let k = lockr!(self.kernel_state);
-
-		// PERF:
-		// Comparison seems to be slower than un-conditional
-		// assignment for small `copy`-able structs like `AudioState`,
-		// so don't even check for diffs, just always copy.
-		self.state.audio = k.audio;
-	}
+//	#[inline(always)]
+//	/// Copies the _audio_ values from [`KernelState`] into `self`.
+//	pub fn copy_kernel_audio(&mut self) {
+//		let k = lockr!(self.kernel_state);
+//
+//		// PERF:
+//		// Comparison seems to be slower than un-conditional
+//		// assignment for small `copy`-able structs like `AudioState`,
+//		// so don't even check for diffs, just always copy.
+//		self.audio = k.audio;
+//	}
 
 	#[inline(always)]
 	/// Perform all the necessary steps to add a folder
