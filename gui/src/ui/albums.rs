@@ -34,7 +34,26 @@ const ALBUM_TITLE_LIMIT: usize = 30;
 impl crate::data::Gui {
 #[inline(always)]
 pub fn show_tab_albums(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
-	// Make each `Album` separated by `10.0x10.0` pixels.
+	// Album Spacing "Algorithm"
+	//
+	// If `AlbumSizing::Pixel` is selected, the below code will dynamically
+	// fit as many albums that can fit into the available width given the
+	// static pixel size.
+	//
+	// When stretching the GUI's windows left <-> right, new albums will
+	// be added/removed with a nice even amount of space between them all.
+	//
+	// Some things to care for:
+	//   - Space added by separators
+	//   - Space added by padding
+	//   - Space added by scrollbar
+	//   - Evenly spreading the remainder space
+	//
+	// I say "algorithm" because the way the below code was
+	// created was by me spending a day incrementing/decrementing
+	// the variables until it looked nice.
+
+	// Make each `Album` separated by `10.0 x 10.0` pixels.
 	ui.spacing_mut().item_spacing = egui::vec2(10.0, 10.0);
 
 	// Small font.
