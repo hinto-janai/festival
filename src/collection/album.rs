@@ -58,6 +58,10 @@ pub struct Album {
 	// result in the correct `Song` order for `my_album`.
 	/// Key\(s\) to the [`Song`]\(s\).
 	pub songs: Vec<SongKey>,
+	/// How many discs are in this `Album`?
+	/// (Most will only have 1).
+	pub discs: u32,
+
 	/// The parent `PATH` of this `Album`.
 	///
 	/// This is always taken from the 1st `Song` that is inserted

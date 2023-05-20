@@ -94,7 +94,26 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &
 		// (scales based on pixels available).
 		let head = (width / 22.0) as usize;
 
+		let mut last_disc = self.collection.songs[album.songs[0]].disc;
+		if album.discs > 1 {
+			ui.label(format!("Disc {}", last_disc.unwrap_or(0)));
+			ui.separator();
+		}
+
 		for key in album.songs.iter() {
+			let song = &self.collection.songs[key];
+
+			// Add a separator if on a different disc.
+			if album.discs > 1 {
+				if song.disc != last_disc {
+					ui.add_space(10.0);
+					ui.label(format!("Disc {}", last_disc.unwrap_or(0)));
+					ui.separator();
+				}
+
+				last_disc = song.disc;
+			}
+
 			let mut rect = ui.cursor();
 			rect.max.y = rect.min.y + 35.0;
 			if ui.put(rect, SelectableLabel::new(false, "")).clicked() {
@@ -103,9 +122,9 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &
 //				self.state.audio.current_key = Some(key);
 			}
 			rect.max.x = rect.min.x;
+
 			ui.allocate_ui_at_rect(rect, |ui| {
 				ui.horizontal_centered(|ui| {
-					let song = &self.collection.songs[key];
 
 					// Show the full title on hover
 					// if we chopped it with head.

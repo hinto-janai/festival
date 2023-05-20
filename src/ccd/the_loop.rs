@@ -447,6 +447,25 @@ impl super::Ccd {
 					&vec_song[b.inner()].track
 				)
 			);
+
+			// Fix `Album` disc count.
+			let mut last_disc = vec_song[album.songs[0].inner()].disc;
+			for key in album.songs.iter() {
+				let song = &vec_song[key.inner()];
+				if last_disc != song.disc {
+					album.discs += 1;
+				}
+				last_disc = song.disc;
+			}
+
+			// Sort songs based off `disc` (if there's more than 1).
+			if album.discs > 1 {
+				album.songs.sort_by(|a, b|
+					vec_song[a.inner()].disc.cmp(
+						&vec_song[b.inner()].disc
+					)
+				);
+			}
 		}
 
 		// Fix `Album` order in the `Artist` (release order).
