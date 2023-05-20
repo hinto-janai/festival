@@ -10,3 +10,9 @@
 [submodule "lofty-rs"]
 	path = external/lofty-rs
 	url = https://github.com:/hinto-janai/lofty-rs.git
+[submodule "external/egui-notify"]
+	path = external/egui-notify
+	url = https://github.com/hinto-janai/egui-notify
+[submodule "external/egui_dnd"]
+	path = external/egui_dnd
+	url = https://github.com/hinto-janai/egui_dnd

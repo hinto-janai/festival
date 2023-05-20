@@ -181,6 +181,9 @@ impl Gui {
 //			self.copy_kernel_audio();
 //		}
 
+		// Show `egui_notify` toasts.
+		self.toasts.show(ctx);
+
 		// Check for key presses.
 		if !ctx.wants_keyboard_input() {
 			ctx.input_mut(|input| {
@@ -230,25 +233,35 @@ impl Gui {
 					self.reset_collection();
 				// Check for `Ctrl+S` (Save Settings)
 				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::S) {
-					self.save_settings();
+					match self.save_settings() {
+						Ok(_) => crate::toast!(self, "Saved Settings"),
+						Err(e) => crate::toast_err!(self, "Settings save failed: {e}"),
+					}
 				// Check for `Ctrl+Z` (Reset Settings)
 				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::Z) {
 					self.reset_settings();
+					crate::toast!(self, "Reset Settings");
 				// Check for `Ctrl+A` (Add Folder)
 				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::A) {
 					self.add_folder();
-				// Check for `Ctrl+Q` (Next Artist Order)
+				// Check for `Ctrl+Q` (Next Album Order)
 				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::Q) {
-					crate::tab!(self, Tab::Artists);
-					self.settings.artist_sort = self.settings.artist_sort.next();
-				// Check for `Ctrl+W` (Next Album Order)
-				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::W) {
 					crate::tab!(self, Tab::Albums);
-					self.settings.album_sort = self.settings.album_sort.next();
+					let next = self.settings.album_sort.next();
+					crate::toast!(self, next.as_str());
+					self.settings.album_sort = next;
+				// Check for `Ctrl+W` (Next Artist Order)
+				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::W) {
+					crate::tab!(self, Tab::Artists);
+					let next = self.settings.artist_sort.next();
+					crate::toast!(self, next.as_str());
+					self.settings.artist_sort = next;
 				// Check for `Ctrl+E` (Next Song Order)
 				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::E) {
 					crate::tab!(self, Tab::Songs);
-					self.settings.song_sort = self.settings.song_sort.next();
+					let next = self.settings.song_sort.next();
+					crate::toast!(self, next.as_str());
+					self.settings.song_sort = next;
 				// Check for `Ctrl+Shift+P` (force `panic!()`)
 				} else if
 					input.modifiers.matches(egui::Modifiers::CTRL.plus(egui::Modifiers::SHIFT))

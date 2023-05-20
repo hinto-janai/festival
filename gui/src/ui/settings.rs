@@ -77,7 +77,9 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 		}
 
 		if ui.add_sized([width, text], save).on_hover_text(SAVE).clicked() {
-			self.save_settings();
+			if let Err(e) = self.save_settings() {
+				crate::toast_err!(self, "Settings save failed: {e}");
+			}
 		}
 	})});
 

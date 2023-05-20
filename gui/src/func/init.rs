@@ -176,6 +176,9 @@ impl crate::data::Gui {
 			og_state: state.clone(),
 			state,
 
+			// `egui_notify`
+			toasts: egui_notify::Toasts::new(),
+
 			// `rfd`.
 			rfd_open: Arc::new(AtomicBool::new(false)),
 			rfd_new: Arc::new(Mutex::new(None)),

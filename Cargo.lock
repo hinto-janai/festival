@@ -1507,6 +1507,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "egui-notify"
+version = "0.6.0"
+dependencies = [
+ "eframe",
+ "egui",
+]
+
+[[package]]
 name = "egui-wgpu"
 version = "0.21.0"
 dependencies = [
@@ -1536,6 +1544,16 @@ dependencies = [
  "tracing",
  "webbrowser",
  "winit",
+]
+
+[[package]]
+name = "egui_dnd"
+version = "0.3.0"
+dependencies = [
+ "color-hex",
+ "eframe",
+ "egui",
+ "egui_extras",
 ]
 
 [[package]]
@@ -3782,6 +3800,8 @@ dependencies = [
  "disk",
  "eframe",
  "egui",
+ "egui-notify",
+ "egui_dnd",
  "egui_extras",
  "env_logger",
  "epaint",

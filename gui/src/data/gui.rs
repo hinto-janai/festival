@@ -60,7 +60,10 @@ pub struct Gui {
 	// act as flags or some small thing for
 	// functionality in the GUI.
 
-	// RFD state.
+	/// `egui_notify` state.
+	pub toasts: egui_notify::Toasts,
+
+	// `RFD` state.
 	/// If a RFD window is currently open.
 	pub rfd_open: Arc<AtomicBool>,
 	/// If a file was selected with RFD.
@@ -68,7 +71,7 @@ pub struct Gui {
 	/// A buffer of the indices of the PATHs the user wants deleted.
 	pub deleted_paths: Vec<usize>,
 
-	// Search state.
+	// `Search` state.
 	/// If we're currently searching.
 	pub searching: bool,
 	/// If the user types [A-Za-z0-9] from anywhere,

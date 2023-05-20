@@ -20,7 +20,7 @@ use log::warn;
 
 //---------------------------------------------------------------------------------------------------- `self/ui`-based
 #[macro_export]
-/// Jump to a tab, setting the last tab value as well.
+/// Set the last tab, jump to a tab.
 macro_rules! tab {
 	($self:ident, $tab:expr) => {
 		$self.state.last_tab = Some($self.state.tab);
@@ -29,7 +29,7 @@ macro_rules! tab {
 }
 
 #[macro_export]
-/// Jump to the view tab, with an album set.
+/// Set an `Album`, set the last tab, jump to the view tab.
 macro_rules! album {
 	($self:ident, $key:expr) => {
 		$self.state.album    = Some($key.into());
@@ -39,7 +39,7 @@ macro_rules! album {
 }
 
 #[macro_export]
-/// Adds a clickable `Album` art button that opens the parent directory.
+/// Add a clickable `Album` art button that opens the parent directory.
 macro_rules! album_button {
 	($self:ident, $album:ident, $key:ident, $ui:ident, $ctx:ident, $size:tt) => {
 		// ImageButton.
@@ -89,6 +89,39 @@ macro_rules! no_rounding {
 			$ui.spacing_mut().button_padding.x -= 2.0;
 		}
 	}
+}
+
+#[macro_export]
+/// Make a `egui_notify` toast.
+macro_rules! toast {
+	($self:ident, $str:expr) => {{
+		$self.toasts.dismiss_all_toasts();
+		$self.toasts.basic($str)
+			.set_closable(true)
+			.set_duration(Some(std::time::Duration::from_secs(5)));
+	}}
+}
+
+#[macro_export]
+/// Make a `success` `egui_notify` toast.
+macro_rules! toast_ok {
+	($self:ident, $str:expr) => {{
+		$self.toasts.dismiss_all_toasts();
+		$self.toasts.success($str)
+			.set_closable(true)
+			.set_duration(Some(std::time::Duration::from_secs(5)));
+	}}
+}
+
+#[macro_export]
+/// Make a `error` `egui_notify` toast.
+macro_rules! toast_err {
+	($self:ident, $str:expr) => {{
+		$self.toasts.dismiss_all_toasts();
+		$self.toasts.error($str)
+			.set_closable(true)
+			.set_duration(Some(std::time::Duration::from_secs(5)));
+	}}
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

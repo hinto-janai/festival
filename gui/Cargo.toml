@@ -27,6 +27,9 @@ egui        = { version = "0.21.0", path = "../external/egui/crates/egui",      
 eframe      = { version = "0.21.0", path = "../external/egui/crates/eframe",      features = ["wgpu"],          default-features = false }
 egui_extras = { version = "0.21.0", path = "../external/egui/crates/egui_extras", features = ["image"] }
 
+#egui_dnd    = { version = "0.3.0", path = "../external/egui_dnd" }
+#egui-notify = { version = "0.6.0", path = "../external/egui-notify" }
+
 ### Regular libraries.
 bincode = { version = "2.0.0-rc.3", features = ["serde"] }
 clap  = { version = "4.2.5", features = ["derive"] }

@@ -111,6 +111,10 @@ egui_extras = { version = "0.21.0", path = "external/egui/crates/egui_extras", f
 epaint      = { version = "0.21.0", path = "external/egui/crates/epaint", optional = true  }
 lofty       = { version = "0.12.0", path = "external/lofty-rs" }
 
+## 3rd party `egui`.
+egui_dnd    = { version = "0.3.0", path = "external/egui_dnd" }
+egui-notify = { version = "0.6.0", path = "external/egui-notify" }
+
 ### Build dependencies.
 ### These aren't directly used in `shukusai`
 ### but for some reason, workspace builds won't
@@ -127,7 +131,6 @@ bincode = { version = "2.0.0-rc.3", features = ["serde"] }
 crossbeam = { version = "0.8.2", features = ["crossbeam-channel"] }
 const_format = { version = "0.2.30", features = ["rust_1_51", "assertcp", "rust_1_64"] }
 dirs = "5.0.1"
-#egui-notify = "0.5.1"
 env_logger = "0.10.0"
 fast_image_resize = "2.7.1"
 #id3 = "1.6.0"

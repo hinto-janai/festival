@@ -48,12 +48,12 @@ impl crate::data::Gui {
 	}
 
 	/// Set the current [`Settings`] to disk.
-	pub fn save_settings(&mut self) {
+	pub fn save_settings(&mut self) -> Result<(), anyhow::Error> {
 		self.set_settings();
 		// TODO: handle save error.
 		match self.settings.save_atomic() {
-			Ok(_)  => ok_debug!("GUI - Settings save"),
-			Err(e) => error!("GUI - Settings could not be saved to disk: {e}"),
+			Ok(md) => { ok_debug!("GUI - Settings save: {md}"); Ok(()) },
+			Err(e) => { error!("GUI - Settings could not be saved to disk: {e}"); Err(e) },
 		}
 	}
 

@@ -200,7 +200,7 @@ pub fn show_tab_songs(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 
 					row.col(|ui| {
 						if ui.add(Label::new(&album.title).sense(Sense::click())).clicked() {
-							crate::tab!(self, Tab::View);
+							crate::album!(self, song.album);
 						}
 					});
 
