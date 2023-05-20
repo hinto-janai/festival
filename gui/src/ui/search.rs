@@ -83,6 +83,12 @@ CentralPanel::default().show(ctx, |ui| {
 		// tab and need to lock focus.
 		if self.search_jump {
 			ctx.memory_mut(|m| m.request_focus(id));
+
+			// HACK:
+			// This forces the text cursor to move forward
+			// from the inputted text in some situations where
+			// the focus lock puts the cursor behind the character.
+			self.state.search_string = self.state.search_string.clone();
 		}
 
 		// Only update if user input has changed

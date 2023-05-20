@@ -285,17 +285,16 @@ impl Gui {
 				} else {
 					for key in ALPHANUMERIC_KEY {
 						if input.consume_key(egui::Modifiers::NONE, key) {
-							crate::tab!(self, Tab::Search);
-							self.state.search_string = KeyPress::from_egui_key(&key).to_string();
-							self.search_jump   = true;
-							break
+							crate::search!(self, key, false);
+						} else if input.consume_key(egui::Modifiers::SHIFT, key) {
+							crate::search!(self, key, true);
 						}
 					}
 				}
 			});
 		}
 
-//		// Determine if there is a diff in `Settings`'s.
+		// Determine if there is a diff in `Settings`'s.
 		let diff_settings = self.diff_settings();
 
 		// Set global UI [Style/Visual]'s

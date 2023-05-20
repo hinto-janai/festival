@@ -39,6 +39,22 @@ macro_rules! album {
 }
 
 #[macro_export]
+/// Set a search string, set the last tab, jump to the search tab.
+macro_rules! search {
+	($self:ident, $key:expr, $shift:expr) => {
+		let s = crate::ui::update::KeyPress::from_egui_key(&$key).to_string();
+
+		$self.state.search_string = match $shift {
+			true  => s.to_uppercase(),
+			false => s,
+		};
+
+		$self.search_jump = true;
+		$crate::tab!($self, Tab::Search);
+	}
+}
+
+#[macro_export]
 /// Add a clickable `Album` art button that opens the parent directory.
 macro_rules! album_button {
 	($self:ident, $album:ident, $key:ident, $ui:ident, $ctx:ident, $size:tt) => {
