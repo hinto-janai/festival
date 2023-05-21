@@ -34,6 +34,7 @@ use shukusai::sort::{
 use crate::data::{
 	AlbumSizing,
 	SearchSort,
+	ArtistSubTab,
 };
 
 //---------------------------------------------------------------------------------------------------- Settings
@@ -57,6 +58,9 @@ pub struct Settings {
 
 	/// Collection sorting of album view.
 	pub song_sort: SongSort,
+
+	/// Which `ArtistSubTab` are we on?
+	pub artist_sub_tab: ArtistSubTab,
 
 	/// To sort by `Song` title or
 	/// `Artist` name in the search tab?

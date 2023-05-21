@@ -221,7 +221,12 @@ CentralPanel::default().show(ctx, |ui| {
 								}
 							});
 
-							row.col(|ui| { ui.label(&artist.name); });
+							row.col(|ui| {
+								if ui.add(Label::new(&artist.name).sense(Sense::click())).clicked() {
+									crate::artist!(self, album.artist);
+								}
+							});
+
 							row.col(|ui| { ui.label(album.release.as_str()); });
 							row.col(|ui| { ui.label(song.runtime.as_str()); });
 

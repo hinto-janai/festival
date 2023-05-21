@@ -6,7 +6,7 @@ use egui::{
 	Rounding,Vec2,Color32,Stroke,
 	ScrollArea,Frame,RichText,
 	SelectableLabel,Label,Button,
-	ImageButton,TextStyle,
+	ImageButton,TextStyle,Sense,
 };
 use crate::data::{
 	AlbumSizing,
@@ -146,9 +146,14 @@ fn paint_albums(
 								// the `ui` to however much space it needs.
 								// Album title.
 								ui.add_sized([pixel, 0.0], Label::new(RichText::new(album.title.head_dot(ALBUM_TITLE_LIMIT).as_str()).color(LESS_WHITE))).on_hover_ui(hover);
+
 								// Artist name.
 								let artist = &self.collection.artist_from_album(key);
-								ui.add_sized([pixel, 0.0], Label::new(artist.name.head_dot(label_width).as_str())).on_hover_text(&artist.name);
+								let artist_name = Label::new(artist.name.head_dot(label_width).as_str()).sense(Sense::click());
+								if ui.add_sized([pixel, 0.0], artist_name).on_hover_text(&artist.name).clicked() {
+									crate::artist!(self, album.artist);
+								}
+
 								ui.add_space(padding);
 							});
 						},

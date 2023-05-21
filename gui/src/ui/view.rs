@@ -6,12 +6,13 @@ use egui::{
 	Rounding,Vec2,Color32,Stroke,TextStyle,
 	ScrollArea,Frame,RichText,ImageButton,
 	SelectableLabel,Label,Button,SidePanel,
+	Sense,
 };
 use shukusai::collection::{
 	AlbumKey,
 };
 use crate::constants::{
-	BONE,GRAY,
+	BONE,GRAY,MEDIUM_GRAY,
 };
 use crate::slice::Head;
 use log::warn;
@@ -68,7 +69,10 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &
 		ui.add(label);
 
 		// `Artist` name.
-		ui.label(&self.collection.artists[album.artist].name);
+		let artist_name = Label::new(&self.collection.artists[album.artist].name);
+		if ui.add(artist_name.sense(Sense::click())).clicked() {
+			crate::artist!(self, album.artist);
+		}
 
 		// `Album` release.
 		ui.label(album.release.as_str());

@@ -39,6 +39,17 @@ macro_rules! album {
 }
 
 #[macro_export]
+/// Set an `Artist`, set the last tab, jump to the Artist view sub-tab.
+macro_rules! artist {
+	($self:ident, $key:expr) => {
+		$self.state.artist   = Some($key.into());
+		$self.state.last_tab = Some($self.state.tab);
+		$self.state.tab      = crate::data::Tab::Artists;
+		$self.settings.artist_sub_tab = crate::data::ArtistSubTab::View;
+	}
+}
+
+#[macro_export]
 /// Set a search string, set the last tab, jump to the search tab.
 macro_rules! search {
 	($self:ident, $key:expr, $shift:expr) => {
@@ -57,7 +68,7 @@ macro_rules! search {
 #[macro_export]
 /// Add a clickable `Album` art button that opens the parent directory.
 macro_rules! album_button {
-	($self:ident, $album:ident, $key:ident, $ui:ident, $ctx:ident, $size:tt) => {
+	($self:ident, $album:ident, $key:ident, $ui:ident, $ctx:ident, $size:expr) => {
 		// ImageButton.
 		let img_button = egui::ImageButton::new($album.texture_id($ctx), egui::vec2($size, $size));
 

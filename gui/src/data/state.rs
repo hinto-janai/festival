@@ -20,6 +20,7 @@ use shukusai::collection::{
 	Album,
 	Collection,
 	Key,
+	ArtistKey,
 	AlbumKey,
 	Keychain,
 };
@@ -63,6 +64,9 @@ pub struct State {
 	/// [`Option::None`] indicates we aren't looking at
 	/// any [`Album`] and are in the full [`Album`] art view.
 	pub album: Option<AlbumKey>,
+
+	/// Which [`Artist`] are we on in the `Artist` tab?
+	pub artist: Option<ArtistKey>,
 }
 
 impl State {

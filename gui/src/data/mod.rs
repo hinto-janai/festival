@@ -21,3 +21,6 @@ pub use debug::*;
 
 mod search_sort;
 pub use search_sort::*;
+
+mod artist;
+pub use artist::*;
