@@ -235,14 +235,22 @@ impl Gui {
 					self.reset_collection();
 				// Check for `Ctrl+S` (Save Settings)
 				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::S) {
-					match self.save_settings() {
-						Ok(_) => crate::toast!(self, "Saved Settings"),
-						Err(e) => crate::toast_err!(self, "Settings save failed: {e}"),
+					if self.diff_settings() {
+						match self.save_settings() {
+							Ok(_) => crate::toast!(self, "Saved settings"),
+							Err(e) => crate::toast_err!(self, "Settings save failed: {e}"),
+						}
+					} else {
+						crate::toast!(self, "No changes to save");
 					}
 				// Check for `Ctrl+Z` (Reset Settings)
 				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::Z) {
-					self.reset_settings();
-					crate::toast!(self, "Reset Settings");
+					if self.diff_settings() {
+						self.reset_settings();
+						crate::toast!(self, "Reset settings");
+					} else {
+						crate::toast!(self, "No changes to undo");
+					}
 				// Check for `Ctrl+A` (Add Folder)
 				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::A) {
 					self.add_folder();
