@@ -306,7 +306,12 @@ CentralPanel::default().show(ctx, |ui| {
 								ui.label(&album.title);
 							});
 
-							row.col(|ui| { ui.label(&artist.name); });
+							row.col(|ui| {
+								if ui.add(Label::new(&artist.name).sense(Sense::click())).clicked() {
+									crate::artist!(self, album.artist);
+								}
+							});
+
 							row.col(|ui| { ui.label(album.release.as_str()); });
 							row.col(|ui| { ui.label(album.runtime.as_str()); });
 						});
@@ -352,7 +357,12 @@ CentralPanel::default().show(ctx, |ui| {
 						body.row(130.0, |mut row| {
 							let artist = &self.collection.artists[key];
 
-							row.col(|ui| { ui.label(&artist.name); });
+							row.col(|ui| {
+								if ui.add(Label::new(&artist.name).sense(Sense::click())).clicked() {
+									crate::artist!(self, key);
+								}
+							});
+
 							row.col(|ui| { ui.label(artist.runtime.as_str()); });
 
 							row.col(|ui| {
