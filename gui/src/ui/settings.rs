@@ -25,6 +25,7 @@ use crate::constants::{
 };
 use crate::data::{
 	AlbumSizing,
+	SearchSort,
 };
 use shukusai::sort::{
 	ArtistSort,AlbumSort,SongSort,
@@ -235,6 +236,30 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 			// Song Sort methods.
 			for i in SongSort::iter() {
 				ui.selectable_value(&mut self.settings.song_sort, *i, i.as_str());
+			}
+		});
+
+		ui.add_space(40.0);
+		ui.separator();
+		ui.add_space(40.0);
+
+		//-------------------------------------------------- Search Sort.
+		// Heading.
+		let label = Label::new(
+			RichText::new("Search Sub-Tab")
+				.color(BONE)
+				.text_style(TextStyle::Heading)
+		);
+		ui.add_sized([width, text], label).on_hover_text(SEARCH_SORT);
+
+		// ComboBox.
+		ui.add_space(10.0);
+		ComboBox::from_id_source("settings_search_sort")
+			.selected_text(RichText::new(self.settings.search_sort.as_str()).color(BONE))
+			.show_ui(ui, |ui|
+		{
+			for i in SearchSort::iter() {
+				ui.selectable_value(&mut self.settings.search_sort, *i, i.as_str());
 			}
 		});
 

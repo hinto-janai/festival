@@ -210,8 +210,9 @@ impl Gui {
 								self.state.album = Some(self.collection.next_album(key));
 							}
 						}
-						Tab::Albums => self.increment_art_size(),
-						Tab::Search => self.settings.search_sort = self.settings.search_sort.next(),
+						Tab::Albums  => self.increment_art_size(),
+						Tab::Artists => self.settings.artist_sub_tab = self.settings.artist_sub_tab.next(),
+						Tab::Search  => self.settings.search_sort = self.settings.search_sort.next(),
 						_ => (),
 					}
 				} else if input.consume_key(egui::Modifiers::NONE, egui::Key::ArrowLeft) {
@@ -222,6 +223,7 @@ impl Gui {
 							}
 						}
 						Tab::Albums => self.decrement_art_size(),
+						Tab::Artists => self.settings.artist_sub_tab = self.settings.artist_sub_tab.previous(),
 						Tab::Search => self.settings.search_sort = self.settings.search_sort.previous(),
 						_ => (),
 					}
