@@ -115,12 +115,6 @@ pub enum KernelToFrontend {
 	/// The audio file at this [`PathBuf`] has errored (probably doesn't exist).
 	PathError(String),
 
-	// State.
-	/// Here's a new [`KernelState`] pointer inside a [`RoLock`].
-	NewKernelState(RoLock<KernelState>),
-	/// Here's a new [`ResetState`] pointer inside a [`RoLock`].
-	NewResetState(RoLock<ResetState>),
-
 	// Search.
 	/// Here's a (similarity) search result.
 	///

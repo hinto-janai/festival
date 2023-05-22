@@ -5,6 +5,14 @@ use crate::collection::{
 };
 
 //---------------------------------------------------------------------------------------------------- Ancillary Collection data validation
+/// Check if a [`Key`] is a valid index into the [`Collection`]
+///
+/// - `true` == valid
+/// - `false` == invalid
+pub fn key<K: Into<Key>>(c: &Collection, key: K) -> bool {
+	c.get(key.into()).is_some()
+}
+
 /// Check if an [`ArtistKey`] is a valid index into the [`Collection`]
 ///
 /// - `true` == valid

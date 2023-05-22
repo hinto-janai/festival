@@ -20,8 +20,8 @@ use super::phase::Phase;
 use once_cell::sync::Lazy;
 
 //---------------------------------------------------------------------------------------------------- Lazy
-// This is an empty, dummy `ResetState`.
-pub(crate) static DUMMY_RESET_STATE: Lazy<Arc<RwLock<ResetState>>> = Lazy::new(|| Arc::new(RwLock::new(ResetState::new())));
+// This is the global `ResetState`.
+pub(crate) static RESET_STATE: Lazy<Arc<RwLock<ResetState>>> = Lazy::new(|| Arc::new(RwLock::new(ResetState::new())));
 
 //---------------------------------------------------------------------------------------------------- ResetState
 /// Reset State.
@@ -36,9 +36,9 @@ pub(crate) static DUMMY_RESET_STATE: Lazy<Arc<RwLock<ResetState>>> = Lazy::new(|
 ///
 /// This values in this struct will be updated during the process.
 ///
-/// You should have received this _once_ from `Kernel`
-/// right after you spawn it, until then, use [`ResetState::dummy`]
-/// for early initialization without waiting on `Kernel`.
+/// There is only a single, global copy of this struct that `Kernel` uses.
+///
+/// To obtain a read-only copy, use `ResetState::get()`.
 #[derive(Clone,Debug,PartialOrd,PartialEq,Serialize,Deserialize)]
 pub struct ResetState {
 	/// [`bool`] representing: Are we currently resetting the [`Collection`]?
@@ -57,16 +57,14 @@ pub struct ResetState {
 }
 
 impl ResetState {
-	/// Obtain an empty, dummy [`Collection`] wrapped in an [`Arc`].
-	///
-	/// This is useful when you need to initialize but don't want
-	/// to wait on [`Kernel`] to hand you the _real_ `RoLock<KernelState>`.
-	///
-	/// This is implemented in the exact same way as [`Collection::dummy`].
-	///
-	/// For more information, read that documentation.
-	pub fn dummy() -> RoLock<Self> {
-		RoLock::new(&DUMMY_RESET_STATE)
+	/// Obtain a read-only lock to the global [`ResetState`].
+	pub fn get() -> RoLock<Self> {
+		RoLock::new(&RESET_STATE)
+	}
+
+	// Private RwLock version.
+	pub(super) fn get_priv() -> Arc<RwLock<Self>> {
+		Arc::clone(&RESET_STATE)
 	}
 
 	pub(super) fn new() -> Self {
@@ -76,11 +74,6 @@ impl ResetState {
 			phase: Phase::None,
 			specific: String::new(),
 		}
-	}
-
-	// Private RwLock version.
-	pub(super) fn from_dummy() -> Arc<RwLock<Self>> {
-		Arc::clone(&DUMMY_RESET_STATE)
 	}
 
 	// Sets an initial starting version.

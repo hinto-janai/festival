@@ -18,15 +18,11 @@ mod slice;
 mod ui;
 
 fn main() {
-	// Set `umask`.
+	// Set `umask` (`rwxr-x---`)
 	disk::umask(0o027);
 
 	// Handle CLI arguments.
 	crate::cli::Cli::handle_args();
-
-	// Create `Kernel` <-> `GUI` channels.
-	let (kernel_to_gui, gui_recv)    = crossbeam::channel::unbounded::<shukusai::kernel::KernelToFrontend>();
-	let (gui_to_kernel, kernel_recv) = crossbeam::channel::unbounded::<shukusai::kernel::FrontendToKernel>();
 
 	// Start `egui/eframe`.
 	if let Err(e) = eframe::run_native(
@@ -34,16 +30,15 @@ fn main() {
 		crate::data::Gui::options(),
 		Box::new(|cc| {
 			// Spawn `Kernel`, pass it `egui::Context`.
-			if let Err(e) = shukusai::kernel::Kernel::spawn(
-				kernel_to_gui,
-				kernel_recv,
-				cc.egui_ctx.clone()
-			) {
-				panic!("Kernel::spawn() failed: {e}");
-			}
+			let ctx = cc.egui_ctx.clone();
+
+			let (to_kernel, from_kernel) = match shukusai::kernel::Kernel::spawn(ctx) {
+				Ok((to, from)) => (to, from),
+				Err(e)         => panic!("Kernel::spawn() failed: {e}"),
+			};
 
 			// Start `GUI`.
-			Box::new(crate::data::Gui::init(cc, gui_to_kernel, gui_recv))
+			Box::new(crate::data::Gui::init(cc, to_kernel, from_kernel))
 		})
 	) {
 		panic!("eframe::run_native() failed: {e}");

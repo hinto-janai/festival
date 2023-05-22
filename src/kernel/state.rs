@@ -26,8 +26,8 @@ use readable::Percent;
 use once_cell::sync::Lazy;
 
 //---------------------------------------------------------------------------------------------------- Lazy
-// This is an empty, dummy `KernelState`.
-pub(crate) static DUMMY_KERNEL_STATE: Lazy<Arc<RwLock<KernelState>>> = Lazy::new(|| Arc::new(RwLock::new(KernelState::new())));
+// This is the global `KernelState`.
+pub(crate) static KERNEL_STATE: Lazy<Arc<RwLock<KernelState>>> = Lazy::new(|| Arc::new(RwLock::new(KernelState::new())));
 
 //---------------------------------------------------------------------------------------------------- AudioState
 /// Audio State
@@ -86,6 +86,10 @@ disk::bincode2!(KernelState, disk::Dir::Data, FESTIVAL, SHUKUSAI, "state", HEADE
 ///
 /// This hold various bits of state that `Kernel` controls
 /// but `Frontend` only has a read-only lock to.
+///
+/// There is only a single, global copy of this struct that `Kernel` uses.
+///
+/// To obtain a read-only copy, use `ResetState::get()`.
 pub struct KernelState {
 	// Audio.
 	/// The current [`AudioState`].
@@ -119,6 +123,11 @@ pub struct KernelState {
 }
 
 impl KernelState {
+	// Private RwLock version.
+	pub(super) fn get_priv() -> Arc<RwLock<Self>> {
+		Arc::clone(&KERNEL_STATE)
+	}
+
 	#[inline(always)]
 	/// Creates an empty struct.
 	pub(crate) fn new() -> Self {
@@ -135,16 +144,9 @@ impl KernelState {
 	}
 
 	#[inline(always)]
-	/// Obtain an empty, dummy [`Collection`] wrapped in an [`Arc`].
-	///
-	/// This is useful when you need to initialize but don't want
-	/// to wait on [`Kernel`] to hand you the _real_ `RoLock<KernelState>`.
-	///
-	/// This is implemented in the exact same way as [`Collection::dummy`].
-	///
-	/// For more information, read that documentation.
-	pub fn dummy() -> RoLock<Self> {
-		RoLock::new(&DUMMY_KERNEL_STATE)
+	/// Obtain a read-only lock to the global [`KernelState`].
+	pub fn get() -> RoLock<Self> {
+		RoLock::new(&KERNEL_STATE)
 	}
 }
 

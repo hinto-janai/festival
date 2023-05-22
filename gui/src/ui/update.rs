@@ -123,19 +123,11 @@ impl Gui {
 			if let Ok(msg) = self.from_kernel.try_recv() {
 				use KernelToFrontend::*;
 				match msg {
-					NewCollection(collection) => {
-						ok_debug!("GUI - New Collection");
-						self.collection = collection;
-						self.resetting_collection = false;
-						self.kernel_returned = true;
-						self.cache_collection();
-					},
+					NewCollection(collection) => self.new_collection(collection),
 					Failed((old_collection, error_string)) => {
 						println!("failed");
 						self.kernel_returned = true;
 					},
-					NewKernelState(k)      => self.kernel_state = k,
-					NewResetState(r)      => self.reset_state = r,
 					SearchResp(keychain) => {
 						self.state.search_result = keychain;
 						self.searching     = false;

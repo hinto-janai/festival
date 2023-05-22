@@ -9,14 +9,15 @@ use crate::constants::{
 	STATE_VERSION,
 };
 use std::sync::{Arc,RwLock};
-use super::state::{
+use crate::collection::Key;
+use crate::kernel::{
 	KernelState,
-	DUMMY_KERNEL_STATE,
+	KERNEL_STATE,
+	RESET_STATE,
+	volume::Volume,
+	reset::ResetState,
+	phase::Phase,
 };
-use super::DUMMY_RESET_STATE;
-use super::volume::Volume;
-use super::reset::ResetState;
-use super::phase::Phase;
 use rolock::RoLock;
 use benri::{
 	debug_panic,
@@ -85,11 +86,11 @@ impl Kernel {
 	///
 	/// For more info, see [here.](https://github.com/hinto-janai/festival/src/kernel)
 	///
-	/// You must provide [`Kernel`] with a `crossbeam::channel` between it and your frontend.
+	/// [`Kernel`] will return `crossbeam::channel`'s for communication between it and your frontend.
 	///
-	/// This channel _should never_ be closed.
+	/// These channels _should never_ be closed.
 	///
-	/// This function itself spawns a new thread for [`Kernel`] and returns the `Result`.
+	/// This function itself spawns a new thread for [`Kernel`].
 	/// ```rust,ignore
 	/// // Don't do this.
 	/// std::thread::spawn(|| Kernel::spawn());
@@ -97,15 +98,19 @@ impl Kernel {
 	/// // Do this.
 	/// Kernel::spawn();
 	/// ```
-	pub fn spawn(
-		to_frontend:   Sender<KernelToFrontend>,
-		from_frontend: Receiver<FrontendToKernel>,
-		ctx:           egui::Context,
-	) -> Result<std::thread::JoinHandle<()>, std::io::Error> {
+	pub fn spawn(ctx: egui::Context) -> Result<(Sender<FrontendToKernel>, Receiver<KernelToFrontend>), std::io::Error> {
+		// Create `Kernel` <-> `Frontend` channels.
+		let (to_frontend, from_kernel) = crossbeam::channel::unbounded::<KernelToFrontend>();
+		let (to_kernel, from_frontend) = crossbeam::channel::unbounded::<FrontendToKernel>();
+
+		// Spawn Kernel.
 		std::thread::Builder::new()
 			.name("Kernel".to_string())
 			.stack_size(16_000_000) // 16MB stack.
-			.spawn(move || Self::bios(to_frontend, from_frontend, ctx))
+			.spawn(move || Self::bios(to_frontend, from_frontend, ctx))?;
+
+		// Return channels.
+		Ok((to_kernel, from_kernel))
 	}
 
 	fn bios(
@@ -115,7 +120,8 @@ impl Kernel {
 	) {
 		// Initialize lazy statics.
 		let _         = Lazy::force(&DUMMY_COLLECTION);
-		let _         = Lazy::force(&DUMMY_KERNEL_STATE);
+		let _         = Lazy::force(&KERNEL_STATE);
+		let _         = Lazy::force(&RESET_STATE);
 		let beginning = Lazy::force(&crate::logger::INIT_INSTANT);
 
 		#[cfg(feature = "panic")]
@@ -128,9 +134,8 @@ impl Kernel {
 		debug!("Kernel [1/12] ... entering bios()");
 
 		// Create `ResetState`, send to `Frontend`.
-		let reset = ResetState::from_dummy();
+		let reset = ResetState::get_priv();
 		lockw!(reset).disk();
-		send!(to_frontend, KernelToFrontend::NewResetState(RoLock::new(&reset)));
 
 		// Attempt to load `Collection` from file.
 		debug!("Kernel - Reading Collection{COLLECTION_VERSION} from disk...");
@@ -246,8 +251,6 @@ impl Kernel {
 		ctx:           egui::Context,
 		beginning:     std::time::Instant,
 	) {
-		/* TODO: initialize and sanitize collection & misc data */
-
 		debug!("Kernel [6/12] ... entering kernel()");
 		let state = match state {
 			Ok(state) => {
@@ -258,6 +261,19 @@ impl Kernel {
 				warn!("Kernel - State{STATE_VERSION} from file error: {}", e);
 				KernelState::new()
 			},
+		};
+
+		use crate::validate;
+
+		let state = if validate::keychain(&collection, &state.search_result) &&
+			validate::queue(&collection, &state.queue) &&
+			validate::key(&collection, state.audio.current_key.unwrap_or(Key::zero()))
+		{
+			ok!("Kernel - State{STATE_VERSION} validation");
+			state
+		} else {
+			fail!("Kernel - State{STATE_VERSION} validation");
+			KernelState::new()
 		};
 
 		Self::init(Some(collection), Some(state), to_frontend, from_frontend, reset, ctx, beginning);
@@ -283,13 +299,17 @@ impl Kernel {
 
 		// Handle potentially missing `State`.
 		let state = match state {
-			Some(s) => { debug!("Kernel [9/12] ... KernelState found"); Arc::new(RwLock::new(s)) },
-			None    => { debug!("Kernel [9/12] ... KernelState NOT found, returning default"); Arc::new(RwLock::new(KernelState::new())) },
+			Some(s) => {
+				debug!("Kernel [9/12] ... KernelState found");
+				let state = KernelState::get_priv();
+				*lockw!(state) = s;
+				state
+			}
+			None => { debug!("Kernel [9/12] ... KernelState NOT found, returning default"); KernelState::get_priv() },
 		};
 
 		// Send `Collection/State` to `Frontend`.
 		send!(to_frontend, KernelToFrontend::NewCollection(Arc::clone(&collection)));
-		send!(to_frontend, KernelToFrontend::NewKernelState(RoLock::new(&state)));
 		// TODO: Only with `egui` feature flag.
 		ctx.request_repaint();
 

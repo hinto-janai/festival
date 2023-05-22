@@ -37,6 +37,31 @@ use disk::{Bincode2,Toml,Json};
 
 //---------------------------------------------------------------------------------------------------- GUI convenience functions.
 impl crate::data::Gui {
+	// Sets a new `Collection`, all the related flags, and does validation.
+	pub fn new_collection(&mut self, c: Arc<Collection>) {
+		ok_debug!("GUI - New Collection");
+		self.collection           = c;
+		self.resetting_collection = false;
+		self.kernel_returned      = true;
+		self.cache_collection();
+
+		// Validation.
+		use shukusai::validate;
+
+		if validate::keychain(&self.collection, &self.state.search_result) &&
+			validate::album(&self.collection, &self.state.album.unwrap_or_default()) &&
+			validate::artist(&self.collection, &self.state.artist.unwrap_or_default()) &&
+			validate::keychain(&self.collection, &self.og_state.search_result) &&
+			validate::album(&self.collection, &self.og_state.album.unwrap_or_default()) &&
+			validate::artist(&self.collection, &self.og_state.artist.unwrap_or_default())
+		{
+			ok!("GUI - State validation");
+		} else {
+			fail!("GUI - State validation");
+			self.state = crate::data::State::default();
+		}
+	}
+
 	#[inline(always)]
 	// Sets the [`egui::Ui`]'s `Visual` from our current `Settings`
 	//

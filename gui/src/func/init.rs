@@ -165,8 +165,8 @@ impl crate::data::Gui {
 
 			// `shukusai` data.
 			collection: Collection::dummy(),
-			kernel_state: KernelState::dummy(),
-			reset_state: ResetState::dummy(),
+			kernel_state: KernelState::get(),
+			reset_state: ResetState::get(),
 
 			// `GUI` settings.
 			og_settings: settings.clone(),
@@ -203,7 +203,6 @@ impl crate::data::Gui {
 			debug_screen: false,
 			debug_info: DebugInfo::new(),
 		};
-
 
 		// Style
 		cc.egui_ctx.set_style(Self::init_style());
