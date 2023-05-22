@@ -7,4 +7,5 @@
 | File           | Purpose |
 |----------------|---------|
 | search.rs      | Main `Search` loop
+| kind.rs        | The different kinds of searches the `Search` thread can do
 | msg.rs         | Types of messages `Search` and `Kernel` can send to each other

@@ -31,6 +31,7 @@ use shukusai::sort::{
 	ArtistSort,AlbumSort,SongSort,
 };
 use shukusai::kernel::{
+	SearchKind,
 	FrontendToKernel,
 };
 use shukusai::collection::Collection;
@@ -236,6 +237,30 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 			// Song Sort methods.
 			for i in SongSort::iter() {
 				ui.selectable_value(&mut self.settings.song_sort, *i, i.as_str());
+			}
+		});
+
+		ui.add_space(40.0);
+		ui.separator();
+		ui.add_space(40.0);
+
+		//-------------------------------------------------- Search Kind.
+		// Heading.
+		let label = Label::new(
+			RichText::new("Search Kind")
+				.color(BONE)
+				.text_style(TextStyle::Heading)
+		);
+		ui.add_sized([width, text], label).on_hover_text(SEARCH_KIND);
+
+		// ComboBox.
+		ui.add_space(10.0);
+		ComboBox::from_id_source("settings_search_kind")
+			.selected_text(RichText::new(self.settings.search_kind.as_str()).color(BONE))
+			.show_ui(ui, |ui|
+		{
+			for i in SearchKind::iter() {
+				ui.selectable_value(&mut self.settings.search_kind, *i, i.as_str());
 			}
 		});
 

@@ -11,15 +11,16 @@ use crate::collection::{
 	Collection,
 	Keychain,
 };
+use crate::kernel::SearchKind;
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
 pub(crate) enum SearchToKernel {
-	// Here's the search (similarity) result.
-	SearchSim(Keychain),
+	// Here's the search (similarity) response.
+	Resp(Keychain),
 }
 
 pub(crate) enum KernelToSearch {
-	SearchSim(String),              // Start a (similarity) search on string input.
+	Search((String, SearchKind)),   // Start a search on string input.
 //	NewCache(String),               // Here's a new `String` key from a recently created `Collection`, add it to your cache.
 //	NewCacheVec(Vec<String>),       // Here's a `Vec` of `String` keys, add it to cache
 	DropCollection,                 // Drop your pointer.

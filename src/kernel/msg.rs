@@ -19,8 +19,9 @@ use super::KernelState;
 use super::ResetState;
 use rolock::RoLock;
 use std::path::PathBuf;
-use crate::kernel::Volume;
-use super::Kernel;
+use crate::kernel::{
+	Volume,Kernel,SearchKind,
+};
 use readable::Percent;
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
@@ -64,8 +65,8 @@ pub enum FrontendToKernel {
 	/// [`Artist`]'s, [`Album`]'s, and [`Song`]'s.
 	///
 	/// # Notes
-	/// [`Kernel`] will respond with [`KernelToFrontend::SearchSim`].
-	SearchSim(String),
+	/// [`Kernel`] will respond with [`KernelToFrontend::SearchResp`].
+	Search((String, SearchKind)),
 
 	// Exiting.
 	/// I'm exiting, save everything.
@@ -124,8 +125,8 @@ pub enum KernelToFrontend {
 	/// Here's a (similarity) search result.
 	///
 	/// # Notes
-	/// This is a response to [`FrontendToKernel::SearchSim`].
-	SearchSim(Keychain),
+	/// This is a response to [`FrontendToKernel::Search`].
+	SearchResp(Keychain),
 
 	// Exit.
 	/// You sent a [`FrontendToKernel::Exit`], here is the [`Result`]

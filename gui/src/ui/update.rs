@@ -136,7 +136,7 @@ impl Gui {
 					},
 					NewKernelState(k)      => self.kernel_state = k,
 					NewResetState(r)      => self.reset_state = r,
-					SearchSim(keychain) => {
+					SearchResp(keychain) => {
 						self.state.search_result = keychain;
 						self.searching     = false;
 					},

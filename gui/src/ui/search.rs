@@ -100,7 +100,7 @@ CentralPanel::default().show(ctx, |ui| {
 				debug!("GUI - Search string is longer than {SEARCH_MAX_LEN}, truncating");
 				self.state.search_string.truncate(SEARCH_MAX_LEN);
 			} else {
-				send!(self.to_kernel, FrontendToKernel::SearchSim(self.state.search_string.clone()));
+				send!(self.to_kernel, FrontendToKernel::Search((self.state.search_string.clone(), self.settings.search_kind)));
 				self.searching = true;
 			}
 		}
@@ -332,7 +332,7 @@ CentralPanel::default().show(ctx, |ui| {
 				let width  = ui.available_width();
 				let height = ui.available_height();
 				// c == Column sizing
-				let c_artist  = width / 5.0;
+				let c_artist  = width / 4.0;
 				let c_runtime = width / 8.0;
 
 				crate::no_rounding!(ui);

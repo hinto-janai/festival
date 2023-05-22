@@ -413,7 +413,7 @@ impl Kernel {
 			Repeat               => flip!(lockw!(self.state).audio.repeat),
 			// Collection.
 			NewCollection(paths) => self.ccd_mode(paths),
-			SearchSim(string)    => send!(self.to_search, KernelToSearch::SearchSim(string)),
+			Search(string)       => send!(self.to_search, KernelToSearch::Search(string)),
 			// Exit.
 			Exit                 => self.exit(),
 		}
@@ -424,7 +424,7 @@ impl Kernel {
 	fn msg_search(&self, msg: SearchToKernel) {
 		use crate::search::SearchToKernel::*;
 		match msg {
-			SearchSim(keychain) => send!(self.to_frontend, KernelToFrontend::SearchSim(keychain)),
+			Resp(keychain) => send!(self.to_frontend, KernelToFrontend::SearchResp(keychain)),
 		}
 	}
 

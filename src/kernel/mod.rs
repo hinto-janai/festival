@@ -15,3 +15,6 @@ pub use msg::*;
 
 mod phase;
 pub use phase::Phase;
+
+mod search_kind;
+pub use search_kind::SearchKind;

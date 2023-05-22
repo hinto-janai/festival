@@ -31,6 +31,7 @@ use shukusai::sort::{
 	AlbumSort,
 	SongSort,
 };
+use shukusai::kernel::SearchKind;
 use crate::data::{
 	AlbumSizing,
 	SearchSort,
@@ -58,6 +59,9 @@ pub struct Settings {
 
 	/// Collection sorting of album view.
 	pub song_sort: SongSort,
+
+	/// Which search kind to use for `Kernel`
+	pub search_kind: SearchKind,
 
 	/// Which `ArtistSubTab` are we on?
 	pub artist_sub_tab: ArtistSubTab,

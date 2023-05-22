@@ -49,6 +49,7 @@ pub const SAVE:              &str = "Save changes to disk (CTRL+S)";
 pub const ARTIST_SORT_ORDER: &str = "Which method to sort the artists by in the [Artists] tab (CTRL+Q)";
 pub const ALBUM_SORT_ORDER:  &str = "Which method to sort the albums by in the [Albums] tab (CTRL+W)";
 pub const SONG_SORT_ORDER:   &str = "Which method to sort the songs by in the [Songs] tab (CTRL+E)";
+pub const SEARCH_KIND:       &str = "Which type of search to use in the [Search] tab";
 pub const SEARCH_SORT:       &str = "Which sub-tab to use in the [Search] tab";
 pub const ALBUM_ART_SIZE:    &str = "How big the album art cover should be in the [Albums] tab";
 pub const STATIC_PIXEL_SIZE: &str = formatcp!(
