@@ -205,7 +205,7 @@ impl Key {
 
 	#[inline(always)]
 	/// Returns [`Key`] with all inner keys set to `0`.
-	pub const fn new() -> Self {
+	pub const fn zero() -> Self {
 		Self { artist: ArtistKey::new(), album: AlbumKey::new(), song: SongKey::new() }
 	}
 

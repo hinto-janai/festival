@@ -17,6 +17,9 @@ pub use map::*;
 pub use key::*;
 pub use slice::*;
 
+mod metadata;
+pub use metadata::metadata;
+
 // Pointer related code. To be used... eventually... maybe.
 //mod decode;
 //pub(crate) use decode::*;

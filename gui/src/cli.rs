@@ -66,7 +66,7 @@ impl Cli {
 
 		// Metadata.
 		if cli.metadata {
-			match shukusai::collection_metadata() {
+			match shukusai::collection::metadata() {
 				Ok(md) => { println!("{md}"); exit(0); },
 				Err(e) => { println!("ERROR: {e}"); exit(1); },
 			}

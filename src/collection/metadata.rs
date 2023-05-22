@@ -18,7 +18,7 @@ use disk::Bincode2;
 /// is currently on disk and extract the header metadata from it.
 ///
 /// The returned [`String`] is in `JSON` form.
-pub fn collection_metadata() -> Result<String, anyhow::Error> {
+pub fn metadata() -> Result<String, anyhow::Error> {
 	CollectionMetadata::json()
 }
 

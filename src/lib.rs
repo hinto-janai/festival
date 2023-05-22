@@ -136,9 +136,6 @@ pub use logger::INIT_INSTANT;
 mod thread;
 pub use thread::*;
 
-mod metadata;
-pub use metadata::collection_metadata;
-
 //---------------------------------------------------------------------------------------------------- Public modules.
 mod panic;
 pub use panic::Panic;
@@ -198,3 +195,32 @@ pub mod signal;
 
 /// `Frontend`-specific compatibility layers
 pub mod frontend;
+
+/// Ancillary `Collection` data validation
+///
+/// Since the `Collection` uses indices instead of references,
+/// it means that there is no lifetime associated with them.
+///
+/// If a new `Collection` is received, the already existing ancillary data
+/// that was pointing to the old one may not be correct, e.g:
+/// ```rust,ignore
+/// let key = ArtistKey::from(123);
+/// assert!(collection.artists.len() > 123);
+/// collection.artists[key]; // OK
+///
+/// let collection = recv_new_collection();
+/// collection.artists[key]; // This may or may not panic.
+/// ```
+/// Even if the key ends up existing, it most likely is pointing at the wrong thing.
+///
+/// This module provides some common validation methods
+/// that checks inputs against an existing `Collection`.
+///
+/// These functions are used when `Kernel` is loading up the `Collection`
+/// and `State` from disk, where there is never a 100% lifetime guarantee between the two.
+///
+/// These functions are also used for `GUI` configuration settings
+/// that hold keys and other misc data like that.
+///
+/// All methods are free functions that require a `Collection`.
+pub mod validate;
