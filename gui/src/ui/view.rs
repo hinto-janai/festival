@@ -14,7 +14,7 @@ use shukusai::collection::{
 use crate::constants::{
 	BONE,GRAY,MEDIUM_GRAY,
 };
-use crate::slice::Head;
+use readable::HeadTail;
 use log::warn;
 
 //---------------------------------------------------------------------------------------------------- Main central panel.

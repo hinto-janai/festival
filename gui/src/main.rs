@@ -14,7 +14,6 @@ mod constants;
 mod data;
 mod func;
 mod text;
-mod slice;
 mod ui;
 
 fn main() {

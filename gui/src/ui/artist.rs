@@ -13,7 +13,7 @@ use crate::data::{
 };
 use readable::Unsigned;
 use log::warn;
-use crate::slice::Head;
+use readable::HeadTail;
 
 //---------------------------------------------------------------------------------------------------- Artists
 impl crate::data::Gui {
@@ -43,7 +43,7 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame
 			const TAB: ArtistSubTab = ArtistSubTab::View;
 			let label = match self.state.artist {
 				Some(key) => {
-					let name = self.collection.artists[key].name.head_dot(30);
+					let name = self.collection.artists[key].name.head_dot(18);
 					SelectableLabel::new(self.settings.artist_sub_tab == TAB, name)
 				},
 				None => SelectableLabel::new(self.settings.artist_sub_tab == TAB, TAB.as_str())

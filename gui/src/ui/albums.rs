@@ -12,7 +12,7 @@ use crate::data::{
 	AlbumSizing,
 	Tab,
 };
-use crate::slice::Head;
+use readable::HeadTail;
 use crate::constants::{
 	LESS_WHITE,BONE,
 };
