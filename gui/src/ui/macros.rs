@@ -34,7 +34,7 @@ macro_rules! album {
 	($self:ident, $key:expr) => {
 		$self.state.album    = Some($key.into());
 		$self.state.last_tab = Some($self.state.tab);
-		$self.state.tab      = crate::data::Tab::View;
+		$self.state.tab      = $crate::data::Tab::View;
 	}
 }
 
@@ -44,8 +44,8 @@ macro_rules! artist {
 	($self:ident, $key:expr) => {
 		$self.state.artist   = Some($key.into());
 		$self.state.last_tab = Some($self.state.tab);
-		$self.state.tab      = crate::data::Tab::Artists;
-		$self.settings.artist_sub_tab = crate::data::ArtistSubTab::View;
+		$self.state.tab      = $crate::data::Tab::Artists;
+		$self.settings.artist_sub_tab = $crate::data::ArtistSubTab::View;
 	}
 }
 
@@ -53,7 +53,7 @@ macro_rules! artist {
 /// Set a search string, set the last tab, jump to the search tab.
 macro_rules! search {
 	($self:ident, $key:expr, $shift:expr) => {
-		let s = crate::ui::update::KeyPress::from_egui_key(&$key).to_string();
+		let s = $crate::ui::update::KeyPress::from_egui_key(&$key).to_string();
 
 		$self.state.search_string = match $shift {
 			true  => s.to_uppercase(),

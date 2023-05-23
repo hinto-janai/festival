@@ -236,15 +236,11 @@ impl Search {
 
 	#[inline(always)]
 	fn get_cache(&self, input: &str, kind: SearchKind) -> Option<Keychain> {
-		if let Some(k) = match kind {
+		match kind {
 			SearchKind::Sim70 => &self.cache_s70,
 			SearchKind::Top25 => &self.cache_t25,
 			SearchKind::All   => &self.cache,
-		}.get(input) {
-			Some(k.clone())
-		} else {
-			None
-		}
+		}.get(input).map(Clone::clone)
 	}
 
 	#[inline(always)]

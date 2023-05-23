@@ -57,14 +57,11 @@ pub fn keychain(c: &Collection, keychain: &Keychain) -> bool {
 		None => 0,
 	};
 
-	if c.artists.len() < artists_max ||
-		c.albums.len() < albums_max  ||
+	!(
+		c.artists.len() < artists_max ||
+		c.albums.len() < albums_max   ||
 		c.songs.len()  < songs_max
-	{
-		false
-	} else {
-		true
-	}
+	)
 }
 
 /// Check if a [`Queue`] contains valid indices into the [`Collection`]

@@ -49,11 +49,11 @@ impl crate::data::Gui {
 		use shukusai::validate;
 
 		if validate::keychain(&self.collection, &self.state.search_result) &&
-			validate::album(&self.collection, &self.state.album.unwrap_or_default()) &&
-			validate::artist(&self.collection, &self.state.artist.unwrap_or_default()) &&
+			validate::album(&self.collection, self.state.album.unwrap_or_default()) &&
+			validate::artist(&self.collection, self.state.artist.unwrap_or_default()) &&
 			validate::keychain(&self.collection, &self.og_state.search_result) &&
-			validate::album(&self.collection, &self.og_state.album.unwrap_or_default()) &&
-			validate::artist(&self.collection, &self.og_state.artist.unwrap_or_default())
+			validate::album(&self.collection, self.og_state.album.unwrap_or_default()) &&
+			validate::artist(&self.collection, self.og_state.artist.unwrap_or_default())
 		{
 			ok!("GUI - State validation");
 		} else {

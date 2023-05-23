@@ -15,7 +15,7 @@ pub enum SearchKind {
 	/// in order from most similar to least.
 	All,
 	#[default]
-	/// [`Self::All`], but only returns the results that are at least 70% similiar
+	/// [`Self::All`], but only returns the results that are at least 70% similar
 	Sim70,
 	/// [`Self::All`], but only returns the top 25 results
 	Top25,
