@@ -41,7 +41,7 @@
 //! There are shared functions/data that `shukusai` exposes, notably:
 //! - [`collection::Collection`] (and everything within it)
 //! - [`collection::Key`] (and other keys)
-//! - [`kernel::KernelState`]
+//! - [`audio::AudioState`]
 //!
 //! It is up to the frontend on how to use these functions/data.
 //!

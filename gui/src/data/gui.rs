@@ -40,10 +40,8 @@ pub struct Gui {
 	/// From `Kernel`.
 	pub from_kernel: Receiver<KernelToFrontend>,
 
-	/// The `Collection` and misc state.
+	/// The `Collection`.
 	pub collection: Arc<Collection>,
-	pub audio_state: RoLock<AudioState>,
-	pub reset_state: RoLock<ResetState>,
 
 	/// `GUI` settings.
 	pub settings: Settings,

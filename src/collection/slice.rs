@@ -109,14 +109,8 @@ macro_rules! impl_slice {
 
 			// Creation.
 			#[inline(always)]
-			/// Returns a [`Self`] with `20` capacity reserved upfront.
-			pub(crate) fn new() -> Self {
-				Self(VecDeque::with_capacity(20))
-			}
-
-			#[inline(always)]
-			/// Create an empty "dummy" (empty) struct.
-			pub(crate) const fn dummy() -> Self {
+			/// Returns an empty [`Self`].
+			pub(crate) const fn new() -> Self {
 				Self(VecDeque::new())
 			}
 

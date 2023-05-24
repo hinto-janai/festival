@@ -165,8 +165,6 @@ impl crate::data::Gui {
 
 			// `shukusai` data.
 			collection: Collection::dummy(),
-			audio_state: AudioState::get(),
-			reset_state: ResetState::get(),
 
 			// `GUI` settings.
 			og_settings: settings.clone(),

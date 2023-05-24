@@ -22,6 +22,7 @@ use std::sync::{
 	Arc,RwLock,
 };
 use crate::audio::{
+	AUDIO_STATE,
 	AudioToKernel,
 	KernelToAudio,
 	AudioState,
@@ -31,7 +32,6 @@ use crossbeam::channel::{Sender,Receiver};
 //---------------------------------------------------------------------------------------------------- Audio
 pub(crate) struct Audio {
 	collection:  Arc<Collection>,         // Pointer to `Collection`
-	state:       Arc<RwLock<AudioState>>, // RwLock to the global `AudioState`
 	to_kernel:   Sender<AudioToKernel>,   // Channel TO `Kernel`
 	from_kernel: Receiver<KernelToAudio>, // Channel FROM `Kernel`
 }
@@ -45,14 +45,14 @@ impl Audio {
 		to_kernel:   Sender<AudioToKernel>,
 		from_kernel: Receiver<KernelToAudio>,
 	) {
+		trace!("Audio - State:\n{state:#?}");
+
 		// Re-write global `AudioState`.
-		let global_state = AudioState::get_priv();
-		*lockw!(global_state) = state;
+		*AUDIO_STATE.write() = state;
 
 		// Init data.
 		let audio = Self {
 			collection,
-			state: global_state,
 			to_kernel,
 			from_kernel,
 		};

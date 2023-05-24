@@ -4,7 +4,6 @@ use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
 //use crate::macros::*;
 //use std::{};
-use std::sync::{Arc,RwLock};
 use crate::collection::{
 	Collection,
 	Key,
@@ -18,10 +17,38 @@ use crate::kernel::Kernel;
 use readable::Percent;
 use super::phase::Phase;
 use once_cell::sync::Lazy;
+use std::sync::{
+	RwLock,
+	RwLockReadGuard,
+	RwLockWriteGuard,
+};
+use benri::{lockw,lockr};
 
 //---------------------------------------------------------------------------------------------------- Lazy
-// This is the global `ResetState`.
-pub(crate) static RESET_STATE: Lazy<Arc<RwLock<ResetState>>> = Lazy::new(|| Arc::new(RwLock::new(ResetState::new())));
+/// This is the single, global copy of `ResetState` that `Kernel` uses.
+///
+/// To obtain a read-only lock, use `RESET_STATE.read()`.
+pub static RESET_STATE: ResetStateLock = ResetStateLock(RwLock::new(ResetState::new()));
+
+//---------------------------------------------------------------------------------------------------- ResetStateLock
+/// There is only a single, global copy of `ResetState` that `Kernel` uses: [`RESET_STATE`].
+///
+/// To obtain a read-only lock, use `RESET_STATE.read()`.
+pub struct ResetStateLock(RwLock<ResetState>);
+
+impl ResetStateLock {
+	#[inline(always)]
+	/// Obtain a read-only lock to the global [`ResetState`].
+	pub fn read(&'static self) -> RwLockReadGuard<'static, ResetState> {
+		lockr!(self.0)
+	}
+
+	#[inline(always)]
+	// Private write.
+	pub(super) fn write(&'static self) -> RwLockWriteGuard<'static, ResetState> {
+		lockw!(self.0)
+	}
+}
 
 //---------------------------------------------------------------------------------------------------- ResetState
 /// Reset State.
@@ -38,7 +65,7 @@ pub(crate) static RESET_STATE: Lazy<Arc<RwLock<ResetState>>> = Lazy::new(|| Arc:
 ///
 /// There is only a single, global copy of this struct that `Kernel` uses.
 ///
-/// To obtain a read-only copy, use `ResetState::get()`.
+/// To obtain a read-only lock, use `RESET_STATE.read()`.
 #[derive(Clone,Debug,PartialOrd,PartialEq,Serialize,Deserialize)]
 pub struct ResetState {
 	/// [`bool`] representing: Are we currently resetting the [`Collection`]?
@@ -57,17 +84,7 @@ pub struct ResetState {
 }
 
 impl ResetState {
-	/// Obtain a read-only lock to the global [`ResetState`].
-	pub fn get() -> RoLock<Self> {
-		RoLock::new(&RESET_STATE)
-	}
-
-	// Private RwLock version.
-	pub(super) fn get_priv() -> Arc<RwLock<Self>> {
-		Arc::clone(&RESET_STATE)
-	}
-
-	pub(super) fn new() -> Self {
+	pub(super) const fn new() -> Self {
 		Self {
 			resetting: false,
 			percent: Percent::zero(),

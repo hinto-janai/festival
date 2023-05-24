@@ -16,6 +16,7 @@ use crate::kernel::{
 	phase::Phase,
 };
 use crate::audio::{
+	AUDIO_STATE,
 	AudioState,
 	Volume,
 };
@@ -87,7 +88,6 @@ pub struct Kernel {
 
 	// Data.
 	collection: Arc<Collection>,
-	reset: Arc<RwLock<ResetState>>,
 	ctx: egui::Context,
 }
 
@@ -137,7 +137,6 @@ impl Kernel {
 	) {
 		// Initialize lazy statics.
 		let _         = Lazy::force(&DUMMY_COLLECTION);
-		let _         = Lazy::force(&RESET_STATE);
 		let beginning = Lazy::force(&crate::logger::INIT_INSTANT);
 
 		#[cfg(feature = "panic")]
@@ -150,8 +149,7 @@ impl Kernel {
 		debug!("Kernel [1/12] ... entering bios()");
 
 		// Create `ResetState`, send to `Frontend`.
-		let reset = ResetState::get_priv();
-		lockw!(reset).disk();
+		RESET_STATE.write().disk();
 
 		// Attempt to load `Collection` from file.
 		debug!("Kernel - Reading Collection{COLLECTION_VERSION} from disk...");
@@ -175,12 +173,12 @@ impl Kernel {
 			// bytes to actual usable `egui` images.
 			Ok(collection) => {
 				ok_debug!("Kernel - Collection{COLLECTION_VERSION} deserialization ... Took {} seconds", secs_f32!(now));
-				Self::boot_loader(collection, to_frontend, from_frontend, reset, ctx, *beginning);
+				Self::boot_loader(collection, to_frontend, from_frontend, ctx, *beginning);
 			},
 			// Else, straight to `init` with default flag set.
 			Err(e) => {
 				warn!("Kernel - Collection{COLLECTION_VERSION} from file error: {}", e);
-				Self::init(None, None, to_frontend, from_frontend, reset, ctx, *beginning);
+				Self::init(None, None, to_frontend, from_frontend, ctx, *beginning);
 			},
 		}
 	}
@@ -190,7 +188,6 @@ impl Kernel {
 		collection:    Collection,
 		to_frontend:   Sender<KernelToFrontend>,
 		from_frontend: Receiver<FrontendToKernel>,
-		reset:         Arc<RwLock<ResetState>>,
 		ctx:           egui::Context,
 		beginning:     std::time::Instant,
 	) {
@@ -214,8 +211,8 @@ impl Kernel {
 		let state = AudioState::from_file();
 
 		// Set `ResetState` to `Start` + `Art` phase.
-		lockw!(reset).start();
-		lockw!(reset).phase = Phase::Art;
+		RESET_STATE.write().start();
+		RESET_STATE.write().phase = Phase::Art;
 
 		// Wait for `Collection` to be returned by `CCD`.
 		debug!("Kernel [5/12] ... waiting on CCD");
@@ -224,11 +221,11 @@ impl Kernel {
 			match recv!(from_ccd) {
 				// We received an incremental update.
 				// Update the current `ResetState` values to match.
-				UpdateIncrement((increment, specific)) => lockw!(reset).new_increment(increment, specific),
+				UpdateIncrement((increment, specific)) => RESET_STATE.write().new_increment(increment, specific),
 
 				// We're onto the next phase in `Collection` creation process.
 				// Update the current `ResetState` values to match.
-				UpdatePhase((percent, phase)) => lockw!(reset).new_phase(percent, phase),
+				UpdatePhase((percent, phase)) => RESET_STATE.write().new_phase(percent, phase),
 
 				// `CCD` was successful. We got the new `Collection`.
 				NewCollection(collection) => break Some(collection),
@@ -246,14 +243,14 @@ impl Kernel {
 		};
 
 		// We're done with `CCD`.
-		lockw!(reset).done();
+		RESET_STATE.write().done();
 
 		// If everything went ok, continue to `kernel` to verify data.
 		if let Some(collection) = collection {
-			Self::kernel(collection, state, to_frontend, from_frontend, reset, ctx, beginning);
+			Self::kernel(collection, state, to_frontend, from_frontend, ctx, beginning);
 		// Else, skip to `init()`.
 		} else {
-			Self::init(None, None, to_frontend, from_frontend, reset, ctx, beginning);
+			Self::init(None, None, to_frontend, from_frontend, ctx, beginning);
 		}
 	}
 
@@ -263,7 +260,6 @@ impl Kernel {
 		audio:         Result<AudioState, anyhow::Error>,
 		to_frontend:   Sender<KernelToFrontend>,
 		from_frontend: Receiver<FrontendToKernel>,
-		reset:         Arc<RwLock<ResetState>>,
 		ctx:           egui::Context,
 		beginning:     std::time::Instant,
 	) {
@@ -289,7 +285,7 @@ impl Kernel {
 			AudioState::new()
 		};
 
-		Self::init(Some(collection), Some(audio), to_frontend, from_frontend, reset, ctx, beginning);
+		Self::init(Some(collection), Some(audio), to_frontend, from_frontend, ctx, beginning);
 	}
 
 	//-------------------------------------------------- init()
@@ -298,7 +294,6 @@ impl Kernel {
 		audio:         Option<AudioState>,
 		to_frontend:   Sender<KernelToFrontend>,
 		from_frontend: Receiver<FrontendToKernel>,
-		reset:         Arc<RwLock<ResetState>>,
 		ctx:           egui::Context,
 		beginning:     std::time::Instant,
 	) {
@@ -340,7 +335,6 @@ impl Kernel {
 
 			// Data.
 			collection,
-			reset,
 			ctx,
 		};
 
@@ -498,7 +492,7 @@ impl Kernel {
 	// The `Frontend` is exiting, save everything.
 	fn exit(&mut self) -> ! {
 		// Save `AudioState`.
-		match lockr!(AudioState::get()).save() {
+		match AUDIO_STATE.read().save() {
 			Ok(o)  => {
 				debug!("Kernel - State save: {o}");
 				send!(self.to_frontend, KernelToFrontend::Exit(Ok(())));
@@ -529,7 +523,7 @@ impl Kernel {
 	// 7. Give new `Arc<Collection>` to everyone
 	fn ccd_mode(&mut self, paths: Vec<PathBuf>) {
 		// Set our `ResetState`.
-		lockw!(self.reset).start();
+		RESET_STATE.write().start();
 
 		// INVARIANT:
 		// `GUI` is expected to drop its pointer by itself
@@ -550,7 +544,7 @@ impl Kernel {
 		let ctx = self.ctx.clone();
 
 		// Set `ResetState` to `Start` phase.
-		lockw!(self.reset).start();
+		RESET_STATE.write().start();
 
 		// Spawn `CCD`.
 		if let Err(e) = std::thread::Builder::new()
@@ -569,11 +563,11 @@ impl Kernel {
 			match recv!(from_ccd) {
 				// We received an incremental update.
 				// Update the current `KernelState.ResetState` values to match.
-				UpdateIncrement((increment, specific)) => lockw!(self.reset).new_increment(increment, specific),
+				UpdateIncrement((increment, specific)) => RESET_STATE.write().new_increment(increment, specific),
 
 				// We're onto the next phase in `Collection` creation process.
 				// Update the current `ResetState` values to match.
-				UpdatePhase((percent, phase)) => lockw!(self.reset).new_phase(percent, phase),
+				UpdatePhase((percent, phase)) => RESET_STATE.write().new_phase(percent, phase),
 
 				// `CCD` was successful. We got the new `Collection`.
 				NewCollection(collection) => break collection,
@@ -606,7 +600,7 @@ impl Kernel {
 		self.ctx.request_repaint();
 
 		// Set our `ResetState`, we're done.
-		lockw!(self.reset).done();
+		RESET_STATE.write().done();
 	}
 }
 
