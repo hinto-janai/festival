@@ -13,7 +13,7 @@ use crate::data::{
 	DebugInfo,
 };
 use shukusai::kernel::{
-	KernelState,
+	AudioState,
 	ResetState,
 	FrontendToKernel,
 	KernelToFrontend,
@@ -165,7 +165,7 @@ impl crate::data::Gui {
 
 			// `shukusai` data.
 			collection: Collection::dummy(),
-			kernel_state: KernelState::get(),
+			audio_state: AudioState::get(),
 			reset_state: ResetState::get(),
 
 			// `GUI` settings.

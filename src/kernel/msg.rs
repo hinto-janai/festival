@@ -15,13 +15,12 @@ use crate::collection::{
 	Keychain,
 	QueueKey,
 };
-use super::KernelState;
-use super::ResetState;
 use rolock::RoLock;
 use std::path::PathBuf;
 use crate::kernel::{
-	Volume,Kernel,SearchKind,
+	ResetState,Kernel,SearchKind,
 };
+use crate::audio::Volume;
 use readable::Percent;
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
@@ -43,8 +42,6 @@ pub enum FrontendToKernel {
 	Next,
 	/// Play last song in queue.
 	Last,
-	/// Seek to point in current song.
-	Seek(f64),
 
 	// Audio settings.
 	/// Toggle shuffling songs.
@@ -53,6 +50,8 @@ pub enum FrontendToKernel {
 	Repeat,
 	/// Change the audio volume.
 	Volume(Volume),
+	/// Seek to point in current song.
+	Seek(f64),
 
 	// Queue/playlist.
 	/// Play the `n`'th index [`Song`] in the queue.

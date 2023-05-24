@@ -84,14 +84,13 @@ impl eframe::App for Gui {
 		// Clone things to send to exit thread.
 		let to_kernel      = self.to_kernel.clone();
 		let from_kernel    = self.from_kernel.clone();
-		let kernel_state   = self.kernel_state.clone();
 		let settings       = self.settings.clone();
 		let state          = self.state.clone();
 		let exit_countdown = self.exit_countdown.clone();
 
 		// Spawn `exit` thread.
 		std::thread::spawn(move || {
-			Self::exit(to_kernel, from_kernel, state, settings, kernel_state, exit_countdown);
+			Self::exit(to_kernel, from_kernel, state, settings, exit_countdown);
 		});
 
 		// Set the exit `Instant`.
@@ -294,6 +293,13 @@ impl Gui {
 					}
 				}
 			});
+		}
+
+		// We must show the spinner here again because after `CTRL+R`,
+		// a few frames of the "Empty Collection" will flash.
+		if self.resetting_collection {
+			self.show_collection_spinner(ctx, frame, width, height, COLLECTION_RESETTING);
+			return;
 		}
 
 		// Determine if there is a diff in `Settings`'s.

@@ -22,7 +22,7 @@ use log::{
 use shukusai::kernel::{
 	FrontendToKernel,
 	KernelToFrontend,
-	KernelState,
+	SAVING,
 };
 use disk::{Bincode2,Toml,Json};
 use crate::data::Gui;
@@ -46,7 +46,6 @@ pub(super) fn exit(
 	from_kernel: Receiver<KernelToFrontend>,
 	state: State,
 	settings: Settings,
-	kernel_state: RoLock<KernelState>,
 	exit_countdown: Arc<AtomicU8>,
 ) {
 	// Tell `Kernel` to save stuff.
@@ -97,7 +96,7 @@ pub(super) fn exit(
 			std::process::exit(1);
 		}
 
-		if lockr!(kernel_state).saving {
+		if atomic_load!(SAVING) {
 			atomic_sub!(exit_countdown, 1);
 			info!("GUI - Waiting to Collection to be saved, force exit in [{e}] seconds");
 			sleep!(1);

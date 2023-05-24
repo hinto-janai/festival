@@ -1,14 +1,8 @@
 mod kernel;
 pub use kernel::*;
 
-mod state;
-pub use state::*;
-
 mod reset;
 pub use reset::*;
-
-mod volume;
-pub use volume::*;
 
 mod msg;
 pub use msg::*;
@@ -18,3 +12,8 @@ pub use phase::Phase;
 
 mod search_kind;
 pub use search_kind::SearchKind;
+
+// Audio re-export.
+pub use crate::audio::{
+	Volume,AudioState,
+};

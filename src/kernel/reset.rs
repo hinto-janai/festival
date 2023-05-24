@@ -13,7 +13,7 @@ use crate::collection::{
 	Playlist,
 };
 use rolock::RoLock;
-use super::Volume;
+use crate::audio::Volume;
 use crate::kernel::Kernel;
 use readable::Percent;
 use super::phase::Phase;

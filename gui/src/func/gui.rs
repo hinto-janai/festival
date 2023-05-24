@@ -100,10 +100,15 @@ impl crate::data::Gui {
 
 	#[inline(always)]
 	/// Reset [`Settings`] to the original.
-	///
-	/// This also resets the [`egui::Visuals`].
 	pub fn reset_settings(&mut self) {
 		self.settings = self.og_settings.clone();
+	}
+
+	#[inline(always)]
+	/// Reset all [`Settings`] to the default.
+	pub fn default_settings(&mut self) {
+		self.settings    = Default::default();
+		self.og_settings = Default::default();
 	}
 
 	#[inline(always)]
@@ -116,6 +121,13 @@ impl crate::data::Gui {
 	/// Reset [`State`] to the original.
 	pub fn reset_state(&mut self) {
 		self.state = self.og_state.clone();
+	}
+
+	#[inline(always)]
+	/// Reset all [`State`] to the default.
+	pub fn default_state(&mut self) {
+		self.state = Default::default();
+		self.og_state = Default::default();
 	}
 
 	#[inline]
@@ -166,6 +178,12 @@ impl crate::data::Gui {
 	/// Perform all the necessary steps to reset
 	/// the [`Collection`] and enter the proper state.
 	pub fn reset_collection(&mut self) {
+		// INVARIANT:
+		// We _must_ clear our state because the code that runs after
+		// this function can use keys that no longer exist which will
+		// panic when used with this new empty `Collection`.
+		self.default_state();
+
 		// Drop our real `Collection`.
 		self.collection = Collection::dummy();
 

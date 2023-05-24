@@ -1,14 +1,7 @@
 //---------------------------------------------------------------------------------------------------- Use
-//use anyhow::{anyhow,bail,ensure};
-//use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
-//use crate::macros::*;
-//use disk::prelude::*;
-//use disk::{};
-//use std::{};
-//use std::sync::{Arc,Mutex,RwLock};
-use super::Kernel;
+use crate::kernel::Kernel;
 
 //---------------------------------------------------------------------------------------------------- Volume.
 /// Wrapper around [`u8`] that is between `0..100`
@@ -37,9 +30,20 @@ impl Volume {
 	}
 
 	#[inline(always)]
-	/// Returns the inner `u8`.
+	/// Returns the inner [`u8`].
 	pub const fn inner(&self) -> u8 {
 		self.0
+	}
+
+	#[inline(always)]
+	/// Returns the inner [`u8`] as a [`f32`] that is `0.0-1.0`.
+	///
+	/// E.g:
+	/// - `Volume(100)` outputs `1.0`
+	/// - `Volume(50)` outputs `0.5`
+	/// - `Volume(1)` outputs `0.01`
+	pub fn f32(&self) -> f32 {
+		self.0 as f32 / 100.0
 	}
 }
 

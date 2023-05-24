@@ -26,7 +26,6 @@ use shukusai::collection::{
 };
 use shukusai::kernel::{
 	AudioState,
-	KernelState,
 	Kernel,
 };
 

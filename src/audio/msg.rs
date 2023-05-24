@@ -12,8 +12,10 @@ use crate::collection::{
 	Keychain,
 	QueueKey,
 };
-use crate::kernel::KernelState;
 use rolock::RoLock;
+use crate::audio::{
+	AudioState,Volume,
+};
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
 pub(crate) enum AudioToKernel {
@@ -28,8 +30,16 @@ pub(crate) enum KernelToAudio {
 	Stop,        // Stop.
 	Next,        // Play next song in queue (stop if none).
 	Last,        // Play last song in queue.
-	Seek(f64),   // Seek to point in current song.
-	Volume(u8),  // Change the volume.
+
+	// Audio settings.
+	/// Toggle shuffling songs.
+	Shuffle,
+	/// Toggle repeating songs.
+	Repeat,
+	/// Change the audio volume.
+	Volume(Volume),
+	/// Seek to point in current song.
+	Seek(f64),
 
 	// Queue/playlist.
 	PlayQueueKey(QueueKey), // Play the first song (`[0]`) in the queue.
@@ -37,7 +47,6 @@ pub(crate) enum KernelToAudio {
 	// Collection.
 	DropCollection,                 // Drop your pointer.
 	NewCollection(Arc<Collection>), // Here's a new `Collection` pointer.
-	NewState(RoLock<KernelState>),  // Here's a new `KernelState` pointer.
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

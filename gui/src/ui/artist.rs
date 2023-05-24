@@ -183,7 +183,7 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame
 		// How many char's before we need
 		// to cut off the song title?
 		// (scales based on pixels available).
-		let head = (width / 22.0) as usize;
+		let head = (width / 26.5) as usize;
 
 		for key in artist.albums.iter() {
 			ui.separator();

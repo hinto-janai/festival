@@ -6,17 +6,18 @@ use serde::{Serialize,Deserialize};
 //use disk::{};
 use crate::constants::{
 	COLLECTION_VERSION,
-	STATE_VERSION,
+	AUDIO_VERSION,
 };
 use std::sync::{Arc,RwLock};
 use crate::collection::Key;
 use crate::kernel::{
-	KernelState,
-	KERNEL_STATE,
 	RESET_STATE,
-	volume::Volume,
 	reset::ResetState,
 	phase::Phase,
+};
+use crate::audio::{
+	AudioState,
+	Volume,
 };
 use rolock::RoLock;
 use benri::{
@@ -39,6 +40,23 @@ use crossbeam::channel::{Sender,Receiver};
 use std::path::PathBuf;
 use readable::Percent;
 use once_cell::sync::Lazy;
+use std::sync::atomic::AtomicBool;
+
+//---------------------------------------------------------------------------------------------------- Saving.
+/// This [`bool`] represents if a [`Collection`] that was
+/// recently created is still being written to the disk.
+///
+/// For performance reasons, when the `Frontend` asks [`Kernel`]
+/// for a new [`Collection`], [`Kernel`] will return immediately upon
+/// having an in-memory [`Collection`]. However, `shukusai` will
+/// (in the background) be saving it disk.
+///
+/// If your `Frontend` exits around this time, it should probably hang
+/// (for a reasonable amount of time) if this is set to `true`, waiting
+/// for the [`Collection`] to be saved to disk.
+///
+/// **This should not be mutated by the `Frontend`.**
+pub static SAVING: AtomicBool = AtomicBool::new(false);
 
 //---------------------------------------------------------------------------------------------------- Kernel
 /// The [`Kernel`] of `Festival`
@@ -69,7 +87,6 @@ pub struct Kernel {
 
 	// Data.
 	collection: Arc<Collection>,
-	state: Arc<RwLock<KernelState>>,
 	reset: Arc<RwLock<ResetState>>,
 	ctx: egui::Context,
 }
@@ -77,7 +94,7 @@ pub struct Kernel {
 // `Kernel` boot process:
 //
 //`bios()` ---> `boot_loader()` ---> `kernel()` ---> `init()` ---> `userspace()`
-//         |                                          |
+//         |                                           |
 //         |--- (bios error occurred, skip to init) ---|
 //
 impl Kernel {
@@ -120,7 +137,6 @@ impl Kernel {
 	) {
 		// Initialize lazy statics.
 		let _         = Lazy::force(&DUMMY_COLLECTION);
-		let _         = Lazy::force(&KERNEL_STATE);
 		let _         = Lazy::force(&RESET_STATE);
 		let beginning = Lazy::force(&crate::logger::INIT_INSTANT);
 
@@ -192,10 +208,10 @@ impl Kernel {
 			panic!("Kernel - failed to spawn CCD: {e}");
 		}
 
-		// Before hanging on `CCD`, read `KernelState` file.
+		// Before hanging on `CCD`, read `AudioState` file.
 		// Note: This is a `Result`.
-		debug!("Kernel [4/12] ... reading KernelState");
-		let state = KernelState::from_file();
+		debug!("Kernel [4/12] ... reading AudioState");
+		let state = AudioState::from_file();
 
 		// Set `ResetState` to `Start` + `Art` phase.
 		lockw!(reset).start();
@@ -207,7 +223,7 @@ impl Kernel {
 			use CcdToKernel::*;
 			match recv!(from_ccd) {
 				// We received an incremental update.
-				// Update the current `KernelState.ResetState` values to match.
+				// Update the current `ResetState` values to match.
 				UpdateIncrement((increment, specific)) => lockw!(reset).new_increment(increment, specific),
 
 				// We're onto the next phase in `Collection` creation process.
@@ -244,7 +260,7 @@ impl Kernel {
 	//-------------------------------------------------- kernel()
 	fn kernel(
 		collection:    Arc<Collection>,
-		state:         Result<KernelState, anyhow::Error>,
+		audio:         Result<AudioState, anyhow::Error>,
 		to_frontend:   Sender<KernelToFrontend>,
 		from_frontend: Receiver<FrontendToKernel>,
 		reset:         Arc<RwLock<ResetState>>,
@@ -252,37 +268,34 @@ impl Kernel {
 		beginning:     std::time::Instant,
 	) {
 		debug!("Kernel [6/12] ... entering kernel()");
-		let state = match state {
-			Ok(state) => {
-				ok_debug!("Kernel - State{STATE_VERSION} deserialization");
-				state
+		let audio = match audio {
+			Ok(audio) => {
+				ok_debug!("Kernel - AudioState{AUDIO_VERSION} deserialization");
+				audio
 			},
 			Err(e) => {
-				warn!("Kernel - State{STATE_VERSION} from file error: {}", e);
-				KernelState::new()
+				warn!("Kernel - AudioState{AUDIO_VERSION} from file error: {}", e);
+				AudioState::new()
 			},
 		};
 
 		use crate::validate;
 
-		let state = if validate::keychain(&collection, &state.search_result) &&
-			validate::queue(&collection, &state.queue) &&
-			validate::key(&collection, state.audio.current_key.unwrap_or(Key::zero()))
-		{
-			ok!("Kernel - State{STATE_VERSION} validation");
-			state
+		let audio = if validate::key(&collection, audio.key.unwrap_or(Key::zero())) {
+			ok!("Kernel - AudioState{AUDIO_VERSION} validation");
+			audio
 		} else {
-			fail!("Kernel - State{STATE_VERSION} validation");
-			KernelState::new()
+			fail!("Kernel - AudioState{AUDIO_VERSION} validation");
+			AudioState::new()
 		};
 
-		Self::init(Some(collection), Some(state), to_frontend, from_frontend, reset, ctx, beginning);
+		Self::init(Some(collection), Some(audio), to_frontend, from_frontend, reset, ctx, beginning);
 	}
 
 	//-------------------------------------------------- init()
 	fn init(
 		collection:    Option<Arc<Collection>>,
-		state:         Option<KernelState>,
+		audio:         Option<AudioState>,
 		to_frontend:   Sender<KernelToFrontend>,
 		from_frontend: Receiver<FrontendToKernel>,
 		reset:         Arc<RwLock<ResetState>>,
@@ -297,15 +310,10 @@ impl Kernel {
 			None    => { debug!("Kernel [8/12] ... Collection NOT found, returning default"); Arc::new(Collection::new()) },
 		};
 
-		// Handle potentially missing `State`.
-		let state = match state {
-			Some(s) => {
-				debug!("Kernel [9/12] ... KernelState found");
-				let state = KernelState::get_priv();
-				*lockw!(state) = s;
-				state
-			}
-			None => { debug!("Kernel [9/12] ... KernelState NOT found, returning default"); KernelState::get_priv() },
+		// Handle potentially missing `AudioState`.
+		let audio = match audio {
+			Some(a) => { debug!("Kernel [9/12] ... AudioState found"); a }
+			None => { debug!("Kernel [9/12] ... AudioState NOT found, returning default"); AudioState::new() },
 		};
 
 		// Send `Collection/State` to `Frontend`.
@@ -332,30 +340,28 @@ impl Kernel {
 
 			// Data.
 			collection,
-			state,
 			reset,
 			ctx,
 		};
 
+		// Spawn `Audio`.
+		debug!("Kernel [10/12] ... spawning Audio");
+		let collection = Arc::clone(&kernel.collection);
+		if let Err(e) = std::thread::Builder::new()
+			.name("Audio".to_string())
+			.spawn(move || Audio::init(collection, audio, audio_send, audio_recv))
+		{
+			panic!("Kernel - failed to spawn Audio: {e}");
+		}
+
 		// Spawn `Search`.
-		debug!("Kernel [10/12] ... spawning Search");
+		debug!("Kernel [11/12] ... spawning Search");
 		let collection = Arc::clone(&kernel.collection);
 		if let Err(e) = std::thread::Builder::new()
 			.name("Search".to_string())
 			.spawn(move || Search::init(collection, search_send, search_recv))
 		{
 			panic!("Kernel - failed to spawn Search: {e}");
-		}
-
-		// Spawn `Audio`.
-		debug!("Kernel [11/12] ... spawning Audio");
-		let collection = Arc::clone(&kernel.collection);
-		let state      = RoLock::new(&kernel.state);
-		if let Err(e) = std::thread::Builder::new()
-			.name("Audio".to_string())
-			.spawn(move || Audio::init(collection, state, audio_send, audio_recv))
-		{
-			panic!("Kernel - failed to spawn Audio: {e}");
 		}
 
 		// Spawn `Watch`.
@@ -427,10 +433,10 @@ impl Kernel {
 			Last                 => send!(self.to_audio, KernelToAudio::Last),
 			Seek(float)          => self.seek(float),
 			PlayQueueKey(key)    => send!(self.to_audio, KernelToAudio::PlayQueueKey(key)),
-			Volume(volume)       => send!(self.to_audio, KernelToAudio::Volume(volume.inner())),
+			Volume(volume)       => send!(self.to_audio, KernelToAudio::Volume(volume)),
 			// Audio settings.
-			Shuffle              => flip!(lockw!(self.state).audio.shuffle),
-			Repeat               => flip!(lockw!(self.state).audio.repeat),
+			Shuffle              => send!(self.to_audio, KernelToAudio::Shuffle),
+			Repeat               => send!(self.to_audio, KernelToAudio::Repeat),
 			// Collection.
 			NewCollection(paths) => self.ccd_mode(paths),
 			Search(string)       => send!(self.to_search, KernelToSearch::Search(string)),
@@ -451,11 +457,12 @@ impl Kernel {
 	#[inline(always)]
 	// We got a message from `Audio`.
 	fn msg_audio(&self, msg: AudioToKernel) {
-		use crate::audio::AudioToKernel::*;
-		match msg {
-			TimestampUpdate(float) => lockw!(self.state).audio.current_runtime = float,
-			PathError(string)      => send!(self.to_frontend, KernelToFrontend::PathError(string)),
-		}
+		// TODO
+//		use crate::audio::AudioToKernel::*;
+//		match msg {
+//			TimestampUpdate(float) => lockw!(self.state).audio.current_runtime = float,
+//			PathError(string)      => send!(self.to_frontend, KernelToFrontend::PathError(string)),
+//		}
 	}
 
 	#[inline(always)]
@@ -468,8 +475,8 @@ impl Kernel {
 			Stop    => send!(self.to_audio, KernelToAudio::Stop),
 			Next    => send!(self.to_audio, KernelToAudio::Next),
 			Last    => send!(self.to_audio, KernelToAudio::Last),
-			Shuffle => flip!(lockw!(self.state).audio.shuffle),
-			Repeat  => flip!(lockw!(self.state).audio.repeat),
+			Shuffle => send!(self.to_audio, KernelToAudio::Shuffle),
+			Repeat  => send!(self.to_audio, KernelToAudio::Repeat),
 		}
 	}
 
@@ -477,20 +484,21 @@ impl Kernel {
 	#[inline(always)]
 	// Verify the `seek` is valid before sending to `Audio`.
 	fn seek(&self, float: f64) {
-		if !lockr!(self.state).audio.playing {
-			return
-		}
-
-		if float <= lockr!(self.state).audio.current_runtime {
-			send!(self.to_audio, KernelToAudio::Play);
-		}
+		// TODO
+//		if !lockr!(self.state).audio.playing {
+//			return
+//		}
+//
+//		if float <= lockr!(self.state).audio.current_runtime {
+//			send!(self.to_audio, KernelToAudio::Play);
+//		}
 	}
 
 	#[inline(always)]
 	// The `Frontend` is exiting, save everything.
 	fn exit(&mut self) -> ! {
-		// Save `KernelState`.
-		match lockr!(self.state).save() {
+		// Save `AudioState`.
+		match lockr!(AudioState::get()).save() {
 			Ok(o)  => {
 				debug!("Kernel - State save: {o}");
 				send!(self.to_frontend, KernelToFrontend::Exit(Ok(())));
@@ -535,9 +543,6 @@ impl Kernel {
 		let (to_ccd,   ccd_recv) = crossbeam::channel::unbounded::<KernelToCcd>();
 		let (ccd_send, from_ccd) = crossbeam::channel::unbounded::<CcdToKernel>();
 
-		// Get `KernelState` pointer.
-		let kernel_state = Arc::clone(&self.state);
-
 		// Get old `Collection` pointer.
 		let old_collection = Arc::clone(&self.collection);
 
@@ -551,7 +556,7 @@ impl Kernel {
 		if let Err(e) = std::thread::Builder::new()
 			.name("CCD".to_string())
 			.stack_size(16_000_000) // 16MB stack.
-			.spawn(move || Ccd::new_collection(ccd_send, ccd_recv, kernel_state, old_collection, paths, ctx))
+			.spawn(move || Ccd::new_collection(ccd_send, ccd_recv, old_collection, paths, ctx))
 		{
 			panic!("Kernel - failed to spawn CCD: {e}");
 		}
@@ -596,6 +601,7 @@ impl Kernel {
 		send!(self.to_search,   KernelToSearch::NewCollection(Arc::clone(&self.collection)));
 		send!(self.to_audio,    KernelToAudio::NewCollection(Arc::clone(&self.collection)));
 		send!(self.to_frontend, KernelToFrontend::NewCollection(Arc::clone(&self.collection)));
+
 		// TODO: Only with `egui` feature flag.
 		self.ctx.request_repaint();
 

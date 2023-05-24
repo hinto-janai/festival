@@ -31,9 +31,6 @@ use super::msg::{
 	CcdToKernel,
 	KernelToCcd,
 };
-use crate::kernel::{
-	KernelState,
-};
 use crate::collection::Art;
 use crossbeam::channel::{Sender,Receiver};
 use std::path::{Path,PathBuf};
@@ -91,7 +88,6 @@ impl Ccd {
 	pub(crate) fn new_collection(
 		to_kernel: Sender<CcdToKernel>,
 		from_kernel: Receiver<KernelToCcd>,
-		kernel_state: Arc<RwLock<KernelState>>,
 		old_collection: Arc<Collection>,
 		paths: Vec<PathBuf>,
 		ctx: egui::Context,
@@ -390,7 +386,7 @@ impl Ccd {
 		// 13.
 		let now = now!();
 		// Set `saving` state.
-		lockw!(kernel_state).saving = true;
+		atomic_store!(crate::kernel::SAVING, true);
 		// Attempt atomic save.
 		//
 		// SAFETY:
@@ -407,7 +403,7 @@ impl Ccd {
 			},
 		};
 		// Set `saving` state.
-		lockw!(kernel_state).saving = false;
+		atomic_store!(crate::kernel::SAVING, false);
 		let perf_disk = secs_f32!(now);
 		trace!("CCD [13/14] - Disk: {perf_disk}");
 
@@ -417,8 +413,7 @@ impl Ccd {
 		let objects_songs   = collection_for_disk.count_song.usize();
 		let objects_art     = count_art;
 
-		// Don't need these anymore.
-		drop(kernel_state);
+		// Don't need this anymore.
 		drop(collection_for_disk);
 
 		// 14.

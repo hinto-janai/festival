@@ -6,7 +6,7 @@ use crate::data::{
 	DebugInfo,
 };
 use shukusai::kernel::{
-	KernelState,
+	AudioState,
 	ResetState,
 	FrontendToKernel,
 	KernelToFrontend,
@@ -42,7 +42,7 @@ pub struct Gui {
 
 	/// The `Collection` and misc state.
 	pub collection: Arc<Collection>,
-	pub kernel_state: RoLock<KernelState>,
+	pub audio_state: RoLock<AudioState>,
 	pub reset_state: RoLock<ResetState>,
 
 	/// `GUI` settings.

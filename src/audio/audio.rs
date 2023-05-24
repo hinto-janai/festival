@@ -18,19 +18,20 @@ use crate::collection::{
 	AlbumKey,
 	SongKey,
 };
-use crate::kernel::KernelState;
-use std::sync::Arc;
-use rolock::RoLock;
-use super::msg::{
+use std::sync::{
+	Arc,RwLock,
+};
+use crate::audio::{
 	AudioToKernel,
 	KernelToAudio,
+	AudioState,
 };
 use crossbeam::channel::{Sender,Receiver};
 
 //---------------------------------------------------------------------------------------------------- Audio
 pub(crate) struct Audio {
 	collection:  Arc<Collection>,         // Pointer to `Collection`
-	state:       RoLock<KernelState>,     // Read-Only lock to the `KernelState`
+	state:       Arc<RwLock<AudioState>>, // RwLock to the global `AudioState`
 	to_kernel:   Sender<AudioToKernel>,   // Channel TO `Kernel`
 	from_kernel: Receiver<KernelToAudio>, // Channel FROM `Kernel`
 }
@@ -39,15 +40,19 @@ impl Audio {
 	#[inline(always)]
 	// Kernel starts `Audio` with this.
 	pub(crate) fn init(
-		collection: Arc<Collection>,
-		state: RoLock<KernelState>,
-		to_kernel: Sender<AudioToKernel>,
+		collection:  Arc<Collection>,
+		state:       AudioState,
+		to_kernel:   Sender<AudioToKernel>,
 		from_kernel: Receiver<KernelToAudio>,
 	) {
+		// Re-write global `AudioState`.
+		let global_state = AudioState::get_priv();
+		*lockw!(global_state) = state;
+
 		// Init data.
 		let audio = Self {
 			collection,
-			state,
+			state: global_state,
 			to_kernel,
 			from_kernel,
 		};
@@ -97,8 +102,10 @@ impl Audio {
 			Stop        => trace!("Audio - Stop"),
 			Next        => trace!("Audio - Next"),
 			Last        => trace!("Audio - Last"),
+			Shuffle     => trace!("Audio - Shuffle"),
+			Repeat      => trace!("Audio - Repeat"),
+			Volume(v)   => trace!("Audio - Volume"),
 			Seek(f)     => trace!("Audio - Seek"),
-			Volume(f)   => trace!("Audio - Volume"),
 
 			// Queue.
 			// TODO: Implement.
@@ -107,7 +114,6 @@ impl Audio {
 			// Collection.
 			DropCollection     => self = self.msg_drop(),
 			NewCollection(arc) => self.collection = arc,
-			NewState(rolock)   => self.state = rolock,
 		}
 
 		self

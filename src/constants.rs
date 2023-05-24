@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------------------------------- Use
 use crate::collection::Collection;
-use crate::kernel::KernelState;
+use crate::audio::AudioState;
 use crate::const_assert;
 
 //---------------------------------------------------------------------------------------------------- General Strings
@@ -77,8 +77,8 @@ pub const HEADER_STR: &str = match std::str::from_utf8(&HEADER) {
 /// Current major version of the [`Collection`]
 pub const COLLECTION_VERSION: u8 = 0;
 
-/// Current major version of the [`KernelState`]
-pub const STATE_VERSION: u8 = 0;
+/// Current major version of the [`AudioState`]
+pub const AUDIO_VERSION: u8 = 0;
 
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
