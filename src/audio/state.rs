@@ -20,7 +20,7 @@ use rolock::RoLock;
 use crate::audio::{
 	Volume,
 };
-use readable::Percent;
+use readable::Runtime;
 use once_cell::sync::Lazy;
 use benri::sync::*;
 use std::sync::{
@@ -81,9 +81,9 @@ pub struct AudioState {
 	/// Which song are we playing right now?
 	pub key: Option<Key>,
 	/// How much time has passed in this song?
-	pub elapsed: f64,
+	pub elapsed: Runtime,
 	/// What is the full runtime of the current song?
-	pub runtime: f64,
+	pub runtime: Runtime,
 	/// Is shuffle on?
 	pub shuffle: bool,
 	/// Is repeat on?
@@ -100,8 +100,8 @@ impl AudioState {
 			playing: false,
 			volume: Volume::new_50(),
 			key: None,
-			elapsed: 0.0,
-			runtime: 0.0,
+			elapsed: Runtime::zero(),
+			runtime: Runtime::zero(),
 			shuffle: false,
 			repeat: false,
 		}

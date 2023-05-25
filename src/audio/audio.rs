@@ -29,7 +29,7 @@ use crate::audio::{
 };
 use crossbeam::channel::{Sender,Receiver};
 
-//---------------------------------------------------------------------------------------------------- Audio
+//---------------------------------------------------------------------------------------------------- Audio Init
 pub(crate) struct Audio {
 	collection:  Arc<Collection>,         // Pointer to `Collection`
 	to_kernel:   Sender<AudioToKernel>,   // Channel TO `Kernel`
@@ -62,15 +62,6 @@ impl Audio {
 	}
 }
 
-//---------------------------------------------------------------------------------------------------- Constants.
-// How long should `Audio` wait for a message from `Kernel` before timing out?
-//
-// This is done in the same `loop` as the audio demuxing/decoding,
-// so a timeout that is too _long_ will cause audible skips within
-// the played audio, while a timeout that is too _short_ will wake
-// the sleeping CPU core more often.
-const AUDIO_MESSAGE_TIMEOUT: std::time::Duration = std::time::Duration::from_millis(15);
-
 //---------------------------------------------------------------------------------------------------- Main Audio loop.
 impl Audio {
 	#[inline(always)]
@@ -79,50 +70,47 @@ impl Audio {
 
 		loop {
 			// Listen for message.
-			self = self.msg();
+			let msg = recv!(self.from_kernel);
 
-			// TODO:
-			// Audio loop.
+			use KernelToAudio::*;
+			match msg {
+				// TODO: Implement.
+				// Audio playback.
+				Toggle      => trace!("Audio - Toggle"),
+				Play        => trace!("Audio - Play"),
+				Stop        => trace!("Audio - Stop"),
+				Next        => trace!("Audio - Next"),
+				Last        => trace!("Audio - Last"),
+
+				// Audio settings.
+				Shuffle     => trace!("Audio - Shuffle"),
+				Repeat      => trace!("Audio - Repeat"),
+				Volume(v)   => trace!("Audio - Volume"),
+				Seek(f)     => trace!("Audio - Seek"),
+
+				// Queue.
+				AddQueueSongFront(s_key)    => (),
+				AddQueueSongBack(s_key)     => (),
+				AddQueueAlbumFront(al_key)  => (),
+				AddQueueAlbumBack(al_key)   => (),
+				AddQueueArtistFront(ar_key) => (),
+				AddQueueArtistBack(ar_key)  => (),
+
+				// Queue Index.
+				PlayQueueIndex(q_key)   => (),
+				RemoveQueueIndex(q_key) => (),
+
+				// Collection.
+				DropCollection     => self.msg_drop(),
+				NewCollection(arc) => self.collection = arc,
+			}
 		}
 	}
 
 	#[inline(always)]
-	fn msg(mut self) -> Self {
-		let msg = match self.from_kernel.recv_timeout(AUDIO_MESSAGE_TIMEOUT) {
-			Ok(msg) => msg,
-			_ => return self,
-		};
-
-		use KernelToAudio::*;
-		match msg {
-			// Audio playback.
-			// TODO: Implement.
-			Toggle      => trace!("Audio - Toggle"),
-			Play        => trace!("Audio - Play"),
-			Stop        => trace!("Audio - Stop"),
-			Next        => trace!("Audio - Next"),
-			Last        => trace!("Audio - Last"),
-			Shuffle     => trace!("Audio - Shuffle"),
-			Repeat      => trace!("Audio - Repeat"),
-			Volume(v)   => trace!("Audio - Volume"),
-			Seek(f)     => trace!("Audio - Seek"),
-
-			// Queue.
-			// TODO: Implement.
-			PlayQueueKey(queue_key) => trace!("Audio - PlayQueueKey"),
-
-			// Collection.
-			DropCollection     => self = self.msg_drop(),
-			NewCollection(arc) => self.collection = arc,
-		}
-
-		self
-	}
-
-	#[inline(always)]
-	fn msg_drop(mut self) -> Self {
+	fn msg_drop(&mut self) {
 		// Drop pointer.
-		drop(self.collection);
+		self.collection = Collection::dummy();
 
 		// Hang until we get the new one.
 		debug!("Audio - Dropped Collection, waiting...");
@@ -132,7 +120,7 @@ impl Audio {
 			if let KernelToAudio::NewCollection(arc) = recv!(self.from_kernel) {
 				ok_debug!("Audio - New Collection");
 				self.collection = arc;
-				return self
+				return;
 			}
 
 			debug_panic!("Audio - Incorrect message received");

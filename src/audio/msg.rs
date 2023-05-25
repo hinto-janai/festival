@@ -8,9 +8,8 @@
 //use std::{};
 use std::sync::Arc;
 use crate::collection::{
-	Collection,
-	Keychain,
-	QueueKey,
+	Collection,Keychain,QueueKey,
+	ArtistKey,AlbumKey,SongKey,
 };
 use rolock::RoLock;
 use crate::audio::{
@@ -23,26 +22,32 @@ pub(crate) enum AudioToKernel {
 	PathError(String),    // `Path` error occurred when trying to play a song.
 }
 
+// These mostly map to `FrontendToKernel` messages.
 pub(crate) enum KernelToAudio {
 	// Audio playback.
-	Toggle,      // Toggle playback.
-	Play,        // Play currently stored audio.
-	Stop,        // Stop.
-	Next,        // Play next song in queue (stop if none).
-	Last,        // Play last song in queue.
+	Toggle,
+	Play,
+	Stop,
+	Next,
+	Last,
 
 	// Audio settings.
-	/// Toggle shuffling songs.
 	Shuffle,
-	/// Toggle repeating songs.
 	Repeat,
-	/// Change the audio volume.
 	Volume(Volume),
-	/// Seek to point in current song.
-	Seek(f64),
+	Seek(u32),
 
-	// Queue/playlist.
-	PlayQueueKey(QueueKey), // Play the first song (`[0]`) in the queue.
+	// Queue.
+	AddQueueSongFront(SongKey),
+	AddQueueSongBack(SongKey),
+	AddQueueAlbumFront(AlbumKey),
+	AddQueueAlbumBack(AlbumKey),
+	AddQueueArtistFront(ArtistKey),
+	AddQueueArtistBack(ArtistKey),
+
+	// Queue Index.
+	PlayQueueIndex(QueueKey),
+	RemoveQueueIndex(QueueKey),
 
 	// Collection.
 	DropCollection,                 // Drop your pointer.

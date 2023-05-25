@@ -425,15 +425,28 @@ impl Kernel {
 			Stop                 => send!(self.to_audio, KernelToAudio::Stop),
 			Next                 => send!(self.to_audio, KernelToAudio::Next),
 			Last                 => send!(self.to_audio, KernelToAudio::Last),
-			Seek(float)          => self.seek(float),
-			PlayQueueKey(key)    => send!(self.to_audio, KernelToAudio::PlayQueueKey(key)),
-			Volume(volume)       => send!(self.to_audio, KernelToAudio::Volume(volume)),
 			// Audio settings.
 			Shuffle              => send!(self.to_audio, KernelToAudio::Shuffle),
 			Repeat               => send!(self.to_audio, KernelToAudio::Repeat),
+			Volume(volume)       => send!(self.to_audio, KernelToAudio::Volume(volume)),
+			Seek(second)         => send!(self.to_audio, KernelToAudio::Seek(second)),
+
+			// Queue.
+			AddQueueSongFront(s_key)    => send!(self.to_audio, KernelToAudio::AddQueueSongFront(s_key)),
+			AddQueueSongBack(s_key)     => send!(self.to_audio, KernelToAudio::AddQueueSongBack(s_key)),
+			AddQueueAlbumFront(al_key)  => send!(self.to_audio, KernelToAudio::AddQueueAlbumFront(al_key)),
+			AddQueueAlbumBack(al_key)   => send!(self.to_audio, KernelToAudio::AddQueueAlbumBack(al_key)),
+			AddQueueArtistFront(ar_key) => send!(self.to_audio, KernelToAudio::AddQueueArtistFront(ar_key)),
+			AddQueueArtistBack(ar_key)  => send!(self.to_audio, KernelToAudio::AddQueueArtistBack(ar_key)),
+
+		    // Queue Index.
+			PlayQueueIndex(q_key)   => send!(self.to_audio, KernelToAudio::PlayQueueIndex(q_key)),
+		    RemoveQueueIndex(q_key) => send!(self.to_audio, KernelToAudio::RemoveQueueIndex(q_key)),
+
 			// Collection.
 			NewCollection(paths) => self.ccd_mode(paths),
 			Search(string)       => send!(self.to_search, KernelToSearch::Search(string)),
+
 			// Exit.
 			Exit                 => self.exit(),
 		}

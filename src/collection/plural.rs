@@ -5,7 +5,6 @@ use crate::collection::{
 	Collection,
 	Artist,Album,Song,
 	ArtistKey,AlbumKey,SongKey,
-	QueueKey,PlaylistKey,
 };
 
 //---------------------------------------------------------------------------------------------------- Plural newtypes around `Vec<T>`.

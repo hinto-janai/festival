@@ -8,12 +8,9 @@
 //use std::{};
 use std::sync::Arc;
 use crate::collection::{
-	Artist,
-	Album,
-	Song,
-	Collection,
-	Keychain,
-	QueueKey,
+	Artist,Album,Song,QueueKey,
+	ArtistKey,AlbumKey,SongKey,Key,
+	Collection,Keychain,
 };
 use rolock::RoLock;
 use std::path::PathBuf;
@@ -50,12 +47,33 @@ pub enum FrontendToKernel {
 	Repeat,
 	/// Change the audio volume.
 	Volume(Volume),
-	/// Seek to point in current song.
-	Seek(f64),
+	/// Seek to this second in current song.
+	///
+	/// This will end the song if the [`u32`] is
+	/// greater than the total runtime of the [`Song`].
+	Seek(u32),
 
-	// Queue/playlist.
-	/// Play the `n`'th index [`Song`] in the queue.
-	PlayQueueKey(QueueKey),
+	// Queue.
+	/// Add this `Song` to the FRONT of the queue (first song).
+	AddQueueSongFront(SongKey),
+	/// Add this `Song` to the BACK of the queue (last song).
+	AddQueueSongBack(SongKey),
+	/// Add all the songs in this `Album` to the FRONT of the queue.
+	AddQueueAlbumFront(AlbumKey),
+	/// Add all the songs in this `Album` to the BACK of the queue.
+	AddQueueAlbumBack(AlbumKey),
+	/// Add all the songs by this `Artist` to the FRONT of the queue.
+	AddQueueArtistFront(ArtistKey),
+	/// Add all the songs by this `Artist` to the BACK of the queue.
+	AddQueueArtistBack(ArtistKey),
+
+	// Queue Index.
+	/// Play the `n`'th index [`Song`] in the queue without adding/removing anything.
+	PlayQueueIndex(QueueKey),
+	/// Remove the `n`th index [`Song`] in the queue.
+	///
+	/// This will do nothing if the index does not exist.
+	RemoveQueueIndex(QueueKey),
 
 	// Collection.
 	/// I'd like a new [`Collection`], scanning these [`PathBuf`]'s for audio files.
