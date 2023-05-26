@@ -131,6 +131,9 @@ impl Gui {
 						self.state.search_result = keychain;
 						self.searching     = false;
 					},
+					DeviceError(err) => crate::toast_err!(self, "Audio device error: {err}"),
+					PlayError(err)   => crate::toast_err!(self, "Playback error: {err}"),
+					PathError(err) => crate::toast_err!(self, "Audio file error: {err}"),
 					_ => todo!(),
 				}
 			}

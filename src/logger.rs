@@ -83,8 +83,6 @@ pub fn init_logger(filter: log::LevelFilter) {
 	if env.is_empty() {
 		info!("Log Level (Flag) ... {}", filter);
 	} else {
-		info!("Log Level (ENV) ... {}", env);
+		info!("Log Level (RUST_LOG) ... {}", env);
 	}
-
-	ok!("Logger");
 }

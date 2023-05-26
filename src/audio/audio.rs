@@ -7,6 +7,7 @@ use log::{error,warn,info,debug,trace};
 //use disk::{};
 //use std::{};
 use benri::{
+	sleep,
 	debug_panic,
 	log::*,
 	sync::*,
@@ -28,9 +29,11 @@ use crate::audio::{
 	AudioState,
 };
 use crossbeam::channel::{Sender,Receiver};
+use rodio::{Sink,OutputStream};
 
 //---------------------------------------------------------------------------------------------------- Audio Init
 pub(crate) struct Audio {
+	sink:        Sink,                    // Audio sink, holder and controller of all `Source`'s
 	collection:  Arc<Collection>,         // Pointer to `Collection`
 	to_kernel:   Sender<AudioToKernel>,   // Channel TO `Kernel`
 	from_kernel: Receiver<KernelToAudio>, // Channel FROM `Kernel`
@@ -47,17 +50,42 @@ impl Audio {
 	) {
 		trace!("Audio - State:\n{state:#?}");
 
+		const RETRY_SECONDS: u64 = 5;
+
+		// Loop until we can connect to an audio device.
+		let sink = {
+			let (stream, stream_handle) = loop {
+				 match OutputStream::try_default() {
+					Ok((s, sh)) => { debug!("Audio [1/2] - Output device"); break (s, sh); },
+					Err(e) => {
+						warn!("Audio - Output device error: {e} ... retrying in {RETRY_SECONDS} seconds");
+					},
+				}
+				sleep!(RETRY_SECONDS);
+			};
+
+			loop {
+				match Sink::try_new(&stream_handle) {
+					Ok(s)  => { debug!("Audio [2/2] - Sink"); break s; },
+					Err(e) => warn!("Audio - Sink error: {e} ... retrying in {RETRY_SECONDS} seconds"),
+				}
+				sleep!(RETRY_SECONDS);
+			}
+		};
+
 		// Re-write global `AudioState`.
 		*AUDIO_STATE.write() = state;
 
 		// Init data.
 		let audio = Self {
+			sink,
 			collection,
 			to_kernel,
 			from_kernel,
 		};
 
 		// Start `main()`.
+		ok_debug!("Audio");
 		Self::main(audio);
 	}
 }
@@ -66,8 +94,6 @@ impl Audio {
 impl Audio {
 	#[inline(always)]
 	fn main(mut self) {
-		ok_debug!("Audio");
-
 		loop {
 			// Listen for message.
 			let msg = recv!(self.from_kernel);

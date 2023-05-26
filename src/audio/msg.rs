@@ -18,8 +18,9 @@ use crate::audio::{
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
 pub(crate) enum AudioToKernel {
-	TimestampUpdate(f64), // We've played the current song for `x` seconds.
-	PathError(String),    // `Path` error occurred when trying to play a song.
+	DeviceError(anyhow::Error),          // The device error'ed during initialization
+	PlayError(anyhow::Error),            // There was an error while attempting to play a sound.
+	PathError((SongKey, anyhow::Error)), // `Path` error occurred when trying to play a song (probably doesn't exist).
 }
 
 // These mostly map to `FrontendToKernel` messages.

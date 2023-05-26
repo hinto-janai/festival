@@ -141,6 +141,7 @@ notify = "5.1.0"
 mime_guess = "2.0.4"
 once_cell = "1.17.1"
 rand = { version = "0.8.5", features = ["small_rng"] }
+rodio = { version = "0.17.1", features = ["symphonia", "symphonia-all"] }
 serde_bytes = "0.11.9"
 serde = { version = "1.0.160", features = ["derive"] }
 seq-macro = "0.3.3"

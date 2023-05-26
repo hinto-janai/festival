@@ -129,8 +129,12 @@ pub enum KernelToFrontend {
 	Failed((Arc<Collection>, String)),
 
 	// Audio error.
-	/// The audio file at this [`PathBuf`] has errored (probably doesn't exist).
-	PathError(String),
+	/// The device error'ed during initialization.
+    DeviceError(String),
+    /// There was an error while attempting to play a sound.
+    PlayError(String),
+	/// Attempting to play this [`SongKey`] has errored (probably doesn't exist).
+    PathError((SongKey, String)),
 
 	// Search.
 	/// Here's a (similarity) search result.

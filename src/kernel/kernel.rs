@@ -278,7 +278,7 @@ impl Kernel {
 		use crate::validate;
 
 		let audio = if validate::key(&collection, audio.key.unwrap_or(Key::zero())) {
-			ok!("Kernel - AudioState{AUDIO_VERSION} validation");
+			ok_trace!("Kernel - AudioState{AUDIO_VERSION} validation");
 			audio
 		} else {
 			fail!("Kernel - AudioState{AUDIO_VERSION} validation");
@@ -368,7 +368,7 @@ impl Kernel {
 		}
 
 		// We're done, enter main `userspace` loop.
-		ok_debug!("Kernel - Entering 'userspace()' ... Took {} seconds total", secs_f32!(beginning));
+		debug!("Kernel - Entering userspace() ... Took {} seconds total", secs_f32!(beginning));
 		Self::userspace(kernel);
 	}
 
@@ -378,7 +378,6 @@ impl Kernel {
 impl Kernel {
 	fn userspace(mut self) {
 		ok_debug!("Kernel");
-
 		// Array of our channels we can `select` from.
 		let mut select = crossbeam::channel::Select::new();
 		// FIXME:
@@ -464,12 +463,12 @@ impl Kernel {
 	#[inline(always)]
 	// We got a message from `Audio`.
 	fn msg_audio(&self, msg: AudioToKernel) {
-		// TODO
-//		use crate::audio::AudioToKernel::*;
-//		match msg {
-//			TimestampUpdate(float) => lockw!(self.state).audio.current_runtime = float,
-//			PathError(string)      => send!(self.to_frontend, KernelToFrontend::PathError(string)),
-//		}
+		use crate::audio::AudioToKernel::*;
+		match msg {
+			DeviceError(string)           => send!(self.to_frontend, KernelToFrontend::DeviceError(string.to_string())),
+			PlayError(string)             => send!(self.to_frontend, KernelToFrontend::PlayError(string.to_string())),
+			PathError((song_key, string)) => send!(self.to_frontend, KernelToFrontend::PathError((song_key, string.to_string()))),
+		}
 	}
 
 	#[inline(always)]

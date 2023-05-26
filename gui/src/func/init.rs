@@ -79,13 +79,11 @@ impl crate::data::Gui {
 			..Default::default()
 		};
 
-		ok_debug!("GUI Init - Style");
 		style
 	}
 
 	#[inline(always)]
 	fn init_visuals() -> egui::Visuals {
-		ok_debug!("GUI Init - Visuals");
 		VISUALS.clone()
 	}
 
@@ -104,7 +102,6 @@ impl crate::data::Gui {
 				.push(i.to_string());
 		}
 
-		ok_debug!("GUI Init - Fonts");
 		fonts
 	}
 
@@ -133,7 +130,6 @@ impl crate::data::Gui {
 			..Default::default()
 		};
 
-		ok!("eframe::NativeOptions");
 		options
 	}
 
@@ -148,14 +144,14 @@ impl crate::data::Gui {
 
 		// Read `Settings` from disk.
 		let settings = match Settings::from_file() {
-			Ok(s)  => { ok!("GUI - Settings from disk"); s },
-			Err(e) => { warn!("GUI - Settings failed from disk: {}", e); Settings::new() },
+			Ok(s)  => { info!("GUI [1/6] - Settings from disk"); s },
+			Err(e) => { warn!("GUI [1/6] - Settings failed from disk: {}", e); Settings::new() },
 		};
 
 		// Read `State` from disk.
 		let state = match State::from_file() {
-			Ok(s)  => { ok!("GUI - State from disk"); s },
-			Err(e) => { warn!("GUI - State failed from disk: {}", e); State::new() },
+			Ok(s)  => { info!("GUI [2/6] - State from disk"); s },
+			Err(e) => { warn!("GUI [2/6] - State failed from disk: {}", e); State::new() },
 		};
 
 		let app = Self {
@@ -204,15 +200,18 @@ impl crate::data::Gui {
 
 		// Style
 		cc.egui_ctx.set_style(Self::init_style());
+		info!("GUI [3/6] - Style");
 
 		// Visuals
 		cc.egui_ctx.set_visuals(Self::init_visuals());
+		info!("GUI [4/6] - Visuals");
 
 		// Fonts
 		cc.egui_ctx.set_fonts(Self::init_fonts());
+		info!("GUI [5/6] - Fonts");
 
 		// Done.
-		ok!("GUI Init");
+		info!("GUI [6/6] - Init");
 		app
 	}
 }

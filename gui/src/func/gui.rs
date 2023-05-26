@@ -26,7 +26,8 @@ use benri::{
 use log::{
 	info,
 	warn,
-	error
+	error,
+	debug,
 };
 use std::sync::{
 	Arc,
@@ -39,7 +40,7 @@ use disk::{Bincode2,Toml,Json};
 impl crate::data::Gui {
 	// Sets a new `Collection`, all the related flags, and does validation.
 	pub fn new_collection(&mut self, c: Arc<Collection>) {
-		ok_debug!("GUI - New Collection");
+		info!("GUI - New Collection received");
 		self.collection           = c;
 		self.resetting_collection = false;
 		self.kernel_returned      = true;
@@ -178,6 +179,8 @@ impl crate::data::Gui {
 	/// Perform all the necessary steps to reset
 	/// the [`Collection`] and enter the proper state.
 	pub fn reset_collection(&mut self) {
+		info!("GUI - Resetting Collection");
+
 		// INVARIANT:
 		// We _must_ clear our state because the code that runs after
 		// this function can use keys that no longer exist which will
