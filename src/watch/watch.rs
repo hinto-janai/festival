@@ -81,11 +81,11 @@ impl Watch {
 	// Make sure the directory exists.
 	fn clean() {
 		// Create base directory.
-		if let Err(e) = Stop::mkdir() { error!("Watch - Could not create signal folder"); }
+		if let Err(e) = Pause::mkdir() { error!("Watch - Could not create signal folder"); }
 
 		// Clean files.
 		if let Err(e) = Toggle::rm()  { error!("Watch - Toggle: {}", e); }
-		if let Err(e) = Stop::rm()    { error!("Watch - Stop: {}", e); }
+		if let Err(e) = Pause::rm()    { error!("Watch - Pause: {}", e); }
 		if let Err(e) = Play::rm()    { error!("Watch - Play: {}", e); }
 		if let Err(e) = Next::rm()    { error!("Watch - Next: {}", e); }
 		if let Err(e) = Last::rm()    { error!("Watch - Last: {}", e); }
@@ -112,12 +112,12 @@ impl Watch {
 				send!(self.to_kernel, WatchToKernel::Toggle);
 			}
 
-			// Stop/Play.
+			// Pause/Play.
 			//
-			// `Stop` will always take priority
-			// if both `Stop` and `Play` files exist.
-			if Stop::exists().is_ok() {
-				send!(self.to_kernel, WatchToKernel::Stop);
+			// `Pause` will always take priority
+			// if both `Pause` and `Play` files exist.
+			if Pause::exists().is_ok() {
+				send!(self.to_kernel, WatchToKernel::Pause);
 			} else if Play::exists().is_ok() {
 				send!(self.to_kernel, WatchToKernel::Play);
 			}

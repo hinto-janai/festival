@@ -13,9 +13,9 @@ pub struct Cli {
 	#[arg(long)]
 	toggle: bool,
 
-	/// Stop playback
+	/// Pause playback
 	#[arg(long)]
-	stop: bool,
+	pause: bool,
 
 	/// Start playback
 	#[arg(long)]
@@ -80,7 +80,7 @@ impl Cli {
 
 		// Signals.
 		if cli.toggle  { if let Err(e) = Toggle::touch()  { error!("Failed: {e}"); exit(1); } else { exit(0); } }
-		if cli.stop    { if let Err(e) = Stop::touch()    { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if cli.pause   { if let Err(e) = Pause::touch()   { error!("Failed: {e}"); exit(1); } else { exit(0); } }
 		if cli.play    { if let Err(e) = Play::touch()    { error!("Failed: {e}"); exit(1); } else { exit(0); } }
 		if cli.next    { if let Err(e) = Next::touch()    { error!("Failed: {e}"); exit(1); } else { exit(0); } }
 		if cli.last    { if let Err(e) = Last::touch()    { error!("Failed: {e}"); exit(1); } else { exit(0); } }

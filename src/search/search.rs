@@ -314,21 +314,20 @@ impl Search {
 			match recv!(self.from_kernel) {
 				// We got the new `Collection` pointer.
 				KernelToSearch::NewCollection(arc) => {
-					ok_debug!("Search - New Collection");
+					ok_debug!("Search - New Collection received");
 					self.collection = arc;
 					self.total_count = {
 						self.collection.count_artist.usize() +
 						self.collection.count_album.usize() +
 						self.collection.count_song.usize()
 					};
-					return
+					return;
 				},
 				_ => {
 					debug_panic!("Search - Incorrect message received");
 					error!("Search - Incorrect message received");
 				},
 			}
-
 		}
 	}
 }

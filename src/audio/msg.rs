@@ -28,7 +28,7 @@ pub(crate) enum KernelToAudio {
 	// Audio playback.
 	Toggle,
 	Play,
-	Stop,
+	Pause,
 	Next,
 	Last,
 
@@ -47,8 +47,8 @@ pub(crate) enum KernelToAudio {
 	AddQueueArtistBack(ArtistKey),
 
 	// Queue Index.
-	PlayQueueIndex(QueueKey),
-	RemoveQueueIndex(QueueKey),
+	PlayQueueIndex(usize),
+	RemoveQueueIndex(usize),
 
 	// Collection.
 	DropCollection,                 // Drop your pointer.

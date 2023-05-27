@@ -123,17 +123,28 @@ impl Gui {
 				use KernelToFrontend::*;
 				match msg {
 					NewCollection(collection) => self.new_collection(collection),
-					Failed((old_collection, error_string)) => {
-						println!("failed");
-						self.kernel_returned = true;
+					Failed((old_collection, err)) => {
+						warn!("GUI - New Collection error: {err}");
+						crate::toast_err!(self, "New Collection error: {err}");
+						self.new_collection(old_collection);
 					},
 					SearchResp(keychain) => {
 						self.state.search_result = keychain;
-						self.searching     = false;
+						self.searching = false;
 					},
-					DeviceError(err) => crate::toast_err!(self, "Audio device error: {err}"),
-					PlayError(err)   => crate::toast_err!(self, "Playback error: {err}"),
-					PathError(err) => crate::toast_err!(self, "Audio file error: {err}"),
+					DeviceError(err) => {
+						warn!("GUI - Audio device error: {err}");
+						crate::toast_err!(self, "Audio device error: {err}");
+					},
+					PlayError(err) => {
+						warn!("GUI - Playback error: {err}");
+						crate::toast_err!(self, "Playback error: {err}");
+					},
+					PathError((key, err)) => {
+						let song = &self.collection.songs[key];
+						warn!("GUI - Audio file error: {err}, song: {song:#?}");
+						crate::toast_err!(self, "Audio file error: {song.title} ... {err}");
+					},
 					_ => todo!(),
 				}
 			}

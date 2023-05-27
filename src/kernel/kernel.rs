@@ -9,7 +9,7 @@ use crate::constants::{
 	AUDIO_VERSION,
 };
 use std::sync::{Arc,RwLock};
-use crate::collection::Key;
+use crate::collection::SongKey;
 use crate::kernel::{
 	RESET_STATE,
 	reset::ResetState,
@@ -277,7 +277,7 @@ impl Kernel {
 
 		use crate::validate;
 
-		let audio = if validate::key(&collection, audio.key.unwrap_or(Key::zero())) {
+		let audio = if validate::song(&collection, audio.song.unwrap_or(SongKey::zero())) {
 			ok_trace!("Kernel - AudioState{AUDIO_VERSION} validation");
 			audio
 		} else {
@@ -421,7 +421,7 @@ impl Kernel {
 			// Audio playback.
 			Toggle               => send!(self.to_audio, KernelToAudio::Toggle),
 			Play                 => send!(self.to_audio, KernelToAudio::Play),
-			Stop                 => send!(self.to_audio, KernelToAudio::Stop),
+			Pause                => send!(self.to_audio, KernelToAudio::Pause),
 			Next                 => send!(self.to_audio, KernelToAudio::Next),
 			Last                 => send!(self.to_audio, KernelToAudio::Last),
 			// Audio settings.
@@ -478,7 +478,7 @@ impl Kernel {
 		match msg {
 			Toggle  => send!(self.to_audio, KernelToAudio::Toggle),
 			Play    => send!(self.to_audio, KernelToAudio::Play),
-			Stop    => send!(self.to_audio, KernelToAudio::Stop),
+			Pause   => send!(self.to_audio, KernelToAudio::Pause),
 			Next    => send!(self.to_audio, KernelToAudio::Next),
 			Last    => send!(self.to_audio, KernelToAudio::Last),
 			Shuffle => send!(self.to_audio, KernelToAudio::Shuffle),

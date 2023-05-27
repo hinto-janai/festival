@@ -33,8 +33,8 @@ pub enum FrontendToKernel {
 	Toggle,
 	/// Play current song.
 	Play,
-	/// Stop playback.
-	Stop,
+	/// Pause playback.
+	Pause,
 	/// Play next song in queue (stop if none).
 	Next,
 	/// Play last song in queue.
@@ -69,11 +69,11 @@ pub enum FrontendToKernel {
 
 	// Queue Index.
 	/// Play the `n`'th index [`Song`] in the queue without adding/removing anything.
-	PlayQueueIndex(QueueKey),
+	PlayQueueIndex(usize),
 	/// Remove the `n`th index [`Song`] in the queue.
 	///
 	/// This will do nothing if the index does not exist.
-	RemoveQueueIndex(QueueKey),
+	RemoveQueueIndex(usize),
 
 	// Collection.
 	/// I'd like a new [`Collection`], scanning these [`PathBuf`]'s for audio files.

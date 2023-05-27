@@ -1,5 +1,5 @@
 //---------------------------------------------------------------------------------------------------- Use
-//use anyhow::{anyhow,bail,ensure};
+use anyhow::{anyhow,bail,ensure};
 use log::{error,warn,info,debug,trace};
 //use serde::{Serialize,Deserialize};
 //use crate::macros::*;
@@ -8,6 +8,7 @@ use log::{error,warn,info,debug,trace};
 //use std::{};
 use benri::{
 	sleep,
+	flip,
 	debug_panic,
 	log::*,
 	sync::*,
@@ -18,6 +19,7 @@ use crate::collection::{
 	ArtistKey,
 	AlbumKey,
 	SongKey,
+	QueueKey,
 };
 use std::sync::{
 	Arc,RwLock,
@@ -29,7 +31,9 @@ use crate::audio::{
 	AudioState,
 };
 use crossbeam::channel::{Sender,Receiver};
-use rodio::{Sink,OutputStream};
+use rodio::{Sink,OutputStream,Source};
+use std::io::BufReader;
+use std::fs::File;
 
 //---------------------------------------------------------------------------------------------------- Audio Init
 pub(crate) struct Audio {
@@ -102,29 +106,29 @@ impl Audio {
 			match msg {
 				// TODO: Implement.
 				// Audio playback.
-				Toggle      => trace!("Audio - Toggle"),
-				Play        => trace!("Audio - Play"),
-				Stop        => trace!("Audio - Stop"),
-				Next        => trace!("Audio - Next"),
-				Last        => trace!("Audio - Last"),
+				Toggle      => self.msg_toggle(),
+				Play        => self.msg_play(),
+				Pause       => self.msg_pause(),
+				Next        => self.msg_next(),
+				Last        => self.msg_last(),
 
 				// Audio settings.
-				Shuffle     => trace!("Audio - Shuffle"),
-				Repeat      => trace!("Audio - Repeat"),
-				Volume(v)   => trace!("Audio - Volume"),
-				Seek(f)     => trace!("Audio - Seek"),
+				Shuffle     => self.msg_shuffle(),
+				Repeat      => self.msg_repeat(),
+				Volume(v)   => self.msg_volume(),
+				Seek(f)     => self.msg_seek(),
 
 				// Queue.
-				AddQueueSongFront(s_key)    => (),
-				AddQueueSongBack(s_key)     => (),
-				AddQueueAlbumFront(al_key)  => (),
-				AddQueueAlbumBack(al_key)   => (),
-				AddQueueArtistFront(ar_key) => (),
-				AddQueueArtistBack(ar_key)  => (),
+				AddQueueSongFront(s_key)    => self.msg_add_queue_song_front(s_key),
+				AddQueueSongBack(s_key)     => self.msg_add_queue_song_back(s_key),
+				AddQueueAlbumFront(al_key)  => self.msg_add_queue_album_front(al_key),
+				AddQueueAlbumBack(al_key)   => self.msg_add_queue_album_back(al_key),
+				AddQueueArtistFront(ar_key) => self.msg_add_queue_artist_front(ar_key),
+				AddQueueArtistBack(ar_key)  => self.msg_add_queue_artist_back(ar_key),
 
 				// Queue Index.
-				PlayQueueIndex(q_key)   => (),
-				RemoveQueueIndex(q_key) => (),
+				PlayQueueIndex(idx)   => self.msg_play_queue_index(idx),
+				RemoveQueueIndex(idx) => self.msg_remove_queue_index(idx),
 
 				// Collection.
 				DropCollection     => self.msg_drop(),
@@ -133,6 +137,243 @@ impl Audio {
 		}
 	}
 
+	//-------------------------------------------------- Non-msg functions.
+	// Error handling gets handled in the `to_source()` functions
+	// rather than the `msg_*()` handling functions.
+
+	#[inline]
+	// Convert a `SongKey` to `Decode` which implements `Source`.
+	fn to_source(&self, key: SongKey) -> Option<rodio::Decoder<BufReader<File>>> {
+		let path = &self.collection.songs[key].path;
+		let file = match File::open(path) {
+			Ok(f)  => BufReader::new(f),
+			Err(e) => { send!(self.to_kernel, AudioToKernel::PathError((key, anyhow!(e)))); return None; },
+		};
+
+		match rodio::Decoder::new(file) {
+			Ok(d)  => Some(d),
+			Err(e) => { send!(self.to_kernel, AudioToKernel::PathError((key, anyhow!(e)))); None },
+		}
+	}
+
+	#[inline]
+	// Convert a `AlbumKey` to `Vec<Decode>` of its `Song`'s.
+	fn to_source_album(&self, key: AlbumKey) -> Option<Vec<rodio::Decoder<BufReader<File>>>> {
+		let songs = &self.collection.albums[key].songs;
+		let mut vec = Vec::with_capacity(songs.len());
+
+		for song_key in songs {
+			let path = &self.collection.songs[song_key].path;
+			let file = match File::open(path) {
+				Ok(f)  => BufReader::new(f),
+				Err(e) => { send!(self.to_kernel, AudioToKernel::PathError((*song_key, anyhow!(e)))); continue },
+			};
+			let decoder = match rodio::Decoder::new(file) {
+				Ok(d)  => d,
+				Err(e) => { send!(self.to_kernel, AudioToKernel::PathError((*song_key, anyhow!(e)))); continue },
+			};
+			vec.push(decoder);
+		}
+
+		if vec.is_empty() {
+			None
+		} else {
+			Some(vec)
+		}
+	}
+
+	#[inline]
+	// Convert a `ArtistKey` to `Vec<Decode>` of ALL their `Song`'s.
+	fn to_source_artist(&self, key: ArtistKey) -> Option<Vec<rodio::Decoder<BufReader<File>>>> {
+		let songs = &self.collection.artists[key].songs;
+		let mut vec = Vec::with_capacity(songs.len());
+
+		for song_key in songs.iter() {
+			let path = &self.collection.songs[song_key].path;
+			let file = match File::open(path) {
+				Ok(f)  => BufReader::new(f),
+				Err(e) => { send!(self.to_kernel, AudioToKernel::PathError((*song_key, anyhow!(e)))); continue },
+			};
+			let decoder = match rodio::Decoder::new(file) {
+				Ok(d)  => d,
+				Err(e) => { send!(self.to_kernel, AudioToKernel::PathError((*song_key, anyhow!(e)))); continue },
+			};
+			vec.push(decoder);
+		}
+
+		if vec.is_empty() {
+			None
+		} else {
+			Some(vec)
+		}
+	}
+
+	#[inline]
+	fn clear_queue_sink(&mut self) {
+		let mut state = AUDIO_STATE.write();
+		state.queue.clear();
+		state.queue_idx = None;
+		state.playing   = false;
+		state.song      = None;
+		self.sink.clear();
+	}
+
+	//-------------------------------------------------- Audio playback.
+	#[inline(always)]
+	fn msg_toggle(&mut self) {
+		trace!("Audio - Toggle");
+		if !self.sink.empty() {
+			self.sink.toggle();
+			flip!(AUDIO_STATE.write().playing);
+		}
+	}
+
+	#[inline(always)]
+	fn msg_play(&mut self) {
+		trace!("Audio - Play");
+		if !self.sink.empty() {
+			self.sink.play();
+			AUDIO_STATE.write().playing = true;
+		}
+	}
+
+	#[inline(always)]
+	fn msg_pause(&mut self) {
+		trace!("Audio - Pause");
+		if !self.sink.empty() {
+			self.sink.pause();
+			AUDIO_STATE.write().playing = false;
+		}
+	}
+
+	#[inline(always)]
+	fn msg_next(&mut self) {
+		trace!("Audio - Next");
+		if !self.sink.empty() {
+			// Lock state.
+			let mut state = AUDIO_STATE.write();
+			let queue_idx = state.queue_idx;
+
+			// If we're at the end of the queue, clear.
+			if state.at_last_queue_idx() {
+				self.clear_queue_sink();
+				return;
+			}
+
+			self.sink.skip_one();
+			state.increment_queue_idx();
+		}
+	}
+
+	#[inline(always)]
+	fn msg_last(&mut self) {
+		trace!("Audio - Last");
+		if !self.sink.empty() {
+			// Lock state.
+			let mut state = AUDIO_STATE.write();
+
+			// Push the previous key back onto the `Sink`.
+			if let Some(x) = state.queue_idx {
+				// If we're at the beginning of the `Queue`, we have to remove it
+				// from the `Sink` and add it again to "reset" the audio track.
+				if x == 0 {
+					let source = match self.to_source(state.queue[0]) {
+						Some(s) => s,
+						None    => return,
+					};
+					// Append it first.
+					self.sink.append(source, Some(rodio::Append::Front));
+					// Remove the previous version.
+					if let Err(e) = self.sink.remove(1) {
+						debug_panic!("invalid sink.remove()");
+					}
+				} else {
+					let source = match self.to_source(state.queue[x - 1]) {
+						Some(s) => s,
+						None    => return,
+					};
+					self.sink.append(source, Some(rodio::Append::Front));
+					state.decrement_queue_idx();
+				}
+			}
+		}
+	}
+
+	//-------------------------------------------------- Audio settings.
+	#[inline(always)]
+	fn msg_shuffle(&mut self) {
+		todo!();
+	}
+
+	#[inline(always)]
+	fn msg_repeat(&mut self) {
+		todo!();
+	}
+
+	#[inline(always)]
+	fn msg_volume(&mut self) {
+		todo!();
+	}
+
+	#[inline(always)]
+	fn msg_seek(&mut self) {
+		todo!();
+	}
+
+	//-------------------------------------------------- Queue.
+	#[inline(always)]
+	fn msg_add_queue_song_front(&mut self, song: SongKey) {
+		if let Some(song) = self.to_source(song) {
+			self.sink.append(song, Some(rodio::Append::Front));
+		}
+	}
+
+	#[inline(always)]
+	fn msg_add_queue_song_back(&mut self, song: SongKey) {
+		if let Some(song) = self.to_source(song) {
+			self.sink.append(song, Some(rodio::Append::Back));
+		}
+	}
+
+	#[inline(always)]
+	fn msg_add_queue_album_front(&mut self, album: AlbumKey) {
+		if let Some(songs) = self.to_source_album(album) {
+			self.sink.append_bulk(songs, Some(rodio::Append::Front));
+		}
+	}
+
+	#[inline(always)]
+	fn msg_add_queue_album_back(&mut self, album: AlbumKey) {
+		if let Some(songs) = self.to_source_album(album) {
+			self.sink.append_bulk(songs, Some(rodio::Append::Back));
+		}
+	}
+
+	#[inline(always)]
+	fn msg_add_queue_artist_front(&mut self, artist: ArtistKey) {
+		if let Some(songs) = self.to_source_artist(artist) {
+			self.sink.append_bulk(songs, Some(rodio::Append::Front));
+		}
+	}
+
+	#[inline(always)]
+	fn msg_add_queue_artist_back(&mut self, artist: ArtistKey) {
+		if let Some(songs) = self.to_source_artist(artist) {
+			self.sink.append_bulk(songs, Some(rodio::Append::Back));
+		}
+	}
+
+	#[inline(always)]
+	fn msg_play_queue_index(&mut self, index: usize) {
+		todo!();
+	}
+
+	#[inline(always)]
+	fn msg_remove_queue_index(&mut self, index: usize) {
+		todo!();
+	}
+
+	//-------------------------------------------------- Drop.
 	#[inline(always)]
 	fn msg_drop(&mut self) {
 		// Drop pointer.
@@ -143,14 +384,17 @@ impl Audio {
 
 		// Ignore messages until it's a pointer.
 		loop {
-			if let KernelToAudio::NewCollection(arc) = recv!(self.from_kernel) {
-				ok_debug!("Audio - New Collection");
-				self.collection = arc;
-				return;
+			match recv!(self.from_kernel) {
+				KernelToAudio::NewCollection(arc) => {
+					ok_debug!("Audio - New Collection received");
+					self.collection = arc;
+					return;
+				},
+				_ => {
+					debug_panic!("Audio - Incorrect message received");
+					error!("Audio - Incorrect message received");
+				},
 			}
-
-			debug_panic!("Audio - Incorrect message received");
-			error!("Audio - Incorrect message received");
 		}
 	}
 }

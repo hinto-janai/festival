@@ -24,7 +24,7 @@ macro_rules! impl_signal {
 }
 
 impl_signal!(Toggle, "toggle");
-impl_signal!(Stop, "stop");
+impl_signal!(Pause, "pause");
 impl_signal!(Play, "play");
 impl_signal!(Next, "next");
 impl_signal!(Last, "last");

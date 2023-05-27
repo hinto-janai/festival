@@ -5,9 +5,9 @@ use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
 use crate::collection::{
 	Collection,
-	Key,
+	SongKey,
 	Keychain,
-	Queue,
+	Queue,QueueKey,
 	Playlist,
 };
 use crate::constants::{
@@ -28,6 +28,7 @@ use std::sync::{
 	RwLockReadGuard,
 	RwLockWriteGuard,
 };
+use std::collections::VecDeque;
 
 //---------------------------------------------------------------------------------------------------- Lazy
 /// This is the single, global copy of `AudioState` that `Kernel` uses.
@@ -70,16 +71,18 @@ disk::bincode2!(AudioState, disk::Dir::Data, FESTIVAL, SHUKUSAI, "audio", HEADER
 /// To obtain a read-only lock, use `AUDIO_STATE.read()`.
 #[derive(Clone,Debug,PartialOrd,PartialEq,Serialize,Deserialize,Encode,Decode)]
 pub struct AudioState {
-	// Queue/Playlist.
+	// Queue.
 	/// The current song queue.
-	pub queue: Queue,
+	pub queue: VecDeque<SongKey>,
+	/// The currently playing index in the queue.
+	pub queue_idx: Option<usize>,
 
 	/// Are we playing audio right now?
 	pub playing: bool,
 	/// What is the current [`Volume`]?
 	pub volume: Volume,
 	/// Which song are we playing right now?
-	pub key: Option<Key>,
+	pub song: Option<SongKey>,
 	/// How much time has passed in this song?
 	pub elapsed: Runtime,
 	/// What is the full runtime of the current song?
@@ -95,15 +98,45 @@ impl AudioState {
 	/// Creates an empty struct.
 	pub(crate) const fn new() -> Self {
 		Self {
-			queue: Queue::new(),
+			queue: VecDeque::new(),
+			queue_idx: None,
 
 			playing: false,
 			volume: Volume::new_50(),
-			key: None,
+			song: None,
 			elapsed: Runtime::zero(),
 			runtime: Runtime::zero(),
 			shuffle: false,
 			repeat: false,
+		}
+	}
+
+	#[inline]
+	// Increments the `queue_idx` if it isn't `None`.
+	pub(super) fn increment_queue_idx(&mut self) {
+		if let Some(i) = self.queue_idx {
+			self.queue_idx = Some(i + 1);
+		}
+	}
+
+	#[inline]
+	// Decrements the `queue_idx` if it isn't `None`.
+	//
+	// If `0`, nothing happens.
+	pub(super) fn decrement_queue_idx(&mut self) {
+		if let Some(i) = self.queue_idx {
+			if i != 0 {
+				self.queue_idx = Some(i - 1);
+			}
+		}
+	}
+
+	#[inline]
+	// Checks if we are at the last index in the queue.
+	pub(super) fn at_last_queue_idx(&self) -> bool {
+		match self.queue_idx {
+			Some(i) => i + 1 == self.queue.len(),
+			None => false,
 		}
 	}
 }
