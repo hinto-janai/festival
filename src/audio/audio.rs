@@ -31,12 +31,17 @@ use crate::audio::{
 	AudioState,
 };
 use crossbeam::channel::{Sender,Receiver};
-use rodio::{Sink,OutputStream,Source};
+use rodio::{Sink,OutputStream,OutputStreamHandle,Source};
 use std::io::BufReader;
 use std::fs::File;
 
 //---------------------------------------------------------------------------------------------------- Audio Init
 pub(crate) struct Audio {
+	// `rodio`'s audio device type abstractions.
+	// This must stay alive for audio to be played.
+	stream: OutputStream,
+	handle: OutputStreamHandle,
+
 	sink:        Sink,                    // Audio sink, holder and controller of all `Source`'s
 	collection:  Arc<Collection>,         // Pointer to `Collection`
 	to_kernel:   Sender<AudioToKernel>,   // Channel TO `Kernel`
@@ -57,24 +62,22 @@ impl Audio {
 		const RETRY_SECONDS: u64 = 5;
 
 		// Loop until we can connect to an audio device.
-		let sink = {
-			let (stream, stream_handle) = loop {
-				 match OutputStream::try_default() {
-					Ok((s, sh)) => { debug!("Audio [1/2] - Output device"); break (s, sh); },
-					Err(e) => {
-						warn!("Audio - Output device error: {e} ... retrying in {RETRY_SECONDS} seconds");
-					},
-				}
-				sleep!(RETRY_SECONDS);
-			};
-
-			loop {
-				match Sink::try_new(&stream_handle) {
-					Ok(s)  => { debug!("Audio [2/2] - Sink"); break s; },
-					Err(e) => warn!("Audio - Sink error: {e} ... retrying in {RETRY_SECONDS} seconds"),
-				}
-				sleep!(RETRY_SECONDS);
+		let (stream, handle) = loop {
+			 match OutputStream::try_default() {
+				Ok((s, h)) => { debug!("Audio [1/2] - Output device"); break (s, h); },
+				Err(e) => {
+					warn!("Audio - Output device error: {e} ... retrying in {RETRY_SECONDS} seconds");
+				},
 			}
+			sleep!(RETRY_SECONDS);
+		};
+
+		let sink = loop {
+			match Sink::try_new(&handle) {
+				Ok(s)  => { debug!("Audio [2/2] - Sink"); break s; },
+				Err(e) => warn!("Audio - Sink error: {e} ... retrying in {RETRY_SECONDS} seconds"),
+			}
+			sleep!(RETRY_SECONDS);
 		};
 
 		// Re-write global `AudioState`.
@@ -82,6 +85,8 @@ impl Audio {
 
 		// Init data.
 		let audio = Self {
+			stream,
+			handle,
 			sink,
 			collection,
 			to_kernel,
@@ -268,6 +273,7 @@ impl Audio {
 	#[inline(always)]
 	fn msg_last(&mut self) {
 		trace!("Audio - Last");
+
 		if !self.sink.empty() {
 			// Lock state.
 			let mut state = AUDIO_STATE.write();
@@ -302,27 +308,32 @@ impl Audio {
 	//-------------------------------------------------- Audio settings.
 	#[inline(always)]
 	fn msg_shuffle(&mut self) {
+		trace!("Audio - Shuffle");
 		todo!();
 	}
 
 	#[inline(always)]
 	fn msg_repeat(&mut self) {
+		trace!("Audio - Repeat");
 		todo!();
 	}
 
 	#[inline(always)]
 	fn msg_volume(&mut self) {
+		trace!("Audio - Volume");
 		todo!();
 	}
 
 	#[inline(always)]
 	fn msg_seek(&mut self) {
+		trace!("Audio - Seek");
 		todo!();
 	}
 
 	//-------------------------------------------------- Queue.
 	#[inline(always)]
 	fn msg_add_queue_song_front(&mut self, song: SongKey) {
+		trace!("Audio - msg_add_queue_song_front({song:?})");
 		if let Some(song) = self.to_source(song) {
 			self.sink.append(song, Some(rodio::Append::Front));
 		}
@@ -330,6 +341,7 @@ impl Audio {
 
 	#[inline(always)]
 	fn msg_add_queue_song_back(&mut self, song: SongKey) {
+		trace!("Audio - msg_add_queue_song_back({song:?})");
 		if let Some(song) = self.to_source(song) {
 			self.sink.append(song, Some(rodio::Append::Back));
 		}
@@ -337,6 +349,7 @@ impl Audio {
 
 	#[inline(always)]
 	fn msg_add_queue_album_front(&mut self, album: AlbumKey) {
+		trace!("Audio - msg_add_queue_album_front({album:?})");
 		if let Some(songs) = self.to_source_album(album) {
 			self.sink.append_bulk(songs, Some(rodio::Append::Front));
 		}
@@ -344,6 +357,7 @@ impl Audio {
 
 	#[inline(always)]
 	fn msg_add_queue_album_back(&mut self, album: AlbumKey) {
+		trace!("Audio - msg_add_queue_album_back({album:?})");
 		if let Some(songs) = self.to_source_album(album) {
 			self.sink.append_bulk(songs, Some(rodio::Append::Back));
 		}
@@ -351,6 +365,7 @@ impl Audio {
 
 	#[inline(always)]
 	fn msg_add_queue_artist_front(&mut self, artist: ArtistKey) {
+		trace!("Audio - msg_add_queue_artist_front({artist:?})");
 		if let Some(songs) = self.to_source_artist(artist) {
 			self.sink.append_bulk(songs, Some(rodio::Append::Front));
 		}
@@ -358,6 +373,7 @@ impl Audio {
 
 	#[inline(always)]
 	fn msg_add_queue_artist_back(&mut self, artist: ArtistKey) {
+		trace!("Audio - msg_add_queue_artist_back({artist:?})");
 		if let Some(songs) = self.to_source_artist(artist) {
 			self.sink.append_bulk(songs, Some(rodio::Append::Back));
 		}
@@ -365,11 +381,13 @@ impl Audio {
 
 	#[inline(always)]
 	fn msg_play_queue_index(&mut self, index: usize) {
+		trace!("Audio - msg_play_queue_index({index})");
 		todo!();
 	}
 
 	#[inline(always)]
 	fn msg_remove_queue_index(&mut self, index: usize) {
+		trace!("Audio - msg_remove_queue_index({index})");
 		todo!();
 	}
 
