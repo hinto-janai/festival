@@ -7,8 +7,10 @@ use std::marker::PhantomData;
 use readable::Runtime;
 use crate::collection::{
 	Album,
+	Song,
 	Collection,
 	AlbumKey,
+	SongKey,
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -25,6 +27,10 @@ pub struct Artist {
 	pub runtime: Runtime,
 	/// Keys to the associated [`Album`]\(s\).
 	pub albums: Vec<AlbumKey>,
+	/// Keys to every [`Song`] by this [`Artist`].
+	///
+	/// The order is [`Album`] release order, then [`Song`] track order.
+	pub songs: Box<[SongKey]>,
 
 	// Reserved fields and their `size_of()`.
 	pub(crate) _reserved1: PhantomData<Box<[usize]>>, // 16

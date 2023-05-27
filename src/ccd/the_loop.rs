@@ -479,7 +479,14 @@ impl super::Ccd {
 			// Total runtime.
 			let runtime: u32 = artist.albums.iter().map(|a| vec_album[a.inner()].runtime.inner()).sum();
 			artist.runtime = Runtime::from(runtime);
+
+			// Collect `SongKey` for the `Artist`'s.
+			artist.songs = artist.albums
+				.iter()
+				.flat_map(|k| vec_album[k.inner()].songs.iter().map(|k| *k))
+				.collect();
 		}
+
 	}
 
 	//---------------------------------------------------------------------------------------------------- Private tag functions.

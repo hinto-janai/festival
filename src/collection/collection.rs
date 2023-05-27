@@ -467,12 +467,12 @@ impl Collection {
 	}
 
 	//-------------------------------------------------- Indexing.
+	#[inline]
 	/// Directly index the [`Collection`] with a [`Key`].
 	///
 	/// # Panics:
 	/// The [`ArtistKey`], [`AlbumKey`] and [`SongKey`] within
 	/// the [`Key`] must be valid indices into the [`Collection`].
-	#[inline]
 	pub fn index<K: Into<Key>>(&self, key: K) -> (&Artist, &Album, &Song) {
 		let (artist, album, song) = key.into().inner_usize();
 		(&self.artists.0[artist], &self.albums.0[album], &self.songs.0[song])
