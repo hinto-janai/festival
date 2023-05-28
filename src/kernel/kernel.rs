@@ -431,12 +431,14 @@ impl Kernel {
 			Seek(second)         => send!(self.to_audio, KernelToAudio::Seek(second)),
 
 			// Queue.
-			AddQueueSongFront(s_key)    => send!(self.to_audio, KernelToAudio::AddQueueSongFront(s_key)),
-			AddQueueSongBack(s_key)     => send!(self.to_audio, KernelToAudio::AddQueueSongBack(s_key)),
-			AddQueueAlbumFront(al_key)  => send!(self.to_audio, KernelToAudio::AddQueueAlbumFront(al_key)),
-			AddQueueAlbumBack(al_key)   => send!(self.to_audio, KernelToAudio::AddQueueAlbumBack(al_key)),
-			AddQueueArtistFront(ar_key) => send!(self.to_audio, KernelToAudio::AddQueueArtistFront(ar_key)),
-			AddQueueArtistBack(ar_key)  => send!(self.to_audio, KernelToAudio::AddQueueArtistBack(ar_key)),
+			AddQueueSongFront(s_key)     => send!(self.to_audio, KernelToAudio::AddQueueSongFront(s_key)),
+			AddQueueSongBack(s_key)      => send!(self.to_audio, KernelToAudio::AddQueueSongBack(s_key)),
+			AddQueueSongTailFront(s_key) => send!(self.to_audio, KernelToAudio::AddQueueSongTailFront(s_key)),
+			AddQueueSongTailBack(s_key)  => send!(self.to_audio, KernelToAudio::AddQueueSongTailBack(s_key)),
+			AddQueueAlbumFront(al_key)   => send!(self.to_audio, KernelToAudio::AddQueueAlbumFront(al_key)),
+			AddQueueAlbumBack(al_key)    => send!(self.to_audio, KernelToAudio::AddQueueAlbumBack(al_key)),
+			AddQueueArtistFront(ar_key)  => send!(self.to_audio, KernelToAudio::AddQueueArtistFront(ar_key)),
+			AddQueueArtistBack(ar_key)   => send!(self.to_audio, KernelToAudio::AddQueueArtistBack(ar_key)),
 
 		    // Queue Index.
 			PlayQueueIndex(q_key)   => send!(self.to_audio, KernelToAudio::PlayQueueIndex(q_key)),

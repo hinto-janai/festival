@@ -58,6 +58,12 @@ pub enum FrontendToKernel {
 	AddQueueSongFront(SongKey),
 	/// Add this `Song` to the BACK of the queue (last song).
 	AddQueueSongBack(SongKey),
+	/// Add this `Song` and every `Song` following it in the
+	/// owning `Album` to the FRONT of the queue.
+	AddQueueSongTailFront(SongKey),
+	/// Add this `Song` and every `Song` following it in the
+	/// owning `Album` to the BACK of the queue.
+	AddQueueSongTailBack(SongKey),
 	/// Add all the songs in this `Album` to the FRONT of the queue.
 	AddQueueAlbumFront(AlbumKey),
 	/// Add all the songs in this `Album` to the BACK of the queue.

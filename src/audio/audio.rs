@@ -125,12 +125,14 @@ impl Audio {
 				Seek(f)     => self.msg_seek(f),
 
 				// Queue.
-				AddQueueSongFront(s_key)    => self.msg_add_queue_song_front(s_key),
-				AddQueueSongBack(s_key)     => self.msg_add_queue_song_back(s_key),
-				AddQueueAlbumFront(al_key)  => self.msg_add_queue_album_front(al_key),
-				AddQueueAlbumBack(al_key)   => self.msg_add_queue_album_back(al_key),
-				AddQueueArtistFront(ar_key) => self.msg_add_queue_artist_front(ar_key),
-				AddQueueArtistBack(ar_key)  => self.msg_add_queue_artist_back(ar_key),
+				AddQueueSongFront(s_key)     => self.msg_add_queue_song(s_key,      rodio::Append::Front),
+				AddQueueSongBack(s_key)      => self.msg_add_queue_song(s_key,      rodio::Append::Back),
+				AddQueueSongTailFront(s_key) => self.msg_add_queue_song_tail(s_key, rodio::Append::Front),
+				AddQueueSongTailBack(s_key)  => self.msg_add_queue_song_tail(s_key, rodio::Append::Back),
+				AddQueueAlbumFront(al_key)   => self.msg_add_queue_album(al_key,    rodio::Append::Front),
+				AddQueueAlbumBack(al_key)    => self.msg_add_queue_album(al_key,    rodio::Append::Back),
+				AddQueueArtistFront(ar_key)  => self.msg_add_queue_artist(ar_key,   rodio::Append::Front),
+				AddQueueArtistBack(ar_key)   => self.msg_add_queue_artist(ar_key,   rodio::Append::Back),
 
 				// Queue Index.
 				PlayQueueIndex(idx)   => self.msg_play_queue_index(idx),
@@ -160,6 +162,15 @@ impl Audio {
 			Ok(d)  => Some(d),
 			Err(e) => { send!(self.to_kernel, AudioToKernel::PathError((key, anyhow!(e)))); None },
 		}
+	}
+
+	#[inline]
+	// Convert a `SongKey` to `Vec<Decode>` with `Collection::song_tail()`.
+	fn to_source_song_tail(&self, key: SongKey) -> Vec<rodio::Decoder<BufReader<File>>> {
+		self.collection
+			.song_tail(key)
+			.filter_map(|k| self.to_source(*k))
+			.collect()
 	}
 
 	#[inline]
@@ -348,50 +359,36 @@ impl Audio {
 
 	//-------------------------------------------------- Queue.
 	#[inline(always)]
-	fn msg_add_queue_song_front(&mut self, song: SongKey) {
-		trace!("Audio - msg_add_queue_song_front({song:?})");
+	fn msg_add_queue_song(&mut self, song: SongKey, append: rodio::Append) {
+		trace!("Audio - msg_add_queue_song({song:?}) - {append:?}");
 		if let Some(song) = self.to_source(song) {
-			self.sink.append(song, Some(rodio::Append::Front));
+			self.sink.append(song, Some(append));
 		}
 	}
 
 	#[inline(always)]
-	fn msg_add_queue_song_back(&mut self, song: SongKey) {
-		trace!("Audio - msg_add_queue_song_back({song:?})");
-		if let Some(song) = self.to_source(song) {
-			self.sink.append(song, Some(rodio::Append::Back));
+	fn msg_add_queue_song_tail(&mut self, song: SongKey, append: rodio::Append) {
+		trace!("Audio - msg_add_queue_song_tail({song:?}) - {append:?}");
+		let song_vec = self.to_source_song_tail(song);
+
+		if song_vec.len() > 0 {
+			self.sink.append_bulk(song_vec, Some(append));
 		}
 	}
 
 	#[inline(always)]
-	fn msg_add_queue_album_front(&mut self, album: AlbumKey) {
-		trace!("Audio - msg_add_queue_album_front({album:?})");
+	fn msg_add_queue_album(&mut self, album: AlbumKey, append: rodio::Append) {
+		trace!("Audio - msg_add_queue_album({album:?}) - {append:?}");
 		if let Some(songs) = self.to_source_album(album) {
-			self.sink.append_bulk(songs, Some(rodio::Append::Front));
+			self.sink.append_bulk(songs, Some(append));
 		}
 	}
 
 	#[inline(always)]
-	fn msg_add_queue_album_back(&mut self, album: AlbumKey) {
-		trace!("Audio - msg_add_queue_album_back({album:?})");
-		if let Some(songs) = self.to_source_album(album) {
-			self.sink.append_bulk(songs, Some(rodio::Append::Back));
-		}
-	}
-
-	#[inline(always)]
-	fn msg_add_queue_artist_front(&mut self, artist: ArtistKey) {
-		trace!("Audio - msg_add_queue_artist_front({artist:?})");
+	fn msg_add_queue_artist(&mut self, artist: ArtistKey, append: rodio::Append) {
+		trace!("Audio - msg_add_queue_artist({artist:?}) - {append:?}");
 		if let Some(songs) = self.to_source_artist(artist) {
-			self.sink.append_bulk(songs, Some(rodio::Append::Front));
-		}
-	}
-
-	#[inline(always)]
-	fn msg_add_queue_artist_back(&mut self, artist: ArtistKey) {
-		trace!("Audio - msg_add_queue_artist_back({artist:?})");
-		if let Some(songs) = self.to_source_artist(artist) {
-			self.sink.append_bulk(songs, Some(rodio::Append::Back));
+			self.sink.append_bulk(songs, Some(append));
 		}
 	}
 

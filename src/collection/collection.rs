@@ -466,6 +466,31 @@ impl Collection {
 		None
 	}
 
+	//-------------------------------------------------- Bulk.
+	/// Returns an iterator that starts from the input [`Song`]
+	/// and includes every [`Song`] after that one.
+	///
+	/// e.g: If we input `song_1` to an array of [`song_0`, `song_1`, `song_2`, `song_3`]
+	/// it would return an iterator that starts at `song_1` and ends at `song_3`.
+	///
+	/// This is useful for starting a queue including songs of an [`Album`]
+	/// but not necessarily starting from the first [`Song`].
+	pub fn song_tail<K: Into<SongKey>>(&self, key: K) -> std::slice::Iter<'_, SongKey> {
+		let key = key.into();
+		let album = self.album_from_song(key);
+		let mut iter = album.songs.iter();
+
+		// The input `SongKey` should _always_ be found
+		// in the owning `Album`'s `song` field.
+		while let Some(song) = iter.next() {
+			if key == song {
+				return iter;
+			}
+		}
+
+		panic!("{key:?} did not exist in the album {album:#?}");
+	}
+
 	//-------------------------------------------------- Indexing.
 	#[inline]
 	/// Directly index the [`Collection`] with a [`Key`].

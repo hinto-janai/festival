@@ -41,6 +41,8 @@ pub(crate) enum KernelToAudio {
 	// Queue.
 	AddQueueSongFront(SongKey),
 	AddQueueSongBack(SongKey),
+	AddQueueSongTailFront(SongKey),
+	AddQueueSongTailBack(SongKey),
 	AddQueueAlbumFront(AlbumKey),
 	AddQueueAlbumBack(AlbumKey),
 	AddQueueArtistFront(ArtistKey),
