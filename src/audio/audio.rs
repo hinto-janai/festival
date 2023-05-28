@@ -29,6 +29,7 @@ use crate::audio::{
 	AudioToKernel,
 	KernelToAudio,
 	AudioState,
+	Volume,
 };
 use crossbeam::channel::{Sender,Receiver};
 use rodio::{Sink,OutputStream,OutputStreamHandle,Source};
@@ -120,8 +121,8 @@ impl Audio {
 				// Audio settings.
 				Shuffle     => self.msg_shuffle(),
 				Repeat      => self.msg_repeat(),
-				Volume(v)   => self.msg_volume(),
-				Seek(f)     => self.msg_seek(),
+				Volume(v)   => self.msg_volume(v),
+				Seek(f)     => self.msg_seek(f),
 
 				// Queue.
 				AddQueueSongFront(s_key)    => self.msg_add_queue_song_front(s_key),
@@ -162,7 +163,7 @@ impl Audio {
 	}
 
 	#[inline]
-	// Convert a `AlbumKey` to `Vec<Decode>` of its `Song`'s.
+	// Convert an `AlbumKey` to `Vec<Decode>` of its `Song`'s.
 	fn to_source_album(&self, key: AlbumKey) -> Option<Vec<rodio::Decoder<BufReader<File>>>> {
 		let songs = &self.collection.albums[key].songs;
 		let mut vec = Vec::with_capacity(songs.len());
@@ -188,7 +189,7 @@ impl Audio {
 	}
 
 	#[inline]
-	// Convert a `ArtistKey` to `Vec<Decode>` of ALL their `Song`'s.
+	// Convert an `ArtistKey` to `Vec<Decode>` of ALL their `Song`'s.
 	fn to_source_artist(&self, key: ArtistKey) -> Option<Vec<rodio::Decoder<BufReader<File>>>> {
 		let songs = &self.collection.artists[key].songs;
 		let mut vec = Vec::with_capacity(songs.len());
@@ -319,15 +320,30 @@ impl Audio {
 	}
 
 	#[inline(always)]
-	fn msg_volume(&mut self) {
+	fn msg_volume(&mut self, volume: Volume) {
 		trace!("Audio - Volume");
-		todo!();
+		self.sink.set_volume(volume.f32())
 	}
 
 	#[inline(always)]
-	fn msg_seek(&mut self) {
+	fn msg_seek(&mut self, seek: u32) {
 		trace!("Audio - Seek");
-		todo!();
+		let state = AUDIO_STATE.read();
+		if let Some(idx) = state.queue_idx {
+			// Re-create current `Source ` and seek forward to `seek`.
+			let source = match self.to_source(state.queue[idx]) {
+				Some(s) => s,
+				None    => return,
+			}.skip_duration(std::time::Duration::from_secs(seek.into()));
+
+			// Re-add current song to front.
+			self.sink.append(source, Some(rodio::Append::Front));
+
+			// Remove the old previous song.
+			if let Err(e) = self.sink.remove(1) {
+				debug_panic!("self.sink.remove(1) fail in msg_seek()");
+			}
+		}
 	}
 
 	//-------------------------------------------------- Queue.
