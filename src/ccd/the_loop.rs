@@ -176,15 +176,15 @@ impl super::Ccd {
 		// out all picture ops. Not that much faster.
 		let mut tagged_file = match Self::path_to_tagged_file(&path) {
 			Ok(t)  => t,
-			Err(e) => { warn!("CCD - TaggedFile fail: {}", path.display()); continue; },
+			Err(e) => { warn!("CCD - TaggedFile fail: {} ... {e}", path.display()); continue; },
 		};
 		let mut tag = match Self::tagged_file_to_tag(&mut tagged_file) {
 			Ok(t)  => t,
-			Err(e) => { warn!("CCD - Tag fail: {}", path.display()); continue; },
+			Err(e) => { warn!("CCD - Tag fail: {} ... {e}", path.display()); continue; },
 		};
 		let metadata = match Self::extract_tag_metadata(tagged_file, &mut tag) {
 			Ok(t)  => t,
-			Err(e) => { warn!("CCD - Metadata fail: {}", path.display()); continue; },
+			Err(e) => { warn!("CCD - Metadata fail: {} ... {e}", path.display()); continue; },
 		};
 
 		// Destructure tag metadata
@@ -525,6 +525,13 @@ impl super::Ccd {
 			Ok(t)
 		} else if let Some(t) = tagged_file.remove(lofty::TagType::Id3v1) {
 			Ok(t)
+		// TODO:
+		// Upstream a `.remove_primary_tag()` and `.remove_first_tag()`
+		// or maybe a `.remove_tag() -> Box<[Tag]>`
+		} else if let Some(t) = tagged_file.primary_tag() {
+			Ok(t.clone())
+		} else if let Some(t) = tagged_file.first_tag() {
+			Ok(t.clone())
 		} else {
 			Err(anyhow!("No tag"))
 		}
@@ -645,6 +652,9 @@ impl super::Ccd {
 		};
 
 		// Attempt to get _needed_ metadata.
+		// TODO:
+		// These don't always get the tag.
+		// Do manual tag parsing.
 		let artist      = match tag.artist()      { Some(t) => t, None => bail!("No artist") };
 		let album       = match tag.album()       { Some(t) => t, None => bail!("No album") };
 		let title       = match tag.title()       { Some(t) => t, None => bail!("No title") };
