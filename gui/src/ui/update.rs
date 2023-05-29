@@ -37,6 +37,7 @@ use benri::{
 	sync::*,
 	panic::*,
 	flip,
+	debug_panic,
 };
 use std::time::{
 	Instant,
@@ -127,7 +128,7 @@ impl Gui {
 					NewCollection(collection) => self.new_collection(collection),
 					Failed((old_collection, err)) => {
 						warn!("GUI - New Collection error: {err}");
-						crate::toast_err!(self, "New Collection error: {err}");
+						crate::toast_err!(self, format!("New Collection error: {err}"));
 						self.new_collection(old_collection);
 					},
 					SearchResp(keychain) => {
@@ -136,18 +137,20 @@ impl Gui {
 					},
 					DeviceError(err) => {
 						warn!("GUI - Audio device error: {err}");
-						crate::toast_err!(self, "Audio device error: {err}");
+						crate::toast_err!(self, format!("Audio device error: {err}"));
 					},
 					PlayError(err) => {
 						warn!("GUI - Playback error: {err}");
-						crate::toast_err!(self, "Playback error: {err}");
+						crate::toast_err!(self, format!("Playback error: {err}"));
 					},
 					PathError((key, err)) => {
 						let song = &self.collection.songs[key];
 						warn!("GUI - Audio file error: {err}, song: {song:#?}");
-						crate::toast_err!(self, "Audio file error: {song.title} ... {err}");
+						crate::toast_err!(self, format!("Audio file error: {}", song.title));
 					},
-					_ => todo!(),
+
+					// These should never be received here.
+					DropCollection | Exit(_) => debug_panic!("gui recv() wrong msg"),
 				}
 			}
 		}

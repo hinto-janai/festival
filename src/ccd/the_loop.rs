@@ -258,7 +258,14 @@ impl super::Ccd {
 					*lock!(count_art) += 1;
 					Art::Bytes(bytes.into())
 				},
-				_ => Art::Unknown,
+				_ => {
+					if let Some(bytes) = Self::maybe_find_img(&path) {
+						*lock!(count_art) += 1;
+						Art::Bytes(bytes.into())
+					} else {
+						Art::Unknown
+					}
+				},
 			};
 			let path_parent = match path.parent() {
 				Some(p) => p.to_path_buf(),
@@ -336,7 +343,14 @@ impl super::Ccd {
 				*lock!(count_art) += 1;
 				Art::Bytes(bytes.into())
 			},
-			_ => Art::Unknown,
+			_ => {
+				if let Some(bytes) = Self::maybe_find_img(&path) {
+					*lock!(count_art) += 1;
+					Art::Bytes(bytes.into())
+				} else {
+					Art::Unknown
+				}
+			},
 		};
 		let path_parent = match path.parent() {
 			Some(p) => p.to_path_buf(),

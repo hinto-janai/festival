@@ -41,6 +41,12 @@ pub(crate) const SUPPORTED_AUDIO_MIME_TYPES: [&str; 22] = [
 	"audio/x-aiff",
 ];
 
+pub(crate) const SUPPORTED_IMG_MIME_TYPES: [&str; 3] = [
+	"image/jpg",
+	"image/jpeg",
+	"image/png",
+];
+
 #[derive(Debug,PartialEq,Eq,PartialOrd,Ord)]
 pub(super) enum AudioType {
 	Aac,
