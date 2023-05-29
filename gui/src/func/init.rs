@@ -12,6 +12,10 @@ use crate::data::{
 	Settings,
 	DebugInfo,
 };
+use shukusai::{
+	FESTIVAL_DBUS,
+	FESTIVAL_NAME_VER,
+};
 use shukusai::kernel::{
 	AudioState,
 	ResetState,
@@ -24,6 +28,7 @@ use shukusai::collection::{
 };
 use benri::{
 	now,
+	send,
 	log::*,
 };
 use log::{
@@ -105,6 +110,42 @@ impl crate::data::Gui {
 		fonts
 	}
 
+	#[inline(always)]
+	fn init_media_control(to_kernel: Sender<FrontendToKernel>) -> souvlaki::MediaControls {
+		#[cfg(target_os = "windows")]
+		let hwnd = todo!();
+
+		#[cfg(not(target_os = "windows"))]
+		let hwnd = None;
+
+		let config = souvlaki::PlatformConfig {
+			dbus_name: FESTIVAL_DBUS,
+			display_name: FESTIVAL_NAME_VER,
+			hwnd,
+		};
+
+		let mut media_controls = souvlaki::MediaControls::new(config).unwrap();
+
+		media_controls.attach(move |event| {
+			use souvlaki::MediaControlEvent::*;
+			match event {
+				Play                  => send!(to_kernel, FrontendToKernel::Play),
+				Pause|Stop            => send!(to_kernel, FrontendToKernel::Pause),
+				Toggle                => send!(to_kernel, FrontendToKernel::Toggle),
+				Next                  => send!(to_kernel, FrontendToKernel::Next),
+				Previous              => send!(to_kernel, FrontendToKernel::Previous),
+				Seek(seek_dir)        => todo!(),
+				SeekBy(seek_dir, dur) => todo!(),
+				SetPosition(pos)      => todo!(),
+				OpenUri(string)       => todo!(),
+				Raise                 => todo!(),
+				Quit                  => todo!(),
+			}
+		}).unwrap();
+
+		media_controls
+	}
+
 	//---------------------------------------------------------------------------------------------------- `egui/eframe` options & init
 	#[inline(always)]
 	// Sets the initial options for native rendering with eframe
@@ -144,17 +185,35 @@ impl crate::data::Gui {
 
 		// Read `Settings` from disk.
 		let settings = match Settings::from_file() {
-			Ok(s)  => { info!("GUI [1/6] - Settings from disk"); s },
-			Err(e) => { warn!("GUI [1/6] - Settings failed from disk: {}", e); Settings::new() },
+			Ok(s)  => { info!("GUI [1/7] - Settings from disk"); s },
+			Err(e) => { warn!("GUI [1/7] - Settings failed from disk: {}", e); Settings::new() },
 		};
 
 		// Read `State` from disk.
 		let state = match State::from_file() {
-			Ok(s)  => { info!("GUI [2/6] - State from disk"); s },
-			Err(e) => { warn!("GUI [2/6] - State failed from disk: {}", e); State::new() },
+			Ok(s)  => { info!("GUI [2/7] - State from disk"); s },
+			Err(e) => { warn!("GUI [2/7] - State failed from disk: {}", e); State::new() },
 		};
 
-		let app = Self {
+		// Media controls.
+		let media_controls = Self::init_media_control(to_kernel.clone());
+		info!("GUI [3/7] - Media controls");
+
+		// Style
+		cc.egui_ctx.set_style(Self::init_style());
+		info!("GUI [4/7] - Style");
+
+		// Visuals
+		cc.egui_ctx.set_visuals(Self::init_visuals());
+		info!("GUI [5/7] - Visuals");
+
+		// Fonts
+		cc.egui_ctx.set_fonts(Self::init_fonts());
+		info!("GUI [6/7] - Fonts");
+
+		// Done.
+		info!("GUI [7/7] - Init");
+		Self {
 			// `Kernel` channels.
 			to_kernel,
 			from_kernel,
@@ -169,6 +228,9 @@ impl crate::data::Gui {
 			// `GUI` state.
 			og_state: state.clone(),
 			state,
+
+			// Media controls.
+			media_controls,
 
 			// `egui_notify`
 			toasts: egui_notify::Toasts::new(),
@@ -196,22 +258,6 @@ impl crate::data::Gui {
 
 			debug_screen: false,
 			debug_info: DebugInfo::new(),
-		};
-
-		// Style
-		cc.egui_ctx.set_style(Self::init_style());
-		info!("GUI [3/6] - Style");
-
-		// Visuals
-		cc.egui_ctx.set_visuals(Self::init_visuals());
-		info!("GUI [4/6] - Visuals");
-
-		// Fonts
-		cc.egui_ctx.set_fonts(Self::init_fonts());
-		info!("GUI [5/6] - Fonts");
-
-		// Done.
-		info!("GUI [6/6] - Init");
-		app
+		}
 	}
 }

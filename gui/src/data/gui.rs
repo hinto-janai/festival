@@ -53,6 +53,9 @@ pub struct Gui {
 	/// `GUI` settings (old).
 	pub og_state: State,
 
+	//-------------------------------------------------- OS Media controls.
+	pub media_controls: souvlaki::MediaControls,
+
 	//-------------------------------------------------- Ephemeral State.
 	// These are quick one-off fields that mostly
 	// act as flags or some small thing for

@@ -22,6 +22,9 @@ pub const FESTIVAL_NAME_VER: &str = {
 	concat!("Festival v", env!("CARGO_PKG_VERSION"))
 };
 
+/// Festival's `dbus` connection name.
+pub const FESTIVAL_DBUS: &str = "pm.festival.Festival";
+
 /// "Festival", the main project folder.
 pub const FESTIVAL: &str = "Festival";
 /// "shukusai", the internals sub-directory.

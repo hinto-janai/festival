@@ -373,7 +373,7 @@ impl Audio {
 
 		if song_vec.len() > 0 {
 			self.sink.append_bulk(song_vec, Some(append));
-//			AUDIO_STATE.write().set_song(song_vec);
+			AUDIO_STATE.write().set_song(song);
 		}
 	}
 

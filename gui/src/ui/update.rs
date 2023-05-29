@@ -188,6 +188,23 @@ impl Gui {
 //			self.copy_kernel_audio();
 //		}
 
+		// Update media controls.
+		if let Some(key) = AUDIO_STATE.read().song {
+			let (artist, album, song) = self.collection.walk(key);
+
+			if let Err(e) = self.media_controls
+				.set_metadata(souvlaki::MediaMetadata {
+					title: Some(&song.title),
+					artist: Some(&artist.name),
+					album: Some(&album.title),
+					duration: Some(std::time::Duration::from_secs(song.runtime.inner().into())),
+					..Default::default()
+				})
+			{
+				warn!("GUI - Couldn't update media controls metadata: {e:#?}");
+			}
+		}
+
 		// Show `egui_notify` toasts.
 		self.toasts.show(ctx);
 
