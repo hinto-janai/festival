@@ -54,6 +54,9 @@ pub struct State {
 	/// The search result [`Keychain`] we got from `Kernel`.
 	pub search_result: Keychain,
 
+	/// What [`Volume`] are we at (0..100)?
+	pub volume: u8,
+
 	/// Which [`Album`] are we on in the `Album` tab?
 	///
 	/// This doesn't necessarily mean we're listening to _this_
@@ -73,6 +76,7 @@ impl State {
 	/// Creates a mostly empty [`State`].
 	pub fn new() -> Self {
 		Self {
+			volume: 50,
 			..Default::default()
 		}
 	}

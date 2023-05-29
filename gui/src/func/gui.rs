@@ -9,6 +9,7 @@ use crate::data::{
 	AlbumSizing,
 };
 use shukusai::kernel::{
+	Volume,
 	FrontendToKernel,
 	KernelToFrontend,
 };
@@ -294,5 +295,29 @@ impl crate::data::Gui {
 		self.count_artist = format!("Artists: {}", self.collection.count_artist);
 		self.count_album  = format!("Albums: {}", self.collection.count_album);
 		self.count_song   = format!("Songs: {}", self.collection.count_song);
+	}
+
+	/// Add and send a `Volume` to `Kernel`.
+	pub fn add_volume(&mut self, v: u8) {
+		let v = self.state.volume + v;
+
+		if v > 100 {
+			self.state.volume = 100;
+		} else {
+			self.state.volume = v;
+		}
+
+		send!(self.to_kernel, FrontendToKernel::Volume(Volume::new(self.state.volume)));
+	}
+
+	/// Subtract and send a `Volume` to `Kernel`.
+	pub fn sub_volume(&mut self, v: u8) {
+		if v > self.state.volume {
+			self.state.volume = 0;
+		} else {
+			self.state.volume -= v;
+		}
+
+		send!(self.to_kernel, FrontendToKernel::Volume(Volume::new(self.state.volume)));
 	}
 }

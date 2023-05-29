@@ -11,11 +11,15 @@ use egui::{
 use shukusai::collection::{
 	AlbumKey,
 };
+use shukusai::kernel::{
+	FrontendToKernel,AUDIO_STATE,
+};
 use crate::constants::{
 	BONE,GRAY,MEDIUM_GRAY,
 };
 use readable::HeadTail;
 use log::warn;
+use benri::send;
 
 //---------------------------------------------------------------------------------------------------- Main central panel.
 impl crate::data::Gui {
@@ -120,10 +124,11 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &
 
 			let mut rect = ui.cursor();
 			rect.max.y = rect.min.y + 35.0;
-			if ui.put(rect, SelectableLabel::new(false, "")).clicked() {
-			// TODO: Implement song key state.
-//			if ui.put(rect, SelectableLabel::new(self.state.audio.current_key.song() == Some(key), "")).clicked() {
-//				self.state.audio.current_key = Some(key);
+			if ui.put(rect, SelectableLabel::new(AUDIO_STATE.read().song == Some(*key), "")).clicked() {
+				// TODO: Implement song key state.
+
+				send!(self.to_kernel, FrontendToKernel::AddQueueSongTailFront(*key));
+				send!(self.to_kernel, FrontendToKernel::Play);
 			}
 			rect.max.x = rect.min.x;
 

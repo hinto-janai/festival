@@ -24,6 +24,8 @@ use crate::data::{
 use disk::{Toml,Plain};
 use log::{error,warn,info,debug,trace};
 use shukusai::kernel::{
+	AUDIO_STATE,
+	Volume,
 	FrontendToKernel,
 	KernelToFrontend,
 };
@@ -376,9 +378,23 @@ fn show_bottom(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width:
 		ui.horizontal(|ui| {
 			// Media control buttons
 			ui.group(|ui| {
-				ui.add_sized([unit, height], Button::new(RichText::new(UI_PREVIOUS).size(35.0)));
-				ui.add_sized([unit*1.5, height], Button::new(RichText::new(UI_PLAY).size(20.0)));
-				ui.add_sized([unit, height], Button::new(RichText::new(UI_FORWARDS).size(35.0)));
+				if ui.add_sized([unit, height], Button::new(RichText::new(UI_PREVIOUS).size(35.0))).clicked() {
+					send!(self.to_kernel, FrontendToKernel::Previous);
+				}
+
+				let play_pause = if AUDIO_STATE.read().playing {
+					UI_PAUSE
+				} else {
+					UI_PLAY
+				};
+
+				if ui.add_sized([unit*1.5, height], Button::new(RichText::new(play_pause).size(35.0))).clicked() {
+					send!(self.to_kernel, FrontendToKernel::Toggle);
+				}
+
+				if ui.add_sized([unit, height], Button::new(RichText::new(UI_FORWARDS).size(35.0))).clicked() {
+					send!(self.to_kernel, FrontendToKernel::Next);
+				}
 			});
 
 			// Song time elapsed
@@ -474,16 +490,35 @@ fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f
 					v.hovered.fg_stroke  = SLIDER_CIRCLE_HOVERED;
 					v.active.fg_stroke   = SLIDER_CIRCLE_ACTIVE;
 				}
-				// TODO:
-				// Send signal on slider mutation by user.
-//				ui.add(Slider::new(&mut self.state.audio.volume.inner(), 0..=100)
-				ui.add(Slider::new(&mut 0, 0..=100)
+
+				// Volume slider.
+				let resp = ui.add(Slider::new(&mut self.state.volume, 0..=100)
 					.smallest_positive(1.0)
 					.show_value(false)
 					.vertical()
 					.thickness(unit*2.0)
 					.circle_size(unit)
-				).on_hover_text(VOLUME_SLIDER);
+				).on_hover_text(readable::itoa!(self.state.volume));
+
+				// Only send signal if the slider was dragged + released.
+				if resp.drag_released() {
+					let v = Volume::new(self.state.volume);
+					send!(self.to_kernel, FrontendToKernel::Volume(v));
+				// If scrolled up/down, send signal.
+				} else if resp.hovered() {
+					ctx.input_mut(|input| {
+						for event in input.events.iter() {
+							if let egui::Event::Scroll(vec2) = event {
+								if vec2.y.is_sign_positive() {
+									self.add_volume(1);
+								} else if vec2.y.is_sign_negative() {
+									self.sub_volume(1);
+								}
+								break;
+							}
+						}
+					});
+				}
 			});
 		});
 	});
