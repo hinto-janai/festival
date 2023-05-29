@@ -475,17 +475,19 @@ impl Collection {
 	///
 	/// This is useful for starting a queue including songs of an [`Album`]
 	/// but not necessarily starting from the first [`Song`].
-	pub fn song_tail<K: Into<SongKey>>(&self, key: K) -> std::slice::Iter<'_, SongKey> {
+	pub fn song_tail<K: Into<SongKey>>(&self, key: K) -> std::iter::Peekable<std::slice::Iter<'_, SongKey>> {
 		let key = key.into();
 		let album = self.album_from_song(key);
-		let mut iter = album.songs.iter();
+		let mut iter = album.songs.iter().peekable();
 
 		// The input `SongKey` should _always_ be found
 		// in the owning `Album`'s `song` field.
-		while let Some(song) = iter.next() {
-			if key == song {
+		while let Some(song) = iter.peek() {
+			if key == *song {
 				return iter;
 			}
+
+			iter.next();
 		}
 
 		panic!("{key:?} did not exist in the album {album:#?}");

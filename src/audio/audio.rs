@@ -112,17 +112,17 @@ impl Audio {
 			match msg {
 				// TODO: Implement.
 				// Audio playback.
-				Toggle      => self.msg_toggle(),
-				Play        => self.msg_play(),
-				Pause       => self.msg_pause(),
-				Next        => self.msg_next(),
-				Last        => self.msg_last(),
+				Toggle    => self.msg_toggle(),
+				Play      => self.msg_play(),
+				Pause     => self.msg_pause(),
+				Next      => self.msg_next(),
+				Previous  => self.msg_previous(),
 
 				// Audio settings.
-				Shuffle     => self.msg_shuffle(),
-				Repeat      => self.msg_repeat(),
-				Volume(v)   => self.msg_volume(v),
-				Seek(f)     => self.msg_seek(f),
+				Shuffle   => self.msg_shuffle(),
+				Repeat    => self.msg_repeat(),
+				Volume(v) => self.msg_volume(v),
+				Seek(f)   => self.msg_seek(f),
 
 				// Queue.
 				AddQueueSongFront(s_key)     => self.msg_add_queue_song(s_key,      rodio::Append::Front),
@@ -283,8 +283,8 @@ impl Audio {
 	}
 
 	#[inline(always)]
-	fn msg_last(&mut self) {
-		trace!("Audio - Last");
+	fn msg_previous(&mut self) {
+		trace!("Audio - Previous");
 
 		if !self.sink.empty() {
 			// Lock state.
@@ -332,7 +332,7 @@ impl Audio {
 
 	#[inline(always)]
 	fn msg_volume(&mut self, volume: Volume) {
-		trace!("Audio - Volume");
+		trace!("Audio - {volume:?}");
 		self.sink.set_volume(volume.f32())
 	}
 
@@ -373,6 +373,7 @@ impl Audio {
 
 		if song_vec.len() > 0 {
 			self.sink.append_bulk(song_vec, Some(append));
+//			AUDIO_STATE.write().set_song(song_vec);
 		}
 	}
 

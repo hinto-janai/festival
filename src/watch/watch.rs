@@ -84,13 +84,13 @@ impl Watch {
 		if let Err(e) = Pause::mkdir() { error!("Watch - Could not create signal folder"); }
 
 		// Clean files.
-		if let Err(e) = Toggle::rm()  { error!("Watch - Toggle: {}", e); }
+		if let Err(e) = Toggle::rm()   { error!("Watch - Toggle: {}", e); }
 		if let Err(e) = Pause::rm()    { error!("Watch - Pause: {}", e); }
-		if let Err(e) = Play::rm()    { error!("Watch - Play: {}", e); }
-		if let Err(e) = Next::rm()    { error!("Watch - Next: {}", e); }
-		if let Err(e) = Last::rm()    { error!("Watch - Last: {}", e); }
-		if let Err(e) = Shuffle::rm() { error!("Watch - Shuffle: {}", e); }
-		if let Err(e) = Repeat::rm()  { error!("Watch - Repeat: {}", e); }
+		if let Err(e) = Play::rm()     { error!("Watch - Play: {}", e); }
+		if let Err(e) = Next::rm()     { error!("Watch - Next: {}", e); }
+		if let Err(e) = Previous::rm() { error!("Watch - Previous: {}", e); }
+		if let Err(e) = Shuffle::rm()  { error!("Watch - Shuffle: {}", e); }
+		if let Err(e) = Repeat::rm()   { error!("Watch - Repeat: {}", e); }
 	}
 
 	fn main(self) {
@@ -122,13 +122,13 @@ impl Watch {
 				send!(self.to_kernel, WatchToKernel::Play);
 			}
 
-			// Next/Last.
+			// Next/Prev.
 			//
 			// `Next` takes priority.
 			if Next::exists().is_ok() {
 				send!(self.to_kernel, WatchToKernel::Next);
-			} else if Last::exists().is_ok() {
-				send!(self.to_kernel, WatchToKernel::Last);
+			} else if Previous::exists().is_ok() {
+				send!(self.to_kernel, WatchToKernel::Previous);
 			}
 
 			// Shuffle.

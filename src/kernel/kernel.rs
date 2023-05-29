@@ -423,7 +423,7 @@ impl Kernel {
 			Play                 => send!(self.to_audio, KernelToAudio::Play),
 			Pause                => send!(self.to_audio, KernelToAudio::Pause),
 			Next                 => send!(self.to_audio, KernelToAudio::Next),
-			Last                 => send!(self.to_audio, KernelToAudio::Last),
+			Previous             => send!(self.to_audio, KernelToAudio::Previous),
 			// Audio settings.
 			Shuffle              => send!(self.to_audio, KernelToAudio::Shuffle),
 			Repeat               => send!(self.to_audio, KernelToAudio::Repeat),
@@ -478,13 +478,13 @@ impl Kernel {
 	fn msg_watch(&self, msg: WatchToKernel) {
 		use crate::watch::WatchToKernel::*;
 		match msg {
-			Toggle  => send!(self.to_audio, KernelToAudio::Toggle),
-			Play    => send!(self.to_audio, KernelToAudio::Play),
-			Pause   => send!(self.to_audio, KernelToAudio::Pause),
-			Next    => send!(self.to_audio, KernelToAudio::Next),
-			Last    => send!(self.to_audio, KernelToAudio::Last),
-			Shuffle => send!(self.to_audio, KernelToAudio::Shuffle),
-			Repeat  => send!(self.to_audio, KernelToAudio::Repeat),
+			Toggle   => send!(self.to_audio, KernelToAudio::Toggle),
+			Play     => send!(self.to_audio, KernelToAudio::Play),
+			Pause    => send!(self.to_audio, KernelToAudio::Pause),
+			Next     => send!(self.to_audio, KernelToAudio::Next),
+			Previous => send!(self.to_audio, KernelToAudio::Previous),
+			Shuffle  => send!(self.to_audio, KernelToAudio::Shuffle),
+			Repeat   => send!(self.to_audio, KernelToAudio::Repeat),
 		}
 	}
 

@@ -27,7 +27,7 @@ impl_signal!(Toggle, "toggle");
 impl_signal!(Pause, "pause");
 impl_signal!(Play, "play");
 impl_signal!(Next, "next");
-impl_signal!(Last, "last");
+impl_signal!(Previous, "previous");
 impl_signal!(Shuffle, "shuffle");
 impl_signal!(Repeat, "repeat");
 

@@ -35,10 +35,10 @@ pub enum FrontendToKernel {
 	Play,
 	/// Pause playback.
 	Pause,
-	/// Play next song in queue (stop if none).
+	/// Play the next song in queue (stop if none).
 	Next,
-	/// Play last song in queue.
-	Last,
+	/// Play the previous song in queue (restart if at first song).
+	Previous,
 
 	// Audio settings.
 	/// Toggle shuffling songs.

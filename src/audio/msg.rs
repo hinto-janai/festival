@@ -30,7 +30,7 @@ pub(crate) enum KernelToAudio {
 	Play,
 	Pause,
 	Next,
-	Last,
+	Previous,
 
 	// Audio settings.
 	Shuffle,

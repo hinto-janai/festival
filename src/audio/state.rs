@@ -139,6 +139,12 @@ impl AudioState {
 			None => false,
 		}
 	}
+
+	#[inline]
+	// Set the current `song`.
+	pub(super) fn set_song(&mut self, key: SongKey) {
+		self.song = Some(key);
+	}
 }
 
 impl Default for AudioState {

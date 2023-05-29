@@ -3710,8 +3710,8 @@ checksum = "3b42e27ef78c35d3998403c1d26f3efd9e135d3e5121b0a4845cc5cc27547f4f"
 
 [[package]]
 name = "readable"
-version = "0.8.6"
-source = "git+https://github.com/hinto-janai/readable#b661ffa95bcc171737478e8086e2ea8c570221da"
+version = "0.8.8"
+source = "git+https://github.com/hinto-janai/readable#8c4c78199db9af1cb828e61caa409cb16c4321ad"
 dependencies = [
  "bincode",
  "compact_str",
