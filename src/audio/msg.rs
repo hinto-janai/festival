@@ -52,6 +52,9 @@ pub(crate) enum KernelToAudio {
 	PlayQueueIndex(usize),
 	RemoveQueueIndex(usize),
 
+	// Audio State.
+	RestoreAudioState,
+
 	// Collection.
 	DropCollection,                 // Drop your pointer.
 	NewCollection(Arc<Collection>), // Here's a new `Collection` pointer.

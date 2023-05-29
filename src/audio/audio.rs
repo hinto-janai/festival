@@ -84,6 +84,8 @@ impl Audio {
 		// Re-write global `AudioState`.
 		*AUDIO_STATE.write() = state;
 
+		// Restore previous state.
+
 		// Init data.
 		let audio = Self {
 			stream,
@@ -138,6 +140,9 @@ impl Audio {
 				PlayQueueIndex(idx)   => self.msg_play_queue_index(idx),
 				RemoveQueueIndex(idx) => self.msg_remove_queue_index(idx),
 
+				// Audio State.
+				RestoreAudioState => self.msg_restore_audio_state(),
+
 				// Collection.
 				DropCollection     => self.msg_drop(),
 				NewCollection(arc) => self.collection = arc,
@@ -151,7 +156,7 @@ impl Audio {
 
 	#[inline]
 	// Convert a `SongKey` to `Decode` which implements `Source`.
-	fn to_source(&self, key: SongKey) -> Option<rodio::Decoder<BufReader<File>>> {
+	fn to_source(&self, key: SongKey) -> Option<(rodio::Decoder<BufReader<File>>, SongKey)> {
 		let path = &self.collection.songs[key].path;
 		let file = match File::open(path) {
 			Ok(f)  => BufReader::new(f),
@@ -159,25 +164,60 @@ impl Audio {
 		};
 
 		match rodio::Decoder::new(file) {
-			Ok(d)  => Some(d),
+			Ok(d)  => Some((d, key)),
 			Err(e) => { send!(self.to_kernel, AudioToKernel::PathError((key, anyhow!(e)))); None },
 		}
 	}
 
 	#[inline]
+	// Convert many `SongKey`'s to `Decode`.
+	fn to_source_bulk(&self, iter: std::slice::Iter<'_, SongKey>) -> (Vec<rodio::Decoder<BufReader<File>>>, Vec<SongKey>) {
+		let mut vec  = Vec::with_capacity(16);
+		let mut keys = Vec::with_capacity(16);
+
+		for key in iter {
+			let path = &self.collection.songs[key].path;
+
+			let file = match File::open(path) {
+				Ok(f)  => BufReader::new(f),
+				Err(e) => { send!(self.to_kernel, AudioToKernel::PathError((*key, anyhow!(e)))); continue; },
+			};
+
+			match rodio::Decoder::new(file) {
+				Ok(d)  => {
+					vec.push(d);
+					keys.push(*key);
+				},
+				Err(e) => { send!(self.to_kernel, AudioToKernel::PathError((*key, anyhow!(e)))); continue },
+			}
+		}
+
+		(vec, keys)
+	}
+
+	#[inline]
 	// Convert a `SongKey` to `Vec<Decode>` with `Collection::song_tail()`.
-	fn to_source_song_tail(&self, key: SongKey) -> Vec<rodio::Decoder<BufReader<File>>> {
+	fn to_source_song_tail(&self, key: SongKey) -> (Vec<rodio::Decoder<BufReader<File>>>, Vec<SongKey>) {
+		let mut vec  = Vec::with_capacity(16);
+		let mut keys = Vec::with_capacity(16);
+
 		self.collection
 			.song_tail(key)
 			.filter_map(|k| self.to_source(*k))
-			.collect()
+			.for_each(|(s, k)| {
+				vec.push(s);
+				keys.push(k);
+			});
+
+		(vec, keys)
 	}
 
 	#[inline]
 	// Convert an `AlbumKey` to `Vec<Decode>` of its `Song`'s.
-	fn to_source_album(&self, key: AlbumKey) -> Option<Vec<rodio::Decoder<BufReader<File>>>> {
-		let songs = &self.collection.albums[key].songs;
-		let mut vec = Vec::with_capacity(songs.len());
+	fn to_source_album(&self, key: AlbumKey) -> (Vec<rodio::Decoder<BufReader<File>>>, Vec<SongKey>) {
+		let songs    = &self.collection.albums[key].songs;
+		let mut vec  = Vec::with_capacity(songs.len());
+		let mut keys = Vec::with_capacity(songs.len());
 
 		for song_key in songs {
 			let path = &self.collection.songs[song_key].path;
@@ -190,20 +230,18 @@ impl Audio {
 				Err(e) => { send!(self.to_kernel, AudioToKernel::PathError((*song_key, anyhow!(e)))); continue },
 			};
 			vec.push(decoder);
+			keys.push(*song_key);
 		}
 
-		if vec.is_empty() {
-			None
-		} else {
-			Some(vec)
-		}
+		(vec, keys)
 	}
 
 	#[inline]
 	// Convert an `ArtistKey` to `Vec<Decode>` of ALL their `Song`'s.
-	fn to_source_artist(&self, key: ArtistKey) -> Option<Vec<rodio::Decoder<BufReader<File>>>> {
-		let songs = &self.collection.artists[key].songs;
-		let mut vec = Vec::with_capacity(songs.len());
+	fn to_source_artist(&self, key: ArtistKey) -> (Vec<rodio::Decoder<BufReader<File>>>, Vec<SongKey>) {
+		let songs    = &self.collection.artists[key].songs;
+		let mut vec  = Vec::with_capacity(songs.len());
+		let mut keys = Vec::with_capacity(songs.len());
 
 		for song_key in songs.iter() {
 			let path = &self.collection.songs[song_key].path;
@@ -216,13 +254,10 @@ impl Audio {
 				Err(e) => { send!(self.to_kernel, AudioToKernel::PathError((*song_key, anyhow!(e)))); continue },
 			};
 			vec.push(decoder);
+			keys.push(*song_key);
 		}
 
-		if vec.is_empty() {
-			None
-		} else {
-			Some(vec)
-		}
+		(vec, keys)
 	}
 
 	#[inline]
@@ -295,7 +330,7 @@ impl Audio {
 				// If we're at the beginning of the `Queue`, we have to remove it
 				// from the `Sink` and add it again to "reset" the audio track.
 				if x == 0 {
-					let source = match self.to_source(state.queue[0]) {
+					let (source, key) = match self.to_source(state.queue[0]) {
 						Some(s) => s,
 						None    => return,
 					};
@@ -306,13 +341,15 @@ impl Audio {
 						debug_panic!("invalid sink.remove()");
 					}
 				} else {
-					let source = match self.to_source(state.queue[x - 1]) {
+					let (source, key) = match self.to_source(state.queue[x - 1]) {
 						Some(s) => s,
 						None    => return,
 					};
 					self.sink.append(source, Some(rodio::Append::Front));
 					state.decrement_queue_idx();
 				}
+
+				self.sink.skip_one();
 			}
 		}
 	}
@@ -333,7 +370,8 @@ impl Audio {
 	#[inline(always)]
 	fn msg_volume(&mut self, volume: Volume) {
 		trace!("Audio - {volume:?}");
-		self.sink.set_volume(volume.f32())
+		self.sink.set_volume(volume.f32());
+		AUDIO_STATE.write().volume = volume;
 	}
 
 	#[inline(always)]
@@ -342,10 +380,10 @@ impl Audio {
 		let state = AUDIO_STATE.read();
 		if let Some(idx) = state.queue_idx {
 			// Re-create current `Source ` and seek forward to `seek`.
-			let source = match self.to_source(state.queue[idx]) {
-				Some(s) => s,
+			let (source, key) = match self.to_source(state.queue[idx]) {
+				Some((s, k)) => (s.skip_duration(std::time::Duration::from_secs(seek.into())), k),
 				None    => return,
-			}.skip_duration(std::time::Duration::from_secs(seek.into()));
+			};
 
 			// Re-add current song to front.
 			self.sink.append(source, Some(rodio::Append::Front));
@@ -361,7 +399,7 @@ impl Audio {
 	#[inline(always)]
 	fn msg_add_queue_song(&mut self, song: SongKey, append: rodio::Append) {
 		trace!("Audio - msg_add_queue_song({song:?}) - {append:?}");
-		if let Some(song) = self.to_source(song) {
+		if let Some((song, key)) = self.to_source(song) {
 			self.sink.append(song, Some(append));
 		}
 	}
@@ -369,18 +407,28 @@ impl Audio {
 	#[inline(always)]
 	fn msg_add_queue_song_tail(&mut self, song: SongKey, append: rodio::Append) {
 		trace!("Audio - msg_add_queue_song_tail({song:?}) - {append:?}");
-		let song_vec = self.to_source_song_tail(song);
+		let (song_vec, keys) = self.to_source_song_tail(song);
 
 		if song_vec.len() > 0 {
 			self.sink.append_bulk(song_vec, Some(append));
-			AUDIO_STATE.write().set_song(song);
+
+			let mut state = AUDIO_STATE.write();
+
+			for k in keys {
+				state.queue.push_back(k);
+			}
+
+			state.queue_idx = Some(0);
+			state.set_song(song);
 		}
 	}
 
 	#[inline(always)]
 	fn msg_add_queue_album(&mut self, album: AlbumKey, append: rodio::Append) {
 		trace!("Audio - msg_add_queue_album({album:?}) - {append:?}");
-		if let Some(songs) = self.to_source_album(album) {
+		let (songs, keys) = self.to_source_album(album);
+
+		if !songs.is_empty() {
 			self.sink.append_bulk(songs, Some(append));
 		}
 	}
@@ -388,7 +436,9 @@ impl Audio {
 	#[inline(always)]
 	fn msg_add_queue_artist(&mut self, artist: ArtistKey, append: rodio::Append) {
 		trace!("Audio - msg_add_queue_artist({artist:?}) - {append:?}");
-		if let Some(songs) = self.to_source_artist(artist) {
+		let (songs, keys) = self.to_source_artist(artist);
+
+		if !songs.is_empty() {
 			self.sink.append_bulk(songs, Some(append));
 		}
 	}
@@ -405,7 +455,52 @@ impl Audio {
 		todo!();
 	}
 
-	//-------------------------------------------------- Drop.
+	//-------------------------------------------------- Restore Audio State.
+	#[inline(always)]
+	fn msg_restore_audio_state(&mut self) {
+		trace!("Audio - msg_restore_audio_state()");
+		let mut state = AUDIO_STATE.write();
+
+		// INVARIANT:
+		// `Kernel` validates `AUDIO_STATE` before handing
+		// it off to `Audio` so we should be safe to assume
+		// the state holds proper indices into the `Collection`.
+
+		// Volume
+		debug!("Audio - Restore ... {:?}", state.volume);
+		self.sink.set_volume(state.volume.f32());
+
+		let len     = state.queue.len();
+		debug!("Audio - Restore ... queue.len(): {len}");
+
+		if len != 0 {
+			if let Some(key) = state.queue_idx {
+				let mut vec  = Vec::with_capacity(len);
+				let mut keys = Vec::with_capacity(len);
+
+				for (de, key) in state.queue
+					.make_contiguous()[key..]
+					.iter()
+					.filter_map(|key| self.to_source(*key))
+				{
+					vec.push(de);
+					keys.push(key);
+				}
+
+				if !vec.is_empty() {
+					debug!("Audio - Restore ... appending {} songs to queue", vec.len());
+					self.sink.append_bulk(vec, Some(rodio::Append::Front));
+				}
+			}
+		}
+
+		debug!("Audio - Restore ... playing: {}", state.playing);
+		if state.playing {
+			self.sink.play();
+		}
+	}
+
+	//-------------------------------------------------- Collection.
 	#[inline(always)]
 	fn msg_drop(&mut self) {
 		// Drop pointer.

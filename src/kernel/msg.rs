@@ -81,6 +81,11 @@ pub enum FrontendToKernel {
 	/// This will do nothing if the index does not exist.
 	RemoveQueueIndex(usize),
 
+	// Audio State.
+	/// We just started up, restore the previous audio
+	/// state from disk if there is any.
+	RestoreAudioState,
+
 	// Collection.
 	/// I'd like a new [`Collection`], scanning these [`PathBuf`]'s for audio files.
 	NewCollection(Vec<PathBuf>),

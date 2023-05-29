@@ -444,6 +444,9 @@ impl Kernel {
 			PlayQueueIndex(q_key)   => send!(self.to_audio, KernelToAudio::PlayQueueIndex(q_key)),
 		    RemoveQueueIndex(q_key) => send!(self.to_audio, KernelToAudio::RemoveQueueIndex(q_key)),
 
+			// Audio State.
+			RestoreAudioState => send!(self.to_audio, KernelToAudio::RestoreAudioState),
+
 			// Collection.
 			NewCollection(paths) => self.ccd_mode(paths),
 			Search(string)       => send!(self.to_search, KernelToSearch::Search(string)),

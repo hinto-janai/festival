@@ -185,34 +185,42 @@ impl crate::data::Gui {
 
 		// Read `Settings` from disk.
 		let settings = match Settings::from_file() {
-			Ok(s)  => { info!("GUI [1/7] - Settings from disk"); s },
-			Err(e) => { warn!("GUI [1/7] - Settings failed from disk: {}", e); Settings::new() },
+			Ok(s)  => { info!("GUI [1/8] - Settings from disk"); s },
+			Err(e) => { warn!("GUI [1/8] - Settings failed from disk: {}", e); Settings::new() },
 		};
 
 		// Read `State` from disk.
 		let state = match State::from_file() {
-			Ok(s)  => { info!("GUI [2/7] - State from disk"); s },
-			Err(e) => { warn!("GUI [2/7] - State failed from disk: {}", e); State::new() },
+			Ok(s)  => { info!("GUI [2/8] - State from disk"); s },
+			Err(e) => { warn!("GUI [2/8] - State failed from disk: {}", e); State::new() },
 		};
+
+		// Send signal to `Kernel` for `AudioState` if set.
+		if settings.restore_state {
+			info!("GUI [3/8] - Restoring AudioState");
+			send!(to_kernel, FrontendToKernel::RestoreAudioState);
+		} else {
+			info!("GUI [3/8] - Skipping AudioState");
+		}
 
 		// Media controls.
 		let media_controls = Self::init_media_control(to_kernel.clone());
-		info!("GUI [3/7] - Media controls");
+		info!("GUI [4/8] - Media controls");
 
 		// Style
 		cc.egui_ctx.set_style(Self::init_style());
-		info!("GUI [4/7] - Style");
+		info!("GUI [5/8] - Style");
 
 		// Visuals
 		cc.egui_ctx.set_visuals(Self::init_visuals());
-		info!("GUI [5/7] - Visuals");
+		info!("GUI [6/8] - Visuals");
 
 		// Fonts
 		cc.egui_ctx.set_fonts(Self::init_fonts());
-		info!("GUI [6/7] - Fonts");
+		info!("GUI [7/8] - Fonts");
 
 		// Done.
-		info!("GUI [7/7] - Init");
+		info!("GUI [8/8] - Init");
 		Self {
 			// `Kernel` channels.
 			to_kernel,
