@@ -61,7 +61,7 @@ impl crate::data::Gui {
 		let style = Style {
 			text_styles: [
 				(TextStyle::Small,                 FontId::new(10.0, FontFamily::Monospace)),
-				(TextStyle::Name("Medium".into()), FontId::new(15.0, FontFamily::Monospace)),
+				(TextStyle::Name("15".into()),     FontId::new(15.0, FontFamily::Monospace)),
 				(TextStyle::Body,                  FontId::new(20.0, FontFamily::Monospace)),
 				(TextStyle::Button,                FontId::new(20.0, FontFamily::Monospace)),
 				(TextStyle::Monospace,             FontId::new(20.0, FontFamily::Monospace)),

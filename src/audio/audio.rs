@@ -497,6 +497,8 @@ impl Audio {
 		debug!("Audio - Restore ... playing: {}", state.playing);
 		if state.playing {
 			self.sink.play();
+		} else {
+			self.sink.pause();
 		}
 	}
 

@@ -68,7 +68,7 @@ macro_rules! search {
 #[macro_export]
 /// Add a clickable `Album` art button that opens the parent directory.
 macro_rules! album_button {
-	($self:ident, $album:ident, $key:ident, $ui:ident, $ctx:ident, $size:expr) => {
+	($self:ident, $album:ident, $key:expr, $ui:ident, $ctx:ident, $size:expr) => {
 		// ImageButton.
 		let img_button = egui::ImageButton::new($album.texture_id($ctx), egui::vec2($size, $size));
 

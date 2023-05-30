@@ -49,9 +49,9 @@ impl Volume {
 
 impl Default for Volume {
 	#[inline]
-	/// Calls [`Volume::new_50`].
+	/// Calls [`Volume::new_25`].
 	fn default() -> Self {
-		Self::new_50()
+		Self::new_25()
 	}
 }
 

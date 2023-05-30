@@ -150,6 +150,10 @@ pub const ALBUMS_PER_ROW_MIN:      u8 = 1;
 pub const ALBUMS_PER_ROW_MAX:      u8 = 20;
 pub const ALBUMS_PER_ROW_DEFAULT:  u8 = 5;
 
+//---------------------------------------------------------------------------------------------------- Queue tab
+/// Fixed size of the `Album` art in the `Queue` tab.
+pub const QUEUE_ALBUM_ART_SIZE: f32 = 80.0;
+
 //---------------------------------------------------------------------------------------------------- Fonts
 pub const FONT_SOURCECODE_PRO: &[u8] = include_bytes!("../../assets/fonts/SourceCodePro-Regular.otf");
 pub const FONT_SOURCECODE_CN:  &[u8] = include_bytes!("../../assets/fonts/SourceHanSansCN-Regular.otf");

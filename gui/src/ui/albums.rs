@@ -57,7 +57,7 @@ pub fn show_tab_albums(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame:
 	ui.spacing_mut().item_spacing = egui::vec2(10.0, 10.0);
 
 	// Small font.
-	ui.style_mut().override_text_style = Some(TextStyle::Name("Medium".into()));
+	ui.style_mut().override_text_style = Some(TextStyle::Name("15".into()));
 
 	let width = ui.available_width();
 

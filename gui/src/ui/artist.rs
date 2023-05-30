@@ -14,6 +14,10 @@ use crate::data::{
 use readable::Unsigned;
 use log::warn;
 use readable::HeadTail;
+use benri::send;
+use shukusai::kernel::{
+	FrontendToKernel,
+};
 
 //---------------------------------------------------------------------------------------------------- Artists
 impl crate::data::Gui {
@@ -123,7 +127,7 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame
 
 	},
 	//-------------------------------------------------- View
-		ArtistSubTab::View => {
+	ArtistSubTab::View => {
 
 	// Extract `ArtistKey`.
 	let artist_key = match self.state.artist {
@@ -210,7 +214,10 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame
 						let mut rect = ui.cursor();
 						rect.max.y = rect.min.y + 35.0;
 						if ui.put(rect, SelectableLabel::new(false, "")).clicked() {
-						// TODO: Implement song key state.
+							// TODO: Implement song key state.
+
+							send!(self.to_kernel, FrontendToKernel::AddQueueSongTailFront(*key));
+							send!(self.to_kernel, FrontendToKernel::Play);
 						}
 						rect.max.x = rect.min.x;
 
