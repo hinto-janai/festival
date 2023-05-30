@@ -90,18 +90,13 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &
 	ui.separator();
 
 	// `Song` list.
-	ScrollArea::vertical()
+	ScrollArea::both()
 		.id_source(album_key)
 		.max_width(f32::INFINITY)
 		.max_height(f32::INFINITY)
 		.auto_shrink([false; 2])
 		.show_viewport(ui, |ui, _|
 	{
-		// How many char's before we need
-		// to cut off the song title?
-		// (scales based on pixels available).
-		let head = (width / 22.0) as usize;
-
 		let mut last_disc = self.collection.songs[album.songs[0]].disc;
 		if album.discs > 1 {
 			ui.label(format!("Disc {}", last_disc.unwrap_or(0)));
@@ -133,15 +128,7 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &
 
 			ui.allocate_ui_at_rect(rect, |ui| {
 				ui.horizontal_centered(|ui| {
-
-					// Show the full title on hover
-					// if we chopped it with head.
-					let head = song.title.head_dot(head);
-					if song.title == head {
-						ui.add(Label::new(format!("{: >3}    {: >8}    {}", song.track.unwrap_or(0), &song.runtime, &song.title)));
-					} else {
-						ui.add(Label::new(format!("{: >3}    {: >8}    {}", song.track.unwrap_or(0), &song.runtime, &head))).on_hover_text(&song.title);
-					}
+					ui.add(Label::new(format!("{: >3}    {: >8}    {}", song.track.unwrap_or(0), &song.runtime, &song.title)));
 				});
 			});
 		}

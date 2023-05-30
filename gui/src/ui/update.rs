@@ -6,11 +6,13 @@
 //use disk::{};
 //use std::{};
 //use std::sync::{Arc,Mutex,RwLock};
+use readable::HeadTail;
 use crate::data::Gui;
 use egui::{
 	ScrollArea,Frame,ProgressBar,TextStyle,
 	Color32,Vec2,Stroke,Rounding,RichText,
 	TopBottomPanel,SidePanel,CentralPanel,
+	Sense,
 };
 use egui::widgets::{
 	Slider,Button,Spinner,TextEdit,
@@ -50,8 +52,8 @@ use crate::constants::{
 	SLIDER_CIRCLE_INACTIVE,
 	SLIDER_CIRCLE_HOVERED,
 	SLIDER_CIRCLE_ACTIVE,
-	BONE,
-	BLACK,
+	UI_CONTROL_WIDTH,
+	BONE,BLACK,
 };
 use crate::text::{
 	EMPTY_COLLECTION,
@@ -393,12 +395,12 @@ fn show_bottom(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width:
 		ui.set_height(height);
 
 		// Base unit for sizing UI.
-		let unit = width / 15.0;
+		let unit  = width / 15.0;
 
 		ui.horizontal(|ui| {
 			// Media control buttons
 			ui.group(|ui| {
-				if ui.add_sized([unit, height], Button::new(RichText::new(UI_PREVIOUS).size(35.0))).clicked() {
+				if ui.add_sized([UI_CONTROL_WIDTH, height], Button::new(RichText::new(UI_PREVIOUS).size(35.0))).clicked() {
 					send!(self.to_kernel, FrontendToKernel::Previous);
 				}
 
@@ -408,38 +410,104 @@ fn show_bottom(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width:
 					UI_PLAY
 				};
 
-				if ui.add_sized([unit*1.5, height], Button::new(RichText::new(play_pause).size(35.0))).clicked() {
+				if ui.add_sized([UI_CONTROL_WIDTH, height], Button::new(RichText::new(play_pause).size(35.0))).clicked() {
 					send!(self.to_kernel, FrontendToKernel::Toggle);
 				}
 
-				if ui.add_sized([unit, height], Button::new(RichText::new(UI_FORWARDS).size(35.0))).clicked() {
+				if ui.add_sized([UI_CONTROL_WIDTH, height], Button::new(RichText::new(UI_FORWARDS).size(35.0))).clicked() {
 					send!(self.to_kernel, FrontendToKernel::Next);
 				}
 			});
 
-			// Song time elapsed
-			ui.add_sized([unit, height], Label::new("1:33 / 3:22"));
+			// Album button.
+			ui.scope(|ui| {
+				let song = AUDIO_STATE.read().song;
 
-			// Slider (playback)
-			ui.spacing_mut().slider_width = ui.available_width();
-			{
-				let v = &mut ui.visuals_mut().widgets;
-				v.inactive.fg_stroke = SLIDER_CIRCLE_INACTIVE;
-				v.hovered.fg_stroke  = SLIDER_CIRCLE_HOVERED;
-				v.active.fg_stroke   = SLIDER_CIRCLE_ACTIVE;
-			}
-			let h = height / 5.0;
-			ui.add_sized(
-				[ui.available_width(), height],
-				// TODO:
-				// Send signal on slider mutation by user.
-//				Slider::new(&mut self.state.audio.current_elapsed, 0.0..=100.0)
-				Slider::new(&mut 0.0, 0.0..=100.0)
-					.smallest_positive(1.0)
-					.show_value(false)
-					.thickness(h*2.0)
-					.circle_size(h)
-			);
+				// If we're currently playing a song.
+				if let Some(key) = song {
+					let (artist, album, song) = self.collection.walk(key);
+
+					// Album button.
+					crate::no_rounding!(ui);
+					crate::album_button!(self, album, song.album, ui, ctx, height);
+
+					ui.vertical(|ui| {
+						// How many char's before we need
+						// to cut off the song title?
+						// (scales based on pixels available).
+						let head = (unit / 5.0) as usize;
+
+						//-------------------------------------------------- `Song` title.
+						let song_head  = song.title.head_dot(head);
+						let chopped    = song.title != song_head;
+						let song_title = Label::new(
+							RichText::new(song_head)
+								.text_style(TextStyle::Name("15".into()))
+								.color(BONE)
+						);
+						// Show the full title on hover
+						// if we chopped it with head.
+						if chopped {
+							ui.add(song_title).on_hover_text(&song.title);
+						} else {
+							ui.add(song_title);
+						}
+
+						//-------------------------------------------------- `Album` name.
+						let album_head = album.title.head_dot(head);
+						let chopped    = album.title != album_head;
+						let album_name = Label::new(
+							RichText::new(album_head)
+								.text_style(TextStyle::Name("15".into()))
+						);
+						if chopped {
+							ui.add(album_name).on_hover_text(&album.title);
+						} else {
+							ui.add(album_name);
+						}
+
+						//-------------------------------------------------- `Artist` name.
+						let artist_head = artist.name.head_dot(head);
+						let chopped     = artist.name != artist_head;
+						let artist_name = Label::new(
+							RichText::new(artist_head)
+								.text_style(TextStyle::Name("15".into()))
+						);
+						if chopped {
+							if ui.add(artist_name.sense(Sense::click())).on_hover_text(&artist.name).clicked() {
+								crate::artist!(self, album.artist);
+							}
+						} else {
+							if ui.add(artist_name.sense(Sense::click())).clicked() {
+								crate::artist!(self, album.artist);
+							}
+						}
+					});
+				}
+			});
+
+			// Song time elapsed
+//			ui.add_sized([unit, height], Label::new("1:33 / 3:22"));
+//
+//			// Slider (playback)
+//			ui.spacing_mut().slider_width = ui.available_width();
+//			{
+//				let v = &mut ui.visuals_mut().widgets;
+//				v.inactive.fg_stroke = SLIDER_CIRCLE_INACTIVE;
+//				v.hovered.fg_stroke  = SLIDER_CIRCLE_HOVERED;
+//				v.active.fg_stroke   = SLIDER_CIRCLE_ACTIVE;
+//			}
+//			let h = height / 5.0;
+//			ui.add_sized(
+//				[ui.available_width(), height],
+//				// TODO:
+//				// Send signal on slider mutation by user.
+//				Slider::new(&mut 0.0, 0.0..=100.0)
+//					.smallest_positive(1.0)
+//					.show_value(false)
+//					.thickness(h*2.0)
+//					.circle_size(h)
+//			);
 		});
 	});
 }}

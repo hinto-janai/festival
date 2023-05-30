@@ -150,6 +150,13 @@ pub const ALBUMS_PER_ROW_MIN:      u8 = 1;
 pub const ALBUMS_PER_ROW_MAX:      u8 = 20;
 pub const ALBUMS_PER_ROW_DEFAULT:  u8 = 5;
 
+//---------------------------------------------------------------------------------------------------- Playback controls
+/// The width of the previous/pause/play/next buttons.
+///
+/// `77.0` lines up perfectly in fullscreen with the
+/// variable width left panel on a 16:9 display.
+pub const UI_CONTROL_WIDTH: f32 = 77.0;
+
 //---------------------------------------------------------------------------------------------------- Queue tab
 /// Fixed size of the `Album` art in the `Queue` tab.
 pub const QUEUE_ALBUM_ART_SIZE: f32 = 80.0;

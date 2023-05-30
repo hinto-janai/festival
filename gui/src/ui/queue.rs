@@ -28,7 +28,7 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 	let height = ui.available_height();
 
 	//-------------------------------------------------- Queue.
-	ScrollArea::vertical()
+	ScrollArea::both()
 		.id_source("Queue")
 		.max_width(f32::INFINITY)
 		.max_height(f32::INFINITY)
@@ -37,11 +37,6 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 	{
 		let mut current_artist = None;
 		let mut current_album  = None;
-
-		// How many char's before we need
-		// to cut off the song title?
-		// (scales based on pixels available).
-		let head = (width / 18.0) as usize;
 
 		// TODO:
 		// Copy audio state somewhere else
@@ -127,14 +122,7 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 
 			ui.allocate_ui_at_rect(rect, |ui| {
 				ui.horizontal_centered(|ui| {
-					// Show the full title on hover
-					// if we chopped it with head.
-					let head = song.title.head_dot(head);
-					if song.title == head {
-						ui.add(Label::new(format!("{: >3}    {: >8}    {}", song.track.unwrap_or(0), &song.runtime, &song.title)));
-					} else {
-						ui.add(Label::new(format!("{: >3}    {: >8}    {}", song.track.unwrap_or(0), &song.runtime, &head))).on_hover_text(&song.title);
-					}
+					ui.add(Label::new(format!("{: >3}    {: >8}    {}", song.track.unwrap_or(0), &song.runtime, &song.title)));
 				});
 			});
 		}
