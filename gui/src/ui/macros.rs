@@ -50,6 +50,20 @@ macro_rules! artist {
 }
 
 #[macro_export]
+/// Send `Song`'s to `Kernel` to play.
+///
+/// This implements the most used and expected behavior when clicking a song:
+/// - Queue should be cleared
+/// - `Song` clicked should be immediate played
+/// - All `Song`'s after clicked one in that `Album` should be added to the queue
+macro_rules! song_tail {
+	($self:ident, $key:expr) => {
+		::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::AddQueueSongTailFront(($key, true)));
+		::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
+	}
+}
+
+#[macro_export]
 /// Set a search string, set the last tab, jump to the search tab.
 macro_rules! search {
 	($self:ident, $key:expr, $shift:expr) => {

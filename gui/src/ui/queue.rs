@@ -120,8 +120,7 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 			if ui.put(rect, SelectableLabel::new(false, "")).clicked() {
 				// TODO: Implement song key state.
 
-				send!(self.to_kernel, FrontendToKernel::AddQueueSongTailFront((key, true)));
-				send!(self.to_kernel, FrontendToKernel::Play);
+				crate::song_tail!(self, key);
 			}
 
 			rect.max.x = rect.min.x;
