@@ -39,14 +39,14 @@ pub(crate) enum KernelToAudio {
 	Seek(u32),
 
 	// Queue.
-	AddQueueSongFront(SongKey),
-	AddQueueSongBack(SongKey),
-	AddQueueSongTailFront(SongKey),
-	AddQueueSongTailBack(SongKey),
-	AddQueueAlbumFront(AlbumKey),
-	AddQueueAlbumBack(AlbumKey),
-	AddQueueArtistFront(ArtistKey),
-	AddQueueArtistBack(ArtistKey),
+	AddQueueSongFront((SongKey, bool)),
+	AddQueueSongBack((SongKey, bool)),
+	AddQueueSongTailFront((SongKey, bool)),
+	AddQueueSongTailBack((SongKey, bool)),
+	AddQueueAlbumFront((AlbumKey, bool)),
+	AddQueueAlbumBack((AlbumKey, bool)),
+	AddQueueArtistFront((ArtistKey, bool)),
+	AddQueueArtistBack((ArtistKey, bool)),
 
 	// Queue Index.
 	PlayQueueIndex(usize),

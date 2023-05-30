@@ -54,24 +54,32 @@ pub enum FrontendToKernel {
 	Seek(u32),
 
 	// Queue.
-	/// Add this `Song` to the FRONT of the queue (first song).
-	AddQueueSongFront(SongKey),
-	/// Add this `Song` to the BACK of the queue (last song).
-	AddQueueSongBack(SongKey),
-	/// Add this `Song` and every `Song` following it in the
-	/// owning `Album` to the FRONT of the queue.
-	AddQueueSongTailFront(SongKey),
-	/// Add this `Song` and every `Song` following it in the
+	/// - `SongKey`: add this `Song` to the FRONT of the queue (first song).
+	/// - `bool`: should we clear the queue before appending?
+	AddQueueSongFront((SongKey, bool)),
+	/// - `SongKey`: add this `Song` to the BACK of the queue (first song).
+	/// - `bool`: should we clear the queue before appending?
+	AddQueueSongBack((SongKey, bool)),
+	/// - `SongKey`: add this `Song` and every `Song` following
+	/// it in the owning `Album` to the FRONT of the queue.
+	/// - `bool`: should we clear the queue before appending?
+	AddQueueSongTailFront((SongKey, bool)),
+	/// - `SongKey`: add this `Song` and every `Song` following it in the
 	/// owning `Album` to the BACK of the queue.
-	AddQueueSongTailBack(SongKey),
-	/// Add all the songs in this `Album` to the FRONT of the queue.
-	AddQueueAlbumFront(AlbumKey),
-	/// Add all the songs in this `Album` to the BACK of the queue.
-	AddQueueAlbumBack(AlbumKey),
-	/// Add all the songs by this `Artist` to the FRONT of the queue.
-	AddQueueArtistFront(ArtistKey),
-	/// Add all the songs by this `Artist` to the BACK of the queue.
-	AddQueueArtistBack(ArtistKey),
+	/// - `bool`: should we clear the queue before appending?
+	AddQueueSongTailBack((SongKey, bool)),
+	/// `AlbumKey`: add all the songs in this `Album` to the FRONT of the queue.
+	/// - `bool`: should we clear the queue before appending?
+	AddQueueAlbumFront((AlbumKey, bool)),
+	/// - `AlbumKey`: add all the songs in this `Album` to the BACK of the queue.
+	/// - `bool`: should we clear the queue before appending?
+	AddQueueAlbumBack((AlbumKey, bool)),
+	/// - `ArtistKey`: add all the songs by this `Artist` to the FRONT of the queue.
+	/// - `bool`: should we clear the queue before appending?
+	AddQueueArtistFront((ArtistKey, bool)),
+	/// - `ArtistKey`: add all the songs by this `Artist` to the BACK of the queue.
+	/// - `bool`: should we clear the queue before appending?
+	AddQueueArtistBack((ArtistKey, bool)),
 
 	// Queue Index.
 	/// Play the `n`'th index [`Song`] in the queue without adding/removing anything.

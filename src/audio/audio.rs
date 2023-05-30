@@ -127,14 +127,14 @@ impl Audio {
 				Seek(f)   => self.msg_seek(f),
 
 				// Queue.
-				AddQueueSongFront(s_key)     => self.msg_add_queue_song(s_key,      rodio::Append::Front),
-				AddQueueSongBack(s_key)      => self.msg_add_queue_song(s_key,      rodio::Append::Back),
-				AddQueueSongTailFront(s_key) => self.msg_add_queue_song_tail(s_key, rodio::Append::Front),
-				AddQueueSongTailBack(s_key)  => self.msg_add_queue_song_tail(s_key, rodio::Append::Back),
-				AddQueueAlbumFront(al_key)   => self.msg_add_queue_album(al_key,    rodio::Append::Front),
-				AddQueueAlbumBack(al_key)    => self.msg_add_queue_album(al_key,    rodio::Append::Back),
-				AddQueueArtistFront(ar_key)  => self.msg_add_queue_artist(ar_key,   rodio::Append::Front),
-				AddQueueArtistBack(ar_key)   => self.msg_add_queue_artist(ar_key,   rodio::Append::Back),
+				AddQueueSongFront((s_key, clear))     => self.msg_add_queue_song(s_key, clear,      rodio::Append::Front),
+				AddQueueSongBack((s_key, clear))      => self.msg_add_queue_song(s_key, clear,      rodio::Append::Back),
+				AddQueueSongTailFront((s_key, clear)) => self.msg_add_queue_song_tail(s_key, clear, rodio::Append::Front),
+				AddQueueSongTailBack((s_key, clear))  => self.msg_add_queue_song_tail(s_key, clear, rodio::Append::Back),
+				AddQueueAlbumFront((al_key, clear))   => self.msg_add_queue_album(al_key, clear,    rodio::Append::Front),
+				AddQueueAlbumBack((al_key, clear))    => self.msg_add_queue_album(al_key, clear,    rodio::Append::Back),
+				AddQueueArtistFront((ar_key, clear))  => self.msg_add_queue_artist(ar_key, clear,   rodio::Append::Front),
+				AddQueueArtistBack((ar_key, clear))   => self.msg_add_queue_artist(ar_key, clear,   rodio::Append::Back),
 
 				// Queue Index.
 				PlayQueueIndex(idx)   => self.msg_play_queue_index(idx),
@@ -261,11 +261,27 @@ impl Audio {
 	}
 
 	#[inline]
-	fn clear_queue_sink(&mut self) {
-		let mut state = AUDIO_STATE.write();
+	// Clear both the `Sink` and `Queue`.
+	//
+	// The `bool` represents if we should
+	// set `playing` to `false` in `AUDIO_STATE`.
+	//
+	// `false` is used when we want to clear
+	// and then append new stuff and want to
+	// prevent the API from flickering values.
+	//
+	// This takes in a lock so we can continue
+	// more operations after this without flickering.
+	fn clear_queue_sink(
+		&mut self,
+		keep_playing: bool,
+		state: &mut std::sync::RwLockWriteGuard<'_, AudioState>,
+	) {
+		trace!("Audio - clear_queue_sink({keep_playing})");
+
 		state.queue.clear();
 		state.queue_idx = None;
-		state.playing   = false;
+		state.playing   = keep_playing;
 		state.song      = None;
 		self.sink.clear();
 	}
@@ -308,7 +324,7 @@ impl Audio {
 
 			// If we're at the end of the queue, clear.
 			if state.at_last_queue_idx() {
-				self.clear_queue_sink();
+				self.clear_queue_sink(false, &mut state);
 				return;
 			}
 
@@ -397,35 +413,59 @@ impl Audio {
 
 	//-------------------------------------------------- Queue.
 	#[inline(always)]
-	fn msg_add_queue_song(&mut self, song: SongKey, append: rodio::Append) {
+	fn msg_add_queue_song(&mut self, song: SongKey, clear: bool, append: rodio::Append) {
 		trace!("Audio - msg_add_queue_song({song:?}) - {append:?}");
+
+		let mut state = AUDIO_STATE.write();
+
+		if clear {
+			self.clear_queue_sink(true, &mut state)
+		}
+
 		if let Some((song, key)) = self.to_source(song) {
 			self.sink.append(song, Some(append));
+
+			state.queue.push_front(key);
+			state.queue_idx = Some(0);
+			state.song = Some(key);
 		}
 	}
 
 	#[inline(always)]
-	fn msg_add_queue_song_tail(&mut self, song: SongKey, append: rodio::Append) {
+	fn msg_add_queue_song_tail(&mut self, song: SongKey, clear: bool, append: rodio::Append) {
 		trace!("Audio - msg_add_queue_song_tail({song:?}) - {append:?}");
+
 		let (song_vec, keys) = self.to_source_song_tail(song);
+
+		let mut state = AUDIO_STATE.write();
+
+		if clear {
+			self.clear_queue_sink(true, &mut state)
+		}
 
 		if song_vec.len() > 0 {
 			self.sink.append_bulk(song_vec, Some(append));
 
-			let mut state = AUDIO_STATE.write();
 
 			for k in keys {
 				state.queue.push_back(k);
 			}
 
 			state.queue_idx = Some(0);
-			state.set_song(song);
+			state.song = Some(song);
 		}
 	}
 
 	#[inline(always)]
-	fn msg_add_queue_album(&mut self, album: AlbumKey, append: rodio::Append) {
+	fn msg_add_queue_album(&mut self, album: AlbumKey, clear: bool, append: rodio::Append) {
 		trace!("Audio - msg_add_queue_album({album:?}) - {append:?}");
+
+		let mut state = AUDIO_STATE.write();
+
+		if clear {
+			self.clear_queue_sink(true, &mut state)
+		}
+
 		let (songs, keys) = self.to_source_album(album);
 
 		if !songs.is_empty() {
@@ -434,8 +474,15 @@ impl Audio {
 	}
 
 	#[inline(always)]
-	fn msg_add_queue_artist(&mut self, artist: ArtistKey, append: rodio::Append) {
+	fn msg_add_queue_artist(&mut self, artist: ArtistKey, clear: bool, append: rodio::Append) {
 		trace!("Audio - msg_add_queue_artist({artist:?}) - {append:?}");
+
+		let mut state = AUDIO_STATE.write();
+
+		if clear {
+			self.clear_queue_sink(true, &mut state)
+		}
+
 		let (songs, keys) = self.to_source_artist(artist);
 
 		if !songs.is_empty() {
