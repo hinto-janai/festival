@@ -38,26 +38,26 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 		let mut current_artist = None;
 		let mut current_album  = None;
 
+		// How many char's before we need
+		// to cut off the song title?
+		// (scales based on pixels available).
+		let head = (width / 18.0) as usize;
+
 		// TODO:
 		// Copy audio state somewhere else
 		// in a more global manner.
-		let mut iter = AUDIO_STATE
-			.read()
-			.queue
-			.clone()
-			.into_iter()
-			.peekable();
+		let iter = AUDIO_STATE.read().queue.clone();
 
-		loop {
-			let key = match iter.next() {
-				Some(k) => k,
-				None => break,
-			};
-
+		for key in iter {
 			let (artist, album, song) = self.collection.walk(key);
 
+			let same_artist = current_artist == Some(artist);
+			let same_album  = current_album == Some(album);
+
 			//-------------------------------------------------- Artist.
-			if current_artist != Some(artist) {
+			if !same_artist {
+				ui.add_space(30.0);
+
 				// Artist info.
 				let artist_name = Label::new(
 					RichText::new(&artist.name)
@@ -66,12 +66,14 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 				if ui.add(artist_name.sense(Sense::click())).clicked() {
 					crate::artist!(self, album.artist);
 				}
-				ui.separator();
-				ui.add_space(10.0);
 				current_artist = Some(artist);
 
 				// FIXME:
 				// This code is duplicated below for new albums.
+				ui.add_space(10.0);
+				ui.separator();
+				ui.add_space(10.0);
+
 				ui.horizontal(|ui| {
 					crate::no_rounding!(ui);
 					crate::album_button!(self, album, song.album, ui, ctx, QUEUE_ALBUM_ART_SIZE);
@@ -89,8 +91,12 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 				ui.separator();
 				current_album = Some(album)
 			//-------------------------------------------------- Album.
-			} else if current_album != Some(album) {
+			} else if !same_album {
 				// FIXME: see above.
+				ui.add_space(10.0);
+				ui.separator();
+				ui.add_space(10.0);
+
 				ui.horizontal(|ui| {
 					crate::no_rounding!(ui);
 					crate::album_button!(self, album, song.album, ui, ctx, QUEUE_ALBUM_ART_SIZE);
@@ -109,51 +115,29 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 			}
 
 			//-------------------------------------------------- Song.
-			// How many char's before we need
-			// to cut off the song title?
-			// (scales based on pixels available).
-			let head = (width / 18.0) as usize;
+			let mut rect = ui.cursor();
+			rect.max.y = rect.min.y + 35.0;
+			if ui.put(rect, SelectableLabel::new(false, "")).clicked() {
+				// TODO: Implement song key state.
 
-			// As long as the `Artist/Album` are
-			// the same, continue painting songs.
-			while let Some(peek_key) = iter.peek() {
-				let (artist, album, song) = self.collection.walk(*peek_key);
-				if current_artist != Some(artist) {
-					ui.add_space(30.0);
-					break;
-				} else if current_album != Some(album) {
-					ui.add_space(10.0);
-					ui.separator();
-					ui.add_space(10.0);
-					break;
-				} else {
-					iter.next();
-				}
-
-				let mut rect = ui.cursor();
-				rect.max.y = rect.min.y + 35.0;
-				if ui.put(rect, SelectableLabel::new(false, "")).clicked() {
-					// TODO: Implement song key state.
-
-					send!(self.to_kernel, FrontendToKernel::AddQueueSongTailFront(key));
-					send!(self.to_kernel, FrontendToKernel::Play);
-				}
-
-				rect.max.x = rect.min.x;
-
-				ui.allocate_ui_at_rect(rect, |ui| {
-					ui.horizontal_centered(|ui| {
-						// Show the full title on hover
-						// if we chopped it with head.
-						let head = song.title.head_dot(head);
-						if song.title == head {
-							ui.add(Label::new(format!("{: >3}    {: >8}    {}", song.track.unwrap_or(0), &song.runtime, &song.title)));
-						} else {
-							ui.add(Label::new(format!("{: >3}    {: >8}    {}", song.track.unwrap_or(0), &song.runtime, &head))).on_hover_text(&song.title);
-						}
-					});
-				});
+				send!(self.to_kernel, FrontendToKernel::AddQueueSongTailFront((key, true)));
+				send!(self.to_kernel, FrontendToKernel::Play);
 			}
+
+			rect.max.x = rect.min.x;
+
+			ui.allocate_ui_at_rect(rect, |ui| {
+				ui.horizontal_centered(|ui| {
+					// Show the full title on hover
+					// if we chopped it with head.
+					let head = song.title.head_dot(head);
+					if song.title == head {
+						ui.add(Label::new(format!("{: >3}    {: >8}    {}", song.track.unwrap_or(0), &song.runtime, &song.title)));
+					} else {
+						ui.add(Label::new(format!("{: >3}    {: >8}    {}", song.track.unwrap_or(0), &song.runtime, &head))).on_hover_text(&song.title);
+					}
+				});
+			});
 		}
 	});
 }}

@@ -7,10 +7,11 @@ use shukusai::{
 	COMMIT,
 	FESTIVAL,
 	FESTIVAL_NAME_VER,
-};
-use shukusai::{
 	INIT_INSTANT,
 	THREADS,
+};
+use shukusai::kernel::{
+	AUDIO_STATE,
 };
 use benri::atomic_load;
 use serde::{Serialize,Deserialize};
@@ -72,6 +73,9 @@ exit_countdown | {}
 resetting_collection | {}
 kernel_returned      | {}
 
+{DASH} audio state
+{:#?}
+
 {DASH} thread
 {:#?}
 
@@ -109,6 +113,7 @@ kernel_returned      | {}
 			atomic_load!(self.exit_countdown),
 			self.resetting_collection,
 			self.kernel_returned,
+			AUDIO_STATE.read(),
 			std::thread::current(),
 			self.state,
 			self.og_state,
