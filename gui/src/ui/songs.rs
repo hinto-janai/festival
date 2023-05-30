@@ -196,7 +196,11 @@ pub fn show_tab_songs(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 				body.row(35.0, |mut row| {
 					let (artist, album, song) = self.collection.walk(key);
 
-					row.col(|ui| { ui.label(&song.title); });
+					row.col(|ui| {
+						if ui.add(Label::new(&song.title).sense(Sense::click())).clicked() {
+							crate::song!(self, *key);
+						}
+					});
 
 					row.col(|ui| {
 						if ui.add(Label::new(&album.title).sense(Sense::click())).clicked() {

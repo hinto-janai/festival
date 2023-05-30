@@ -64,6 +64,19 @@ macro_rules! song_tail {
 }
 
 #[macro_export]
+/// Send a single `Song` to `Kernel` to play.
+///
+/// This indicates:
+/// - Queue should be cleared
+/// - `Song` clicked should be immediate played
+macro_rules! song {
+	($self:ident, $key:expr) => {
+		::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::AddQueueSongFront(($key, true)));
+		::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
+	}
+}
+
+#[macro_export]
 /// Set a search string, set the last tab, jump to the search tab.
 macro_rules! search {
 	($self:ident, $key:expr, $shift:expr) => {
