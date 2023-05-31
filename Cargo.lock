@@ -305,18 +305,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "asio-sys"
-version = "0.2.1"
-dependencies = [
- "bindgen 0.64.0",
- "cc",
- "num-derive",
- "num-traits",
- "once_cell",
- "walkdir",
-]
-
-[[package]]
 name = "async-broadcast"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -540,7 +528,6 @@ dependencies = [
  "clang-sys",
  "lazy_static",
  "lazycell",
- "log",
  "peeking_take_while",
  "proc-macro2",
  "quote",
@@ -548,7 +535,6 @@ dependencies = [
  "rustc-hash",
  "shlex",
  "syn 1.0.109",
- "which",
 ]
 
 [[package]]
@@ -1138,15 +1124,13 @@ dependencies = [
 [[package]]
 name = "cpal"
 version = "0.15.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6d959d90e938c5493000514b446987c07aed46c668faaa7d34d6c7a67b1a578c"
 dependencies = [
  "alsa",
- "anyhow",
- "asio-sys",
- "clap 4.3.0",
  "core-foundation-sys 0.8.4",
  "coreaudio-rs",
  "dasp_sample",
- "hound 3.5.0",
  "jack",
  "jni 0.19.0",
  "js-sys",
@@ -1154,12 +1138,9 @@ dependencies = [
  "mach2",
  "ndk",
  "ndk-context",
- "ndk-glue",
- "num-traits",
  "oboe",
  "once_cell",
  "parking_lot",
- "ringbuf",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",
@@ -3942,15 +3923,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "20ec2d3e3fc7a92ced357df9cebd5a10b6fb2aa1ee797bf7e9ce2f17dffc8f59"
 dependencies = [
  "bytemuck",
-]
-
-[[package]]
-name = "ringbuf"
-version = "0.3.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "79abed428d1fd2a128201cec72c5f6938e2da607c6f3745f769fabea399d950a"
-dependencies = [
- "crossbeam-utils",
 ]
 
 [[package]]

@@ -402,6 +402,7 @@ fn show_bottom(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width:
 			ui.group(|ui| {
 				if ui.add_sized([UI_CONTROL_WIDTH, height], Button::new(RichText::new(UI_PREVIOUS).size(35.0))).clicked() {
 					send!(self.to_kernel, FrontendToKernel::Previous);
+					send!(self.to_kernel, FrontendToKernel::Play);
 				}
 
 				let play_pause = if AUDIO_STATE.read().playing {
@@ -416,6 +417,7 @@ fn show_bottom(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width:
 
 				if ui.add_sized([UI_CONTROL_WIDTH, height], Button::new(RichText::new(UI_FORWARDS).size(35.0))).clicked() {
 					send!(self.to_kernel, FrontendToKernel::Next);
+					send!(self.to_kernel, FrontendToKernel::Play);
 				}
 			});
 
