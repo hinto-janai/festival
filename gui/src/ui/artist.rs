@@ -189,15 +189,15 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame
 		// (scales based on pixels available).
 		let head = (width / 26.5) as usize;
 
-		for key in artist.albums.iter() {
+		for album_key in artist.albums.iter() {
 			ui.separator();
 			ui.add_space(10.0);
 
-			let album = &self.collection.albums[key];
+			let album = &self.collection.albums[album_key];
 
 			ui.horizontal(|ui| {
 				// Album.
-				crate::album_button!(self, album, key, ui, ctx, self.settings.album_pixel_size);
+				crate::album_button!(self, album, album_key, ui, ctx, self.settings.album_pixel_size);
 
 				ui.vertical(|ui| {
 					// Info.
@@ -208,7 +208,7 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame
 					ui.separator();
 
 					// Song list.
-					for key in album.songs.iter() {
+					for (offset, key) in album.songs.iter().enumerate() {
 						let song = &self.collection.songs[key];
 
 						let mut rect = ui.cursor();
@@ -216,7 +216,7 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame
 						if ui.put(rect, SelectableLabel::new(false, "")).clicked() {
 							// TODO: Implement song key state.
 
-							crate::song_tail!(self, *key);
+							crate::play_album_offset!(self, *album_key, offset);
 						}
 						rect.max.x = rect.min.x;
 

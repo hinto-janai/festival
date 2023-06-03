@@ -50,28 +50,59 @@ macro_rules! artist {
 }
 
 #[macro_export]
-/// Send `Song`'s to `Kernel` to play.
-///
-/// This implements the most used and expected behavior when clicking a song:
-/// - Queue should be cleared
-/// - `Song` clicked should be immediate played
-/// - All `Song`'s after clicked one in that `Album` should be added to the queue
-macro_rules! song_tail {
-	($self:ident, $key:expr) => {
-		::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::AddQueueSongTailFront(($key, true)));
-		::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
-	}
-}
-
-#[macro_export]
 /// Send a single `Song` to `Kernel` to play.
 ///
 /// This indicates:
 /// - Queue should be cleared
 /// - `Song` clicked should be immediate played
-macro_rules! song {
+macro_rules! play_song {
 	($self:ident, $key:expr) => {
-		::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::AddQueueSongFront(($key, true)));
+		::benri::send!(
+			$self.to_kernel,
+			shukusai::kernel::FrontendToKernel::AddQueueSong(($key, shukusai::kernel::Append::Front, true))
+		);
+		::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
+	}
+}
+
+#[macro_export]
+/// Send an `Album` to `Kernel` to play.
+///
+/// This indicates:
+/// - Queue should be cleared
+/// - The first `Song` in the `Album` should be immediate played
+/// - All the `Song`'s in the `Album` should be added to the queue
+macro_rules! play_album {
+	($self:ident, $key:expr) => {
+		::benri::send!(
+			$self.to_kernel,
+			shukusai::kernel::FrontendToKernel::AddQueueAlbum(($key, shukusai::kernel::Append::Front, true))
+		);
+		::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
+	}
+}
+
+#[macro_export]
+/// Send an `Album` to `Kernel` to play, skipping arbitrarily deep into it.
+///
+/// This implements the most used and expected
+/// behavior when clicking a song in the `View` tab, or any
+/// UI that shows an `Album` and it's respective `Songs`:
+///
+/// - Queue should be cleared
+/// - The _clicked_ `Song` should be immediate played
+/// - All the `Song`'s in the `Album` should be added to the queue
+/// - Going backwards should be possible, even if the clicked `Song`
+///   is not the first, e.g 5/12th track.
+///
+/// We must enumerate our lists, so we know the skip offset to send to `Kernel`.
+macro_rules! play_album_offset {
+	($self:ident, $key:expr, $skip:expr) => {
+		::benri::send!(
+			$self.to_kernel,
+			shukusai::kernel::FrontendToKernel::AddQueueAlbum(($key, shukusai::kernel::Append::Front, true))
+		);
+		::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Skip($skip));
 		::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
 	}
 }

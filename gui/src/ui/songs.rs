@@ -198,7 +198,7 @@ pub fn show_tab_songs(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 
 					row.col(|ui| {
 						if ui.add(Label::new(&song.title).sense(Sense::click())).clicked() {
-							crate::song!(self, *key);
+							crate::play_song!(self, *key);
 						}
 					});
 

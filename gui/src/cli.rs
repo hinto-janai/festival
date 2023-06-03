@@ -38,7 +38,7 @@ pub struct Cli {
 	repeat: bool,
 
 	/// Set filter level for console logs
-	#[arg(long, value_name = "TRACE|DEBUG|WARN|INFO|ERROR|OFF")]
+	#[arg(long, value_name = "OFF|ERROR|INFO|WARN|DEBUG|TRACE")]
 	log_level: Option<log::LevelFilter>,
 
 	/// Print JSON metadata about the current `Collection` on disk
@@ -57,6 +57,15 @@ impl Cli {
 		use std::process::exit;
 
 		let cli = Self::parse();
+
+		// Signals.
+		if cli.toggle   { if let Err(e) = Toggle::touch()   { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if cli.pause    { if let Err(e) = Pause::touch()    { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if cli.play     { if let Err(e) = Play::touch()     { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if cli.next     { if let Err(e) = Next::touch()     { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if cli.previous { if let Err(e) = Previous::touch() { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if cli.shuffle  { if let Err(e) = Shuffle::touch()  { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if cli.repeat   { if let Err(e) = Repeat::touch()   { error!("Failed: {e}"); exit(1); } else { exit(0); } }
 
 		// Version.
 		if cli.version {
@@ -77,14 +86,5 @@ impl Cli {
 			Some(log_level) => init_logger(log_level),
 			None            => init_logger(log::LevelFilter::Info),
 		}
-
-		// Signals.
-		if cli.toggle   { if let Err(e) = Toggle::touch()   { error!("Failed: {e}"); exit(1); } else { exit(0); } }
-		if cli.pause    { if let Err(e) = Pause::touch()    { error!("Failed: {e}"); exit(1); } else { exit(0); } }
-		if cli.play     { if let Err(e) = Play::touch()     { error!("Failed: {e}"); exit(1); } else { exit(0); } }
-		if cli.next     { if let Err(e) = Next::touch()     { error!("Failed: {e}"); exit(1); } else { exit(0); } }
-		if cli.previous { if let Err(e) = Previous::touch() { error!("Failed: {e}"); exit(1); } else { exit(0); } }
-		if cli.shuffle  { if let Err(e) = Shuffle::touch()  { error!("Failed: {e}"); exit(1); } else { exit(0); } }
-		if cli.repeat   { if let Err(e) = Repeat::touch()   { error!("Failed: {e}"); exit(1); } else { exit(0); } }
 	}
 }

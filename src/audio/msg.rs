@@ -15,6 +15,7 @@ use rolock::RoLock;
 use crate::audio::{
 	AudioState,Volume,
 };
+use crate::audio::append::Append;
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
 pub(crate) enum AudioToKernel {
@@ -39,14 +40,10 @@ pub(crate) enum KernelToAudio {
 	Seek(u32),
 
 	// Queue.
-	AddQueueSongFront((SongKey, bool)),
-	AddQueueSongBack((SongKey, bool)),
-	AddQueueSongTailFront((SongKey, bool)),
-	AddQueueSongTailBack((SongKey, bool)),
-	AddQueueAlbumFront((AlbumKey, bool)),
-	AddQueueAlbumBack((AlbumKey, bool)),
-	AddQueueArtistFront((ArtistKey, bool)),
-	AddQueueArtistBack((ArtistKey, bool)),
+	AddQueueSong((SongKey, Append, bool)),
+	AddQueueAlbum((AlbumKey, Append, bool)),
+	AddQueueArtist((ArtistKey, Append, bool)),
+	Skip(usize),
 
 	// Queue Index.
 	PlayQueueIndex(usize),

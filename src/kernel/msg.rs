@@ -17,7 +17,7 @@ use std::path::PathBuf;
 use crate::kernel::{
 	ResetState,Kernel,SearchKind,
 };
-use crate::audio::Volume;
+use crate::audio::{Volume, Append};
 use readable::Percent;
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
@@ -54,32 +54,24 @@ pub enum FrontendToKernel {
 	Seek(u32),
 
 	// Queue.
-	/// - `SongKey`: add this `Song` to the FRONT of the queue (first song).
-	/// - `bool`: should we clear the queue before appending?
-	AddQueueSongFront((SongKey, bool)),
-	/// - `SongKey`: add this `Song` to the BACK of the queue (first song).
-	/// - `bool`: should we clear the queue before appending?
-	AddQueueSongBack((SongKey, bool)),
-	/// - `SongKey`: add this `Song` and every `Song` following
-	/// it in the owning `Album` to the FRONT of the queue.
-	/// - `bool`: should we clear the queue before appending?
-	AddQueueSongTailFront((SongKey, bool)),
-	/// - `SongKey`: add this `Song` and every `Song` following it in the
-	/// owning `Album` to the BACK of the queue.
-	/// - `bool`: should we clear the queue before appending?
-	AddQueueSongTailBack((SongKey, bool)),
-	/// `AlbumKey`: add all the songs in this `Album` to the FRONT of the queue.
-	/// - `bool`: should we clear the queue before appending?
-	AddQueueAlbumFront((AlbumKey, bool)),
-	/// - `AlbumKey`: add all the songs in this `Album` to the BACK of the queue.
-	/// - `bool`: should we clear the queue before appending?
-	AddQueueAlbumBack((AlbumKey, bool)),
-	/// - `ArtistKey`: add all the songs by this `Artist` to the FRONT of the queue.
-	/// - `bool`: should we clear the queue before appending?
-	AddQueueArtistFront((ArtistKey, bool)),
-	/// - `ArtistKey`: add all the songs by this `Artist` to the BACK of the queue.
-	/// - `bool`: should we clear the queue before appending?
-	AddQueueArtistBack((ArtistKey, bool)),
+	/// - [`SongKey`]: add this `Song` to the queue.
+	/// - [`Append`]: in which way should we append to the queue?
+	/// - [`bool`]: should we clear the queue before appending?
+	AddQueueSong((SongKey, Append, bool)),
+	/// - [`AlbumKey`]: add all the songs in this `Album` to the queue.
+	/// - [`Append`]: in which way should we append to the queue?
+	/// - [`bool`]: should we clear the queue before appending?
+	AddQueueAlbum((AlbumKey, Append, bool)),
+	/// - [`ArtistKey`]: add all the songs by this `Artist` to the queue.
+	/// - [`Append`]: in which way should we append to the queue?
+	/// - [`bool`]: should we clear the queue before appending?
+	AddQueueArtist((ArtistKey, Append, bool)),
+	/// Skip `usize` amount of `Song`'s.
+	///
+	/// This doesn't delete the skipped song from the queue, it just skips playback.
+	///
+	/// If the `usize` is larger than the current `Queue` size, we finish playback.
+	Skip(usize),
 
 	// Queue Index.
 	/// Play the `n`'th index [`Song`] in the queue without adding/removing anything.

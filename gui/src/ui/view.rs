@@ -103,7 +103,7 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &
 			ui.separator();
 		}
 
-		for key in album.songs.iter() {
+		for (offset, key) in album.songs.iter().enumerate() {
 			let song = &self.collection.songs[key];
 
 			// Add a separator if on a different disc.
@@ -122,7 +122,7 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &
 			if ui.put(rect, SelectableLabel::new(AUDIO_STATE.read().song == Some(*key), "")).clicked() {
 				// TODO: Implement song key state.
 
-				crate::song_tail!(self, *key);
+				crate::play_album_offset!(self, song.album, offset);
 			}
 			rect.max.x = rect.min.x;
 

@@ -112,22 +112,60 @@ impl AudioState {
 	}
 
 	#[inline]
-	// Increments the `queue_idx` if it isn't `None`.
-	pub(super) fn increment_queue_idx(&mut self) {
-		if let Some(i) = self.queue_idx {
-			self.queue_idx = Some(i + 1);
-		}
+	/// Shallow copy `Self`.
+	/// This copies everything except for the `Queue`.
+	pub(crate) fn shallow_copy(&self, dst: &mut Self) {
+		dst.queue_idx = self.queue_idx;
+		dst.playing   = self.playing;
+		dst.volume    = self.volume;
+		dst.song      = self.song;
+		dst.elapsed   = self.elapsed;
+		dst.runtime   = self.runtime;
+		dst.shuffle   = self.shuffle;
+		dst.repeat    = self.repeat;
 	}
 
 	#[inline]
-	// Decrements the `queue_idx` if it isn't `None`.
+	// INVARIANT:
+	// `queue` and `queue_idx` must not be `None`.
 	//
-	// If `0`, nothing happens.
-	pub(super) fn decrement_queue_idx(&mut self) {
-		if let Some(i) = self.queue_idx {
-			if i != 0 {
-				self.queue_idx = Some(i - 1);
-			}
+	// - Increments the `queue_idx`
+	// - Sets current song to the new index
+	//
+	// Returns the new `SongKey`.
+	pub(super) fn next(&mut self) -> SongKey {
+		let i = self.queue_idx.unwrap();
+
+		let i = i + 1;
+
+		let key = self.queue[i];
+		self.song      = Some(key);
+		self.queue_idx = Some(i);
+
+		key
+	}
+
+	#[inline]
+	// INVARIANT:
+	// `queue` and `queue_idx` must not be `None`.
+	//
+	// - Decrements the `queue_idx`
+	// - Sets current song to the new index
+	//
+	// Returns the new `SongKey`.
+	pub(super) fn prev(&mut self) -> SongKey {
+		let i = self.queue_idx.unwrap();
+
+		if i == 0 {
+			let key = self.queue[0];
+			self.song = Some(key);
+			key
+		} else {
+			let i = i - 1;
+			let key = self.queue[i];
+			self.song      = Some(key);
+			self.queue_idx = Some(i);
+			key
 		}
 	}
 
@@ -141,9 +179,12 @@ impl AudioState {
 	}
 
 	#[inline]
-	// Set the current `song`.
-	pub(super) fn set_song(&mut self, key: SongKey) {
-		self.song = Some(key);
+	// Checks if we are at the first index in the queue.
+	pub(super) fn at_first_queue_idx(&self) -> bool {
+		match self.queue_idx {
+			Some(i) => i == 0,
+			None => false,
+		}
 	}
 }
 

@@ -110,7 +110,6 @@ eframe      = { version = "0.21.0", path = "external/egui/crates/eframe",      f
 egui_extras = { version = "0.21.0", path = "external/egui/crates/egui_extras", features = ["image"], optional = true  }
 epaint      = { version = "0.21.0", path = "external/egui/crates/epaint", optional = true  }
 lofty       = { version = "0.13.0", path = "external/lofty-rs" }
-rodio       = { version = "0.17.1", path = "external/rodio", features = ["symphonia", "symphonia-all"] }
 
 ## 3rd party `egui`.
 egui_dnd    = { version = "0.3.0", path = "external/egui_dnd" }
@@ -148,5 +147,15 @@ serde_bytes = "0.11.9"
 serde = { version = "1.0.160", features = ["derive"] }
 seq-macro = "0.3.3"
 strsim = "0.10.0"
-#symphonia = "0.5.2"
 walkdir = "2.3.3"
+
+### Symphonia
+symphonia = { version = "0.5.3", features = ["all"] }
+[target.'cfg(target_os = "linux")'.dependencies]
+libpulse-binding = "2.5.0"
+libpulse-simple-binding = "2.5.0"
+[target.'cfg(not(target_os = "linux"))'.dependencies]
+arrayvec = "0.7.1"
+cpal = "0.13.3"
+rb = "0.3.2"
+rubato = "0.12.0"
