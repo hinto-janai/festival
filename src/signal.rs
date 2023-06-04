@@ -23,13 +23,17 @@ macro_rules! impl_signal {
 	}
 }
 
-impl_signal!(Toggle, "toggle");
-impl_signal!(Pause, "pause");
-impl_signal!(Play, "play");
-impl_signal!(Next, "next");
-impl_signal!(Previous, "previous");
-impl_signal!(Shuffle, "shuffle");
-impl_signal!(Repeat, "repeat");
+impl_signal!(Toggle,        "toggle");
+impl_signal!(Pause,         "pause");
+impl_signal!(Play,          "play");
+impl_signal!(Next,          "next");
+impl_signal!(Previous,      "previous");
+impl_signal!(ShuffleOn,     "shuffle_on");
+impl_signal!(ShuffleOff,    "shuffle_off");
+impl_signal!(ShuffleToggle, "shuffle_toggle");
+impl_signal!(RepeatSong,    "repeat_song");
+impl_signal!(RepeatQueue,   "repeat_queue");
+impl_signal!(RepeatOff,     "repeat_off");
 
 //---------------------------------------------------------------------------------------------------- TESTS
 //#[cfg(test)]

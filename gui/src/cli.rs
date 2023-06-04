@@ -9,17 +9,17 @@ use disk::Empty;
 #[derive(Parser, Debug)]
 #[command(override_usage = "festival [OPTIONS]")]
 pub struct Cli {
-	/// Toggle playback (play/pause)
+	/// Start playback
 	#[arg(long)]
-	toggle: bool,
+	play: bool,
 
 	/// Pause playback
 	#[arg(long)]
 	pause: bool,
 
-	/// Start playback
+	/// Toggle playback (play/pause)
 	#[arg(long)]
-	play: bool,
+	toggle: bool,
 
 	/// Skip to next track
 	#[arg(long)]
@@ -29,13 +29,29 @@ pub struct Cli {
 	#[arg(long)]
 	previous: bool,
 
-	/// Play track shuffle
+	/// Turn on track shuffle
 	#[arg(long)]
-	shuffle: bool,
+	shuffle_on: bool,
 
-	/// Toggle track repeating
+	/// Turn off track shuffle
 	#[arg(long)]
-	repeat: bool,
+	shuffle_off: bool,
+
+	/// Toggle track shuffle
+	#[arg(long)]
+	shuffle_toggle: bool,
+
+	/// Turn on single `Song` track repeat
+	#[arg(long)]
+	repeat_song: bool,
+
+	/// Turn on queue repeat
+	#[arg(long)]
+	repeat_queue: bool,
+
+	/// Turn off repeating
+	#[arg(long)]
+	repeat_off: bool,
 
 	/// Set filter level for console logs
 	#[arg(long, value_name = "OFF|ERROR|INFO|WARN|DEBUG|TRACE")]
@@ -59,13 +75,17 @@ impl Cli {
 		let cli = Self::parse();
 
 		// Signals.
-		if cli.toggle   { if let Err(e) = Toggle::touch()   { error!("Failed: {e}"); exit(1); } else { exit(0); } }
-		if cli.pause    { if let Err(e) = Pause::touch()    { error!("Failed: {e}"); exit(1); } else { exit(0); } }
-		if cli.play     { if let Err(e) = Play::touch()     { error!("Failed: {e}"); exit(1); } else { exit(0); } }
-		if cli.next     { if let Err(e) = Next::touch()     { error!("Failed: {e}"); exit(1); } else { exit(0); } }
-		if cli.previous { if let Err(e) = Previous::touch() { error!("Failed: {e}"); exit(1); } else { exit(0); } }
-		if cli.shuffle  { if let Err(e) = Shuffle::touch()  { error!("Failed: {e}"); exit(1); } else { exit(0); } }
-		if cli.repeat   { if let Err(e) = Repeat::touch()   { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if cli.toggle         { if let Err(e) = Toggle::touch()        { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if cli.pause          { if let Err(e) = Pause::touch()         { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if cli.play           { if let Err(e) = Play::touch()          { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if cli.next           { if let Err(e) = Next::touch()          { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if cli.previous       { if let Err(e) = Previous::touch()      { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if cli.shuffle_on     { if let Err(e) = ShuffleOn::touch()     { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if cli.shuffle_off    { if let Err(e) = ShuffleOff::touch()    { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if cli.shuffle_toggle { if let Err(e) = ShuffleToggle::touch() { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if cli.repeat_song    { if let Err(e) = RepeatSong::touch()    { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if cli.repeat_queue   { if let Err(e) = RepeatQueue::touch()   { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if cli.repeat_off     { if let Err(e) = RepeatOff::touch()     { error!("Failed: {e}"); exit(1); } else { exit(0); } }
 
 		// Version.
 		if cli.version {

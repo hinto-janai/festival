@@ -17,7 +17,7 @@ use std::path::PathBuf;
 use crate::kernel::{
 	ResetState,Kernel,SearchKind,
 };
-use crate::audio::{Volume, Append};
+use crate::audio::{Volume, Append, Shuffle, Repeat};
 use readable::Percent;
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
@@ -41,10 +41,10 @@ pub enum FrontendToKernel {
 	Previous,
 
 	// Audio settings.
-	/// Toggle shuffling songs.
-	Shuffle,
-	/// Toggle repeating songs.
-	Repeat,
+	/// See [`Shuffle`] for the different ways to shuffle.
+	Shuffle(Shuffle),
+	/// See [`Repeat`] for the different ways to repeat.
+	Repeat(Repeat),
 	/// Change the audio volume.
 	Volume(Volume),
 	/// Seek to this second in current song.

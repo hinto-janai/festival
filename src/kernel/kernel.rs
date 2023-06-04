@@ -425,8 +425,8 @@ impl Kernel {
 			Next                 => send!(self.to_audio, KernelToAudio::Next),
 			Previous             => send!(self.to_audio, KernelToAudio::Previous),
 			// Audio settings.
-			Shuffle              => send!(self.to_audio, KernelToAudio::Shuffle),
-			Repeat               => send!(self.to_audio, KernelToAudio::Repeat),
+			Shuffle(s)           => send!(self.to_audio, KernelToAudio::Shuffle(s)),
+			Repeat(r)            => send!(self.to_audio, KernelToAudio::Repeat(r)),
 			Volume(volume)       => send!(self.to_audio, KernelToAudio::Volume(volume)),
 			Seek(second)         => send!(self.to_audio, KernelToAudio::Seek(second)),
 
@@ -476,14 +476,19 @@ impl Kernel {
 	// We got a message from `Watch`.
 	fn msg_watch(&self, msg: WatchToKernel) {
 		use crate::watch::WatchToKernel::*;
+		use crate::audio::{Shuffle, Repeat};
 		match msg {
-			Toggle   => send!(self.to_audio, KernelToAudio::Toggle),
-			Play     => send!(self.to_audio, KernelToAudio::Play),
-			Pause    => send!(self.to_audio, KernelToAudio::Pause),
-			Next     => send!(self.to_audio, KernelToAudio::Next),
-			Previous => send!(self.to_audio, KernelToAudio::Previous),
-			Shuffle  => send!(self.to_audio, KernelToAudio::Shuffle),
-			Repeat   => send!(self.to_audio, KernelToAudio::Repeat),
+			Toggle        => send!(self.to_audio, KernelToAudio::Toggle),
+			Play          => send!(self.to_audio, KernelToAudio::Play),
+			Pause         => send!(self.to_audio, KernelToAudio::Pause),
+			Next          => send!(self.to_audio, KernelToAudio::Next),
+			Previous      => send!(self.to_audio, KernelToAudio::Previous),
+			ShuffleOn     => send!(self.to_audio, KernelToAudio::Shuffle(Shuffle::On)),
+			ShuffleOff    => send!(self.to_audio, KernelToAudio::Shuffle(Shuffle::Off)),
+			ShuffleToggle => send!(self.to_audio, KernelToAudio::Shuffle(Shuffle::Toggle)),
+			RepeatSong    => send!(self.to_audio, KernelToAudio::Repeat(Repeat::Song)),
+			RepeatQueue   => send!(self.to_audio, KernelToAudio::Repeat(Repeat::Queue)),
+			RepeatOff     => send!(self.to_audio, KernelToAudio::Repeat(Repeat::Off)),
 		}
 	}
 

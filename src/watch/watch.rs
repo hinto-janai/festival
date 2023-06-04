@@ -84,13 +84,17 @@ impl Watch {
 		if let Err(e) = Pause::mkdir() { error!("Watch - Could not create signal folder"); }
 
 		// Clean files.
-		if let Err(e) = Toggle::rm()   { error!("Watch - Toggle: {}", e); }
-		if let Err(e) = Pause::rm()    { error!("Watch - Pause: {}", e); }
-		if let Err(e) = Play::rm()     { error!("Watch - Play: {}", e); }
-		if let Err(e) = Next::rm()     { error!("Watch - Next: {}", e); }
-		if let Err(e) = Previous::rm() { error!("Watch - Previous: {}", e); }
-		if let Err(e) = Shuffle::rm()  { error!("Watch - Shuffle: {}", e); }
-		if let Err(e) = Repeat::rm()   { error!("Watch - Repeat: {}", e); }
+		if let Err(e) = Toggle::rm()        { error!("Watch - Toggle: {}", e); }
+		if let Err(e) = Pause::rm()         { error!("Watch - Pause: {}", e); }
+		if let Err(e) = Play::rm()          { error!("Watch - Play: {}", e); }
+		if let Err(e) = Next::rm()          { error!("Watch - Next: {}", e); }
+		if let Err(e) = Previous::rm()      { error!("Watch - Previous: {}", e); }
+		if let Err(e) = ShuffleOn::rm()     { error!("Watch - ShuffleOn: {}", e); }
+		if let Err(e) = ShuffleOff::rm()    { error!("Watch - ShuffleOff: {}", e); }
+		if let Err(e) = ShuffleToggle::rm() { error!("Watch - ShuffleToggle: {}", e); }
+		if let Err(e) = RepeatSong::rm()    { error!("Watch - RepeatSong: {}", e); }
+		if let Err(e) = RepeatQueue::rm()   { error!("Watch - RepeatQueue: {}", e); }
+		if let Err(e) = RepeatOff::rm()     { error!("Watch - RepeatOff: {}", e); }
 	}
 
 	fn main(self) {
@@ -124,22 +128,27 @@ impl Watch {
 
 			// Next/Prev.
 			//
-			// `Next` takes priority.
-			if Next::exists().is_ok() {
+			// These two will cancel each-other
+			// out if they both exist.
+			let next = Next::exists().is_ok();
+			let prev = Previous::exists().is_ok();
+			if next && prev {
+				debug!("Watch - Next & Previous existed, doing nothing");
+			} else if next {
 				send!(self.to_kernel, WatchToKernel::Next);
-			} else if Previous::exists().is_ok() {
+			} else if prev {
 				send!(self.to_kernel, WatchToKernel::Previous);
 			}
 
 			// Shuffle.
-			if Shuffle::exists().is_ok() {
-				send!(self.to_kernel, WatchToKernel::Shuffle);
-			}
+			if ShuffleOn::exists().is_ok()     { send!(self.to_kernel, WatchToKernel::ShuffleOn); }
+			if ShuffleOff::exists().is_ok()    { send!(self.to_kernel, WatchToKernel::ShuffleOff); }
+			if ShuffleToggle::exists().is_ok() { send!(self.to_kernel, WatchToKernel::ShuffleToggle); }
 
 			// Repeat.
-			if Repeat::exists().is_ok() {
-				send!(self.to_kernel, WatchToKernel::Repeat);
-			}
+			if RepeatSong::exists().is_ok()  { send!(self.to_kernel, WatchToKernel::RepeatSong); }
+			if RepeatQueue::exists().is_ok() { send!(self.to_kernel, WatchToKernel::RepeatQueue); }
+			if RepeatOff::exists().is_ok()   { send!(self.to_kernel, WatchToKernel::RepeatOff); }
 
 			// Clean folder.
 			Self::clean();

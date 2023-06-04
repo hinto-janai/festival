@@ -231,6 +231,13 @@ impl Audio {
 						warn!("decode error: {}", err);
 					}
 //					Err(err) => break Err(err),
+
+					// We're done playing audio.
+					// This "end of stream" error is currently the only way
+					// a FormatReader can indicate the media is complete.
+					Err(symphonia::core::errors::Error::IoError(err)) => {
+						break;
+					},
 					Err(err) => todo!(),
 				}
 
@@ -257,9 +264,9 @@ impl Audio {
 			Previous  => self.msg_previous(),
 //
 //			// Audio settings.
-			Shuffle   => self.msg_shuffle(),
-			Repeat    => self.msg_repeat(),
-			Volume(v) => self.msg_volume(v),
+			Shuffle(s) => self.msg_shuffle(s),
+			Repeat(r)  => self.msg_repeat(r),
+			Volume(v)  => self.msg_volume(v),
 //			Seek(f)   => self.msg_seek(f),
 //
 //			// Queue.
@@ -481,13 +488,13 @@ impl Audio {
 
 	//-------------------------------------------------- Audio settings.
 	#[inline(always)]
-	fn msg_shuffle(&mut self) {
+	fn msg_shuffle(&mut self, shuffle: crate::audio::shuffle::Shuffle) {
 		trace!("Audio - Shuffle");
 		todo!();
 	}
 
 	#[inline(always)]
-	fn msg_repeat(&mut self) {
+	fn msg_repeat(&mut self, repeat: crate::audio::repeat::Repeat) {
 		trace!("Audio - Repeat");
 		todo!();
 	}
