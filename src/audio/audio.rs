@@ -759,7 +759,7 @@ impl Audio {
 
 	fn remove_queue_range(
 		&mut self,
-		range: std::ops::RangeInclusive<usize>,
+		range: std::ops::Range<usize>,
 //		next: bool,
 	) {
 		let mut state = AUDIO_STATE.write();
@@ -767,10 +767,10 @@ impl Audio {
 		let len = state.queue.len();
 
 		// Prevent bad start/end panicking.
-		if *range.start() >= len {
+		if range.start >= len {
 			warn!("Audio - start is invalid, skipping remove_queue_range({range:?})");
 			return;
-		} else if *range.end() >= len {
+		} else if range.end > len {
 			warn!("Audio - end is invalid, skipping remove_queue_range({range:?})");
 			return;
 		}

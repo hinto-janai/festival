@@ -37,6 +37,9 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 		let mut current_artist = None;
 		let mut current_album  = None;
 
+		const REMOVE_SONG_SIZE:  f32 = 35.0;
+		const REMOVE_ALBUM_SIZE: f32 = REMOVE_SONG_SIZE * 2.0;
+
 		for (index, key) in self.audio_state.queue.iter().enumerate() {
 			let (artist, album, song) = self.collection.walk(key);
 
@@ -45,16 +48,50 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 
 			//-------------------------------------------------- Artist.
 			if !same_artist {
-				ui.add_space(30.0);
+				// Only add space if we've added previous `Artist`'s before.
+				if current_artist.is_some() {
+					ui.add_space(30.0);
+				}
 
 				// Artist info.
 				let artist_name = Label::new(
 					RichText::new(&artist.name)
 					.text_style(TextStyle::Name("30".into()))
 				);
-				if ui.add(artist_name.sense(Sense::click())).clicked() {
-					crate::artist!(self, album.artist);
-				}
+				ui.horizontal(|ui| {
+					// Remove button.
+					let button = Button::new(RichText::new("-").size(REMOVE_SONG_SIZE));
+					if ui.add_sized([REMOVE_ALBUM_SIZE, REMOVE_ALBUM_SIZE], button).clicked() {
+						// HACK:
+						// Iterate until we find a `Song` that doesn't
+						// belong to the same `Album`.
+						//
+						// This could end bad if we have a long queue,
+						// and considering this is in the `GUI` update
+						// loop, even worse... buuuuut who is going to
+						// have a queue with 1000s of elements... right?
+						let mut end = index;
+						let mut hit = false;
+						let len = self.audio_state.queue.len();
+						for key in self.audio_state.queue.range(index..) {
+							if self.collection.songs[key].album != song.album {
+								let end = if end == 0 { 1 } else { end };
+								send!(self.to_kernel, FrontendToKernel::RemoveQueueRange(index..end));
+								hit = true;
+								break;
+							}
+							end += 1;
+						}
+
+						if !hit {
+							let end = if end == 0 { 1 }  else { end };
+							send!(self.to_kernel, FrontendToKernel::RemoveQueueRange(index..end));
+						}
+					}
+					if ui.add(artist_name.sense(Sense::click())).clicked() {
+						crate::artist!(self, album.artist);
+					}
+				});
 				current_artist = Some(artist);
 
 				// FIXME:
@@ -65,7 +102,7 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 
 				ui.horizontal(|ui| {
 					crate::no_rounding!(ui);
-					crate::album_button!(self, album, song.album, ui, ctx, QUEUE_ALBUM_ART_SIZE);
+					crate::album_button!(self, album, song.album, ui, ctx, QUEUE_ALBUM_ART_SIZE, "");
 
 					ui.vertical(|ui| {
 						// Info.
@@ -78,7 +115,7 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 
 				ui.add_space(10.0);
 				ui.separator();
-				current_album = Some(album)
+				current_album = Some(album);
 			//-------------------------------------------------- Album.
 			} else if !same_album {
 				// FIXME: see above.
@@ -88,7 +125,7 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 
 				ui.horizontal(|ui| {
 					crate::no_rounding!(ui);
-					crate::album_button!(self, album, song.album, ui, ctx, QUEUE_ALBUM_ART_SIZE);
+					crate::album_button!(self, album, song.album, ui, ctx, QUEUE_ALBUM_ART_SIZE, "");
 
 					ui.vertical(|ui| {
 						// Info.
@@ -100,24 +137,29 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 
 				ui.add_space(10.0);
 				ui.separator();
-				current_album = Some(album)
+				current_album = Some(album);
 			}
 
 			//-------------------------------------------------- Song.
 			ui.horizontal(|ui| {
-				let width = width / 20.0;
-				const HEIGHT: f32 = 35.0;
-
 				// Remove button.
-				if ui.add_sized([width, HEIGHT], Button::new("-")).clicked() {
-					send!(self.to_kernel, FrontendToKernel::RemoveQueueRange(index..=index));
+				if ui.add_sized([REMOVE_SONG_SIZE, REMOVE_SONG_SIZE,], Button::new("-")).clicked() {
+					send!(self.to_kernel, FrontendToKernel::RemoveQueueRange(index..index+1));
 				}
 
 				let mut rect = ui.cursor();
-				rect.max.y = rect.min.y + HEIGHT;
+				rect.max.y = rect.min.y + REMOVE_SONG_SIZE;
 				rect.max.x = rect.min.x + ui.available_width();
 
-				if ui.put(rect, SelectableLabel::new(self.audio_state.queue_idx == Some(index), "")).clicked() {
+				// HACK:
+				// If we remove an index but are still playing the `Song`,
+				// the colored label indicating which one we're on will be wrong,
+				// so it has to the the same index _and_ the same song.
+				let same =
+					self.audio_state.queue_idx == Some(index) &&
+					self.audio_state.song      == Some(*key);
+
+				if ui.put(rect, SelectableLabel::new(same, "")).clicked() {
 					crate::play_queue_index!(self, index);
 				}
 

@@ -137,7 +137,7 @@ fn paint_albums(
 								let album = &self.collection.albums[key];
 
 								// ImageButton.
-								crate::album_button!(self, album, *key, ui, ctx, pixel);
+								crate::album_button!(self, album, *key, ui, ctx, pixel, "");
 
 								// Closure is only called on hover.
 								let hover = |ui: &mut egui::Ui| { ui.add(Label::new(format!("{} ({})", album.title, album.release))); };

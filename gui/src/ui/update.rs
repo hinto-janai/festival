@@ -456,7 +456,7 @@ fn show_bottom(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width:
 			ui.group(|ui| {
 				// Album button.
 				crate::no_rounding!(ui);
-				crate::album_button!(self, album, song.album, ui, ctx, height);
+				crate::album_button!(self, album, song.album, ui, ctx, height, "");
 
 				ui.vertical(|ui| {
 					// How many char's before we need

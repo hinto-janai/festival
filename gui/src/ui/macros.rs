@@ -141,35 +141,17 @@ macro_rules! search {
 #[macro_export]
 /// Add a clickable `Album` art button that opens the parent directory.
 macro_rules! album_button {
-	($self:ident, $album:expr, $key:expr, $ui:ident, $ctx:ident, $size:expr) => {
-		// ImageButton.
-		let img_button = egui::ImageButton::new($album.texture_id($ctx), egui::vec2($size, $size));
-
-		let resp = $ui.add(img_button);
-
-		if resp.clicked() {
-			$crate::album!($self, $key);
-		} else if resp.secondary_clicked() {
-			::benri::send!(
-				$self.to_kernel,
-				shukusai::kernel::FrontendToKernel::AddQueueAlbum(($key, shukusai::kernel::Append::Back, false, 0))
-			);
-			::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
-			$crate::toast!($self, format!("Added [{}] to queue", $album.title));
-		} else if resp.middle_clicked() {
-			match open::that(&$album.path) {
-				Ok(_) => log::info!("GUI - Opening path: {}", $album.path.display()),
-				Err(e) => log::warn!("GUI - Could not open path: {e}"),
-			}
-		}
-	};
-
 	// Same as above, adds optional text.
 	($self:ident, $album:expr, $key:expr, $ui:ident, $ctx:ident, $size:expr, $text:expr) => {
 		// ImageButton.
 		let img_button = egui::ImageButton::new($album.texture_id($ctx), egui::vec2($size, $size));
 
-		let resp = $ui.add(img_button).on_hover_text(&$text);
+		// Should be compiled out.
+		let resp = if $text.is_empty() {
+			$ui.add(img_button)
+		} else {
+			$ui.add(img_button).on_hover_text($text)
+		};
 
 		if resp.clicked() {
 			$crate::album!($self, $key);

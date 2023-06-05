@@ -51,7 +51,7 @@ pub(crate) enum KernelToAudio {
 
 	// Queue Index.
 	SetQueueIndex(usize),
-	RemoveQueueRange(std::ops::RangeInclusive<usize>),
+	RemoveQueueRange(std::ops::Range<usize>),
 
 	// Audio State.
 	RestoreAudioState,
