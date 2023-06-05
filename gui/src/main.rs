@@ -28,10 +28,12 @@ fn main() {
 		shukusai::FESTIVAL_NAME_VER,
 		crate::data::Gui::options(),
 		Box::new(|cc| {
-			// Spawn `Kernel`, pass it `egui::Context`.
-			let ctx = cc.egui_ctx.clone();
+			// Set `Festival`'s `GUI_CONTEXT`.
+			shukusai::frontend::egui::GUI_CONTEXT
+				.set(cc.egui_ctx.clone())
+				.expect("GUI_CONTEXT.set() failed");
 
-			let (to_kernel, from_kernel) = match shukusai::kernel::Kernel::spawn(ctx) {
+			let (to_kernel, from_kernel) = match shukusai::kernel::Kernel::spawn() {
 				Ok((to, from)) => (to, from),
 				Err(e)         => panic!("Kernel::spawn() failed: {e}"),
 			};

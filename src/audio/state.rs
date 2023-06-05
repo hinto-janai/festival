@@ -96,7 +96,7 @@ pub struct AudioState {
 impl AudioState {
 	#[inline]
 	/// Creates an empty struct.
-	pub(crate) const fn new() -> Self {
+	pub const fn new() -> Self {
 		Self {
 			queue: VecDeque::new(),
 			queue_idx: None,
@@ -114,7 +114,7 @@ impl AudioState {
 	#[inline]
 	/// Shallow copy `Self`.
 	/// This copies everything except for the `Queue`.
-	pub(crate) fn shallow_copy(&self, dst: &mut Self) {
+	pub fn shallow_copy(&self, dst: &mut Self) {
 		dst.queue_idx = self.queue_idx;
 		dst.playing   = self.playing;
 		dst.volume    = self.volume;
@@ -123,6 +123,17 @@ impl AudioState {
 		dst.runtime   = self.runtime;
 		dst.shuffle   = self.shuffle;
 		dst.repeat    = self.repeat;
+	}
+
+	#[inline]
+	// Clear `Self` and assume we are done playing.
+	pub(crate) fn finish(&mut self) {
+		self.queue.clear();
+		self.queue_idx = None;
+		self.playing   = false;
+		self.song      = None;
+		self.elapsed   = Runtime::zero();
+		self.runtime   = Runtime::zero();
 	}
 
 	#[inline]
@@ -138,7 +149,7 @@ impl AudioState {
 
 		let i = i + 1;
 
-		let key = self.queue[i];
+		let key        = self.queue[i];
 		self.song      = Some(key);
 		self.queue_idx = Some(i);
 

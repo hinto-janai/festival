@@ -55,7 +55,6 @@ impl Ccd {
 	pub(crate) fn convert_art(
 		to_kernel: Sender<CcdToKernel>,
 		collection: Collection,
-		ctx: egui::Context,
 	) {
 		let beginning = now!();
 		debug!("CCD - Purpose in life: convert_art()");
@@ -72,8 +71,7 @@ impl Ccd {
 			// FIXME:
 			// See below `new_collection()` FIXME for info.
 			send!(to_kernel, CcdToKernel::UpdatePhase((100.00, Phase::Finalize)));
-//			super::alloc_textures_no_sleep(&collection.albums, &ctx);
-			super::alloc_textures(&collection.albums, &ctx);
+			super::alloc_textures(&collection.albums);
 			send!(to_kernel, CcdToKernel::NewCollection(collection));
 		}
 
@@ -90,7 +88,6 @@ impl Ccd {
 		from_kernel: Receiver<KernelToCcd>,
 		old_collection: Arc<Collection>,
 		paths: Vec<PathBuf>,
-		ctx: egui::Context,
 	) {
 		let beginning = now!();
 		debug!("CCD - Purpose in life: new_collection()");
@@ -357,7 +354,7 @@ impl Ccd {
 		// how to bulk allocate all these images without causing the GUI
 		// to freeze. Currently it's done with `try_write()` which doesn't
 		// starve GUI, but can take way longer (0.00008 secs -> 1.xx secs...!!!).
-		super::alloc_textures(&collection.albums, &ctx);
+		super::alloc_textures(&collection.albums);
 		let perf_textures = secs_f32!(now);
 		trace!("CCD [10/14] - Textures: {perf_textures}");
 
@@ -499,7 +496,6 @@ mod tests {
 
 		// Set-up inputs.
 		let (to_kernel, from_ccd) = crossbeam::channel::unbounded::<CcdToKernel>();
-		let ctx = egui::Context::default();
 
 		// Serialize.
 		let now = now!();
@@ -508,7 +504,7 @@ mod tests {
 
 		// Convert.
 		let now = now!();
-		Ccd::convert_art(to_kernel, collection, ctx);
+		Ccd::convert_art(to_kernel, collection);
 		let collection = match from_ccd.recv().unwrap() {
 			CcdToKernel::NewCollection(c) => c,
 			_ => panic!("wrong msg received"),
@@ -536,7 +532,6 @@ mod tests {
 		let (to_kernel, from_ccd) = crossbeam::channel::unbounded::<CcdToKernel>();
 		let (to_ccd, from_kernel) = crossbeam::channel::unbounded::<KernelToCcd>();
 		let old_collection = Arc::new(Collection::new());
-		let ctx = egui::Context::default();
 		let paths = vec![
 			PathBuf::from("src"),
 			PathBuf::from("assets"),
@@ -548,7 +543,7 @@ mod tests {
 
 		// Spawn `CCD`.
 		let old_clone = Arc::clone(&old_collection);
-		std::thread::spawn(move || Ccd::new_collection(to_kernel, from_kernel, old_clone, paths, ctx));
+		std::thread::spawn(move || Ccd::new_collection(to_kernel, from_kernel, old_clone, paths));
 
 		// Act as `Kernel`.
 		// Receive.

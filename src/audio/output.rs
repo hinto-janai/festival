@@ -5,7 +5,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-// As seen above, this code is a modified version of:
+// This code is a modified version of:
 // `https://github.com/pdeljanov/Symphonia/blob/master/symphonia-play/src/output.rs`
 
 //---------------------------------------------------------------------------------------------------- Use
@@ -83,7 +83,6 @@ mod output {
 				rate: spec.rate,
 			};
 
-			// TODO: return error.
 			if !pa_spec.is_valid() {
 				return Err(AudioOutputError::InvalidSpec);
 			}
@@ -94,16 +93,24 @@ mod output {
 				return Err(AudioOutputError::Channel);
 			}
 
-			// PulseAudio seems to not play very short audio buffers, use these custom buffer
-			// attributes for very short audio streams.
-			//
-			// let pa_buf_attr = pulse::def::BufferAttr {
-			//	 maxlength: std::u32::MAX,
-			//	 tlength: 1024,
-			//	 prebuf: std::u32::MAX,
-			//	 minreq: std::u32::MAX,
-			//	 fragsize: std::u32::MAX,
-			// };
+			// Create PulseAudio buffer attribute.
+			const T_LENGTH: u32 = 16384;
+			let pa_buf_attr = pulse::def::BufferAttr {
+				// This reduces the audio buffer we hold.
+				//
+				// The default will hold around 200ms~ of audio
+				// which creates a noticable delay when pausing
+				// via Festival since we flush the samples that
+				// haven't been played yet.
+				//
+				// This sets it to around 50ms~.
+				tlength: T_LENGTH,
+
+				maxlength: std::u32::MAX,
+				prebuf: std::u32::MAX,
+				minreq: std::u32::MAX,
+				fragsize: std::u32::MAX,
+			};
 
 			// Create a PulseAudio connection.
 			let pa_result = psimple::Simple::new(
@@ -114,7 +121,7 @@ mod output {
 				"Music",                            // Description of the stream
 				&pa_spec,                           // Signal specifications
 				pa_ch_map.as_ref(),                 // Channel map
-				None,                               // Custom buffering attributes
+				Some(&pa_buf_attr),                 // Custom buffering attributes
 			);
 
 			match pa_result {
@@ -147,7 +154,7 @@ mod output {
 
 		fn flush(&mut self) {
 			// Flush is best-effort, ignore the returned result.
-			let _ = self.pa.drain();
+			_ = self.pa.drain();
 		}
 	}
 
@@ -291,8 +298,8 @@ mod output {
 					.config()
 			};
 
-			// Create a ring buffer with a capacity for up-to 200ms of audio.
-			let ring_len = ((200 * config.sample_rate.0 as usize) / 1000) * num_channels;
+			// Create a ring buffer with a capacity for up-to 50ms of audio.
+			let ring_len = ((50 * config.sample_rate.0 as usize) / 1000) * num_channels;
 
 			let ring_buf = SpscRb::new(ring_len);
 			let (ring_buf_producer, ring_buf_consumer) = (ring_buf.producer(), ring_buf.consumer());
@@ -381,7 +388,7 @@ mod output {
 			}
 
 			// Flush is best-effort, ignore the returned result.
-			let _ = self.stream.pause();
+			_ = self.stream.pause();
 		}
 	}
 }

@@ -38,6 +38,7 @@ use benri::{
 	log::*,
 	sync::*,
 	panic::*,
+	time::*,
 	flip,
 	debug_panic,
 };
@@ -108,12 +109,18 @@ impl eframe::App for Gui {
 	//-------------------------------------------------------------------------------- Main event loop.
 	#[inline(always)]
 	fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+		// Acquire a local copy of the `AUDIO_STATE`.
+		AUDIO_STATE.read().shallow_copy(&mut self.audio_state);
+		if secs_f32!(self.audio_leeway) > 0.05 {
+			self.audio_seek = self.audio_state.elapsed.usize();
+		}
+
 		// HACK:
 		// The real "update" function is surrounded by these timer
 		// sets for better read/write locking behavior with CCD.
-		atomic_store!(shukusai::frontend::egui::UPDATING, true);
+		atomic_store!(shukusai::frontend::egui::GUI_UPDATING, true);
 		self.update(ctx, frame);
-		atomic_store!(shukusai::frontend::egui::UPDATING, false);
+		atomic_store!(shukusai::frontend::egui::GUI_UPDATING, false);
 	}
 }
 
@@ -144,6 +151,10 @@ impl Gui {
 					PlayError(err) => {
 						warn!("GUI - Playback error: {err}");
 						crate::toast_err!(self, format!("Playback error: {err}"));
+					},
+					SeekError(err) => {
+						warn!("GUI - Seek error: {err}");
+						crate::toast_err!(self, format!("Seek error: {err}"));
 					},
 					PathError((key, err)) => {
 						let song = &self.collection.songs[key];
@@ -488,28 +499,40 @@ fn show_bottom(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width:
 				}
 			});
 
-			// Song time elapsed
-//			ui.add_sized([unit, height], Label::new("1:33 / 3:22"));
-//
-//			// Slider (playback)
-//			ui.spacing_mut().slider_width = ui.available_width();
-//			{
-//				let v = &mut ui.visuals_mut().widgets;
-//				v.inactive.fg_stroke = SLIDER_CIRCLE_INACTIVE;
-//				v.hovered.fg_stroke  = SLIDER_CIRCLE_HOVERED;
-//				v.active.fg_stroke   = SLIDER_CIRCLE_ACTIVE;
-//			}
-//			let h = height / 5.0;
-//			ui.add_sized(
-//				[ui.available_width(), height],
-//				// TODO:
-//				// Send signal on slider mutation by user.
-//				Slider::new(&mut 0.0, 0.0..=100.0)
-//					.smallest_positive(1.0)
-//					.show_value(false)
-//					.thickness(h*2.0)
-//					.circle_size(h)
-//			);
+			// Song time elapsed.
+			let time = format!(
+				"{} / {}",
+				self.audio_state.elapsed,
+				self.audio_state.runtime,
+			);
+			ui.add_sized([unit, height], Label::new(time));
+
+			// Slider (playback)
+			ui.spacing_mut().slider_width = ui.available_width();
+			{
+				let v = &mut ui.visuals_mut().widgets;
+				v.inactive.fg_stroke = SLIDER_CIRCLE_INACTIVE;
+				v.hovered.fg_stroke  = SLIDER_CIRCLE_HOVERED;
+				v.active.fg_stroke   = SLIDER_CIRCLE_ACTIVE;
+			}
+
+			let h = height / 5.0;
+
+			// Runtime/seek slider.
+			let resp = ui.add_sized(
+				[ui.available_width(), height],
+				Slider::new(&mut self.audio_seek, 0..=self.audio_state.runtime.usize())
+					.smallest_positive(1.0)
+					.show_value(false)
+					.thickness(h*2.0)
+					.circle_size(h)
+			);
+
+			// Only send signal if the slider was dragged + released.
+			if resp.drag_released() {
+				self.audio_leeway = now!();
+				send!(self.to_kernel, FrontendToKernel::Seek(self.audio_seek));
+			}
 		});
 	});
 }}

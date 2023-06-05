@@ -2,6 +2,7 @@
 use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
 use crate::kernel::Kernel;
+use crate::collection::Song;
 
 //---------------------------------------------------------------------------------------------------- Constants
 /// [`Repeat::Song`]

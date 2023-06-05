@@ -42,6 +42,7 @@ use std::path::PathBuf;
 use readable::Percent;
 use once_cell::sync::Lazy;
 use std::sync::atomic::AtomicBool;
+use crate::frontend::egui::GUI_CONTEXT;
 
 //---------------------------------------------------------------------------------------------------- Saving.
 /// This [`bool`] represents if a [`Collection`] that was
@@ -88,7 +89,6 @@ pub struct Kernel {
 
 	// Data.
 	collection: Arc<Collection>,
-	ctx: egui::Context,
 }
 
 // `Kernel` boot process:
@@ -115,7 +115,7 @@ impl Kernel {
 	/// // Do this.
 	/// Kernel::spawn();
 	/// ```
-	pub fn spawn(ctx: egui::Context) -> Result<(Sender<FrontendToKernel>, Receiver<KernelToFrontend>), std::io::Error> {
+	pub fn spawn() -> Result<(Sender<FrontendToKernel>, Receiver<KernelToFrontend>), std::io::Error> {
 		// Create `Kernel` <-> `Frontend` channels.
 		let (to_frontend, from_kernel) = crossbeam::channel::unbounded::<KernelToFrontend>();
 		let (to_kernel, from_frontend) = crossbeam::channel::unbounded::<FrontendToKernel>();
@@ -124,7 +124,7 @@ impl Kernel {
 		std::thread::Builder::new()
 			.name("Kernel".to_string())
 			.stack_size(16_000_000) // 16MB stack.
-			.spawn(move || Self::bios(to_frontend, from_frontend, ctx))?;
+			.spawn(move || Self::bios(to_frontend, from_frontend))?;
 
 		// Return channels.
 		Ok((to_kernel, from_kernel))
@@ -133,7 +133,6 @@ impl Kernel {
 	fn bios(
 		to_frontend:   Sender<KernelToFrontend>,
 		from_frontend: Receiver<FrontendToKernel>,
-		ctx:           egui::Context,
 	) {
 		// Initialize lazy statics.
 		let _         = Lazy::force(&DUMMY_COLLECTION);
@@ -173,12 +172,12 @@ impl Kernel {
 			// bytes to actual usable `egui` images.
 			Ok(collection) => {
 				ok_debug!("Kernel - Collection{COLLECTION_VERSION} deserialization ... Took {} seconds", secs_f32!(now));
-				Self::boot_loader(collection, to_frontend, from_frontend, ctx, *beginning);
+				Self::boot_loader(collection, to_frontend, from_frontend, *beginning);
 			},
 			// Else, straight to `init` with default flag set.
 			Err(e) => {
 				warn!("Kernel - Collection{COLLECTION_VERSION} from file error: {}", e);
-				Self::init(None, None, to_frontend, from_frontend, ctx, *beginning);
+				Self::init(None, None, to_frontend, from_frontend, *beginning);
 			},
 		}
 	}
@@ -188,7 +187,6 @@ impl Kernel {
 		collection:    Collection,
 		to_frontend:   Sender<KernelToFrontend>,
 		from_frontend: Receiver<FrontendToKernel>,
-		ctx:           egui::Context,
 		beginning:     std::time::Instant,
 	) {
 		debug!("Kernel [2/12] ... entering boot_loader()");
@@ -197,10 +195,9 @@ impl Kernel {
 		// Create `CCD` channel + thread and make it convert images.
 		debug!("Kernel [3/12] ... spawning CCD");
 		let (ccd_send, from_ccd) = crossbeam::channel::unbounded::<CcdToKernel>();
-		let ctx_clone = ctx.clone();
 		if let Err(e) = std::thread::Builder::new()
 			.name("CCD".to_string())
-			.spawn(move || Ccd::convert_art(ccd_send, collection, ctx_clone))
+			.spawn(move || Ccd::convert_art(ccd_send, collection))
 		{
 			panic!("Kernel - failed to spawn CCD: {e}");
 		}
@@ -247,10 +244,10 @@ impl Kernel {
 
 		// If everything went ok, continue to `kernel` to verify data.
 		if let Some(collection) = collection {
-			Self::kernel(collection, state, to_frontend, from_frontend, ctx, beginning);
+			Self::kernel(collection, state, to_frontend, from_frontend, beginning);
 		// Else, skip to `init()`.
 		} else {
-			Self::init(None, None, to_frontend, from_frontend, ctx, beginning);
+			Self::init(None, None, to_frontend, from_frontend, beginning);
 		}
 	}
 
@@ -260,7 +257,6 @@ impl Kernel {
 		audio:         Result<AudioState, anyhow::Error>,
 		to_frontend:   Sender<KernelToFrontend>,
 		from_frontend: Receiver<FrontendToKernel>,
-		ctx:           egui::Context,
 		beginning:     std::time::Instant,
 	) {
 		debug!("Kernel [6/12] ... entering kernel()");
@@ -285,7 +281,7 @@ impl Kernel {
 			AudioState::new()
 		};
 
-		Self::init(Some(collection), Some(audio), to_frontend, from_frontend, ctx, beginning);
+		Self::init(Some(collection), Some(audio), to_frontend, from_frontend, beginning);
 	}
 
 	//-------------------------------------------------- init()
@@ -294,7 +290,6 @@ impl Kernel {
 		audio:         Option<AudioState>,
 		to_frontend:   Sender<KernelToFrontend>,
 		from_frontend: Receiver<FrontendToKernel>,
-		ctx:           egui::Context,
 		beginning:     std::time::Instant,
 	) {
 		debug!("Kernel [7/12] ... entering init()");
@@ -314,7 +309,7 @@ impl Kernel {
 		// Send `Collection/State` to `Frontend`.
 		send!(to_frontend, KernelToFrontend::NewCollection(Arc::clone(&collection)));
 		// TODO: Only with `egui` feature flag.
-		ctx.request_repaint();
+		unsafe { GUI_CONTEXT.get_unchecked().request_repaint() };
 
 		// Create `To` channels.
 		let (to_search, search_recv) = crossbeam::channel::unbounded::<KernelToSearch>();
@@ -335,7 +330,6 @@ impl Kernel {
 
 			// Data.
 			collection,
-			ctx,
 		};
 
 		// Spawn `Audio`.
@@ -468,6 +462,7 @@ impl Kernel {
 		match msg {
 			DeviceError(string)           => send!(self.to_frontend, KernelToFrontend::DeviceError(string.to_string())),
 			PlayError(string)             => send!(self.to_frontend, KernelToFrontend::PlayError(string.to_string())),
+			SeekError(string)             => send!(self.to_frontend, KernelToFrontend::SeekError(string.to_string())),
 			PathError((song_key, string)) => send!(self.to_frontend, KernelToFrontend::PathError((song_key, string.to_string()))),
 		}
 	}
@@ -558,9 +553,6 @@ impl Kernel {
 		// Get old `Collection` pointer.
 		let old_collection = Arc::clone(&self.collection);
 
-		// Get `egui::Context` pointer.
-		let ctx = self.ctx.clone();
-
 		// Set `ResetState` to `Start` phase.
 		RESET_STATE.write().start();
 
@@ -568,7 +560,7 @@ impl Kernel {
 		if let Err(e) = std::thread::Builder::new()
 			.name("CCD".to_string())
 			.stack_size(16_000_000) // 16MB stack.
-			.spawn(move || Ccd::new_collection(ccd_send, ccd_recv, old_collection, paths, ctx))
+			.spawn(move || Ccd::new_collection(ccd_send, ccd_recv, old_collection, paths))
 		{
 			panic!("Kernel - failed to spawn CCD: {e}");
 		}
@@ -600,7 +592,7 @@ impl Kernel {
 					send!(self.to_audio,    KernelToAudio::NewCollection(Arc::clone(&self.collection)));
 					send!(self.to_frontend, KernelToFrontend::Failed((Arc::clone(&self.collection), anyhow.to_string())));
 					// TODO: Only with `egui` feature flag.
-					self.ctx.request_repaint();
+					unsafe { GUI_CONTEXT.get_unchecked().request_repaint() };
 					return;
 				},
 			}
@@ -615,7 +607,7 @@ impl Kernel {
 		send!(self.to_frontend, KernelToFrontend::NewCollection(Arc::clone(&self.collection)));
 
 		// TODO: Only with `egui` feature flag.
-		self.ctx.request_repaint();
+		unsafe { GUI_CONTEXT.get_unchecked().request_repaint() };
 
 		// Set our `ResetState`, we're done.
 		RESET_STATE.write().done();

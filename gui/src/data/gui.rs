@@ -61,6 +61,21 @@ pub struct Gui {
 	// act as flags or some small thing for
 	// functionality in the GUI.
 
+	/// Audio State.
+	/// A local copy of shukusai's `AUDIO_STATE`
+	/// so we don't have to lock it every loop.
+	pub audio_state: AudioState,
+	/// A local copy of our seek time.
+	/// This is the thing we send `Kernel` when
+	/// we want to seek the audio.
+	pub audio_seek: usize,
+	/// Since we copy `AUDIO_STATE`'s audio time every loop,
+	/// the slider will bounce back and flicker during the
+	/// few frames we are waiting for our message to pass
+	/// to `Kernel`, then to `Audio`, so create this signal
+	/// so we know we shouldn't overwrite just yet.
+	pub audio_leeway: Instant,
+
 	/// `egui_notify` state.
 	pub toasts: egui_notify::Toasts,
 

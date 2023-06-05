@@ -76,7 +76,7 @@ macro_rules! play_album {
 	($self:ident, $key:expr) => {
 		::benri::send!(
 			$self.to_kernel,
-			shukusai::kernel::FrontendToKernel::AddQueueAlbum(($key, shukusai::kernel::Append::Front, true))
+			shukusai::kernel::FrontendToKernel::AddQueueAlbum(($key, shukusai::kernel::Append::Front, true, 0))
 		);
 		::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
 	}
@@ -97,12 +97,11 @@ macro_rules! play_album {
 ///
 /// We must enumerate our lists, so we know the skip offset to send to `Kernel`.
 macro_rules! play_album_offset {
-	($self:ident, $key:expr, $skip:expr) => {
+	($self:ident, $key:expr, $offset:expr) => {
 		::benri::send!(
 			$self.to_kernel,
-			shukusai::kernel::FrontendToKernel::AddQueueAlbum(($key, shukusai::kernel::Append::Front, true))
+			shukusai::kernel::FrontendToKernel::AddQueueAlbum(($key, shukusai::kernel::Append::Front, true, $offset))
 		);
-		::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Skip($skip));
 		::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
 	}
 }

@@ -29,6 +29,7 @@ use benri::{
 };
 use log::{warn,trace};
 use benri::log::fail;
+use crate::frontend::egui::GUI_CONTEXT;
 
 //---------------------------------------------------------------------------------------------------- Album Art Constants.
 pub(crate) const ALBUM_ART_SIZE_NUM: NonZeroU32 = match NonZeroU32::new(ALBUM_ART_SIZE as u32) {
@@ -206,12 +207,13 @@ fn color_img_to_retained(img: egui::ColorImage) -> egui_extras::RetainedImage {
 // This is so bad.
 // There has to be a better way.
 // FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
-pub(super) fn alloc_textures(albums: &crate::collection::Albums, ctx: &egui::Context) {
+pub(super) fn alloc_textures(albums: &crate::collection::Albums) {
 	// Get `Arc<RwLock<TextureManager>>`.
+	let ctx = unsafe { GUI_CONTEXT.get_unchecked() };
 	let arc = ctx.tex_manager();
 
 	// Wait until `GUI` has loaded at least 1 frame.
-	while !atomic_load!(crate::frontend::egui::UPDATING) {
+	while !atomic_load!(crate::frontend::egui::GUI_UPDATING) {
 		std::hint::spin_loop();
 	}
 	let mut now = now!();
@@ -226,7 +228,7 @@ pub(super) fn alloc_textures(albums: &crate::collection::Albums, ctx: &egui::Con
 				// Wait until `GUI` is in the middle of animating.
 				// This guarantees the below `tex_mngr..write()`
 				// will be _after_ `GUI` has rendered it's frame.
-				while !atomic_load!(crate::frontend::egui::UPDATING) {
+				while !atomic_load!(crate::frontend::egui::GUI_UPDATING) {
 					std::hint::spin_loop();
 				}
 
@@ -238,7 +240,7 @@ pub(super) fn alloc_textures(albums: &crate::collection::Albums, ctx: &egui::Con
 			// the inner image is allocated before returning the id.
 			//
 			// This behavior must exist for this to actually allocate the image.
-			let _ = art.texture_id(ctx);
+			_ = art.texture_id(ctx);
 		}
 	}
 }

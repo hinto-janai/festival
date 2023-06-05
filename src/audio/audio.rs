@@ -42,11 +42,14 @@ use symphonia::core::{
 	formats::{FormatReader, FormatOptions, Track},
 	codecs::{Decoder, DecoderOptions},
 	audio::{Signal,AudioBuffer,AsAudioBufferRef},
+	units::{TimeBase,Time,TimeStamp},
 };
-use std::time::Duration;
+use std::time::{Instant, Duration};
 use crate::audio::output::{
 	AudioOutput,Output,
 };
+use readable::Runtime;
+use crate::frontend::egui::GUI_CONTEXT;
 
 //---------------------------------------------------------------------------------------------------- Constants
 // If the audio device is not connected, how many seconds
@@ -80,6 +83,9 @@ pub(crate) struct Audio {
 
 	// The current song.
 	current: Option<AudioReader>,
+	// The existance of this field means we should
+	// be seeking in the next loop iteration.
+	seek: Option<symphonia::core::units::Time>,
 
 	// A local copy of `AUDIO_STATE`.
 	// This exists so we don't have to lock
@@ -102,6 +108,10 @@ pub(crate) struct AudioReader {
 	reader: Box<dyn FormatReader>,
 	// The current song's decoder.
 	decoder: Box<dyn Decoder>,
+	// Song's `TimeBase`
+	timebase: TimeBase,
+	// Elapsed `Time`
+	time: Time,
 }
 
 impl Audio {
@@ -135,6 +145,7 @@ impl Audio {
 		let audio = Self {
 			output,
 			current: None,
+			seek: None,
 			state,
 			collection,
 			to_kernel,
@@ -170,7 +181,20 @@ impl Audio {
 				}
 			// Else, sleep on `Kernel`.
 			} else {
+				// Flush output on pause.
+				//
+				// These prevents a few stutters from happening
+				// when users switch songs (the leftover samples
+				// get played then and sound terrible).
+//				trace!("Audio - Pause [1/3]: flush()'ing leftover samples");
+				// TODO:
+				// This hangs for 30s, for some reason.
+//				self.output.flush();
+
+				trace!("Audio - Pause [2/3]: waiting on Kernel...");
 				self.kernel_msg(recv!(self.from_kernel));
+
+				trace!("Audio - Pause [3/3]: woke up from Kernel message...!");
 			}
 
 			// If the above message didn't set `playing` state, that
@@ -179,15 +203,39 @@ impl Audio {
 				continue;
 			}
 
+
 			//------ Audio decoding & demuxing.
 			if let Some(audio_reader) = &mut self.current {
-				let reader  = &mut audio_reader.reader;
-				let decoder = &mut audio_reader.decoder;
+				let AudioReader {
+					reader,
+					decoder,
+					timebase,
+					time,
+				} = audio_reader;
+
+				//------ Audio seeking.
+				if let Some(seek) = self.seek.take() {
+					if let Err(e) = reader.seek(
+						symphonia::core::formats::SeekMode::Coarse,
+						symphonia::core::formats::SeekTo::Time { time: seek, track_id: None }
+					) {
+						send!(self.to_kernel, AudioToKernel::SeekError(anyhow!(e)));
+					} else {
+						AUDIO_STATE.write().elapsed = Runtime::from(seek.seconds);
+					}
+				}
 
 				// Decode and play the packets belonging to the selected track.
 				// Get the next packet from the format reader.
 				let packet = match reader.next_packet() {
 					Ok(packet) => packet,
+					// We're done playing audio.
+					// This "end of stream" error is currently the only way
+					// a FormatReader can indicate the media is complete.
+					Err(symphonia::core::errors::Error::IoError(err)) => {
+						self.set_next();
+						continue;
+					},
 //					Err(err) => break Err(err),
 					Err(err) => todo!(),
 				};
@@ -209,21 +257,29 @@ impl Audio {
 							self.output = AudioOutput::try_open(spec, duration).unwrap();
 						}
 
-						// Write the decoded audio samples to the audio output if the presentation timestamp
-						// for the packet is >= the seeked position (0 if not seeking).
-						// TODO
-//						if packet.ts() >= play_opts.seek_ts {
-//						if packet.ts() >= 0 {
+						// Convert the buffer to `f32` and multiply
+						// it by `0.0..1.0` to set volume levels.
+						let mut buf = AudioBuffer::<f32>::new(duration, spec);
+						decoded.convert(&mut buf);
+						buf.transform(|f| f * self.state.volume.f32());
 
-							// Convert the buffer to `f32` and multiply
-							// it by `0.0..1.0` to set volume levels.
-							let mut buf = AudioBuffer::<f32>::new(duration, spec);
-							decoded.convert(&mut buf);
-							buf.transform(|f| f * self.state.volume.f32());
+						// Write to audio output device.
+						self.output.write(buf.as_audio_buffer_ref()).unwrap();
 
-							// Write to audio output device.
-							self.output.write(buf.as_audio_buffer_ref()).unwrap()
-//						}
+						// Set runtime timestamp.
+						let new_time = timebase.calc_time(packet.ts);
+						if time.seconds != new_time.seconds {
+							*time = new_time;
+
+							// Set state.
+							AUDIO_STATE.write().elapsed = Runtime::from(time.seconds);
+
+							// Wake up the GUI thread.
+							//
+							// SAFETY:
+							// `GUI` must init this at startup.
+							unsafe { GUI_CONTEXT.get_unchecked().request_repaint() };
+						}
 					}
 					Err(symphonia::core::errors::Error::DecodeError(err)) => {
 						// Decode errors are not fatal. Print the error message and try to decode the next
@@ -231,24 +287,23 @@ impl Audio {
 						warn!("decode error: {}", err);
 					}
 //					Err(err) => break Err(err),
-
 					// We're done playing audio.
-					// This "end of stream" error is currently the only way
-					// a FormatReader can indicate the media is complete.
 					Err(symphonia::core::errors::Error::IoError(err)) => {
-						break;
+						self.set_next();
+						continue;
 					},
 					Err(err) => todo!(),
 				}
-
 			// If `playing == true`, but our state doesn't
 			// have a Some(song), then something went wrong.
 			} else {
 				todo!();
 			}
 
-		//------ End of `loop {}`.
-		}
+		} //------ End of `loop {}`.
+
+		// Audio should never exit the above loop.
+//		panic!("Audio - exited the `main()` loop");
 	}
 
 	//-------------------------------------------------- Kernel message.
@@ -267,12 +322,12 @@ impl Audio {
 			Shuffle(s) => self.msg_shuffle(s),
 			Repeat(r)  => self.msg_repeat(r),
 			Volume(v)  => self.msg_volume(v),
-//			Seek(f)   => self.msg_seek(f),
+			Seek(f)    => self.msg_seek(f),
 //
 //			// Queue.
 //			AddQueueSongFront((s_key, clear))     => self.msg_add_queue_song(s_key, clear,      Append::Front),
 //			AddQueueSongBack((s_key, clear))      => self.msg_add_queue_song(s_key, clear,      Append::Back),
-			AddQueueAlbum((al_key, append, clear))   => self.msg_add_queue_album(al_key, append, clear),
+			AddQueueAlbum((al_key, append, clear, offset))   => self.msg_add_queue_album(al_key, append, clear, offset),
 //			AddQueueAlbumBack((al_key, clear))    => self.msg_add_queue_album(al_key, clear,    Append::Back),
 //			AddQueueArtistFront((ar_key, clear))  => self.msg_add_queue_artist(ar_key, clear,   Append::Front),
 //			AddQueueArtistBack((ar_key, clear))   => self.msg_add_queue_artist(ar_key, clear,   Append::Back),
@@ -343,7 +398,7 @@ impl Audio {
 	// 3. Sets our current state with it
 	//
 	// This does nothing on error.
-	fn set_current(&mut self, reader: Box<dyn FormatReader>) {
+	fn set_current(&mut self, reader: Box<dyn FormatReader>, timebase: TimeBase) {
 		// Select the first track with a known codec.
 		let track = match reader
 			.tracks()
@@ -368,14 +423,45 @@ impl Audio {
 		self.current = Some(AudioReader {
 			reader,
 			decoder,
+			timebase,
+			time: Time::new(0, 0.0),
 		});
 	}
 
 	// Convenience function that combines the above 2 functions.
 	// Does nothing on error.
-	fn set(&mut self, song: SongKey) {
-		if let Some(reader) = self.to_reader(song) {
-			self.set_current(reader);
+	fn set(
+		&mut self,
+		key: SongKey,
+		state: &mut std::sync::RwLockWriteGuard<'_, AudioState>,
+	) {
+		if let Some(reader) = self.to_reader(key) {
+			self.set_current(
+				reader,
+				TimeBase::new(1, self.collection.songs[key].sample_rate),
+			);
+
+			// Set the runtime.
+			state.runtime = self.collection.songs[key].runtime;
+			state.elapsed = Runtime::zero();
+		}
+	}
+
+	// If there is another element in the queue, play it,
+	// else, assume we are done and set the relevant state.
+	fn set_next(&mut self) {
+		let mut state = AUDIO_STATE.write();
+
+		// TODO:
+		// account for shuffle and repeat
+		if state.at_last_queue_idx() {
+			trace!("Audio - at last queue_idx, calling state.finish()");
+			state.finish();
+			self.state.finish();
+		} else {
+			let next = state.next();
+			trace!("Audio - more songs left, playing: {next:?}");
+			self.set(next, &mut state);
 		}
 	}
 
@@ -396,7 +482,7 @@ impl Audio {
 		keep_playing: bool,
 		state: &mut std::sync::RwLockWriteGuard<'_, AudioState>,
 	) {
-		trace!("Audio - clear_queue_sink({keep_playing})");
+		trace!("Audio - clear({keep_playing})");
 
 		state.queue.clear();
 		state.queue_idx = None;
@@ -449,7 +535,7 @@ impl Audio {
 			}
 
 			let key = state.next();
-			self.set(key);
+			self.set(key, &mut state);
 		}
 	}
 
@@ -462,7 +548,7 @@ impl Audio {
 		if !state.queue.is_empty() {
 			// If we're at the end of the queue, clear.
 			let key = state.prev();
-			self.set(key);
+			self.set(key, &mut state);
 		}
 	}
 
@@ -477,9 +563,18 @@ impl Audio {
 			if let Some(index) = state.queue_idx {
 				let new_index = index + num;
 
-				if let Some(key) = state.queue.get(new_index) {
-					self.set(*key);
-					state.song      = Some(*key);
+				// FIXME:
+				// We must do this behavior due to
+				// `&` and `&mut` rules. `.get()` makes a `&`
+				// and the below `.set()` requires a `&mut`.
+				//
+				// The inner `Some(key)` is just a usize so I wish
+				// Rust would just `Copy` it and move on but... whatever.
+//				if let Some(key) = state.queue.get(new_index) {
+				if state.queue.len() >= new_index {
+					let key = state.queue[new_index];
+					self.set(key, &mut state);
+					state.song      = Some(key);
 					state.queue_idx = Some(new_index);
 				}
 			}
@@ -506,27 +601,15 @@ impl Audio {
 		AUDIO_STATE.write().volume = volume;
 	}
 
-//	#[inline(always)]
-//	fn msg_seek(&mut self, seek: u32) {
-//		trace!("Audio - Seek");
-//		let state = AUDIO_STATE.read();
-//		if let Some(idx) = state.queue_idx {
-//			// Re-create current `Source ` and seek forward to `seek`.
-//			let (source, key) = match self.to_source(state.queue[idx]) {
-//				Some((s, k)) => (s.skip_duration(std::time::Duration::from_secs(seek.into())), k),
-//				None    => return,
-//			};
-//
-//			// Re-add current song to front.
-//			self.sink.append(source, Some(Append::Front));
-//
-//			// Remove the old previous song.
-//			if let Err(e) = self.sink.remove(1) {
-//				debug_panic!("self.sink.remove(1) fail in msg_seek()");
-//			}
-//		}
-//	}
-//
+	#[inline(always)]
+	fn msg_seek(&mut self, seek: usize) {
+		trace!("Audio - msg_seek({seek})");
+		self.seek = Some(symphonia::core::units::Time {
+			seconds: seek as u64,
+			frac: 0.0
+		});
+	}
+
 //	//-------------------------------------------------- Queue.
 //	#[inline(always)]
 //	fn msg_add_queue_song(&mut self, song: SongKey, clear: bool, append: Append) {
@@ -544,12 +627,21 @@ impl Audio {
 //			state.queue.push_front(key);
 //			state.queue_idx = Some(0);
 //			state.song = Some(key);
+//			state.queue.push_front(key);
+//			state.queue_idx = Some(0);
+//			state.song = Some(key);
 //		}
 //	}
 //
 
 	#[inline(always)]
-	fn msg_add_queue_album(&mut self, album: AlbumKey, append: Append, clear: bool) {
+	fn msg_add_queue_album(
+		&mut self,
+		album: AlbumKey,
+		append: Append,
+		clear: bool,
+		offset: usize
+	) {
 		trace!("Audio - msg_add_queue_album({album:?}, {append:?}, {clear:?})");
 
 		let mut state = AUDIO_STATE.write();
@@ -558,19 +650,26 @@ impl Audio {
 			self.clear(true, &mut state)
 		}
 
+		// Prevent bad offsets panicking.
+		let offset = if self.collection.albums[album].songs.len() <= offset {
+			0
+		} else {
+			offset
+		};
+
 		// INVARIANT:
 		// `Collection` only creates `Album`'s that
 		// have a minimum of 1 `Song`, so this should
 		// never panic.
-		self.set(self.collection.albums[album].songs[0]);
+		self.set(self.collection.albums[album].songs[offset], &mut state);
 
 		// FIXME:
 		// These have to be below because the above takes `&mut self`
 		// and below create a `&` in the same scope.
 		let album = &self.collection.albums[album];
-		let first_song  = album.songs[0];
+		let first_song  = album.songs[offset];
 		state.song      = Some(first_song);
-		state.queue_idx = Some(0);
+		state.queue_idx = Some(offset);
 
 		let keys = album.songs.iter();
 		match append {
@@ -619,12 +718,13 @@ impl Audio {
 	fn msg_restore_audio_state(&mut self) {
 		trace!("Audio - msg_restore_audio_state()");
 
+		let mut state = AUDIO_STATE.write();
+
 		// INVARIANT:
 		// `Kernel` validates `AUDIO_STATE` before handing
 		// it off to `Audio` so we should be safe to assume
 		// the state holds proper indices into the `Collection`.
 		let key = {
-			let state = AUDIO_STATE.read();
 			state.shallow_copy(&mut self.state);
 
 			if let Some(key) = state.queue_idx {
@@ -637,7 +737,7 @@ impl Audio {
 		trace!("Audio - Restore: {:#?}", self.state);
 		if let Some(key) = key {
 			debug!("Audio - Restore ... setting {key:?}");
-			self.set(key);
+			self.set(key, &mut state);
 		}
 	}
 

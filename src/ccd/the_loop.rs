@@ -54,6 +54,7 @@ struct TagMetadata<'a> {
 	artist: Cow<'a, str>,
 	album: Cow<'a, str>,
 	title: Cow<'a, str>,
+
 	track: Option<u32>,
 	disc: Option<u32>,
 	track_total: Option<u32>,
@@ -61,6 +62,7 @@ struct TagMetadata<'a> {
 	picture: Option<Vec<u8>>,
 
 	runtime: f64,
+	sample_rate: u32,
 	release: Option<&'a str>,
 	track_artists: Option<String>,
 
@@ -200,6 +202,7 @@ impl super::Ccd {
 			picture,
 			runtime,
 			release,
+			sample_rate,
 			track_artists,
 			compilation,
 		} = metadata;
@@ -220,6 +223,7 @@ impl super::Ccd {
 					title: title.to_string(),
 					album: AlbumKey::from(*album_idx),
 					runtime: Runtime::from(runtime),
+					sample_rate,
 					track,
 					track_artists,
 					disc,
@@ -281,6 +285,7 @@ impl super::Ccd {
 			let song = Song {
 				title: song_title,
 				runtime,
+				sample_rate,
 				track,
 				track_artists,
 				disc,
@@ -369,6 +374,7 @@ impl super::Ccd {
 		let song = Song {
 			title,
 			runtime,
+			sample_rate,
 			track,
 			track_artists,
 			disc,
@@ -553,8 +559,25 @@ impl super::Ccd {
 
 	#[inline(always)]
 	// Get the audio runtime of the `TaggedFile`.
-	fn tagged_file_runtime(tagged_file: lofty::TaggedFile) -> f64 {
+	fn tagged_file_runtime(tagged_file: &lofty::TaggedFile) -> f64 {
 		tagged_file.properties().duration().as_secs_f64()
+	}
+
+	#[inline(always)]
+	// Get the audio sample rate of the `TaggedFile`.
+	//
+	// INVARIANT:
+	// This is Option<_> because not all files have this property,
+	// although all the audio formats we support do, so this should
+	// never panic.
+	//
+	// This value isn't really needed at a higher level for Festival
+	// but it is actually very crucial for timestamps in `Audio`'s loop.
+	//
+	// Without this value, it's hard to figure out
+	// exactly where we are in the song.
+	fn tagged_file_sample_rate(tagged_file: &lofty::TaggedFile) -> u32 {
+		tagged_file.properties().sample_rate().expect("missing sample rate")
 	}
 
 	#[inline]
@@ -680,7 +703,8 @@ impl super::Ccd {
 		let disc_total  = tag.disk_total();
 
 		// Other data that can't be obtained from `tag._()`.
-		let runtime       = Self::tagged_file_runtime(tagged_file);
+		let runtime       = Self::tagged_file_runtime(&tagged_file);
+		let sample_rate   = Self::tagged_file_sample_rate(&tagged_file);
 		let release       = Self::tag_release(tag);
 		let track_artists = Self::tag_track_artists(tag);
 		let compilation   = Self::tag_compilation(&artist, tag);
@@ -695,6 +719,7 @@ impl super::Ccd {
 			disc_total,
 			picture,
 			runtime,
+			sample_rate,
 			release,
 			track_artists,
 			compilation,

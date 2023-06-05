@@ -49,9 +49,9 @@ pub enum FrontendToKernel {
 	Volume(Volume),
 	/// Seek to this second in current song.
 	///
-	/// This will end the song if the [`u32`] is
+	/// This will end the song if the [`usize`] is
 	/// greater than the total runtime of the [`Song`].
-	Seek(u32),
+	Seek(usize),
 
 	// Queue.
 	/// - [`SongKey`]: add this `Song` to the queue.
@@ -61,11 +61,21 @@ pub enum FrontendToKernel {
 	/// - [`AlbumKey`]: add all the songs in this `Album` to the queue.
 	/// - [`Append`]: in which way should we append to the queue?
 	/// - [`bool`]: should we clear the queue before appending?
-	AddQueueAlbum((AlbumKey, Append, bool)),
+	/// - [`usize`]: Within this `Album`, should we start at an offset?
+	///   e.g, starting at the first `Song` would be 0, starting at the 3rd
+	///   `Song` would be offset 2, etc.
+	///
+	/// If the offset is out of bounds, we will start at the first `Song`.
+	AddQueueAlbum((AlbumKey, Append, bool, usize)),
 	/// - [`ArtistKey`]: add all the songs by this `Artist` to the queue.
 	/// - [`Append`]: in which way should we append to the queue?
 	/// - [`bool`]: should we clear the queue before appending?
-	AddQueueArtist((ArtistKey, Append, bool)),
+	/// - [`usize`]: Within this `Artist`, should we start at an offset?
+	///   e.g, starting at the first `Song` would be 0, starting at the 3rd
+	///   `Song` would be offset 2, etc.
+	///
+	/// If the offset is out of bounds, we will start at the first `Song`.
+	AddQueueArtist((ArtistKey, Append, bool, usize)),
 	/// Skip `usize` amount of `Song`'s.
 	///
 	/// This doesn't delete the skipped song from the queue, it just skips playback.
@@ -141,11 +151,13 @@ pub enum KernelToFrontend {
 
 	// Audio error.
 	/// The device error'ed during initialization.
-    DeviceError(String),
-    /// There was an error while attempting to play a sound.
-    PlayError(String),
+	DeviceError(String),
+	/// There was an error while attempting to play a sound.
+	PlayError(String),
+	/// There was an error while attempting to seek audio.
+	SeekError(String),
 	/// Attempting to play this [`SongKey`] has errored (probably doesn't exist).
-    PathError((SongKey, String)),
+	PathError((SongKey, String)),
 
 	// Search.
 	/// Here's a (similarity) search result.

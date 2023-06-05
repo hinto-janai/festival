@@ -23,6 +23,7 @@ use crate::audio::repeat::Repeat;
 pub(crate) enum AudioToKernel {
 	DeviceError(anyhow::Error),          // The device error'ed during initialization
 	PlayError(anyhow::Error),            // There was an error while attempting to play a sound.
+	SeekError(anyhow::Error),            // There was an error while attempting to seek audio.
 	PathError((SongKey, anyhow::Error)), // `Path` error occurred when trying to play a song (probably doesn't exist).
 }
 
@@ -39,12 +40,12 @@ pub(crate) enum KernelToAudio {
 	Shuffle(Shuffle),
 	Repeat(Repeat),
 	Volume(Volume),
-	Seek(u32),
+	Seek(usize),
 
 	// Queue.
 	AddQueueSong((SongKey, Append, bool)),
-	AddQueueAlbum((AlbumKey, Append, bool)),
-	AddQueueArtist((ArtistKey, Append, bool)),
+	AddQueueAlbum((AlbumKey, Append, bool, usize)),
+	AddQueueArtist((ArtistKey, Append, bool, usize)),
 	Skip(usize),
 
 	// Queue Index.

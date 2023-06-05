@@ -29,6 +29,8 @@ pub struct Song {
 	pub album: AlbumKey,
 	/// Total runtime of this [`Song`].
 	pub runtime: Runtime,
+	/// Sample rate of this [`Song`].
+	pub sample_rate: u32,
 	/// The track number of this [`Song`].
 	pub track: Option<u32>,
 	/// Additional [`Artist`]'s that are on this [`Song`].

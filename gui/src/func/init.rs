@@ -240,6 +240,11 @@ impl crate::data::Gui {
 			// Media controls.
 			media_controls,
 
+			// AudioState.
+			audio_state: AudioState::new(),
+			audio_seek: 0,
+			audio_leeway: now!(),
+
 			// `egui_notify`
 			toasts: egui_notify::Toasts::new(),
 
