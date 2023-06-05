@@ -343,9 +343,9 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 		ui.add_space(10.0);
 		ui.group(|ui| { ui.horizontal(|ui| {
 			let width = (width / 2.0) - 25.0;
-			if ui.add_sized([width, text], SelectableLabel::new(!self.settings.restore_state, "No")).clicked()  { flip!(self.settings.restore_state); }
-			ui.separator();
 			if ui.add_sized([width, text], SelectableLabel::new(self.settings.restore_state,  "Yes")).clicked() { flip!(self.settings.restore_state); }
+			ui.separator();
+			if ui.add_sized([width, text], SelectableLabel::new(!self.settings.restore_state, "No")).clicked()  { flip!(self.settings.restore_state); }
 		})});
 
 		ui.add_space(40.0);

@@ -7,7 +7,7 @@ pub(crate) use audio::*;
 mod state;
 pub use state::*;
 
-// `Kernel` re-exports these publically.
+// `Kernel` re-exports these publicly.
 mod volume;
 pub use volume::Volume;
 mod append;

@@ -29,7 +29,7 @@ use benri::{
 };
 use log::{warn,trace};
 use benri::log::fail;
-use crate::frontend::egui::GUI_CONTEXT;
+use crate::frontend::egui::gui_context;
 
 //---------------------------------------------------------------------------------------------------- Album Art Constants.
 pub(crate) const ALBUM_ART_SIZE_NUM: NonZeroU32 = match NonZeroU32::new(ALBUM_ART_SIZE as u32) {
@@ -209,7 +209,7 @@ fn color_img_to_retained(img: egui::ColorImage) -> egui_extras::RetainedImage {
 // FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 pub(super) fn alloc_textures(albums: &crate::collection::Albums) {
 	// Get `Arc<RwLock<TextureManager>>`.
-	let ctx = unsafe { GUI_CONTEXT.get_unchecked() };
+	let ctx = gui_context();
 	let arc = ctx.tex_manager();
 
 	// Wait until `GUI` has loaded at least 1 frame.

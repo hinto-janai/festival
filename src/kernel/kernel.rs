@@ -42,7 +42,7 @@ use std::path::PathBuf;
 use readable::Percent;
 use once_cell::sync::Lazy;
 use std::sync::atomic::AtomicBool;
-use crate::frontend::egui::GUI_CONTEXT;
+use crate::frontend::egui::gui_request_update;
 
 //---------------------------------------------------------------------------------------------------- Saving.
 /// This [`bool`] represents if a [`Collection`] that was
@@ -309,7 +309,7 @@ impl Kernel {
 		// Send `Collection/State` to `Frontend`.
 		send!(to_frontend, KernelToFrontend::NewCollection(Arc::clone(&collection)));
 		// TODO: Only with `egui` feature flag.
-		unsafe { GUI_CONTEXT.get_unchecked().request_repaint() };
+		gui_request_update();
 
 		// Create `To` channels.
 		let (to_search, search_recv) = crossbeam::channel::unbounded::<KernelToSearch>();
@@ -592,7 +592,7 @@ impl Kernel {
 					send!(self.to_audio,    KernelToAudio::NewCollection(Arc::clone(&self.collection)));
 					send!(self.to_frontend, KernelToFrontend::Failed((Arc::clone(&self.collection), anyhow.to_string())));
 					// TODO: Only with `egui` feature flag.
-					unsafe { GUI_CONTEXT.get_unchecked().request_repaint() };
+					gui_request_update();
 					return;
 				},
 			}
@@ -607,7 +607,7 @@ impl Kernel {
 		send!(self.to_frontend, KernelToFrontend::NewCollection(Arc::clone(&self.collection)));
 
 		// TODO: Only with `egui` feature flag.
-		unsafe { GUI_CONTEXT.get_unchecked().request_repaint() };
+		gui_request_update();
 
 		// Set our `ResetState`, we're done.
 		RESET_STATE.write().done();

@@ -205,7 +205,7 @@ impl Gui {
 //		}
 
 		// Update media controls.
-		if let Some(key) = AUDIO_STATE.read().song {
+		if let Some(key) = self.audio_state.song {
 			let (artist, album, song) = self.collection.walk(key);
 
 			if let Err(e) = self.media_controls
@@ -406,17 +406,28 @@ fn show_bottom(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width:
 		ui.set_height(height);
 
 		// Base unit for sizing UI.
-		let unit  = width / 15.0;
+		let unit = width / 15.0;
 
 		ui.horizontal(|ui| {
+			// HACK:
+			// There's a little bit a height space left after
+			// adding these buttons, we want to expand the buttons
+			// that it fills the full height.
+			//
+			// Add a fixed extra height to the button padding and button `height`.
+			const EXTRA_HEIGHT: f32 = 8.0;
+			ui.spacing_mut().button_padding.y += EXTRA_HEIGHT;
+
 			// Media control buttons
 			ui.group(|ui| {
+				let height = height + EXTRA_HEIGHT;
+
 				if ui.add_sized([UI_CONTROL_WIDTH, height], Button::new(RichText::new(UI_PREVIOUS).size(35.0))).clicked() {
 					send!(self.to_kernel, FrontendToKernel::Previous);
 					send!(self.to_kernel, FrontendToKernel::Play);
 				}
 
-				let play_pause = if AUDIO_STATE.read().playing {
+				let play_pause = if self.audio_state.playing {
 					UI_PAUSE
 				} else {
 					UI_PLAY
@@ -433,11 +444,9 @@ fn show_bottom(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width:
 			});
 
 			// Album button.
-			ui.scope(|ui| {
-				let song = AUDIO_STATE.read().song;
-
+			ui.group(|ui| {
 				// If we're currently playing a song.
-				if let Some(key) = song {
+				if let Some(key) = self.audio_state.song {
 					let (artist, album, song) = self.collection.walk(key);
 
 					// Album button.
@@ -499,39 +508,41 @@ fn show_bottom(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width:
 				}
 			});
 
-			// Song time elapsed.
-			let time = format!(
-				"{} / {}",
-				self.audio_state.elapsed,
-				self.audio_state.runtime,
-			);
-			ui.add_sized([unit, height], Label::new(time));
+			if self.audio_state.song.is_some() {
+				// Song time elapsed.
+				let time = format!(
+					"{} / {}",
+					self.audio_state.elapsed,
+					self.audio_state.runtime,
+				);
+				ui.add_sized([unit, height], Label::new(time));
 
-			// Slider (playback)
-			ui.spacing_mut().slider_width = ui.available_width();
-			{
-				let v = &mut ui.visuals_mut().widgets;
-				v.inactive.fg_stroke = SLIDER_CIRCLE_INACTIVE;
-				v.hovered.fg_stroke  = SLIDER_CIRCLE_HOVERED;
-				v.active.fg_stroke   = SLIDER_CIRCLE_ACTIVE;
-			}
+				// Slider (playback)
+				ui.spacing_mut().slider_width = ui.available_width();
+				{
+					let v = &mut ui.visuals_mut().widgets;
+					v.inactive.fg_stroke = SLIDER_CIRCLE_INACTIVE;
+					v.hovered.fg_stroke  = SLIDER_CIRCLE_HOVERED;
+					v.active.fg_stroke   = SLIDER_CIRCLE_ACTIVE;
+				}
 
-			let h = height / 5.0;
+				let h = height / 5.0;
 
-			// Runtime/seek slider.
-			let resp = ui.add_sized(
-				[ui.available_width(), height],
-				Slider::new(&mut self.audio_seek, 0..=self.audio_state.runtime.usize())
-					.smallest_positive(1.0)
-					.show_value(false)
-					.thickness(h*2.0)
-					.circle_size(h)
-			);
+				// Runtime/seek slider.
+				let resp = ui.add_sized(
+					[ui.available_width(), height],
+					Slider::new(&mut self.audio_seek, 0..=self.audio_state.runtime.usize())
+						.smallest_positive(1.0)
+						.show_value(false)
+						.thickness(h*2.0)
+						.circle_size(h)
+				);
 
-			// Only send signal if the slider was dragged + released.
-			if resp.drag_released() {
-				self.audio_leeway = now!();
-				send!(self.to_kernel, FrontendToKernel::Seek(self.audio_seek));
+				// Only send signal if the slider was dragged + released.
+				if resp.drag_released() {
+					self.audio_leeway = now!();
+					send!(self.to_kernel, FrontendToKernel::Seek(self.audio_seek));
+				}
 			}
 		});
 	});

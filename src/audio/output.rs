@@ -99,7 +99,7 @@ mod output {
 				// This reduces the audio buffer we hold.
 				//
 				// The default will hold around 200ms~ of audio
-				// which creates a noticable delay when pausing
+				// which creates a noticeable delay when pausing
 				// via Festival since we flush the samples that
 				// haven't been played yet.
 				//

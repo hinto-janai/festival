@@ -49,7 +49,7 @@ use crate::audio::output::{
 	AudioOutput,Output,
 };
 use readable::Runtime;
-use crate::frontend::egui::GUI_CONTEXT;
+use crate::frontend::egui::gui_request_update;
 
 //---------------------------------------------------------------------------------------------------- Constants
 // If the audio device is not connected, how many seconds
@@ -83,7 +83,7 @@ pub(crate) struct Audio {
 
 	// The current song.
 	current: Option<AudioReader>,
-	// The existance of this field means we should
+	// The existence of this field means we should
 	// be seeking in the next loop iteration.
 	seek: Option<symphonia::core::units::Time>,
 
@@ -234,6 +234,7 @@ impl Audio {
 					// a FormatReader can indicate the media is complete.
 					Err(symphonia::core::errors::Error::IoError(err)) => {
 						self.set_next();
+						gui_request_update();
 						continue;
 					},
 //					Err(err) => break Err(err),
@@ -275,10 +276,7 @@ impl Audio {
 							AUDIO_STATE.write().elapsed = Runtime::from(time.seconds);
 
 							// Wake up the GUI thread.
-							//
-							// SAFETY:
-							// `GUI` must init this at startup.
-							unsafe { GUI_CONTEXT.get_unchecked().request_repaint() };
+							gui_request_update();
 						}
 					}
 					Err(symphonia::core::errors::Error::DecodeError(err)) => {
@@ -290,6 +288,7 @@ impl Audio {
 					// We're done playing audio.
 					Err(symphonia::core::errors::Error::IoError(err)) => {
 						self.set_next();
+						gui_request_update();
 						continue;
 					},
 					Err(err) => todo!(),
@@ -312,33 +311,33 @@ impl Audio {
 		use KernelToAudio::*;
 		match msg {
 			// Audio playback.
-			Toggle    => self.msg_toggle(),
-			Play      => self.msg_play(),
-			Pause     => self.msg_pause(),
-			Next      => self.msg_next(),
-			Previous  => self.msg_previous(),
+			Toggle    => self.toggle(),
+			Play      => self.play(),
+			Pause     => self.pause(),
+			Next      => self.next(),
+			Previous  => self.previous(),
 //
 //			// Audio settings.
-			Shuffle(s) => self.msg_shuffle(s),
-			Repeat(r)  => self.msg_repeat(r),
-			Volume(v)  => self.msg_volume(v),
-			Seek(f)    => self.msg_seek(f),
+			Shuffle(s) => self.shuffle(s),
+			Repeat(r)  => self.repeat(r),
+			Volume(v)  => self.volume(v),
+			Seek(f)    => self.seek(f),
 //
 //			// Queue.
-//			AddQueueSongFront((s_key, clear))     => self.msg_add_queue_song(s_key, clear,      Append::Front),
-//			AddQueueSongBack((s_key, clear))      => self.msg_add_queue_song(s_key, clear,      Append::Back),
-			AddQueueAlbum((al_key, append, clear, offset))   => self.msg_add_queue_album(al_key, append, clear, offset),
-//			AddQueueAlbumBack((al_key, clear))    => self.msg_add_queue_album(al_key, clear,    Append::Back),
-//			AddQueueArtistFront((ar_key, clear))  => self.msg_add_queue_artist(ar_key, clear,   Append::Front),
-//			AddQueueArtistBack((ar_key, clear))   => self.msg_add_queue_artist(ar_key, clear,   Append::Back),
-			Skip(num) => self.msg_skip(num),
+//			AddQueueSongFront((s_key, clear))     => self.add_queue_song(s_key, clear,      Append::Front),
+//			AddQueueSongBack((s_key, clear))      => self.add_queue_song(s_key, clear,      Append::Back),
+			AddQueueAlbum((al_key, append, clear, offset))   => self.add_queue_album(al_key, append, clear, offset),
+//			AddQueueAlbumBack((al_key, clear))    => self.add_queue_album(al_key, clear,    Append::Back),
+//			AddQueueArtistFront((ar_key, clear))  => self.add_queue_artist(ar_key, clear,   Append::Front),
+//			AddQueueArtistBack((ar_key, clear))   => self.add_queue_artist(ar_key, clear,   Append::Back),
+			Skip(num) => self.skip(num),
 //
 //			// Queue Index.
-//			PlayQueueIndex(idx)   => self.msg_play_queue_index(idx),
-//			RemoveQueueIndex(idx) => self.msg_remove_queue_index(idx),
+//			PlayQueueIndex(idx)   => self.play_queue_index(idx),
+//			RemoveQueueIndex(idx) => self.remove_queue_index(idx),
 //
 //			// Audio State.
-			RestoreAudioState => self.msg_restore_audio_state(),
+			RestoreAudioState => self.restore_audio_state(),
 
 			// Collection.
 			DropCollection     => self.drop_collection(),
@@ -494,35 +493,38 @@ impl Audio {
 
 	//-------------------------------------------------- Audio playback.
 	#[inline(always)]
-	fn msg_toggle(&mut self) {
-		trace!("Audio - Toggle");
+	fn toggle(&mut self) {
+		trace!("Audio - toggle()");
 		if self.current.is_some() {
 			flip!(self.state.playing);
 			flip!(AUDIO_STATE.write().playing);
+			gui_request_update();
 		}
 	}
 
 	#[inline(always)]
-	fn msg_play(&mut self) {
-		trace!("Audio - Play");
+	fn play(&mut self) {
+		trace!("Audio - play()");
 		if self.current.is_some() {
 			self.state.playing = true;
 			AUDIO_STATE.write().playing = true;
+			gui_request_update();
 		}
 	}
 
 	#[inline(always)]
-	fn msg_pause(&mut self) {
-		trace!("Audio - Pause");
+	fn pause(&mut self) {
+		trace!("Audio - pause()");
 		if self.current.is_some() {
 			self.state.playing = false;
 			AUDIO_STATE.write().playing = false;
+			gui_request_update();
 		}
 	}
 
 	#[inline(always)]
-	fn msg_next(&mut self) {
-		trace!("Audio - Next");
+	fn next(&mut self) {
+		trace!("Audio - next()");
 
 		// Lock state.
 		let mut state = AUDIO_STATE.write();
@@ -540,21 +542,20 @@ impl Audio {
 	}
 
 	#[inline(always)]
-	fn msg_previous(&mut self) {
-		trace!("Audio - Previous");
+	fn previous(&mut self) {
+		trace!("Audio - previous()");
 		// Lock state.
 		let mut state = AUDIO_STATE.write();
 
 		if !state.queue.is_empty() {
-			// If we're at the end of the queue, clear.
 			let key = state.prev();
 			self.set(key, &mut state);
 		}
 	}
 
 	#[inline(always)]
-	fn msg_skip(&mut self, num: usize) {
-		trace!("Audio - msg_skip({num})");
+	fn skip(&mut self, num: usize) {
+		trace!("Audio - skip({num})");
 
 		// Lock state.
 		let mut state = AUDIO_STATE.write();
@@ -581,39 +582,41 @@ impl Audio {
 		}
 	}
 
-	//-------------------------------------------------- Audio settings.
 	#[inline(always)]
-	fn msg_shuffle(&mut self, shuffle: crate::audio::shuffle::Shuffle) {
-		trace!("Audio - Shuffle");
-		todo!();
-	}
-
-	#[inline(always)]
-	fn msg_repeat(&mut self, repeat: crate::audio::repeat::Repeat) {
-		trace!("Audio - Repeat");
-		todo!();
-	}
-
-	#[inline(always)]
-	fn msg_volume(&mut self, volume: Volume) {
-		trace!("Audio - {volume:?}");
-		self.state.volume = volume;
-		AUDIO_STATE.write().volume = volume;
-	}
-
-	#[inline(always)]
-	fn msg_seek(&mut self, seek: usize) {
-		trace!("Audio - msg_seek({seek})");
+	fn seek(&mut self, seek: usize) {
+		trace!("Audio - seek({seek})");
 		self.seek = Some(symphonia::core::units::Time {
 			seconds: seek as u64,
 			frac: 0.0
 		});
 	}
 
+	//-------------------------------------------------- Audio settings.
+	#[inline(always)]
+	fn shuffle(&mut self, shuffle: crate::audio::shuffle::Shuffle) {
+		trace!("Audio - {shuffle:?}");
+		gui_request_update();
+		todo!();
+	}
+
+	#[inline(always)]
+	fn repeat(&mut self, repeat: crate::audio::repeat::Repeat) {
+		trace!("Audio - {repeat:?}");
+		gui_request_update();
+		todo!();
+	}
+
+	#[inline(always)]
+	fn volume(&mut self, volume: Volume) {
+		trace!("Audio - {volume:?}");
+		self.state.volume = volume;
+		AUDIO_STATE.write().volume = volume;
+	}
+
 //	//-------------------------------------------------- Queue.
 //	#[inline(always)]
-//	fn msg_add_queue_song(&mut self, song: SongKey, clear: bool, append: Append) {
-//		trace!("Audio - msg_add_queue_song({song:?}) - {append:?}");
+//	fn add_queue_song(&mut self, song: SongKey, clear: bool, append: Append) {
+//		trace!("Audio - add_queue_song({song:?}) - {append:?}");
 //
 //		let mut state = AUDIO_STATE.write();
 //
@@ -635,14 +638,14 @@ impl Audio {
 //
 
 	#[inline(always)]
-	fn msg_add_queue_album(
+	fn add_queue_album(
 		&mut self,
 		album: AlbumKey,
 		append: Append,
 		clear: bool,
 		offset: usize
 	) {
-		trace!("Audio - msg_add_queue_album({album:?}, {append:?}, {clear:?})");
+		trace!("Audio - add_queue_album({album:?}, {append:?}, {clear:?})");
 
 		let mut state = AUDIO_STATE.write();
 
@@ -685,8 +688,8 @@ impl Audio {
 	}
 
 //	#[inline(always)]
-//	fn msg_add_queue_artist(&mut self, artist: ArtistKey, clear: bool, append: Append) {
-//		trace!("Audio - msg_add_queue_artist({artist:?}) - {append:?}");
+//	fn add_queue_artist(&mut self, artist: ArtistKey, clear: bool, append: Append) {
+//		trace!("Audio - add_queue_artist({artist:?}) - {append:?}");
 //
 //		let mut state = AUDIO_STATE.write();
 //
@@ -702,21 +705,21 @@ impl Audio {
 //	}
 //
 //	#[inline(always)]
-//	fn msg_play_queue_index(&mut self, index: usize) {
-//		trace!("Audio - msg_play_queue_index({index})");
+//	fn play_queue_index(&mut self, index: usize) {
+//		trace!("Audio - play_queue_index({index})");
 //		todo!();
 //	}
 //
 //	#[inline(always)]
-//	fn msg_remove_queue_index(&mut self, index: usize) {
-//		trace!("Audio - msg_remove_queue_index({index})");
+//	fn remove_queue_index(&mut self, index: usize) {
+//		trace!("Audio - remove_queue_index({index})");
 //		todo!();
 //	}
 //
 //	//-------------------------------------------------- Restore Audio State.
 	#[inline(always)]
-	fn msg_restore_audio_state(&mut self) {
-		trace!("Audio - msg_restore_audio_state()");
+	fn restore_audio_state(&mut self) {
+		trace!("Audio - restore_audio_state()");
 
 		let mut state = AUDIO_STATE.write();
 
@@ -738,6 +741,14 @@ impl Audio {
 		if let Some(key) = key {
 			debug!("Audio - Restore ... setting {key:?}");
 			self.set(key, &mut state);
+		}
+
+		let elapsed = self.state.elapsed.usize();
+		if elapsed > 0 {
+			debug!("Audio - Restore ... seeking {}/{}", self.state.elapsed, self.state.runtime);
+			self.seek(elapsed);
+		} else {
+			debug!("Audio - Restore ... skipping seek");
 		}
 	}
 
