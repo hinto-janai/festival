@@ -94,7 +94,6 @@ pub struct AudioState {
 }
 
 impl AudioState {
-	#[inline]
 	/// Creates an empty struct.
 	pub const fn new() -> Self {
 		Self {
@@ -111,7 +110,6 @@ impl AudioState {
 		}
 	}
 
-	#[inline]
 	/// Clone `Self`, conditionally.
 	///
 	/// - If `self` and `dst` are the same, this does nothing
@@ -130,7 +128,6 @@ impl AudioState {
 		}
 	}
 
-	#[inline]
 	// Clear `Self` and assume we are done playing.
 	pub(crate) fn finish(&mut self) {
 		self.queue.clear();
@@ -141,7 +138,6 @@ impl AudioState {
 		self.runtime   = Runtime::zero();
 	}
 
-	#[inline]
 	// INVARIANT:
 	// `queue` and `queue_idx` must not be `None`.
 	//
@@ -161,7 +157,6 @@ impl AudioState {
 		key
 	}
 
-	#[inline]
 	// INVARIANT:
 	// `queue` and `queue_idx` must not be `None`.
 	//
@@ -185,7 +180,6 @@ impl AudioState {
 		}
 	}
 
-	#[inline]
 	// Checks if we are at the last index in the queue.
 	pub(super) fn at_last_queue_idx(&self) -> bool {
 		match self.queue_idx {
@@ -194,7 +188,6 @@ impl AudioState {
 		}
 	}
 
-	#[inline]
 	// Checks if we are at the first index in the queue.
 	pub(super) fn at_first_queue_idx(&self) -> bool {
 		match self.queue_idx {

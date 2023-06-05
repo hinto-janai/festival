@@ -306,7 +306,7 @@ CentralPanel::default().show(ctx, |ui| {
 							let artist = self.collection.artist_from_album(key);
 
 							row.col(|ui| {
-								crate::album_button!(self, album, key, ui, ctx, 120.0);
+								crate::album_button!(self, album, *key, ui, ctx, 120.0);
 								ui.label(&album.title);
 							});
 
@@ -373,7 +373,7 @@ CentralPanel::default().show(ctx, |ui| {
 								for key in artist.albums.iter() {
 									let album = &self.collection.albums[key];
 
-									crate::album_button!(self, album, key, ui, ctx, 120.0, album.title);
+									crate::album_button!(self, album, *key, ui, ctx, 120.0, album.title);
 								}
 							});
 						});

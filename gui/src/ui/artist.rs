@@ -115,7 +115,7 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame
 					for key in &artist.albums {
 						let album = &self.collection.albums[key];
 
-						crate::album_button!(self, album, key, ui, ctx, 120.0, album.title);
+						crate::album_button!(self, album, *key, ui, ctx, 120.0, album.title);
 					}
 				});
 			});
@@ -197,7 +197,7 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame
 
 			ui.horizontal(|ui| {
 				// Album.
-				crate::album_button!(self, album, album_key, ui, ctx, self.settings.album_pixel_size);
+				crate::album_button!(self, album, *album_key, ui, ctx, self.settings.album_pixel_size);
 
 				ui.vertical(|ui| {
 					// Info.

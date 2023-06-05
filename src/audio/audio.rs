@@ -233,7 +233,7 @@ impl Audio {
 					// This "end of stream" error is currently the only way
 					// a FormatReader can indicate the media is complete.
 					Err(symphonia::core::errors::Error::IoError(err)) => {
-						self.set_next();
+						self.next();
 						gui_request_update();
 						continue;
 					},
@@ -287,7 +287,7 @@ impl Audio {
 //					Err(err) => break Err(err),
 					// We're done playing audio.
 					Err(symphonia::core::errors::Error::IoError(err)) => {
-						self.set_next();
+						self.next();
 						gui_request_update();
 						continue;
 					},
@@ -351,7 +351,6 @@ impl Audio {
 	// Error handling gets handled in these functions
 	// rather than the caller (it gets called everywhere).
 
-	#[inline]
 	// Convert a `SongKey` to a playable object.
 	fn to_reader(&self, key: SongKey) -> Option<Box<dyn FormatReader>> {
 		// Get `Song` PATH.
@@ -447,25 +446,6 @@ impl Audio {
 		}
 	}
 
-	// If there is another element in the queue, play it,
-	// else, assume we are done and set the relevant state.
-	fn set_next(&mut self) {
-		let mut state = AUDIO_STATE.write();
-
-		// TODO:
-		// account for shuffle and repeat
-		if state.at_last_queue_idx() {
-			trace!("Audio - at last queue_idx, calling state.finish()");
-			state.finish();
-			self.state.finish();
-		} else {
-			let next = state.next();
-			trace!("Audio - more songs left, playing: {next:?}");
-			self.set(next, &mut state);
-		}
-	}
-
-	#[inline]
 	// Clears the `Queue`.
 	//
 	// The `bool` represents if we should
@@ -493,7 +473,6 @@ impl Audio {
 	}
 
 	//-------------------------------------------------- Audio playback.
-	#[inline(always)]
 	fn toggle(&mut self) {
 		trace!("Audio - toggle()");
 		if self.current.is_some() {
@@ -503,7 +482,6 @@ impl Audio {
 		}
 	}
 
-	#[inline(always)]
 	fn play(&mut self) {
 		trace!("Audio - play()");
 		if self.current.is_some() {
@@ -513,7 +491,6 @@ impl Audio {
 		}
 	}
 
-	#[inline(always)]
 	fn pause(&mut self) {
 		trace!("Audio - pause()");
 		if self.current.is_some() {
@@ -523,26 +500,6 @@ impl Audio {
 		}
 	}
 
-	#[inline(always)]
-	fn next(&mut self) {
-		trace!("Audio - next()");
-
-		// Lock state.
-		let mut state = AUDIO_STATE.write();
-
-		if !state.queue.is_empty() {
-			// If we're at the end of the queue, clear.
-			if state.at_last_queue_idx() {
-				self.clear(false, &mut state);
-				return;
-			}
-
-			let key = state.next();
-			self.set(key, &mut state);
-		}
-	}
-
-	#[inline(always)]
 	fn previous(&mut self) {
 		trace!("Audio - previous()");
 		// Lock state.
@@ -554,7 +511,25 @@ impl Audio {
 		}
 	}
 
-	#[inline(always)]
+	// If there is another element in the queue, play it,
+	// else, assume we are done and set the relevant state.
+	fn next(&mut self) {
+		let mut state = AUDIO_STATE.write();
+
+		// TODO:
+		// account for shuffle and repeat
+		if state.at_last_queue_idx() {
+			trace!("Audio - at last queue_idx, calling state.finish()");
+			state.finish();
+			self.state.finish();
+			self.current = None;
+		} else {
+			let next = state.next();
+			trace!("Audio - more songs left, setting: {next:?}");
+			self.set(next, &mut state);
+		}
+	}
+
 	fn skip(&mut self, num: usize) {
 		trace!("Audio - skip({num})");
 
@@ -583,7 +558,6 @@ impl Audio {
 		}
 	}
 
-	#[inline(always)]
 	fn seek(&mut self, seek: usize) {
 		trace!("Audio - seek({seek})");
 		self.seek = Some(symphonia::core::units::Time {
@@ -593,21 +567,18 @@ impl Audio {
 	}
 
 	//-------------------------------------------------- Audio settings.
-	#[inline(always)]
 	fn shuffle(&mut self, shuffle: crate::audio::shuffle::Shuffle) {
 		trace!("Audio - {shuffle:?}");
 		gui_request_update();
 		todo!();
 	}
 
-	#[inline(always)]
 	fn repeat(&mut self, repeat: crate::audio::repeat::Repeat) {
 		trace!("Audio - {repeat:?}");
 		gui_request_update();
 		todo!();
 	}
 
-	#[inline(always)]
 	fn volume(&mut self, volume: Volume) {
 		trace!("Audio - {volume:?}");
 		self.state.volume = volume;
@@ -615,7 +586,6 @@ impl Audio {
 	}
 
 //	//-------------------------------------------------- Queue.
-//	#[inline(always)]
 //	fn add_queue_song(&mut self, song: SongKey, clear: bool, append: Append) {
 //		trace!("Audio - add_queue_song({song:?}) - {append:?}");
 //
@@ -638,15 +608,14 @@ impl Audio {
 //	}
 //
 
-	#[inline(always)]
 	fn add_queue_album(
 		&mut self,
-		album: AlbumKey,
+		key: AlbumKey,
 		append: Append,
 		clear: bool,
 		offset: usize,
 	) {
-		trace!("Audio - add_queue_album({album:?}, {append:?}, {clear:?})");
+		trace!("Audio - add_queue_album({key:?}, {append:?}, {clear:?})");
 
 		let mut state = AUDIO_STATE.write();
 
@@ -655,40 +624,42 @@ impl Audio {
 		}
 
 		// Prevent bad offsets panicking.
-		let offset = if self.collection.albums[album].songs.len() <= offset {
+		let offset = if self.collection.albums[key].songs.len() <= offset {
 			0
 		} else {
 			offset
 		};
 
+		let album = &self.collection.albums[key];
+
 		// INVARIANT:
 		// `Collection` only creates `Album`'s that
 		// have a minimum of 1 `Song`, so this should
 		// never panic.
-		self.set(self.collection.albums[album].songs[offset], &mut state);
-
-		// FIXME:
-		// These have to be below because the above takes `&mut self`
-		// and below create a `&` in the same scope.
-		let album = &self.collection.albums[album];
-		let first_song  = album.songs[offset];
-		state.song      = Some(first_song);
-		state.queue_idx = Some(offset);
-
 		let keys = album.songs.iter();
 		match append {
-			Append::Front => keys.rev().for_each(|k| state.queue.push_front(*k)),
-			Append::Back  => keys.for_each(|k| state.queue.push_back(*k)),
+			Append::Back  => {
+				keys.for_each(|k| state.queue.push_back(*k));
+				if self.current.is_none() {
+					self.set(self.collection.albums[key].songs[offset], &mut state);
+				}
+			},
+			Append::Front => {
+				keys.rev().for_each(|k| state.queue.push_front(*k));
+				self.set(self.collection.albums[key].songs[offset], &mut state);
+			},
 			Append::Index(mut i) => {
 				keys.for_each(|k| {
 					state.queue.insert(i, *k);
 					i += 1;
 				});
+				if i == 0 {
+					self.set(self.collection.albums[key].songs[offset], &mut state);
+				}
 			}
 		}
 	}
 
-//	#[inline(always)]
 //	fn add_queue_artist(&mut self, artist: ArtistKey, clear: bool, append: Append) {
 //		trace!("Audio - add_queue_artist({artist:?}) - {append:?}");
 //
@@ -705,7 +676,6 @@ impl Audio {
 //		}
 //	}
 //
-	#[inline(always)]
 	fn set_queue_index(&mut self, index: usize) {
 		let mut state = AUDIO_STATE.write();
 
@@ -716,10 +686,10 @@ impl Audio {
 		}
 
 		trace!("Audio - set_queue_index({index})");
+		state.queue_idx = Some(index);
 		self.set(state.queue[index], &mut state);
 	}
 
-	#[inline(always)]
 	fn remove_queue_range(
 		&mut self,
 		range: std::ops::Range<usize>
@@ -761,7 +731,6 @@ impl Audio {
 	}
 
 	//-------------------------------------------------- Restore Audio State.
-	#[inline(always)]
 	fn restore_audio_state(&mut self) {
 		trace!("Audio - restore_audio_state()");
 
@@ -797,7 +766,6 @@ impl Audio {
 	}
 
 	//-------------------------------------------------- Collection.
-	#[inline(always)]
 	fn drop_collection(&mut self) {
 		// Drop pointer.
 		self.collection = Collection::dummy();

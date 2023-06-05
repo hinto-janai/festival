@@ -443,106 +443,106 @@ fn show_bottom(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width:
 				}
 			});
 
+			// Return if we don't have a `SongKey`.
+			let key = match self.audio_state.song {
+				Some(k) => k,
+				_ => return,
+			};
+			let (artist, album, song) = self.collection.walk(key);
+
 			// Album button.
 			ui.group(|ui| {
-				// If we're currently playing a song.
-				if let Some(key) = self.audio_state.song {
-					let (artist, album, song) = self.collection.walk(key);
+				// Album button.
+				crate::no_rounding!(ui);
+				crate::album_button!(self, album, song.album, ui, ctx, height);
 
-					// Album button.
-					crate::no_rounding!(ui);
-					crate::album_button!(self, album, song.album, ui, ctx, height);
+				ui.vertical(|ui| {
+					// How many char's before we need
+					// to cut off the song title?
+					// (scales based on pixels available).
+					let head = (unit / 5.0) as usize;
 
-					ui.vertical(|ui| {
-						// How many char's before we need
-						// to cut off the song title?
-						// (scales based on pixels available).
-						let head = (unit / 5.0) as usize;
+					//-------------------------------------------------- `Song` title.
+					let song_head  = song.title.head_dot(head);
+					let chopped    = song.title != song_head;
+					let song_title = Label::new(
+						RichText::new(song_head)
+							.text_style(TextStyle::Name("15".into()))
+							.color(BONE)
+					);
+					// Show the full title on hover
+					// if we chopped it with head.
+					if chopped {
+						ui.add(song_title).on_hover_text(&song.title);
+					} else {
+						ui.add(song_title);
+					}
 
-						//-------------------------------------------------- `Song` title.
-						let song_head  = song.title.head_dot(head);
-						let chopped    = song.title != song_head;
-						let song_title = Label::new(
-							RichText::new(song_head)
-								.text_style(TextStyle::Name("15".into()))
-								.color(BONE)
-						);
-						// Show the full title on hover
-						// if we chopped it with head.
-						if chopped {
-							ui.add(song_title).on_hover_text(&song.title);
-						} else {
-							ui.add(song_title);
+					//-------------------------------------------------- `Album` name.
+					let album_head = album.title.head_dot(head);
+					let chopped    = album.title != album_head;
+					let album_name = Label::new(
+						RichText::new(album_head)
+							.text_style(TextStyle::Name("15".into()))
+					);
+					if chopped {
+						ui.add(album_name).on_hover_text(&album.title);
+					} else {
+						ui.add(album_name);
+					}
+
+					//-------------------------------------------------- `Artist` name.
+					let artist_head = artist.name.head_dot(head);
+					let chopped     = artist.name != artist_head;
+					let artist_name = Label::new(
+						RichText::new(artist_head)
+							.text_style(TextStyle::Name("15".into()))
+					);
+					if chopped {
+						if ui.add(artist_name.sense(Sense::click())).on_hover_text(&artist.name).clicked() {
+							crate::artist!(self, album.artist);
 						}
-
-						//-------------------------------------------------- `Album` name.
-						let album_head = album.title.head_dot(head);
-						let chopped    = album.title != album_head;
-						let album_name = Label::new(
-							RichText::new(album_head)
-								.text_style(TextStyle::Name("15".into()))
-						);
-						if chopped {
-							ui.add(album_name).on_hover_text(&album.title);
-						} else {
-							ui.add(album_name);
+					} else {
+						if ui.add(artist_name.sense(Sense::click())).clicked() {
+							crate::artist!(self, album.artist);
 						}
-
-						//-------------------------------------------------- `Artist` name.
-						let artist_head = artist.name.head_dot(head);
-						let chopped     = artist.name != artist_head;
-						let artist_name = Label::new(
-							RichText::new(artist_head)
-								.text_style(TextStyle::Name("15".into()))
-						);
-						if chopped {
-							if ui.add(artist_name.sense(Sense::click())).on_hover_text(&artist.name).clicked() {
-								crate::artist!(self, album.artist);
-							}
-						} else {
-							if ui.add(artist_name.sense(Sense::click())).clicked() {
-								crate::artist!(self, album.artist);
-							}
-						}
-					});
-				}
+					}
+				});
 			});
 
-			if self.audio_state.song.is_some() {
-				// Song time elapsed.
-				let time = format!(
-					"{} / {}",
-					self.audio_state.elapsed,
-					self.audio_state.runtime,
-				);
-				ui.add_sized([unit, height], Label::new(time));
+			// Song time elapsed.
+			let time = format!(
+				"{} / {}",
+				self.audio_state.elapsed,
+				self.audio_state.runtime,
+			);
+			ui.add_sized([unit, height], Label::new(time));
 
-				// Slider (playback)
-				ui.spacing_mut().slider_width = ui.available_width();
-				{
-					let v = &mut ui.visuals_mut().widgets;
-					v.inactive.fg_stroke = SLIDER_CIRCLE_INACTIVE;
-					v.hovered.fg_stroke  = SLIDER_CIRCLE_HOVERED;
-					v.active.fg_stroke   = SLIDER_CIRCLE_ACTIVE;
-				}
+			// Slider (playback)
+			ui.spacing_mut().slider_width = ui.available_width();
+			{
+				let v = &mut ui.visuals_mut().widgets;
+				v.inactive.fg_stroke = SLIDER_CIRCLE_INACTIVE;
+				v.hovered.fg_stroke  = SLIDER_CIRCLE_HOVERED;
+				v.active.fg_stroke   = SLIDER_CIRCLE_ACTIVE;
+			}
 
-				let h = height / 5.0;
+			let h = height / 5.0;
 
-				// Runtime/seek slider.
-				let resp = ui.add_sized(
-					[ui.available_width(), height],
-					Slider::new(&mut self.audio_seek, 0..=self.audio_state.runtime.usize())
-						.smallest_positive(1.0)
-						.show_value(false)
-						.thickness(h*2.0)
-						.circle_size(h)
-				);
+			// Runtime/seek slider.
+			let resp = ui.add_sized(
+				[ui.available_width(), height],
+				Slider::new(&mut self.audio_seek, 0..=self.audio_state.runtime.usize())
+					.smallest_positive(1.0)
+					.show_value(false)
+					.thickness(h*2.0)
+					.circle_size(h)
+			);
 
-				// Only send signal if the slider was dragged + released.
-				if resp.drag_released() {
-					self.audio_leeway = now!();
-					send!(self.to_kernel, FrontendToKernel::Seek(self.audio_seek));
-				}
+			// Only send signal if the slider was dragged + released.
+			if resp.drag_released() {
+				self.audio_leeway = now!();
+				send!(self.to_kernel, FrontendToKernel::Seek(self.audio_seek));
 			}
 		});
 	});

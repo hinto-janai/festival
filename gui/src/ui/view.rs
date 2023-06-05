@@ -12,7 +12,7 @@ use shukusai::collection::{
 	AlbumKey,
 };
 use shukusai::kernel::{
-	FrontendToKernel,AUDIO_STATE,
+	FrontendToKernel,
 };
 use crate::constants::{
 	BONE,GRAY,MEDIUM_GRAY,
@@ -188,7 +188,7 @@ pub(super) fn show_tab_view_right_panel(&mut self, album_key: Option<AlbumKey>, 
 					let album = &self.collection.albums[key];
 
 					// Album button.
-					crate::album_button!(self, album, key, ui, ctx, album_size);
+					crate::album_button!(self, album, *key, ui, ctx, album_size);
 
 					// If this is the album we're on, make it pop.
 					if key == album_key {

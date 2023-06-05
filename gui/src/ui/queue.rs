@@ -8,7 +8,6 @@ use shukusai::collection::{
 };
 use shukusai::kernel::{
 	FrontendToKernel,
-	AUDIO_STATE,
 };
 use egui::{
 	ScrollArea,Label,RichText,SelectableLabel,
@@ -107,7 +106,7 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 			//-------------------------------------------------- Song.
 			let mut rect = ui.cursor();
 			rect.max.y = rect.min.y + 35.0;
-			if ui.put(rect, SelectableLabel::new(self.audio_state.song == Some(*key), "")).clicked() {
+			if ui.put(rect, SelectableLabel::new(self.audio_state.queue_idx == Some(index), "")).clicked() {
 				// TODO: Implement song key state.
 
 				crate::play_queue_index!(self, index);

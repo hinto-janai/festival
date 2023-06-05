@@ -150,6 +150,13 @@ macro_rules! album_button {
 		if resp.clicked() {
 			$crate::album!($self, $key);
 		} else if resp.secondary_clicked() {
+			::benri::send!(
+				$self.to_kernel,
+				shukusai::kernel::FrontendToKernel::AddQueueAlbum(($key, shukusai::kernel::Append::Back, false, 0))
+			);
+			::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
+			$crate::toast!($self, format!("Added [{}] to queue", $album.title));
+		} else if resp.middle_clicked() {
 			match open::that(&$album.path) {
 				Ok(_) => log::info!("GUI - Opening path: {}", $album.path.display()),
 				Err(e) => log::warn!("GUI - Could not open path: {e}"),
@@ -167,9 +174,22 @@ macro_rules! album_button {
 		if resp.clicked() {
 			$crate::album!($self, $key);
 		} else if resp.secondary_clicked() {
+			::benri::send!(
+				$self.to_kernel,
+				shukusai::kernel::FrontendToKernel::AddQueueAlbum(($key, shukusai::kernel::Append::Back, false, 0))
+			);
+			::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
+			$crate::toast!($self, format!("Added [{}] to queue", $album.title));
+		} else if resp.middle_clicked() {
 			match open::that(&$album.path) {
-				Ok(_) => log::info!("GUI - Opening path: {}", $album.path.display()),
-				Err(e) => log::warn!("GUI - Could not open path: {e}"),
+				Ok(_) => {
+					log::info!("GUI - Opening path: {}", $album.path.display());
+					$crate::toast!($self, format!("Opening [{}]'s directory", $album.title));
+				},
+				Err(e) => {
+					log::warn!("GUI - Could not open path: {e}");
+					$crate::toast_err!($self, format!("Opening [{}]'s directory", $album.title));
+				},
 			}
 		}
 	};
