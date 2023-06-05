@@ -107,6 +107,22 @@ macro_rules! play_album_offset {
 }
 
 #[macro_export]
+/// Play a specific index in the `Queue`.
+///
+/// This indicates:
+/// - Queue should NOT be cleared
+/// - The corresponding `Song` relating to the sent index should be immediate played
+macro_rules! play_queue_index {
+	($self:ident, $index:expr) => {
+		::benri::send!(
+			$self.to_kernel,
+			shukusai::kernel::FrontendToKernel::SetQueueIndex($index)
+		);
+		::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
+	}
+}
+
+#[macro_export]
 /// Set a search string, set the last tab, jump to the search tab.
 macro_rules! search {
 	($self:ident, $key:expr, $shift:expr) => {

@@ -333,8 +333,8 @@ impl Audio {
 			Skip(num) => self.skip(num),
 //
 //			// Queue Index.
-//			PlayQueueIndex(idx)   => self.play_queue_index(idx),
-//			RemoveQueueIndex(idx) => self.remove_queue_index(idx),
+			SetQueueIndex(idx)      => self.set_queue_index(idx),
+			RemoveQueueRange(range) => self.remove_queue_range(range),
 //
 //			// Audio State.
 			RestoreAudioState => self.restore_audio_state(),
@@ -440,9 +440,10 @@ impl Audio {
 				TimeBase::new(1, self.collection.songs[key].sample_rate),
 			);
 
-			// Set the runtime.
-			state.runtime = self.collection.songs[key].runtime;
+			// Set song state.
+			state.song    = Some(key);
 			state.elapsed = Runtime::zero();
+			state.runtime = self.collection.songs[key].runtime;
 		}
 	}
 
@@ -643,7 +644,7 @@ impl Audio {
 		album: AlbumKey,
 		append: Append,
 		clear: bool,
-		offset: usize
+		offset: usize,
 	) {
 		trace!("Audio - add_queue_album({album:?}, {append:?}, {clear:?})");
 
@@ -704,19 +705,62 @@ impl Audio {
 //		}
 //	}
 //
-//	#[inline(always)]
-//	fn play_queue_index(&mut self, index: usize) {
-//		trace!("Audio - play_queue_index({index})");
-//		todo!();
-//	}
+	#[inline(always)]
+	fn set_queue_index(&mut self, index: usize) {
+		let mut state = AUDIO_STATE.write();
+
+		// Prevent bad index panicking.
+		if index >= state.queue.len() {
+			warn!("Audio - index is invalid, skipping set_queue_index({index})");
+			return;
+		}
+
+		trace!("Audio - set_queue_index({index})");
+		self.set(state.queue[index], &mut state);
+	}
+
+	#[inline(always)]
+	fn remove_queue_range(
+		&mut self,
+		range: std::ops::Range<usize>
+//		next: bool,
+	) {
+		let mut state = AUDIO_STATE.write();
+
+		let len = state.queue.len();
+
+		// Prevent bad start/end panicking.
+		if range.start >= len {
+			warn!("Audio - start is invalid, skipping remove_queue_range({range:?})");
+			return;
+		} else if range.end >= len {
+			warn!("Audio - end is invalid, skipping remove_queue_range({range:?})");
+			return;
+		}
+
+		trace!("Audio - remove_queue_range({range:?})");
+		state.queue.drain(range);
+
+		// TODO
+//		// Skip to next song if we removed the current one.
+//		if let Some(index) = state.song {
+//			if range.contains(index) {
+//				let len = state.queue.len();
 //
-//	#[inline(always)]
-//	fn remove_queue_index(&mut self, index: usize) {
-//		trace!("Audio - remove_queue_index({index})");
-//		todo!();
-//	}
+//				if len == 0 {
+//					return;
+//				}
 //
-//	//-------------------------------------------------- Restore Audio State.
+//				// Fallback to the previous if we removed the ahead.
+//				if index < len {
+//					self.set(state.queue[len - 1], &mut state);
+//				} else {
+//				}
+//			}
+//		}
+	}
+
+	//-------------------------------------------------- Restore Audio State.
 	#[inline(always)]
 	fn restore_audio_state(&mut self) {
 		trace!("Audio - restore_audio_state()");
@@ -728,7 +772,7 @@ impl Audio {
 		// it off to `Audio` so we should be safe to assume
 		// the state holds proper indices into the `Collection`.
 		let key = {
-			state.shallow_copy(&mut self.state);
+			state.if_copy(&mut self.state);
 
 			if let Some(key) = state.queue_idx {
 				Some(state.queue[key])

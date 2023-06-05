@@ -38,12 +38,7 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 		let mut current_artist = None;
 		let mut current_album  = None;
 
-		// TODO:
-		// Copy audio state somewhere else
-		// in a more global manner.
-		let iter = AUDIO_STATE.read().queue.clone();
-
-		for (offset, key) in iter.into_iter().enumerate() {
+		for (index, key) in self.audio_state.queue.iter().enumerate() {
 			let (artist, album, song) = self.collection.walk(key);
 
 			let same_artist = current_artist == Some(artist);
@@ -112,10 +107,10 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 			//-------------------------------------------------- Song.
 			let mut rect = ui.cursor();
 			rect.max.y = rect.min.y + 35.0;
-			if ui.put(rect, SelectableLabel::new(false, "")).clicked() {
+			if ui.put(rect, SelectableLabel::new(self.audio_state.song == Some(*key), "")).clicked() {
 				// TODO: Implement song key state.
 
-				crate::play_album_offset!(self, song.album, offset);
+				crate::play_queue_index!(self, index);
 			}
 
 			rect.max.x = rect.min.x;

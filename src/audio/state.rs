@@ -112,17 +112,22 @@ impl AudioState {
 	}
 
 	#[inline]
-	/// Shallow copy `Self`.
-	/// This copies everything except for the `Queue`.
-	pub fn shallow_copy(&self, dst: &mut Self) {
-		dst.queue_idx = self.queue_idx;
-		dst.playing   = self.playing;
-		dst.volume    = self.volume;
-		dst.song      = self.song;
-		dst.elapsed   = self.elapsed;
-		dst.runtime   = self.runtime;
-		dst.shuffle   = self.shuffle;
-		dst.repeat    = self.repeat;
+	/// Clone `Self`, conditionally.
+	///
+	/// - If `self` and `dst` are the same, this does nothing
+	/// - If `self` and `dst`'s queue are the same, everything but that is `clone()`'ed
+	/// - If `self` and `dst`'s queue are different, all of `self` is `.clone()`'ed into `dst`
+	pub fn if_copy(&self, dst: &mut Self) {
+		if self == dst {
+			return;
+		} else if self.queue != dst.queue {
+			*dst = self.clone();
+		} else {
+			*dst = Self {
+				queue: std::mem::take(&mut dst.queue),
+				..self.clone()
+			};
+		}
 	}
 
 	#[inline]

@@ -110,7 +110,7 @@ impl eframe::App for Gui {
 	#[inline(always)]
 	fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
 		// Acquire a local copy of the `AUDIO_STATE`.
-		AUDIO_STATE.read().shallow_copy(&mut self.audio_state);
+		AUDIO_STATE.read().if_copy(&mut self.audio_state);
 		if secs_f32!(self.audio_leeway) > 0.05 {
 			self.audio_seek = self.audio_state.elapsed.usize();
 		}
