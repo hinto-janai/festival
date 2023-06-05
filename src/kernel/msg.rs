@@ -92,7 +92,7 @@ pub enum FrontendToKernel {
 	/// Remove a range of queue indices.
 	///
 	/// This will do nothing if the start or end is out of bounds.
-	RemoveQueueRange(std::ops::Range<usize>),
+	RemoveQueueRange(std::ops::RangeInclusive<usize>),
 
 	// Audio State.
 	/// We just started up, restore the previous audio

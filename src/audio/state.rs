@@ -138,46 +138,50 @@ impl AudioState {
 		self.runtime   = Runtime::zero();
 	}
 
-	// INVARIANT:
-	// `queue` and `queue_idx` must not be `None`.
-	//
 	// - Increments the `queue_idx`
 	// - Sets current song to the new index
 	//
 	// Returns the new `SongKey`.
-	pub(super) fn next(&mut self) -> SongKey {
-		let i = self.queue_idx.unwrap();
+	// Returns `None` if none left.
+	pub(super) fn next(&mut self) -> Option<SongKey> {
+		if let Some(i) = self.queue_idx {
+			let i = i + 1;
 
-		let i = i + 1;
+			if let Some(key) = self.queue.get(i) {
+				self.song      = Some(*key);
+				self.queue_idx = Some(i);
+				return Some(*key);
+			}
+		}
 
-		let key        = self.queue[i];
-		self.song      = Some(key);
-		self.queue_idx = Some(i);
-
-		key
+		None
 	}
 
-	// INVARIANT:
-	// `queue` and `queue_idx` must not be `None`.
-	//
 	// - Decrements the `queue_idx`
 	// - Sets current song to the new index
 	//
 	// Returns the new `SongKey`.
-	pub(super) fn prev(&mut self) -> SongKey {
-		let i = self.queue_idx.unwrap();
+	// Returns index `0` if at first index.
+	// Returns `None` if nothing in queue.
+	pub(super) fn prev(&mut self) -> Option<SongKey> {
+		if let Some(i) = self.queue_idx {
+			if i == 0 {
+				if let Some(key) = self.queue.get(0) {
+					self.song = Some(*key);
+					self.queue_idx = Some(0);
+					return Some(*key);
+				}
+			}
 
-		if i == 0 {
-			let key = self.queue[0];
-			self.song = Some(key);
-			key
-		} else {
 			let i = i - 1;
-			let key = self.queue[i];
-			self.song      = Some(key);
-			self.queue_idx = Some(i);
-			key
+			if let Some(key) = self.queue.get(i) {
+				self.song      = Some(*key);
+				self.queue_idx = Some(i);
+				return Some(*key);
+			}
 		}
+
+		None
 	}
 
 	// Checks if we are at the last index in the queue.

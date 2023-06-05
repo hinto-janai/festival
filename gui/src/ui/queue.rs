@@ -11,7 +11,7 @@ use shukusai::kernel::{
 };
 use egui::{
 	ScrollArea,Label,RichText,SelectableLabel,
-	Sense,TextStyle,
+	Sense,TextStyle,Button,
 };
 use benri::send;
 use readable::HeadTail;
@@ -104,19 +104,28 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 			}
 
 			//-------------------------------------------------- Song.
-			let mut rect = ui.cursor();
-			rect.max.y = rect.min.y + 35.0;
-			if ui.put(rect, SelectableLabel::new(self.audio_state.queue_idx == Some(index), "")).clicked() {
-				// TODO: Implement song key state.
+			ui.horizontal(|ui| {
+				let width = width / 20.0;
+				const HEIGHT: f32 = 35.0;
 
-				crate::play_queue_index!(self, index);
-			}
+				// Remove button.
+				if ui.add_sized([width, HEIGHT], Button::new("-")).clicked() {
+					send!(self.to_kernel, FrontendToKernel::RemoveQueueRange(index..=index));
+				}
 
-			rect.max.x = rect.min.x;
+				let mut rect = ui.cursor();
+				rect.max.y = rect.min.y + HEIGHT;
+				rect.max.x = rect.min.x + ui.available_width();
 
-			ui.allocate_ui_at_rect(rect, |ui| {
-				ui.horizontal_centered(|ui| {
-					ui.add(Label::new(format!("{: >3}    {: >8}    {}", song.track.unwrap_or(0), &song.runtime, &song.title)));
+				if ui.put(rect, SelectableLabel::new(self.audio_state.queue_idx == Some(index), "")).clicked() {
+					crate::play_queue_index!(self, index);
+				}
+
+
+				ui.allocate_ui_at_rect(rect, |ui| {
+					ui.horizontal_centered(|ui| {
+						ui.add(Label::new(format!("{: >3}    {: >8}    {}", song.track.unwrap_or(0), &song.runtime, &song.title)));
+					});
 				});
 			});
 		}

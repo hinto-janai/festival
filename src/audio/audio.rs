@@ -505,9 +505,12 @@ impl Audio {
 		// Lock state.
 		let mut state = AUDIO_STATE.write();
 
-		if !state.queue.is_empty() {
-			let key = state.prev();
-			self.set(key, &mut state);
+		match state.prev() {
+			Some(prev) => {
+				trace!("Audio - prev song, setting: {prev:?}");
+				self.set(prev, &mut state);
+			},
+			_ => trace!("Audio - no song for prev"),
 		}
 	}
 
@@ -518,15 +521,17 @@ impl Audio {
 
 		// TODO:
 		// account for shuffle and repeat
-		if state.at_last_queue_idx() {
-			trace!("Audio - at last queue_idx, calling state.finish()");
-			state.finish();
-			self.state.finish();
-			self.current = None;
-		} else {
-			let next = state.next();
-			trace!("Audio - more songs left, setting: {next:?}");
-			self.set(next, &mut state);
+		match state.next() {
+			Some(next) => {
+				trace!("Audio - more songs left, setting: {next:?}");
+				self.set(next, &mut state);
+			},
+			_ => {
+				trace!("Audio - no songs left, calling state.finish()");
+				state.finish();
+				self.state.finish();
+				self.current = None;
+			},
 		}
 	}
 
@@ -624,7 +629,7 @@ impl Audio {
 		}
 
 		// Prevent bad offsets panicking.
-		let offset = if self.collection.albums[key].songs.len() <= offset {
+		let offset = if offset >= self.collection.albums[key].songs.len() {
 			0
 		} else {
 			offset
@@ -641,11 +646,13 @@ impl Audio {
 			Append::Back  => {
 				keys.for_each(|k| state.queue.push_back(*k));
 				if self.current.is_none() {
+					state.queue_idx = Some(offset);
 					self.set(self.collection.albums[key].songs[offset], &mut state);
 				}
 			},
 			Append::Front => {
 				keys.rev().for_each(|k| state.queue.push_front(*k));
+				state.queue_idx = Some(offset);
 				self.set(self.collection.albums[key].songs[offset], &mut state);
 			},
 			Append::Index(mut i) => {
@@ -654,6 +661,7 @@ impl Audio {
 					i += 1;
 				});
 				if i == 0 {
+					state.queue_idx = Some(0);
 					self.set(self.collection.albums[key].songs[offset], &mut state);
 				}
 			}
@@ -692,7 +700,7 @@ impl Audio {
 
 	fn remove_queue_range(
 		&mut self,
-		range: std::ops::Range<usize>
+		range: std::ops::RangeInclusive<usize>,
 //		next: bool,
 	) {
 		let mut state = AUDIO_STATE.write();
@@ -700,10 +708,10 @@ impl Audio {
 		let len = state.queue.len();
 
 		// Prevent bad start/end panicking.
-		if range.start >= len {
+		if *range.start() >= len {
 			warn!("Audio - start is invalid, skipping remove_queue_range({range:?})");
 			return;
-		} else if range.end >= len {
+		} else if *range.end() >= len {
 			warn!("Audio - end is invalid, skipping remove_queue_range({range:?})");
 			return;
 		}
@@ -728,6 +736,8 @@ impl Audio {
 //				}
 //			}
 //		}
+
+		gui_request_update();
 	}
 
 	//-------------------------------------------------- Restore Audio State.
