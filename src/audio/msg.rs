@@ -40,13 +40,14 @@ pub(crate) enum KernelToAudio {
 	Shuffle(Shuffle),
 	Repeat(Repeat),
 	Volume(Volume),
-	Seek(usize),
 
 	// Queue.
 	AddQueueSong((SongKey, Append, bool)),
 	AddQueueAlbum((AlbumKey, Append, bool, usize)),
 	AddQueueArtist((ArtistKey, Append, bool, usize)),
+	Seek(usize),
 	Skip(usize),
+	Back(usize),
 
 	// Queue Index.
 	SetQueueIndex(usize),

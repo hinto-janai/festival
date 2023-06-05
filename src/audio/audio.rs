@@ -233,7 +233,7 @@ impl Audio {
 					// This "end of stream" error is currently the only way
 					// a FormatReader can indicate the media is complete.
 					Err(symphonia::core::errors::Error::IoError(err)) => {
-						self.next();
+						self.next(&mut AUDIO_STATE.write());
 						gui_request_update();
 						continue;
 					},
@@ -287,7 +287,7 @@ impl Audio {
 //					Err(err) => break Err(err),
 					// We're done playing audio.
 					Err(symphonia::core::errors::Error::IoError(err)) => {
-						self.next();
+						self.next(&mut AUDIO_STATE.write());
 						gui_request_update();
 						continue;
 					},
@@ -314,14 +314,13 @@ impl Audio {
 			Toggle    => self.toggle(),
 			Play      => self.play(),
 			Pause     => self.pause(),
-			Next      => self.next(),
+			Next      => self.next(&mut AUDIO_STATE.write()),
 			Previous  => self.previous(),
 //
 //			// Audio settings.
 			Shuffle(s) => self.shuffle(s),
 			Repeat(r)  => self.repeat(r),
 			Volume(v)  => self.volume(v),
-			Seek(f)    => self.seek(f),
 //
 //			// Queue.
 //			AddQueueSongFront((s_key, clear))     => self.add_queue_song(s_key, clear,      Append::Front),
@@ -330,7 +329,9 @@ impl Audio {
 //			AddQueueAlbumBack((al_key, clear))    => self.add_queue_album(al_key, clear,    Append::Back),
 //			AddQueueArtistFront((ar_key, clear))  => self.add_queue_artist(ar_key, clear,   Append::Front),
 //			AddQueueArtistBack((ar_key, clear))   => self.add_queue_artist(ar_key, clear,   Append::Back),
+			Seek(f)   => self.seek(f, &mut AUDIO_STATE.write()),
 			Skip(num) => self.skip(num),
+			Back(num) => self.back(num),
 //
 //			// Queue Index.
 			SetQueueIndex(idx)      => self.set_queue_index(idx),
@@ -443,6 +444,8 @@ impl Audio {
 			state.song    = Some(key);
 			state.elapsed = Runtime::zero();
 			state.runtime = self.collection.songs[key].runtime;
+
+			gui_request_update();
 		}
 	}
 
@@ -516,21 +519,23 @@ impl Audio {
 
 	// If there is another element in the queue, play it,
 	// else, assume we are done and set the relevant state.
-	fn next(&mut self) {
-		let mut state = AUDIO_STATE.write();
-
+	fn next(
+		&mut self,
+		state: &mut std::sync::RwLockWriteGuard<'_, AudioState>,
+	) {
 		// TODO:
 		// account for shuffle and repeat
 		match state.next() {
 			Some(next) => {
 				trace!("Audio - more songs left, setting: {next:?}");
-				self.set(next, &mut state);
+				self.set(next, state);
 			},
 			_ => {
 				trace!("Audio - no songs left, calling state.finish()");
 				state.finish();
 				self.state.finish();
 				self.current = None;
+				gui_request_update();
 			},
 		}
 	}
@@ -553,22 +558,76 @@ impl Audio {
 				// The inner `Some(key)` is just a usize so I wish
 				// Rust would just `Copy` it and move on but... whatever.
 //				if let Some(key) = state.queue.get(new_index) {
-				if state.queue.len() >= new_index {
+				let len = state.queue.len();
+				if len >= new_index {
+					let key = state.queue[new_index];
+					self.set(key, &mut state);
+					state.song      = Some(key);
+					state.queue_idx = Some(new_index);
+				} else {
+					trace!("Audio - skip({new_index}) > {len}, calling state.finish()");
+					state.finish();
+					self.state.finish();
+					self.current = None;
+				}
+
+				gui_request_update();
+			}
+		}
+	}
+
+	fn back(&mut self, num: usize) {
+		trace!("Audio - back({num})");
+
+		// Lock state.
+		let mut state = AUDIO_STATE.write();
+
+		if !state.queue.is_empty() {
+			// FIXME:
+			// Same as `skip()`.
+			if let Some(index) = state.queue_idx {
+				// Back input was greater than our current index,
+				// play the first song in our queue.
+				if index < num {
+					let key = state.queue[0];
+					self.set(key, &mut state);
+					state.song      = Some(key);
+					state.queue_idx = Some(0);
+				} else {
+					let new_index = index - num;
 					let key = state.queue[new_index];
 					self.set(key, &mut state);
 					state.song      = Some(key);
 					state.queue_idx = Some(new_index);
 				}
+
+				gui_request_update();
 			}
 		}
 	}
 
-	fn seek(&mut self, seek: usize) {
+	fn seek(
+		&mut self,
+		seek: usize,
+		state: &mut std::sync::RwLockWriteGuard<'_, AudioState>,
+	) {
 		trace!("Audio - seek({seek})");
-		self.seek = Some(symphonia::core::units::Time {
-			seconds: seek as u64,
-			frac: 0.0
-		});
+
+		if self.state.playing {
+			let runtime = state.runtime.usize();
+
+			if seek > runtime {
+				debug!("Audio - seek: {seek} > {runtime}, calling .next()");
+				self.next(state);
+			} else {
+				self.seek = Some(symphonia::core::units::Time {
+					seconds: seek as u64,
+					frac: 0.0
+				});
+			}
+		}
+
+		gui_request_update();
 	}
 
 	//-------------------------------------------------- Audio settings.
@@ -769,7 +828,7 @@ impl Audio {
 		let elapsed = self.state.elapsed.usize();
 		if elapsed > 0 {
 			debug!("Audio - Restore ... seeking {}/{}", self.state.elapsed, self.state.runtime);
-			self.seek(elapsed);
+			self.seek(elapsed, &mut state);
 		} else {
 			debug!("Audio - Restore ... skipping seek");
 		}

@@ -6,7 +6,7 @@ use benri::{
 	log::*,
 	sync::*,
 };
-use disk::Empty;
+use disk::{Empty, Plain};
 //use std::{};
 //use std::sync::{Arc,Mutex,RwLock};
 use crate::constants::FESTIVAL;
@@ -95,6 +95,12 @@ impl Watch {
 		if let Err(e) = RepeatSong::rm()    { error!("Watch - RepeatSong: {}", e); }
 		if let Err(e) = RepeatQueue::rm()   { error!("Watch - RepeatQueue: {}", e); }
 		if let Err(e) = RepeatOff::rm()     { error!("Watch - RepeatOff: {}", e); }
+
+		// Content files.
+		if let Err(e) = Volume::rm() { error!("Watch - Volume: {}", e); }
+		if let Err(e) = Seek::rm()   { error!("Watch - Seek: {}", e); }
+		if let Err(e) = Skip::rm()   { error!("Watch - Skip: {}", e); }
+		if let Err(e) = Back::rm()   { error!("Watch - Back: {}", e); }
 	}
 
 	fn main(self) {
@@ -149,6 +155,12 @@ impl Watch {
 			if RepeatSong::exists().is_ok()  { send!(self.to_kernel, WatchToKernel::RepeatSong); }
 			if RepeatQueue::exists().is_ok() { send!(self.to_kernel, WatchToKernel::RepeatQueue); }
 			if RepeatOff::exists().is_ok()   { send!(self.to_kernel, WatchToKernel::RepeatOff); }
+
+			// Content signals.
+			if let Ok(v) = Volume::from_file() { send!(self.to_kernel, WatchToKernel::Volume(v.0)); }
+			if let Ok(s) = Skip::from_file()   { send!(self.to_kernel, WatchToKernel::Skip(s.0)); }
+			if let Ok(s) = Seek::from_file()   { send!(self.to_kernel, WatchToKernel::Seek(s.0)); }
+			if let Ok(s) = Back::from_file()   { send!(self.to_kernel, WatchToKernel::Back(s.0)); }
 
 			// Clean folder.
 			Self::clean();

@@ -1,3 +1,5 @@
+use crate::audio::Volume;
+
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
 pub(crate) enum WatchToKernel {
 	// Signals.
@@ -16,6 +18,12 @@ pub(crate) enum WatchToKernel {
 	RepeatSong,
 	RepeatQueue,
 	RepeatOff,
+
+	// Content signals.
+	Volume(Volume),
+	Seek(usize),
+	Skip(usize),
+	Back(usize),
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

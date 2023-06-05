@@ -47,11 +47,6 @@ pub enum FrontendToKernel {
 	Repeat(Repeat),
 	/// Change the audio volume.
 	Volume(Volume),
-	/// Seek to this second in current song.
-	///
-	/// This will end the song if the [`usize`] is
-	/// greater than the total runtime of the [`Song`].
-	Seek(usize),
 
 	// Queue.
 	/// - [`SongKey`]: add this `Song` to the queue.
@@ -76,12 +71,23 @@ pub enum FrontendToKernel {
 	///
 	/// If the offset is out of bounds, we will start at the first `Song`.
 	AddQueueArtist((ArtistKey, Append, bool, usize)),
+	/// Seek to this second in current song.
+	///
+	/// This will end the song if the [`usize`] is
+	/// greater than the total runtime of the [`Song`].
+	Seek(usize),
 	/// Skip `usize` amount of `Song`'s.
 	///
 	/// This doesn't delete the skipped song from the queue, it just skips playback.
 	///
 	/// If the `usize` is larger than the current `Queue` size, we finish playback.
 	Skip(usize),
+	/// Same as `Skip` but backwards.
+	///
+	/// This doesn't delete the skipped song from the queue, it just skips playback.
+	///
+	/// If the `usize` goes further back than the `Queue` size, we play the first index.
+	Back(usize),
 
 	// Queue Index.
 	/// - [`usize`]: set the current `Song` to the `n`'th index [`Song`]

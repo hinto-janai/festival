@@ -91,6 +91,10 @@ impl std::ops::Sub for Volume {
 	}
 }
 
+//impl std::str::FromStr for Volume {
+//	type Err;
+//}
+
 //---------------------------------------------------------------------------------------------------- Volume new.
 macro_rules! impl_new {
     ( $num:tt ) => {

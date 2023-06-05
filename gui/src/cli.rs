@@ -53,13 +53,30 @@ pub struct Cli {
 	#[arg(long)]
 	repeat_off: bool,
 
-	/// Set filter level for console logs
-	#[arg(long, value_name = "OFF|ERROR|INFO|WARN|DEBUG|TRACE")]
-	log_level: Option<log::LevelFilter>,
+	/// Set the volume to `VOLUME` (0..=100)
+	#[arg(long)]
+	#[arg(value_parser = clap::value_parser!(u8).range(0..=100))]
+	volume: Option<u8>,
+
+	/// Seek to the `SEEK` second in the current song
+	#[arg(long)]
+	seek: Option<usize>,
+
+	/// Skip `SKIP` amount of songs
+	#[arg(long)]
+	skip: Option<usize>,
+
+	/// Skip `SKIP` amount of songs, backwards
+	#[arg(long)]
+	back: Option<usize>,
 
 	/// Print JSON metadata about the current `Collection` on disk
 	#[arg(long)]
 	metadata: bool,
+
+	/// Set filter level for console logs
+	#[arg(long, value_name = "OFF|ERROR|INFO|WARN|DEBUG|TRACE")]
+	log_level: Option<log::LevelFilter>,
 
 	/// Print version
 	#[arg(short, long)]
@@ -74,6 +91,20 @@ impl Cli {
 
 		let cli = Self::parse();
 
+		// Version.
+		if cli.version {
+			println!("Festival {} {}\n{}", FESTIVAL_VERSION, COMMIT, COPYRIGHT);
+			exit(0);
+		}
+
+		// Metadata.
+		if cli.metadata {
+			match shukusai::collection::metadata() {
+				Ok(md) => { println!("{md}"); exit(0); },
+				Err(e) => { println!("ERROR: {e}"); exit(1); },
+			}
+		}
+
 		// Signals.
 		if cli.toggle         { if let Err(e) = Toggle::touch()        { error!("Failed: {e}"); exit(1); } else { exit(0); } }
 		if cli.pause          { if let Err(e) = Pause::touch()         { error!("Failed: {e}"); exit(1); } else { exit(0); } }
@@ -87,18 +118,21 @@ impl Cli {
 		if cli.repeat_queue   { if let Err(e) = RepeatQueue::touch()   { error!("Failed: {e}"); exit(1); } else { exit(0); } }
 		if cli.repeat_off     { if let Err(e) = RepeatOff::touch()     { error!("Failed: {e}"); exit(1); } else { exit(0); } }
 
-		// Version.
-		if cli.version {
-			println!("Festival {} {}\n{}", FESTIVAL_VERSION, COMMIT, COPYRIGHT);
-			exit(0);
-		}
-
-		// Metadata.
-		if cli.metadata {
-			match shukusai::collection::metadata() {
-				Ok(md) => { println!("{md}"); exit(0); },
-				Err(e) => { println!("ERROR: {e}"); exit(1); },
-			}
+		// Content signals.
+		use disk::Plain;
+		if let Some(volume) = cli.volume {
+			let volume = shukusai::kernel::Volume::new(volume);
+			let signal = shukusai::signal::Volume(volume);
+			if let Err(e) = signal.save() { error!("Failed: {e}"); exit(1); } else { exit(0); }
+		} else if let Some(seek) = cli.seek {
+			let signal = shukusai::signal::Seek(seek);
+			if let Err(e) = signal.save() { error!("Failed: {e}"); exit(1); } else { exit(0); }
+		} else if let Some(skip) = cli.skip {
+			let signal = shukusai::signal::Skip(skip);
+			if let Err(e) = signal.save() { error!("Failed: {e}"); exit(1); } else { exit(0); }
+		} else if let Some(back) = cli.back {
+			let signal = shukusai::signal::Back(back);
+			if let Err(e) = signal.save() { error!("Failed: {e}"); exit(1); } else { exit(0); }
 		}
 
 		// Logger.

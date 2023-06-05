@@ -1459,8 +1459,8 @@ dependencies = [
 
 [[package]]
 name = "disk"
-version = "0.1.14"
-source = "git+https://github.com/hinto-janai/disk#2856b13b5c3ecd405bb030e8a7f34257b0844b50"
+version = "0.1.15"
+source = "git+https://github.com/hinto-janai/disk#a46ee098c855d258971ef3d21ac9491a70b09d4d"
 dependencies = [
  "anyhow",
  "bincode",

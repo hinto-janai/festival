@@ -112,6 +112,7 @@ impl eframe::App for Gui {
 		// Acquire a local copy of the `AUDIO_STATE`.
 		AUDIO_STATE.read().if_copy(&mut self.audio_state);
 		if secs_f32!(self.audio_leeway) > 0.05 {
+			self.state.volume = self.audio_state.volume.inner();
 			self.audio_seek = self.audio_state.elapsed.usize();
 		}
 
@@ -146,15 +147,15 @@ impl Gui {
 					},
 					DeviceError(err) => {
 						warn!("GUI - Audio device error: {err}");
-						crate::toast_err!(self, format!("Audio device error: {err}"));
+						crate::toast_err!(self, format!("{err}"));
 					},
 					PlayError(err) => {
 						warn!("GUI - Playback error: {err}");
-						crate::toast_err!(self, format!("Playback error: {err}"));
+						crate::toast_err!(self, format!("{err}"));
 					},
 					SeekError(err) => {
 						warn!("GUI - Seek error: {err}");
-						crate::toast_err!(self, format!("Seek error: {err}"));
+						crate::toast_err!(self, format!("{err}"));
 					},
 					PathError((key, err)) => {
 						let song = &self.collection.songs[key];
@@ -163,7 +164,8 @@ impl Gui {
 					},
 
 					// These should never be received here.
-					DropCollection | Exit(_) => debug_panic!("gui recv() wrong msg"),
+					DropCollection => debug_panic!("incorrect gui recv(): `DropCollection`"),
+					Exit(_)        => debug_panic!("incorrect gui recv(): `Exit`"),
 				}
 			}
 		}
@@ -626,6 +628,7 @@ fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f
 
 				// Only send signal if the slider was dragged + released.
 				if resp.drag_released() {
+					self.audio_leeway = now!();
 					let v = Volume::new(self.state.volume);
 					send!(self.to_kernel, FrontendToKernel::Volume(v));
 				// If scrolled up/down, send signal.

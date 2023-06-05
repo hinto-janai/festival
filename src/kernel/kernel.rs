@@ -429,6 +429,7 @@ impl Kernel {
 			AddQueueAlbum(tuple)    => send!(self.to_audio, KernelToAudio::AddQueueAlbum(tuple)),
 			AddQueueArtist(tuple)   => send!(self.to_audio, KernelToAudio::AddQueueArtist(tuple)),
 			Skip(num)               => send!(self.to_audio, KernelToAudio::Skip(num)),
+			Back(num)               => send!(self.to_audio, KernelToAudio::Back(num)),
 
 		    // Queue Index.
 			SetQueueIndex(q_key)    => send!(self.to_audio, KernelToAudio::SetQueueIndex(q_key)),
@@ -484,6 +485,12 @@ impl Kernel {
 			RepeatSong    => send!(self.to_audio, KernelToAudio::Repeat(Repeat::Song)),
 			RepeatQueue   => send!(self.to_audio, KernelToAudio::Repeat(Repeat::Queue)),
 			RepeatOff     => send!(self.to_audio, KernelToAudio::Repeat(Repeat::Off)),
+
+			// Content signals.
+			Volume(v) => send!(self.to_audio, KernelToAudio::Volume(v)),
+			Seek(s)   => send!(self.to_audio, KernelToAudio::Seek(s)),
+			Skip(s)   => send!(self.to_audio, KernelToAudio::Skip(s)),
+			Back(s)   => send!(self.to_audio, KernelToAudio::Back(s)),
 		}
 	}
 
