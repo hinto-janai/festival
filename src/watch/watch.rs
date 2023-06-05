@@ -11,7 +11,7 @@ use disk::{Empty, Plain};
 //use std::sync::{Arc,Mutex,RwLock};
 use crate::constants::FESTIVAL;
 use crossbeam::channel::{
-	Sender,
+	Sender,Receiver,
 };
 use super::msg::WatchToKernel;
 use notify::{
@@ -30,7 +30,7 @@ pub(crate) struct Watch {
 	// Channel to `Kernel`.
 	to_kernel: Sender<WatchToKernel>,
 	// Channel from `notify`.
-	from_notify: std::sync::mpsc::Receiver<Result<Event, notify::Error>>,
+	from_notify: Receiver<Result<Event, notify::Error>>,
 }
 
 impl Watch {
@@ -51,7 +51,7 @@ impl Watch {
 		};
 
 		// Set up watcher.
-		let (tx, from_notify) = std::sync::mpsc::channel();
+		let (tx, from_notify) = crossbeam::channel::unbounded();
 		let mut watcher = match RecommendedWatcher::new(tx, Config::default()) {
 			Ok(w) => w,
 			Err(e) => {
