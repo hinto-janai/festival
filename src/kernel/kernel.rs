@@ -480,6 +480,7 @@ impl Kernel {
 			Pause         => send!(self.to_audio, KernelToAudio::Pause),
 			Next          => send!(self.to_audio, KernelToAudio::Next),
 			Previous      => send!(self.to_audio, KernelToAudio::Previous),
+			Stop          => send!(self.to_audio, KernelToAudio::Clear(false)),
 			ShuffleOn     => send!(self.to_audio, KernelToAudio::Shuffle(Shuffle::On)),
 			ShuffleOff    => send!(self.to_audio, KernelToAudio::Shuffle(Shuffle::Off)),
 			ShuffleToggle => send!(self.to_audio, KernelToAudio::Shuffle(Shuffle::Toggle)),

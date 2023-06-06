@@ -8,6 +8,7 @@ pub(crate) enum WatchToKernel {
 	Pause,    // Pause playback (ignored if already).
 	Next,     // Skip to next song in queue.
 	Previous, // Skip to previous song in queue.
+	Stop,     // Clear queue and stop playback.
 
 	// Shuffle.
 	ShuffleOn,

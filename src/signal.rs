@@ -64,6 +64,7 @@ impl_signal_empty! {
 	Pause,         "pause",
 	Play,          "play",
 	Next,          "next",
+	Stop,          "stop",
 	Previous,      "previous",
 	ShuffleOn,     "shuffle_on",
 	ShuffleOff,    "shuffle_off",

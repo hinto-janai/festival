@@ -58,20 +58,6 @@ CentralPanel::default().show(ctx, |ui| {
 	let s      = 35.0; // Spinner.
 
 	ui.horizontal(|ui| {
-		// If searching, show spinner.
-		// 2022-05-18:
-		// The search is so fast it actually
-		// looks kinda buggy. So, maybe don't.
-//		if self.searching {
-//			ui.add_sized([s, s], Spinner::new().size(s));
-//		} else if self.state.search_string.len() >= SEARCH_MAX_LEN {
-//			ui.add_sized([s, s], Label::new(RichText::new("❌").color(RED))).on_hover_text(SEARCH_MAX);
-//		} else if !self.state.search_result.is_empty() {
-//			ui.add_sized([s, s], Label::new(RichText::new("✔").color(GREEN)));
-//		} else {
-//			ui.add_sized([s, s], Label::new(RichText::new("➖").color(WHITE)));
-//		}
-
 		// Search bar.
 		let width = ui.available_width();
 		let id = egui::Id::new("Search TextEdit");

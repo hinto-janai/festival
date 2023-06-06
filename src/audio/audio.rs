@@ -328,7 +328,10 @@ impl Audio {
 			AddQueueSong((s_key, append, clear))           => self.add_queue_song(s_key, append, clear),
 			AddQueueAlbum((al_key, append, clear, offset)) => self.add_queue_album(al_key, append, clear, offset),
 //			AddQueueArtist((ar_key, clear))   => self.add_queue_artist(ar_key, clear,   Append::Back),
-			Clear(play) => self.clear(play, &mut AUDIO_STATE.write()),
+			Clear(play) => {
+				self.clear(play, &mut AUDIO_STATE.write());
+				gui_request_update();
+			},
 			Seek(f)     => self.seek(f, &mut AUDIO_STATE.write()),
 			Skip(num)   => self.skip(num),
 			Back(num)   => self.back(num),

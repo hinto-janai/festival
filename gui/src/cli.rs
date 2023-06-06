@@ -29,6 +29,10 @@ pub struct Cli {
 	#[arg(long)]
 	previous: bool,
 
+	/// Clear queue and stop playback
+	#[arg(long)]
+	stop: bool,
+
 	/// Turn on track shuffle
 	#[arg(long)]
 	shuffle_on: bool,
@@ -111,6 +115,7 @@ impl Cli {
 		if cli.play           { if let Err(e) = Play::touch()          { error!("Failed: {e}"); exit(1); } else { exit(0); } }
 		if cli.next           { if let Err(e) = Next::touch()          { error!("Failed: {e}"); exit(1); } else { exit(0); } }
 		if cli.previous       { if let Err(e) = Previous::touch()      { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if cli.stop           { if let Err(e) = Stop::touch()          { error!("Failed: {e}"); exit(1); } else { exit(0); } }
 		if cli.shuffle_on     { if let Err(e) = ShuffleOn::touch()     { error!("Failed: {e}"); exit(1); } else { exit(0); } }
 		if cli.shuffle_off    { if let Err(e) = ShuffleOff::touch()    { error!("Failed: {e}"); exit(1); } else { exit(0); } }
 		if cli.shuffle_toggle { if let Err(e) = ShuffleToggle::touch() { error!("Failed: {e}"); exit(1); } else { exit(0); } }

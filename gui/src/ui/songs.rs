@@ -239,8 +239,6 @@ pub fn show_tab_songs(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 								None => warn!("GUI - Could not get parent path: {}", song.path.display()),
 							}
 						}
-
-						ui.label(&*song.path.to_string_lossy());
 					});
 				});
 			}

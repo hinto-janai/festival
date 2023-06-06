@@ -89,6 +89,7 @@ impl Watch {
 		if let Err(e) = Play::rm()          { error!("Watch - Play: {}", e); }
 		if let Err(e) = Next::rm()          { error!("Watch - Next: {}", e); }
 		if let Err(e) = Previous::rm()      { error!("Watch - Previous: {}", e); }
+		if let Err(e) = Stop::rm()          { error!("Watch - Stop: {}", e); }
 		if let Err(e) = ShuffleOn::rm()     { error!("Watch - ShuffleOn: {}", e); }
 		if let Err(e) = ShuffleOff::rm()    { error!("Watch - ShuffleOff: {}", e); }
 		if let Err(e) = ShuffleToggle::rm() { error!("Watch - ShuffleToggle: {}", e); }
@@ -122,11 +123,12 @@ impl Watch {
 				send!(self.to_kernel, WatchToKernel::Toggle);
 			}
 
-			// Pause/Play.
+			// Stop/Pause/Play.
 			//
-			// `Pause` will always take priority
-			// if both `Pause` and `Play` files exist.
-			if Pause::exists().is_ok() {
+			// Priority is `Stop` > `Pause` > `Play`.
+			if Stop::exists().is_ok() {
+				send!(self.to_kernel, WatchToKernel::Stop);
+			} else if Pause::exists().is_ok() {
 				send!(self.to_kernel, WatchToKernel::Pause);
 			} else if Play::exists().is_ok() {
 				send!(self.to_kernel, WatchToKernel::Play);
