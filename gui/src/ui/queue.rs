@@ -4,6 +4,7 @@ use crate::constants::{
 	QUEUE_ALBUM_ART_SIZE,
 };
 use crate::text::{
+	UI_QUEUE_CLEAR,UI_QUEUE_SHUFFLE,
 	QUEUE_CLEAR,QUEUE_SHUFFLE,
 };
 use shukusai::collection::{
@@ -36,20 +37,35 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 		// Sizing.
 		let width  = ui.available_width();
 		let height = ui.available_height();
-		const REMOVE_SONG_SIZE: f32 = 35.0;
-		const REMOVE_SIZE:      f32 = REMOVE_SONG_SIZE * 2.0;
+		const SIZE:  f32 = 35.0;
+		const SIZE2: f32 = SIZE * 2.0;
 
 		ui.horizontal(|ui| {
-			let width = (width / 2.0) - 8.0;
+			let width = (width / 4.0) - 10.0;
 
-			if ui.add_sized([width, REMOVE_SIZE], Button::new(QUEUE_CLEAR)).clicked() {
+			let button = Button::new(RichText::new(UI_QUEUE_CLEAR).size(SIZE));
+			if ui.add_sized([width, SIZE2], button).on_hover_text(QUEUE_CLEAR).clicked() {
 				crate::clear_stop!(self);
 			}
-			if ui.add_sized([width, REMOVE_SIZE], Button::new(QUEUE_SHUFFLE)).clicked() {
+			let button = Button::new(RichText::new(UI_QUEUE_SHUFFLE).size(SIZE));
+			if ui.add_sized([width, SIZE2], button).on_hover_text(QUEUE_SHUFFLE).clicked() {
 				send!(self.to_kernel, FrontendToKernel::Shuffle);
+			}
+
+			let len = self.audio_state.queue.len();
+			if len != 0 {
+				let index = self.audio_state.queue_idx.unwrap_or(0) + 1;
+				let text = Label::new(
+					RichText::new(format!("[{index}/{len}]"))
+						.color(BONE)
+						.text_style(TextStyle::Name("30".into()))
+				);
+				ui.add_sized([width * 2.0, SIZE2], text);
 			}
 		});
 
+		ui.add_space(5.0);
+		ui.separator();
 		ui.add_space(10.0);
 
 		let mut current_artist = None;
@@ -75,16 +91,16 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 				);
 				ui.horizontal(|ui| {
 					// Remove button.
-					let button = Button::new(RichText::new("-").size(REMOVE_SONG_SIZE));
-					if ui.add_sized([REMOVE_SIZE, REMOVE_SIZE], button).clicked() {
-						// HACK:
+					let button = Button::new(RichText::new("-").size(SIZE));
+					if ui.add_sized([SIZE, SIZE], button).clicked() {
+						// FIXME:
 						// Iterate until we find a `Song` that doesn't
 						// belong to the same `Album`.
 						//
-						// This could end bad if we have a long queue,
-						// and considering this is in the `GUI` update
+						// This could end bad if there's an `Album` with _many_ `Song`'s.
+						// Considering this is in the `GUI` update
 						// loop, even worse... buuuuut who is going to
-						// have a queue with 1000s of elements... right?
+						// have an `Album` with 10,000s of `Song`'s... right?
 						let mut end = index;
 						let mut hit = false;
 						let len = self.audio_state.queue.len();
@@ -156,12 +172,12 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 			//-------------------------------------------------- Song.
 			ui.horizontal(|ui| {
 				// Remove button.
-				if ui.add_sized([REMOVE_SONG_SIZE, REMOVE_SONG_SIZE,], Button::new("-")).clicked() {
+				if ui.add_sized([SIZE, SIZE,], Button::new("-")).clicked() {
 					crate::remove_queue_range!(self, index..index+1);
 				}
 
 				let mut rect = ui.cursor();
-				rect.max.y = rect.min.y + REMOVE_SONG_SIZE;
+				rect.max.y = rect.min.y + SIZE;
 				rect.max.x = rect.min.x + ui.available_width();
 
 				// HACK:

@@ -49,8 +49,10 @@ Configure which directories to scan in the [Settings] tab."#;
 pub const OPEN_PARENT_FOLDER: &str = "Open the directory containing this song";
 
 //---------------------------------------------------------------------------------------------------- Queue tab
-pub const QUEUE_CLEAR:   &str = "⏹  Clear queue and stop playback";
-pub const QUEUE_SHUFFLE: &str = "🔀 Shuffle the current queue";
+pub const UI_QUEUE_CLEAR:   &str = "⏹";
+pub const UI_QUEUE_SHUFFLE: &str = "🔀";
+pub const QUEUE_CLEAR:      &str = "Clear queue and stop playback";
+pub const QUEUE_SHUFFLE:    &str = "Shuffle the queue and reset to the first song";
 
 //---------------------------------------------------------------------------------------------------- Settings Tab
 pub const RESET:             &str = "Reset changes (CTRL+Z)";

@@ -391,7 +391,7 @@ impl Audio {
 	// 3. Sets our current state with it
 	//
 	// This does nothing on error.
-	fn set_current(&mut self, reader: Box<dyn FormatReader>, timebase: TimeBase) {
+	fn set_current(&mut self, reader: Box<dyn FormatReader>, timebase: TimeBase) -> Result<(), anyhow::Error> {
 		// Select the first track with a known codec.
 		let track = match reader
 			.tracks()
@@ -399,18 +399,14 @@ impl Audio {
 			.find(|t| t.codec_params.codec != symphonia::core::codecs::CODEC_TYPE_NULL)
 		{
 			Some(t) => t,
-			None => {
-				todo!();
-			},
+			None => bail!("could not find track codec"),
 		};
 
 		// Create a decoder for the track.
 		let decoder_opts = DecoderOptions { verify: false, ..Default::default() };
 		let decoder = match symphonia::default::get_codecs().make(&track.codec_params, &decoder_opts) {
 			Ok(d) => d,
-			Err(e) => {
-				todo!();
-			},
+			Err(e) => bail!(e),
 		};
 
 		self.current = Some(AudioReader {
@@ -419,6 +415,8 @@ impl Audio {
 			timebase,
 			time: Time::new(0, 0.0),
 		});
+
+		Ok(())
 	}
 
 	// Convenience function that combines the above 2 functions.
@@ -432,17 +430,15 @@ impl Audio {
 			// Discard any leftover audio samples.
 			self.output.flush();
 
-			self.set_current(
-				reader,
-				TimeBase::new(1, self.collection.songs[key].sample_rate),
-			);
-
-			// Set song state.
-			state.song    = Some(key);
-			state.elapsed = Runtime::zero();
-			state.runtime = self.collection.songs[key].runtime;
-
-			gui_request_update();
+			if self.set_current(reader, TimeBase::new(1, self.collection.songs[key].sample_rate)).is_ok() {
+				// Set song state.
+				state.song    = Some(key);
+				state.elapsed = Runtime::zero();
+				state.runtime = self.collection.songs[key].runtime;
+				gui_request_update();
+			}
+		} else {
+			self.clear(false, state);
 		}
 	}
 
@@ -944,6 +940,9 @@ impl Audio {
 	fn drop_collection(&mut self) {
 		// Drop pointer.
 		self.collection = Collection::dummy();
+
+		// Clear state.
+		AUDIO_STATE.write().finish();
 
 		// Hang until we get the new one.
 		debug!("Audio - Dropped Collection, waiting...");

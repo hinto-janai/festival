@@ -315,7 +315,7 @@ macro_rules! toast_err {
 		$self.toasts.dismiss_all_toasts();
 		$self.toasts.error($str)
 			.set_closable(true)
-			.set_duration(Some(std::time::Duration::from_secs(5)));
+			.set_duration(Some(std::time::Duration::from_secs(10)));
 	}}
 }
 

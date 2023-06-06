@@ -170,8 +170,8 @@ impl Gui {
 					},
 					PathError((key, err)) => {
 						let song = &self.collection.songs[key];
-						warn!("GUI - Audio file error: {err}, song: {song:#?}");
-						crate::toast_err!(self, format!("Audio file error: {}", song.title));
+						warn!("GUI - Audio file error: {err} | Song: {song:#?}");
+						crate::toast_err!(self, format!("Audio file error: {err} | Song: {}", song.title));
 					},
 
 					// These should never be received here.
