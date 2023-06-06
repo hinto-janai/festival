@@ -119,7 +119,14 @@ impl eframe::App for Gui {
 			self.state.volume  = self.audio_state.volume.inner();
 			self.state.shuffle = self.audio_state.shuffle;
 			self.state.repeat  = self.audio_state.repeat;
-			self.audio_seek = self.audio_state.elapsed.usize();
+			self.audio_seek    = self.audio_state.elapsed.usize();
+		}
+
+		// Set resize leeway.
+		let rect = ctx.available_rect();
+		if self.rect != rect {
+			self.rect = rect;
+			self.resize_leeway = now!();
 		}
 
 		// HACK:
@@ -233,7 +240,7 @@ impl Gui {
 		self.toasts.show(ctx);
 
 		// Check for key presses.
-		if !ctx.wants_keyboard_input() {
+		if !ctx.wants_keyboard_input() && secs_f32!(self.resize_leeway) > 0.5 {
 			ctx.input_mut(|input| {
 				// Last tab.
 				if input.pointer.button_clicked(egui::PointerButton::Extra1) ||  // FIXME:

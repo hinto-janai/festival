@@ -245,6 +245,9 @@ impl crate::data::Gui {
 			audio_seek: 0,
 			audio_leeway: now!(),
 
+			rect: egui::Rect { min: Default::default(), max: Default::default() },
+			resize_leeway: now!(),
+
 			// `egui_notify`
 			toasts: egui_notify::Toasts::new(),
 

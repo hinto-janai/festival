@@ -76,6 +76,16 @@ pub struct Gui {
 	/// so we know we shouldn't overwrite just yet.
 	pub audio_leeway: Instant,
 
+	/// Our max `rect` at the very start of every frame.
+	pub rect: egui::Rect,
+	/// When using CTRL+(LEFT|RIGHT|UP|DOWN) to pin the window
+	/// to a side or minimize/maximize, egui is a little too
+	/// eager and registers the left/right/up/down buttons.
+	///
+	/// Whenever we resize, this `Instant` will be set so that
+	/// we can have a little leeway when registering key presses.
+	pub resize_leeway: Instant,
+
 	/// `egui_notify` state.
 	pub toasts: egui_notify::Toasts,
 
