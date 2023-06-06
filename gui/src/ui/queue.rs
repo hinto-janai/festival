@@ -81,7 +81,7 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 						for key in self.audio_state.queue.range(index..) {
 							if self.collection.songs[key].album != song.album {
 								let end = if end == 0 { 1 } else { end };
-								send!(self.to_kernel, FrontendToKernel::RemoveQueueRange(index..end));
+								crate::remove_queue_range!(self, index..end);
 								hit = true;
 								break;
 							}
@@ -90,7 +90,7 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 
 						if !hit {
 							let end = if end == 0 { 1 }  else { end };
-							send!(self.to_kernel, FrontendToKernel::RemoveQueueRange(index..end));
+							crate::remove_queue_range!(self, index..end);
 						}
 					}
 					if ui.add(artist_name.sense(Sense::click())).clicked() {
@@ -149,7 +149,7 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 			ui.horizontal(|ui| {
 				// Remove button.
 				if ui.add_sized([REMOVE_SONG_SIZE, REMOVE_SONG_SIZE,], Button::new("-")).clicked() {
-					send!(self.to_kernel, FrontendToKernel::RemoveQueueRange(index..index+1));
+					crate::remove_queue_range!(self, index..index+1);
 				}
 
 				let mut rect = ui.cursor();

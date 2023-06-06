@@ -79,6 +79,9 @@ pub struct Settings {
 	/// Restore playback on re-open.
 	pub restore_state: bool,
 
+	/// Start playback if we added stuff to an empty queue.
+	pub empty_autoplay: bool,
+
 	#[bincode(with_serde)]
 	/// Our accent color.
 	pub accent_color: egui::Color32,
@@ -102,6 +105,7 @@ impl Settings {
 			collection_paths: vec![],
 			album_pixel_size: ALBUM_ART_SIZE_DEFAULT,
 			albums_per_row: ALBUMS_PER_ROW_DEFAULT,
+			empty_autoplay: true,
 			..Default::default()
 		}
 	}

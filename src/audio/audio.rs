@@ -337,8 +337,8 @@ impl Audio {
 			Back(num)   => self.back(num),
 //
 //			// Queue Index.
-			SetQueueIndex(idx)      => self.set_queue_index(idx),
-			RemoveQueueRange(range) => self.remove_queue_range(range),
+			SetQueueIndex(idx)              => self.set_queue_index(idx),
+			RemoveQueueRange((range, next)) => self.remove_queue_range(range, next),
 //
 //			// Audio State.
 			RestoreAudioState => self.restore_audio_state(),
@@ -805,17 +805,28 @@ impl Audio {
 	fn remove_queue_range(
 		&mut self,
 		range: std::ops::Range<usize>,
-//		next: bool,
+		next: bool,
 	) {
+		let start = range.start;
+		let end   = range.end;
+		if start >= end {
+			debug_panic!("Audio - remove_queue_range({start} >= {end}");
+		}
+
 		let mut state = AUDIO_STATE.write();
 
-		let len = state.queue.len();
+		let len      = state.queue.len();
+		let contains = if let Some(i) = state.queue_idx {
+			range.contains(&i)
+		} else {
+			false
+		};
 
 		// Prevent bad start/end panicking.
-		if range.start >= len {
+		if start >= len {
 			warn!("Audio - start is invalid, skipping remove_queue_range({range:?})");
 			return;
-		} else if range.end > len {
+		} else if end > len {
 			warn!("Audio - end is invalid, skipping remove_queue_range({range:?})");
 			return;
 		}
@@ -823,23 +834,48 @@ impl Audio {
 		trace!("Audio - remove_queue_range({range:?})");
 		state.queue.drain(range);
 
-		// TODO
-//		// Skip to next song if we removed the current one.
-//		if let Some(index) = state.song {
-//			if range.contains(index) {
-//				let len = state.queue.len();
-//
-//				if len == 0 {
-//					return;
-//				}
-//
-//				// Fallback to the previous if we removed the ahead.
-//				if index < len {
-//					self.set(state.queue[len - 1], &mut state);
-//				} else {
-//				}
-//			}
-//		}
+		// If the current index is greater than the end, e.g:
+		//
+		// [0]
+		// [1] <- start
+		// [2]
+		// [3] <- end
+		// [4]
+		// [5] <- current queue_idx
+		// [6]
+		//
+		// We should subtract the queue_idx so it lines up
+		// correctly. In the above case we are taking out 3 elements,
+		// so the current queue_idx should go from 5 to (5 - 3), so element 2:
+		//
+		// [0]
+		// [1] (used to be [4])
+		// [2] <- new queue_idx
+		// [3] (used to be [6])
+		//
+		// If the start is 0 and our index got wiped, we should reset to 0.
+		if let Some(index) = state.queue_idx {
+			if start == 0 && contains && len > end {
+				let new = 0;
+				state.queue_idx = Some(0);
+				trace!("Audio - remove_queue_range({start}..{end}), beginning index: 0");
+				if next {
+					self.set(state.queue[0], &mut state);
+				}
+			} else if index >= end {
+				let new = end - start;
+				state.queue_idx = Some(index - new);
+				trace!("Audio - remove_queue_range({start}..{end}), new index: {new}");
+			// Skip to next song if we removed the current one.
+			} else if next && contains {
+				if len > end {
+					let new = start + 1;
+					state.queue_idx = Some(new);
+					trace!("Audio - remove_queue_range({start}..{end}), next index: {new}");
+				}
+				self.next(&mut state);
+			}
+		}
 
 		gui_request_update();
 	}

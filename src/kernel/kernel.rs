@@ -434,7 +434,7 @@ impl Kernel {
 
 		    // Queue Index.
 			SetQueueIndex(q_key)    => send!(self.to_audio, KernelToAudio::SetQueueIndex(q_key)),
-		    RemoveQueueRange(range) => send!(self.to_audio, KernelToAudio::RemoveQueueRange(range)),
+		    RemoveQueueRange(tuple) => send!(self.to_audio, KernelToAudio::RemoveQueueRange(tuple)),
 
 			// Audio State.
 			RestoreAudioState => send!(self.to_audio, KernelToAudio::RestoreAudioState),

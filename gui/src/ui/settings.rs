@@ -331,6 +331,28 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 		ui.separator();
 		ui.add_space(40.0);
 
+		//-------------------------------------------------- Empty playback.
+		// Heading.
+		let label = Label::new(
+			RichText::new("Empty Queue Auto-Play")
+			.color(BONE)
+			.text_style(TextStyle::Heading)
+		);
+		ui.add_sized([width, text], label).on_hover_text(EMPTY_AUTOPLAY);
+
+		// SelectableLabel.
+		ui.add_space(10.0);
+		ui.group(|ui| { ui.horizontal(|ui| {
+			let width = (width / 2.0) - 25.0;
+			if ui.add_sized([width, text], SelectableLabel::new(self.settings.empty_autoplay,  "Yes")).clicked() { flip!(self.settings.empty_autoplay); }
+			ui.separator();
+			if ui.add_sized([width, text], SelectableLabel::new(!self.settings.empty_autoplay, "No")).clicked()  { flip!(self.settings.empty_autoplay); }
+		})});
+
+		ui.add_space(40.0);
+		ui.separator();
+		ui.add_space(40.0);
+
 		//-------------------------------------------------- Restore state.
 		// Heading.
 		let label = Label::new(

@@ -80,6 +80,7 @@ pub const RESET_COLLECTION:  &str =
 r#"Scan the folders listed and create a new Collection (CTRL+R).
 
 If no directories are listed, the default Music directory is scanned."#;
+pub const EMPTY_AUTOPLAY:    &str = "Start playing automatically if songs are added to an empty queue";
 pub const STATS:             &str = "Stats about your current Collection";
 
 pub const HELP: &str =

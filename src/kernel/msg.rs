@@ -100,8 +100,11 @@ pub enum FrontendToKernel {
 	SetQueueIndex(usize),
 	/// Remove a range of queue indices.
 	///
+	/// - [`bool`]: should we skip to the next song if the range includes the current one?
+	/// `false` will leave playback as is, even if the current song is wiped from the queue.
+	///
 	/// This will do nothing if the start or end is out of bounds.
-	RemoveQueueRange(std::ops::Range<usize>),
+	RemoveQueueRange((std::ops::Range<usize>, bool)),
 
 	// Audio State.
 	/// We just started up, restore the previous audio

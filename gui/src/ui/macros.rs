@@ -71,7 +71,7 @@ macro_rules! play_song {
 /// This indicates:
 /// - Queue should be not be cleared
 /// - `Song` clicked should be added to the back of the queue
-/// - `Play` signal is sent
+/// - `Play` signal is sent if queue is empty (and empty_autoplay is true)
 /// - A toast should pop up showing we added the song to the queue
 macro_rules! add_song {
 	($self:ident, $song_title:expr, $key:expr) => {
@@ -79,7 +79,9 @@ macro_rules! add_song {
 			$self.to_kernel,
 			shukusai::kernel::FrontendToKernel::AddQueueSong(($key, shukusai::kernel::Append::Back, false))
 		);
-		::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
+		if $self.settings.empty_autoplay && $self.audio_state.queue.is_empty() {
+			::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
+		}
 		$crate::toast!($self, format!("Added [{}] to queue", $song_title));
 	}
 }
@@ -139,6 +141,20 @@ macro_rules! play_queue_index {
 			shukusai::kernel::FrontendToKernel::SetQueueIndex($index)
 		);
 		::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
+	}
+}
+
+#[macro_export]
+/// Remove an index range from the `Queue`.
+///
+/// This indicates:
+/// - If our current `Song` gets removed, skip to the next available one
+macro_rules! remove_queue_range {
+	($self:ident, $range:expr) => {
+		::benri::send!(
+			$self.to_kernel,
+			shukusai::kernel::FrontendToKernel::RemoveQueueRange(($range, true))
+		);
 	}
 }
 
@@ -210,7 +226,9 @@ macro_rules! album_button {
 				$self.to_kernel,
 				shukusai::kernel::FrontendToKernel::AddQueueAlbum(($key, shukusai::kernel::Append::Back, false, 0))
 			);
-			::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
+			if $self.settings.empty_autoplay && $self.audio_state.queue.is_empty() {
+				::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
+			}
 			$crate::toast!($self, format!("Added [{}] to queue", $album.title));
 		} else if resp.middle_clicked() {
 			$crate::open!($self, $album);
