@@ -95,9 +95,7 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame
 			);
 
 			ui.horizontal(|ui| {
-				if ui.add(label_name.sense(Sense::click())).clicked() {
-					crate::artist!(self, key);
-				}
+				crate::artist_label!(self, artist, *key, ui, label_name);
 				ui.add_space(20.0);
 				ui.add(label_count);
 				ui.add_space(20.0);

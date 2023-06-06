@@ -150,8 +150,13 @@ fn paint_albums(
 								// Artist name.
 								let artist = &self.collection.artist_from_album(key);
 								let artist_name = Label::new(artist.name.head_dot(label_width).as_str()).sense(Sense::click());
-								if ui.add_sized([pixel, 0.0], artist_name).on_hover_text(&artist.name).clicked() {
+								// We don't use `crate::artist_label!()` here
+								// because we need a custom `ui.add_sized()`
+								let resp = ui.add_sized([pixel, 0.0], artist_name).on_hover_text(&artist.name);
+								if resp.clicked() {
 									crate::artist!(self, album.artist);
+								} else if resp.secondary_clicked() {
+									crate::add_artist!(self, artist, album.artist);
 								}
 
 								ui.add_space(padding);

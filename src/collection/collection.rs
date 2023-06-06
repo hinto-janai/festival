@@ -528,6 +528,16 @@ impl Collection {
 		&self.albums[self.songs[key.into()].album].songs
 	}
 
+	/// Get all the [`SongKey`]'s belonging to this [`ArtistKey`].
+	#[inline]
+	pub fn all_songs<K: Into<ArtistKey>>(&self, key: K) -> Box<[SongKey]> {
+		self.artists[key.into()].albums
+			.iter()
+			.flat_map(|a| self.albums[a].songs.iter())
+			.map(|s| *s)
+			.collect()
+	}
+
 	/// Get the next [`Album`] belonging to this [`Artist`].
 	///
 	/// This:

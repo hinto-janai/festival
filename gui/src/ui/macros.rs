@@ -86,6 +86,25 @@ macro_rules! add_song {
 	}
 }
 
+#[macro_export]
+/// Append all the `Album`'s of this `Artist` to the end of the queue.
+///
+/// This indicates:
+/// - Queue should be not be cleared
+/// - `Play` signal is sent if queue is empty (and empty_autoplay is true)
+/// - A toast should pop up showing we added the `Artist` to the queue
+macro_rules! add_artist {
+	($self:ident, $artist:expr, $key:expr) => {
+		::benri::send!(
+			$self.to_kernel,
+			shukusai::kernel::FrontendToKernel::AddQueueArtist(($key, shukusai::kernel::Append::Back, false, 0))
+		);
+		if $self.settings.empty_autoplay && $self.audio_state.queue.is_empty() {
+			::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
+		}
+		$crate::toast!($self, format!("Added [{}] to queue", $artist.name));
+	}
+}
 
 #[macro_export]
 /// Send an `Album` to `Kernel` to play.
@@ -234,6 +253,21 @@ macro_rules! album_button {
 			$crate::open!($self, $album);
 		}
 	};
+}
+
+#[macro_export]
+/// Add a clickable `Artist` label that:
+/// - Primary click: sets it to `Artists` tab view
+/// - Secondary click: adds all `Album`'s by that `Artist` to the queue
+macro_rules! artist_label {
+	($self:ident, $artist:expr, $key:expr, $ui:ident, $label:expr) => {
+		let resp = $ui.add($label.sense(Sense::click()));
+		if resp.clicked() {
+			$crate::artist!($self, $key);
+		} else if resp.secondary_clicked() {
+			$crate::add_artist!($self, $artist, $key);
+		}
+	}
 }
 
 #[macro_export]

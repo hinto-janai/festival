@@ -103,9 +103,7 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 							crate::remove_queue_range!(self, index..end);
 						}
 					}
-					if ui.add(artist_name.sense(Sense::click())).clicked() {
-						crate::artist!(self, album.artist);
-					}
+					crate::artist_label!(self, artist, album.artist, ui, artist_name);
 				});
 				current_artist = Some(artist);
 

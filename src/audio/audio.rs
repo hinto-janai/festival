@@ -311,15 +311,15 @@ impl Audio {
 			Pause     => self.pause(),
 			Next      => self.skip(1, &mut AUDIO_STATE.write()),
 			Previous  => self.back(1, &mut AUDIO_STATE.write()),
-//
-//			// Audio settings.
+
+			// Audio settings.
 			Repeat(r)  => self.repeat(r),
 			Volume(v)  => self.volume(v),
-//
-//			// Queue.
-			AddQueueSong((s_key, append, clear))           => self.add_queue_song(s_key, append, clear),
-			AddQueueAlbum((al_key, append, clear, offset)) => self.add_queue_album(al_key, append, clear, offset),
-//			AddQueueArtist((ar_key, clear))   => self.add_queue_artist(ar_key, clear,   Append::Back),
+
+			// Queue.
+			AddQueueSong((s_key,    append, clear))         => self.add_queue_song(s_key, append, clear),
+			AddQueueAlbum((al_key,  append, clear, offset)) => self.add_queue_album(al_key, append, clear, offset),
+			AddQueueArtist((ar_key, append, clear, offset)) => self.add_queue_artist(ar_key, append, clear, offset),
 			Shuffle     => self.shuffle(),
 			Clear(play) => {
 				self.clear(play, &mut AUDIO_STATE.write());
@@ -328,19 +328,17 @@ impl Audio {
 			Seek(f)     => self.seek(f, &mut AUDIO_STATE.write()),
 			Skip(skip)  => self.skip(skip, &mut AUDIO_STATE.write()),
 			Back(back)  => self.back(back, &mut AUDIO_STATE.write()),
-//
-//			// Queue Index.
+
+			// Queue Index.
 			SetQueueIndex(idx)              => self.set_queue_index(idx),
 			RemoveQueueRange((range, next)) => self.remove_queue_range(range, next),
-//
-//			// Audio State.
+
+			// Audio State.
 			RestoreAudioState => self.restore_audio_state(),
 
 			// Collection.
 			DropCollection     => self.drop_collection(),
 			NewCollection(arc) => self.collection = arc,
-
-			_ => todo!(),
 		}
 	}
 
@@ -712,7 +710,7 @@ impl Audio {
 		clear: bool,
 		offset: usize,
 	) {
-		trace!("Audio - add_queue_album({key:?}, {append:?}, {clear:?}, {offset})");
+		trace!("Audio - add_queue_album({key:?}, {append:?}, {clear}, {offset})");
 
 		let mut state = AUDIO_STATE.write();
 
@@ -760,22 +758,61 @@ impl Audio {
 		}
 	}
 
-//	fn add_queue_artist(&mut self, artist: ArtistKey, clear: bool, append: Append) {
-//		trace!("Audio - add_queue_artist({artist:?}) - {append:?}");
-//
-//		let mut state = AUDIO_STATE.write();
-//
-//		if clear {
-//			self.clear_queue_sink(true, &mut state)
-//		}
-//
-//		let (songs, keys) = self.to_source_artist(artist);
-//
-//		if !songs.is_empty() {
-//			self.sink.append_bulk(songs, Some(append));
-//		}
-//	}
-//
+	fn add_queue_artist(
+		&mut self,
+		key: ArtistKey,
+		append: Append,
+		clear: bool,
+		offset: usize,
+	) {
+		trace!("Audio - add_queue_artist({key:?}, {append:?}, {clear}, {offset}");
+
+		let keys: Box<[SongKey]> = self.collection.all_songs(key);
+
+		let mut state = AUDIO_STATE.write();
+
+		if clear {
+			self.clear(clear, &mut state)
+		}
+
+		// Prevent bad offsets panicking.
+		let offset = if offset >= keys.len() {
+			0
+		} else {
+			offset
+		};
+
+		// INVARIANT:
+		// `Collection` only creates `Artist`'s that
+		// have a minimum of 1 `Song`, so this should
+		// never panic.
+		let iter = keys.iter();
+		match append {
+			Append::Back  => {
+				iter.for_each(|k| state.queue.push_back(*k));
+				if self.current.is_none() {
+					state.queue_idx = Some(offset);
+					self.set(keys[offset], &mut state);
+				}
+			},
+			Append::Front => {
+				iter.rev().for_each(|k| state.queue.push_front(*k));
+				state.queue_idx = Some(offset);
+				self.set(keys[offset], &mut state);
+			},
+			Append::Index(mut i) => {
+				iter.for_each(|k| {
+					state.queue.insert(i, *k);
+					i += 1;
+				});
+				if i == 0 {
+					state.queue_idx = Some(0);
+					self.set(keys[offset], &mut state);
+				}
+			}
+		}
+	}
+
 	fn set_queue_index(&mut self, index: usize) {
 		let mut state = AUDIO_STATE.write();
 

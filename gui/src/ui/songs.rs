@@ -209,9 +209,7 @@ pub fn show_tab_songs(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 					});
 
 					row.col(|ui| {
-						if ui.add(Label::new(&artist.name).sense(Sense::click())).clicked() {
-							crate::artist!(self, album.artist);
-						}
+						crate::artist_label!(self, artist, album.artist, ui, Label::new(&artist.name));
 					});
 
 					row.col(|ui| { ui.label(album.release.as_str()); });

@@ -73,10 +73,8 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &
 		ui.add(label);
 
 		// `Artist` name.
-		let artist_name = Label::new(&self.collection.artists[album.artist].name);
-		if ui.add(artist_name.sense(Sense::click())).clicked() {
-			crate::artist!(self, album.artist);
-		}
+		let artist = &self.collection.artists[album.artist];
+		crate::artist_label!(self, artist, album.artist, ui, Label::new(&artist.name));
 
 		// `Album` release.
 		ui.label(album.release.as_str());
