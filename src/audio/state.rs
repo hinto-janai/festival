@@ -18,7 +18,7 @@ use crate::constants::{
 };
 use rolock::RoLock;
 use crate::audio::{
-	Volume,Shuffle,Repeat,
+	Volume,Repeat,
 };
 use readable::Runtime;
 use once_cell::sync::Lazy;
@@ -87,8 +87,6 @@ pub struct AudioState {
 	pub elapsed: Runtime,
 	/// What is the full runtime of the current song?
 	pub runtime: Runtime,
-	/// Shuffle bool.
-	pub shuffle: bool,
 	/// Repeat mode.
 	pub repeat: Repeat,
 }
@@ -105,7 +103,6 @@ impl AudioState {
 			song: None,
 			elapsed: Runtime::zero(),
 			runtime: Runtime::zero(),
-			shuffle: false,
 			repeat: Repeat::new(),
 		}
 	}

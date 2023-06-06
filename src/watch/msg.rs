@@ -11,9 +11,7 @@ pub(crate) enum WatchToKernel {
 	Stop,     // Clear queue and stop playback.
 
 	// Shuffle.
-	ShuffleOn,
-	ShuffleOff,
-	ShuffleToggle,
+	Shuffle,
 
 	// Repeat.
 	RepeatSong,

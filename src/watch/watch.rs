@@ -90,9 +90,7 @@ impl Watch {
 		if let Err(e) = Next::rm()          { error!("Watch - Next: {}", e); }
 		if let Err(e) = Previous::rm()      { error!("Watch - Previous: {}", e); }
 		if let Err(e) = Stop::rm()          { error!("Watch - Stop: {}", e); }
-		if let Err(e) = ShuffleOn::rm()     { error!("Watch - ShuffleOn: {}", e); }
-		if let Err(e) = ShuffleOff::rm()    { error!("Watch - ShuffleOff: {}", e); }
-		if let Err(e) = ShuffleToggle::rm() { error!("Watch - ShuffleToggle: {}", e); }
+		if let Err(e) = Shuffle::rm()       { error!("Watch - Shuffle: {}", e); }
 		if let Err(e) = RepeatSong::rm()    { error!("Watch - RepeatSong: {}", e); }
 		if let Err(e) = RepeatQueue::rm()   { error!("Watch - RepeatQueue: {}", e); }
 		if let Err(e) = RepeatOff::rm()     { error!("Watch - RepeatOff: {}", e); }
@@ -148,12 +146,8 @@ impl Watch {
 				send!(self.to_kernel, WatchToKernel::Previous);
 			}
 
-			// Shuffle.
-			if ShuffleOn::exists().is_ok()     { send!(self.to_kernel, WatchToKernel::ShuffleOn); }
-			if ShuffleOff::exists().is_ok()    { send!(self.to_kernel, WatchToKernel::ShuffleOff); }
-			if ShuffleToggle::exists().is_ok() { send!(self.to_kernel, WatchToKernel::ShuffleToggle); }
-
-			// Repeat.
+			// Shuffle/Repeat.
+			if Shuffle::exists().is_ok()     { send!(self.to_kernel, WatchToKernel::Shuffle); }
 			if RepeatSong::exists().is_ok()  { send!(self.to_kernel, WatchToKernel::RepeatSong); }
 			if RepeatQueue::exists().is_ok() { send!(self.to_kernel, WatchToKernel::RepeatQueue); }
 			if RepeatOff::exists().is_ok()   { send!(self.to_kernel, WatchToKernel::RepeatOff); }

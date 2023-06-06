@@ -3,6 +3,9 @@ use crate::constants::{
 	BONE,MEDIUM_GRAY,
 	QUEUE_ALBUM_ART_SIZE,
 };
+use crate::text::{
+	QUEUE_CLEAR,QUEUE_SHUFFLE,
+};
 use shukusai::collection::{
 	Song,Album
 };
@@ -36,9 +39,16 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 		const REMOVE_SONG_SIZE: f32 = 35.0;
 		const REMOVE_SIZE:      f32 = REMOVE_SONG_SIZE * 2.0;
 
-		if ui.add_sized([width - 10.0, REMOVE_SIZE], Button::new("Clear queue and stop playback")).clicked() {
-			crate::clear_stop!(self);
-		}
+		ui.horizontal(|ui| {
+			let width = (width / 2.0) - 8.0;
+
+			if ui.add_sized([width, REMOVE_SIZE], Button::new(QUEUE_CLEAR)).clicked() {
+				crate::clear_stop!(self);
+			}
+			if ui.add_sized([width, REMOVE_SIZE], Button::new(QUEUE_SHUFFLE)).clicked() {
+				send!(self.to_kernel, FrontendToKernel::Shuffle);
+			}
+		});
 
 		ui.add_space(10.0);
 

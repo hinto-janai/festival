@@ -12,8 +12,6 @@ mod volume;
 pub use volume::Volume;
 mod append;
 pub use append::Append;
-mod shuffle;
-pub use shuffle::Shuffle;
 mod repeat;
 pub use repeat::Repeat;
 

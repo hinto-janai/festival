@@ -33,17 +33,9 @@ pub struct Cli {
 	#[arg(long)]
 	stop: bool,
 
-	/// Turn on track shuffle
+	/// Shuffle the current queue and reset to the first song
 	#[arg(long)]
-	shuffle_on: bool,
-
-	/// Turn off track shuffle
-	#[arg(long)]
-	shuffle_off: bool,
-
-	/// Toggle track shuffle
-	#[arg(long)]
-	shuffle_toggle: bool,
+	shuffle: bool,
 
 	/// Turn on single `Song` track repeat
 	#[arg(long)]
@@ -116,9 +108,7 @@ impl Cli {
 		if cli.next           { if let Err(e) = Next::touch()          { error!("Failed: {e}"); exit(1); } else { exit(0); } }
 		if cli.previous       { if let Err(e) = Previous::touch()      { error!("Failed: {e}"); exit(1); } else { exit(0); } }
 		if cli.stop           { if let Err(e) = Stop::touch()          { error!("Failed: {e}"); exit(1); } else { exit(0); } }
-		if cli.shuffle_on     { if let Err(e) = ShuffleOn::touch()     { error!("Failed: {e}"); exit(1); } else { exit(0); } }
-		if cli.shuffle_off    { if let Err(e) = ShuffleOff::touch()    { error!("Failed: {e}"); exit(1); } else { exit(0); } }
-		if cli.shuffle_toggle { if let Err(e) = ShuffleToggle::touch() { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if cli.shuffle        { if let Err(e) = Shuffle::touch()       { error!("Failed: {e}"); exit(1); } else { exit(0); } }
 		if cli.repeat_song    { if let Err(e) = RepeatSong::touch()    { error!("Failed: {e}"); exit(1); } else { exit(0); } }
 		if cli.repeat_queue   { if let Err(e) = RepeatQueue::touch()   { error!("Failed: {e}"); exit(1); } else { exit(0); } }
 		if cli.repeat_off     { if let Err(e) = RepeatOff::touch()     { error!("Failed: {e}"); exit(1); } else { exit(0); } }

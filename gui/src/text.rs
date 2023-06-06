@@ -24,7 +24,6 @@ pub const UI_PLAY:         &str = "▶";
 pub const UI_PAUSE:        &str = "⏸";
 pub const UI_PREVIOUS:     &str = "⏪";
 pub const UI_FORWARDS:     &str = "⏩";
-pub const UI_SHUFFLE:      &str = "🔀";
 pub const UI_REPEAT_SONG:  &str = "🔂";
 pub const UI_REPEAT:       &str = "🔁";
 
@@ -32,7 +31,6 @@ pub const UI_REPEAT:       &str = "🔁";
 pub const INCREMENT_ALBUM_SIZE: &str = "Increase the album art size";
 pub const DECREMENT_ALBUM_SIZE: &str = "Decrease the album art size";
 pub const VOLUME_SLIDER:        &str = "Increase/decrease audio volume";
-pub const SHUFFLE_ON:           &str = "New songs will be shuffled when added to the queue";
 pub const SHUFFLE_OFF:          &str = "Shuffle is turned off";
 pub const REPEAT_SONG:          &str = "The current song will be repeated forever";
 pub const REPEAT_QUEUE:         &str = "The current queue will be repeated forever";
@@ -49,6 +47,10 @@ Configure which directories to scan in the [Settings] tab."#;
 
 //---------------------------------------------------------------------------------------------------- Songs tab
 pub const OPEN_PARENT_FOLDER: &str = "Open the directory containing this song";
+
+//---------------------------------------------------------------------------------------------------- Queue tab
+pub const QUEUE_CLEAR:   &str = "⏹  Clear queue and stop playback";
+pub const QUEUE_SHUFFLE: &str = "🔀 Shuffle the current queue";
 
 //---------------------------------------------------------------------------------------------------- Settings Tab
 pub const RESET:             &str = "Reset changes (CTRL+Z)";

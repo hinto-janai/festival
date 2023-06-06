@@ -17,7 +17,7 @@ use std::path::PathBuf;
 use crate::kernel::{
 	ResetState,Kernel,SearchKind,
 };
-use crate::audio::{Volume, Append, Shuffle, Repeat};
+use crate::audio::{Volume, Append, Repeat};
 use readable::Percent;
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
@@ -41,8 +41,6 @@ pub enum FrontendToKernel {
 	Previous,
 
 	// Audio settings.
-	/// See [`Shuffle`] for the different ways to shuffle.
-	Shuffle(Shuffle),
 	/// See [`Repeat`] for the different ways to repeat.
 	Repeat(Repeat),
 	/// Change the audio volume.
@@ -71,6 +69,8 @@ pub enum FrontendToKernel {
 	///
 	/// If the offset is out of bounds, we will start at the first `Song`.
 	AddQueueArtist((ArtistKey, Append, bool, usize)),
+	/// Shuffle the _current_ queue.
+	Shuffle,
 	/// Clear the entire queue.
 	/// - [`bool`]: should we still continue playback on the current song?
 	Clear(bool),

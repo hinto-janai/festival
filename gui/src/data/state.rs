@@ -28,7 +28,6 @@ use shukusai::kernel::{
 	Volume,
 	AudioState,
 	Kernel,
-	Shuffle,
 	Repeat,
 };
 
@@ -60,8 +59,6 @@ pub struct State {
 	/// What [`Volume`] are we at (0..100)?
 	pub volume: u8,
 
-	/// Shuffle bool.
-	pub shuffle: bool,
 	/// Repeat mode.
 	pub repeat: Repeat,
 

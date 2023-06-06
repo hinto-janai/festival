@@ -32,7 +32,6 @@ use crate::audio::{
 	Volume,
 	Append,
 	Repeat,
-	Shuffle,
 };
 use crossbeam::channel::{Sender,Receiver};
 use std::io::BufReader;
@@ -188,8 +187,8 @@ impl Audio {
 				// These prevents a few stutters from happening
 				// when users switch songs (the leftover samples
 				// get played then and sound terrible).
-				trace!("Audio - Pause [1/3]: drain()'ing leftover samples");
-				self.output.drain();
+				trace!("Audio - Pause [1/3]: flush()'ing leftover samples");
+				self.output.flush();
 
 				trace!("Audio - Pause [2/3]: waiting on Kernel...");
 				self.kernel_msg(recv!(self.from_kernel));
@@ -314,7 +313,6 @@ impl Audio {
 			Previous  => self.back(1, &mut AUDIO_STATE.write()),
 //
 //			// Audio settings.
-			Shuffle(s) => self.shuffle(s),
 			Repeat(r)  => self.repeat(r),
 			Volume(v)  => self.volume(v),
 //
@@ -322,6 +320,7 @@ impl Audio {
 			AddQueueSong((s_key, append, clear))           => self.add_queue_song(s_key, append, clear),
 			AddQueueAlbum((al_key, append, clear, offset)) => self.add_queue_album(al_key, append, clear, offset),
 //			AddQueueArtist((ar_key, clear))   => self.add_queue_artist(ar_key, clear,   Append::Back),
+			Shuffle     => self.shuffle(),
 			Clear(play) => {
 				self.clear(play, &mut AUDIO_STATE.write());
 				gui_request_update();
@@ -637,14 +636,22 @@ impl Audio {
 	}
 
 	//-------------------------------------------------- Audio settings.
-	fn shuffle(&mut self, shuffle: Shuffle) {
-		trace!("Audio - Shuffle::{shuffle:?}");
+	fn shuffle(&mut self) {
+		trace!("Audio - Shuffle");
 
 		let mut state = AUDIO_STATE.write();
-		match shuffle {
-			Shuffle::On     => state.shuffle = true,
-			Shuffle::Off    => state.shuffle = false,
-			Shuffle::Toggle => flip!(state.shuffle),
+
+		if !state.queue.is_empty() {
+			use rand::{
+				{Rng, SeedableRng},
+				prelude::SliceRandom,
+				rngs::SmallRng,
+			};
+			let mut rng = rand::rngs::SmallRng::from_entropy();
+
+			state.queue.make_contiguous().shuffle(&mut rng);
+			state.queue_idx = Some(0);
+			self.set(state.queue[0], &mut state);
 		}
 	}
 

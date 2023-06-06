@@ -69,7 +69,6 @@ use crate::text::{
 	DECREMENT_ALBUM_SIZE,
 	INCREMENT_ALBUM_SIZE,
 	VOLUME_SLIDER,
-	UI_SHUFFLE,SHUFFLE_ON,SHUFFLE_OFF,
 	UI_REPEAT_SONG,UI_REPEAT,REPEAT_SONG,REPEAT_QUEUE,REPEAT_OFF,
 };
 
@@ -117,7 +116,6 @@ impl eframe::App for Gui {
 		AUDIO_STATE.read().if_copy(&mut self.audio_state);
 		if secs_f32!(self.audio_leeway) > 0.05 {
 			self.state.volume  = self.audio_state.volume.inner();
-			self.state.shuffle = self.audio_state.shuffle;
 			self.state.repeat  = self.audio_state.repeat;
 			self.audio_seek    = self.audio_state.elapsed.usize();
 		}
@@ -589,46 +587,24 @@ fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f
 				ui.separator();
 			}
 
-			// Shuffle/Repeat.
-			ui.horizontal(|ui| { ui.group(|ui| {
-				let width  = (ui.available_width() / 2.0) - 10.0;
-				let height = tab_height / 2.0;
-
-				// Shuffle.
-				let (text, color) = match self.state.shuffle {
-					true  => (SHUFFLE_ON, GREEN),
-					false => (SHUFFLE_OFF, MEDIUM_GRAY),
-				};
-				let button = Button::new(
-					RichText::new(UI_SHUFFLE)
-						.size(30.0)
-						.color(color)
-				);
-				if ui.add_sized([width, tab_height], button).on_hover_text(text).clicked() {
-					flip!(self.state.shuffle);
-					send!(self.to_kernel, FrontendToKernel::Shuffle(shukusai::kernel::Shuffle::Toggle));
-				}
-
-				ui.separator();
-
-				// Repeat.
-				use shukusai::kernel::Repeat;
-				let (icon, text, color) = match self.state.repeat {
-					Repeat::Song  => (UI_REPEAT_SONG, REPEAT_SONG, YELLOW),
-					Repeat::Queue => (UI_REPEAT, REPEAT_QUEUE, GREEN),
-					Repeat::Off   => (UI_REPEAT, REPEAT_OFF, MEDIUM_GRAY),
-				};
-				let button = Button::new(
-					RichText::new(icon)
-						.size(30.0)
-						.color(color)
-				);
-				if ui.add_sized([width, tab_height], button).on_hover_text(text).clicked() {
-					let next = self.state.repeat.next();
-					send!(self.to_kernel, FrontendToKernel::Repeat(next));
-					self.state.repeat = next;
-				}
-			})});
+			// Repeat.
+			ui.add_space(5.0);
+			use shukusai::kernel::Repeat;
+			let (icon, text, color) = match self.state.repeat {
+				Repeat::Song  => (UI_REPEAT_SONG, REPEAT_SONG, YELLOW),
+				Repeat::Queue => (UI_REPEAT, REPEAT_QUEUE, GREEN),
+				Repeat::Off   => (UI_REPEAT, REPEAT_OFF, MEDIUM_GRAY),
+			};
+			let button = Button::new(
+				RichText::new(icon)
+					.size(30.0)
+					.color(color)
+			);
+			if ui.add_sized([tab_width, tab_height], button).on_hover_text(text).clicked() {
+				let next = self.state.repeat.next();
+				send!(self.to_kernel, FrontendToKernel::Repeat(next));
+				self.state.repeat = next;
+			}
 
 			// Volume slider
 			let slider_height = ui.available_height() - 20.0;

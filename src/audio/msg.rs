@@ -16,7 +16,6 @@ use crate::audio::{
 	AudioState,Volume,
 };
 use crate::audio::append::Append;
-use crate::audio::shuffle::Shuffle;
 use crate::audio::repeat::Repeat;
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
@@ -37,7 +36,6 @@ pub(crate) enum KernelToAudio {
 	Previous,
 
 	// Audio settings.
-	Shuffle(Shuffle),
 	Repeat(Repeat),
 	Volume(Volume),
 
@@ -45,6 +43,7 @@ pub(crate) enum KernelToAudio {
 	AddQueueSong((SongKey, Append, bool)),
 	AddQueueAlbum((AlbumKey, Append, bool, usize)),
 	AddQueueArtist((ArtistKey, Append, bool, usize)),
+	Shuffle,
 	Clear(bool),
 	Seek(usize),
 	Skip(usize),
