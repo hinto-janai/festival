@@ -23,7 +23,10 @@ use benri::log::*;
 // while Windows/macOS will use the `cpal` backend.
 pub(crate) trait Output: Sized {
 	fn write(&mut self, decoded: AudioBufferRef<'_>) -> Result<()>;
+	// Discard current audio samples.
 	fn flush(&mut self);
+	// Play all audio samples in buffer.
+	fn drain(&mut self);
 	fn try_open(spec: SignalSpec, duration: Duration) -> Result<Self>;
 
 	// Open the audio device with dummy values.
@@ -153,7 +156,10 @@ mod output {
 		}
 
 		fn flush(&mut self) {
-			// Flush is best-effort, ignore the returned result.
+			_ = self.pa.flush();
+		}
+
+		fn drain(&mut self) {
 			_ = self.pa.drain();
 		}
 	}

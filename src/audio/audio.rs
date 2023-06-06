@@ -188,23 +188,14 @@ impl Audio {
 				// These prevents a few stutters from happening
 				// when users switch songs (the leftover samples
 				// get played then and sound terrible).
-//				trace!("Audio - Pause [1/3]: flush()'ing leftover samples");
-				// TODO:
-				// This hangs for 30s, for some reason.
-//				self.output.flush();
+				trace!("Audio - Pause [1/3]: drain()'ing leftover samples");
+				self.output.drain();
 
 				trace!("Audio - Pause [2/3]: waiting on Kernel...");
 				self.kernel_msg(recv!(self.from_kernel));
 
 				trace!("Audio - Pause [3/3]: woke up from Kernel message...!");
 			}
-
-			// If the above message didn't set `playing` state, that
-			// means we don't need to continue below to decode audio.
-			if !self.state.playing {
-				continue;
-			}
-
 
 			//------ Audio decoding & demuxing.
 			if let Some(audio_reader) = &mut self.current {
@@ -217,6 +208,8 @@ impl Audio {
 
 				//------ Audio seeking.
 				if let Some(seek) = self.seek.take() {
+					// Seeking a little bit before the requested
+					// prevents some stuttering.
 					if let Err(e) = reader.seek(
 						symphonia::core::formats::SeekMode::Coarse,
 						symphonia::core::formats::SeekTo::Time { time: seek, track_id: None }
@@ -224,7 +217,14 @@ impl Audio {
 						send!(self.to_kernel, AudioToKernel::SeekError(anyhow!(e)));
 					} else {
 						AUDIO_STATE.write().elapsed = Runtime::from(seek.seconds);
+						gui_request_update();
 					}
+				}
+
+				// If the above message didn't set `playing` state, that
+				// means we don't need to continue below to decode audio.
+				if !self.state.playing {
+					continue;
 				}
 
 				// Decode and play the packets belonging to the selected track.
@@ -235,7 +235,7 @@ impl Audio {
 					// This "end of stream" error is currently the only way
 					// a FormatReader can indicate the media is complete.
 					Err(symphonia::core::errors::Error::IoError(err)) => {
-						self.next(&mut AUDIO_STATE.write());
+						self.skip(1, &mut AUDIO_STATE.write());
 						gui_request_update();
 						continue;
 					},
@@ -289,22 +289,16 @@ impl Audio {
 //					Err(err) => break Err(err),
 					// We're done playing audio.
 					Err(symphonia::core::errors::Error::IoError(err)) => {
-						self.next(&mut AUDIO_STATE.write());
+						self.skip(1, &mut AUDIO_STATE.write());
 						gui_request_update();
 						continue;
 					},
 					Err(err) => todo!(),
 				}
-			// If `playing == true`, but our state doesn't
-			// have a Some(song), then something went wrong.
-			} else {
-				todo!();
 			}
 
-		} //------ End of `loop {}`.
-
-		// Audio should never exit the above loop.
-//		panic!("Audio - exited the `main()` loop");
+		//------ End of `loop {}`.
+		}
 	}
 
 	//-------------------------------------------------- Kernel message.
@@ -316,8 +310,8 @@ impl Audio {
 			Toggle    => self.toggle(),
 			Play      => self.play(),
 			Pause     => self.pause(),
-			Next      => self.next(&mut AUDIO_STATE.write()),
-			Previous  => self.previous(),
+			Next      => self.skip(1, &mut AUDIO_STATE.write()),
+			Previous  => self.back(1, &mut AUDIO_STATE.write()),
 //
 //			// Audio settings.
 			Shuffle(s) => self.shuffle(s),
@@ -333,8 +327,8 @@ impl Audio {
 				gui_request_update();
 			},
 			Seek(f)     => self.seek(f, &mut AUDIO_STATE.write()),
-			Skip(num)   => self.skip(num),
-			Back(num)   => self.back(num),
+			Skip(skip)  => self.skip(skip, &mut AUDIO_STATE.write()),
+			Back(back)  => self.back(back, &mut AUDIO_STATE.write()),
 //
 //			// Queue Index.
 			SetQueueIndex(idx)              => self.set_queue_index(idx),
@@ -438,6 +432,9 @@ impl Audio {
 		state: &mut std::sync::RwLockWriteGuard<'_, AudioState>,
 	) {
 		if let Some(reader) = self.to_reader(key) {
+			// Discard any leftover audio samples.
+			self.output.flush();
+
 			self.set_current(
 				reader,
 				TimeBase::new(1, self.collection.songs[key].sample_rate),
@@ -510,26 +507,17 @@ impl Audio {
 		}
 	}
 
-	fn previous(&mut self) {
-		trace!("Audio - previous()");
-		// Lock state.
-		let mut state = AUDIO_STATE.write();
-
-		match state.prev() {
-			Some(prev) => {
-				trace!("Audio - prev song, setting: {prev:?}");
-				self.set(prev, &mut state);
-			},
-			_ => trace!("Audio - no song for prev"),
-		}
-	}
-
-	// If there is another element in the queue, play it,
-	// else, assume we are done and set the relevant state.
-	fn next(
+	fn skip(
 		&mut self,
+		skip: usize,
 		state: &mut std::sync::RwLockWriteGuard<'_, AudioState>,
 	) {
+		trace!("Audio - skip({skip})");
+
+		if skip == 0 {
+			return;
+		}
+
 		if state.repeat == Repeat::Song {
 			if let Some(key) = state.song {
 				trace!("Audio - repeating song: {key:?}");
@@ -538,74 +526,67 @@ impl Audio {
 			return;
 		}
 
-		// TODO:
-		// account for shuffle and repeat
-		match state.next() {
-			Some(next) => {
-				trace!("Audio - more songs left, setting: {next:?}");
-				self.set(next, state);
-			},
-			None => {
-				if state.repeat == Repeat::Queue {
-					if !state.queue.is_empty() {
-						let key = state.queue[0];
-						trace!("Audio - repeating queue, setting: {key:?}");
-						self.set(key, state);
-						state.song      = Some(key);
-						state.queue_idx = Some(0);
+		// For 1 skips.
+		if skip == 1 {
+			match state.next() {
+				Some(next) => {
+					trace!("Audio - more songs left, setting: {next:?}");
+					self.set(next, state);
+				},
+				None => {
+					if state.repeat == Repeat::Queue {
+						if !state.queue.is_empty() {
+							let key = state.queue[0];
+							trace!("Audio - repeating queue, setting: {key:?}");
+							self.set(key, state);
+							state.song      = Some(key);
+							state.queue_idx = Some(0);
+						}
+					} else {
+						trace!("Audio - no songs left, calling state.finish()");
+						state.finish();
+						self.state.finish();
+						self.current = None;
+						gui_request_update();
 					}
-				} else {
-					trace!("Audio - no songs left, calling state.finish()");
-					state.finish();
-					self.state.finish();
-					self.current = None;
-					gui_request_update();
-				}
-			},
-		}
-	}
+				},
+			}
+		// For >1 skips.
+		} else if let Some(index) = state.queue_idx {
+			let new_index = index + skip;
+			let len       = state.queue.len();
 
-	fn skip(&mut self, num: usize) {
-		trace!("Audio - skip({num})");
-
-		// Lock state.
-		let mut state = AUDIO_STATE.write();
-
-		if !state.queue.is_empty() {
-			if let Some(index) = state.queue_idx {
-				let new_index = index + num;
-
-				// FIXME:
-				// We must do this behavior due to
-				// `&` and `&mut` rules. `.get()` makes a `&`
-				// and the below `.set()` requires a `&mut`.
-				//
-				// The inner `Some(key)` is just a usize so I wish
-				// Rust would just `Copy` it and move on but... whatever.
-//				if let Some(key) = state.queue.get(new_index) {
-				let len = state.queue.len();
-				if len >= new_index {
-					let key = state.queue[new_index];
-					self.set(key, &mut state);
+			// Repeat the queue if we're over bounds (and it's enabled).
+			if new_index > len && state.repeat == Repeat::Queue {
+				if !state.queue.is_empty() {
+					let key = state.queue[0];
+					trace!("Audio - repeating queue, setting: {key:?}");
+					self.set(key, state);
 					state.song      = Some(key);
-					state.queue_idx = Some(new_index);
-				} else {
-					trace!("Audio - skip({new_index}) > {len}, calling state.finish()");
-					state.finish();
-					self.state.finish();
-					self.current = None;
+					state.queue_idx = Some(0);
 				}
-
-				gui_request_update();
+			} else if len >= new_index {
+				let key = state.queue[new_index];
+				self.set(key, state);
+				state.song      = Some(key);
+				state.queue_idx = Some(new_index);
+			} else {
+				trace!("Audio - skip({new_index}) > {len}, calling state.finish()");
+				state.finish();
+				self.state.finish();
+				self.current = None;
 			}
 		}
+
+		gui_request_update();
 	}
 
-	fn back(&mut self, num: usize) {
-		trace!("Audio - back({num})");
-
-		// Lock state.
-		let mut state = AUDIO_STATE.write();
+	fn back(
+		&mut self,
+		back: usize,
+		state: &mut std::sync::RwLockWriteGuard<'_, AudioState>,
+	) {
+		trace!("Audio - back({back})");
 
 		if !state.queue.is_empty() {
 			// FIXME:
@@ -613,15 +594,15 @@ impl Audio {
 			if let Some(index) = state.queue_idx {
 				// Back input was greater than our current index,
 				// play the first song in our queue.
-				if index < num {
+				if index < back {
 					let key = state.queue[0];
-					self.set(key, &mut state);
+					self.set(key, state);
 					state.song      = Some(key);
 					state.queue_idx = Some(0);
 				} else {
-					let new_index = index - num;
+					let new_index = index - back;
 					let key = state.queue[new_index];
-					self.set(key, &mut state);
+					self.set(key, state);
 					state.song      = Some(key);
 					state.queue_idx = Some(new_index);
 				}
@@ -638,12 +619,12 @@ impl Audio {
 	) {
 		trace!("Audio - seek({seek})");
 
-		if self.state.playing {
+		if self.current.is_some() {
 			let runtime = state.runtime.usize();
 
 			if seek > runtime {
-				debug!("Audio - seek: {seek} > {runtime}, calling .next()");
-				self.next(state);
+				debug!("Audio - seek: {seek} > {runtime}, calling .skip(1)");
+				self.skip(1, state);
 			} else {
 				self.seek = Some(symphonia::core::units::Time {
 					seconds: seek as u64,
@@ -873,7 +854,7 @@ impl Audio {
 					state.queue_idx = Some(new);
 					trace!("Audio - remove_queue_range({start}..{end}), next index: {new}");
 				}
-				self.next(&mut state);
+				self.skip(1, &mut state);
 			}
 		}
 
