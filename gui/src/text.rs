@@ -82,6 +82,28 @@ r#"Scan the folders listed and create a new Collection (CTRL+R).
 If no directories are listed, the default Music directory is scanned."#;
 pub const STATS:             &str = "Stats about your current Collection";
 
+pub const HELP: &str =
+r#"*-------------------------------------------------------*
+|       Key/Mouse | Action                              |
+|-------------------------------------------------------|
+|     [A-Za-z0-9] | Jump to search tab                  |
+|          CTRL+S | Save Settings                       |
+|          CTRL+Z | Reset Settings                      |
+|          CTRL+R | Reset Collection                    |
+|          CTRL+A | Add Scan Directory                  |
+|          CTRL+Q | Rotate Album Sort                   |
+|          CTRL+W | Rotate Artist Sort                  |
+|          CTRL+E | Rotate Song Sort                    |
+|          CTRL+D | Goto Last Tab                       |
+|              Up | Last Tab                            |
+|            Down | Next Tab                            |
+|           Right | Last Sub-Tab                        |
+|            Left | Last Sub-Tab                        |
+|   Primary Mouse | Set Artist, Album, Song             |
+| Secondary Mouse | Append Artist, Album, Song to Queue |
+|    Middle Mouse | Open Album/Song Directory           |
+*-------------------------------------------------------*"#;
+
 //---------------------------------------------------------------------------------------------------- Search Tab
 // This is inaccurate because `char` != `u8` but meh.
 pub const SEARCH_MAX:              &str = formatcp!("Search character limit has been reached ({SEARCH_MAX_LEN})");

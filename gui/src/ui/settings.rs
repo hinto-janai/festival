@@ -23,6 +23,7 @@ use crate::constants::{
 	SLIDER_CIRCLE_HOVERED,
 	SLIDER_CIRCLE_ACTIVE,
 };
+use crate::text::HELP;
 use crate::data::{
 	AlbumSizing,
 	SearchSort,
@@ -387,6 +388,19 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 		ui.add_sized([width, text], Label::new(&self.count_album));
 		ui.add_sized([width, text], Label::new(&self.count_song));
 
+		ui.add_space(40.0);
+		ui.separator();
+		ui.add_space(40.0);
+
+		//-------------------------------------------------- Help.
+		let label = Label::new(
+			RichText::new("Help")
+			.color(BONE)
+			.text_style(TextStyle::Heading)
+		);
+		ui.add_sized([width, text], label);
+
+		ui.add_sized([width, text], Label::new(HELP));
 		ui.add_space(40.0);
 //		ui.separator();
 //		ui.add_space(40.0);

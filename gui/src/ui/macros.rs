@@ -71,7 +71,7 @@ macro_rules! play_song {
 /// This indicates:
 /// - Queue should be not be cleared
 /// - `Song` clicked should be added to the back of the queue
-/// - No `Play/Pause` signal is sent
+/// - `Play` signal is sent
 /// - A toast should pop up showing we added the song to the queue
 macro_rules! add_song {
 	($self:ident, $song_title:expr, $key:expr) => {
@@ -79,6 +79,7 @@ macro_rules! add_song {
 			$self.to_kernel,
 			shukusai::kernel::FrontendToKernel::AddQueueSong(($key, shukusai::kernel::Append::Back, false))
 		);
+		::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
 		$crate::toast!($self, format!("Added [{}] to queue", $song_title));
 	}
 }

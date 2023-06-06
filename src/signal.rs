@@ -18,7 +18,7 @@ macro_rules! impl_signal_empty {
 		$(
 			disk::empty!($type, disk::Dir::Data, FESTIVAL, "signal", $file_name);
 			#[derive(Copy,Clone,Debug,PartialEq,Eq)]
-			/// File representing a signal, whose existance acts as a boolean signal.
+			/// File representing a signal, whose existence acts as a boolean signal.
 			pub struct $type;
 		)*
 	};

@@ -58,6 +58,7 @@ use crate::constants::{
 	YELLOW,GREEN,MEDIUM_GRAY,
 };
 use crate::text::{
+	HELP,
 	EMPTY_COLLECTION,
 	COLLECTION_LOADING,
 	COLLECTION_RESETTING,
@@ -338,7 +339,7 @@ impl Gui {
 					if self.debug_screen {
 						self.update_debug_info();
 					}
-				// Check for [A-Za-z] (Search)
+				// Check for [A-Za-z0-9] (Search)
 				} else {
 					for key in ALPHANUMERIC_KEY {
 						if input.consume_key(egui::Modifiers::NONE, key) {
@@ -701,7 +702,7 @@ fn show_central(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width
 }}
 
 //---------------------------------------------------------------------------------------------------- Empty Collection
-// Shows a button that resets the `Collection`.
+// Shows a button that resets the `Collection` and some help text.
 // Used for tabs when the `Collection` is empty.
 impl Gui {
 #[inline(always)]
@@ -712,11 +713,16 @@ fn show_empty_collection(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 	let height = height / 10.0;
 
 	ui.vertical_centered(|ui| {
-		ui.add_space(height * 4.0);
+		let space = height / 2.0;
+		ui.add_space(space);
 
 		if ui.add_sized([width, height], button).on_hover_text(EMPTY_COLLECTION).clicked() {
 			self.reset_collection();
 		}
+
+		ui.add_space(space);
+
+		ui.label(HELP);
 	});
 }}
 
