@@ -25,8 +25,11 @@ use shukusai::collection::{
 	Keychain,
 };
 use shukusai::kernel::{
+	Volume,
 	AudioState,
 	Kernel,
+	Shuffle,
+	Repeat,
 };
 
 //---------------------------------------------------------------------------------------------------- State
@@ -57,6 +60,11 @@ pub struct State {
 	/// What [`Volume`] are we at (0..100)?
 	pub volume: u8,
 
+	/// Shuffle bool.
+	pub shuffle: bool,
+	/// Repeat mode.
+	pub repeat: Repeat,
+
 	/// Which [`Album`] are we on in the `Album` tab?
 	///
 	/// This doesn't necessarily mean we're listening to _this_
@@ -76,7 +84,7 @@ impl State {
 	/// Creates a mostly empty [`State`].
 	pub fn new() -> Self {
 		Self {
-			volume: 50,
+			volume: Volume::default().inner(),
 			..Default::default()
 		}
 	}

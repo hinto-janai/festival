@@ -20,16 +20,23 @@ pub const COLLECTION_LOADING:   &str = "Loading Collection...";
 pub const COLLECTION_RESETTING: &str = "Resetting Collection...";
 
 //---------------------------------------------------------------------------------------------------- UI
-pub const UI_PLAY:     &str = "▶";
-pub const UI_PAUSE:    &str = "⏸";
-pub const UI_PREVIOUS: &str = "⏪";
-pub const UI_FORWARDS: &str = "⏩";
-
+pub const UI_PLAY:         &str = "▶";
+pub const UI_PAUSE:        &str = "⏸";
+pub const UI_PREVIOUS:     &str = "⏪";
+pub const UI_FORWARDS:     &str = "⏩";
+pub const UI_SHUFFLE:      &str = "🔀";
+pub const UI_REPEAT_SONG:  &str = "🔂";
+pub const UI_REPEAT:       &str = "🔁";
 
 //---------------------------------------------------------------------------------------------------- Left Tab
 pub const INCREMENT_ALBUM_SIZE: &str = "Increase the album art size";
 pub const DECREMENT_ALBUM_SIZE: &str = "Decrease the album art size";
 pub const VOLUME_SLIDER:        &str = "Increase/decrease audio volume";
+pub const SHUFFLE_ON:           &str = "New songs will be shuffled when added to the queue";
+pub const SHUFFLE_OFF:          &str = "Shuffle is turned off";
+pub const REPEAT_SONG:          &str = "The current song will be repeated forever";
+pub const REPEAT_QUEUE:         &str = "The current queue will be repeated forever";
+pub const REPEAT_OFF:           &str = "Repeat is turned off";
 
 //---------------------------------------------------------------------------------------------------- Bottom Bar
 pub const SAVING: &str = "Festival is still saving a recently created Collection";
@@ -46,6 +53,7 @@ pub const OPEN_PARENT_FOLDER: &str = "Open the directory containing this song";
 //---------------------------------------------------------------------------------------------------- Settings Tab
 pub const RESET:             &str = "Reset changes (CTRL+Z)";
 pub const SAVE:              &str = "Save changes to disk (CTRL+S)";
+pub const SHUFFLE_MODE:      &str = "Which method to shuffle songs by";
 pub const ARTIST_SORT_ORDER: &str = "Which method to sort the artists by in the [Artists] tab (CTRL+Q)";
 pub const ALBUM_SORT_ORDER:  &str = "Which method to sort the albums by in the [Albums] tab (CTRL+W)";
 pub const SONG_SORT_ORDER:   &str = "Which method to sort the songs by in the [Songs] tab (CTRL+E)";

@@ -26,6 +26,12 @@ pub enum Shuffle {
 
 impl Shuffle {
 	#[inline]
+	/// Returns the default, [`Self::Off`].
+	pub const fn new() -> Self {
+		Self::Off
+	}
+
+	#[inline]
 	/// Returns formatted, human readable versions.
 	pub const fn as_str(&self) -> &'static str {
 		use Shuffle::*;
@@ -46,4 +52,10 @@ impl Shuffle {
 		].iter()
 	}
 
+}
+
+impl Default for Shuffle {
+	fn default() -> Self {
+		Self::new()
+	}
 }

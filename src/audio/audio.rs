@@ -31,6 +31,8 @@ use crate::audio::{
 	AudioState,
 	Volume,
 	Append,
+	Repeat,
+	Shuffle,
 };
 use crossbeam::channel::{Sender,Receiver};
 use std::io::BufReader;
@@ -523,6 +525,14 @@ impl Audio {
 		&mut self,
 		state: &mut std::sync::RwLockWriteGuard<'_, AudioState>,
 	) {
+		if state.repeat == Repeat::Song {
+			if let Some(key) = state.song {
+				trace!("Audio - repeating song: {key:?}");
+				self.set(key, state);
+			}
+			return;
+		}
+
 		// TODO:
 		// account for shuffle and repeat
 		match state.next() {
@@ -530,12 +540,22 @@ impl Audio {
 				trace!("Audio - more songs left, setting: {next:?}");
 				self.set(next, state);
 			},
-			_ => {
-				trace!("Audio - no songs left, calling state.finish()");
-				state.finish();
-				self.state.finish();
-				self.current = None;
-				gui_request_update();
+			None => {
+				if state.repeat == Repeat::Queue {
+					if !state.queue.is_empty() {
+						let key = state.queue[0];
+						trace!("Audio - repeating queue, setting: {key:?}");
+						self.set(key, state);
+						state.song      = Some(key);
+						state.queue_idx = Some(0);
+					}
+				} else {
+					trace!("Audio - no songs left, calling state.finish()");
+					state.finish();
+					self.state.finish();
+					self.current = None;
+					gui_request_update();
+				}
 			},
 		}
 	}
@@ -631,16 +651,20 @@ impl Audio {
 	}
 
 	//-------------------------------------------------- Audio settings.
-	fn shuffle(&mut self, shuffle: crate::audio::shuffle::Shuffle) {
+	fn shuffle(&mut self, shuffle: Shuffle) {
 		trace!("Audio - {shuffle:?}");
-		gui_request_update();
-		todo!();
+
+		let mut state = AUDIO_STATE.write();
+		match shuffle {
+			Shuffle::On     => state.shuffle = true,
+			Shuffle::Off    => state.shuffle = false,
+			Shuffle::Toggle => flip!(state.shuffle),
+		}
 	}
 
-	fn repeat(&mut self, repeat: crate::audio::repeat::Repeat) {
+	fn repeat(&mut self, repeat: Repeat) {
 		trace!("Audio - {repeat:?}");
-		gui_request_update();
-		todo!();
+		AUDIO_STATE.write().repeat = repeat;
 	}
 
 	fn volume(&mut self, volume: Volume) {

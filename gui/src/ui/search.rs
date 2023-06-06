@@ -84,11 +84,18 @@ CentralPanel::default().show(ctx, |ui| {
 		if self.search_jump {
 			ctx.memory_mut(|m| m.request_focus(id));
 
-			// HACK:
-			// This forces the text cursor to move forward
-			// from the inputted text in some situations where
-			// the focus lock puts the cursor behind the character.
-			self.state.search_string = self.state.search_string.clone();
+			// This forces the text cursor to move forward 1 character.
+			if let Some(mut state) = egui::widgets::text_edit::TextEditState::load(&ctx, id) {
+				let cursor = egui::widgets::text_edit::CCursorRange {
+					primary: epaint::text::cursor::CCursor {
+							index: 1,
+							..Default::default()
+						},
+					..Default::default()
+				};
+
+				state.set_ccursor_range(Some(cursor));
+			}
 		}
 
 		// Only update if user input has changed

@@ -54,7 +54,8 @@ use crate::constants::{
 	SLIDER_CIRCLE_HOVERED,
 	SLIDER_CIRCLE_ACTIVE,
 	UI_CONTROL_WIDTH,
-	BONE,BLACK,
+	BONE,BLACK,GRAY,
+	YELLOW,GREEN,MEDIUM_GRAY,
 };
 use crate::text::{
 	EMPTY_COLLECTION,
@@ -67,6 +68,8 @@ use crate::text::{
 	DECREMENT_ALBUM_SIZE,
 	INCREMENT_ALBUM_SIZE,
 	VOLUME_SLIDER,
+	UI_SHUFFLE,SHUFFLE_ON,SHUFFLE_OFF,
+	UI_REPEAT_SONG,UI_REPEAT,REPEAT_SONG,REPEAT_QUEUE,REPEAT_OFF,
 };
 
 //---------------------------------------------------------------------------------------------------- `GUI`'s eframe impl.
@@ -512,16 +515,12 @@ fn show_bottom(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width:
 				});
 			});
 
-			// Song time elapsed.
-			let time = format!(
-				"{} / {}",
-				self.audio_state.elapsed,
-				self.audio_state.runtime,
-			);
-			ui.add_sized([unit, height], Label::new(time));
+			// Leave space for the runtime at the end.
+			const RUNTIME_WIDTH: f32 = 150.0;
+			let width = ui.available_width() - RUNTIME_WIDTH;
 
 			// Slider (playback)
-			ui.spacing_mut().slider_width = ui.available_width();
+			ui.spacing_mut().slider_width = width;
 			{
 				let v = &mut ui.visuals_mut().widgets;
 				v.inactive.fg_stroke = SLIDER_CIRCLE_INACTIVE;
@@ -533,7 +532,7 @@ fn show_bottom(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width:
 
 			// Runtime/seek slider.
 			let resp = ui.add_sized(
-				[ui.available_width(), height],
+				[width, height],
 				Slider::new(&mut self.audio_seek, 0..=self.audio_state.runtime.usize())
 					.smallest_positive(1.0)
 					.show_value(false)
@@ -546,6 +545,10 @@ fn show_bottom(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width:
 				self.audio_leeway = now!();
 				send!(self.to_kernel, FrontendToKernel::Seek(self.audio_seek));
 			}
+
+			let time = format!("{} / {}", readable::Runtime::from(self.audio_seek), self.audio_state.runtime);
+			ui.add_sized([ui.available_width(), height], Label::new(time));
+
 		});
 	});
 }}
@@ -576,29 +579,46 @@ fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f
 				ui.separator();
 			}
 
-			// Album art size (only on `Albums` tab, only in `DEBUG` build).
-//			#[cfg(debug_assertions)]
-//			{
-//				if self.state.tab == Tab::Albums {
-//					ui.horizontal(|ui| { ui.group(|ui| {
-//						let width  = (ui.available_width() / 2.0) - 10.0;
-//						let height = tab_height / 2.0;
-//						ui.scope(|ui| {
-//							ui.set_enabled(!self.album_size_is_min());
-//							if ui.add_sized([width, tab_height], Button::new(RichText::new("-").size(30.0))).on_hover_text(DECREMENT_ALBUM_SIZE).clicked() {
-//								self.decrement_art_size();
-//							}
-//						});
-//						ui.separator();
-//						ui.scope(|ui| {
-//							ui.set_enabled(!self.album_size_is_max());
-//							if ui.add_sized([width, tab_height], Button::new(RichText::new("+").size(25.0))).on_hover_text(INCREMENT_ALBUM_SIZE).clicked() {
-//								self.increment_art_size();
-//							}
-//						});
-//					})});
-//				}
-//			}
+			// Shuffle/Repeat.
+			ui.horizontal(|ui| { ui.group(|ui| {
+				let width  = (ui.available_width() / 2.0) - 10.0;
+				let height = tab_height / 2.0;
+
+				// Shuffle.
+				let (text, color) = match self.state.shuffle {
+					true  => (SHUFFLE_ON, GREEN),
+					false => (SHUFFLE_OFF, MEDIUM_GRAY),
+				};
+				let button = Button::new(
+					RichText::new(UI_SHUFFLE)
+						.size(30.0)
+						.color(color)
+				);
+				if ui.add_sized([width, tab_height], button).on_hover_text(text).clicked() {
+					flip!(self.state.shuffle);
+					send!(self.to_kernel, FrontendToKernel::Shuffle(shukusai::kernel::Shuffle::Toggle));
+				}
+
+				ui.separator();
+
+				// Repeat.
+				use shukusai::kernel::Repeat;
+				let (icon, text, color) = match self.state.repeat {
+					Repeat::Song  => (UI_REPEAT_SONG, REPEAT_SONG, YELLOW),
+					Repeat::Queue => (UI_REPEAT, REPEAT_QUEUE, GREEN),
+					Repeat::Off   => (UI_REPEAT, REPEAT_OFF, MEDIUM_GRAY),
+				};
+				let button = Button::new(
+					RichText::new(icon)
+						.size(30.0)
+						.color(color)
+				);
+				if ui.add_sized([width, tab_height], button).on_hover_text(text).clicked() {
+					let next = self.state.repeat.next();
+					send!(self.to_kernel, FrontendToKernel::Repeat(next));
+					self.state.repeat = next;
+				}
+			})});
 
 			// Volume slider
 			let slider_height = ui.available_height() - 20.0;

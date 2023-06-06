@@ -26,6 +26,11 @@ pub enum Repeat {
 }
 
 impl Repeat {
+	/// Returns the default, [`Self::Off`].
+	pub const fn new() -> Self {
+		Self::Off
+	}
+
 	#[inline]
 	/// Returns formatted, human readable versions.
 	pub const fn as_str(&self) -> &'static str {
@@ -34,6 +39,28 @@ impl Repeat {
 			Song        => REPEAT_SONG,
 			Queue       => REPEAT_QUEUE,
 			Off         => REPEAT_OFF,
+		}
+	}
+
+	/// Returns the next sequential [`Self`] variant.
+	///
+	/// This returns the _first_ if at the _last_.
+	pub fn next(&self) -> Self {
+		match self {
+			Self::Song  => Self::Queue,
+			Self::Queue => Self::Off,
+			Self::Off   => Self::Song,
+		}
+	}
+
+	/// Returns the previous sequential [`Self`] variant.
+	///
+	/// This returns the _last_ if at the _first_.
+	pub fn previous(&self) -> Self {
+		match self {
+			Self::Song  => Self::Off,
+			Self::Queue => Self::Song,
+			Self::Off   => Self::Queue,
 		}
 	}
 
@@ -47,4 +74,10 @@ impl Repeat {
 		].iter()
 	}
 
+}
+
+impl Default for Repeat {
+	fn default() -> Self {
+		Self::new()
+	}
 }

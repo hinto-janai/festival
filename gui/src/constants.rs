@@ -185,8 +185,8 @@ pub const ICON: &[u8] = include_bytes!("../../assets/images/icon/512.png");
 
 //---------------------------------------------------------------------------------------------------- Color
 pub const RED:           Color32 = Color32::from_rgb(230, 50, 50);
-pub const GREEN:         Color32 = Color32::from_rgb(100, 230, 100);
-pub const YELLOW:        Color32 = Color32::from_rgb(230, 230, 100);
+pub const GREEN:         Color32 = Color32::from_rgb(80, 180, 80);
+pub const YELLOW:        Color32 = Color32::from_rgb(180, 180, 80);
 pub const BRIGHT_YELLOW: Color32 = Color32::from_rgb(250, 250, 100);
 pub const BONE:          Color32 = Color32::from_rgb(190, 190, 190); // In between LIGHT_GRAY <-> GRAY
 pub const WHITE:         Color32 = Color32::WHITE;
