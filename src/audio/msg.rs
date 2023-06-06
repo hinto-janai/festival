@@ -45,6 +45,7 @@ pub(crate) enum KernelToAudio {
 	AddQueueSong((SongKey, Append, bool)),
 	AddQueueAlbum((AlbumKey, Append, bool, usize)),
 	AddQueueArtist((ArtistKey, Append, bool, usize)),
+	Clear(bool),
 	Seek(usize),
 	Skip(usize),
 	Back(usize),

@@ -115,7 +115,9 @@ impl eframe::App for Gui {
 		// Acquire a local copy of the `AUDIO_STATE`.
 		AUDIO_STATE.read().if_copy(&mut self.audio_state);
 		if secs_f32!(self.audio_leeway) > 0.05 {
-			self.state.volume = self.audio_state.volume.inner();
+			self.state.volume  = self.audio_state.volume.inner();
+			self.state.shuffle = self.audio_state.shuffle;
+			self.state.repeat  = self.audio_state.repeat;
 			self.audio_seek = self.audio_state.elapsed.usize();
 		}
 

@@ -66,6 +66,25 @@ macro_rules! play_song {
 }
 
 #[macro_export]
+/// Append a single `Song` to the end of the queue.
+///
+/// This indicates:
+/// - Queue should be not be cleared
+/// - `Song` clicked should be added to the back of the queue
+/// - No `Play/Pause` signal is sent
+/// - A toast should pop up showing we added the song to the queue
+macro_rules! add_song {
+	($self:ident, $song_title:expr, $key:expr) => {
+		::benri::send!(
+			$self.to_kernel,
+			shukusai::kernel::FrontendToKernel::AddQueueSong(($key, shukusai::kernel::Append::Back, false))
+		);
+		$crate::toast!($self, format!("Added [{}] to queue", $song_title));
+	}
+}
+
+
+#[macro_export]
 /// Send an `Album` to `Kernel` to play.
 ///
 /// This indicates:
@@ -139,9 +158,39 @@ macro_rules! search {
 }
 
 #[macro_export]
-/// Add a clickable `Album` art button that opens the parent directory.
+/// Open's an `Album` directory in a file explorer.
+macro_rules! open {
+	($self:ident, $album:expr) => {
+		match open::that(&$album.path) {
+			Ok(_) => {
+				log::info!("GUI - Opening path: {}", $album.path.display());
+				$crate::toast!($self, format!("Opening [{}]'s directory", $album.title));
+			},
+			Err(e) => {
+				log::warn!("GUI - Could not open path: {e}");
+				$crate::toast_err!($self, format!("Opening [{}]'s directory", $album.title));
+			},
+		}
+	}
+}
+
+#[macro_export]
+/// Clear the queue and stop playback.
+macro_rules! clear_stop {
+	($self:ident) => {
+		::benri::send!(
+			$self.to_kernel,
+			shukusai::kernel::FrontendToKernel::Clear(false),
+		);
+	}
+}
+
+#[macro_export]
+/// Add a clickable `Album` art button that:
+/// - Primary click: sets it to view
+/// - Secondary click: adds it to the queue
+/// - Middle click: opens its directory in a file explorer
 macro_rules! album_button {
-	// Same as above, adds optional text.
 	($self:ident, $album:expr, $key:expr, $ui:ident, $ctx:ident, $size:expr, $text:expr) => {
 		// ImageButton.
 		let img_button = egui::ImageButton::new($album.texture_id($ctx), egui::vec2($size, $size));
@@ -163,16 +212,7 @@ macro_rules! album_button {
 			::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
 			$crate::toast!($self, format!("Added [{}] to queue", $album.title));
 		} else if resp.middle_clicked() {
-			match open::that(&$album.path) {
-				Ok(_) => {
-					log::info!("GUI - Opening path: {}", $album.path.display());
-					$crate::toast!($self, format!("Opening [{}]'s directory", $album.title));
-				},
-				Err(e) => {
-					log::warn!("GUI - Could not open path: {e}");
-					$crate::toast_err!($self, format!("Opening [{}]'s directory", $album.title));
-				},
-			}
+			$crate::open!($self, $album);
 		}
 	};
 }

@@ -119,11 +119,15 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &
 
 			let mut rect = ui.cursor();
 			rect.max.y = rect.min.y + 35.0;
-			if ui.put(rect, SelectableLabel::new(self.audio_state.song == Some(*key), "")).clicked() {
-				// TODO: Implement song key state.
-
+			let resp = ui.put(rect, SelectableLabel::new(self.audio_state.song == Some(*key), ""));
+			if resp.clicked() {
 				crate::play_album_offset!(self, song.album, offset);
+			} else if resp.middle_clicked() {
+				crate::open!(self, album);
+			} else if resp.secondary_clicked() {
+				crate::add_song!(self, song.title, *key);
 			}
+
 			rect.max.x = rect.min.x;
 
 			ui.allocate_ui_at_rect(rect, |ui| {

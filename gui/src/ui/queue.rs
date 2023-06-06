@@ -22,10 +22,6 @@ impl crate::data::Gui {
 pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
 	self.set_visuals(ui);
 
-	// Sizing.
-	let width  = ui.available_width();
-	let height = ui.available_height();
-
 	//-------------------------------------------------- Queue.
 	ScrollArea::both()
 		.id_source("Queue")
@@ -34,11 +30,20 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 		.auto_shrink([false; 2])
 		.show_viewport(ui, |ui, _|
 	{
+		// Sizing.
+		let width  = ui.available_width();
+		let height = ui.available_height();
+		const REMOVE_SONG_SIZE: f32 = 35.0;
+		const REMOVE_SIZE:      f32 = REMOVE_SONG_SIZE * 2.0;
+
+		if ui.add_sized([width - 10.0, REMOVE_SIZE], Button::new("Clear queue and stop playback")).clicked() {
+			crate::clear_stop!(self);
+		}
+
+		ui.add_space(10.0);
+
 		let mut current_artist = None;
 		let mut current_album  = None;
-
-		const REMOVE_SONG_SIZE:  f32 = 35.0;
-		const REMOVE_ALBUM_SIZE: f32 = REMOVE_SONG_SIZE * 2.0;
 
 		for (index, key) in self.audio_state.queue.iter().enumerate() {
 			let (artist, album, song) = self.collection.walk(key);
@@ -61,7 +66,7 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 				ui.horizontal(|ui| {
 					// Remove button.
 					let button = Button::new(RichText::new("-").size(REMOVE_SONG_SIZE));
-					if ui.add_sized([REMOVE_ALBUM_SIZE, REMOVE_ALBUM_SIZE], button).clicked() {
+					if ui.add_sized([REMOVE_SIZE, REMOVE_SIZE], button).clicked() {
 						// HACK:
 						// Iterate until we find a `Song` that doesn't
 						// belong to the same `Album`.
@@ -159,8 +164,13 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 					self.audio_state.queue_idx == Some(index) &&
 					self.audio_state.song      == Some(*key);
 
-				if ui.put(rect, SelectableLabel::new(same, "")).clicked() {
+				let resp = ui.put(rect, SelectableLabel::new(same, ""));
+				if resp.clicked() {
 					crate::play_queue_index!(self, index);
+				} else if resp.middle_clicked() {
+					crate::open!(self, album);
+				} else if resp.secondary_clicked() {
+					crate::add_song!(self, song.title, *key);
 				}
 
 

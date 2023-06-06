@@ -325,15 +325,13 @@ impl Audio {
 			Volume(v)  => self.volume(v),
 //
 //			// Queue.
-//			AddQueueSongFront((s_key, clear))     => self.add_queue_song(s_key, clear,      Append::Front),
-//			AddQueueSongBack((s_key, clear))      => self.add_queue_song(s_key, clear,      Append::Back),
-			AddQueueAlbum((al_key, append, clear, offset))   => self.add_queue_album(al_key, append, clear, offset),
-//			AddQueueAlbumBack((al_key, clear))    => self.add_queue_album(al_key, clear,    Append::Back),
-//			AddQueueArtistFront((ar_key, clear))  => self.add_queue_artist(ar_key, clear,   Append::Front),
-//			AddQueueArtistBack((ar_key, clear))   => self.add_queue_artist(ar_key, clear,   Append::Back),
-			Seek(f)   => self.seek(f, &mut AUDIO_STATE.write()),
-			Skip(num) => self.skip(num),
-			Back(num) => self.back(num),
+			AddQueueSong((s_key, append, clear))           => self.add_queue_song(s_key, append, clear),
+			AddQueueAlbum((al_key, append, clear, offset)) => self.add_queue_album(al_key, append, clear, offset),
+//			AddQueueArtist((ar_key, clear))   => self.add_queue_artist(ar_key, clear,   Append::Back),
+			Clear(play) => self.clear(play, &mut AUDIO_STATE.write()),
+			Seek(f)     => self.seek(f, &mut AUDIO_STATE.write()),
+			Skip(num)   => self.skip(num),
+			Back(num)   => self.back(num),
 //
 //			// Queue Index.
 			SetQueueIndex(idx)      => self.set_queue_index(idx),
@@ -475,6 +473,10 @@ impl Audio {
 		state.song      = None;
 
 		self.state.playing = keep_playing;
+		if !keep_playing {
+			self.seek    = None;
+			self.current = None;
+		}
 	}
 
 	//-------------------------------------------------- Audio playback.
@@ -652,7 +654,7 @@ impl Audio {
 
 	//-------------------------------------------------- Audio settings.
 	fn shuffle(&mut self, shuffle: Shuffle) {
-		trace!("Audio - {shuffle:?}");
+		trace!("Audio - Shuffle::{shuffle:?}");
 
 		let mut state = AUDIO_STATE.write();
 		match shuffle {
@@ -663,7 +665,7 @@ impl Audio {
 	}
 
 	fn repeat(&mut self, repeat: Repeat) {
-		trace!("Audio - {repeat:?}");
+		trace!("Audio - Repeat::{repeat:?}");
 		AUDIO_STATE.write().repeat = repeat;
 	}
 
@@ -673,28 +675,44 @@ impl Audio {
 		AUDIO_STATE.write().volume = volume;
 	}
 
-//	//-------------------------------------------------- Queue.
-//	fn add_queue_song(&mut self, song: SongKey, clear: bool, append: Append) {
-//		trace!("Audio - add_queue_song({song:?}) - {append:?}");
-//
-//		let mut state = AUDIO_STATE.write();
-//
-//		if clear {
-//			self.clear_queue_sink(true, &mut state)
-//		}
-//
-//		if let Some((song, key)) = self.to_source(song) {
-//			self.sink.append(song, Some(append));
-//
-//			state.queue.push_front(key);
-//			state.queue_idx = Some(0);
-//			state.song = Some(key);
-//			state.queue.push_front(key);
-//			state.queue_idx = Some(0);
-//			state.song = Some(key);
-//		}
-//	}
-//
+	//-------------------------------------------------- Queue.
+	fn add_queue_song(
+		&mut self,
+		key: SongKey,
+		append: Append,
+		clear: bool,
+	) {
+		trace!("Audio - add_queue_song({key:?}, {append:?}, {clear})");
+
+		let mut state = AUDIO_STATE.write();
+
+		if clear {
+			self.clear(clear, &mut state)
+		}
+
+		match append {
+			Append::Back  => {
+				state.queue.push_back(key);
+				if self.current.is_none() {
+					state.queue_idx = Some(0);
+					self.set(key, &mut state);
+				}
+			},
+			Append::Front => {
+				state.queue.push_front(key);
+				state.queue_idx = Some(0);
+				self.set(key, &mut state);
+			},
+			Append::Index(i) => {
+				state.queue.insert(i, key);
+				if i == 0 {
+					state.queue_idx = Some(0);
+					self.set(key, &mut state);
+				}
+			}
+		}
+	}
+
 
 	fn add_queue_album(
 		&mut self,
@@ -703,12 +721,12 @@ impl Audio {
 		clear: bool,
 		offset: usize,
 	) {
-		trace!("Audio - add_queue_album({key:?}, {append:?}, {clear:?})");
+		trace!("Audio - add_queue_album({key:?}, {append:?}, {clear:?}, {offset})");
 
 		let mut state = AUDIO_STATE.write();
 
 		if clear {
-			self.clear(true, &mut state)
+			self.clear(clear, &mut state)
 		}
 
 		// Prevent bad offsets panicking.

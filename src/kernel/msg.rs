@@ -71,6 +71,9 @@ pub enum FrontendToKernel {
 	///
 	/// If the offset is out of bounds, we will start at the first `Song`.
 	AddQueueArtist((ArtistKey, Append, bool, usize)),
+	/// Clear the entire queue.
+	/// - [`bool`]: should we still continue playback on the current song?
+	Clear(bool),
 	/// Seek to this second in current song.
 	///
 	/// This will end the song if the [`usize`] is
