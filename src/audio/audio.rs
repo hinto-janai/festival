@@ -137,11 +137,6 @@ impl Audio {
 			sleep!(RETRY_SECONDS);
 		};
 
-		// Re-write global `AudioState`.
-		let queue_len = state.queue.len();
-		let audio_state = state.clone();
-		*AUDIO_STATE.write() = audio_state;
-
 		// Init data.
 		let audio = Self {
 			output,
@@ -907,6 +902,7 @@ impl Audio {
 	}
 
 	//-------------------------------------------------- Restore Audio State.
+	// Sets the global `AUDIO_STATE` to our local `self.state`.
 	fn restore_audio_state(&mut self) {
 		trace!("Audio - restore_audio_state()");
 
@@ -916,28 +912,24 @@ impl Audio {
 		// `Kernel` validates `AUDIO_STATE` before handing
 		// it off to `Audio` so we should be safe to assume
 		// the state holds proper indices into the `Collection`.
-		let key = {
-			state.if_copy(&mut self.state);
+		trace!("Audio - Restoring: {:#?}", self.state);
+		*state = self.state.clone();
 
-			if let Some(key) = state.queue_idx {
-				Some(state.queue[key])
-			} else {
-				None
+		if state.playing {
+			if let Some(index) = state.queue_idx {
+				let key = state.queue[index];
+				let elapsed = state.elapsed.usize();
+
+				debug!("Audio - Restore ... setting {key:?}");
+				self.set(key, &mut state);
+
+				if elapsed > 0 {
+					debug!("Audio - Restore ... seeking {}/{}", state.elapsed, state.runtime);
+					self.seek(elapsed, &mut state);
+				} else {
+					debug!("Audio - Restore ... skipping seek");
+				}
 			}
-		};
-
-		trace!("Audio - Restore: {:#?}", self.state);
-		if let Some(key) = key {
-			debug!("Audio - Restore ... setting {key:?}");
-			self.set(key, &mut state);
-		}
-
-		let elapsed = self.state.elapsed.usize();
-		if elapsed > 0 {
-			debug!("Audio - Restore ... seeking {}/{}", self.state.elapsed, self.state.runtime);
-			self.seek(elapsed, &mut state);
-		} else {
-			debug!("Audio - Restore ... skipping seek");
 		}
 	}
 
