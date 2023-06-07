@@ -148,7 +148,7 @@ fn paint_albums(
 								ui.add_sized([pixel, 0.0], Label::new(RichText::new(album.title.head_dot(ALBUM_TITLE_LIMIT).as_str()).color(LESS_WHITE))).on_hover_ui(hover);
 
 								// Artist name.
-								let artist = &self.collection.artist_from_album(key);
+								let (artist, _) = &self.collection.artist_from_album(key);
 								let artist_name = Label::new(artist.name.head_dot(label_width).as_str()).sense(Sense::click());
 								// We don't use `crate::artist_label!()` here
 								// because we need a custom `ui.add_sized()`

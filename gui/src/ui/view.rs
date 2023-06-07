@@ -157,7 +157,7 @@ pub(super) fn show_tab_view_right_panel(&mut self, album_key: Option<AlbumKey>, 
 		// - Find the artist of this album
 		// - Iterate over all the albums of that artist
 		// - Make the album we're on pop out
-		let artist = self.collection.artist_from_album(album_key);
+		let (artist, artist_key) = self.collection.artist_from_album(album_key);
 		let albums = artist.albums.iter();
 
 		// How big the albums (on the right side) should be.
@@ -165,6 +165,7 @@ pub(super) fn show_tab_view_right_panel(&mut self, album_key: Option<AlbumKey>, 
 
 		// The scrollable area.
 		ScrollArea::vertical()
+			.id_source(artist_key)
 			.max_width(width)
 			.max_height(f32::INFINITY)
 			.auto_shrink([false; 2])

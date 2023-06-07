@@ -56,39 +56,6 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 	// Set sizes.
 	let text = height / 25.0;
 
-	// Reset/Save.
-	let reset = Button::new(
-		RichText::new("Reset")
-		.color(BONE)
-		.text_style(TextStyle::Heading)
-	);
-	let save = Button::new(
-		RichText::new("Save")
-		.color(BONE)
-		.text_style(TextStyle::Heading)
-	);
-
-	ui.add_space(15.0);
-	ui.horizontal_top(|ui| {
-	ui.group(|ui| {
-		let width = (width / 2.0) - 10.0;
-
-		ui.set_enabled(self.diff_settings());
-
-		if ui.add_sized([width, text], reset).on_hover_text(RESET).clicked() {
-			self.reset_settings();
-		}
-
-		if ui.add_sized([width, text], save).on_hover_text(SAVE).clicked() {
-			if let Err(e) = self.save_settings() {
-				crate::toast_err!(self, "Settings save failed: {e}");
-			}
-		}
-	})});
-
-	ui.add_space(15.0);
-	ui.separator();
-
 	//-------------------------------------------------- Main ScrollArea.
 	ScrollArea::vertical()
 		.id_source("Settings")
@@ -98,9 +65,42 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 		.auto_shrink([false; 2])
 		.show_viewport(ui, |ui, _|
 	{
+		//-------------------------------------------------- Reset/Save
+		let reset = Button::new(
+			RichText::new("Reset")
+			.color(BONE)
+			.text_style(TextStyle::Heading)
+		);
+		let save = Button::new(
+			RichText::new("Save")
+			.color(BONE)
+			.text_style(TextStyle::Heading)
+		);
+
+		ui.add_space(15.0);
+		ui.horizontal_top(|ui| {
+		ui.group(|ui| {
+			let width = (width / 2.0) - 18.0;
+
+			ui.set_enabled(self.diff_settings());
+
+			if ui.add_sized([width, text], reset).on_hover_text(RESET).clicked() {
+				self.reset_settings();
+			}
+
+			if ui.add_sized([width, text], save).on_hover_text(SAVE).clicked() {
+				if let Err(e) = self.save_settings() {
+					crate::toast_err!(self, "Settings save failed: {e}");
+				}
+			}
+		})});
+
+		ui.add_space(20.0);
+		ui.separator();
 		ui.add_space(40.0);
 
 		//-------------------------------------------------- Collection paths.
+
 		// Heading.
 		let label = Label::new(
 			RichText::new("Collection")

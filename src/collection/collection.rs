@@ -477,7 +477,7 @@ impl Collection {
 	/// but not necessarily starting from the first [`Song`].
 	pub fn song_tail<K: Into<SongKey>>(&self, key: K) -> std::iter::Peekable<std::slice::Iter<'_, SongKey>> {
 		let key = key.into();
-		let album = self.album_from_song(key);
+		let (album, _) = self.album_from_song(key);
 		let mut iter = album.songs.iter().peekable();
 
 		// The input `SongKey` should _always_ be found
@@ -665,8 +665,9 @@ impl Collection {
 	///
 	/// # Panics:
 	/// The [`AlbumKey`] must be a valid index.
-	pub fn artist_from_album<K: Into<AlbumKey>>(&self, key: K) -> &Artist {
-		&self.artists[self.albums[key.into()].artist]
+	pub fn artist_from_album<K: Into<AlbumKey>>(&self, key: K) -> (&Artist, ArtistKey) {
+		let album = &self.albums[key.into()];
+		(&self.artists[album.artist], album.artist)
 	}
 
 	#[inline(always)]
@@ -674,8 +675,9 @@ impl Collection {
 	///
 	/// # Panics:
 	/// The [`SongKey`] must be a valid index.
-	pub fn album_from_song<K: Into<SongKey>>(&self, key: K) -> &Album {
-		&self.albums[self.songs[key.into()].album]
+	pub fn album_from_song<K: Into<SongKey>>(&self, key: K) -> (&Album, AlbumKey) {
+		let song = &self.songs[key.into()];
+		(&self.albums[song.album], song.album)
 	}
 
 	#[inline(always)]
@@ -683,7 +685,7 @@ impl Collection {
 	///
 	/// # Panics:
 	/// The [`SongKey`] must be a valid index.
-	pub fn artist_from_song<K: Into<SongKey>>(&self, key: K) -> &Artist {
+	pub fn artist_from_song<K: Into<SongKey>>(&self, key: K) -> (&Artist, ArtistKey) {
 		self.artist_from_album(self.songs[key.into()].album)
 	}
 

@@ -294,7 +294,7 @@ CentralPanel::default().show(ctx, |ui| {
 					for key in self.state.search_result.albums.iter() {
 						body.row(130.0, |mut row| {
 							let album  = &self.collection.albums[key];
-							let artist = self.collection.artist_from_album(key);
+							let (artist, _) = self.collection.artist_from_album(key);
 
 							row.col(|ui| {
 								crate::album_button!(self, album, *key, ui, ctx, 120.0, "");

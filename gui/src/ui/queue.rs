@@ -41,7 +41,7 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 		const SIZE2: f32 = SIZE * 2.0;
 
 		ui.horizontal(|ui| {
-			let width = (width / 4.0) - 10.0;
+			let width = (width / 3.0) - 10.0;
 
 			let button = Button::new(RichText::new(UI_QUEUE_CLEAR).size(SIZE));
 			if ui.add_sized([width, SIZE2], button).on_hover_text(QUEUE_CLEAR).clicked() {
@@ -53,15 +53,13 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 			}
 
 			let len = self.audio_state.queue.len();
-			if len != 0 {
-				let index = self.audio_state.queue_idx.unwrap_or(0) + 1;
-				let text = Label::new(
-					RichText::new(format!("[{index}/{len}]"))
-						.color(BONE)
-						.text_style(TextStyle::Name("30".into()))
-				);
-				ui.add_sized([width * 2.0, SIZE2], text);
-			}
+			let index = if len == 0 { 0 } else { self.audio_state.queue_idx.unwrap_or(0) + 1 };
+			let text = Label::new(
+				RichText::new(format!("[{index}/{len}]"))
+					.color(BONE)
+					.text_style(TextStyle::Name("30".into()))
+			);
+			ui.add_sized([ui.available_width(), SIZE2], text);
 		});
 
 		ui.add_space(5.0);
