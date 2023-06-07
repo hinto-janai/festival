@@ -62,6 +62,9 @@ pub struct Gui {
 	// act as flags or some small thing for
 	// functionality in the GUI.
 
+	/// Should we raise the window to the top so it's visible?
+	pub raise: Arc<AtomicBool>,
+
 	/// Audio State.
 	/// A local copy of shukusai's `AUDIO_STATE`
 	/// so we don't have to lock it every loop.
@@ -126,6 +129,8 @@ pub struct Gui {
 	pub exit_instant: Instant,
 	/// How long before we force quit without saving.
 	pub exit_countdown: Arc<AtomicU8>,
+	/// How `souvlaki` communicates with us.
+	pub should_exit: Arc<AtomicBool>,
 
 	// Reset/Collection state.
 	/// Are we in the middle of resetting the [`Collection`]?

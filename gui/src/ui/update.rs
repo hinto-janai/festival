@@ -113,6 +113,16 @@ impl eframe::App for Gui {
 	//-------------------------------------------------------------------------------- Main event loop.
 	#[inline(always)]
 	fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+		// If `souvlaki` sent an exit signal.
+		if atomic_load!(self.should_exit) {
+			self.on_close_event();
+		}
+		// If `souvlaki` sent a `Raise` signal.
+		if atomic_load!(self.raise) {
+			frame.set_always_on_top(true);
+			frame.set_always_on_top(false);
+		}
+
 		// Acquire a local copy of the `AUDIO_STATE`.
 		AUDIO_STATE.read().if_copy(&mut self.audio_state);
 

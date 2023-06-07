@@ -30,6 +30,7 @@ use benri::{
 	now,
 	send,
 	log::*,
+	atomic_store,
 };
 use log::{
 	info,
@@ -111,7 +112,11 @@ impl crate::data::Gui {
 	}
 
 	#[inline(always)]
-	fn init_media_control(to_kernel: Sender<FrontendToKernel>) -> souvlaki::MediaControls {
+	fn init_media_control(
+		to_kernel: Sender<FrontendToKernel>,
+		raise: Arc<AtomicBool>,
+		should_exit: Arc<AtomicBool>,
+	) -> souvlaki::MediaControls {
 		#[cfg(target_os = "windows")]
 		let hwnd = todo!();
 
@@ -147,10 +152,10 @@ impl crate::data::Gui {
 						SeekDirection::Backward => send!(to_kernel, FrontendToKernel::Seek((Seek::Backward, time.as_secs()))),
 					}
 				},
-				SetPosition(pos)      => todo!(),
-				OpenUri(string)       => todo!(),
-				Raise                 => todo!(),
-				Quit                  => todo!(),
+				SetPosition(time)      => send!(to_kernel, FrontendToKernel::Seek((Seek::Absolute, time.0.as_secs()))),
+				OpenUri(string)       => warn!("GUI - Ignoring OpenURI({string})"),
+				Raise                 => atomic_store!(raise, true),
+				Quit                  => atomic_store!(should_exit, true),
 			}
 		}).unwrap();
 
@@ -215,7 +220,13 @@ impl crate::data::Gui {
 		}
 
 		// Media controls.
-		let media_controls = Self::init_media_control(to_kernel.clone());
+		let raise          = Arc::new(AtomicBool::new(false));
+		let should_exit    = Arc::new(AtomicBool::new(false));
+		let media_controls = Self::init_media_control(
+			to_kernel.clone(),
+			Arc::clone(&raise),
+			Arc::clone(&should_exit),
+		);
 		info!("GUI [4/8] - Media controls");
 
 		// Style
@@ -250,6 +261,7 @@ impl crate::data::Gui {
 
 			// Media controls.
 			media_controls,
+			raise,
 
 			// AudioState.
 			audio_state: AudioState::new(),
@@ -280,6 +292,7 @@ impl crate::data::Gui {
 			exiting: false,
 			exit_instant: now!(),
 			exit_countdown: Arc::new(AtomicU8::new(EXIT_COUNTDOWN)),
+			should_exit,
 
 			resetting_collection: false,
 			kernel_returned: false,
