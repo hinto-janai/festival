@@ -127,15 +127,26 @@ impl crate::data::Gui {
 		let mut media_controls = souvlaki::MediaControls::new(config).unwrap();
 
 		media_controls.attach(move |event| {
-			use souvlaki::MediaControlEvent::*;
+			use souvlaki::{SeekDirection, MediaControlEvent::*};
+			use shukusai::kernel::Seek;
 			match event {
 				Play                  => send!(to_kernel, FrontendToKernel::Play),
 				Pause|Stop            => send!(to_kernel, FrontendToKernel::Pause),
 				Toggle                => send!(to_kernel, FrontendToKernel::Toggle),
 				Next                  => send!(to_kernel, FrontendToKernel::Next),
 				Previous              => send!(to_kernel, FrontendToKernel::Previous),
-				Seek(seek_dir)        => todo!(),
-				SeekBy(seek_dir, dur) => todo!(),
+				Seek(direction)       => {
+					match direction {
+						SeekDirection::Forward  => send!(to_kernel, FrontendToKernel::Seek((Seek::Forward, 5))),
+						SeekDirection::Backward => send!(to_kernel, FrontendToKernel::Seek((Seek::Backward, 5))),
+					}
+				},
+				SeekBy(direction, time) => {
+					match direction {
+						SeekDirection::Forward  => send!(to_kernel, FrontendToKernel::Seek((Seek::Forward, time.as_secs()))),
+						SeekDirection::Backward => send!(to_kernel, FrontendToKernel::Seek((Seek::Backward, time.as_secs()))),
+					}
+				},
 				SetPosition(pos)      => todo!(),
 				OpenUri(string)       => todo!(),
 				Raise                 => todo!(),

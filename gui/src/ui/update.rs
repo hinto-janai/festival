@@ -120,7 +120,7 @@ impl eframe::App for Gui {
 		if secs_f32!(self.audio_leeway) > 0.05 {
 			self.state.volume  = self.audio_state.volume.inner();
 			self.state.repeat  = self.audio_state.repeat;
-			self.audio_seek    = self.audio_state.elapsed.usize();
+			self.audio_seek    = self.audio_state.elapsed.inner() as u64;
 		}
 
 		// Set resize leeway.
@@ -558,7 +558,7 @@ fn show_bottom(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width:
 			// Runtime/seek slider.
 			let resp = ui.add_sized(
 				[width, height],
-				Slider::new(&mut self.audio_seek, 0..=self.audio_state.runtime.usize())
+				Slider::new(&mut self.audio_seek, 0..=self.audio_state.runtime.inner() as u64)
 					.smallest_positive(1.0)
 					.show_value(false)
 					.thickness(h*2.0)
@@ -568,7 +568,7 @@ fn show_bottom(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width:
 			// Only send signal if the slider was dragged + released.
 			if resp.drag_released() {
 				self.audio_leeway = now!();
-				send!(self.to_kernel, FrontendToKernel::Seek(self.audio_seek));
+				send!(self.to_kernel, FrontendToKernel::Seek((shukusai::kernel::Seek::Absolute, self.audio_seek)));
 			}
 
 			let time = format!("{} / {}", readable::Runtime::from(self.audio_seek), self.audio_state.runtime);

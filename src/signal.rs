@@ -76,8 +76,14 @@ impl_signal_content! {
 	Volume, crate::audio::Volume, "volume",
 	"Contents should be a [`Volume`].",
 
-	Seek, usize, "seek",
-	"Contents should be a [`usize`] representing which second to seek to in the current [`Song`]. Will skip if the value if larger than the current [`Song`]'s runtime.",
+	Seek, u64, "seek",
+	"Contents should be a [`u64`] representing the absolute second to seek to in the current [`Song`]. Will skip if the value if larger than the current [`Song`]'s runtime.",
+
+	SeekForward, u64, "seek_forward",
+	"Contents should be a [`u64`] representing how many seconds to seek forwards in the current [`Song`]. Will skip if the value if larger than the current [`Song`]'s runtime.",
+
+	SeekBackward, u64, "seek_backward",
+	"Contents should be a [`u64`] representing how many seconds to seek backwards in the current [`Song`]. Will reset the song if under-bounds",
 
 	Index, usize, "index",
 	"Contents should be a [`usize`]. This skips to an index in the queue starting from 0. Will end the queue if the index is out of bounds.",

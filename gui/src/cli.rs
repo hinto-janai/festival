@@ -54,9 +54,17 @@ pub struct Cli {
 	#[arg(value_parser = clap::value_parser!(u8).range(0..=100))]
 	volume: Option<u8>,
 
-	/// Seek to the `SEEK` second in the current song
+	/// Seek to the absolute `SEEK` second in the current song
 	#[arg(long)]
-	seek: Option<usize>,
+	seek: Option<u64>,
+
+	/// Seek `SEEK_FORWARD` seconds forward in the current song
+	#[arg(long)]
+	seek_forward: Option<u64>,
+
+	/// Seek `SEEK_BACKWARD` seconds backwards in the current song
+	#[arg(long)]
+	seek_backward: Option<u64>,
 
 	/// Set the current song to the index `INDEX` in the queue.
 	///
@@ -129,6 +137,12 @@ impl Cli {
 			if let Err(e) = signal.save() { error!("Failed: {e}"); exit(1); } else { exit(0); }
 		} else if let Some(seek) = cli.seek {
 			let signal = shukusai::signal::Seek(seek);
+			if let Err(e) = signal.save() { error!("Failed: {e}"); exit(1); } else { exit(0); }
+		} else if let Some(seek) = cli.seek_forward {
+			let signal = shukusai::signal::SeekForward(seek);
+			if let Err(e) = signal.save() { error!("Failed: {e}"); exit(1); } else { exit(0); }
+		} else if let Some(seek) = cli.seek_backward {
+			let signal = shukusai::signal::SeekBackward(seek);
 			if let Err(e) = signal.save() { error!("Failed: {e}"); exit(1); } else { exit(0); }
 		} else if let Some(index) = cli.index {
 			let signal = shukusai::signal::Index(index);

@@ -410,7 +410,7 @@ impl Kernel {
 	#[inline(always)]
 	// We got a message from `GUI`.
 	fn msg_frontend(&mut self, msg: FrontendToKernel) {
-		use super::FrontendToKernel::*;
+		use crate::kernel::FrontendToKernel::*;
 		match msg {
 			// Audio playback.
 			Toggle               => send!(self.to_audio, KernelToAudio::Toggle),
@@ -421,7 +421,7 @@ impl Kernel {
 			// Audio settings.
 			Repeat(r)            => send!(self.to_audio, KernelToAudio::Repeat(r)),
 			Volume(volume)       => send!(self.to_audio, KernelToAudio::Volume(volume)),
-			Seek(second)         => send!(self.to_audio, KernelToAudio::Seek(second)),
+			Seek(tuple)          => send!(self.to_audio, KernelToAudio::Seek(tuple)),
 
 			// Queue.
 			AddQueueSong(tuple)     => send!(self.to_audio, KernelToAudio::AddQueueSong(tuple)),
@@ -473,7 +473,7 @@ impl Kernel {
 	// We got a message from `Watch`.
 	fn msg_watch(&self, msg: WatchToKernel) {
 		use crate::watch::WatchToKernel::*;
-		use crate::audio::Repeat;
+		use crate::audio::{Seek, Repeat};
 		match msg {
 			Toggle        => send!(self.to_audio, KernelToAudio::Toggle),
 			Play          => send!(self.to_audio, KernelToAudio::Play),
@@ -487,11 +487,13 @@ impl Kernel {
 			RepeatOff     => send!(self.to_audio, KernelToAudio::Repeat(Repeat::Off)),
 
 			// Content signals.
-			Volume(v) => send!(self.to_audio, KernelToAudio::Volume(v)),
-			Seek(s)   => send!(self.to_audio, KernelToAudio::Seek(s)),
-			Index(s)  => send!(self.to_audio, KernelToAudio::SetQueueIndex(s)),
-			Skip(s)   => send!(self.to_audio, KernelToAudio::Skip(s)),
-			Back(s)   => send!(self.to_audio, KernelToAudio::Back(s)),
+			Volume(v)       => send!(self.to_audio, KernelToAudio::Volume(v)),
+			Seek(s)         => send!(self.to_audio, KernelToAudio::Seek((Seek::Absolute, s))),
+			SeekForward(s)  => send!(self.to_audio, KernelToAudio::Seek((Seek::Forward, s))),
+			SeekBackward(s) => send!(self.to_audio, KernelToAudio::Seek((Seek::Backward, s))),
+			Index(s)        => send!(self.to_audio, KernelToAudio::SetQueueIndex(s)),
+			Skip(s)         => send!(self.to_audio, KernelToAudio::Skip(s)),
+			Back(s)         => send!(self.to_audio, KernelToAudio::Back(s)),
 		}
 	}
 

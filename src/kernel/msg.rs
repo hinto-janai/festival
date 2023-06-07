@@ -17,7 +17,7 @@ use std::path::PathBuf;
 use crate::kernel::{
 	ResetState,Kernel,SearchKind,
 };
-use crate::audio::{Volume, Append, Repeat};
+use crate::audio::{Volume, Append, Repeat, Seek};
 use readable::Percent;
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
@@ -74,11 +74,11 @@ pub enum FrontendToKernel {
 	/// Clear the entire queue.
 	/// - [`bool`]: should we still continue playback on the current song?
 	Clear(bool),
-	/// Seek to this second in current song.
+	/// Seek the current song.
 	///
-	/// This will end the song if the [`usize`] is
-	/// greater than the total runtime of the [`Song`].
-	Seek(usize),
+	/// [`Seek`]: forwards, backwards, or absolute?
+	/// [`u64`]: what second?
+	Seek((Seek, u64)),
 	/// Skip `usize` amount of `Song`'s.
 	///
 	/// This doesn't delete the skipped song from the queue, it just skips playback.

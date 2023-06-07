@@ -15,6 +15,6 @@ pub use search_kind::SearchKind;
 
 // Audio re-export.
 pub use crate::audio::{
-	Volume,Append,Repeat,
+	Volume,Append,Repeat,Seek,
 	AudioState,AudioStateLock,AUDIO_STATE,
 };

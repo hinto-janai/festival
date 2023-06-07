@@ -69,7 +69,7 @@ pub struct Gui {
 	/// A local copy of our seek time.
 	/// This is the thing we send `Kernel` when
 	/// we want to seek the audio.
-	pub audio_seek: usize,
+	pub audio_seek: u64,
 	/// Since we copy `AUDIO_STATE`'s audio time every loop,
 	/// the slider will bounce back and flicker during the
 	/// few frames we are waiting for our message to pass

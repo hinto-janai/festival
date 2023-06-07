@@ -14,6 +14,8 @@ mod append;
 pub use append::Append;
 mod repeat;
 pub use repeat::Repeat;
+mod seek;
+pub use seek::Seek;
 
 // Symphonia-related.
 pub(super) mod output;

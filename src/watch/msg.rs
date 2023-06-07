@@ -20,7 +20,9 @@ pub(crate) enum WatchToKernel {
 
 	// Content signals.
 	Volume(Volume),
-	Seek(usize),
+	Seek(u64),
+	SeekForward(u64),
+	SeekBackward(u64),
 	Index(usize),
 	Skip(usize),
 	Back(usize),

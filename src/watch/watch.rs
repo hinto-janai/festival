@@ -96,11 +96,13 @@ impl Watch {
 		if let Err(e) = RepeatOff::rm()     { error!("Watch - RepeatOff: {}", e); }
 
 		// Content files.
-		if let Err(e) = Volume::rm() { error!("Watch - Volume: {}", e); }
-		if let Err(e) = Seek::rm()   { error!("Watch - Seek: {}", e); }
-		if let Err(e) = Index::rm()  { error!("Watch - Index: {}", e); }
-		if let Err(e) = Skip::rm()   { error!("Watch - Skip: {}", e); }
-		if let Err(e) = Back::rm()   { error!("Watch - Back: {}", e); }
+		if let Err(e) = Volume::rm()       { error!("Watch - Volume: {}", e); }
+		if let Err(e) = Seek::rm()         { error!("Watch - Seek: {}", e); }
+		if let Err(e) = SeekForward::rm()  { error!("Watch - SeekForward: {}", e); }
+		if let Err(e) = SeekBackward::rm() { error!("Watch - SeekBackward: {}", e); }
+		if let Err(e) = Index::rm()        { error!("Watch - Index: {}", e); }
+		if let Err(e) = Skip::rm()         { error!("Watch - Skip: {}", e); }
+		if let Err(e) = Back::rm()         { error!("Watch - Back: {}", e); }
 	}
 
 	fn main(self) {
@@ -154,11 +156,13 @@ impl Watch {
 			if RepeatOff::exists().is_ok()   { send!(self.to_kernel, WatchToKernel::RepeatOff); }
 
 			// Content signals.
-			if let Ok(v) = Volume::from_file() { send!(self.to_kernel, WatchToKernel::Volume(v.0)); }
-			if let Ok(s) = Skip::from_file()   { send!(self.to_kernel, WatchToKernel::Skip(s.0)); }
-			if let Ok(s) = Index::from_file()  { send!(self.to_kernel, WatchToKernel::Index(s.0)); }
-			if let Ok(s) = Seek::from_file()   { send!(self.to_kernel, WatchToKernel::Seek(s.0)); }
-			if let Ok(s) = Back::from_file()   { send!(self.to_kernel, WatchToKernel::Back(s.0)); }
+			if let Ok(v) = Volume::from_file()       { send!(self.to_kernel, WatchToKernel::Volume(v.0)); }
+			if let Ok(s) = Skip::from_file()         { send!(self.to_kernel, WatchToKernel::Skip(s.0)); }
+			if let Ok(s) = Index::from_file()        { send!(self.to_kernel, WatchToKernel::Index(s.0)); }
+			if let Ok(s) = Seek::from_file()         { send!(self.to_kernel, WatchToKernel::Seek(s.0)); }
+			if let Ok(s) = SeekForward::from_file()  { send!(self.to_kernel, WatchToKernel::SeekForward(s.0)); }
+			if let Ok(s) = SeekBackward::from_file() { send!(self.to_kernel, WatchToKernel::SeekBackward(s.0)); }
+			if let Ok(s) = Back::from_file()         { send!(self.to_kernel, WatchToKernel::Back(s.0)); }
 
 			// Clean folder.
 			Self::clean();

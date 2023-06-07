@@ -32,6 +32,7 @@ use crate::audio::{
 	Volume,
 	Append,
 	Repeat,
+	Seek,
 };
 use crossbeam::channel::{Sender,Receiver};
 use std::io::BufReader;
@@ -320,9 +321,9 @@ impl Audio {
 				self.clear(play, &mut AUDIO_STATE.write());
 				gui_request_update();
 			},
-			Seek(f)     => self.seek(f, &mut AUDIO_STATE.write()),
-			Skip(skip)  => self.skip(skip, &mut AUDIO_STATE.write()),
-			Back(back)  => self.back(back, &mut AUDIO_STATE.write()),
+			Seek((seek, time)) => self.seek(seek, time, &mut AUDIO_STATE.write()),
+			Skip(skip)         => self.skip(skip, &mut AUDIO_STATE.write()),
+			Back(back)         => self.back(back, &mut AUDIO_STATE.write()),
 
 			// Queue Index.
 			SetQueueIndex(idx)              => self.set_queue_index(idx),
@@ -602,22 +603,54 @@ impl Audio {
 
 	fn seek(
 		&mut self,
-		seek: usize,
+		seek: Seek,
+		time: u64,
 		state: &mut std::sync::RwLockWriteGuard<'_, AudioState>,
 	) {
-		trace!("Audio - seek({seek})");
+		trace!("Audio - seek({seek:?}, {time})");
 
 		if self.current.is_some() {
-			let runtime = state.runtime.usize();
+			let elapsed = state.elapsed.inner() as u64;
+			let runtime = state.runtime.inner() as u64;
 
-			if seek > runtime {
-				debug!("Audio - seek: {seek} > {runtime}, calling .skip(1)");
-				self.skip(1, state);
-			} else {
-				self.seek = Some(symphonia::core::units::Time {
-					seconds: seek as u64,
-					frac: 0.0
-				});
+			match seek {
+				Seek::Forward => {
+					let seconds = time + elapsed;
+
+					if seconds > runtime {
+						debug!("Audio - seek forward: {seconds} > {runtime}, calling .skip(1)");
+						self.skip(1, state);
+					} else {
+						self.seek = Some(symphonia::core::units::Time {
+							seconds,
+							frac: 0.0
+						});
+					}
+				},
+				Seek::Backward => {
+					let seconds = if time > elapsed {
+						debug!("Audio - seek backward: {time} > {elapsed}, setting to 0");
+						0
+					} else {
+						elapsed - time
+					} as u64;
+
+					self.seek = Some(symphonia::core::units::Time {
+						seconds,
+						frac: 0.0
+					});
+				},
+				Seek::Absolute => {
+					if time > runtime {
+						debug!("Audio - seek absolute: {time} > {runtime}, calling .skip(1)");
+						self.skip(1, state);
+					} else {
+						self.seek = Some(symphonia::core::units::Time {
+							seconds: time as u64,
+							frac: 0.0
+						});
+					}
+				},
 			}
 		}
 
@@ -918,14 +951,14 @@ impl Audio {
 		if state.playing {
 			if let Some(index) = state.queue_idx {
 				let key = state.queue[index];
-				let elapsed = state.elapsed.usize();
+				let elapsed = state.elapsed.inner() as u64;
 
 				debug!("Audio - Restore ... setting {key:?}");
 				self.set(key, &mut state);
 
 				if elapsed > 0 {
 					debug!("Audio - Restore ... seeking {}/{}", state.elapsed, state.runtime);
-					self.seek(elapsed, &mut state);
+					self.seek(Seek::Absolute, elapsed, &mut state);
 				} else {
 					debug!("Audio - Restore ... skipping seek");
 				}

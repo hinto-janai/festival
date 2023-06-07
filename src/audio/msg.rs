@@ -17,6 +17,7 @@ use crate::audio::{
 };
 use crate::audio::append::Append;
 use crate::audio::repeat::Repeat;
+use crate::audio::seek::Seek;
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
 pub(crate) enum AudioToKernel {
@@ -45,7 +46,7 @@ pub(crate) enum KernelToAudio {
 	AddQueueArtist((ArtistKey, Append, bool, usize)),
 	Shuffle,
 	Clear(bool),
-	Seek(usize),
+	Seek((Seek, u64)),
 	Skip(usize),
 	Back(usize),
 
