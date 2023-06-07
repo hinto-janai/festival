@@ -27,6 +27,7 @@ use crate::text::HELP;
 use crate::data::{
 	AlbumSizing,
 	SearchSort,
+	WindowTitle,
 };
 use shukusai::sort::{
 	ArtistSort,AlbumSort,SongSort,
@@ -262,6 +263,32 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 		{
 			for i in SearchKind::iter() {
 				ui.selectable_value(&mut self.settings.search_kind, *i, i.as_str());
+			}
+		});
+
+		ui.add_space(40.0);
+		ui.separator();
+		ui.add_space(40.0);
+
+		//-------------------------------------------------- Window title.
+		// Heading.
+		let label = Label::new(
+			RichText::new("Window Title")
+			.color(BONE)
+			.text_style(TextStyle::Heading)
+		);
+		ui.add_sized([width, text], label).on_hover_text(WINDOW_TITLE);
+
+		ui.add_space(10.0);
+
+		// ComboBox.
+		ui.add_space(10.0);
+		ComboBox::from_id_source("settings_window_title")
+			.selected_text(RichText::new(self.settings.window_title.as_str()).color(BONE))
+			.show_ui(ui, |ui|
+		{
+			for i in WindowTitle::iter() {
+				ui.selectable_value(&mut self.settings.window_title, *i, i.as_str());
 			}
 		});
 

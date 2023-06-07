@@ -14,7 +14,7 @@ use crate::data::{
 };
 use shukusai::{
 	FESTIVAL_DBUS,
-	FESTIVAL_NAME_VER,
+	FESTIVAL,
 };
 use shukusai::kernel::{
 	AudioState,
@@ -120,7 +120,7 @@ impl crate::data::Gui {
 
 		let config = souvlaki::PlatformConfig {
 			dbus_name: FESTIVAL_DBUS,
-			display_name: FESTIVAL_NAME_VER,
+			display_name: FESTIVAL,
 			hwnd,
 		};
 

@@ -36,6 +36,7 @@ use crate::data::{
 	AlbumSizing,
 	SearchSort,
 	ArtistSubTab,
+	WindowTitle,
 };
 
 //---------------------------------------------------------------------------------------------------- Settings
@@ -69,6 +70,9 @@ pub struct Settings {
 	/// To sort by `Song` title or
 	/// `Artist` name in the search tab?
 	pub search_sort: SearchSort,
+
+	/// Which way to set the window title when changing songs.
+	pub window_title: WindowTitle,
 
 	/// Does the user want a certain amount of
 	//// `Album`'s per row or a static pixel size?

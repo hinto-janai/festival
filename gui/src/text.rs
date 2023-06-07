@@ -71,6 +71,7 @@ pub const STATIC_PIXEL_SIZE: &str = formatcp!(
 );
 pub const ALBUM_PER_ROW:     &str = formatcp!("Show [x] amount of albums per row, scaling the pixel size to fit ({ALBUMS_PER_ROW_MIN}-{ALBUMS_PER_ROW_MAX})");
 pub const RESTORE_STATE:     &str = "Restore playback state from the last session when opening Festival";
+pub const WINDOW_TITLE:      &str = "Set Festival's window title when changing songs";
 pub const ACCENT_COLOR:      &str = formatcp!(
 	"Which accent color to use (default: [{}, {}, {}])",
 	ACCENT_COLOR_RGB[0],

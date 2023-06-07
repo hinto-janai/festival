@@ -25,6 +25,7 @@ use crate::data::{
 };
 use disk::{Toml,Plain};
 use log::{error,warn,info,debug,trace};
+use shukusai::FESTIVAL;
 use shukusai::kernel::{
 	AUDIO_STATE,
 	Volume,
@@ -113,7 +114,27 @@ impl eframe::App for Gui {
 	#[inline(always)]
 	fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
 		// Acquire a local copy of the `AUDIO_STATE`.
+		let last_song = self.audio_state.song.clone();
 		AUDIO_STATE.read().if_copy(&mut self.audio_state);
+
+		// Set window title.
+		if last_song != self.audio_state.song {
+			if let Some(key) = self.audio_state.song {
+				let (artist, album, song) = self.collection.walk(key);
+				frame.set_window_title(&self.settings.window_title.format(
+					self.audio_state.queue_idx.unwrap_or(0),
+					self.audio_state.queue.len(),
+					&song.runtime,
+					&artist.name,
+					&album.title,
+					&song.title,
+				));
+			} else {
+				frame.set_window_title(FESTIVAL);
+			}
+		}
+
+		// Audio leeway.
 		if secs_f32!(self.audio_leeway) > 0.05 {
 			self.state.volume  = self.audio_state.volume.inner();
 			self.state.repeat  = self.audio_state.repeat;
