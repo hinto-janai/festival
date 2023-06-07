@@ -489,6 +489,7 @@ impl Kernel {
 			// Content signals.
 			Volume(v) => send!(self.to_audio, KernelToAudio::Volume(v)),
 			Seek(s)   => send!(self.to_audio, KernelToAudio::Seek(s)),
+			Index(s)  => send!(self.to_audio, KernelToAudio::SetQueueIndex(s)),
 			Skip(s)   => send!(self.to_audio, KernelToAudio::Skip(s)),
 			Back(s)   => send!(self.to_audio, KernelToAudio::Back(s)),
 		}

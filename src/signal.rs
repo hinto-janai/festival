@@ -79,11 +79,14 @@ impl_signal_content! {
 	Seek, usize, "seek",
 	"Contents should be a [`usize`] representing which second to seek to in the current [`Song`]. Will skip if the value if larger than the current [`Song`]'s runtime.",
 
+	Index, usize, "index",
+	"Contents should be a [`usize`]. This skips to an index in the queue starting from 0. Will end the queue if the index is out of bounds.",
+
 	Skip, usize, "skip",
 	"Contents should be a [`usize`]. This is similar to `Next`, although you can specify any amount of [`Song`]'s to skip in the queue.",
 
 	Back, usize, "back",
-	"Contents should be a [`back`]. This is the same as `Skip`, although it skips backwards.",
+	"Contents should be a [`usize`]. This is the same as `Skip`, although it skips backwards.",
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

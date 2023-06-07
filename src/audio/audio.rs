@@ -813,14 +813,19 @@ impl Audio {
 		let mut state = AUDIO_STATE.write();
 
 		// Prevent bad index panicking.
+		let len = state.queue.len();
 		if index >= state.queue.len() {
-			warn!("Audio - index is invalid, skipping set_queue_index({index})");
-			return;
+			trace!("Audio - set_queue_index({index}) >= {len}, calling .finish()");
+			self.state.finish();
+			state.finish();
+			self.current = None;
+		} else {
+			trace!("Audio - set_queue_index({index})");
+			state.queue_idx = Some(index);
+			self.set(state.queue[index], &mut state);
 		}
 
-		trace!("Audio - set_queue_index({index})");
-		state.queue_idx = Some(index);
-		self.set(state.queue[index], &mut state);
+		gui_request_update();
 	}
 
 	fn remove_queue_range(

@@ -58,6 +58,14 @@ pub struct Cli {
 	#[arg(long)]
 	seek: Option<usize>,
 
+	/// Set the current song to the index `INDEX` in the queue.
+	///
+	/// NOTE: The queue index starts from 0 (first song is `--index 0`).
+	///
+	/// Providing an index that is out-of-bounds will end the queue (even if repeat is turned on).
+	#[arg(long)]
+	index: Option<usize>,
+
 	/// Skip `SKIP` amount of songs
 	#[arg(long)]
 	skip: Option<usize>,
@@ -121,6 +129,9 @@ impl Cli {
 			if let Err(e) = signal.save() { error!("Failed: {e}"); exit(1); } else { exit(0); }
 		} else if let Some(seek) = cli.seek {
 			let signal = shukusai::signal::Seek(seek);
+			if let Err(e) = signal.save() { error!("Failed: {e}"); exit(1); } else { exit(0); }
+		} else if let Some(index) = cli.index {
+			let signal = shukusai::signal::Index(index);
 			if let Err(e) = signal.save() { error!("Failed: {e}"); exit(1); } else { exit(0); }
 		} else if let Some(skip) = cli.skip {
 			let signal = shukusai::signal::Skip(skip);
