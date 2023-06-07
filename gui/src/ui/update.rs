@@ -114,25 +114,7 @@ impl eframe::App for Gui {
 	#[inline(always)]
 	fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
 		// Acquire a local copy of the `AUDIO_STATE`.
-		let last_song = self.audio_state.song.clone();
 		AUDIO_STATE.read().if_copy(&mut self.audio_state);
-
-		// Set window title.
-		if last_song != self.audio_state.song {
-			if let Some(key) = self.audio_state.song {
-				let (artist, album, song) = self.collection.walk(key);
-				frame.set_window_title(&self.settings.window_title.format(
-					self.audio_state.queue_idx.unwrap_or(0),
-					self.audio_state.queue.len(),
-					&song.runtime,
-					&artist.name,
-					&album.title,
-					&song.title,
-				));
-			} else {
-				frame.set_window_title(FESTIVAL);
-			}
-		}
 
 		// Audio leeway.
 		if secs_f32!(self.audio_leeway) > 0.05 {
@@ -233,10 +215,24 @@ impl Gui {
 			return;
 		}
 
-		// Copy `Kernel`'s `AudioState`.
-//		if self.state.audio.playing {
-//			self.copy_kernel_audio();
-//		}
+		// Set window title.
+		if self.last_song != self.audio_state.song {
+			if let Some(key) = self.audio_state.song {
+				let (artist, album, song) = self.collection.walk(key);
+				frame.set_window_title(&self.settings.window_title.format(
+					self.audio_state.queue_idx.unwrap_or(0),
+					self.audio_state.queue.len(),
+					&song.runtime,
+					&artist.name,
+					&album.title,
+					&song.title,
+				));
+			} else {
+				frame.set_window_title(FESTIVAL);
+			}
+		}
+
+		self.last_song = self.audio_state.song.clone();
 
 		// Update media controls.
 		if let Some(key) = self.audio_state.song {

@@ -14,6 +14,7 @@ use shukusai::kernel::{
 use shukusai::collection::{
 	Collection,
 	Keychain,
+	SongKey,
 };
 use crossbeam::channel::{
 	Sender,Receiver
@@ -75,6 +76,8 @@ pub struct Gui {
 	/// to `Kernel`, then to `Audio`, so create this signal
 	/// so we know we shouldn't overwrite just yet.
 	pub audio_leeway: Instant,
+	/// The [`SongKey`] we were playing in the last frame.
+	pub last_song: Option<SongKey>,
 
 	/// Our max `rect` at the very start of every frame.
 	pub rect: egui::Rect,

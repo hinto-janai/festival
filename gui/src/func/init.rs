@@ -244,6 +244,7 @@ impl crate::data::Gui {
 			audio_state: AudioState::new(),
 			audio_seek: 0,
 			audio_leeway: now!(),
+			last_song: None,
 
 			rect: egui::Rect { min: Default::default(), max: Default::default() },
 			resize_leeway: now!(),
