@@ -21,3 +21,10 @@ pub use seek::Seek;
 pub(super) mod output;
 #[cfg(not(target_os = "linux"))]
 pub(super) mod resampler;
+
+// `souvlaki` Media Controls
+pub(super) mod media_controls;
+pub use media_controls::{
+	MEDIA_CONTROLS_RAISE,
+	MEDIA_CONTROLS_SHOULD_EXIT,
+};

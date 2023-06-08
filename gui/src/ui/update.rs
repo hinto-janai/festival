@@ -114,11 +114,11 @@ impl eframe::App for Gui {
 	#[inline(always)]
 	fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
 		// If `souvlaki` sent an exit signal.
-		if atomic_load!(self.should_exit) {
+		if atomic_load!(shukusai::kernel::MEDIA_CONTROLS_SHOULD_EXIT) {
 			self.on_close_event();
 		}
 		// If `souvlaki` sent a `Raise` signal.
-		if atomic_load!(self.raise) {
+		if atomic_load!(shukusai::kernel::MEDIA_CONTROLS_RAISE) {
 			frame.set_always_on_top(true);
 			frame.set_always_on_top(false);
 		}
@@ -243,23 +243,6 @@ impl Gui {
 		}
 
 		self.last_song = self.audio_state.song.clone();
-
-		// Update media controls.
-		if let Some(key) = self.audio_state.song {
-			let (artist, album, song) = self.collection.walk(key);
-
-			if let Err(e) = self.media_controls
-				.set_metadata(souvlaki::MediaMetadata {
-					title: Some(&song.title),
-					artist: Some(&artist.name),
-					album: Some(&album.title),
-					duration: Some(std::time::Duration::from_secs(song.runtime.inner().into())),
-					..Default::default()
-				})
-			{
-				warn!("GUI - Couldn't update media controls metadata: {e:#?}");
-			}
-		}
 
 		// Show `egui_notify` toasts.
 		self.toasts.show(ctx);

@@ -27,21 +27,19 @@ use crate::collection::{
 use crate::kernel::{
 	Phase,
 };
-use super::msg::{
-	CcdToKernel,
-	KernelToCcd,
-};
 use crate::collection::Art;
 use crossbeam::channel::{Sender,Receiver};
 use std::path::{Path,PathBuf};
 use std::sync::{Arc,RwLock};
-use disk::{Bincode2,Json};
+use disk::{Bincode2,Json,Plain};
 use readable::{
 	Unsigned,
 	Percent,
 };
-use super::convert::{
-	ArtConvertType,
+use crate::ccd::{
+	convert::ArtConvertType,
+	msg::{CcdToKernel,KernelToCcd},
+	image_cache::ImageCache,
 };
 use std::marker::PhantomData;
 
@@ -399,6 +397,42 @@ impl Ccd {
 				0
 			},
 		};
+		// Save images to `~/.cache/festival/image`.
+		match (ImageCache::rm_sub(), ImageCache::base_path()) {
+			(Ok(_), Ok(mut path)) => {
+				let image_cache = ImageCache(collection_for_disk.timestamp);
+				if let Err(e) = image_cache.save() {
+					fail!("CCD - ImageCache: {e}");
+				} else {
+					for (key, album) in collection_for_disk.albums.iter().enumerate() {
+						if let Art::Bytes(bytes) = &album.art {
+							path.push(format!("{key}.jpg"));
+
+							if let Err(e) = std::fs::File::create(&path) {
+								warn!("CCD - ImageCache {e}: {}", path.display());
+								path.pop();
+								continue;
+							}
+
+							match image::save_buffer(
+								&path,
+								&bytes,
+								crate::collection::ALBUM_ART_SIZE as u32,
+								crate::collection::ALBUM_ART_SIZE as u32,
+								image::ColorType::Rgb8,
+							) {
+								Ok(_)  => ok_trace!("CCD - ImageCache: {}", path.display()),
+								Err(e) => warn!("CCD - ImageCache {e}: {}", path.display()),
+							}
+
+							path.pop();
+						}
+					}
+				}
+			},
+			_ => fail!("CCD - ImageCache"),
+		}
+
 		// Set `saving` state.
 		atomic_store!(crate::kernel::SAVING, false);
 		let perf_disk = secs_f32!(now);

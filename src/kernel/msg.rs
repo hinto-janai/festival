@@ -39,6 +39,10 @@ pub enum FrontendToKernel {
 	Next,
 	/// Play the previous song in queue (restart if at first song).
 	Previous,
+	/// Clear the queue and stop playback.
+	///
+	/// This is the same as `Self::Clear(false)`.
+	Stop,
 
 	// Audio settings.
 	/// See [`Repeat`] for the different ways to repeat.

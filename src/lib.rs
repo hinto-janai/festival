@@ -140,6 +140,8 @@ pub use thread::*;
 mod panic;
 pub use panic::Panic;
 
+pub use crate::ccd::ImageCache;
+
 /// The main music `Collection` and its inner data
 pub mod collection;
 

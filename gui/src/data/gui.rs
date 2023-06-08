@@ -54,16 +54,10 @@ pub struct Gui {
 	/// `GUI` settings (old).
 	pub og_state: State,
 
-	//-------------------------------------------------- OS Media controls.
-	pub media_controls: souvlaki::MediaControls,
-
 	//-------------------------------------------------- Ephemeral State.
 	// These are quick one-off fields that mostly
 	// act as flags or some small thing for
 	// functionality in the GUI.
-
-	/// Should we raise the window to the top so it's visible?
-	pub raise: Arc<AtomicBool>,
 
 	/// Audio State.
 	/// A local copy of shukusai's `AUDIO_STATE`
@@ -129,8 +123,6 @@ pub struct Gui {
 	pub exit_instant: Instant,
 	/// How long before we force quit without saving.
 	pub exit_countdown: Arc<AtomicU8>,
-	/// How `souvlaki` communicates with us.
-	pub should_exit: Arc<AtomicBool>,
 
 	// Reset/Collection state.
 	/// Are we in the middle of resetting the [`Collection`]?

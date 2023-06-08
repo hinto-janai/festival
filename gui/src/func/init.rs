@@ -1,4 +1,5 @@
 //---------------------------------------------------------------------------------------------------- Use
+use anyhow::{anyhow,bail};
 use crate::constants::{
 	ICON,
 	VISUALS,
@@ -111,57 +112,6 @@ impl crate::data::Gui {
 		fonts
 	}
 
-	#[inline(always)]
-	fn init_media_control(
-		to_kernel: Sender<FrontendToKernel>,
-		raise: Arc<AtomicBool>,
-		should_exit: Arc<AtomicBool>,
-	) -> souvlaki::MediaControls {
-		#[cfg(target_os = "windows")]
-		let hwnd = todo!();
-
-		#[cfg(not(target_os = "windows"))]
-		let hwnd = None;
-
-		let config = souvlaki::PlatformConfig {
-			dbus_name: FESTIVAL_DBUS,
-			display_name: FESTIVAL,
-			hwnd,
-		};
-
-		let mut media_controls = souvlaki::MediaControls::new(config).unwrap();
-
-		media_controls.attach(move |event| {
-			use souvlaki::{SeekDirection, MediaControlEvent::*};
-			use shukusai::kernel::Seek;
-			match event {
-				Play                  => send!(to_kernel, FrontendToKernel::Play),
-				Pause|Stop            => send!(to_kernel, FrontendToKernel::Pause),
-				Toggle                => send!(to_kernel, FrontendToKernel::Toggle),
-				Next                  => send!(to_kernel, FrontendToKernel::Next),
-				Previous              => send!(to_kernel, FrontendToKernel::Previous),
-				Seek(direction)       => {
-					match direction {
-						SeekDirection::Forward  => send!(to_kernel, FrontendToKernel::Seek((Seek::Forward, 5))),
-						SeekDirection::Backward => send!(to_kernel, FrontendToKernel::Seek((Seek::Backward, 5))),
-					}
-				},
-				SeekBy(direction, time) => {
-					match direction {
-						SeekDirection::Forward  => send!(to_kernel, FrontendToKernel::Seek((Seek::Forward, time.as_secs()))),
-						SeekDirection::Backward => send!(to_kernel, FrontendToKernel::Seek((Seek::Backward, time.as_secs()))),
-					}
-				},
-				SetPosition(time)      => send!(to_kernel, FrontendToKernel::Seek((Seek::Absolute, time.0.as_secs()))),
-				OpenUri(string)       => warn!("GUI - Ignoring OpenURI({string})"),
-				Raise                 => atomic_store!(raise, true),
-				Quit                  => atomic_store!(should_exit, true),
-			}
-		}).unwrap();
-
-		media_controls
-	}
-
 	//---------------------------------------------------------------------------------------------------- `egui/eframe` options & init
 	#[inline(always)]
 	// Sets the initial options for native rendering with eframe
@@ -219,16 +169,6 @@ impl crate::data::Gui {
 			info!("GUI [3/8] - Skipping AudioState");
 		}
 
-		// Media controls.
-		let raise          = Arc::new(AtomicBool::new(false));
-		let should_exit    = Arc::new(AtomicBool::new(false));
-		let media_controls = Self::init_media_control(
-			to_kernel.clone(),
-			Arc::clone(&raise),
-			Arc::clone(&should_exit),
-		);
-		info!("GUI [4/8] - Media controls");
-
 		// Style
 		cc.egui_ctx.set_style(Self::init_style());
 		info!("GUI [5/8] - Style");
@@ -259,10 +199,6 @@ impl crate::data::Gui {
 			og_state: state.clone(),
 			state,
 
-			// Media controls.
-			media_controls,
-			raise,
-
 			// AudioState.
 			audio_state: AudioState::new(),
 			audio_seek: 0,
@@ -292,7 +228,6 @@ impl crate::data::Gui {
 			exiting: false,
 			exit_instant: now!(),
 			exit_countdown: Arc::new(AtomicU8::new(EXIT_COUNTDOWN)),
-			should_exit,
 
 			resetting_collection: false,
 			kernel_returned: false,

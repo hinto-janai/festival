@@ -115,7 +115,10 @@ impl Kernel {
 	/// // Do this.
 	/// Kernel::spawn();
 	/// ```
-	pub fn spawn() -> Result<(Sender<FrontendToKernel>, Receiver<KernelToFrontend>), std::io::Error> {
+	///
+	/// The `media_controls` [`bool`] indicates if `Kernel` should plug into
+	/// the OS and allow communication via the OS-specific media controls.
+	pub fn spawn(media_controls: bool) -> Result<(Sender<FrontendToKernel>, Receiver<KernelToFrontend>), std::io::Error> {
 		// Create `Kernel` <-> `Frontend` channels.
 		let (to_frontend, from_kernel) = crossbeam::channel::unbounded::<KernelToFrontend>();
 		let (to_kernel, from_frontend) = crossbeam::channel::unbounded::<FrontendToKernel>();
@@ -124,15 +127,16 @@ impl Kernel {
 		std::thread::Builder::new()
 			.name("Kernel".to_string())
 			.stack_size(16_000_000) // 16MB stack.
-			.spawn(move || Self::bios(to_frontend, from_frontend))?;
+			.spawn(move || Self::bios(to_frontend, from_frontend, media_controls))?;
 
 		// Return channels.
 		Ok((to_kernel, from_kernel))
 	}
 
 	fn bios(
-		to_frontend:   Sender<KernelToFrontend>,
-		from_frontend: Receiver<FrontendToKernel>,
+		to_frontend:    Sender<KernelToFrontend>,
+		from_frontend:  Receiver<FrontendToKernel>,
+		media_controls: bool,
 	) {
 		// Initialize lazy statics.
 		let _         = Lazy::force(&DUMMY_COLLECTION);
@@ -172,22 +176,23 @@ impl Kernel {
 			// bytes to actual usable `egui` images.
 			Ok(collection) => {
 				ok_debug!("Kernel - Collection{COLLECTION_VERSION} deserialization ... Took {} seconds", secs_f32!(now));
-				Self::boot_loader(collection, to_frontend, from_frontend, *beginning);
+				Self::boot_loader(collection, to_frontend, from_frontend, *beginning, media_controls);
 			},
 			// Else, straight to `init` with default flag set.
 			Err(e) => {
 				warn!("Kernel - Collection{COLLECTION_VERSION} from file error: {}", e);
-				Self::init(None, None, to_frontend, from_frontend, *beginning);
+				Self::init(None, None, to_frontend, from_frontend, *beginning, media_controls);
 			},
 		}
 	}
 
 	//-------------------------------------------------- boot_loader()
 	fn boot_loader(
-		collection:    Collection,
-		to_frontend:   Sender<KernelToFrontend>,
-		from_frontend: Receiver<FrontendToKernel>,
-		beginning:     std::time::Instant,
+		collection:     Collection,
+		to_frontend:    Sender<KernelToFrontend>,
+		from_frontend:  Receiver<FrontendToKernel>,
+		beginning:      std::time::Instant,
+		media_controls: bool,
 	) {
 		debug!("Kernel [2/12] ... entering boot_loader()");
 
@@ -244,20 +249,21 @@ impl Kernel {
 
 		// If everything went ok, continue to `kernel` to verify data.
 		if let Some(collection) = collection {
-			Self::kernel(collection, state, to_frontend, from_frontend, beginning);
+			Self::kernel(collection, state, to_frontend, from_frontend, beginning, media_controls);
 		// Else, skip to `init()`.
 		} else {
-			Self::init(None, None, to_frontend, from_frontend, beginning);
+			Self::init(None, None, to_frontend, from_frontend, beginning, media_controls);
 		}
 	}
 
 	//-------------------------------------------------- kernel()
 	fn kernel(
-		collection:    Arc<Collection>,
-		audio:         Result<AudioState, anyhow::Error>,
-		to_frontend:   Sender<KernelToFrontend>,
-		from_frontend: Receiver<FrontendToKernel>,
-		beginning:     std::time::Instant,
+		collection:     Arc<Collection>,
+		audio:          Result<AudioState, anyhow::Error>,
+		to_frontend:    Sender<KernelToFrontend>,
+		from_frontend:  Receiver<FrontendToKernel>,
+		beginning:      std::time::Instant,
+		media_controls: bool,
 	) {
 		debug!("Kernel [6/12] ... entering kernel()");
 		let audio = match audio {
@@ -281,16 +287,17 @@ impl Kernel {
 			AudioState::new()
 		};
 
-		Self::init(Some(collection), Some(audio), to_frontend, from_frontend, beginning);
+		Self::init(Some(collection), Some(audio), to_frontend, from_frontend, beginning, media_controls);
 	}
 
 	//-------------------------------------------------- init()
 	fn init(
-		collection:    Option<Arc<Collection>>,
-		audio:         Option<AudioState>,
-		to_frontend:   Sender<KernelToFrontend>,
-		from_frontend: Receiver<FrontendToKernel>,
-		beginning:     std::time::Instant,
+		collection:     Option<Arc<Collection>>,
+		audio:          Option<AudioState>,
+		to_frontend:    Sender<KernelToFrontend>,
+		from_frontend:  Receiver<FrontendToKernel>,
+		beginning:      std::time::Instant,
+		media_controls: bool,
 	) {
 		debug!("Kernel [7/12] ... entering init()");
 
@@ -337,7 +344,7 @@ impl Kernel {
 		let collection = Arc::clone(&kernel.collection);
 		if let Err(e) = std::thread::Builder::new()
 			.name("Audio".to_string())
-			.spawn(move || Audio::init(collection, audio, audio_send, audio_recv))
+			.spawn(move || Audio::init(collection, audio, audio_send, audio_recv, media_controls))
 		{
 			panic!("Kernel - failed to spawn Audio: {e}");
 		}
@@ -401,7 +408,10 @@ impl Kernel {
 				i if i == search   => self.msg_search(recv!(self.from_search)),
 				i if i == audio    => self.msg_audio(recv!(self.from_audio)),
 				i if i == watch    => self.msg_watch(recv!(self.from_watch)),
-				_ => error!("Kernel - Received an unknown message"),
+				_ => {
+					error!("Kernel - Received an unknown message");
+					debug_panic!("Kernel - Received an unknown message");
+				},
 			}
 		}
 	}
@@ -418,6 +428,7 @@ impl Kernel {
 			Pause                => send!(self.to_audio, KernelToAudio::Pause),
 			Next                 => send!(self.to_audio, KernelToAudio::Next),
 			Previous             => send!(self.to_audio, KernelToAudio::Previous),
+			Stop                 => send!(self.to_audio, KernelToAudio::Clear(false)),
 			// Audio settings.
 			Repeat(r)            => send!(self.to_audio, KernelToAudio::Repeat(r)),
 			Volume(volume)       => send!(self.to_audio, KernelToAudio::Volume(volume)),
@@ -498,19 +509,6 @@ impl Kernel {
 	}
 
 	//-------------------------------------------------- Misc message handling.
-	#[inline(always)]
-	// Verify the `seek` is valid before sending to `Audio`.
-	fn seek(&self, float: f64) {
-		// TODO
-//		if !lockr!(self.state).audio.playing {
-//			return
-//		}
-//
-//		if float <= lockr!(self.state).audio.current_runtime {
-//			send!(self.to_audio, KernelToAudio::Play);
-//		}
-	}
-
 	#[inline(always)]
 	// The `Frontend` is exiting, save everything.
 	fn exit(&mut self) -> ! {

@@ -34,6 +34,10 @@ use crate::audio::{
 	Repeat,
 	Seek,
 };
+use crate::audio::media_controls::{
+	MEDIA_CONTROLS_RAISE,
+	MEDIA_CONTROLS_SHOULD_EXIT,
+};
 use crossbeam::channel::{Sender,Receiver};
 use std::io::BufReader;
 use std::fs::File;
@@ -97,12 +101,22 @@ pub(crate) struct Audio {
 	// a message, e.g, to change the volume.
 	state: AudioState,
 
+	// OS media controls.
+	//
+	// This is optional for the user, but also
+	// it's `Option` because it might fail.
+	media_controls: Option<souvlaki::MediaControls>,
+	// HACK:
+	// This always exists because of `&` not living
+	// long enough when using `Select` in the main loop.
+	from_mc: Receiver<souvlaki::MediaControlEvent>,
+
 	collection:  Arc<Collection>,         // Pointer to `Collection`
 	to_kernel:   Sender<AudioToKernel>,   // Channel TO `Kernel`
 	from_kernel: Receiver<KernelToAudio>, // Channel FROM `Kernel`
 }
 
-// This is a simple container for some
+// This is a container for some
 // metadata needed to be held while
 // playing back a song.
 pub(crate) struct AudioReader {
@@ -120,22 +134,41 @@ impl Audio {
 	#[inline(always)]
 	// Kernel starts `Audio` with this.
 	pub(crate) fn init(
-		collection:  Arc<Collection>,
-		state:       AudioState,
-		to_kernel:   Sender<AudioToKernel>,
-		from_kernel: Receiver<KernelToAudio>,
+		collection:     Arc<Collection>,
+		state:          AudioState,
+		to_kernel:      Sender<AudioToKernel>,
+		from_kernel:    Receiver<KernelToAudio>,
+		media_controls: bool,
 	) {
-		trace!("Audio - State:\n{state:#?}");
+		trace!("Audio Init - State:\n{state:#?}");
 
 		// Loop until we can connect to an audio device.
 		let output = loop {
 			 match AudioOutput::dummy() {
-				Ok(o) => { debug!("Audio - Output device"); break o; },
+				Ok(o) => { debug!("Audio Init [1/2] ... dummy output device"); break o; },
 				Err(e) => {
-					warn!("Audio - Output device error: {e:?} ... retrying in {RETRY_SECONDS} seconds");
+					warn!("Audio Init [1/2] ... output device error: {e:?} ... retrying in {RETRY_SECONDS} seconds");
 				},
 			}
 			sleep!(RETRY_SECONDS);
+		};
+
+		// Media Controls.
+		let (to_audio, from_mc) = crossbeam::channel::unbounded::<souvlaki::MediaControlEvent>();
+		let media_controls = if media_controls {
+			match crate::audio::media_controls::init_media_controls(to_audio) {
+				Ok(mc) => {
+					debug!("Audio Init [2/2] ... media controls");
+					Some(mc)
+				},
+				Err(e) => {
+					warn!("Audio Init [2/2] ... media controls failed: {e}");
+					None
+				},
+			}
+		} else {
+			debug!("Audio Init [2/2] ... skipping media controls");
+			None
 		};
 
 		// Init data.
@@ -144,13 +177,15 @@ impl Audio {
 			current: None,
 			seek: None,
 			state,
+			media_controls,
+			from_mc,
 			collection,
 			to_kernel,
 			from_kernel,
 		};
 
 		// Start `main()`.
-		ok_debug!("Audio");
+		ok_debug!("Audio Init");
 		Self::main(audio);
 	}
 }
@@ -160,20 +195,35 @@ impl Audio {
 	//-------------------------------------------------- The "main" loop.
 	#[inline(always)]
 	fn main(mut self) {
+		// Array of our channels we can `select` from.
+		//
+		// `Kernel` == `[0]`
+		// `Mc`     == `[1]`
+		let mut select = crossbeam::channel::Select::new();
+		let kernel = self.from_kernel.clone();
+		select.recv(&kernel);
+		let mc = self.from_mc.clone();
+		select.recv(&mc);
+
 		loop {
 			//------ Kernel message.
-			// If we're playing something, only listen for `Kernel` messages for a few millis.
+			// If we're playing something, only listen for messages for a few millis.
 			if self.state.playing {
-				if let Ok(msg) = self.from_kernel.recv_timeout(RECV_TIMEOUT) {
-					self.kernel_msg(msg);
-
-					// If there's more messages, process them before continuing on.
-					for _ in 0..MSG_PROCESS_LIMIT {
-						if let Ok(msg) = self.from_kernel.try_recv() {
-							self.kernel_msg(msg);
-						} else {
-							break;
+				if let Ok(i) = select.ready_timeout(RECV_TIMEOUT) {
+					// Kernel.
+					if i == 0 {
+						self.kernel_msg(recv!(self.from_kernel));
+						// If there's more messages, process them before continuing on.
+						for _ in 0..MSG_PROCESS_LIMIT {
+							if let Ok(msg) = self.from_kernel.try_recv() {
+								self.kernel_msg(msg);
+							} else {
+								break;
+							}
 						}
+					// Mc.
+					} else if self.media_controls.is_some() {
+						self.mc_msg(recv!(self.from_mc));
 					}
 				}
 			// Else, sleep on `Kernel`.
@@ -186,10 +236,18 @@ impl Audio {
 				trace!("Audio - Pause [1/3]: flush()'ing leftover samples");
 				self.output.flush();
 
-				trace!("Audio - Pause [2/3]: waiting on Kernel...");
-				self.kernel_msg(recv!(self.from_kernel));
+				trace!("Audio - Pause [2/3]: waiting on message...");
+				match select.ready() {
+					i if i == 0 => {
+						self.kernel_msg(recv!(self.from_kernel));
+						trace!("Audio - Pause [3/3]: woke up from Kernel message...!");
+					},
 
-				trace!("Audio - Pause [3/3]: woke up from Kernel message...!");
+					_ => {
+						self.mc_msg(recv!(self.from_mc));
+						trace!("Audio - Pause [3/3]: woke up from MediaControls message...!");
+					},
+				}
 			}
 
 			//------ Audio decoding & demuxing.
@@ -274,21 +332,23 @@ impl Audio {
 
 							// Wake up the GUI thread.
 							gui_request_update();
+
+							// Update media control playback state.
+							if let Some(media_controls) = &mut self.media_controls {
+								let progress = Some(souvlaki::MediaPosition(Duration::from_secs(time.seconds)));
+								if let Err(e) = media_controls.set_playback(souvlaki::MediaPlayback::Playing { progress }) {
+									warn!("Audio - Couldn't update souvlaki playback: {e:#?}");
+								}
+							}
 						}
 					}
-					Err(symphonia::core::errors::Error::DecodeError(err)) => {
-						// Decode errors are not fatal. Print the error message and try to decode the next
-						// packet as usual.
-						warn!("decode error: {}", err);
-					}
-//					Err(err) => break Err(err),
 					// We're done playing audio.
 					Err(symphonia::core::errors::Error::IoError(err)) => {
 						self.skip(1, &mut AUDIO_STATE.write());
 						gui_request_update();
 						continue;
 					},
-					Err(err) => todo!(),
+					Err(err) => warn!("audio error: {err}"),
 				}
 			}
 
@@ -335,6 +395,69 @@ impl Audio {
 			// Collection.
 			DropCollection     => self.drop_collection(),
 			NewCollection(arc) => self.collection = arc,
+		}
+	}
+
+	//-------------------------------------------------- Mc message.
+	fn mc_msg(&mut self, event: souvlaki::MediaControlEvent) {
+		use souvlaki::{SeekDirection, MediaControlEvent::*};
+		use crate::audio::Seek;
+		match event {
+			Toggle            => self.toggle(),
+			Play              => self.play(),
+			Pause             => self.pause(),
+			Next              => self.skip(1, &mut AUDIO_STATE.write()),
+			Previous          => self.back(1, &mut AUDIO_STATE.write()),
+			Stop              => {
+				self.clear(false, &mut AUDIO_STATE.write());
+				gui_request_update();
+			},
+			SetPosition(time) => self.seek(Seek::Absolute, time.0.as_secs(), &mut AUDIO_STATE.write()),
+			Seek(direction) => {
+				match direction {
+					SeekDirection::Forward  => self.seek(Seek::Forward, 5, &mut AUDIO_STATE.write()),
+					SeekDirection::Backward => self.seek(Seek::Backward, 5, &mut AUDIO_STATE.write()),
+				}
+			},
+			SeekBy(direction, time) => {
+				match direction {
+					SeekDirection::Forward  => self.seek(Seek::Forward, time.as_secs(), &mut AUDIO_STATE.write()),
+					SeekDirection::Backward => self.seek(Seek::Backward, time.as_secs(), &mut AUDIO_STATE.write()),
+				}
+			},
+			Raise             => atomic_store!(MEDIA_CONTROLS_RAISE, true),
+			Quit              => atomic_store!(MEDIA_CONTROLS_SHOULD_EXIT, true),
+			OpenUri(string)   => warn!("Audio - Ignoring OpenURI({string})"),
+		}
+	}
+
+	//-------------------------------------------------- Media control state setting.
+	// Media Control state.
+	fn set_media_controls_metadata(&mut self, key: SongKey) {
+		if let Some(media_controls) = &mut self.media_controls {
+			let (artist, album, song) = self.collection.walk(key);
+
+			use disk::Plain;
+			let cover_url =	match crate::ImageCache::base_path() {
+				Ok(p) => {
+					// TODO: This might only work on UNIX?
+					format!("file://{}/{}.jpg", p.display(), song.album)
+				},
+				_ => String::new(),
+			};
+
+			if let Err(e) = media_controls
+				.set_metadata(souvlaki::MediaMetadata {
+					title: Some(&song.title),
+					artist: Some(&artist.name),
+					album: Some(&album.title),
+					duration: Some(Duration::from_secs(song.runtime.inner().into())),
+					cover_url: Some(&cover_url),
+					..Default::default()
+				})
+			{
+				warn!("Audio - Couldn't update media controls metadata: {e:#?}");
+			}
 		}
 	}
 
@@ -432,6 +555,7 @@ impl Audio {
 				state.elapsed = Runtime::zero();
 				state.runtime = self.collection.songs[key].runtime;
 				gui_request_update();
+				self.set_media_controls_metadata(key);
 			}
 		} else {
 			self.clear(false, state);
@@ -465,15 +589,34 @@ impl Audio {
 		if !keep_playing {
 			self.seek    = None;
 			self.current = None;
+			if let Some(media_controls) = &mut self.media_controls {
+				if let Err(e) = media_controls.set_playback(souvlaki::MediaPlayback::Stopped) {
+					warn!("Audio - Couldn't update souvlaki playback: {e:#?}");
+				}
+			}
 		}
 	}
 
 	//-------------------------------------------------- Audio playback.
 	fn toggle(&mut self) {
-		trace!("Audio - toggle()");
 		if self.current.is_some() {
 			flip!(self.state.playing);
-			flip!(AUDIO_STATE.write().playing);
+			trace!("Audio - toggle(), playing: {}", self.state.playing);
+
+			let mut state = AUDIO_STATE.write();
+			flip!(state.playing);
+
+			if let Some(media_controls) = &mut self.media_controls {
+				let progress = Some(souvlaki::MediaPosition(Duration::from_secs(state.elapsed.inner().into())));
+				let signal = match state.playing {
+					true  => souvlaki::MediaPlayback::Playing { progress },
+					false => souvlaki::MediaPlayback::Paused  { progress },
+				};
+				if let Err(e) = media_controls.set_playback(signal) {
+					warn!("Audio - Couldn't update souvlaki playback: {e:#?}");
+				}
+			}
+
 			gui_request_update();
 		}
 	}
@@ -482,7 +625,16 @@ impl Audio {
 		trace!("Audio - play()");
 		if self.current.is_some() {
 			self.state.playing = true;
-			AUDIO_STATE.write().playing = true;
+
+			let mut state = AUDIO_STATE.write();
+			state.playing = true;
+			if let Some(media_controls) = &mut self.media_controls {
+				let progress = Some(souvlaki::MediaPosition(Duration::from_secs(state.elapsed.inner().into())));
+				if let Err(e) = media_controls.set_playback(souvlaki::MediaPlayback::Playing { progress }) {
+					warn!("Audio - Couldn't update souvlaki playback: {e:#?}");
+				}
+			}
+
 			gui_request_update();
 		}
 	}
@@ -491,7 +643,16 @@ impl Audio {
 		trace!("Audio - pause()");
 		if self.current.is_some() {
 			self.state.playing = false;
-			AUDIO_STATE.write().playing = false;
+
+			let mut state = AUDIO_STATE.write();
+			state.playing = false;
+			if let Some(media_controls) = &mut self.media_controls {
+				let progress = Some(souvlaki::MediaPosition(Duration::from_secs(state.elapsed.inner().into())));
+				if let Err(e) = media_controls.set_playback(souvlaki::MediaPlayback::Paused { progress }) {
+					warn!("Audio - Couldn't update souvlaki playback: {e:#?}");
+				}
+			}
+
 			gui_request_update();
 		}
 	}
