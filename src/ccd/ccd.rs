@@ -397,6 +397,9 @@ impl Ccd {
 				0
 			},
 		};
+		// SOMEDAY:
+		// Make this multi-threaded and/or async.
+		//
 		// Save images to `~/.cache/festival/image`.
 		drop(ImageCache::rm_sub());
 		match ImageCache::base_path() {

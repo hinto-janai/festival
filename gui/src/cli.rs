@@ -94,6 +94,21 @@ pub struct Cli {
 	#[arg(long)]
 	metadata: bool,
 
+	/// Disable watching the filesystem for signals
+	///
+	/// The way a newly launched Festival communicates to
+	/// an already existing one (e.g, `festival --play`) is
+	/// by creating a file in Festival's `signal` directory.
+	///
+	/// `festival --FLAG` just creates a file in that directory,
+	/// which an existing Festival will notice and do the appropriate task.
+	///
+	/// Using `--disable-watch` will disable that part of the system so that
+	/// filesystem signals won't work, e.g, `festival --play` will not work.
+	#[arg(long)]
+	#[arg(default_value_t = false)]
+	disable_watch: bool,
+
 	/// Disable OS media controls
 	#[arg(long)]
 	#[arg(default_value_t = false)]
@@ -112,12 +127,12 @@ pub struct Cli {
 //---------------------------------------------------------------------------------------------------- CLI argument handling
 impl Cli {
 	#[inline(always)]
-	pub fn get() -> bool {
+	pub fn get() -> (bool, bool) {
 		Self::parse().handle_args()
 	}
 
 	#[inline(always)]
-	pub fn handle_args(self) -> bool {
+	pub fn handle_args(self) -> (bool, bool) {
 		use std::process::exit;
 
 		// Version.
@@ -169,7 +184,7 @@ impl Cli {
 		// Logger.
 		init_logger(self.log_level);
 
-		// Return MediaControls.
-		self.disable_media_controls
+		// Return.
+		(self.disable_watch, self.disable_media_controls)
 	}
 }

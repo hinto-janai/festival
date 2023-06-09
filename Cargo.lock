@@ -4127,6 +4127,7 @@ dependencies = [
  "open",
  "paste",
  "rand",
+ "raw-window-handle",
  "rb",
  "readable",
  "rfd",
@@ -4139,6 +4140,7 @@ dependencies = [
  "strsim",
  "symphonia",
  "walkdir",
+ "winit",
 ]
 
 [[package]]

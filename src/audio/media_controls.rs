@@ -13,10 +13,21 @@ pub static MEDIA_CONTROLS_RAISE: AtomicBool = AtomicBool::new(false);
 pub static MEDIA_CONTROLS_SHOULD_EXIT: AtomicBool = AtomicBool::new(false);
 
 pub(super) fn init_media_controls(to_audio: Sender<souvlaki::MediaControlEvent>) -> Result<souvlaki::MediaControls, anyhow::Error> {
-	#[cfg(target_os = "windows")]
-	let hwnd = todo!();
+	#[cfg(not(target_os = "linux"))]
+	let hwnd = {
+		let event_loop = winit::event_loop::EventLoop::new();
+		let window = winit::window::WindowBuilder::new().build(&event_loop)?;
 
-	#[cfg(not(target_os = "windows"))]
+		use raw_window_handle::{RawWindowHandle, HasRawWindowHandle};
+
+		Some(match window.raw_window_handle() {
+			RawWindowHandle::Win32(h)  => h.hwnd,
+			RawWindowHandle::AppKit(h) => h.ns_window,
+			_ => return Err(anyhow!(".raw_window_handle() failed")),
+		})
+	};
+
+	#[cfg(target_os = "linux")]
 	let hwnd = None;
 
 	let config = souvlaki::PlatformConfig {

@@ -48,6 +48,7 @@ pub(crate) enum AudioOutputError {
 	StreamClosed,
 	Channel,
 	InvalidSpec,
+	NonF32,
 }
 
 pub(crate) type Result<T> = result::Result<T, AudioOutputError>;
@@ -126,7 +127,7 @@ mod output {
 			);
 
 			match pa_result {
-				Ok(pa) => Ok(AudioOutput { pa, sample_buf, spec, duration }),
+				Ok(pa) => Ok(AudioOutput { pa, sample_buf, spec, duration, }),
 				Err(err) => {
 					fail!("Audio - AudioOutput stream open error: {err}");
 					Err(AudioOutputError::OpenStream)
@@ -203,7 +204,7 @@ mod output {
 //---------------------------------------------------------------------------------------------------- Windows/macOS
 #[cfg(not(target_os = "linux"))]
 mod output {
-	use crate::resampler::Resampler;
+	use crate::audio::resampler::Resampler;
 
 	use super::{Output, AudioOutputError, Result};
 
@@ -216,29 +217,25 @@ mod output {
 
 	use log::{error, info};
 
-	pub(crate) struct CpalAudioOutput;
-
-	trait AudioOutputSample:
-		cpal::Sample + ConvertibleSample + IntoSample<f32> + RawSample + std::marker::Send + 'static
-	{
+	// TODO: support i16/u16.
+	pub(crate) struct AudioOutput {
+		ring_buf_producer: rb::Producer<f32>,
+		sample_buf: SampleBuffer<f32>,
+		stream: cpal::Stream,
+		resampler: Option<Resampler<f32>>,
+		pub(crate) spec: SignalSpec,
+		pub(crate) duration: Duration,
 	}
 
-	impl AudioOutputSample for f32 {}
-	impl AudioOutputSample for i16 {}
-	impl AudioOutputSample for u16 {}
-
-	impl CpalAudioOutput {
-		pub fn try_open(spec: SignalSpec, duration: Duration) -> Result<Box<dyn AudioOutput>> {
+	impl Output for AudioOutput {
+		fn try_open(spec: SignalSpec, duration: Duration) -> Result<Self> {
 			// Get default host.
 			let host = cpal::default_host();
 
 			// Get the default audio output device.
 			let device = match host.default_output_device() {
 				Some(device) => device,
-				_ => {
-					error!("failed to get default audio output device");
-					return Err(AudioOutputError::OpenStream);
-				}
+				_ => return Err(AudioOutputError::OpenStream),
 			};
 
 			let config = match device.default_output_config() {
@@ -249,37 +246,11 @@ mod output {
 				}
 			};
 
-			// Select proper playback routine based on sample format.
-			match config.sample_format() {
-				cpal::SampleFormat::F32 => {
-					CpalAudioOutputImpl::<f32>::try_open(spec, duration, &device)
-				}
-				cpal::SampleFormat::I16 => {
-					CpalAudioOutputImpl::<i16>::try_open(spec, duration, &device)
-				}
-				cpal::SampleFormat::U16 => {
-					CpalAudioOutputImpl::<u16>::try_open(spec, duration, &device)
-				}
+			// TODO: support i16/u16.
+			if config.sample_format() != cpal::SampleFormat::F32 {
+				return Err(AudioOutputError::NonF32);
 			}
-		}
-	}
 
-	struct CpalAudioOutputImpl<T: AudioOutputSample>
-	where
-		T: AudioOutputSample,
-	{
-		ring_buf_producer: rb::Producer<T>,
-		sample_buf: SampleBuffer<T>,
-		stream: cpal::Stream,
-		resampler: Option<Resampler<T>>,
-	}
-
-	impl<T: AudioOutputSample> CpalAudioOutputImpl<T> {
-		pub fn try_open(
-			spec: SignalSpec,
-			duration: Duration,
-			device: &cpal::Device,
-		) -> Result<Box<dyn AudioOutput>> {
 			let num_channels = spec.channels.count();
 
 			// Output audio stream config.
@@ -289,8 +260,7 @@ mod output {
 					sample_rate: cpal::SampleRate(spec.rate),
 					buffer_size: cpal::BufferSize::Default,
 				}
-			}
-			else {
+			} else {
 				// Use the default config for Windows.
 				device
 					.default_output_config()
@@ -306,15 +276,16 @@ mod output {
 
 			let stream_result = device.build_output_stream(
 				&config,
-				move |data: &mut [T], _: &cpal::OutputCallbackInfo| {
+				move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
 					// Write out as many samples as possible from the ring buffer to the audio
 					// output.
 					let written = ring_buf_consumer.read(data).unwrap_or(0);
 
 					// Mute any remaining samples.
-					data[written..].iter_mut().for_each(|s| *s = T::MID);
+					data[written..].iter_mut().for_each(|s| *s = 0.0);
 				},
 				move |err| error!("audio output error: {}", err),
+				None,
 			);
 
 			if let Err(err) = stream_result {
@@ -332,7 +303,7 @@ mod output {
 				return Err(AudioOutputError::PlayStream);
 			}
 
-			let sample_buf = SampleBuffer::<T>::new(duration, spec);
+			let sample_buf = SampleBuffer::<f32>::new(duration, spec);
 
 			let resampler = if spec.rate != config.sample_rate.0 {
 				info!("resampling {} Hz to {} Hz", spec.rate, config.sample_rate.0);
@@ -342,11 +313,9 @@ mod output {
 				None
 			};
 
-			Ok(Box::new(CpalAudioOutputImpl { ring_buf_producer, sample_buf, stream, resampler }))
+			Ok(Self { ring_buf_producer, sample_buf, stream, resampler, spec, duration })
 		}
-	}
 
-	impl<T: AudioOutputSample> AudioOutput for CpalAudioOutputImpl<T> {
 		fn write(&mut self, decoded: AudioBufferRef<'_>) -> Result<()> {
 			// Do nothing if there are no audio frames.
 			if decoded.frames() == 0 {
@@ -388,7 +357,7 @@ mod output {
 			}
 
 			// Flush is best-effort, ignore the returned result.
-			_ = self.stream.pause();
+			drop(self.stream.pause());
 		}
 	}
 }

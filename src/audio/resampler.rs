@@ -9,7 +9,7 @@ use symphonia::core::audio::{AudioBuffer, AudioBufferRef, Signal, SignalSpec};
 use symphonia::core::conv::{FromSample, IntoSample};
 use symphonia::core::sample::Sample;
 
-pub struct Resampler<T> {
+pub(super) struct Resampler<T> {
 	resampler: rubato::FftFixedIn<f32>,
 	input: Vec<Vec<f32>>,
 	output: Vec<Vec<f32>>,
@@ -63,7 +63,7 @@ impl<T> Resampler<T>
 where
 	T: Sample + FromSample<f32> + IntoSample<f32>,
 {
-	pub fn new(spec: SignalSpec, to_sample_rate: usize, duration: u64) -> Self {
+	pub(super) fn new(spec: SignalSpec, to_sample_rate: usize, duration: u64) -> Self {
 		let duration = duration as usize;
 		let num_channels = spec.channels.count();
 
@@ -86,7 +86,7 @@ where
 	/// Resamples a planar/non-interleaved input.
 	///
 	/// Returns the resampled samples in an interleaved format.
-	pub fn resample(&mut self, input: AudioBufferRef<'_>) -> Option<&[T]> {
+	pub(super) fn resample(&mut self, input: AudioBufferRef<'_>) -> Option<&[T]> {
 		// Copy and convert samples into input buffer.
 		convert_samples_any(&input, &mut self.input);
 
@@ -99,7 +99,7 @@ where
 	}
 
 	/// Resample any remaining samples in the resample buffer.
-	pub fn flush(&mut self) -> Option<&[T]> {
+	pub(super) fn flush(&mut self) -> Option<&[T]> {
 		let len = self.input[0].len();
 
 		if len == 0 {

@@ -150,8 +150,8 @@ seq-macro = "0.3.3"
 strsim = "0.10.0"
 walkdir = "2.3.3"
 
-### Symphonia
 symphonia = { version = "0.5.3", features = ["all"] }
+
 [target.'cfg(target_os = "linux")'.dependencies]
 libpulse-binding = "2.27.1"
 libpulse-simple-binding = "2.27.1"
@@ -160,3 +160,6 @@ arrayvec = "0.7.2"
 cpal = "0.15.2"
 rb = "0.4.1"
 rubato = "0.13.0"
+# Needed for souvlaki.
+winit = "0.28.6"
+raw-window-handle = "0.5.2"

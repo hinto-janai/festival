@@ -18,7 +18,10 @@ mod ui;
 
 fn main() {
 	// Handle CLI arguments.
-	let disable_media_controls = crate::cli::Cli::get();
+	let (
+		disable_watch,
+		disable_media_controls,
+	) = crate::cli::Cli::get();
 
 	// Set `umask` (`rwxr-x---`)
 	disk::umask(0o027);
