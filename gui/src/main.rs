@@ -17,23 +17,23 @@ mod text;
 mod ui;
 
 fn main() {
+	// Handle CLI arguments.
+	let disable_media_controls = crate::cli::Cli::get();
+
 	// Set `umask` (`rwxr-x---`)
 	disk::umask(0o027);
-
-	// Handle CLI arguments.
-	crate::cli::Cli::handle_args();
 
 	// Start `egui/eframe`.
 	if let Err(e) = eframe::run_native(
 		shukusai::FESTIVAL,
 		crate::data::Gui::options(),
-		Box::new(|cc| {
+		Box::new(move |cc| {
 			// Set `Festival`'s `GUI_CONTEXT`.
 			shukusai::frontend::egui::GUI_CONTEXT
 				.set(cc.egui_ctx.clone())
 				.expect("GUI_CONTEXT.set() failed");
 
-			let (to_kernel, from_kernel) = match shukusai::kernel::Kernel::spawn(true) {
+			let (to_kernel, from_kernel) = match shukusai::kernel::Kernel::spawn(!disable_media_controls) {
 				Ok((to, from)) => (to, from),
 				Err(e)         => panic!("Kernel::spawn() failed: {e}"),
 			};

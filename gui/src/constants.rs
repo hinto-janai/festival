@@ -202,11 +202,3 @@ pub const BG:            Color32 = Color32::from_rgb(20, 20, 20);
 pub const SLIDER_CIRCLE_INACTIVE: egui::Stroke = Stroke{ width: 1.5, color: BLACK };
 pub const SLIDER_CIRCLE_HOVERED:  egui::Stroke = Stroke{ width: 2.0, color: BLACK };
 pub const SLIDER_CIRCLE_ACTIVE:   egui::Stroke = Stroke{ width: 2.5, color: WHITE };
-
-//---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//  #[test]
-//  fn _() {
-//  }
-//}

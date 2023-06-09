@@ -1133,6 +1133,8 @@ impl Audio {
 		self.collection = Collection::dummy();
 
 		// Clear state.
+		self.current = None;
+		self.state.finish();
 		AUDIO_STATE.write().finish();
 
 		// Hang until we get the new one.

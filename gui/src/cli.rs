@@ -78,13 +78,18 @@ pub struct Cli {
 	#[arg(long)]
 	skip: Option<usize>,
 
-	/// Skip `SKIP` amount of songs, backwards
+	/// Skip `BACK` amount of songs, backwards
 	#[arg(long)]
 	back: Option<usize>,
 
 	/// Print JSON metadata about the current `Collection` on disk
 	#[arg(long)]
 	metadata: bool,
+
+	/// Disable OS media controls
+	#[arg(long)]
+	#[arg(default_value_t = false)]
+	disable_media_controls: bool,
 
 	/// Set filter level for console logs
 	#[arg(long, value_name = "OFF|ERROR|INFO|WARN|DEBUG|TRACE")]
@@ -98,19 +103,22 @@ pub struct Cli {
 //---------------------------------------------------------------------------------------------------- CLI argument handling
 impl Cli {
 	#[inline(always)]
-	pub fn handle_args() {
+	pub fn get() -> bool {
+		Self::parse().handle_args()
+	}
+
+	#[inline(always)]
+	pub fn handle_args(self) -> bool {
 		use std::process::exit;
 
-		let cli = Self::parse();
-
 		// Version.
-		if cli.version {
-			println!("Festival {} {}\n{}", FESTIVAL_VERSION, COMMIT, COPYRIGHT);
+		if self.version {
+			println!("Festival GUI {FESTIVAL_VERSION} {COMMIT}\n{COPYRIGHT}");
 			exit(0);
 		}
 
 		// Metadata.
-		if cli.metadata {
+		if self.metadata {
 			match shukusai::collection::metadata() {
 				Ok(md) => { println!("{md}"); exit(0); },
 				Err(e) => { println!("ERROR: {e}"); exit(1); },
@@ -118,47 +126,50 @@ impl Cli {
 		}
 
 		// Signals.
-		if cli.toggle         { if let Err(e) = Toggle::touch()        { error!("Failed: {e}"); exit(1); } else { exit(0); } }
-		if cli.pause          { if let Err(e) = Pause::touch()         { error!("Failed: {e}"); exit(1); } else { exit(0); } }
-		if cli.play           { if let Err(e) = Play::touch()          { error!("Failed: {e}"); exit(1); } else { exit(0); } }
-		if cli.next           { if let Err(e) = Next::touch()          { error!("Failed: {e}"); exit(1); } else { exit(0); } }
-		if cli.previous       { if let Err(e) = Previous::touch()      { error!("Failed: {e}"); exit(1); } else { exit(0); } }
-		if cli.stop           { if let Err(e) = Stop::touch()          { error!("Failed: {e}"); exit(1); } else { exit(0); } }
-		if cli.shuffle        { if let Err(e) = Shuffle::touch()       { error!("Failed: {e}"); exit(1); } else { exit(0); } }
-		if cli.repeat_song    { if let Err(e) = RepeatSong::touch()    { error!("Failed: {e}"); exit(1); } else { exit(0); } }
-		if cli.repeat_queue   { if let Err(e) = RepeatQueue::touch()   { error!("Failed: {e}"); exit(1); } else { exit(0); } }
-		if cli.repeat_off     { if let Err(e) = RepeatOff::touch()     { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if self.toggle       { if let Err(e) = Toggle::touch()        { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if self.pause        { if let Err(e) = Pause::touch()         { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if self.play         { if let Err(e) = Play::touch()          { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if self.next         { if let Err(e) = Next::touch()          { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if self.previous     { if let Err(e) = Previous::touch()      { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if self.stop         { if let Err(e) = Stop::touch()          { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if self.shuffle      { if let Err(e) = Shuffle::touch()       { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if self.repeat_song  { if let Err(e) = RepeatSong::touch()    { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if self.repeat_queue { if let Err(e) = RepeatQueue::touch()   { error!("Failed: {e}"); exit(1); } else { exit(0); } }
+		if self.repeat_off   { if let Err(e) = RepeatOff::touch()     { error!("Failed: {e}"); exit(1); } else { exit(0); } }
 
 		// Content signals.
 		use disk::Plain;
-		if let Some(volume) = cli.volume {
+		if let Some(volume) = self.volume {
 			let volume = shukusai::kernel::Volume::new(volume);
 			let signal = shukusai::signal::Volume(volume);
 			if let Err(e) = signal.save() { error!("Failed: {e}"); exit(1); } else { exit(0); }
-		} else if let Some(seek) = cli.seek {
+		} else if let Some(seek) = self.seek {
 			let signal = shukusai::signal::Seek(seek);
 			if let Err(e) = signal.save() { error!("Failed: {e}"); exit(1); } else { exit(0); }
-		} else if let Some(seek) = cli.seek_forward {
+		} else if let Some(seek) = self.seek_forward {
 			let signal = shukusai::signal::SeekForward(seek);
 			if let Err(e) = signal.save() { error!("Failed: {e}"); exit(1); } else { exit(0); }
-		} else if let Some(seek) = cli.seek_backward {
+		} else if let Some(seek) = self.seek_backward {
 			let signal = shukusai::signal::SeekBackward(seek);
 			if let Err(e) = signal.save() { error!("Failed: {e}"); exit(1); } else { exit(0); }
-		} else if let Some(index) = cli.index {
+		} else if let Some(index) = self.index {
 			let signal = shukusai::signal::Index(index);
 			if let Err(e) = signal.save() { error!("Failed: {e}"); exit(1); } else { exit(0); }
-		} else if let Some(skip) = cli.skip {
+		} else if let Some(skip) = self.skip {
 			let signal = shukusai::signal::Skip(skip);
 			if let Err(e) = signal.save() { error!("Failed: {e}"); exit(1); } else { exit(0); }
-		} else if let Some(back) = cli.back {
+		} else if let Some(back) = self.back {
 			let signal = shukusai::signal::Back(back);
 			if let Err(e) = signal.save() { error!("Failed: {e}"); exit(1); } else { exit(0); }
 		}
 
 		// Logger.
-		match cli.log_level {
+		match self.log_level {
 			Some(log_level) => init_logger(log_level),
 			None            => init_logger(log::LevelFilter::Info),
 		}
+
+		// Return MediaControls.
+		self.disable_media_controls
 	}
 }

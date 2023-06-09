@@ -398,8 +398,9 @@ impl Ccd {
 			},
 		};
 		// Save images to `~/.cache/festival/image`.
-		match (ImageCache::rm_sub(), ImageCache::base_path()) {
-			(Ok(_), Ok(mut path)) => {
+		drop(ImageCache::rm_sub());
+		match ImageCache::base_path() {
+			Ok(mut path) => {
 				let image_cache = ImageCache(collection_for_disk.timestamp);
 				if let Err(e) = image_cache.save() {
 					fail!("CCD - ImageCache: {e}");
@@ -421,7 +422,7 @@ impl Ccd {
 								crate::collection::ALBUM_ART_SIZE as u32,
 								image::ColorType::Rgb8,
 							) {
-								Ok(_)  => ok_trace!("CCD - ImageCache: {}", path.display()),
+								Ok(_)  => ok_trace!("CCD - ImageCache: {} bytes @ {}", bytes.len(), path.display()),
 								Err(e) => warn!("CCD - ImageCache {e}: {}", path.display()),
 							}
 
