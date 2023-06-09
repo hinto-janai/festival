@@ -12,7 +12,7 @@ use crate::collection::{
 };
 use crate::constants::{
 	FESTIVAL,
-	SHUKUSAI,
+	FRONTEND_SUB_DIR,
 	HEADER,
 	AUDIO_VERSION,
 };
@@ -58,9 +58,9 @@ impl AudioStateLock {
 
 //---------------------------------------------------------------------------------------------------- AudioState
 #[cfg(debug_assertions)]
-disk::json!(AudioState, disk::Dir::Data, FESTIVAL, SHUKUSAI, "audio");
+disk::json!(AudioState, disk::Dir::Data, FESTIVAL, FRONTEND_SUB_DIR, "audio");
 #[cfg(not(debug_assertions))]
-disk::bincode2!(AudioState, disk::Dir::Data, FESTIVAL, SHUKUSAI, "audio", HEADER, AUDIO_VERSION);
+disk::bincode2!(AudioState, disk::Dir::Data, FESTIVAL, FRONTEND_SUB_DIR, "audio", HEADER, AUDIO_VERSION);
 /// Audio State
 ///
 /// This is a container for the audio state that `Kernel`

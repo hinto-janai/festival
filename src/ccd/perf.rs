@@ -1,11 +1,14 @@
 //---------------------------------------------------------------------------------------------------- Use
 use disk::Json;
-use crate::constants::FESTIVAL;
+use crate::constants::{
+	FESTIVAL,
+	FRONTEND_SUB_DIR,
+};
 use crate::collection::Collection;
 use serde::{Serialize,Deserialize};
 
 //---------------------------------------------------------------------------------------------------- __NAME__
-disk::json!(Perf, disk::Dir::Data, FESTIVAL, "txt", "perf");
+disk::json!(Perf, disk::Dir::Data, FESTIVAL, FRONTEND_SUB_DIR, "perf");
 #[derive(Copy,Clone,Debug,Default,PartialEq,PartialOrd,Serialize,Deserialize)]
 /// File representing some stats and performance of creating a [`Collection`]
 ///

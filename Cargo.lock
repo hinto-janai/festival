@@ -848,9 +848,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.3.2"
+version = "4.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "401a4694d2bf92537b6867d94de48c4842089645fdcdf6c71865b175d836e9c2"
+checksum = "ca8f255e4b8027970e78db75e78831229c9815fdbfa67eb1a1b777a62e24b4a0"
 dependencies = [
  "clap_builder",
  "clap_derive",
@@ -859,9 +859,9 @@ dependencies = [
 
 [[package]]
 name = "clap_builder"
-version = "4.3.1"
+version = "4.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "72394f3339a76daf211e57d4bcb374410f3965dcc606dd0e03738c7888766980"
+checksum = "acd4f3c17c83b0ba34ffbc4f8bbd74f079413f747f84a6f89292f138057e36ab"
 dependencies = [
  "anstream",
  "anstyle",
@@ -1473,8 +1473,8 @@ dependencies = [
 
 [[package]]
 name = "disk"
-version = "0.1.15"
-source = "git+https://github.com/hinto-janai/disk#a46ee098c855d258971ef3d21ac9491a70b09d4d"
+version = "0.1.16"
+source = "git+https://github.com/hinto-janai/disk#276877264abcc1a038360d7bb1b4a2a04af861e8"
 dependencies = [
  "anyhow",
  "bincode",
@@ -1863,7 +1863,7 @@ dependencies = [
  "anyhow",
  "benri",
  "bincode",
- "clap 4.3.2",
+ "clap 4.3.3",
  "compact_str",
  "const_format",
  "crossbeam",
@@ -4099,7 +4099,7 @@ dependencies = [
  "arrayvec",
  "benri",
  "bincode",
- "clap 4.3.2",
+ "clap 4.3.3",
  "compact_str",
  "const_format",
  "cpal",

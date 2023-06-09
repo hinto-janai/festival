@@ -42,6 +42,8 @@ use std::path::PathBuf;
 use readable::Percent;
 use once_cell::sync::Lazy;
 use std::sync::atomic::AtomicBool;
+
+#[cfg(feature = "gui")]
 use crate::frontend::egui::gui_request_update;
 
 //---------------------------------------------------------------------------------------------------- Saving.
@@ -98,7 +100,7 @@ pub struct Kernel {
 //         |--- (bios error occurred, skip to init) ---|
 //
 impl Kernel {
-	//-------------------------------------------------- bios()
+	//-------------------------------------------------- spawn()
 	/// [`Kernel`] is started with this.
 	///
 	/// For more info, see [here.](https://github.com/hinto-janai/festival/src/kernel)
@@ -140,6 +142,7 @@ impl Kernel {
 		Ok((to_kernel, from_kernel))
 	}
 
+	//-------------------------------------------------- bios()
 	fn bios(
 		to_frontend:    Sender<KernelToFrontend>,
 		from_frontend:  Receiver<FrontendToKernel>,
@@ -326,7 +329,7 @@ impl Kernel {
 
 		// Send `Collection/State` to `Frontend`.
 		send!(to_frontend, KernelToFrontend::NewCollection(Arc::clone(&collection)));
-		// TODO: Only with `egui` feature flag.
+		#[cfg(feature = "gui")]
 		gui_request_update();
 
 		// Create `To` channels.
@@ -614,7 +617,7 @@ impl Kernel {
 					send!(self.to_search,   KernelToSearch::NewCollection(Arc::clone(&self.collection)));
 					send!(self.to_audio,    KernelToAudio::NewCollection(Arc::clone(&self.collection)));
 					send!(self.to_frontend, KernelToFrontend::Failed((Arc::clone(&self.collection), anyhow.to_string())));
-					// TODO: Only with `egui` feature flag.
+					#[cfg(feature = "gui")]
 					gui_request_update();
 					return;
 				},
@@ -629,7 +632,7 @@ impl Kernel {
 		send!(self.to_audio,    KernelToAudio::NewCollection(Arc::clone(&self.collection)));
 		send!(self.to_frontend, KernelToFrontend::NewCollection(Arc::clone(&self.collection)));
 
-		// TODO: Only with `egui` feature flag.
+		#[cfg(feature = "gui")]
 		gui_request_update();
 
 		// Set our `ResetState`, we're done.

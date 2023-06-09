@@ -1,15 +1,17 @@
 //---------------------------------------------------------------------------------------------------- Use
 use bincode::{Encode,Decode};
 use crate::constants::{
-	TXT,
+	TXT_SUB_DIR,
 	FESTIVAL,
 	HEADER,
 	HEADER_STR,
 	COLLECTION_VERSION,
+	FRONTEND_SUB_DIR,
 };
 use readable::Unsigned;
 use crate::collection::Collection;
 use disk::Bincode2;
+use const_format::formatcp;
 
 //---------------------------------------------------------------------------------------------------- Public function.
 /// Function that can access [`Collection`]'s on-disk metadata.
@@ -31,7 +33,7 @@ const METADATA_SIZE_OF: usize = {
 };
 
 //---------------------------------------------------------------------------------------------------- CollectionMetadata
-disk::bincode2!(CollectionMetadata, disk::Dir::Data, FESTIVAL, TXT, "metadata", HEADER, COLLECTION_VERSION);
+disk::bincode2!(CollectionMetadata, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{TXT_SUB_DIR}"), "metadata", HEADER, COLLECTION_VERSION);
 #[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Encode,Decode)]
 // A struct representing a file that can access [`Collection`]'s metadata.
 //

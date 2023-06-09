@@ -55,6 +55,8 @@ use crate::audio::output::{
 	AudioOutput,Output,
 };
 use readable::Runtime;
+
+#[cfg(feature = "gui")]
 use crate::frontend::egui::gui_request_update;
 
 //---------------------------------------------------------------------------------------------------- Constants
@@ -271,6 +273,7 @@ impl Audio {
 						send!(self.to_kernel, AudioToKernel::SeekError(anyhow!(e)));
 					} else {
 						AUDIO_STATE.write().elapsed = Runtime::from(seek.seconds);
+						#[cfg(feature = "gui")]
 						gui_request_update();
 					}
 				}
@@ -290,6 +293,7 @@ impl Audio {
 					// a FormatReader can indicate the media is complete.
 					Err(symphonia::core::errors::Error::IoError(err)) => {
 						self.skip(1, &mut AUDIO_STATE.write());
+						#[cfg(feature = "gui")]
 						gui_request_update();
 						continue;
 					},
@@ -332,6 +336,7 @@ impl Audio {
 							AUDIO_STATE.write().elapsed = Runtime::from(time.seconds);
 
 							// Wake up the GUI thread.
+							#[cfg(feature = "gui")]
 							gui_request_update();
 
 							// Update media control playback state.
@@ -346,6 +351,7 @@ impl Audio {
 					// We're done playing audio.
 					Err(symphonia::core::errors::Error::IoError(err)) => {
 						self.skip(1, &mut AUDIO_STATE.write());
+						#[cfg(feature = "gui")]
 						gui_request_update();
 						continue;
 					},
@@ -380,6 +386,7 @@ impl Audio {
 			Shuffle     => self.shuffle(),
 			Clear(play) => {
 				self.clear(play, &mut AUDIO_STATE.write());
+				#[cfg(feature = "gui")]
 				gui_request_update();
 			},
 			Seek((seek, time)) => self.seek(seek, time, &mut AUDIO_STATE.write()),
@@ -411,6 +418,7 @@ impl Audio {
 			Previous          => self.back(1, &mut AUDIO_STATE.write()),
 			Stop              => {
 				self.clear(false, &mut AUDIO_STATE.write());
+				#[cfg(feature = "gui")]
 				gui_request_update();
 			},
 			SetPosition(time) => self.seek(Seek::Absolute, time.0.as_secs(), &mut AUDIO_STATE.write()),
@@ -555,6 +563,7 @@ impl Audio {
 				state.song    = Some(key);
 				state.elapsed = Runtime::zero();
 				state.runtime = self.collection.songs[key].runtime;
+				#[cfg(feature = "gui")]
 				gui_request_update();
 				self.set_media_controls_metadata(key);
 			}
@@ -618,6 +627,7 @@ impl Audio {
 				}
 			}
 
+			#[cfg(feature = "gui")]
 			gui_request_update();
 		}
 	}
@@ -636,6 +646,7 @@ impl Audio {
 				}
 			}
 
+			#[cfg(feature = "gui")]
 			gui_request_update();
 		}
 	}
@@ -654,6 +665,7 @@ impl Audio {
 				}
 			}
 
+			#[cfg(feature = "gui")]
 			gui_request_update();
 		}
 	}
@@ -698,6 +710,7 @@ impl Audio {
 						state.finish();
 						self.state.finish();
 						self.current = None;
+						#[cfg(feature = "gui")]
 						gui_request_update();
 					}
 				},
@@ -729,6 +742,7 @@ impl Audio {
 			}
 		}
 
+		#[cfg(feature = "gui")]
 		gui_request_update();
 	}
 
@@ -758,6 +772,7 @@ impl Audio {
 					state.queue_idx = Some(new_index);
 				}
 
+				#[cfg(feature = "gui")]
 				gui_request_update();
 			}
 		}
@@ -816,6 +831,7 @@ impl Audio {
 			}
 		}
 
+		#[cfg(feature = "gui")]
 		gui_request_update();
 	}
 
@@ -1015,6 +1031,7 @@ impl Audio {
 			self.set(state.queue[index], &mut state);
 		}
 
+		#[cfg(feature = "gui")]
 		gui_request_update();
 	}
 
@@ -1093,6 +1110,7 @@ impl Audio {
 			}
 		}
 
+		#[cfg(feature = "gui")]
 		gui_request_update();
 	}
 

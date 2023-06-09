@@ -81,10 +81,12 @@ strip = "none"
 #lto = true
 
 [features]
-#default       = ["log", "panic", "frontend-egui"]
-default       = ["panic", "frontend-egui"]
-panic         = []
-frontend-egui = ["egui", "eframe", "egui_extras", "epaint"]
+default = ["panic", "gui"]
+panic   = []
+gui     = ["egui", "eframe", "egui_extras", "epaint"]
+daemon  = []
+cli     = []
+web     = []
 
 [package.metadata.docs.rs]
 all-features = true

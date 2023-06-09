@@ -26,6 +26,7 @@ use crate::constants::{
 	FESTIVAL,
 	HEADER,
 	COLLECTION_VERSION,
+	FRONTEND_SUB_DIR,
 };
 use rand::{
 	Rng,
@@ -51,7 +52,7 @@ static RNG: Lazy<Mutex<rand::rngs::SmallRng>> = Lazy::new(|| Mutex::new(rand::rn
 pub(crate) static DUMMY_COLLECTION: Lazy<Arc<Collection>> = Lazy::new(|| Arc::new(Collection::new()));
 
 //---------------------------------------------------------------------------------------------------- Collection
-disk::bincode2!(Collection, disk::Dir::Data, FESTIVAL, "", "collection", HEADER, COLLECTION_VERSION);
+disk::bincode2!(Collection, disk::Dir::Data, FESTIVAL, FRONTEND_SUB_DIR, "collection", HEADER, COLLECTION_VERSION);
 #[derive(Clone,Debug,PartialEq,Encode,Decode)]
 //#[derive(Clone,Debug,Serialize,Deserialize,PartialEq,Encode,Decode)]
 /// The main music `Collection`

@@ -7,16 +7,21 @@ use anyhow::{anyhow,bail,ensure};
 //use std::{};
 //use std::sync::{Arc,Mutex,RwLock};
 use crate::kernel::Kernel;
-use crate::FESTIVAL;
+use crate::{
+	FESTIVAL,
+	FRONTEND_SUB_DIR,
+	SIGNAL_SUB_DIR,
+};
 use serde::{Serialize,Deserialize};
 use std::ops::RangeInclusive;
 use crate::collection::Song;
+use const_format::formatcp;
 
 //---------------------------------------------------------------------------------------------------- Signals
 macro_rules! impl_signal_empty {
 	($($type:ident, $file_name:literal,)*) => {
 		$(
-			disk::empty!($type, disk::Dir::Data, FESTIVAL, "signal", $file_name);
+			disk::empty!($type, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{SIGNAL_SUB_DIR}"), $file_name);
 			#[derive(Copy,Clone,Debug,PartialEq,Eq)]
 			/// File representing a signal, whose existence acts as a boolean signal.
 			pub struct $type;
@@ -27,7 +32,7 @@ macro_rules! impl_signal_empty {
 macro_rules! impl_signal_content {
 	($($type:ident, $inner:ty, $file_name:literal, $doc:literal,)*) => {
 		$(
-			disk::plain!($type, disk::Dir::Data, FESTIVAL, "signal", $file_name);
+			disk::plain!($type, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{SIGNAL_SUB_DIR}"), $file_name);
 			#[derive(Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
 			/// File representing a signal, which has contents inside.
 			///

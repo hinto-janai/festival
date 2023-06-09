@@ -57,7 +57,7 @@ pub struct Cli {
 	#[arg(long)]
 	repeat_off: bool,
 
-	/// Set the volume to `VOLUME` (0..=100)
+	/// Set the volume to `VOLUME` (0-100)
 	#[arg(long)]
 	#[arg(value_parser = clap::value_parser!(u8).range(0..=100))]
 	volume: Option<u8>,
@@ -110,6 +110,11 @@ pub struct Cli {
 	disable_watch: bool,
 
 	/// Disable OS media controls
+	///
+	/// Festival plugs into the native OS's media controls so that signals
+	/// like `play/pause/stop` and/or keyboard controls can be processed.
+	///
+	/// `--disable-media-controls` disables this.
 	#[arg(long)]
 	#[arg(default_value_t = false)]
 	disable_media_controls: bool,

@@ -27,10 +27,22 @@ pub const FESTIVAL_DBUS: &str = "pm.festival.Festival";
 
 /// "Festival", the main project folder.
 pub const FESTIVAL: &str = "Festival";
-/// "shukusai", the internals sub-directory.
-pub const SHUKUSAI: &str = "shukusai";
-/// "txt", the internals sub-directory for misc text files.
-pub const TXT: &str = "txt";
+/// The main sub-directory within the `festival`
+/// directory for each `Frontend`'s files.
+#[cfg(feature = "gui")]
+pub const FRONTEND_SUB_DIR: &str = "gui";
+#[cfg(feature = "daemon")]
+pub const FRONTEND_SUB_DIR: &str = "daemon";
+#[cfg(feature = "cli")]
+pub const FRONTEND_SUB_DIR: &str = "cli";
+#[cfg(feature = "web")]
+pub const FRONTEND_SUB_DIR: &str = "web";
+/// The sub-directory for image cache in the OS's cache directory.
+pub const IMAGE_CACHE_SUB_DIR: &str = "image";
+/// The sub-directory for misc text files.
+pub const TXT_SUB_DIR: &str = "txt";
+/// The sub-directory that is watched for [`crate::signal`]'s.
+pub const SIGNAL_SUB_DIR: &str = "signal";
 
 /// Current `git` commit of `festival`
 pub const COMMIT: &str = {

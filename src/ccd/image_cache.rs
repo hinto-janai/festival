@@ -1,11 +1,16 @@
 //---------------------------------------------------------------------------------------------------- Use
 use disk::Plain;
-use crate::constants::FESTIVAL;
+use crate::constants::{
+	FESTIVAL,
+	FRONTEND_SUB_DIR,
+	IMAGE_CACHE_SUB_DIR,
+};
 use crate::collection::Collection;
 use serde::{Serialize,Deserialize};
+use const_format::formatcp;
 
 //---------------------------------------------------------------------------------------------------- __NAME__
-disk::plain!(ImageCache, disk::Dir::Cache, FESTIVAL, "image", "timestamp");
+disk::plain!(ImageCache, disk::Dir::Cache, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{IMAGE_CACHE_SUB_DIR}"), "timestamp");
 #[derive(Copy,Clone,Debug,Default,PartialEq,PartialOrd,Serialize,Deserialize)]
 /// File representing cached images of the `Collection`.
 ///

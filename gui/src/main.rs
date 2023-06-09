@@ -36,7 +36,7 @@ fn main() {
 				.set(cc.egui_ctx.clone())
 				.expect("GUI_CONTEXT.set() failed");
 
-			let (to_kernel, from_kernel) = match shukusai::kernel::Kernel::spawn(true, !disable_media_controls) {
+			let (to_kernel, from_kernel) = match shukusai::kernel::Kernel::spawn(!disable_watch, !disable_media_controls) {
 				Ok((to, from)) => (to, from),
 				Err(e)         => panic!("Kernel::spawn() failed: {e}"),
 			};

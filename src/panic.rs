@@ -7,10 +7,15 @@
 //use std::{};
 //use std::sync::{Arc,Mutex,RwLock};
 use crate::kernel::Kernel;
-use crate::FESTIVAL;
+use crate::{
+	FESTIVAL,
+	FRONTEND_SUB_DIR,
+	TXT_SUB_DIR,
+};
 use serde::{Serialize,Deserialize};
 use disk::Plain;
 use std::fmt::Write;
+use const_format::formatcp;
 
 //----------------------------------------------------------------------------------------------------
 /// Set `shukusai`'s custom panic hook.
@@ -60,13 +65,13 @@ stack backtrace:\n{}",
 }
 
 //----------------------------------------------------------------------------------------------------
-disk::plain!(Panic, disk::Dir::Data, FESTIVAL, "txt", "crash");
+disk::plain!(Panic, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{TXT_SUB_DIR}"), "crash");
 #[derive(Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
 #[serde(transparent)]
 /// File representing a `panic!()` log.
 ///
-/// This gets written in the `festival/txt` folder as `crash.txt`
-/// (not `panic.txt` since `p` collides with `perf.txt`).
+/// This gets written in the `festival/txt` folder as `crash`
+/// (not `panic` since `p` collides with `perf`).
 ///
 /// The first thing `Kernel` will do when you spawn it
 /// with `Kernel::spawn()` is set a custom [`panic!()`] hook.
@@ -76,7 +81,7 @@ disk::plain!(Panic, disk::Dir::Data, FESTIVAL, "txt", "crash");
 /// single thread panics, even outside of `shukusai`.
 ///
 /// But before that, a full stack backtrace is printed to console
-/// and is also written to disk in the `festival` folder as `panic.txt`.
+/// and is also written to disk in the `festival` folder as `panic`.
 pub struct Panic(pub(crate) String);
 
 //---------------------------------------------------------------------------------------------------- TESTS
