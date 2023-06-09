@@ -66,7 +66,7 @@ pub struct Cli {
 	#[arg(long)]
 	seek: Option<u64>,
 
-	/// Seek `SEEK_FORWARD` seconds forward in the current song
+	/// Seek `SEEK_FORWARD` seconds forwards in the current song
 	#[arg(long)]
 	seek_forward: Option<u64>,
 

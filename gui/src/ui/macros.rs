@@ -222,7 +222,42 @@ macro_rules! clear_stop {
 }
 
 #[macro_export]
-/// Add a clickable `Album` art button that:
+/// Adds a clickable `Song` label button that:
+///
+/// - Lists `track`, `runtime`, `title`
+/// - Primary click: `play_album_offset!()`
+/// - Secondary click: adds it to the queue
+/// - Middle click: opens its directory in a file explorer
+macro_rules! song_button {
+	($self:ident, $album:expr, $song:expr, $key:expr, $ui:ident, $offset:expr) => {
+		let mut rect = $ui.cursor();
+		rect.max.y = rect.min.y + 35.0;
+
+		let resp = $ui.put(rect, egui::SelectableLabel::new($self.audio_state.song == Some($key), ""));
+		if resp.clicked() {
+			$crate::play_album_offset!($self, $song.album, $offset);
+		} else if resp.middle_clicked() {
+			crate::open!($self, $album);
+		} else if resp.secondary_clicked() {
+			crate::add_song!($self, $song.title, $key);
+		}
+
+		rect.max.x = rect.min.x;
+
+		$ui.allocate_ui_at_rect(rect, |ui| {
+			ui.horizontal_centered(|ui| {
+				match $song.track {
+					Some(t) => ui.add(egui::Label::new(format!("{: >3}{: >8}    {}", t, $song.runtime.as_str(), &$song.title))),
+					None    => ui.add(egui::Label::new(format!("{: >3}{: >8}    {}", "???", $song.runtime.as_str(), &$song.title))),
+				}
+			});
+		});
+	}
+}
+
+#[macro_export]
+/// Adds a clickable `Album` art button that:
+///
 /// - Primary click: sets it to view
 /// - Secondary click: adds it to the queue
 /// - Middle click: opens its directory in a file explorer

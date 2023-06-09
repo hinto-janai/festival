@@ -118,7 +118,7 @@ impl Kernel {
 	///
 	/// The `watch` [`bool`] indicates if `Kernel` should spawn a thread
 	/// that watches over the `festival/signal` directory for filesystem-based
-	/// [`crate::Signal`]'s.
+	/// [`crate::signal`]'s.
 	///
 	/// The `media_controls` [`bool`] indicates if `Kernel` should plug into
 	/// the OS and allow communication via the OS-specific media controls.

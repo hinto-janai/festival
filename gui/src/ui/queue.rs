@@ -174,6 +174,9 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 					crate::remove_queue_range!(self, index..index+1);
 				}
 
+				// FIXME:
+				// Queue's song buttons are slightly different,
+				// so we don't get to use the `song_button!()` macro.
 				let mut rect = ui.cursor();
 				rect.max.y = rect.min.y + SIZE;
 				rect.max.x = rect.min.x + ui.available_width();
@@ -198,7 +201,10 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 
 				ui.allocate_ui_at_rect(rect, |ui| {
 					ui.horizontal_centered(|ui| {
-						ui.add(Label::new(format!("{: >3}    {: >8}    {}", song.track.unwrap_or(0), &song.runtime, &song.title)));
+						match song.track {
+							Some(t) => ui.add(Label::new(format!("{: >3}{: >8}    {}", t, song.runtime.as_str(), &song.title))),
+							None    => ui.add(Label::new(format!("{: >3}{: >8}    {}", "", song.runtime.as_str(), &song.title))),
+						}
 					});
 				});
 			});

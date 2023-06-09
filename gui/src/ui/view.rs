@@ -115,24 +115,7 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &
 				last_disc = song.disc;
 			}
 
-			let mut rect = ui.cursor();
-			rect.max.y = rect.min.y + 35.0;
-			let resp = ui.put(rect, SelectableLabel::new(self.audio_state.song == Some(*key), ""));
-			if resp.clicked() {
-				crate::play_album_offset!(self, song.album, offset);
-			} else if resp.middle_clicked() {
-				crate::open!(self, album);
-			} else if resp.secondary_clicked() {
-				crate::add_song!(self, song.title, *key);
-			}
-
-			rect.max.x = rect.min.x;
-
-			ui.allocate_ui_at_rect(rect, |ui| {
-				ui.horizontal_centered(|ui| {
-					ui.add(Label::new(format!("{: >3}    {: >8}    {}", song.track.unwrap_or(0), &song.runtime, &song.title)));
-				});
-			});
+			crate::song_button!(self, album, song, *key, ui, offset);
 		}
 	});
 }}

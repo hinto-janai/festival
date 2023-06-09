@@ -139,13 +139,10 @@ fn paint_albums(
 								// ImageButton.
 								crate::album_button!(self, album, *key, ui, ctx, pixel, "");
 
-								// Closure is only called on hover.
-								let hover = |ui: &mut egui::Ui| { ui.add(Label::new(format!("{} ({})", album.title, album.release))); };
-
 								// `0.0` will cause the text to expand
 								// the `ui` to however much space it needs.
 								// Album title.
-								ui.add_sized([pixel, 0.0], Label::new(RichText::new(album.title.head_dot(ALBUM_TITLE_LIMIT).as_str()).color(LESS_WHITE))).on_hover_ui(hover);
+								ui.add_sized([pixel, 0.0], Label::new(RichText::new(album.title.head_dot(ALBUM_TITLE_LIMIT).as_str()).color(LESS_WHITE))).on_hover_text(&album.title);
 
 								// Artist name.
 								let (artist, _) = &self.collection.artist_from_album(key);

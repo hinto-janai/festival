@@ -164,7 +164,7 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame
 	);
 
 	// Albums.
-	ScrollArea::vertical()
+	ScrollArea::both()
 		.id_source(&artist.name)
 		.max_width(f32::INFINITY)
 		.max_height(height)
@@ -208,33 +208,7 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame
 					// Song list.
 					for (offset, key) in album.songs.iter().enumerate() {
 						let song = &self.collection.songs[key];
-
-						let mut rect = ui.cursor();
-						rect.max.y = rect.min.y + 35.0;
-						let resp = ui.put(rect, SelectableLabel::new(false, ""));
-						if resp.clicked() {
-							crate::play_album_offset!(self, *album_key, offset);
-						} else if resp.middle_clicked() {
-							crate::open!(self, album);
-						} else if resp.secondary_clicked() {
-							crate::add_song!(self, song.title, *key);
-						}
-
-						rect.max.x = rect.min.x;
-
-						ui.allocate_ui_at_rect(rect, |ui| {
-							ui.horizontal_centered(|ui| {
-
-								// Show the full title on hover
-								// if we chopped it with head.
-								let head = song.title.head_dot(head);
-								if song.title == head {
-									ui.add(Label::new(format!("{: >3}    {: >8}    {}", song.track.unwrap_or(0), &song.runtime, &song.title)));
-								} else {
-									ui.add(Label::new(format!("{: >3}    {: >8}    {}", song.track.unwrap_or(0), &song.runtime, &head))).on_hover_text(&song.title);
-								}
-							});
-						});
+						crate::song_button!(self, album, song, *key, ui, offset);
 					}
 				});
 			});
