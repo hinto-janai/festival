@@ -617,9 +617,14 @@ fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f
 			}
 
 			// Volume slider
-			let slider_height = ui.available_height() - 20.0;
+			//
+			// This is subtracted by a magic number to allow
+			// for space for the number label below it.
+			let slider_height = ui.available_height() - 48.0;
 
-			ui.add_space(10.0);
+			ui.add_space(5.0);
+			ui.separator();
+			ui.add_space(5.0);
 
 			ui.spacing_mut().slider_width = slider_height;
 
@@ -640,10 +645,10 @@ fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f
 					.vertical()
 					.thickness(unit*2.0)
 					.circle_size(unit)
-				).on_hover_text(readable::itoa!(self.state.volume));
+				);
 
-				// Only send signal if the slider was dragged + released.
-				if resp.drag_released() {
+				// Send signal if the slider was/is being dragged.
+				if resp.dragged() {
 					self.audio_leeway = now!();
 					let v = Volume::new(self.state.volume);
 					send!(self.to_kernel, FrontendToKernel::Volume(v));
@@ -663,6 +668,9 @@ fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f
 					});
 				}
 			});
+
+			// Volume %.
+			ui.label(readable::itoa!(self.state.volume));
 		});
 	});
 }}
