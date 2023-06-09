@@ -116,9 +116,16 @@ impl Kernel {
 	/// Kernel::spawn();
 	/// ```
 	///
+	/// The `watch` [`bool`] indicates if `Kernel` should spawn a thread
+	/// that watches over the `festival/signal` directory for filesystem-based
+	/// [`crate::Signal`]'s.
+	///
 	/// The `media_controls` [`bool`] indicates if `Kernel` should plug into
 	/// the OS and allow communication via the OS-specific media controls.
-	pub fn spawn(media_controls: bool) -> Result<(Sender<FrontendToKernel>, Receiver<KernelToFrontend>), std::io::Error> {
+	pub fn spawn(
+		watch: bool,
+		media_controls: bool,
+	) -> Result<(Sender<FrontendToKernel>, Receiver<KernelToFrontend>), std::io::Error> {
 		// Create `Kernel` <-> `Frontend` channels.
 		let (to_frontend, from_kernel) = crossbeam::channel::unbounded::<KernelToFrontend>();
 		let (to_kernel, from_frontend) = crossbeam::channel::unbounded::<FrontendToKernel>();
@@ -127,7 +134,7 @@ impl Kernel {
 		std::thread::Builder::new()
 			.name("Kernel".to_string())
 			.stack_size(16_000_000) // 16MB stack.
-			.spawn(move || Self::bios(to_frontend, from_frontend, media_controls))?;
+			.spawn(move || Self::bios(to_frontend, from_frontend, watch, media_controls))?;
 
 		// Return channels.
 		Ok((to_kernel, from_kernel))
@@ -136,6 +143,7 @@ impl Kernel {
 	fn bios(
 		to_frontend:    Sender<KernelToFrontend>,
 		from_frontend:  Receiver<FrontendToKernel>,
+		watch:          bool,
 		media_controls: bool,
 	) {
 		// Initialize lazy statics.
@@ -176,12 +184,12 @@ impl Kernel {
 			// bytes to actual usable `egui` images.
 			Ok(collection) => {
 				ok_debug!("Kernel - Collection{COLLECTION_VERSION} deserialization ... Took {} seconds", secs_f32!(now));
-				Self::boot_loader(collection, to_frontend, from_frontend, *beginning, media_controls);
+				Self::boot_loader(collection, to_frontend, from_frontend, *beginning, watch, media_controls);
 			},
 			// Else, straight to `init` with default flag set.
 			Err(e) => {
 				warn!("Kernel - Collection{COLLECTION_VERSION} from file error: {}", e);
-				Self::init(None, None, to_frontend, from_frontend, *beginning, media_controls);
+				Self::init(None, None, to_frontend, from_frontend, *beginning, watch, media_controls);
 			},
 		}
 	}
@@ -192,6 +200,7 @@ impl Kernel {
 		to_frontend:    Sender<KernelToFrontend>,
 		from_frontend:  Receiver<FrontendToKernel>,
 		beginning:      std::time::Instant,
+		watch:          bool,
 		media_controls: bool,
 	) {
 		debug!("Kernel [2/12] ... entering boot_loader()");
@@ -249,10 +258,10 @@ impl Kernel {
 
 		// If everything went ok, continue to `kernel` to verify data.
 		if let Some(collection) = collection {
-			Self::kernel(collection, state, to_frontend, from_frontend, beginning, media_controls);
+			Self::kernel(collection, state, to_frontend, from_frontend, beginning, watch, media_controls);
 		// Else, skip to `init()`.
 		} else {
-			Self::init(None, None, to_frontend, from_frontend, beginning, media_controls);
+			Self::init(None, None, to_frontend, from_frontend, beginning, watch, media_controls);
 		}
 	}
 
@@ -263,6 +272,7 @@ impl Kernel {
 		to_frontend:    Sender<KernelToFrontend>,
 		from_frontend:  Receiver<FrontendToKernel>,
 		beginning:      std::time::Instant,
+		watch:          bool,
 		media_controls: bool,
 	) {
 		debug!("Kernel [6/12] ... entering kernel()");
@@ -287,7 +297,7 @@ impl Kernel {
 			AudioState::new()
 		};
 
-		Self::init(Some(collection), Some(audio), to_frontend, from_frontend, beginning, media_controls);
+		Self::init(Some(collection), Some(audio), to_frontend, from_frontend, beginning, watch, media_controls);
 	}
 
 	//-------------------------------------------------- init()
@@ -297,6 +307,7 @@ impl Kernel {
 		to_frontend:    Sender<KernelToFrontend>,
 		from_frontend:  Receiver<FrontendToKernel>,
 		beginning:      std::time::Instant,
+		watch:          bool,
 		media_controls: bool,
 	) {
 		debug!("Kernel [7/12] ... entering init()");
@@ -340,32 +351,36 @@ impl Kernel {
 		};
 
 		// Spawn `Audio`.
-		debug!("Kernel [10/12] ... spawning Audio");
 		let collection = Arc::clone(&kernel.collection);
-		if let Err(e) = std::thread::Builder::new()
+		match std::thread::Builder::new()
 			.name("Audio".to_string())
 			.spawn(move || Audio::init(collection, audio, audio_send, audio_recv, media_controls))
 		{
-			panic!("Kernel - failed to spawn Audio: {e}");
+			Ok(_)  => debug!("Kernel [10/12] ... spawned Audio"),
+			Err(e) => panic!("Kernel - failed to spawn Audio: {e}"),
 		}
 
 		// Spawn `Search`.
-		debug!("Kernel [11/12] ... spawning Search");
 		let collection = Arc::clone(&kernel.collection);
-		if let Err(e) = std::thread::Builder::new()
+		match std::thread::Builder::new()
 			.name("Search".to_string())
 			.spawn(move || Search::init(collection, search_send, search_recv))
 		{
-			panic!("Kernel - failed to spawn Search: {e}");
+			Ok(_)  => debug!("Kernel [11/12] ... spawned Search"),
+			Err(e) => panic!("Kernel [11/12] ... failed to spawn Search: {e}"),
 		}
 
 		// Spawn `Watch`.
-		debug!("Kernel [12/12] ... spawning Watch");
-		if let Err(e) = std::thread::Builder::new()
-			.name("Watch".to_string())
-			.spawn(move || Watch::init(watch_send))
-		{
-			panic!("Kernel - failed to spawn Audio: {e}");
+		if watch {
+			match std::thread::Builder::new()
+				.name("Watch".to_string())
+				.spawn(move || Watch::init(watch_send))
+			{
+				Ok(_)  => debug!("Kernel [12/12] ... spawned Watch"),
+				Err(e) => fail!("Kernel [12/12] ... failed to spawn Watch: {e}"),
+			}
+		} else {
+			debug!("Kernel [12/12] ... skipping Watch");
 		}
 
 		// We're done, enter main `userspace` loop.
