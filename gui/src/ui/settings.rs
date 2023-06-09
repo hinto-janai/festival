@@ -154,12 +154,21 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 		ui.add_space(10.0);
 
 		// Reset collection.
-		if ui.add_sized([width - 15.0, text], Button::new("Reset Collection"))
-			.on_hover_text(RESET_COLLECTION)
-			.clicked()
-		{
-			self.reset_collection();
-		}
+		ui.scope(|ui| {
+			// Make button color red.
+			let mut visuals = ui.visuals_mut();
+			visuals.widgets.inactive.weak_bg_fill = egui::Color32::from_rgb(120, 40, 40);
+			visuals.widgets.hovered.weak_bg_fill  = egui::Color32::from_rgb(180, 40, 40);
+			visuals.widgets.active.weak_bg_fill   = egui::Color32::from_rgb(140, 40, 40);
+			drop(visuals);
+
+			if ui.add_sized([width - 15.0, text], Button::new("Reset Collection"))
+				.on_hover_text(RESET_COLLECTION)
+				.clicked()
+			{
+				self.reset_collection();
+			}
+		});
 
 		ui.add_space(40.0);
 		ui.separator();
