@@ -86,7 +86,7 @@ impl_signal_content! {
 	"Contents should be a [`u64`] representing how many seconds to seek backwards in the current [`Song`]. Will reset the song if under-bounds",
 
 	Index, usize, "index",
-	"Contents should be a [`usize`]. This skips to an index in the queue starting from 0. Will end the queue if the index is out of bounds.",
+	"Contents should be a [`usize`]. This skips to an index in the queue starting from 1. Will end the queue if the index is out of bounds.",
 
 	Skip, usize, "skip",
 	"Contents should be a [`usize`]. This is similar to `Next`, although you can specify any amount of [`Song`]'s to skip in the queue.",

@@ -158,7 +158,7 @@ impl Watch {
 			// Content signals.
 			if let Ok(v) = Volume::from_file()       { send!(self.to_kernel, WatchToKernel::Volume(v.0)); }
 			if let Ok(s) = Skip::from_file()         { send!(self.to_kernel, WatchToKernel::Skip(s.0)); }
-			if let Ok(s) = Index::from_file()        { send!(self.to_kernel, WatchToKernel::Index(s.0)); }
+			if let Ok(s) = Index::from_file()        { send!(self.to_kernel, WatchToKernel::Index(s.0.saturating_sub(1))); }
 			if let Ok(s) = Seek::from_file()         { send!(self.to_kernel, WatchToKernel::Seek(s.0)); }
 			if let Ok(s) = SeekForward::from_file()  { send!(self.to_kernel, WatchToKernel::SeekForward(s.0)); }
 			if let Ok(s) = SeekBackward::from_file() { send!(self.to_kernel, WatchToKernel::SeekBackward(s.0)); }

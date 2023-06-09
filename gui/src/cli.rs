@@ -68,7 +68,7 @@ pub struct Cli {
 
 	/// Set the current song to the index `INDEX` in the queue.
 	///
-	/// NOTE: The queue index starts from 0 (first song is `--index 0`).
+	/// NOTE: The queue index starts from 1 (first song is `--index 1`).
 	///
 	/// Providing an index that is out-of-bounds will end the queue (even if repeat is turned on).
 	#[arg(long)]
@@ -78,7 +78,7 @@ pub struct Cli {
 	#[arg(long)]
 	skip: Option<usize>,
 
-	/// Skip `BACK` amount of songs, backwards
+	/// Go backwards in the queue by `BACK` amount of songs
 	#[arg(long)]
 	back: Option<usize>,
 

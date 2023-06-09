@@ -162,15 +162,7 @@ impl AudioState {
 	// Returns `None` if nothing in queue.
 	pub(super) fn prev(&mut self) -> Option<SongKey> {
 		if let Some(i) = self.queue_idx {
-			if i == 0 {
-				if let Some(key) = self.queue.get(0) {
-					self.song = Some(*key);
-					self.queue_idx = Some(0);
-					return Some(*key);
-				}
-			}
-
-			let i = i - 1;
+			let i = i.saturating_sub(1);
 			if let Some(key) = self.queue.get(i) {
 				self.song      = Some(*key);
 				self.queue_idx = Some(i);
