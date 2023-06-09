@@ -28,34 +28,34 @@ pub(crate) fn threads_for_album_art(albums: usize) -> usize {
 	// Return 1 if it's not even worth spawning
 	// threads due to small amount of albums.
 	if albums <= ALBUM_THREAD_THRESHOLD {
-		debug!("Album threads: 1");
+		debug!("CCD ... Album threads: 1");
 		return 1
 	}
 
 	// Make sure each thread has at least 1 album.
 	if *THREADS_50 > albums {
-		debug!("Album threads: {}", albums);
+		debug!("CCD ... Album threads: {}", albums);
 		return albums
 	}
 
-	debug!("Album threads: {}", *THREADS_50);
+	debug!("CCD ... Album threads: {}", *THREADS_50);
 	*THREADS_50
 }
 
 // Get a reasonable amount of threads for processing `n` amount of PATHs.
 pub(crate) fn threads_for_paths(paths: usize) -> usize {
 	if paths <= PATH_THREAD_THRESHOLD {
-		debug!("PATH threads: 1");
+		debug!("CCD ... PATH threads: 1");
 		return 1
 	}
 
 	// Make sure each thread has at least 1 PATH.
 	if *THREADS_50 > paths {
-		debug!("PATH threads: {}", paths);
+		debug!("CCD ... PATH threads: {}", paths);
 		return paths
 	}
 
-	debug!("PATH threads: {}", *THREADS_50);
+	debug!("CCD ... PATH threads: {}", *THREADS_50);
 	*THREADS_50
 }
 

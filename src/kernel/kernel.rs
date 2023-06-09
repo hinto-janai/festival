@@ -157,13 +157,13 @@ impl Kernel {
 		// we want _everyone_ to exit.
 		crate::panic::set_panic_hook();
 
-		debug!("Kernel [1/12] ... entering bios()");
+		debug!("Kernel Init [1/12] ... entering bios()");
 
 		// Create `ResetState`, send to `Frontend`.
 		RESET_STATE.write().disk();
 
 		// Attempt to load `Collection` from file.
-		debug!("Kernel - Reading Collection{COLLECTION_VERSION} from disk...");
+		debug!("Kernel Init ... Reading Collection{COLLECTION_VERSION} from disk...");
 		let now = now!();
 		// SAFETY:
 		// `Collection` is `memmap`'ed from disk.
@@ -183,12 +183,12 @@ impl Kernel {
 			// If success, continue to `boot_loader` to convert
 			// bytes to actual usable `egui` images.
 			Ok(collection) => {
-				ok_debug!("Kernel - Collection{COLLECTION_VERSION} deserialization ... Took {} seconds", secs_f32!(now));
+				ok_debug!("Kernel Init ... Collection{COLLECTION_VERSION} deserialization ... Took {} seconds", secs_f32!(now));
 				Self::boot_loader(collection, to_frontend, from_frontend, *beginning, watch, media_controls);
 			},
 			// Else, straight to `init` with default flag set.
 			Err(e) => {
-				warn!("Kernel - Collection{COLLECTION_VERSION} from file error: {}", e);
+				warn!("Kernel Init ... Collection{COLLECTION_VERSION} from file error: {}", e);
 				Self::init(None, None, to_frontend, from_frontend, *beginning, watch, media_controls);
 			},
 		}
@@ -203,22 +203,22 @@ impl Kernel {
 		watch:          bool,
 		media_controls: bool,
 	) {
-		debug!("Kernel [2/12] ... entering boot_loader()");
+		debug!("Kernel Init [2/12] ... entering boot_loader()");
 
 		// We successfully loaded `Collection`.
 		// Create `CCD` channel + thread and make it convert images.
-		debug!("Kernel [3/12] ... spawning CCD");
+		debug!("Kernel Init [3/12] ... spawning CCD");
 		let (ccd_send, from_ccd) = crossbeam::channel::unbounded::<CcdToKernel>();
 		if let Err(e) = std::thread::Builder::new()
 			.name("CCD".to_string())
 			.spawn(move || Ccd::convert_art(ccd_send, collection))
 		{
-			panic!("Kernel - failed to spawn CCD: {e}");
+			panic!("Kernel Init [3/12] ... failed to spawn CCD: {e}");
 		}
 
 		// Before hanging on `CCD`, read `AudioState` file.
 		// Note: This is a `Result`.
-		debug!("Kernel [4/12] ... reading AudioState");
+		debug!("Kernel Init [4/12] ... reading AudioState");
 		let state = AudioState::from_file();
 
 		// Set `ResetState` to `Start` + `Art` phase.
@@ -226,7 +226,7 @@ impl Kernel {
 		RESET_STATE.write().phase = Phase::Art;
 
 		// Wait for `Collection` to be returned by `CCD`.
-		debug!("Kernel [5/12] ... waiting on CCD");
+		debug!("Kernel Init [5/12] ... waiting on CCD");
 		let collection = loop {
 			use CcdToKernel::*;
 			match recv!(from_ccd) {
@@ -247,7 +247,7 @@ impl Kernel {
 				Failed(anyhow) => {
 					debug_panic!("{anyhow}");
 
-					error!("Kernel - Collection failed: {anyhow}");
+					error!("Kernel Init ... Collection failed: {anyhow}");
 					break None;
 				},
 			}
@@ -275,14 +275,14 @@ impl Kernel {
 		watch:          bool,
 		media_controls: bool,
 	) {
-		debug!("Kernel [6/12] ... entering kernel()");
+		debug!("Kernel Init [6/12] ... entering kernel()");
 		let audio = match audio {
 			Ok(audio) => {
-				ok_debug!("Kernel - AudioState{AUDIO_VERSION} deserialization");
+				ok_debug!("Kernel Init ... AudioState{AUDIO_VERSION} deserialization");
 				audio
 			},
 			Err(e) => {
-				warn!("Kernel - AudioState{AUDIO_VERSION} from file error: {}", e);
+				warn!("Kernel Init ... AudioState{AUDIO_VERSION} from file error: {}", e);
 				AudioState::new()
 			},
 		};
@@ -290,10 +290,10 @@ impl Kernel {
 		use crate::validate;
 
 		let audio = if validate::song(&collection, audio.song.unwrap_or(SongKey::zero())) {
-			ok_trace!("Kernel - AudioState{AUDIO_VERSION} validation");
+			ok_trace!("Kernel Init ... AudioState{AUDIO_VERSION} validation");
 			audio
 		} else {
-			fail!("Kernel - AudioState{AUDIO_VERSION} validation");
+			fail!("Kernel Init ... AudioState{AUDIO_VERSION} validation");
 			AudioState::new()
 		};
 
@@ -310,18 +310,18 @@ impl Kernel {
 		watch:          bool,
 		media_controls: bool,
 	) {
-		debug!("Kernel [7/12] ... entering init()");
+		debug!("Kernel Init [7/12] ... entering init()");
 
 		// Handle potentially missing `Collection`.
 		let collection = match collection {
-			Some(c) => { debug!("Kernel [8/12] ... Collection found"); c },
-			None    => { debug!("Kernel [8/12] ... Collection NOT found, returning default"); Arc::new(Collection::new()) },
+			Some(c) => { debug!("Kernel Init [8/12] ... Collection found"); c },
+			None    => { debug!("Kernel Init [8/12] ... Collection NOT found, returning default"); Arc::new(Collection::new()) },
 		};
 
 		// Handle potentially missing `AudioState`.
 		let audio = match audio {
-			Some(a) => { debug!("Kernel [9/12] ... AudioState found"); a }
-			None => { debug!("Kernel [9/12] ... AudioState NOT found, returning default"); AudioState::new() },
+			Some(a) => { debug!("Kernel Init [9/12] ... AudioState found"); a }
+			None => { debug!("Kernel Init [9/12] ... AudioState NOT found, returning default"); AudioState::new() },
 		};
 
 		// Send `Collection/State` to `Frontend`.
@@ -356,8 +356,8 @@ impl Kernel {
 			.name("Audio".to_string())
 			.spawn(move || Audio::init(collection, audio, audio_send, audio_recv, media_controls))
 		{
-			Ok(_)  => debug!("Kernel [10/12] ... spawned Audio"),
-			Err(e) => panic!("Kernel - failed to spawn Audio: {e}"),
+			Ok(_)  => debug!("Kernel Init [10/12] ... spawned Audio"),
+			Err(e) => panic!("Kernel Init [10/12] ... failed to spawn Audio: {e}"),
 		}
 
 		// Spawn `Search`.
@@ -366,8 +366,8 @@ impl Kernel {
 			.name("Search".to_string())
 			.spawn(move || Search::init(collection, search_send, search_recv))
 		{
-			Ok(_)  => debug!("Kernel [11/12] ... spawned Search"),
-			Err(e) => panic!("Kernel [11/12] ... failed to spawn Search: {e}"),
+			Ok(_)  => debug!("Kernel Init [11/12] ... spawned Search"),
+			Err(e) => panic!("Kernel Init [11/12] ... failed to spawn Search: {e}"),
 		}
 
 		// Spawn `Watch`.
@@ -376,15 +376,15 @@ impl Kernel {
 				.name("Watch".to_string())
 				.spawn(move || Watch::init(watch_send))
 			{
-				Ok(_)  => debug!("Kernel [12/12] ... spawned Watch"),
-				Err(e) => fail!("Kernel [12/12] ... failed to spawn Watch: {e}"),
+				Ok(_)  => debug!("Kernel Init [12/12] ... spawned Watch"),
+				Err(e) => fail!("Kernel Init [12/12] ... failed to spawn Watch: {e}"),
 			}
 		} else {
-			debug!("Kernel [12/12] ... skipping Watch");
+			debug!("Kernel Init [12/12] ... skipping Watch");
 		}
 
 		// We're done, enter main `userspace` loop.
-		debug!("Kernel - Entering userspace() ... Took {} seconds total", secs_f32!(beginning));
+		debug!("Kernel Init ... entering userspace(), took {} seconds", secs_f32!(beginning));
 		Self::userspace(kernel);
 	}
 

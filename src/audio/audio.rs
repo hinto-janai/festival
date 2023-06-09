@@ -185,7 +185,6 @@ impl Audio {
 		};
 
 		// Start `main()`.
-		ok_debug!("Audio Init");
 		Self::main(audio);
 	}
 }
@@ -195,6 +194,8 @@ impl Audio {
 	//-------------------------------------------------- The "main" loop.
 	#[inline(always)]
 	fn main(mut self) {
+		ok_debug!("Audio");
+
 		// Array of our channels we can `select` from.
 		//
 		// `Kernel` == `[0]`

@@ -55,7 +55,7 @@ impl Ccd {
 		collection: Collection,
 	) {
 		let beginning = now!();
-		debug!("CCD - Purpose in life: convert_art()");
+		debug!("CCD ... purpose in life: convert_art()");
 
 		// If no albums, return.
 		if collection.albums.is_empty() {
@@ -88,7 +88,7 @@ impl Ccd {
 		paths: Vec<PathBuf>,
 	) {
 		let beginning = now!();
-		debug!("CCD - Purpose in life: new_collection()");
+		debug!("CCD ... purpose in life: new_collection()");
 		// `new_collection()` high-level overview:
 		// 1. WalkDir given path(s), filtering for audio files.
 		// 2. For each file, append metadata to appropriate `Vec`.
@@ -110,7 +110,7 @@ impl Ccd {
 		send!(to_kernel, CcdToKernel::UpdatePhase((0.00, Phase::WalkDir)));
 		let paths = Self::walkdir_audio(&to_kernel, paths);
 		let perf_walkdir = secs_f32!(now);
-		trace!("CCD [1/14] - WalkDir: {perf_walkdir}");
+		trace!("CCD [1/14] ... WalkDir: {perf_walkdir}");
 
 		// 2.
 		let now = now!();
@@ -118,14 +118,14 @@ impl Ccd {
 		let (mut vec_artist, mut vec_album, vec_song, count_art) = Self::the_loop(&to_kernel, paths);
 		// Update should be < 50% at this point.
 		let perf_metadata = secs_f32!(now);
-		trace!("CCD [2/14] - Metadata: {perf_metadata}");
+		trace!("CCD [2/14] ... Metadata: {perf_metadata}");
 
 		// 3.
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((50.00, Phase::Fix)));
 		Self::fix_metadata(&mut vec_artist, &mut vec_album, &vec_song);
 		let perf_fix = secs_f32!(now);
-		trace!("CCD [3/14] - Fix: {perf_fix}");
+		trace!("CCD [3/14] ... Fix: {perf_fix}");
 
 		// 4.
 		let now = now!();
@@ -177,14 +177,14 @@ impl Ccd {
 		let sort_song_title_rev                         = sort_song_title.iter().rev().copied().collect::<Box<[SongKey]>>();
 
 		let perf_sort = secs_f32!(now);
-		trace!("CCD [4/14] - Sort: {perf_sort}");
+		trace!("CCD [4/14] ... Sort: {perf_sort}");
 
 		// 5.
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((55.00, Phase::Search)));
 		let map = Map::from_3_vecs(&vec_artist, &vec_album, &vec_song);
 		let perf_map = secs_f32!(now);
-		trace!("CCD [5/14] - Map: {perf_map}");
+		trace!("CCD [5/14] ... Map: {perf_map}");
 
 		// 6.
 		let now = now!();
@@ -278,7 +278,7 @@ impl Ccd {
 		// Fix metadata.
 		let collection = collection.set_metadata();
 		let perf_prepare = secs_f32!(now);
-		trace!("CCD [6/14] - Prepare: {perf_prepare}");
+		trace!("CCD [6/14] ... Prepare: {perf_prepare}");
 
 		// 7.
 		let now = now!();
@@ -289,7 +289,7 @@ impl Ccd {
 		let collection   = Self::priv_convert_art(&to_kernel, collection, ArtConvertType::Resize, increment, total_albums, threads);
 		// Update should be <= 90% at this point.
 		let perf_resize = secs_f32!(now);
-		trace!("CCD [7/14] - Resize: {perf_resize}");
+		trace!("CCD [7/14] ... Resize: {perf_resize}");
 
 		// 8.
 		// FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
@@ -321,7 +321,7 @@ impl Ccd {
 		send!(to_kernel, CcdToKernel::UpdatePhase((90.00, Phase::Clone)));
 		let collection_for_disk = collection.clone();
 		let perf_clone = secs_f32!(now);
-		trace!("CCD [8/14] - Clone: {perf_clone}");
+		trace!("CCD [8/14] ... Clone: {perf_clone}");
 		// FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
 		// 9.
@@ -341,7 +341,7 @@ impl Ccd {
 		let collection = Self::priv_convert_art(&to_kernel, collection, ArtConvertType::ToKnown, increment, total_albums, threads);
 		// Update should be <= 99% at this point.
 		let perf_convert = secs_f32!(now);
-		trace!("CCD [9/14] - Convert: {perf_convert}");
+		trace!("CCD [9/14] ... Convert: {perf_convert}");
 
 		// 10.
 		let now = now!();
@@ -354,13 +354,13 @@ impl Ccd {
 		// starve GUI, but can take way longer (0.00008 secs -> 1.xx secs...!!!).
 		super::alloc_textures(&collection.albums);
 		let perf_textures = secs_f32!(now);
-		trace!("CCD [10/14] - Textures: {perf_textures}");
+		trace!("CCD [10/14] ... Textures: {perf_textures}");
 
 		// 11.
 		let now = now!();
 		send!(to_kernel, CcdToKernel::NewCollection(Arc::new(collection)));
 		let perf_to_kernel = secs_f32!(now);
-		trace!("CCD [11/14] - ToKernel: {perf_to_kernel}");
+		trace!("CCD [11/14] ... ToKernel: {perf_to_kernel}");
 
 		// 12.
 		// INVARIANT:
@@ -373,10 +373,10 @@ impl Ccd {
 		let now = now!();
 		let _ = recv!(from_kernel);
 		let perf_die = secs_f32!(now);
-		trace!("CCD [12/14] - Die: {perf_die}");
+		trace!("CCD [12/14] ... Die: {perf_die}");
 
 		let user_time = secs_f32!(beginning);
-		trace!("CCD - User time: {}", user_time);
+		trace!("CCD ... User time: {}", user_time);
 
 		// 13.
 		let now = now!();
@@ -390,10 +390,10 @@ impl Ccd {
 		// We (`CCD`) are the only "entity" that should
 		// be touching `collection.bin` at this point.
 		let total_bytes = match unsafe { collection_for_disk.save_atomic_memmap() } {
-			Ok(md) => { debug!("CCD - Collection: {md}"); md.size()},
+			Ok(md) => { debug!("CCD ... Collection: {md}"); md.size()},
 			Err(e) => {
-				debug_panic!("CCD - Collection: {e}");
-				fail!("CCD - Collection: {e}");
+				debug_panic!("CCD ... Collection: {e}");
+				fail!("CCD ... Collection: {e}");
 				0
 			},
 		};
@@ -403,14 +403,14 @@ impl Ccd {
 			Ok(mut path) => {
 				let image_cache = ImageCache(collection_for_disk.timestamp);
 				if let Err(e) = image_cache.save() {
-					fail!("CCD - ImageCache: {e}");
+					fail!("CCD ... ImageCache: {e}");
 				} else {
 					for (key, album) in collection_for_disk.albums.iter().enumerate() {
 						if let Art::Bytes(bytes) = &album.art {
 							path.push(format!("{key}.jpg"));
 
 							if let Err(e) = std::fs::File::create(&path) {
-								warn!("CCD - ImageCache {e}: {}", path.display());
+								warn!("CCD ... ImageCache {e}: {}", path.display());
 								path.pop();
 								continue;
 							}
@@ -422,8 +422,8 @@ impl Ccd {
 								crate::collection::ALBUM_ART_SIZE as u32,
 								image::ColorType::Rgb8,
 							) {
-								Ok(_)  => ok_trace!("CCD - ImageCache: {} bytes @ {}", bytes.len(), path.display()),
-								Err(e) => warn!("CCD - ImageCache {e}: {}", path.display()),
+								Ok(_)  => ok_trace!("CCD ... ImageCache: {} bytes @ {}", bytes.len(), path.display()),
+								Err(e) => warn!("CCD ... ImageCache {e}: {}", path.display()),
 							}
 
 							path.pop();
@@ -431,13 +431,13 @@ impl Ccd {
 					}
 				}
 			},
-			_ => fail!("CCD - ImageCache"),
+			_ => fail!("CCD ... ImageCache"),
 		}
 
 		// Set `saving` state.
 		atomic_store!(crate::kernel::SAVING, false);
 		let perf_disk = secs_f32!(now);
-		trace!("CCD [13/14] - Disk: {perf_disk}");
+		trace!("CCD [13/14] ... Disk: {perf_disk}");
 
 		// Get perf stats.
 		let objects_artists = collection_for_disk.count_artist.usize();
@@ -455,7 +455,7 @@ impl Ccd {
 			if i == 4 {
 				debug_panic!("CCD couldn't deconstruct the Collection");
 
-				error!("CCD [14/14] - Someone else is pointing to the old Collection...! I can't deconstruct it noooooooooo~");
+				error!("CCD [14/14] ... Someone else is pointing to the old Collection...! I can't deconstruct it noooooooooo~");
 				break
 			}
 
@@ -465,11 +465,11 @@ impl Ccd {
 				break
 			}
 
-			warn!("CCD [14/14] Attempt ({}/3) - Failed to deconstruct old Collection...", i);
+			warn!("CCD [14/14] Attempt ({}/3) ... Failed to deconstruct old Collection...", i);
 			sleep!(1000); // Sleep 1 second.
 		}
 		let perf_deconstruct = secs_f32!(now);
-		trace!("CCD [14/14] - Deconstruct: {perf_deconstruct}");
+		trace!("CCD [14/14] ... Deconstruct: {perf_deconstruct}");
 
 		// Gather and save perf data.
 		let phases = crate::ccd::perf::Phases {
@@ -506,8 +506,8 @@ impl Ccd {
 		};
  		format!("{perf:#?}").lines().for_each(|l| debug!("{l}"));
 		match perf.save() {
-			Ok(i)  => debug!("CCD - Perf: {i}"),
-			Err(e) => warn!("CCD - Couldn't save perf data: {e}"),
+			Ok(i)  => debug!("CCD ... Perf: {i}"),
+			Err(e) => warn!("CCD ... Couldn't save perf data: {e}"),
 		}
 
 		// Thank you CCD, you can rest now.

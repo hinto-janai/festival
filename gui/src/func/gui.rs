@@ -41,7 +41,7 @@ use disk::{Bincode2,Toml,Json};
 impl crate::data::Gui {
 	// Sets a new `Collection`, all the related flags, and does validation.
 	pub fn new_collection(&mut self, c: Arc<Collection>) {
-		info!("GUI - New Collection received");
+		info!("GUI ... New Collection received");
 		self.collection           = c;
 		self.resetting_collection = false;
 		self.kernel_returned      = true;
