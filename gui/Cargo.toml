@@ -2,7 +2,7 @@
 name = "festival-gui"
 version = "0.0.0"
 edition = "2021"
-build = "build.rs"
+build = "gui/build.rs"
 authors = ["hinto.janai <hinto.janai@protonmail.com>"]
 description = "Festival GUI"
 homepage = "https://festival.pm"

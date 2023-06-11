@@ -27,6 +27,7 @@ use std::sync::{
 	RwLock,
 	RwLockReadGuard,
 	RwLockWriteGuard,
+	TryLockError,
 };
 use std::collections::VecDeque;
 
@@ -50,9 +51,21 @@ impl AudioStateLock {
 	}
 
 	#[inline(always)]
+	/// Call the non-blocking `.try_read()` on the global [`AudioState`].
+	pub fn try_read(&'static self) -> Result<RwLockReadGuard<'static, AudioState>, TryLockError<RwLockReadGuard<'static, AudioState>>> {
+		self.0.try_read()
+	}
+
+	#[inline(always)]
 	// Private write.
 	pub(super) fn write(&'static self) -> RwLockWriteGuard<'static, AudioState> {
 		lockw!(self.0)
+	}
+
+	#[inline(always)]
+	// Private write.
+	pub(super) fn try_write(&'static self) -> Result<RwLockWriteGuard<'static, AudioState>, TryLockError<RwLockWriteGuard<'static, AudioState>>> {
+		self.0.try_write()
 	}
 }
 

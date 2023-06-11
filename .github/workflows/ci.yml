@@ -44,18 +44,18 @@ jobs:
       shell: bash
 
     - name: Clippy
-      run: cargo clippy --all-features --profile ${{ matrix.build }}
+      run: cargo clippy --profile ${{ matrix.build }}
 
     - name: Doc
-      run: cargo doc --workspace --no-deps --all-features --profile ${{ matrix.build }}
+      run: cargo doc --workspace --no-deps --profile ${{ matrix.build }}
       env:
         RUSTFLAGS: -Awarnings
 
     - name: Test
-      run: cargo test --all-features --profile ${{ matrix.build }}
+      run: cargo test --profile ${{ matrix.build }}
 
     - name: Build
-      run: cargo build --all-features --profile ${{ matrix.build }}
+      run: cargo build --profile ${{ matrix.build }}
 
     - name: Archive (debug)
       uses: actions/upload-artifact@v3

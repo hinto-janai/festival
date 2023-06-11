@@ -21,6 +21,7 @@ use std::sync::{
 	RwLock,
 	RwLockReadGuard,
 	RwLockWriteGuard,
+	TryLockError,
 };
 use benri::{lockw,lockr};
 
@@ -44,9 +45,21 @@ impl ResetStateLock {
 	}
 
 	#[inline(always)]
+	/// Call the non-blocking `.try_read()` on the global [`ResetState`].
+	pub fn try_read(&'static self) -> Result<RwLockReadGuard<'static, ResetState>, TryLockError<RwLockReadGuard<'static, ResetState>>> {
+		self.0.try_read()
+	}
+
+	#[inline(always)]
 	// Private write.
 	pub(super) fn write(&'static self) -> RwLockWriteGuard<'static, ResetState> {
 		lockw!(self.0)
+	}
+
+	#[inline(always)]
+	// Private write.
+	pub(super) fn try_write(&'static self) -> Result<RwLockWriteGuard<'static, ResetState>, TryLockError<RwLockWriteGuard<'static, ResetState>>> {
+		self.0.try_write()
 	}
 }
 
@@ -84,7 +97,8 @@ pub struct ResetState {
 }
 
 impl ResetState {
-	pub(super) const fn new() -> Self {
+	/// Creates an empty struct.
+	pub const fn new() -> Self {
 		Self {
 			resetting: false,
 			percent: Percent::zero(),

@@ -1,7 +1,6 @@
 //---------------------------------------------------------------------------------------------------- Use
 use anyhow::{anyhow,bail};
 use crate::constants::{
-	ICON,
 	VISUALS,
 	SPACING,
 	FONT_ARRAY,
@@ -14,6 +13,7 @@ use crate::data::{
 	DebugInfo,
 };
 use shukusai::{
+	FESTIVAL_ICON,
 	FESTIVAL_DBUS,
 	FESTIVAL,
 };
@@ -118,7 +118,7 @@ impl crate::data::Gui {
 	pub fn options() -> eframe::NativeOptions {
 		// Icon
 		// SAFETY: This image is known at compile-time. It should never fail.
-		let icon = image::load_from_memory(ICON).unwrap().to_rgba8();
+		let icon = image::load_from_memory(FESTIVAL_ICON).unwrap().to_rgba8();
 		let (width, height) = icon.dimensions();
 		let icon_data = Some(eframe::IconData {
 			rgba: icon.into_raw(),
@@ -202,6 +202,8 @@ impl crate::data::Gui {
 			audio_seek: 0,
 			audio_leeway: now!(),
 			last_song: None,
+
+			reset_state: ResetState::new(),
 
 			rect: egui::Rect { min: Default::default(), max: Default::default() },
 			resize_leeway: now!(),

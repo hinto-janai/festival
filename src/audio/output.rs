@@ -12,7 +12,7 @@
 use std::result;
 use symphonia::core::audio::*;
 use symphonia::core::units::Duration;
-use crate::FESTIVAL_NAME_VER;
+use crate::FESTIVAL;
 use benri::log::*;
 
 //---------------------------------------------------------------------------------------------------- Audio Output
@@ -31,7 +31,8 @@ pub(crate) trait Output: Sized {
 	fn dummy() -> Result<Self> {
 		let spec = SignalSpec {
 			// INVARIANT: Must be non-zero.
-			rate: 1,
+			rate: 48_000,
+//			rate: 1,
 
 			// INVARIANT: Must be a valid entry in the below map `match`.
 			channels: Channels::FRONT_LEFT,
@@ -117,7 +118,7 @@ mod output {
 			// Create a PulseAudio connection.
 			let pa_result = psimple::Simple::new(
 				None,                               // Use default server
-				FESTIVAL_NAME_VER,                  // Application name
+				FESTIVAL,                           // Application name
 				pulse::stream::Direction::Playback, // Playback stream
 				None,                               // Default playback device
 				"Music",                            // Description of the stream
@@ -269,7 +270,7 @@ mod output {
 			};
 
 			// Create a ring buffer with a capacity for up-to 50ms of audio.
-			let ring_len = ((50 * config.sample_rate.0 as usize) / 1000) * num_channels;
+			let ring_len = ((200 * config.sample_rate.0 as usize) / 1000) * num_channels;
 
 			let ring_buf = SpscRb::new(ring_len);
 			let (ring_buf_producer, ring_buf_consumer) = (ring_buf.producer(), ring_buf.consumer());

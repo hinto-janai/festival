@@ -22,6 +22,14 @@ pub const FESTIVAL_NAME_VER: &str = {
 	concat!("Festival v", env!("CARGO_PKG_VERSION"))
 };
 
+/// Festival's icon:
+/// - `512x512`
+/// - `RGBA`
+/// - `PNG`
+pub const FESTIVAL_ICON: &[u8] = include_bytes!("../assets/images/icon/512.png");
+/// The height and width of [`FESTIVAL_ICON`].
+pub const FESTIVAL_ICON_SIZE: u32 = 512;
+
 /// Festival's `dbus` connection name.
 pub const FESTIVAL_DBUS: &str = "pm.festival.Festival";
 
@@ -108,5 +116,10 @@ mod tests {
 	#[test]
 	fn git_commit_eq_or_gt_40_chars() {
 		assert!(COMMIT.len() >= 40);
+	}
+
+	#[test]
+	fn icon() {
+		let icon = winit::window::Icon::from_rgba(FESTIVAL_ICON.to_vec(), FESTIVAL_ICON_SIZE, FESTIVAL_ICON_SIZE).unwrap();
 	}
 }

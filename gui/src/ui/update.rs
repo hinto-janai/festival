@@ -28,6 +28,7 @@ use log::{error,warn,info,debug,trace};
 use shukusai::FESTIVAL;
 use shukusai::kernel::{
 	AUDIO_STATE,
+	RESET_STATE,
 	Volume,
 	FrontendToKernel,
 	KernelToFrontend,
@@ -124,7 +125,9 @@ impl eframe::App for Gui {
 		}
 
 		// Acquire a local copy of the `AUDIO_STATE`.
-		AUDIO_STATE.read().if_copy(&mut self.audio_state);
+		if let Ok(audio_state) = AUDIO_STATE.try_read() {
+			audio_state.if_copy(&mut self.audio_state);
+		}
 
 		// Audio leeway.
 		if secs_f32!(self.audio_leeway) > 0.05 {
@@ -764,6 +767,11 @@ fn show_collection_spinner(
 	height: f32,
 	text: &'static str,
 ) {
+	// Update local copy of `RESET_STATE`.
+	if let Ok(reset_state) = RESET_STATE.try_read() {
+		self.reset_state = reset_state.clone();
+	}
+
 	CentralPanel::default().show(ctx, |ui| {
 		self.set_visuals(ui);
 		ui.vertical_centered(|ui| {
@@ -777,18 +785,16 @@ fn show_collection_spinner(
 
 			let height = half / 6.0;
 
-			use shukusai::kernel::RESET_STATE;
-
 			// Spinner.
 			ui.add_sized([width, height], Spinner::new().size(height));
 			// Percent.
-			ui.add_sized([width, height], Label::new(RESET_STATE.read().percent.as_str()));
+			ui.add_sized([width, height], Label::new(self.reset_state.percent.as_str()));
 			// Phase.
-			ui.add_sized([width, height], Label::new(RESET_STATE.read().phase.as_str()));
+			ui.add_sized([width, height], Label::new(self.reset_state.phase.as_str()));
 			// Specific.
-			ui.add_sized([width, height], Label::new(&RESET_STATE.read().specific));
+			ui.add_sized([width, height], Label::new(&self.reset_state.specific));
 			// ProgressBar.
-			ui.add_sized([width / 1.1, height], ProgressBar::new(RESET_STATE.read().percent.inner() as f32 / 100.0));
+			ui.add_sized([width / 1.1, height], ProgressBar::new(self.reset_state.percent.inner() as f32 / 100.0));
 
 		});
 	});

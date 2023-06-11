@@ -180,9 +180,6 @@ pub const FONT_ARRAY: [(&str, &[u8]); 7] = [
 	("SourceCode-TW",  FONT_SOURCECODE_TW),
 ];
 
-//---------------------------------------------------------------------------------------------------- Icon
-pub const ICON: &[u8] = include_bytes!("../../assets/images/icon/512.png");
-
 //---------------------------------------------------------------------------------------------------- Color
 pub const RED:           Color32 = Color32::from_rgb(230, 50, 50);
 pub const GREEN:         Color32 = Color32::from_rgb(80, 180, 80);

@@ -60,8 +60,9 @@ pub struct Gui {
 	// functionality in the GUI.
 
 	/// Audio State.
+	///
 	/// A local copy of shukusai's `AUDIO_STATE`
-	/// so we don't have to lock it every loop.
+	/// so we don't have to lock it multiple times every loop.
 	pub audio_state: AudioState,
 	/// A local copy of our seek time.
 	/// This is the thing we send `Kernel` when
@@ -75,6 +76,12 @@ pub struct Gui {
 	pub audio_leeway: Instant,
 	/// The [`SongKey`] we were playing in the last frame.
 	pub last_song: Option<SongKey>,
+
+	/// Reset State.
+	///
+	/// A local copy of shukusai's `RESET_STATE`
+	/// so we don't have to lock it multiple times every loop.
+	pub reset_state: ResetState,
 
 	/// Our max `rect` at the very start of every frame.
 	pub rect: egui::Rect,
