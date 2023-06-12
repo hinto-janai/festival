@@ -32,13 +32,12 @@ pub(crate) trait Output: Sized {
 		let spec = SignalSpec {
 			// INVARIANT: Must be non-zero.
 			rate: 48_000,
-//			rate: 1,
 
 			// INVARIANT: Must be a valid entry in the below map `match`.
 			channels: Channels::FRONT_LEFT,
 		};
 
-		Self::try_open(spec, 0)
+		Self::try_open(spec, 4096)
 	}
 }
 
@@ -50,6 +49,7 @@ pub(crate) enum AudioOutputError {
 	Channel,
 	InvalidSpec,
 	NonF32,
+	Resampler,
 }
 
 pub(crate) type Result<T> = result::Result<T, AudioOutputError>;
@@ -216,7 +216,7 @@ mod output {
 	use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 	use rb::*;
 
-	use log::{error, info};
+	use log::{error, info, warn, trace};
 
 	// TODO: support i16/u16.
 	pub(crate) struct AudioOutput {
@@ -241,10 +241,7 @@ mod output {
 
 			let config = match device.default_output_config() {
 				Ok(config) => config,
-				Err(err) => {
-					error!("failed to get default audio output device config: {}", err);
-					return Err(AudioOutputError::OpenStream);
-				}
+				Err(err) => return Err(AudioOutputError::OpenStream),
 			};
 
 			// TODO: support i16/u16.
@@ -255,22 +252,19 @@ mod output {
 			let num_channels = spec.channels.count();
 
 			// Output audio stream config.
-			let config = if cfg!(not(target_os = "windows")) {
+			let config = if cfg!(windows) {
+				// Use the default config for Windows.
+				config.config()
+			} else {
 				cpal::StreamConfig {
 					channels: num_channels as cpal::ChannelCount,
 					sample_rate: cpal::SampleRate(spec.rate),
 					buffer_size: cpal::BufferSize::Default,
 				}
-			} else {
-				// Use the default config for Windows.
-				device
-					.default_output_config()
-					.expect("Failed to get the default output config.")
-					.config()
 			};
 
 			// Create a ring buffer with a capacity for up-to 50ms of audio.
-			let ring_len = ((200 * config.sample_rate.0 as usize) / 1000) * num_channels;
+			let ring_len = ((50 * config.sample_rate.0 as usize) / 1000) * num_channels;
 
 			let ring_buf = SpscRb::new(ring_len);
 			let (ring_buf_producer, ring_buf_consumer) = (ring_buf.producer(), ring_buf.consumer());
@@ -278,39 +272,38 @@ mod output {
 			let stream_result = device.build_output_stream(
 				&config,
 				move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
-					// Write out as many samples as possible from the ring buffer to the audio
-					// output.
+					// Write out as many samples as possible from the ring buffer to the audio output.
 					let written = ring_buf_consumer.read(data).unwrap_or(0);
 
 					// Mute any remaining samples.
 					data[written..].iter_mut().for_each(|s| *s = 0.0);
 				},
-				move |err| error!("audio output error: {}", err),
+				move |err| warn!("Audio - audio output error: {err}"),
 				None,
 			);
 
-			if let Err(err) = stream_result {
-				error!("audio output stream open error: {}", err);
-
-				return Err(AudioOutputError::OpenStream);
-			}
-
-			let stream = stream_result.unwrap();
+			let stream = match stream_result {
+				Ok(s) => s,
+				Err(err) => return Err(AudioOutputError::OpenStream),
+			};
 
 			// Start the output stream.
 			if let Err(err) = stream.play() {
-				error!("audio output stream play error: {}", err);
-
 				return Err(AudioOutputError::PlayStream);
 			}
 
 			let sample_buf = SampleBuffer::<f32>::new(duration, spec);
 
 			let resampler = if spec.rate != config.sample_rate.0 {
-				info!("resampling {} Hz to {} Hz", spec.rate, config.sample_rate.0);
-				Some(Resampler::new(spec, config.sample_rate.0 as usize, duration))
-			}
-			else {
+				trace!("Audio - resampling {} Hz to {} Hz", spec.rate, config.sample_rate.0);
+				match Resampler::new(spec, config.sample_rate.0 as usize, duration) {
+					Ok(r)  => Some(r),
+					Err(e) => {
+						error!("Audio - failed to create resampler: {e}");
+						return Err(AudioOutputError::Resampler);
+					},
+				}
+			} else {
 				None
 			};
 
@@ -327,11 +320,13 @@ mod output {
 				// Resampling is required. The resampler will return interleaved samples in the
 				// correct sample format.
 				match resampler.resample(decoded) {
-					Some(resampled) => resampled,
-					None => return Ok(()),
+					Ok(resampled) => resampled,
+					Err(e) => {
+						trace!("Audio - write(): {e}");
+						return Ok(());
+					},
 				}
-			}
-			else {
+			} else {
 				// Resampling is not required. Interleave the sample for cpal using a sample buffer.
 				self.sample_buf.copy_interleaved_ref(decoded);
 
@@ -347,8 +342,8 @@ mod output {
 		}
 
 		fn flush(&mut self) {
-			// If there is a resampler, then it may need to be flushed
-			// depending on the number of samples it has.
+			// If there is a resampler, then it may need to be
+			// flushed depending on the number of samples it has.
 			if let Some(resampler) = &mut self.resampler {
 				let mut remaining_samples = resampler.flush().unwrap_or_default();
 
@@ -357,8 +352,10 @@ mod output {
 				}
 			}
 
-			// Flush is best-effort, ignore the returned result.
-			drop(self.stream.pause());
+			// DO NOT USE: this hangs forever.
+			//
+//			// Flush is best-effort, ignore the returned result.
+//			drop(self.stream.pause());
 		}
 	}
 }

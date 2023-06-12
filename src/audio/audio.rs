@@ -212,7 +212,7 @@ impl Audio {
 			//------ Kernel message.
 			// If we're playing something, only listen for messages for a few millis.
 			if self.state.playing {
-				if let Ok(i) = select.ready_timeout(RECV_TIMEOUT) {
+				if let Ok(i) = select.try_ready() {
 					// Kernel.
 					if i == 0 {
 						self.kernel_msg(recv!(self.from_kernel));
@@ -242,13 +242,13 @@ impl Audio {
 				trace!("Audio - Pause [2/3]: waiting on message...");
 				match select.ready() {
 					i if i == 0 => {
-						self.kernel_msg(recv!(self.from_kernel));
 						trace!("Audio - Pause [3/3]: woke up from Kernel message...!");
+						self.kernel_msg(recv!(self.from_kernel));
 					},
 
 					_ => {
-						self.mc_msg(recv!(self.from_mc));
 						trace!("Audio - Pause [3/3]: woke up from MediaControls message...!");
+						self.mc_msg(recv!(self.from_mc));
 					},
 				}
 			}

@@ -3697,9 +3697,9 @@ dependencies = [
 
 [[package]]
 name = "rb"
-version = "0.4.1"
+version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "56cf8381505b60ae18a4097f1d0be093287ca3bf4fbb23d36ac5ad3bba335daa"
+checksum = "a27f4c5756bd2bfb5942758d8168805655c62388eef0544e581a2bfa5b532f15"
 
 [[package]]
 name = "rctree"
@@ -3880,9 +3880,9 @@ dependencies = [
 
 [[package]]
 name = "rubato"
-version = "0.13.0"
+version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b07a5462e4488d95466680fcbad98cbe93d8ac78df84117794add9224cf9b21b"
+checksum = "cd70209c27d5b08f5528bdc779ea3ffb418954e28987f9f9775c6eac41003f9c"
 dependencies = [
  "num-complex",
  "num-integer",
@@ -4136,10 +4136,12 @@ dependencies = [
  "serde",
  "serde_bytes",
  "souvlaki",
+ "static_vcruntime",
  "strsim",
  "symphonia",
  "walkdir",
  "windows 0.48.0",
+ "winres",
 ]
 
 [[package]]

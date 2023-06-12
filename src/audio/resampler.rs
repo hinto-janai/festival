@@ -5,9 +5,23 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+// This code is a modified version of:
+// `https://github.com/pdeljanov/Symphonia/blob/master/symphonia-play/src/resampler.rs`
+//
+// Our `output.rs` only supports `f32` at the moment so these
+// `<T>` conversions are useless but eventually will be used.
+//
+// INVARIANT:
+// This _must_ use `rubato 0.12.0` or untold debugging pain will occur.
+// Anything past `0.12.0` has tons of audio playback issues, panics, etc.
+//
+// I did not write this code so I have zero clue
+// on how to reimplement it for `0.12.0`+ versions.
+
 use symphonia::core::audio::{AudioBuffer, AudioBufferRef, Signal, SignalSpec};
 use symphonia::core::conv::{FromSample, IntoSample};
 use symphonia::core::sample::Sample;
+use anyhow::{bail, Error};
 
 pub(super) struct Resampler<T> {
 	resampler: rubato::FftFixedIn<f32>,
@@ -21,7 +35,7 @@ impl<T> Resampler<T>
 where
 	T: Sample + FromSample<f32> + IntoSample<f32>,
 {
-	fn resample_inner(&mut self) -> &[T] {
+	fn resample_inner(&mut self) -> Result<&[T], Error> {
 		{
 			let mut input: arrayvec::ArrayVec<&[f32], 32> = Default::default();
 
@@ -35,8 +49,7 @@ where
 				&input,
 				&mut self.output,
 				None,
-			)
-			.unwrap();
+			)?;
 		}
 
 		// Remove consumed samples from the input buffer.
@@ -55,15 +68,10 @@ where
 			}
 		}
 
-		&self.interleaved
+		Ok(&self.interleaved)
 	}
-}
 
-impl<T> Resampler<T>
-where
-	T: Sample + FromSample<f32> + IntoSample<f32>,
-{
-	pub(super) fn new(spec: SignalSpec, to_sample_rate: usize, duration: u64) -> Self {
+	pub(super) fn new(spec: SignalSpec, to_sample_rate: usize, duration: u64) -> Result<Self, Error> {
 		let duration = duration as usize;
 		let num_channels = spec.channels.count();
 
@@ -73,37 +81,36 @@ where
 			duration,
 			2,
 			num_channels,
-		)
-		.unwrap();
+		)?;
 
 		let output = rubato::Resampler::output_buffer_allocate(&resampler);
 
 		let input = vec![Vec::with_capacity(duration); num_channels];
 
-		Self { resampler, input, output, duration, interleaved: Default::default() }
+		Ok(Self { resampler, input, output, duration, interleaved: Default::default() })
 	}
 
 	/// Resamples a planar/non-interleaved input.
 	///
 	/// Returns the resampled samples in an interleaved format.
-	pub(super) fn resample(&mut self, input: AudioBufferRef<'_>) -> Option<&[T]> {
+	pub(super) fn resample(&mut self, input: AudioBufferRef<'_>) -> Result<&[T], Error> {
 		// Copy and convert samples into input buffer.
 		convert_samples_any(&input, &mut self.input);
 
 		// Check if more samples are required.
 		if self.input[0].len() < self.duration {
-			return None;
+			bail!("input len < duration")
 		}
 
-		Some(self.resample_inner())
+		self.resample_inner()
 	}
 
 	/// Resample any remaining samples in the resample buffer.
-	pub(super) fn flush(&mut self) -> Option<&[T]> {
+	pub(super) fn flush(&mut self) -> Result<&[T], Error> {
 		let len = self.input[0].len();
 
 		if len == 0 {
-			return None;
+			bail!("len == 0")
 		}
 
 		let partial_len = len % self.duration;
@@ -116,7 +123,7 @@ where
 			}
 		}
 
-		Some(self.resample_inner())
+		self.resample_inner()
 	}
 }
 
