@@ -1874,13 +1874,13 @@ dependencies = [
  "egui-notify",
  "egui_dnd",
  "egui_extras",
+ "epaint",
  "image",
  "log",
  "once_cell",
  "open",
  "readable",
  "rfd",
- "rolock",
  "serde",
  "shukusai",
  "static_vcruntime",
@@ -3854,11 +3854,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "rolock"
-version = "0.1.2"
-source = "git+https://github.com/hinto-janai/rolock#4ddbad0a7fe58484603f0f1d6fc970ac82f527b6"
-
-[[package]]
 name = "ron"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4099,12 +4094,10 @@ dependencies = [
  "arrayvec",
  "benri",
  "bincode",
- "clap 4.3.3",
  "compact_str",
  "const_format",
  "cpal",
  "crossbeam",
- "dirs 5.0.1",
  "disk",
  "eframe",
  "egui",
@@ -4124,13 +4117,10 @@ dependencies = [
  "mime_guess",
  "notify",
  "once_cell",
- "open",
  "paste",
  "rand",
  "rb",
  "readable",
- "rfd",
- "rolock",
  "rubato",
  "seq-macro",
  "serde",

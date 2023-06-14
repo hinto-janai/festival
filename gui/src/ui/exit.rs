@@ -31,7 +31,6 @@ use crossbeam::channel::{
 	Receiver,
 };
 use std::time::Duration;
-use rolock::RoLock;
 use std::sync::{
 	Arc,
 	atomic::AtomicU8,

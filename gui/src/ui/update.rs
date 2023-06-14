@@ -48,7 +48,6 @@ use std::time::{
 	Instant,
 	Duration,
 };
-use rolock::RoLock;
 use std::sync::Arc;
 use crate::constants::{
 	VISUALS,

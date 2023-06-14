@@ -16,7 +16,6 @@ use crate::constants::{
 	HEADER,
 	AUDIO_VERSION,
 };
-use rolock::RoLock;
 use crate::audio::{
 	Volume,Repeat,
 };

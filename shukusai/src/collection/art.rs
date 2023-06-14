@@ -26,7 +26,7 @@ use once_cell::sync::Lazy;
 pub const ALBUM_ART_SIZE: usize = 600;
 
 //---------------------------------------------------------------------------------------------------- Unknown Art (lazy) Constant
-pub(crate) const UNKNOWN_ALBUM_BYTES: &[u8] = include_bytes!("../../assets/images/art/unknown.png");
+pub(crate) const UNKNOWN_ALBUM_BYTES: &[u8] = include_bytes!("../../../assets/images/art/unknown.png");
 pub(crate) static UNKNOWN_ALBUM: Lazy<RetainedImage> = Lazy::new(|| RetainedImage::from_image_bytes("Unknown", UNKNOWN_ALBUM_BYTES).unwrap());
 
 //---------------------------------------------------------------------------------------------------- Art

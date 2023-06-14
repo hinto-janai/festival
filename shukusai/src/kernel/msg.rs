@@ -12,7 +12,6 @@ use crate::collection::{
 	ArtistKey,AlbumKey,SongKey,Key,
 	Collection,Keychain,
 };
-use rolock::RoLock;
 use std::path::PathBuf;
 use crate::kernel::{
 	ResetState,Kernel,SearchKind,

@@ -26,7 +26,7 @@ pub const FESTIVAL_NAME_VER: &str = {
 /// - `512x512`
 /// - `RGBA`
 /// - `PNG`
-pub const FESTIVAL_ICON: &[u8] = include_bytes!("../assets/images/icon/512.png");
+pub const FESTIVAL_ICON: &[u8] = include_bytes!("../../assets/images/icon/512.png");
 /// The height and width of [`FESTIVAL_ICON`].
 pub const FESTIVAL_ICON_SIZE: u32 = 512;
 
@@ -54,8 +54,9 @@ pub const SIGNAL_SUB_DIR: &str = "signal";
 
 /// Current `git` commit of `festival`
 pub const COMMIT: &str = {
-	const_assert!(include_str!("commit").len() != 0, "Commit file is 0 length");
-	include_str!("commit")
+	const COMMIT: &str = include_str!("../../.git/refs/heads/main");
+	const_assert!(COMMIT.len() != 0, "Commit file is 0 length");
+	COMMIT
 };
 
 /// Build profile (debug/release)

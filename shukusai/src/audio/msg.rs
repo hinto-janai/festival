@@ -11,7 +11,6 @@ use crate::collection::{
 	Collection,Keychain,QueueKey,
 	ArtistKey,AlbumKey,SongKey,
 };
-use rolock::RoLock;
 use crate::audio::{
 	AudioState,Volume,
 };

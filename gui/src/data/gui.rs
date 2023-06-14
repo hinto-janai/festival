@@ -26,7 +26,6 @@ use std::sync::{
 	atomic::AtomicBool,
 	atomic::AtomicU8,
 };
-use rolock::RoLock;
 use std::time::Instant;
 
 //---------------------------------------------------------------------------------------------------- GUI struct. This hold ALL data.

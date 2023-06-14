@@ -11,7 +11,6 @@ use crate::collection::{
 	Queue,
 	Playlist,
 };
-use rolock::RoLock;
 use crate::audio::Volume;
 use crate::kernel::Kernel;
 use readable::Percent;

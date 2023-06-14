@@ -1,4 +1,4 @@
-# Festival Documentation
+# `shukusai` documentation
 This is an overview of `Festival`'s internals: `shukusai`.
 
 For details on any part of the system, look within any given sub-directory for its `README.md`, which contains more specific documentation.
@@ -70,6 +70,8 @@ In documentation:
 ---
 
 # Code Structure
+The structure of the folders & files located in `src/`.
+
 ## Data
 These folders represent data:
 
@@ -106,7 +108,6 @@ These are top-level `src/` files for miscellaneous stuff:
 
 | File           | Purpose |
 |----------------|---------|
-| `commit`       | Symlink to current `main` branch commit
 | `constants.rs` | General constants
 | `logger.rs`    | Console logging initialization
 | `lib.rs`       | `pub` re-exposing, `doc` comments

@@ -1,178 +1,61 @@
-[package]
-name = "shukusai"
-version = "0.0.0"
-edition = "2021"
-authors = ["hinto.janai <hinto.janai@protonmail.com>"]
-description = "Festival (music player) internals"
-homepage = "https://festival.pm"
-documentation = "https://docs.rs/shukusai"
-repository = "https://github.com/hinto-janai/festival"
-readme = "README.md"
-keywords = ["music", "player", "audio", "festival", "shukusai"]
-categories = ["multimedia"]
-license = "MIT"
-exclude = [
-    "assets/*",
-    "cmp/*",
-    "external/*",
-    "pgp/*",
-    "utils/*",
-    "CHANGELOG.md",
-	".github",
-	"gui/*",
-	"web/*",
-	"daemon/*",
-	"cli/*",
-]
-include = [
-	"src",
-	"assets/images/diagram",
-    "assets/images/art/unknown.png",
-	"assets/images/icon/512.png",
-	"assets/images/cmp/*",
-]
-
 [workspace]
 members = [
+	"shukusai",
 	"gui",
 	"web",
 	"daemon",
 	"cli",
 ]
+resolver = "2"
 
-# GUI
-[[bin]]
-name = "festival"
-path = "gui/src/main.rs"
-doc = false
-
-# Web
-[[bin]]
-name = "festival-web"
-path = "web/src/main.rs"
-doc = false
-
-# Daemon
-[[bin]]
-name = "festivald"
-path = "daemon/src/main.rs"
-doc = false
-
-# CLI
-[[bin]]
-name = "festival-cli"
-path = "cli/src/main.rs"
-doc = false
+[workspace.package]
+version        = "0.0.0"
+edition        = "2021"
+authors        = ["hinto.janai <hinto.janai@protonmail.com>"]
+homepage       = "https://festival.pm"
+documentation  = "https://docs.rs/shukusai"
+repository     = "https://github.com/hinto-janai/festival"
+keywords       = ["music", "player", "audio", "festival", "shukusai"]
+categories     = ["multimedia"]
+readme         = "README.md"
+license        = "MIT"
+license-file   = "LICENSE"
 
 [profile.release]
-strip = "symbols"
+lto           = true
+strip         = "none"
 codegen-units = 1
-lto = true
 
 [profile.dev]
+strip     = "none"
 opt-level = 1
-strip = "none"
 
 # Run tests in `--release` mode.
 #[profile.test]
-#debug = false
-#strip = "symbols"
+#lto           = true
+#strip         = "symbols"
 #codegen-units = 1
-#lto = true
 
-[features]
-default = ["panic", "gui"]
-panic   = []
-gui     = ["egui", "eframe", "egui_extras", "epaint"]
-daemon  = []
-cli     = []
-web     = []
-
-[package.metadata.docs.rs]
-all-features = true
-rustdoc-args = ["--cfg", "docsrs"]
-
-[build-dependencies]
-
-[target.'cfg(windows)'.build-dependencies]
-winres = "0.1.12"
-static_vcruntime = "2.0"
-
-[dependencies]
-### Personal libraries.
-### FIXME:
+[workspace.dependencies]
+### Personal.
+### TODO:
 ### Lock in versions on `v1.0.0` release.
+shukusai = { version = "*", path = "shukusai" }
 benri    = { version = "*", git = "https://github.com/hinto-janai/benri", features = ["log"] }
 disk     = { version = "*", git = "https://github.com/hinto-janai/disk", features = ["bincode2", "empty", "toml", "plain", "json", "bytesize"] }
 readable = { version = "*", git = "https://github.com/hinto-janai/readable", features = ["full"] }
-rolock   = { version = "*", git = "https://github.com/hinto-janai/rolock" }
-
-### External patched libraries `external/`.
-# TODO:
-# `egui` is used for its images.
-# This should be optional when other `Frontend`'s are made.
-egui        = { version = "0.21.0", path = "external/egui/crates/egui",        features = ["default_fonts", "serde"], default-features = false, optional = true }
-eframe      = { version = "0.21.0", path = "external/egui/crates/eframe",      features = ["wgpu"],          default-features = false, optional = true }
-egui_extras = { version = "0.21.0", path = "external/egui/crates/egui_extras", features = ["image"], optional = true  }
-epaint      = { version = "0.21.0", path = "external/egui/crates/epaint", optional = true  }
-lofty       = { version = "0.13.0", path = "external/lofty-rs" }
-
-## 3rd party `egui`.
-egui_dnd    = { version = "0.3.0", path = "external/egui_dnd" }
-egui-notify = { version = "0.6.0", path = "external/egui-notify" }
-
-### Build dependencies.
-### These aren't directly used in `shukusai`
-### but for some reason, workspace builds won't
-### work if not defined here, so...
-clap = { version = "4", features = ["derive"] }
-rfd = "0.11.4"
-paste = "1.0.12"
-compact_str = "0.7.0"
-open = "4.1.0"
-#souvlaki = { version = "0.6.0", path = "external/souvlaki" }
-souvlaki = "0.6.0"
 
 ### Regular libraries.
-anyhow = "1.0.71"
-bincode = { version = "2.0.0-rc.3", features = ["serde"] }
-crossbeam = { version = "0.8.2", features = ["crossbeam-channel"] }
+anyhow       = { version = "1.0.71" }
+bincode      = { version = "2.0.0-rc.3", features = ["serde"] }
+clap         = { version = "4", features = ["derive"] }
+crossbeam    = { version = "0.8.2", features = ["crossbeam-channel"] }
 const_format = { version = "0.2.31", features = ["rust_1_51", "assertcp", "rust_1_64"] }
-dirs = "5.0.1"
-env_logger = "0.10.0"
-fast_image_resize = "2.7.3"
-#id3 = "1.6.0"
-image = { version = "0.24.6", features = ["jpeg", "png"], default-features = false }
-infer = "0.13.0"
-log = "0.4.18"
-notify = "6.0.0"
-memmap2 = "0.6.2"
-mime_guess = "2.0.4"
-once_cell = "1.18.0"
-rand = { version = "0.8.5", features = ["small_rng"] }
-serde_bytes = "0.11.9"
-serde = { version = "1.0.163", features = ["derive"] }
-seq-macro = "0.3.3"
-symphonia = { version = "0.5.3", features = ["all"] }
-strsim = "0.10.0"
-walkdir = "2.3.3"
-
-[target.'cfg(target_os = "linux")'.dependencies]
-libpulse-binding = "2.27.1"
-libpulse-simple-binding = "2.27.1"
-[target.'cfg(not(target_os = "linux"))'.dependencies]
-arrayvec = "0.7.2"
-cpal = "0.15.2"
-rb = "0.3.2"
-# INVARIANT:
-# This _must_ be `0.12.0`.
-# See `src/audio/resampler.rs` for more info.
-rubato = "0.12.0"
-[target.'cfg(windows)'.dependencies]
-# Needed for souvlaki + icon.
-windows = { version = "0.48.0", features = [
-	"Win32_Foundation",
-	"Win32_Graphics_Gdi",
-	"Win32_UI_WindowsAndMessaging",
-	"Win32_System_LibraryLoader",
-]}
+compact_str  = { version = "0.7.0" }
+image        = { version = "0.24.6", features = ["jpeg", "png"], default-features = false }
+log          = { version = "0.4.18" }
+once_cell    = { version = "1.18.0" }
+paste        = { version = "1.0.12" }
+rand         = { version = "0.8.5", features = ["small_rng"] }
+serde        = { version = "1.0.163", features = ["derive"] }
+serde_bytes  = { version = "0.11.9" }

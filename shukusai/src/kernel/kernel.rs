@@ -20,7 +20,6 @@ use crate::audio::{
 	AudioState,
 	Volume,
 };
-use rolock::RoLock;
 use benri::{
 	debug_panic,
 	time::*,
