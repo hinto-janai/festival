@@ -4,10 +4,7 @@ pub(crate) use msg::*;
 mod audio;
 pub(crate) use audio::*;
 
-mod state;
-pub use state::*;
-
-// `Kernel` re-exports these publicly.
+// Public
 mod volume;
 pub use volume::Volume;
 mod append;
@@ -24,7 +21,3 @@ pub(super) mod resampler;
 
 // `souvlaki` Media Controls
 pub(super) mod media_controls;
-pub use media_controls::{
-	MEDIA_CONTROLS_RAISE,
-	MEDIA_CONTROLS_SHOULD_EXIT,
-};

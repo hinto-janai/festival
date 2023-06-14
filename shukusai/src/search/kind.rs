@@ -3,9 +3,12 @@ use bincode::{Encode,Decode};
 use serde::{Serialize,Deserialize};
 
 //---------------------------------------------------------------------------------------------------- Sort Constants
-const ALL:    &str = "View all the results, sorted from most similar to least";
-const SIM_70: &str = "View only the results that are at least 70% similar";
-const TOP_25: &str = "View only the top 25 similar results";
+/// [`SearchKind::All`]
+pub const ALL:    &str = "View all the results, sorted from most similar to least";
+/// [`SearchKind::Sim70`]
+pub const SIM_70: &str = "View only the results that are at least 70% similar";
+/// [`SearchKind::Top25`]
+pub const TOP_25: &str = "View only the top 25 similar results";
 
 //---------------------------------------------------------------------------------------------------- SearchKind
 #[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]

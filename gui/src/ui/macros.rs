@@ -4,18 +4,6 @@
 //
 // These are macros instead of functions because
 // `self/ui` mutable borrow rules prevent it.
-
-//---------------------------------------------------------------------------------------------------- Use
-use crate::data::Gui;
-use egui::{
-	Ui,Context,Frame,
-	Label,ImageButton,
-};
-use shukusai::collection::{
-	Album,AlbumKey,
-};
-use log::warn;
-
 //---------------------------------------------------------------------------------------------------- Misc
 
 //---------------------------------------------------------------------------------------------------- `self/ui`-based
@@ -59,7 +47,7 @@ macro_rules! play_song {
 	($self:ident, $key:expr) => {
 		::benri::send!(
 			$self.to_kernel,
-			shukusai::kernel::FrontendToKernel::AddQueueSong(($key, shukusai::kernel::Append::Front, true))
+			shukusai::kernel::FrontendToKernel::AddQueueSong(($key, shukusai::audio::Append::Front, true))
 		);
 		::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
 	}
@@ -77,7 +65,7 @@ macro_rules! add_song {
 	($self:ident, $song_title:expr, $key:expr) => {
 		::benri::send!(
 			$self.to_kernel,
-			shukusai::kernel::FrontendToKernel::AddQueueSong(($key, shukusai::kernel::Append::Back, false))
+			shukusai::kernel::FrontendToKernel::AddQueueSong(($key, shukusai::audio::Append::Back, false))
 		);
 		if $self.settings.empty_autoplay && $self.audio_state.queue.is_empty() {
 			::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
@@ -97,7 +85,7 @@ macro_rules! add_artist {
 	($self:ident, $artist:expr, $key:expr) => {
 		::benri::send!(
 			$self.to_kernel,
-			shukusai::kernel::FrontendToKernel::AddQueueArtist(($key, shukusai::kernel::Append::Back, false, 0))
+			shukusai::kernel::FrontendToKernel::AddQueueArtist(($key, shukusai::audio::Append::Back, false, 0))
 		);
 		if $self.settings.empty_autoplay && $self.audio_state.queue.is_empty() {
 			::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
@@ -117,7 +105,7 @@ macro_rules! play_album {
 	($self:ident, $key:expr) => {
 		::benri::send!(
 			$self.to_kernel,
-			shukusai::kernel::FrontendToKernel::AddQueueAlbum(($key, shukusai::kernel::Append::Front, true, 0))
+			shukusai::kernel::FrontendToKernel::AddQueueAlbum(($key, shukusai::audio::Append::Front, true, 0))
 		);
 		::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
 	}
@@ -141,7 +129,7 @@ macro_rules! play_album_offset {
 	($self:ident, $key:expr, $offset:expr) => {
 		::benri::send!(
 			$self.to_kernel,
-			shukusai::kernel::FrontendToKernel::AddQueueAlbum(($key, shukusai::kernel::Append::Front, true, $offset))
+			shukusai::kernel::FrontendToKernel::AddQueueAlbum(($key, shukusai::audio::Append::Front, true, $offset))
 		);
 		::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
 	}
@@ -278,7 +266,7 @@ macro_rules! album_button {
 		} else if resp.secondary_clicked() {
 			::benri::send!(
 				$self.to_kernel,
-				shukusai::kernel::FrontendToKernel::AddQueueAlbum(($key, shukusai::kernel::Append::Back, false, 0))
+				shukusai::kernel::FrontendToKernel::AddQueueAlbum(($key, shukusai::audio::Append::Back, false, 0))
 			);
 			if $self.settings.empty_autoplay && $self.audio_state.queue.is_empty() {
 				::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);

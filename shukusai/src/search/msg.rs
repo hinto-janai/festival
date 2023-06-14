@@ -11,7 +11,7 @@ use crate::collection::{
 	Collection,
 	Keychain,
 };
-use crate::kernel::SearchKind;
+use crate::search::SearchKind;
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
 pub(crate) enum SearchToKernel {

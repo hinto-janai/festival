@@ -7,10 +7,10 @@
 //use disk::{};
 //use std::{};
 use std::sync::Arc;
-use crate::collection::{
-	Collection,
+use crate::{
+	collection::Collection,
+	state::Phase,
 };
-use crate::kernel::Phase;
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
 pub(crate) enum CcdToKernel {

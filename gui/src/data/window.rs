@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------------------------------- Use
 use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
-use shukusai::FESTIVAL;
+use shukusai::constants::FESTIVAL;
 
 //---------------------------------------------------------------------------------------------------- Constants
 const ARTIST_ALBUM_SONG:    &str = "Artist name | Album title | Song title";

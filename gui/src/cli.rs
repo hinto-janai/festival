@@ -2,8 +2,11 @@
 use clap::Parser;
 use log::{info,error};
 use shukusai::{
-	init_logger,
-	FESTIVAL_VERSION,COMMIT,COPYRIGHT,
+	logger::init_logger,
+	constants::{SHUKUSAI_NAME_VER,COMMIT,COPYRIGHT},
+};
+use crate::constants::{
+	FESTIVAL_NAME_VER,
 };
 use shukusai::signal::{
 	Volume,Toggle,Pause,Play,Skip,Back,
@@ -142,7 +145,7 @@ impl Cli {
 
 		// Version.
 		if self.version {
-			println!("Festival GUI {FESTIVAL_VERSION} {COMMIT}\n{COPYRIGHT}");
+			println!("{FESTIVAL_NAME_VER} {SHUKUSAI_NAME_VER} {COMMIT}\n{COPYRIGHT}");
 			exit(0);
 		}
 
@@ -177,7 +180,7 @@ impl Cli {
 
 		// Content signals.
 		use disk::Plain;
-		if let Some(volume)           = self.volume        { handle(Volume(shukusai::kernel::Volume::new(volume)).save())
+		if let Some(volume)           = self.volume        { handle(Volume(shukusai::audio::Volume::new(volume)).save())
 			} else if let Some(seek)  = self.seek          { handle(Seek(seek).save())
 			} else if let Some(seek)  = self.seek_forward  { handle(SeekForward(seek).save())
 			} else if let Some(seek)  = self.seek_backward { handle(SeekBackward(seek).save())

@@ -3,9 +3,6 @@ use mime::*;
 
 mod perf;
 
-mod image_cache;
-pub use image_cache::ImageCache;
-
 mod thread;
 pub(crate) use thread::*;
 

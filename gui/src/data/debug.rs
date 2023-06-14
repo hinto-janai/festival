@@ -1,23 +1,25 @@
 //---------------------------------------------------------------------------------------------------- Use
-use super::Gui;
-use crate::constants::GUI;
-use shukusai::{
-	DASH,
-	BUILD,
-	COMMIT,
-	FESTIVAL,
-	FESTIVAL_NAME_VER,
-	INIT_INSTANT,
-	THREADS,
+use crate::data::gui::Gui;
+use crate::constants::{
+	FESTIVAL_NAME_VER,GUI,
 };
-use shukusai::kernel::{
-	AUDIO_STATE,
+use shukusai::{
+	constants::{
+		DASH,
+		BUILD,
+		COMMIT,
+		FESTIVAL,
+		SHUKUSAI_NAME_VER,
+	},
+	thread::THREADS,
+	state::AUDIO_STATE,
+	logger::INIT_INSTANT,
 };
 use benri::atomic_load;
 use serde::{Serialize,Deserialize};
 
 //---------------------------------------------------------------------------------------------------- Debug screen formatter.
-disk::plain!(DebugInfo, disk::Dir::Data, FESTIVAL, GUI, "debug");
+disk::plain!(DebugInfo, disk::Dir::Data, FESTIVAL, GUI, "debug.txt");
 #[derive(Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
 #[serde(transparent)]
 /// File representing GUI debug info.

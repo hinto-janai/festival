@@ -1,5 +1,5 @@
 //! # Festival
-//! [`Festival`](https://github.com/hinto-janai/festival)'s internals.
+//! [`Festival`](https://github.com/hinto-janai/festival)'s internals, `shukusai`.
 //!
 //! The crate [`festival`](https://crates.io/crates/festival) is being squatted, so instead, `Festival`'s
 //! original name, [`shukusai`](https://crates.io/crates/shukusai), is used.
@@ -114,9 +114,7 @@ compile_error!("shukusai is only compatible with 64-bit/32bit CPUs");
 compile_error!("shukusai is only tested on Window/macOS/Linux");
 
 //---------------------------------------------------------------------------------------------------- Private `shukusai` internals.
-mod audio;
 mod ccd;
-mod search;
 mod watch;
 
 //---------------------------------------------------------------------------------------------------- Public Re-exports.
@@ -129,21 +127,27 @@ pub use const_format::assertcp as const_assert;
 pub use const_format::formatcp as const_format;
 
 //---------------------------------------------------------------------------------------------------- Public `/` stuff.
-mod constants;
-pub use constants::*;
-
-mod logger;
-pub use logger::init_logger;
-pub use logger::INIT_INSTANT;
-
-mod thread;
-pub use thread::*;
-
 //---------------------------------------------------------------------------------------------------- Public modules.
-mod panic;
-pub use panic::Panic;
+/// Panic.
+pub mod panic;
 
-pub use crate::ccd::ImageCache;
+/// Logger.
+pub mod logger;
+
+/// Thread.
+pub mod thread;
+
+/// Constants.
+pub mod constants;
+
+/// Audio.
+pub mod audio;
+
+/// Search.
+pub mod search;
+
+/// Global state.
+pub mod state;
 
 /// The main music `Collection` and its inner data
 pub mod collection;

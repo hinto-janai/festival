@@ -19,10 +19,11 @@ use log::{
 	info,
 	error,
 };
-use shukusai::kernel::{
-	FrontendToKernel,
-	KernelToFrontend,
-	SAVING,
+use shukusai::{
+	kernel::{
+		FrontendToKernel,
+		KernelToFrontend,
+	},
 };
 use disk::{Bincode2,Toml,Json};
 use crate::data::Gui;
@@ -95,7 +96,7 @@ pub(super) fn exit(
 			std::process::exit(1);
 		}
 
-		if atomic_load!(SAVING) {
+		if shukusai::state::saving() {
 			atomic_sub!(exit_countdown, 1);
 			info!("GUI - Waiting to Collection to be saved, force exit in [{e}] seconds");
 			sleep!(1);

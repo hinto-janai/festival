@@ -29,14 +29,14 @@ use crate::data::{
 	SearchSort,
 	WindowTitle,
 };
-use shukusai::sort::{
-	ArtistSort,AlbumSort,SongSort,
+use shukusai::{
+	sort::{
+		ArtistSort,AlbumSort,SongSort,
+	},
+	search::SearchKind,
+	kernel::FrontendToKernel,
+	collection::Collection,
 };
-use shukusai::kernel::{
-	SearchKind,
-	FrontendToKernel,
-};
-use shukusai::collection::Collection;
 use benri::{
 	send,
 	flip,

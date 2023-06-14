@@ -4,17 +4,19 @@ use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
 //use crate::macros::*;
 //use std::{};
-use crate::collection::{
-	Collection,
-	Key,
-	Keychain,
-	Queue,
-	Playlist,
+use crate::{
+	collection::{
+		Collection,
+		Key,
+		Keychain,
+		Queue,
+		Playlist,
+	},
+	audio::Volume,
+	kernel::Kernel,
+	state::Phase,
 };
-use crate::audio::Volume;
-use crate::kernel::Kernel;
 use readable::Percent;
-use super::phase::Phase;
 use once_cell::sync::Lazy;
 use std::sync::{
 	RwLock,
@@ -51,13 +53,13 @@ impl ResetStateLock {
 
 	#[inline(always)]
 	// Private write.
-	pub(super) fn write(&'static self) -> RwLockWriteGuard<'static, ResetState> {
+	pub(crate) fn write(&'static self) -> RwLockWriteGuard<'static, ResetState> {
 		lockw!(self.0)
 	}
 
 	#[inline(always)]
 	// Private write.
-	pub(super) fn try_write(&'static self) -> Result<RwLockWriteGuard<'static, ResetState>, TryLockError<RwLockWriteGuard<'static, ResetState>>> {
+	pub(crate) fn try_write(&'static self) -> Result<RwLockWriteGuard<'static, ResetState>, TryLockError<RwLockWriteGuard<'static, ResetState>>> {
 		self.0.try_write()
 	}
 }
@@ -107,7 +109,7 @@ impl ResetState {
 	}
 
 	// Sets an initial starting version.
-	pub(super) fn start(&mut self) {
+	pub(crate) fn start(&mut self) {
 		*self = Self {
 			resetting: true,
 			percent: Percent::zero(),
@@ -117,7 +119,7 @@ impl ResetState {
 	}
 
 	// Sets the special `Disk` phase.
-	pub(super) fn disk(&mut self) {
+	pub(crate) fn disk(&mut self) {
 		*self = Self {
 			resetting: true,
 			percent: Percent::zero(),
@@ -127,7 +129,7 @@ impl ResetState {
 	}
 
 	// Resets, use this after we're done.
-	pub(super) fn done(&mut self) {
+	pub(crate) fn done(&mut self) {
 		*self = Self {
 			resetting: false,
 			percent: Percent::const_100(),
@@ -137,7 +139,7 @@ impl ResetState {
 	}
 
 	// Set a new increment update, this increments the current values.
-	pub(super) fn new_increment(&mut self, increment: f64, specific: String) {
+	pub(crate) fn new_increment(&mut self, increment: f64, specific: String) {
 		let current    = self.percent.inner();
 		*self = Self {
 			percent: Percent::from(self.percent.inner() + increment),
@@ -147,7 +149,7 @@ impl ResetState {
 	}
 
 	// Set a new phase and percent.
-	pub(super) fn new_phase(&mut self, percent: f64, phase: Phase) {
+	pub(crate) fn new_phase(&mut self, percent: f64, phase: Phase) {
 		*self = Self {
 			percent: Percent::from(percent),
 			specific: String::new(),

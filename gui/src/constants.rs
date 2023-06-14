@@ -17,6 +17,25 @@ use egui::style::{
 	WidgetVisuals,
 };
 use once_cell::sync::Lazy;
+pub use const_format::assertcp as const_assert;
+pub use const_format::formatcp as const_format;
+
+//---------------------------------------------------------------------------------------------------- Version.
+/// `Festival` version
+///
+/// This is the version of `Festival`, the `GUI`.
+pub const FESTIVAL_VERSION: &str = {
+	const_assert!(env!("CARGO_PKG_VERSION").len() != 0, "CARGO_PKG_VERSION is 0 length");
+	concat!("v", env!("CARGO_PKG_VERSION"))
+};
+
+/// `Festival` + version
+///
+/// Just a string concatenating "Festival" and the current version, e.g: `Festival v0.0.1`
+pub const FESTIVAL_NAME_VER: &str = {
+	const_assert!(env!("CARGO_PKG_VERSION").len() != 0, "CARGO_PKG_VERSION is 0 length");
+	concat!("Festival v", env!("CARGO_PKG_VERSION"))
+};
 
 //---------------------------------------------------------------------------------------------------- `egui` Visuals
 /// This is based off [`Visuals::dark()`].

@@ -25,16 +25,18 @@ use crate::data::{
 };
 use disk::{Toml,Plain};
 use log::{error,warn,info,debug,trace};
-use shukusai::FESTIVAL;
-use shukusai::kernel::{
-	AUDIO_STATE,
-	RESET_STATE,
-	Volume,
-	FrontendToKernel,
-	KernelToFrontend,
-};
-use shukusai::collection::{
-	AlbumKey,
+use shukusai::{
+	constants::FESTIVAL,
+	audio::Volume,
+	collection::AlbumKey,
+	kernel::{
+		FrontendToKernel,
+		KernelToFrontend,
+	},
+	state::{
+		AUDIO_STATE,
+		RESET_STATE,
+	},
 };
 use benri::{
 	log::*,
@@ -114,11 +116,11 @@ impl eframe::App for Gui {
 	#[inline(always)]
 	fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
 		// If `souvlaki` sent an exit signal.
-		if atomic_load!(shukusai::kernel::MEDIA_CONTROLS_SHOULD_EXIT) {
+		if atomic_load!(shukusai::state::MEDIA_CONTROLS_SHOULD_EXIT) {
 			self.on_close_event();
 		}
 		// If `souvlaki` sent a `Raise` signal.
-		if atomic_load!(shukusai::kernel::MEDIA_CONTROLS_RAISE) {
+		if atomic_load!(shukusai::state::MEDIA_CONTROLS_RAISE) {
 			frame.set_always_on_top(true);
 			frame.set_always_on_top(false);
 		}
@@ -563,7 +565,7 @@ fn show_bottom(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width:
 			// Only send signal if the slider was dragged + released.
 			if resp.drag_released() {
 				self.audio_leeway = now!();
-				send!(self.to_kernel, FrontendToKernel::Seek((shukusai::kernel::Seek::Absolute, self.audio_seek)));
+				send!(self.to_kernel, FrontendToKernel::Seek((shukusai::audio::Seek::Absolute, self.audio_seek)));
 			}
 
 			let time = format!("{} / {}", readable::Runtime::from(self.audio_seek), self.audio_state.runtime);
@@ -601,7 +603,7 @@ fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f
 
 			// Repeat.
 			ui.add_space(5.0);
-			use shukusai::kernel::Repeat;
+			use shukusai::audio::Repeat;
 			let (icon, text, color) = match self.state.repeat {
 				Repeat::Song  => (UI_REPEAT_SONG, REPEAT_SONG, YELLOW),
 				Repeat::Queue => (UI_REPEAT, REPEAT_QUEUE, GREEN),
@@ -785,7 +787,7 @@ fn show_collection_spinner(
 			let height = half / 6.0;
 
 			// Spinner.
-			if self.reset_state.phase == shukusai::kernel::Phase::Finalize {
+			if self.reset_state.phase == shukusai::state::Phase::Finalize {
 				ui.add_space(height + 2.5);
 			} else {
 				ui.add_sized([width, height], Spinner::new().size(height));

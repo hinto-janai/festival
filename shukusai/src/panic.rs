@@ -7,7 +7,7 @@
 //use std::{};
 //use std::sync::{Arc,Mutex,RwLock};
 use crate::kernel::Kernel;
-use crate::{
+use crate::constants::{
 	FESTIVAL,
 	FRONTEND_SUB_DIR,
 	TXT_SUB_DIR,
@@ -46,7 +46,7 @@ stack backtrace:\n{}",
 			crate::constants::BUILD,
 			crate::constants::COMMIT,
 			*crate::thread::THREADS,
-			crate::constants::FESTIVAL_NAME_VER,
+			crate::constants::SHUKUSAI_NAME_VER,
 			crate::logger::INIT_INSTANT.elapsed().as_secs_f64(),
 			stack_trace,
 		);
@@ -65,7 +65,7 @@ stack backtrace:\n{}",
 }
 
 //----------------------------------------------------------------------------------------------------
-disk::plain!(Panic, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{TXT_SUB_DIR}"), "crash");
+disk::plain!(Panic, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{TXT_SUB_DIR}"), "crash.txt");
 #[derive(Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
 #[serde(transparent)]
 /// File representing a `panic!()` log.

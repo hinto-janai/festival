@@ -23,11 +23,12 @@ use crate::collection::{
 	ArtistKey,
 	AlbumKey,
 	SongKey,
+	Art,
+	ImageCache,
 };
-use crate::kernel::{
+use crate::state::{
 	Phase,
 };
-use crate::collection::Art;
 use crossbeam::channel::{Sender,Receiver};
 use std::path::{Path,PathBuf};
 use std::sync::{Arc,RwLock};
@@ -39,7 +40,6 @@ use readable::{
 use crate::ccd::{
 	convert::ArtConvertType,
 	msg::{CcdToKernel,KernelToCcd},
-	image_cache::ImageCache,
 };
 use std::marker::PhantomData;
 
@@ -379,7 +379,7 @@ impl Ccd {
 		// 13.
 		let now = now!();
 		// Set `saving` state.
-		atomic_store!(crate::kernel::SAVING, true);
+		atomic_store!(crate::state::SAVING, true);
 		// Attempt atomic save.
 		//
 		// SAFETY:
@@ -436,7 +436,7 @@ impl Ccd {
 		}
 
 		// Set `saving` state.
-		atomic_store!(crate::kernel::SAVING, false);
+		atomic_store!(crate::state::SAVING, false);
 		let perf_disk = secs_f32!(now);
 		trace!("CCD [13/14] ... Disk: {perf_disk}");
 

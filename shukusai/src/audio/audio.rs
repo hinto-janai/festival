@@ -1,11 +1,6 @@
 //---------------------------------------------------------------------------------------------------- Use
 use anyhow::{anyhow,bail,ensure};
 use log::{error,warn,info,debug,trace};
-//use serde::{Serialize,Deserialize};
-//use crate::macros::*;
-//use disk::prelude::*;
-//use disk::{};
-//use std::{};
 use benri::{
 	sleep,
 	flip,
@@ -13,30 +8,25 @@ use benri::{
 	log::*,
 	sync::*,
 };
-use crate::collection::{
-	Collection,
-	Keychain,
-	ArtistKey,
-	AlbumKey,
-	SongKey,
-	QueueKey,
-};
 use std::sync::{
 	Arc,RwLock,
 };
-use crate::audio::{
-	AUDIO_STATE,
-	AudioToKernel,
-	KernelToAudio,
-	AudioState,
-	Volume,
-	Append,
-	Repeat,
-	Seek,
-};
-use crate::audio::media_controls::{
-	MEDIA_CONTROLS_RAISE,
-	MEDIA_CONTROLS_SHOULD_EXIT,
+use crate::{
+	collection::{
+		Collection,Keychain,ArtistKey,
+		AlbumKey,SongKey,QueueKey,
+	},
+	audio::{
+		AudioToKernel,KernelToAudio,
+		Volume,Append,Repeat,Seek,
+		output::{AudioOutput,Output},
+	},
+	state::{
+		AudioState,
+		AUDIO_STATE,
+		MEDIA_CONTROLS_RAISE,
+		MEDIA_CONTROLS_SHOULD_EXIT,
+	},
 };
 use crossbeam::channel::{Sender,Receiver};
 use std::io::BufReader;
@@ -51,9 +41,6 @@ use symphonia::core::{
 	units::{TimeBase,Time,TimeStamp},
 };
 use std::time::{Instant, Duration};
-use crate::audio::output::{
-	AudioOutput,Output,
-};
 use readable::Runtime;
 
 #[cfg(feature = "gui")]
@@ -460,7 +447,7 @@ impl Audio {
 			#[cfg(unix)]
 			let mut _buf = String::new();
 			#[cfg(unix)]
-			let cover_url = match crate::ImageCache::base_path() {
+			let cover_url = match crate::collection::ImageCache::base_path() {
 				Ok(p) => {
 					_buf = format!("file://{}/{}.jpg", p.display(), song.album);
 					Some(_buf.as_str())

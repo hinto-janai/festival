@@ -13,23 +13,25 @@ use crate::constants::{
 	ALBUM_ART_SIZE_DEFAULT,
 };
 use shukusai::{
-	FESTIVAL,
-	HEADER,
+	constants::{
+		FESTIVAL,
+		HEADER,
+	},
+	state::AudioState,
+	audio::{
+		Volume,
+		Repeat,
+	},
+	collection::{
+		Album,
+		Collection,
+		Key,
+		ArtistKey,
+		AlbumKey,
+		Keychain,
+	},
 };
-use shukusai::collection::{
-	Album,
-	Collection,
-	Key,
-	ArtistKey,
-	AlbumKey,
-	Keychain,
-};
-use shukusai::kernel::{
-	Volume,
-	AudioState,
-	Kernel,
-	Repeat,
-};
+use shukusai::kernel::Kernel;
 
 //---------------------------------------------------------------------------------------------------- State
 #[cfg(debug_assertions)]

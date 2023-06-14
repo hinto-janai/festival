@@ -4,14 +4,12 @@ use crossbeam::channel::Sender;
 use benri::send;
 use std::sync::atomic::AtomicBool;
 use log::warn;
+use crate::constants::{
+	FESTIVAL_DBUS,
+	FESTIVAL,
+};
 
 //---------------------------------------------------------------------------------------------------- Media Controls
-/// The user sent a signal via the OS Media Control's that the main window should be raised.
-pub static MEDIA_CONTROLS_RAISE: AtomicBool = AtomicBool::new(false);
-
-/// The user sent a signal via the OS Media Control's that we should exit (all of Festival).
-pub static MEDIA_CONTROLS_SHOULD_EXIT: AtomicBool = AtomicBool::new(false);
-
 // FIXME:
 // - Windows image URI doesn't work
 // - Windows previous/next doesn't work
@@ -31,8 +29,8 @@ pub(super) fn init_media_controls(to_audio: Sender<souvlaki::MediaControlEvent>)
 	let hwnd = None;
 
 	let config = souvlaki::PlatformConfig {
-		dbus_name: crate::FESTIVAL_DBUS,
-		display_name: crate::FESTIVAL,
+		dbus_name: FESTIVAL_DBUS,
+		display_name: FESTIVAL,
 		hwnd,
 	};
 

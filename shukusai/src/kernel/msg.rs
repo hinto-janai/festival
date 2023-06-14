@@ -7,16 +7,18 @@
 //use disk::{};
 //use std::{};
 use std::sync::Arc;
-use crate::collection::{
-	Artist,Album,Song,QueueKey,
-	ArtistKey,AlbumKey,SongKey,Key,
-	Collection,Keychain,
+use crate::{
+	collection::{
+		Artist,Album,Song,QueueKey,
+		ArtistKey,AlbumKey,SongKey,Key,
+		Collection,Keychain,
+	},
+	state::ResetState,
+	kernel::Kernel,
+	search::SearchKind,
+	audio::{Volume, Append, Repeat, Seek},
 };
 use std::path::PathBuf;
-use crate::kernel::{
-	ResetState,Kernel,SearchKind,
-};
-use crate::audio::{Volume, Append, Repeat, Seek};
 use readable::Percent;
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.

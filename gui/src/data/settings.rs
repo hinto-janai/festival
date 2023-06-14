@@ -20,18 +20,20 @@ use crate::constants::{
 	VISUALS,
 };
 use shukusai::{
-	FESTIVAL,
-	HEADER,
+	constants::{
+		FESTIVAL,
+		HEADER,
+	},
+	collection::{
+		Collection,
+	},
+	sort::{
+		ArtistSort,
+		AlbumSort,
+		SongSort,
+	},
+	search::SearchKind,
 };
-use shukusai::collection::{
-	Collection,
-};
-use shukusai::sort::{
-	ArtistSort,
-	AlbumSort,
-	SongSort,
-};
-use shukusai::kernel::SearchKind;
 use crate::data::{
 	AlbumSizing,
 	SearchSort,

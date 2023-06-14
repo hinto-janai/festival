@@ -13,19 +13,23 @@ use crate::data::{
 	DebugInfo,
 };
 use shukusai::{
-	FESTIVAL_ICON,
-	FESTIVAL_DBUS,
-	FESTIVAL,
-};
-use shukusai::kernel::{
-	AudioState,
-	ResetState,
-	FrontendToKernel,
-	KernelToFrontend,
-};
-use shukusai::collection::{
-	Collection,
-	Keychain,
+	constants::{
+		FESTIVAL_ICON,
+		FESTIVAL_DBUS,
+		FESTIVAL,
+	},
+	kernel::{
+		FrontendToKernel,
+		KernelToFrontend,
+	},
+	state::{
+		AudioState,
+		ResetState,
+	},
+	collection::{
+		Collection,
+		Keychain,
+	},
 };
 use benri::{
 	now,

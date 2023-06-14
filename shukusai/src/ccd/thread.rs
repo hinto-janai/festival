@@ -6,7 +6,7 @@ use log::{error,warn,info,debug,trace};
 //use disk::prelude::*;
 //use disk::{};
 use std::num::NonZeroUsize;
-use crate::{
+use crate::thread::{
 	THREADS,
 	THREADS_25,
 	THREADS_50,

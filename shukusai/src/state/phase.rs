@@ -1,9 +1,9 @@
 //---------------------------------------------------------------------------------------------------- Use
 use serde::{Serialize,Deserialize};
-use crate::kernel::{
-	ResetState,
+use crate::{
+	state::ResetState,
+	collection::Collection,
 };
-use crate::collection::Collection;
 
 //---------------------------------------------------------------------------------------------------- Tab Constants
 // This is the text actually displayed in the `GUI`.

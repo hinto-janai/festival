@@ -10,16 +10,14 @@ use crate::constants::{
 };
 use std::sync::{Arc,RwLock};
 use crate::collection::SongKey;
-use crate::kernel::{
+use crate::state::{
+	Phase,
 	RESET_STATE,
-	reset::ResetState,
-	phase::Phase,
-};
-use crate::audio::{
+	ResetState,
 	AUDIO_STATE,
 	AudioState,
-	Volume,
 };
+use crate::audio::Volume;
 use benri::{
 	debug_panic,
 	time::*,
@@ -44,22 +42,6 @@ use std::sync::atomic::AtomicBool;
 
 #[cfg(feature = "gui")]
 use crate::frontend::egui::gui_request_update;
-
-//---------------------------------------------------------------------------------------------------- Saving.
-/// This [`bool`] represents if a [`Collection`] that was
-/// recently created is still being written to the disk.
-///
-/// For performance reasons, when the `Frontend` asks [`Kernel`]
-/// for a new [`Collection`], [`Kernel`] will return immediately upon
-/// having an in-memory [`Collection`]. However, `shukusai` will
-/// (in the background) be saving it disk.
-///
-/// If your `Frontend` exits around this time, it should probably hang
-/// (for a reasonable amount of time) if this is set to `true`, waiting
-/// for the [`Collection`] to be saved to disk.
-///
-/// **This should not be mutated by the `Frontend`.**
-pub static SAVING: AtomicBool = AtomicBool::new(false);
 
 //---------------------------------------------------------------------------------------------------- Kernel
 /// The [`Kernel`] of `Festival`
@@ -542,7 +524,7 @@ impl Kernel {
 		}
 
 		// Hang forever.
-		debug!("Kernel - Entering exit() loop - Total uptime: {}", readable::Time::from(*crate::INIT_INSTANT));
+		debug!("Kernel - Entering exit() loop - Total uptime: {}", readable::Time::from(*crate::logger::INIT_INSTANT));
 		loop {
 			std::thread::park();
 		}

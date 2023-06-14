@@ -57,13 +57,13 @@ impl AudioStateLock {
 
 	#[inline(always)]
 	// Private write.
-	pub(super) fn write(&'static self) -> RwLockWriteGuard<'static, AudioState> {
+	pub(crate) fn write(&'static self) -> RwLockWriteGuard<'static, AudioState> {
 		lockw!(self.0)
 	}
 
 	#[inline(always)]
 	// Private write.
-	pub(super) fn try_write(&'static self) -> Result<RwLockWriteGuard<'static, AudioState>, TryLockError<RwLockWriteGuard<'static, AudioState>>> {
+	pub(crate) fn try_write(&'static self) -> Result<RwLockWriteGuard<'static, AudioState>, TryLockError<RwLockWriteGuard<'static, AudioState>>> {
 		self.0.try_write()
 	}
 }
@@ -152,7 +152,7 @@ impl AudioState {
 	//
 	// Returns the new `SongKey`.
 	// Returns `None` if none left.
-	pub(super) fn next(&mut self) -> Option<SongKey> {
+	pub(crate) fn next(&mut self) -> Option<SongKey> {
 		if let Some(i) = self.queue_idx {
 			let i = i + 1;
 
@@ -172,7 +172,7 @@ impl AudioState {
 	// Returns the new `SongKey`.
 	// Returns index `0` if at first index.
 	// Returns `None` if nothing in queue.
-	pub(super) fn prev(&mut self) -> Option<SongKey> {
+	pub(crate) fn prev(&mut self) -> Option<SongKey> {
 		if let Some(i) = self.queue_idx {
 			let i = i.saturating_sub(1);
 			if let Some(key) = self.queue.get(i) {
@@ -186,7 +186,7 @@ impl AudioState {
 	}
 
 	// Checks if we are at the last index in the queue.
-	pub(super) fn at_last_queue_idx(&self) -> bool {
+	pub(crate) fn at_last_queue_idx(&self) -> bool {
 		match self.queue_idx {
 			Some(i) => i + 1 == self.queue.len(),
 			None => false,
@@ -194,7 +194,7 @@ impl AudioState {
 	}
 
 	// Checks if we are at the first index in the queue.
-	pub(super) fn at_first_queue_idx(&self) -> bool {
+	pub(crate) fn at_first_queue_idx(&self) -> bool {
 		match self.queue_idx {
 			Some(i) => i == 0,
 			None => false,

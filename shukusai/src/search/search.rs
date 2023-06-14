@@ -17,11 +17,11 @@ use std::{
 	sync::Arc,
 	collections::HashMap,
 };
-use crate::kernel::SearchKind;
-use super::msg::{
+use crate::search::msg::{
 	SearchToKernel,
 	KernelToSearch,
 };
+use crate::search::SearchKind;
 use crossbeam::channel::{Sender,Receiver};
 use benri::time::{
 	now,secs_f32,

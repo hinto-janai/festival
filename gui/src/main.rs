@@ -28,7 +28,7 @@ fn main() {
 
 	// Start `egui/eframe`.
 	if let Err(e) = eframe::run_native(
-		shukusai::FESTIVAL,
+		shukusai::constants::FESTIVAL,
 		crate::data::Gui::options(),
 		Box::new(move |cc| {
 			// Set `Festival`'s `GUI_CONTEXT`.

@@ -7,6 +7,7 @@ mod plural;
 mod map;
 mod key;
 mod slice;
+mod image_cache;
 pub use collection::*;
 pub use art::*;
 pub use album::*;
@@ -16,6 +17,7 @@ pub use plural::*;
 pub use map::*;
 pub use key::*;
 pub use slice::*;
+pub use image_cache::*;
 
 mod metadata;
 pub use metadata::metadata;

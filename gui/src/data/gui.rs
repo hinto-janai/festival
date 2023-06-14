@@ -5,16 +5,20 @@ use crate::data::{
 	Settings,
 	DebugInfo,
 };
-use shukusai::kernel::{
-	AudioState,
-	ResetState,
-	FrontendToKernel,
-	KernelToFrontend,
-};
-use shukusai::collection::{
-	Collection,
-	Keychain,
-	SongKey,
+use shukusai::{
+	state::{
+		AudioState,
+		ResetState,
+	},
+	kernel::{
+		FrontendToKernel,
+		KernelToFrontend,
+	},
+	collection::{
+		Collection,
+		Keychain,
+		SongKey,
+	},
 };
 use crossbeam::channel::{
 	Sender,Receiver

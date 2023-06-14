@@ -8,16 +8,18 @@ use crate::constants::{
 use crate::data::{
 	AlbumSizing,
 };
-use shukusai::kernel::{
-	Volume,
-	FrontendToKernel,
-	KernelToFrontend,
-};
-use shukusai::collection::{
-	Collection,
-};
-use shukusai::sort::{
-	ArtistSort,AlbumSort,SongSort,
+use shukusai::{
+	audio::Volume,
+	kernel::{
+		FrontendToKernel,
+		KernelToFrontend,
+	},
+	collection::{
+		Collection,
+	},
+	sort::{
+		ArtistSort,AlbumSort,SongSort,
+	},
 };
 use benri::{
 	debug_panic,

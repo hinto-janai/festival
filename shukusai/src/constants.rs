@@ -1,25 +1,25 @@
 //---------------------------------------------------------------------------------------------------- Use
 use crate::collection::Collection;
-use crate::audio::AudioState;
+use crate::state::AudioState;
 use crate::const_assert;
 
 //---------------------------------------------------------------------------------------------------- General Strings
-/// Festival Version
+/// `shukusai` version
 ///
-/// This is the version of the `Festival`'s internals.
+/// This is the version of `Festival`'s internals, `shukusai`.
 ///
 /// It uses `CARGO_PKG_VERSION`, or `version` found in `Cargo.toml`.
-pub const FESTIVAL_VERSION: &str = {
+pub const SHUKUSAI_VERSION: &str = {
 	const_assert!(env!("CARGO_PKG_VERSION").len() != 0, "CARGO_PKG_VERSION is 0 length");
 	concat!("v", env!("CARGO_PKG_VERSION"))
 };
 
-/// Festival + Version
+/// `shukusai` + version
 ///
-/// Just a string concatenating "Festival" and the current version, e.g: `Festival v1.0.0`
-pub const FESTIVAL_NAME_VER: &str = {
+/// Just a string concatenating "shukusai" and the current version, e.g: `shukusai v0.0.1`
+pub const SHUKUSAI_NAME_VER: &str = {
 	const_assert!(env!("CARGO_PKG_VERSION").len() != 0, "CARGO_PKG_VERSION is 0 length");
-	concat!("Festival v", env!("CARGO_PKG_VERSION"))
+	concat!("shukusai v", env!("CARGO_PKG_VERSION"))
 };
 
 /// Festival's icon:
@@ -111,7 +111,7 @@ mod tests {
 
 	#[test]
 	fn version_is_semver() {
-		assert_eq!(FESTIVAL_VERSION.len(), 6);
+		assert_eq!(SHUKUSAI_VERSION.len(), 6);
 	}
 
 	#[test]

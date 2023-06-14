@@ -7,16 +7,19 @@
 //use disk::{};
 //use std::{};
 use std::sync::Arc;
-use crate::collection::{
-	Collection,Keychain,QueueKey,
-	ArtistKey,AlbumKey,SongKey,
+use crate::{
+	state::AudioState,
+	collection::{
+		Collection,Keychain,QueueKey,
+		ArtistKey,AlbumKey,SongKey,
+	},
+	audio::{
+		Append,
+		Repeat,
+		Seek,
+		Volume,
+	},
 };
-use crate::audio::{
-	AudioState,Volume,
-};
-use crate::audio::append::Append;
-use crate::audio::repeat::Repeat;
-use crate::audio::seek::Seek;
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
 pub(crate) enum AudioToKernel {
