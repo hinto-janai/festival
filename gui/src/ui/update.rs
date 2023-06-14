@@ -786,7 +786,11 @@ fn show_collection_spinner(
 			let height = half / 6.0;
 
 			// Spinner.
-			ui.add_sized([width, height], Spinner::new().size(height));
+			if self.reset_state.phase == shukusai::kernel::Phase::Finalize {
+				ui.add_space(height + 2.5);
+			} else {
+				ui.add_sized([width, height], Spinner::new().size(height));
+			}
 			// Percent.
 			ui.add_sized([width, height], Label::new(self.reset_state.percent.as_str()));
 			// Phase.

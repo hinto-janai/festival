@@ -99,6 +99,10 @@
 	variant_size_differences,
 )]
 
+// There are some `as` casts but they are:
+// - handled with `.try_into()`
+// - are `u32 as usize/u64`
+// - are gated by `#[cfg(...)]`
 #[cfg(not(any(target_pointer_width = "64", target_pointer_width = "32")))]
 compile_error!("shukusai is only compatible with 64-bit/32bit CPUs");
 

@@ -27,7 +27,7 @@ use benri::{
 	sync::*,
 	time::*,
 };
-use log::{warn,trace};
+use log::{warn,trace,error};
 use benri::log::fail;
 use crate::frontend::egui::gui_context;
 
@@ -207,6 +207,11 @@ fn color_img_to_retained(img: egui::ColorImage) -> egui_extras::RetainedImage {
 // This is so bad.
 // There has to be a better way.
 // FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
+//
+// Update 2023-06-14:
+// Switching `egui`'s internal lock to `std` instead of `parking_lot`
+// makes it _alot_ better. There is still a tiny freeze but it's fine
+// for now, we won't show the spinner near the end.
 pub(super) fn alloc_textures(albums: &crate::collection::Albums) {
 	// Get `Arc<RwLock<TextureManager>>`.
 	let ctx = gui_context();
@@ -217,27 +222,12 @@ pub(super) fn alloc_textures(albums: &crate::collection::Albums) {
 		std::hint::spin_loop();
 	}
 
-	let mut now = now!();
-
 	free_textures(&mut tex_manager.write());
 
 	// For each `Album`...
 	for album in albums.iter() {
 		// Continue only if this is a real `Art`.
 		if let crate::collection::Art::Known(art) = &album.art {
-			// Prevent `GUI` from reader starvation.
-			if micros!(now) > 15 {
-				trace!("CCD - GUI starve prevention hit");
-				// Wait until `GUI` is in the middle of animating.
-				// This guarantees the below `tex_mngr..write()`
-				// will be _after_ `GUI` has rendered it's frame.
-				while !atomic_load!(crate::frontend::egui::GUI_UPDATING) {
-					std::hint::spin_loop();
-				}
-
-				now = now!();
-			}
-
 			// INVARIANT:
 			// As of `egui_extras 0.21.0`, this function makes sure
 			// the inner image is allocated before returning the id.
@@ -264,6 +254,7 @@ static mut NEXT_TEXTURE_ID: u64 = 1;
 fn free_textures(tex_manager: &mut epaint::TextureManager) {
 	// Increment our local number.
 	let current_texture_count = tex_manager.num_allocated() as u64;
+
 	// SAFETY: see above comment.
 	let (start, end) = unsafe {
 		let start = NEXT_TEXTURE_ID;

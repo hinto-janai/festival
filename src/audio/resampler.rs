@@ -72,7 +72,7 @@ where
 	}
 
 	pub(super) fn new(spec: SignalSpec, to_sample_rate: usize, duration: u64) -> Result<Self, Error> {
-		let duration = duration as usize;
+		let duration = TryInto::try_into::<usize>(duration)?;
 		let num_channels = spec.channels.count();
 
 		let resampler = rubato::FftFixedIn::<f32>::new(

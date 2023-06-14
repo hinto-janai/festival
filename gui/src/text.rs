@@ -16,8 +16,8 @@ use crate::constants::{
 use const_format::formatcp;
 
 //---------------------------------------------------------------------------------------------------- Collection State
-pub const COLLECTION_LOADING:   &str = "Loading Collection...";
-pub const COLLECTION_RESETTING: &str = "Resetting Collection...";
+pub const COLLECTION_LOADING:   &str = "Loading Collection";
+pub const COLLECTION_RESETTING: &str = "Resetting Collection";
 
 //---------------------------------------------------------------------------------------------------- UI
 pub const UI_PLAY:         &str = "▶";
