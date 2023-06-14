@@ -252,15 +252,13 @@ mod output {
 			let num_channels = spec.channels.count();
 
 			// Output audio stream config.
-			let config = if cfg!(windows) {
-				// Use the default config for Windows.
-				config.config()
-			} else {
-				cpal::StreamConfig {
-					channels: num_channels as cpal::ChannelCount,
-					sample_rate: cpal::SampleRate(spec.rate),
-					buffer_size: cpal::BufferSize::Default,
-				}
+			#[cfg(windows)]
+			let config = config.config();
+			#[cfg(unix)]
+			let config = cpal::StreamConfig {
+				channels: num_channels as cpal::ChannelCount,
+				sample_rate: cpal::SampleRate(spec.rate),
+				buffer_size: cpal::BufferSize::Default,
 			};
 
 			// Create a ring buffer with a capacity for up-to 50ms of audio.

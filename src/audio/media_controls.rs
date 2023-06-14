@@ -12,8 +12,11 @@ pub static MEDIA_CONTROLS_RAISE: AtomicBool = AtomicBool::new(false);
 /// The user sent a signal via the OS Media Control's that we should exit (all of Festival).
 pub static MEDIA_CONTROLS_SHOULD_EXIT: AtomicBool = AtomicBool::new(false);
 
+// FIXME:
+// - Windows image URI doesn't work
+// - Windows previous/next doesn't work
 pub(super) fn init_media_controls(to_audio: Sender<souvlaki::MediaControlEvent>) -> Result<souvlaki::MediaControls, anyhow::Error> {
-	#[cfg(target_os = "windows")]
+	#[cfg(windows)]
 	let hwnd = {
 		let dummy_window = windows::DummyWindow::new()?;
 		let hwnd = Some(dummy_window.handle.0 as _);
@@ -24,7 +27,7 @@ pub(super) fn init_media_controls(to_audio: Sender<souvlaki::MediaControlEvent>)
 		hwnd
 	};
 
-	#[cfg(not(target_os = "windows"))]
+	#[cfg(unix)]
 	let hwnd = None;
 
 	let config = souvlaki::PlatformConfig {
@@ -50,7 +53,7 @@ pub(super) fn init_media_controls(to_audio: Sender<souvlaki::MediaControlEvent>)
 }
 
 // Taken from https://github.com/Sinono3/souvlaki/blob/master/examples/print_events.rs
-#[cfg(target_os = "windows")]
+#[cfg(windows)]
 mod windows {
 	use anyhow::anyhow;
 	use std::io::Error;

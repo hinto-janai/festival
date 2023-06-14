@@ -111,7 +111,7 @@ compile_error!("shukusai is only compatible with 64-bit/32bit CPUs");
 	target_os = "macos",
 	target_os = "linux",
 )))]
-compile_error!("shukusai is only compatible with Window/macOS/Linux");
+compile_error!("shukusai is only tested on Window/macOS/Linux");
 
 //---------------------------------------------------------------------------------------------------- Private `shukusai` internals.
 mod audio;

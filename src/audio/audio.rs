@@ -447,13 +447,35 @@ impl Audio {
 			let (artist, album, song) = self.collection.walk(key);
 
 			use disk::Plain;
-			let cover_url =	match crate::ImageCache::base_path() {
+			#[cfg(windows)]
+			// FIXME:
+			// None of these work on Windows.
+			// - `file:///C:/Users/hinto/AppData/Local/Festival/cache/gui/image/3.jpg`
+			// - `file:///c:/Users/hinto/AppData/Local/Festival/cache/gui/image/3.jpg`
+			// - `file:///c:\Users\hinto\AppData\Local\Festival\cache\gui\image\3.jpg`
+			//
+			// https://en.wikipedia.org/wiki/File_URI_scheme
+			let cover_url = None;
+
+			#[cfg(unix)]
+			let mut _buf = String::new();
+			#[cfg(unix)]
+			let cover_url = match crate::ImageCache::base_path() {
 				Ok(p) => {
-					// TODO: This might only work on UNIX?
-					format!("file://{}/{}.jpg", p.display(), song.album)
+					_buf = format!("file://{}/{}.jpg", p.display(), song.album);
+					Some(_buf.as_str())
 				},
-				_ => String::new(),
+				_ => None,
 			};
+
+			trace!(
+				"Audio - set_media_controls_metadata({key}):\nsong.title: {},\nartist.name: {},\nalbum.title: {},\nsong.runtime: {},\ncover_url: {}",
+				&song.title,
+				&artist.name,
+				&album.title,
+				&song.runtime,
+				&cover_url.unwrap_or(""),
+			);
 
 			if let Err(e) = media_controls
 				.set_metadata(souvlaki::MediaMetadata {
@@ -461,7 +483,7 @@ impl Audio {
 					artist: Some(&artist.name),
 					album: Some(&album.title),
 					duration: Some(Duration::from_secs(song.runtime.inner().into())),
-					cover_url: Some(&cover_url),
+					cover_url,
 					..Default::default()
 				})
 			{
