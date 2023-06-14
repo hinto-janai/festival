@@ -52,7 +52,7 @@ impl Ccd {
 	// Dynamically selects internal functions for single/multi-thread.
 	pub(crate) fn convert_art(
 		to_kernel: Sender<CcdToKernel>,
-		collection: Collection,
+		mut collection: Collection,
 	) {
 		let beginning = now!();
 		debug!("CCD ... purpose in life: convert_art()");
@@ -65,12 +65,10 @@ impl Ccd {
 			let total      = collection.albums.len();
 			let increment  = 99.0 / total as f64;
 			let threads    = super::threads_for_album_art(total);
-			let collection = Arc::new(Self::priv_convert_art(&to_kernel, collection, ArtConvertType::ToKnown, increment, total, threads));
-			// FIXME:
-			// See below `new_collection()` FIXME for info.
+			Self::priv_convert_art(&to_kernel, &mut collection, ArtConvertType::ToKnown, increment, total, threads);
 			send!(to_kernel, CcdToKernel::UpdatePhase((100.00, Phase::Finalize)));
-			super::alloc_textures(&collection.albums);
-			send!(to_kernel, CcdToKernel::NewCollection(collection));
+			crate::ccd::img::alloc_textures(&collection.albums);
+			send!(to_kernel, CcdToKernel::NewCollection(Arc::new(collection)));
 		}
 
 		debug!("CCD ... Took {} seconds, bye!", secs_f32!(beginning));
@@ -189,7 +187,7 @@ impl Ccd {
 		// 6.
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((60.00, Phase::Prepare)));
-		let collection = Collection {
+		let mut collection = Collection {
 			// These will be fixed after construction.
 			empty: false,
 			timestamp: 0,
@@ -276,7 +274,7 @@ impl Ccd {
 			_reserved24: PhantomData,
 		};
 		// Fix metadata.
-		let collection = collection.set_metadata();
+		collection.set_metadata();
 		let perf_prepare = secs_f32!(now);
 		trace!("CCD [6/14] ... Prepare: {perf_prepare}");
 
@@ -286,7 +284,7 @@ impl Ccd {
 		let increment    = 30.0 / collection.albums.len() as f64;
 		let total_albums = collection.albums.len();
 		let threads      = super::threads_for_album_art(total_albums);
-		let collection   = Self::priv_convert_art(&to_kernel, collection, ArtConvertType::Resize, increment, total_albums, threads);
+		Self::priv_convert_art(&to_kernel, &mut collection, ArtConvertType::Resize, increment, total_albums, threads);
 		// Update should be <= 90% at this point.
 		let perf_resize = secs_f32!(now);
 		trace!("CCD [7/14] ... Resize: {perf_resize}");
@@ -338,7 +336,7 @@ impl Ccd {
 		send!(to_kernel, CcdToKernel::UpdatePhase((95.00, Phase::Convert)));
 		let increment = 4.0 / collection.albums.len() as f64;
 		// Convert `Collection` art.
-		let collection = Self::priv_convert_art(&to_kernel, collection, ArtConvertType::ToKnown, increment, total_albums, threads);
+		Self::priv_convert_art(&to_kernel, &mut collection, ArtConvertType::ToKnown, increment, total_albums, threads);
 		// Update should be <= 99% at this point.
 		let perf_convert = secs_f32!(now);
 		trace!("CCD [9/14] ... Convert: {perf_convert}");

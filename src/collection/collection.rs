@@ -372,7 +372,7 @@ impl Collection {
 
 	//-------------------------------------------------- Metadata functions.
 	// Set the proper metadata for this `Collection`.
-	pub(crate) fn set_metadata(mut self) -> Self {
+	pub(crate) fn set_metadata(&mut self) {
 		// Get `Vec` lengths.
 		let artists = self.artists.len();
 		let albums  = self.albums.len();
@@ -392,8 +392,6 @@ impl Collection {
 
 		// Set `timestamp`.
 		self.timestamp = benri::unix!();
-
-		self
 	}
 
 	//-------------------------------------------------- Searching.

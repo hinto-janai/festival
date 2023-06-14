@@ -50,18 +50,18 @@ impl super::Ccd {
 	//
 	pub(super) fn priv_convert_art(
 		to_kernel: &Sender<CcdToKernel>,
-		collection: Collection,
+		collection: &mut Collection,
 		art_convert_type: ArtConvertType,
 		increment: f64,
 		total: usize,
 		threads: usize,
-	) -> Collection {
+	) {
 		// Single-threaded.
 		if threads == 1 {
-			Self::convert_art_singlethread(to_kernel, collection, total, increment, art_convert_type)
+			Self::convert_art_singlethread(to_kernel, collection, total, increment, art_convert_type);
 		// Multi-threaded.
 		} else {
-			Self::convert_art_multithread(to_kernel, collection, threads, total, increment, art_convert_type)
+			Self::convert_art_multithread(to_kernel, collection, threads, total, increment, art_convert_type);
 		}
 	}
 
@@ -69,12 +69,12 @@ impl super::Ccd {
 	// Multi-threaded `convert_art()` variant.
 	fn convert_art_multithread(
 		to_kernel: &Sender<CcdToKernel>,
-		mut collection: Collection,
+		collection: &mut Collection,
 		threads: usize,
 		total: usize,
 		increment: f64,
 		art_convert_type: ArtConvertType,
-	) -> Collection {
+	) {
 		// Multi-thread & scoped process of `Collection` album art:
 		//
 		// 1. Split the `Vec` of `Album` across an appropriate amount of threads
@@ -101,25 +101,21 @@ impl super::Ccd {
 				},
 			}
 		});
-
-		collection
 	}
 
 	#[inline(always)]
 	// Single-threaded `convert_art()` variant.
 	fn convert_art_singlethread(
 		to_kernel: &Sender<CcdToKernel>,
-		mut collection: Collection,
+		collection: &mut Collection,
 		total: usize,
 		increment: f64,
 		art_convert_type: ArtConvertType,
-	) -> Collection {
+	) {
 		match art_convert_type {
 			ArtConvertType::Resize  => Self::resize_worker(to_kernel, &mut collection.albums.0, total, increment),
 			ArtConvertType::ToKnown => Self::toknown_worker(to_kernel, &mut collection.albums.0, total, increment),
 		};
-
-		collection
 	}
 
 	#[inline(always)]

@@ -210,13 +210,16 @@ fn color_img_to_retained(img: egui::ColorImage) -> egui_extras::RetainedImage {
 pub(super) fn alloc_textures(albums: &crate::collection::Albums) {
 	// Get `Arc<RwLock<TextureManager>>`.
 	let ctx = gui_context();
-	let arc = ctx.tex_manager();
+	let tex_manager = ctx.tex_manager();
 
 	// Wait until `GUI` has loaded at least 1 frame.
 	while !atomic_load!(crate::frontend::egui::GUI_UPDATING) {
 		std::hint::spin_loop();
 	}
+
 	let mut now = now!();
+
+	free_textures(&mut tex_manager.write());
 
 	// For each `Album`...
 	for album in albums.iter() {
@@ -242,6 +245,37 @@ pub(super) fn alloc_textures(albums: &crate::collection::Albums) {
 			// This behavior must exist for this to actually allocate the image.
 			_ = art.texture_id(ctx);
 		}
+	}
+}
+
+// Since we are manually allocated textures, we must also free them.
+// `epaint` internally increments (but never decrements) a counter
+// when allocating a texture. This counter is used as an "id" for the
+// texture, which can later be used to free it.
+//
+// INVARIANT: This must only be mutated in the below function, in a single thread.
+static mut NEXT_TEXTURE_ID: u64 = 1;
+// The above counter is our local version so that we
+// know which counter (texture id) we are at.
+//
+// `egui` itself loads fonts and its texture data into the first
+// slot (`0`), so our textures that we allocate will always start at 1.
+// We must also _never_ free `0`, or `GUI` will turn into a black screen.
+fn free_textures(tex_manager: &mut epaint::TextureManager) {
+	// Increment our local number.
+	let current_texture_count = tex_manager.num_allocated() as u64;
+	// SAFETY: see above comment.
+	let (start, end) = unsafe {
+		let start = NEXT_TEXTURE_ID;
+		let end   = NEXT_TEXTURE_ID + current_texture_count;
+		NEXT_TEXTURE_ID += current_texture_count;
+		(start, end)
+	};
+
+	// Free them.
+	trace!("CCD - current_texture_count: {current_texture_count}, freeing: {start}..{end}");
+	for id in start..end {
+		tex_manager.free(epaint::TextureId::Managed(id));
 	}
 }
 
