@@ -66,7 +66,7 @@ impl WindowTitle {
 			SongAlbumArtist        => format!("{FESTIVAL}{SEP}{song}{SEP}{album}{SEP}{artist}"),
 			RuntimeSongAlbumArtist => format!("{FESTIVAL}{SEP}{runtime}{SEP}{song}{SEP}{album}{SEP}{artist}"),
 			Queue                  => format!("{FESTIVAL}{SEP}[{queue_idx}/{queue_len}]"),
-			Off                    => format!("{FESTIVAL}"),
+			Off                    => FESTIVAL.to_string(),
 		}
 	}
 

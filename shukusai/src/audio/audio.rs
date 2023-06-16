@@ -483,7 +483,6 @@ impl Audio {
 					album: Some(&album.title),
 					duration: Some(Duration::from_secs(song.runtime.inner().into())),
 					cover_url,
-					..Default::default()
 				})
 			{
 				warn!("Audio - Couldn't update media controls metadata: {e:#?}");
@@ -554,7 +553,7 @@ impl Audio {
 		};
 
 		// Create a decoder for the track.
-		let decoder_opts = DecoderOptions { verify: false, ..Default::default() };
+		let decoder_opts = DecoderOptions { verify: false };
 		let decoder = match symphonia::default::get_codecs().make(&track.codec_params, &decoder_opts) {
 			Ok(d) => d,
 			Err(e) => bail!(e),
@@ -833,7 +832,7 @@ impl Audio {
 						0
 					} else {
 						elapsed - time
-					} as u64;
+					};
 
 					self.seek = Some(symphonia::core::units::Time {
 						seconds,
@@ -846,7 +845,7 @@ impl Audio {
 						self.skip(1, state);
 					} else {
 						self.seek = Some(symphonia::core::units::Time {
-							seconds: time as u64,
+							seconds: time,
 							frac: 0.0
 						});
 					}

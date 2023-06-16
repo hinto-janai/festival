@@ -64,7 +64,7 @@ use disk::{Bincode2,Toml,Json};
 impl crate::data::Gui {
 	#[inline(always)]
 	fn init_style() -> egui::Style {
-		let style = Style {
+		Style {
 			text_styles: [
 				(TextStyle::Small,                 FontId::new(10.0, FontFamily::Monospace)),
 				(TextStyle::Name("15".into()),     FontId::new(15.0, FontFamily::Monospace)),
@@ -88,9 +88,7 @@ impl crate::data::Gui {
 			interaction: egui::style::Interaction { show_tooltips_only_when_still: false, ..Default::default() },
 
 			..Default::default()
-		};
-
-		style
+		}
 	}
 
 	#[inline(always)]
@@ -131,7 +129,7 @@ impl crate::data::Gui {
 		});
 
 		// The rest
-		let options = eframe::NativeOptions {
+		eframe::NativeOptions {
 			min_window_size: Some(egui::vec2(APP_RESOLUTION_MIN[0], APP_RESOLUTION_MIN[1])),
 			initial_window_size: Some(egui::vec2(APP_RESOLUTION_MIN[0], APP_RESOLUTION_MIN[1])),
 			follow_system_theme: false,
@@ -139,9 +137,7 @@ impl crate::data::Gui {
 			renderer: eframe::Renderer::Wgpu,
 			icon_data,
 			..Default::default()
-		};
-
-		options
+		}
 	}
 
 	#[inline(always)]

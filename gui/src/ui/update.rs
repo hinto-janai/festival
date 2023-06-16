@@ -246,7 +246,8 @@ impl Gui {
 			}
 		}
 
-		self.last_song = self.audio_state.song.clone();
+		// Copied.
+		self.last_song = self.audio_state.song;
 
 		// Show `egui_notify` toasts.
 		self.toasts.show(ctx);

@@ -451,7 +451,7 @@ impl Ccd {
 				if let Err(e) = image_cache.save() {
 					fail!("CCD ... ImageCache: {e}");
 				} else {
-					for (key, album) in collection_for_disk.albums.0.into_iter().enumerate() {
+					for (key, album) in collection_for_disk.albums.iter().enumerate() {
 						if let Art::Bytes(bytes) = &album.art {
 							path.push(format!("{key}.jpg"));
 
@@ -463,7 +463,7 @@ impl Ccd {
 
 							match image::save_buffer(
 								&path,
-								&bytes,
+								bytes,
 								crate::collection::ALBUM_ART_SIZE as u32,
 								crate::collection::ALBUM_ART_SIZE as u32,
 								image::ColorType::Rgb8,

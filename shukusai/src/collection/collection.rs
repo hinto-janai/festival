@@ -535,7 +535,7 @@ impl Collection {
 		self.artists[key.into()].albums
 			.iter()
 			.flat_map(|a| self.albums[a].songs.iter())
-			.map(|s| *s)
+			.copied()
 			.collect()
 	}
 

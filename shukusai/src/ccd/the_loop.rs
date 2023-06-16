@@ -51,9 +51,9 @@ use std::sync::atomic::AtomicUsize;
 // is held in scope throughout "The Loop" so
 // we have the _choice_ to `to_string()` or not.
 struct TagMetadata<'a> {
-	artist: Cow<'a, str>,
-	album: Cow<'a, str>,
-	title: Cow<'a, str>,
+	artist: String,
+	album: String,
+	title: String,
 
 	track: Option<u32>,
 	disc: Option<u32>,
@@ -191,7 +191,7 @@ impl super::Ccd {
 			Ok(t)  => t,
 			Err(e) => { warn!("CCD - Tag fail: {} ... {e}", path.display()); continue; },
 		};
-		let metadata = match Self::extract_tag_metadata(tagged_file, &mut tag) {
+		let metadata = match Self::extract_tag_metadata(tagged_file, &mut tag, &path) {
 			Ok(t)  => t,
 			Err(e) => { warn!("CCD - Metadata fail: {} ... {e}", path.display()); continue; },
 		};
@@ -227,7 +227,7 @@ impl super::Ccd {
 			if let Some(album_idx) = album_map.get(&*album) {
 				// Create `Song`.
 				let song = Song {
-					title: title.to_string(),
+					title,
 					album: AlbumKey::from(*album_idx),
 					runtime: Runtime::from(runtime),
 					sample_rate,
@@ -253,7 +253,7 @@ impl super::Ccd {
 
 			//------------------------------------------------------------- If `Artist` exists, but not `Album`.
 			// Prepare `Song`.
-			let song_title    = title.to_string();
+			let song_title    = title;
 			let runtime       = Runtime::from(runtime);
 
 			// Prepare `Album`.
@@ -261,7 +261,7 @@ impl super::Ccd {
 				Some(r) => Date::from_str_silent(r),
 				None    => Date::unknown(),
 			};
-			let album_title   = album.to_string();
+			let album_title   = album.clone();
 			let song_count    = Unsigned::zero();
 			let runtime_album = Runtime::zero();
 			let art = match picture {
@@ -332,14 +332,13 @@ impl super::Ccd {
 			drop(vec_song);
 
 			// Add to `HashMap` memory.
-			album_map.insert(album.to_string(), count_album);
+			album_map.insert(album, count_album);
 
 			continue
 		}
 
 		//------------------------------------------------------------- If `Artist` DOESN'T exist.
 		// Prepare `Song`.
-		let title   = title.to_string();
 		let runtime = Runtime::from(runtime);
 
 		// Prepare `Album`.
@@ -347,7 +346,7 @@ impl super::Ccd {
 			Some(r) => Date::from_str_silent(r),
 			None    => Date::unknown(),
 		};
-		let album_title   = album.to_string();
+		let album_title   = album.clone();
 		let song_count    = Unsigned::zero();
 		let runtime_album = Runtime::zero();
 		let art = match picture {
@@ -370,7 +369,7 @@ impl super::Ccd {
 		};
 
 		// Prepare `Artist`.
-		let name = artist.to_string();
+		let name = artist.clone();
 
 		// Lock.
 		let mut vec_artist = lock!(vec_artist);
@@ -427,7 +426,6 @@ impl super::Ccd {
 		drop(vec_song);
 
 		// Add to `HashMap` memory.
-		let artist = artist.to_string();
 		let map    = HashMap::from([(album.to_string(), count_album)]);
 		let tuple  = (count_artist, map);
 
@@ -632,6 +630,117 @@ impl super::Ccd {
 	}
 
 	#[inline(always)]
+	// Attempt to get artist.
+	fn tag_artist(tag: &lofty::Tag) -> Option<String> {
+		// Attempt #2.
+		if let Some(t) = tag.get(&lofty::ItemKey::AlbumArtist) {
+			if let Some(s) = Self::item_value_to_str(t.value()) {
+				return Some(s.to_string())
+			}
+		}
+
+		// Attempt #1.
+		if let Some(s) = tag.artist() {
+			return Some(s.to_string());
+		}
+
+		// Attempt #3.
+		if let Some(t) = tag.get(&lofty::ItemKey::Performer) {
+			if let Some(s) = Self::item_value_to_str(t.value()) {
+				return Some(s.to_string())
+			}
+		}
+
+		// Attempt #4.
+		if let Some(t) = tag.get(&lofty::ItemKey::TrackArtist) {
+			if let Some(s) = Self::item_value_to_str(t.value()) {
+				return Some(s.to_string())
+			}
+		}
+
+		// Attempt #5.
+		if let Some(t) = tag.get(&lofty::ItemKey::OriginalArtist) {
+			if let Some(s) = Self::item_value_to_str(t.value()) {
+				return Some(s.to_string())
+			}
+		}
+
+		// Give up.
+		None
+	}
+
+	#[inline(always)]
+	// Attempt to get album title.
+	fn tag_album(tag: &lofty::Tag) -> Option<String> {
+		// Attempt #1.
+		if let Some(s) = tag.album() {
+			return Some(s.to_string());
+		}
+
+		// Attempt #2.
+		if let Some(t) = tag.get(&lofty::ItemKey::AlbumTitle) {
+			if let Some(s) = Self::item_value_to_str(t.value()) {
+				return Some(s.to_string());
+			}
+		}
+
+		// Attempt #3.
+		if let Some(t) = tag.get(&lofty::ItemKey::OriginalAlbumTitle) {
+			if let Some(s) = Self::item_value_to_str(t.value()) {
+				return Some(s.to_string());
+			}
+		}
+
+		// Give up.
+		None
+	}
+
+	#[inline(always)]
+	// Attempt to get song title.
+	fn tag_title(tag: &lofty::Tag, path: &Path) -> Option<String> {
+		// Attempt #1.
+		if let Some(s) = tag.title() {
+			return Some(s.to_string());
+		}
+
+		// Attempt #2.
+		if let Some(t) = tag.get(&lofty::ItemKey::TrackTitle) {
+			if let Some(s) = Self::item_value_to_str(t.value()) {
+				return Some(s.to_string());
+			}
+		}
+
+		// Attempt #3. If there's no tag, just fall back to the file name.
+		if let Some(os_str) = path.file_name() {
+			return Some(os_str.to_string_lossy().to_string());
+		}
+
+		// Give up.
+		None
+	}
+
+	#[inline(always)]
+	// Attempt to get track number.
+	fn tag_track(tag: &lofty::Tag) -> Option<u32> {
+		// Attempt #1.
+		if let Some(s) = tag.track() {
+			return Some(s);
+		}
+
+		// Attempt #2.
+		if let Some(t) = tag.get(&lofty::ItemKey::TrackTitle) {
+			if let Some(s) = Self::item_value_to_str(t.value()) {
+				if let Ok(u) = s.parse::<u32>() {
+					return Some(u);
+				}
+			}
+		}
+
+		// Give up.
+		None
+	}
+
+	#[inline(always)]
 	// Attempt to get the _maybe_ multiple track artists of the `TaggedFile`.
 	fn tag_track_artists(tag: &lofty::Tag) -> Option<String> {
 		// Attempt #1.
@@ -680,7 +789,11 @@ impl super::Ccd {
 	#[inline(always)]
 	// Attempts to extract tags from a `TaggedFile`.
 	// `TaggedFile` gets dropped here, since it is no longer needed.
-	fn extract_tag_metadata(tagged_file: lofty::TaggedFile, tag: &mut lofty::Tag) -> Result<TagMetadata, anyhow::Error> {
+	fn extract_tag_metadata<'a>(
+		tagged_file: lofty::TaggedFile,
+		tag: &'a mut lofty::Tag,
+		path: &'_ Path,
+	) -> Result<TagMetadata<'a>, anyhow::Error> {
 		// Image metadata.
 		// This needs to be first because it needs `mut`.
 		// and the next operations create `&`, meaning I
@@ -699,12 +812,12 @@ impl super::Ccd {
 		// TODO:
 		// These don't always get the tag.
 		// Do manual tag parsing.
-		let artist      = match tag.artist()      { Some(t) => t, None => bail!("No artist") };
-		let album       = match tag.album()       { Some(t) => t, None => bail!("No album") };
-		let title       = match tag.title()       { Some(t) => t, None => bail!("No title") };
+		let artist      = match Self::tag_artist(tag)      { Some(t) => t, None => bail!("No artist") };
+		let album       = match Self::tag_album(tag)       { Some(t) => t, None => bail!("No album") };
+		let title       = match Self::tag_title(tag, path) { Some(t) => t, None => bail!("No title") };
 
 		// Attempt to get not necessarily needed metadata.
-		let track       = tag.track();
+		let track       = Self::tag_track(tag);
 		let disc        = tag.disk();
 		let track_total = tag.track_total();
 		let disc_total  = tag.disk_total();

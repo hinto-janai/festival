@@ -225,9 +225,9 @@ macro_rules! song_button {
 		if resp.clicked() {
 			$crate::play_album_offset!($self, $song.album, $offset);
 		} else if resp.middle_clicked() {
-			crate::open!($self, $album);
+			$crate::open!($self, $album);
 		} else if resp.secondary_clicked() {
-			crate::add_song!($self, $song.title, $key);
+			$crate::add_song!($self, $song.title, $key);
 		}
 
 		rect.max.x = rect.min.x;

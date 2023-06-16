@@ -7,6 +7,7 @@
 //use disk::{};
 //use std::{};
 //use std::sync::{Arc,Mutex,RwLock};
+use benri::debug_panic;
 
 //---------------------------------------------------------------------------------------------------- MIME constants.
 pub(crate) const SUPPORTED_AUDIO_MIME_TYPES: [&str; 22] = [
@@ -48,7 +49,7 @@ pub(crate) const SUPPORTED_IMG_MIME_TYPES: [&str; 3] = [
 ];
 
 #[derive(Debug,PartialEq,Eq,PartialOrd,Ord)]
-pub(super) enum AudioType {
+pub(super) enum Codec {
 	Aac,
 	Alac,
 	Flac,
@@ -57,6 +58,38 @@ pub(super) enum AudioType {
 	Opus,
 	Wav,
 	Aiff,
+}
+
+impl Codec {
+	// INVARIANT:
+	// This expects input to be one of the
+	// `str`'s from the above `SUPPORTED_AUDIO_MIME_TYPES`.
+	//
+	// Else, it assumes `mp3`.
+	pub(super) fn from_supported(s: &str) -> Self {
+		match s {
+			// AAC
+			"audio/aac"|"audio/x-aac" => Self::Aac,
+			// ALAC
+			"audio/m4a"|"audio/x-m4a" => Self::Alac,
+			// FLAC
+			"audio/flac"|"audio/x-flac" => Self::Flac,
+			// MP3
+			"audio/mp3"|"audio/mpeg"|"audio/mpeg3"|"audio/x-mp3"|"audio/x-mpeg"|"audio/x-mpeg3" => Self::Mp3,
+			// OGG/Vorbis
+			"audio/ogg"|"audio/vorbis"|"audio/x-ogg"|"audio/x-vorbis" => Self::Ogg,
+			// Opus
+			"audio/opus"|"audio/x-opus" => Self::Opus,
+			// PCM (wav, aiff)
+			"audio/wav"|"audio/x-wav" => Self::Wav,
+			"audio/aiff"|"audio/x-aiff" => Self::Aiff,
+
+			_ => {
+				debug_panic!("input to from_supported() was wrong");
+				Self::Mp3
+			},
+		}
+	}
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

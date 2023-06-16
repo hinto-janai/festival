@@ -71,7 +71,7 @@ CentralPanel::default().show(ctx, |ui| {
 			ctx.memory_mut(|m| m.request_focus(id));
 
 			// This forces the text cursor to move forward 1 character.
-			if let Some(mut state) = egui::widgets::text_edit::TextEditState::load(&ctx, id) {
+			if let Some(mut state) = egui::widgets::text_edit::TextEditState::load(ctx, id) {
 				let cursor = egui::widgets::text_edit::CCursorRange {
 					primary: epaint::text::cursor::CCursor {
 							index: 1,
