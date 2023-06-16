@@ -37,6 +37,7 @@ jobs:
 
     - name: Install dependencies
       run: |
+        rustup update
         if [ "$RUNNER_OS" == "Linux" ]; then
           sudo apt update
           sudo apt install -y libgtk-3-dev libasound2-dev libjack-dev
@@ -44,7 +45,7 @@ jobs:
       shell: bash
 
     - name: Clippy
-      run: cargo clippy --profile ${{ matrix.build }}
+      run: cargo clippy --workspace --profile ${{ matrix.build }}
 
     - name: Doc
       run: cargo doc --workspace --no-deps --profile ${{ matrix.build }}
@@ -52,10 +53,10 @@ jobs:
         RUSTFLAGS: -Awarnings
 
     - name: Test
-      run: cargo test --profile ${{ matrix.build }}
+      run: cargo test --workspace --profile ${{ matrix.build }}
 
     - name: Build
-      run: cargo build --profile ${{ matrix.build }}
+      run: cargo build --workspace --profile ${{ matrix.build }}
 
     - name: Archive (debug)
       uses: actions/upload-artifact@v3

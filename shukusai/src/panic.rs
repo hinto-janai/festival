@@ -21,11 +21,8 @@ use const_format::formatcp;
 /// Set `shukusai`'s custom panic hook.
 pub(crate) fn set_panic_hook() {
 	std::panic::set_hook(Box::new(|panic_info| {
-		// Set stack-trace (bunch of <???> on release builds, so ignore.)
-		#[cfg(debug_assertions)]
+		// Set stack-trace.
 		let stack_trace = std::backtrace::Backtrace::force_capture();
-		#[cfg(not(debug_assertions))]
-		let stack_trace = "<Release build stack symbols were stripped>";
 
 		// Re-format panic info.
 		let panic_info = format!(

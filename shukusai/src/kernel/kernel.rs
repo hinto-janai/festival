@@ -130,9 +130,7 @@ impl Kernel {
 		watch:          bool,
 		media_controls: bool,
 	) {
-		// Initialize lazy statics.
-		let _         = Lazy::force(&DUMMY_COLLECTION);
-		let beginning = Lazy::force(&crate::logger::INIT_INSTANT);
+		debug!("Kernel Init [1/12] ... entering bios()");
 
 		#[cfg(feature = "panic")]
 		// Set panic hook.
@@ -141,7 +139,13 @@ impl Kernel {
 		// we want _everyone_ to exit.
 		crate::panic::set_panic_hook();
 
-		debug!("Kernel Init [1/12] ... entering bios()");
+		// Initialize lazy statics.
+		let _         = Lazy::force(&DUMMY_COLLECTION);
+		let beginning = Lazy::force(&crate::logger::INIT_INSTANT);
+
+		// Assert `OnceCell`'s were set.
+		#[cfg(feature = "gui")]
+		debug_assert!(crate::frontend::egui::GUI_CONTEXT.get().is_some());
 
 		// Create `ResetState`, send to `Frontend`.
 		RESET_STATE.write().disk();
@@ -206,8 +210,11 @@ impl Kernel {
 		let state = AudioState::from_file();
 
 		// Set `ResetState` to `Start` + `Art` phase.
-		RESET_STATE.write().start();
-		RESET_STATE.write().phase = Phase::Art;
+		{
+			let mut lock = RESET_STATE.write();
+			lock.start();
+			lock.phase = Phase::Art;
+		}
 
 		// Wait for `Collection` to be returned by `CCD`.
 		debug!("Kernel Init [5/12] ... waiting on CCD");

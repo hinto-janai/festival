@@ -69,7 +69,6 @@
 
 #![forbid(
 	future_incompatible,
-	let_underscore,
 	break_with_label_and_loop,
 	coherence_leak_check,
 	deprecated,

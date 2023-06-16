@@ -11,6 +11,10 @@ categories.workspace    = true
 readme.workspace        = true
 license-file.workspace  = true
 
+[[bin]]
+name = "festival"
+path = "src/main.rs"
+
 [dependencies]
 ### Personal Libraries.
 shukusai = { workspace = true, features = ["gui", "panic"] }

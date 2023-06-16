@@ -16,3 +16,6 @@
 [submodule "external/egui_dnd"]
 	path = external/egui_dnd
 	url = https://github.com/hinto-janai/egui_dnd
+[submodule "external/Symphonia"]
+	path = external/Symphonia
+	url = https://github.com/hinto-janai/Symphonia

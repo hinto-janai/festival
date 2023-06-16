@@ -444,14 +444,14 @@ impl Ccd {
 		// Make this multi-threaded and/or async.
 		//
 		// Save images to `~/.cache/festival/image`.
-		drop(ImageCache::rm_sub());
+		let _ = ImageCache::rm_sub();
 		match ImageCache::base_path() {
 			Ok(mut path) => {
 				let image_cache = ImageCache(collection_for_disk.timestamp);
 				if let Err(e) = image_cache.save() {
 					fail!("CCD ... ImageCache: {e}");
 				} else {
-					for (key, album) in collection_for_disk.albums.iter().enumerate() {
+					for (key, album) in collection_for_disk.albums.0.into_iter().enumerate() {
 						if let Art::Bytes(bytes) = &album.art {
 							path.push(format!("{key}.jpg"));
 
