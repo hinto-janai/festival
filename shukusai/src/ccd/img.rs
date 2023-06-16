@@ -213,16 +213,13 @@ fn color_img_to_retained(img: egui::ColorImage) -> egui_extras::RetainedImage {
 // makes it _alot_ better. There is still a tiny freeze but it's fine
 // for now, we won't show the spinner near the end.
 pub(super) fn alloc_textures(albums: &crate::collection::Albums) {
-	// Get `Arc<RwLock<TextureManager>>`.
+	// Get `Context`.
 	let ctx = gui_context();
-	let tex_manager = ctx.tex_manager();
 
 	// Wait until `GUI` has loaded at least 1 frame.
 	while !atomic_load!(crate::frontend::egui::GUI_UPDATING) {
 		std::hint::spin_loop();
 	}
-
-	free_textures(&mut tex_manager.write());
 
 	// For each `Album`...
 	for album in albums.iter() {
@@ -251,7 +248,7 @@ static mut NEXT_TEXTURE_ID: u64 = 1;
 // `egui` itself loads fonts and its texture data into the first
 // slot (`0`), so our textures that we allocate will always start at 1.
 // We must also _never_ free `0`, or `GUI` will turn into a black screen.
-fn free_textures(tex_manager: &mut epaint::TextureManager) {
+pub(super) fn free_textures(tex_manager: &mut epaint::TextureManager) {
 	// Increment our local number.
 	let current_texture_count = tex_manager.num_allocated() as u64;
 

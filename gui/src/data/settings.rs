@@ -22,6 +22,7 @@ use crate::constants::{
 use shukusai::{
 	constants::{
 		FESTIVAL,
+		STATE_SUB_DIR,
 		HEADER,
 	},
 	collection::{
@@ -40,12 +41,13 @@ use crate::data::{
 	ArtistSubTab,
 	WindowTitle,
 };
+use const_format::formatcp;
 
 //---------------------------------------------------------------------------------------------------- Settings
 #[cfg(debug_assertions)]
-disk::json!(Settings, disk::Dir::Data, FESTIVAL, GUI, "settings");
+disk::json!(Settings, disk::Dir::Data, FESTIVAL, formatcp!("{GUI}/{STATE_SUB_DIR}"), "settings");
 #[cfg(not(debug_assertions))]
-disk::bincode2!(Settings, disk::Dir::Data, FESTIVAL, GUI, "settings", HEADER, SETTINGS_VERSION);
+disk::bincode2!(Settings, disk::Dir::Data, FESTIVAL, formatcp!("{GUI}/{STATE_SUB_DIR}"), "settings", HEADER, SETTINGS_VERSION);
 #[derive(Clone,Debug,Default,PartialEq,Serialize,Deserialize,Encode,Decode)]
 /// `GUI`'s settings.
 ///

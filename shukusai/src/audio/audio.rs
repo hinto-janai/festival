@@ -76,6 +76,18 @@ pub(crate) struct Audio {
 	// A handle to the audio output device.
 	output: AudioOutput,
 
+	// SOMEDAY:
+	// We should probably have a `next` AudioReader lined up and ready to go.
+	// There is currently no audible gap between `set()`'s but that may not
+	// be the case on a _really_ slow HDD.
+	//
+	// The audio sample buffer we hold may be enough to mask this, though.
+	//
+	// Also, straying away from the current `cursor + queue` design and
+	// having a `next` thing ready makes things more complicated, although,
+	// when the time comes to rewrite all of `Audio` and `AudioState` and
+	// not tangle them together so much, this should be considered.
+
 	// The current song.
 	current: Option<AudioReader>,
 	// The existence of this field means we should
@@ -456,12 +468,12 @@ impl Audio {
 			};
 
 			trace!(
-				"Audio - set_media_controls_metadata({key}):\nsong.title: {},\nartist.name: {},\nalbum.title: {},\nsong.runtime: {},\ncover_url: {}",
+				"Audio - set_media_controls_metadata({key}):\nsong.title: {},\nartist.name: {},\nalbum.title: {},\nsong.runtime: {},\ncover_url: {:?}",
 				&song.title,
 				&artist.name,
 				&album.title,
 				&song.runtime,
-				&cover_url.unwrap_or(""),
+				&cover_url,
 			);
 
 			if let Err(e) = media_controls
@@ -476,6 +488,8 @@ impl Audio {
 			{
 				warn!("Audio - Couldn't update media controls metadata: {e:#?}");
 			}
+		} else {
+			trace!("Audio - no media controls, ignoring set_media_controls_metadata({key})");
 		}
 	}
 
@@ -913,7 +927,6 @@ impl Audio {
 		}
 	}
 
-
 	fn add_queue_album(
 		&mut self,
 		key: AlbumKey,
@@ -1185,10 +1198,10 @@ impl Audio {
 	}
 }
 
-////---------------------------------------------------------------------------------------------------- TESTS
-////#[cfg(test)]
-////mod tests {
-////  #[test]
-////  fn __TEST__() {
-////  }
-////}
+//---------------------------------------------------------------------------------------------------- TESTS
+//#[cfg(test)]
+//mod tests {
+//  #[test]
+//  fn __TEST__() {
+//  }
+//}

@@ -743,7 +743,7 @@ fn show_exit_spinner(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, 
 			let half = height / 2.0;
 			let hh   = half / 2.0;
 
-			let text = RichText::new(format!("--- Saving ---\nForce exiting in {}...", atomic_load!(self.exit_countdown)))
+			let text = RichText::new(format!("--- Saving ---\n\nForce exiting in {}", atomic_load!(self.exit_countdown)))
 				.size(hh / 4.0)
 				.color(BONE);
 

@@ -151,11 +151,18 @@ impl super::Ccd {
 
 		// Get an appropriate amount of threads.
 		let threads = super::threads_for_paths(vec_len);
+		let chunks  = {
+			let c = vec_paths.len() / threads;
+			match c {
+				0 => 1,
+				_ => c,
+			}
+		};
 
 		//------------------------------------------------------------- Begin `The Loop`.
 		// No indentation because this function is crazy long.
 		std::thread::scope(|scope| {             // Enter thread scope.
-		for paths in vec_paths.chunks(threads) { // Chunk the total paths for each thread.
+		for paths in vec_paths.chunks(chunks) {  // Chunk the total paths for each thread.
 		scope.spawn(|| {                         // Spawn a thread.
 		for path in paths.iter() {               // Make thread work over the chunked paths.
 

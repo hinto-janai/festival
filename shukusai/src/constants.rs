@@ -45,10 +45,18 @@ pub const FRONTEND_SUB_DIR: &str = "daemon";
 pub const FRONTEND_SUB_DIR: &str = "cli";
 #[cfg(feature = "web")]
 pub const FRONTEND_SUB_DIR: &str = "web";
+
+/// The sub-directory where state is saved.
+///
+/// This include the [`Collection`] and [`AudioState`].
+pub const STATE_SUB_DIR: &str = "state";
+
 /// The sub-directory for image cache in the OS's cache directory.
 pub const IMAGE_CACHE_SUB_DIR: &str = "image";
+
 /// The sub-directory for misc text files.
 pub const TXT_SUB_DIR: &str = "txt";
+
 /// The sub-directory that is watched for [`crate::signal`]'s.
 pub const SIGNAL_SUB_DIR: &str = "signal";
 

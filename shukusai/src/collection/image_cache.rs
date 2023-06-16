@@ -10,13 +10,13 @@ use serde::{Serialize,Deserialize};
 use const_format::formatcp;
 
 //---------------------------------------------------------------------------------------------------- __NAME__
-disk::plain!(ImageCache, disk::Dir::Cache, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{IMAGE_CACHE_SUB_DIR}"), "timestamp");
+disk::plain!(ImageCache, disk::Dir::Cache, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{IMAGE_CACHE_SUB_DIR}"), "timestamp.txt");
 #[derive(Copy,Clone,Debug,Default,PartialEq,PartialOrd,Serialize,Deserialize)]
 /// File representing cached images of the `Collection`.
 ///
 /// This file holds the timestamp of the `Collection` the images in the same directory refer too.
 ///
-/// This gets written in the OS cache folder, within `image/` as `timestamp`.
+/// This gets written in the OS cache folder, within `image/` as `timestamp.txt`.
 ///
 /// Some other parts of Festival require a hard PATH
 /// to an image file to display it (`GUI` with `souvlaki`).

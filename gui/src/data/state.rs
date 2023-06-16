@@ -15,6 +15,7 @@ use crate::constants::{
 use shukusai::{
 	constants::{
 		FESTIVAL,
+		STATE_SUB_DIR,
 		HEADER,
 	},
 	state::AudioState,
@@ -32,12 +33,13 @@ use shukusai::{
 	},
 };
 use shukusai::kernel::Kernel;
+use const_format::formatcp;
 
 //---------------------------------------------------------------------------------------------------- State
 #[cfg(debug_assertions)]
-disk::json!(State, disk::Dir::Data, FESTIVAL, GUI, "state");
+disk::json!(State, disk::Dir::Data, FESTIVAL, formatcp!("{GUI}/{STATE_SUB_DIR}"), "state");
 #[cfg(not(debug_assertions))]
-disk::bincode2!(State, disk::Dir::Data, FESTIVAL, GUI, "state", HEADER, STATE_VERSION);
+disk::bincode2!(State, disk::Dir::Data, FESTIVAL, formatcp!("{GUI}/{STATE_SUB_DIR}"), "state", HEADER, STATE_VERSION);
 #[derive(Clone,Debug,Default,PartialEq,PartialOrd,Serialize,Deserialize,Encode,Decode)]
 /// `GUI`'s State.
 ///

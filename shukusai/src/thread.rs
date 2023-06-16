@@ -46,6 +46,18 @@ pub static THREADS_75: Lazy<usize> = Lazy::new(|| {
 	}
 });
 
+/// Get `90%` of available amount of system threads.
+///
+/// This is lazily evaluated and returns 1 on errors.
+pub static THREADS_90: Lazy<usize> = Lazy::new(|| {
+	match *THREADS {
+		0|1|2 => 1,
+		3 => 2,
+		4 => 3,
+		_ => (*THREADS as f64 * 0.9).floor() as usize,
+	}
+});
+
 //---------------------------------------------------------------------------------------------------- TESTS
 //#[cfg(test)]
 //mod tests {

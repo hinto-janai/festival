@@ -7,19 +7,20 @@ use crate::{
 
 //---------------------------------------------------------------------------------------------------- Tab Constants
 // This is the text actually displayed in the `GUI`.
-const NONE:     &str = "...";
-const DISK:     &str = "Reading From Disk";
-const START:    &str = "Starting...";
-const WALKDIR:  &str = "Walking Directories";
-const PARSE:    &str = "Parsing Metadata";
-const FIX:      &str = "Fixing Metadata";
-const SORT:     &str = "Sorting";
-const SEARCH:   &str = "Creating Search Engine";
-const PREPARE:  &str = "Preparing Collection";
-const ART:      &str = "Preparing Album Art";
-const CLONE:    &str = "Preparing Collection For Disk";
-const CONVERT:  &str = "Converting Album Art";
-const FINALIZE: &str = "Finalizing Collection";
+const NONE:        &str = "...";
+const DISK:        &str = "Reading From Disk";
+const START:       &str = "Starting...";
+const DECONSTRUCT: &str = "Deconstructing Old Collection";
+const WALKDIR:     &str = "Walking Directories";
+const PARSE:       &str = "Parsing Metadata";
+const FIX:         &str = "Fixing Metadata";
+const SORT:        &str = "Sorting";
+const SEARCH:      &str = "Creating Search Engine";
+const PREPARE:     &str = "Preparing Collection";
+const ART:         &str = "Preparing Album Art";
+const CLONE:       &str = "Preparing Collection For Disk";
+const CONVERT:     &str = "Converting Album Art";
+const FINALIZE:    &str = "Finalizing Collection";
 
 //---------------------------------------------------------------------------------------------------- Phase
 #[derive(Copy,Clone,Debug,Hash,Serialize,Deserialize,PartialEq,Eq,PartialOrd,Ord)]
@@ -44,17 +45,18 @@ const FINALIZE: &str = "Finalizing Collection";
 /// assert!(Phase::None.as_str()     == "...");
 /// assert!(Phase::Disk.as_str()     == "Reading From Disk");
 ///
-/// assert!(Phase::Start.as_str()    == "Starting...");
-/// assert!(Phase::WalkDir.as_str()  == "Walking Directories");
-/// assert!(Phase::Parse.as_str()    == "Parsing Metadata");
-/// assert!(Phase::Fix.as_str()      == "Fixing Metadata");
-/// assert!(Phase::Sort.as_str()     == "Sorting");
-/// assert!(Phase::Search.as_str()   == "Creating Search Engine");
-/// assert!(Phase::Prepare.as_str()  == "Preparing Collection");
-/// assert!(Phase::Art.as_str()      == "Preparing Album Art");
-/// assert!(Phase::Clone.as_str()    == "Preparing Collection For Disk");
-/// assert!(Phase::Convert.as_str()  == "Converting Album Art");
-/// assert!(Phase::Finalize.as_str() == "Finalizing Collection");
+/// assert!(Phase::Start.as_str()       == "Starting");
+/// assert!(Phase::Deconstruct.as_str() == "Deconstructing Old Collection");
+/// assert!(Phase::WalkDir.as_str()     == "Walking Directories");
+/// assert!(Phase::Parse.as_str()       == "Parsing Metadata");
+/// assert!(Phase::Fix.as_str()         == "Fixing Metadata");
+/// assert!(Phase::Sort.as_str()        == "Sorting");
+/// assert!(Phase::Search.as_str()      == "Creating Search Engine");
+/// assert!(Phase::Prepare.as_str()     == "Preparing Collection");
+/// assert!(Phase::Art.as_str()         == "Preparing Album Art");
+/// assert!(Phase::Clone.as_str()       == "Preparing Collection For Disk");
+/// assert!(Phase::Convert.as_str()     == "Converting Album Art");
+/// assert!(Phase::Finalize.as_str()    == "Finalizing Collection");
 /// ```
 pub enum Phase {
 	// Exceptions.
@@ -67,24 +69,26 @@ pub enum Phase {
 	/// Phase 1 (start)
 	Start,
 	/// Phase 2
-	WalkDir,
+	Deconstruct,
 	/// Phase 3
-	Parse,
+	WalkDir,
 	/// Phase 4
-	Fix,
+	Parse,
 	/// Phase 5
-	Sort,
+	Fix,
 	/// Phase 6
-	Search,
+	Sort,
 	/// Phase 7
-	Prepare,
+	Search,
 	/// Phase 8
-	Art,
+	Prepare,
 	/// Phase 9
-	Clone,
+	Art,
 	/// Phase 10
+	Clone,
+	/// Phase 11
 	Convert,
-	/// Phase 11 (final)
+	/// Phase 12 (final)
 	Finalize,
 }
 
@@ -92,20 +96,21 @@ impl Phase {
 	/// Human-readable version, no [`String`] allocation.
 	pub fn as_str(&self) -> &'static str {
 		match self {
-			Self::None     => NONE,
-			Self::Disk     => DISK,
+			Self::None        => NONE,
+			Self::Disk        => DISK,
 
-			Self::Start    => START,
-			Self::WalkDir  => WALKDIR,
-			Self::Parse    => PARSE,
-			Self::Fix      => FIX,
-			Self::Sort     => SORT,
-			Self::Search   => SEARCH,
-			Self::Prepare  => PREPARE,
-			Self::Art      => ART,
-			Self::Clone    => CLONE,
-			Self::Convert  => CONVERT,
-			Self::Finalize => FINALIZE,
+			Self::Start       => START,
+			Self::Deconstruct => START,
+			Self::WalkDir     => WALKDIR,
+			Self::Parse       => PARSE,
+			Self::Fix         => FIX,
+			Self::Sort        => SORT,
+			Self::Search      => SEARCH,
+			Self::Prepare     => PREPARE,
+			Self::Art         => ART,
+			Self::Clone       => CLONE,
+			Self::Convert     => CONVERT,
+			Self::Finalize    => FINALIZE,
 		}
 	}
 //

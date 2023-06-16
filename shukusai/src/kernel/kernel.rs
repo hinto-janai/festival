@@ -557,8 +557,10 @@ impl Kernel {
 		let (to_ccd,   ccd_recv) = crossbeam::channel::unbounded::<KernelToCcd>();
 		let (ccd_send, from_ccd) = crossbeam::channel::unbounded::<CcdToKernel>();
 
-		// Get old `Collection` pointer.
+		// Give the last ownership of the
+		// old `Collection` pointer to `CCD`.
 		let old_collection = Arc::clone(&self.collection);
+		self.collection    = Collection::dummy();
 
 		// Set `ResetState` to `Start` phase.
 		RESET_STATE.write().start();

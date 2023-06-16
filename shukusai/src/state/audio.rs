@@ -13,6 +13,7 @@ use crate::collection::{
 use crate::constants::{
 	FESTIVAL,
 	FRONTEND_SUB_DIR,
+	STATE_SUB_DIR,
 	HEADER,
 	AUDIO_VERSION,
 };
@@ -29,6 +30,7 @@ use std::sync::{
 	TryLockError,
 };
 use std::collections::VecDeque;
+use const_format::formatcp;
 
 //---------------------------------------------------------------------------------------------------- Lazy
 /// This is the single, global copy of `AudioState` that `Kernel` uses.
@@ -70,9 +72,9 @@ impl AudioStateLock {
 
 //---------------------------------------------------------------------------------------------------- AudioState
 #[cfg(debug_assertions)]
-disk::json!(AudioState, disk::Dir::Data, FESTIVAL, FRONTEND_SUB_DIR, "audio");
+disk::json!(AudioState, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{STATE_SUB_DIR}"), "audio");
 #[cfg(not(debug_assertions))]
-disk::bincode2!(AudioState, disk::Dir::Data, FESTIVAL, FRONTEND_SUB_DIR, "audio", HEADER, AUDIO_VERSION);
+disk::bincode2!(AudioState, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{STATE_SUB_DIR}"), "audio", HEADER, AUDIO_VERSION);
 /// Audio State
 ///
 /// This is a container for the audio state that `Kernel`

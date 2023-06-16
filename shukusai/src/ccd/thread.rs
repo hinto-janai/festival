@@ -11,6 +11,7 @@ use crate::thread::{
 	THREADS_25,
 	THREADS_50,
 	THREADS_75,
+	THREADS_90,
 };
 
 //---------------------------------------------------------------------------------------------------- Constants.
@@ -32,14 +33,16 @@ pub(crate) fn threads_for_album_art(albums: usize) -> usize {
 		return 1
 	}
 
+	let t = *THREADS_90;
+
 	// Make sure each thread has at least 1 album.
-	if *THREADS_50 > albums {
+	if t > albums {
 		debug!("CCD ... Album threads: {}", albums);
 		return albums
 	}
 
-	debug!("CCD ... Album threads: {}", *THREADS_50);
-	*THREADS_50
+	debug!("CCD ... Album threads: {}", t);
+	t
 }
 
 // Get a reasonable amount of threads for processing `n` amount of PATHs.
@@ -49,14 +52,16 @@ pub(crate) fn threads_for_paths(paths: usize) -> usize {
 		return 1
 	}
 
+	let t = *THREADS_25;
+
 	// Make sure each thread has at least 1 PATH.
-	if *THREADS_50 > paths {
+	if t > paths {
 		debug!("CCD ... PATH threads: {}", paths);
 		return paths
 	}
 
-	debug!("CCD ... PATH threads: {}", *THREADS_50);
-	*THREADS_50
+	debug!("CCD ... PATH threads: {}", t);
+	t
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

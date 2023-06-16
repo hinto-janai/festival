@@ -3,7 +3,7 @@
 # Finds the longest PATH and file with
 # the most amount of lines in this repo.
 # This is used for left-padding the filename
-# in the `src/logger.rs` file.
+# in the `shukusai/src/logger.rs` file.
 
 # Exit on failure.
 set -e
@@ -14,9 +14,9 @@ set -e
 
 # Use `fd` if found.
 if [[ -f /usr/bin/fd ]]; then
-	FIND=$(fd .*.rs "cli" "daemon" "gui" "web" "src")
+	FIND=$(fd .*.rs "cli" "daemon" "gui" "web" "shukusai")
 else
-	FIND=$(find "cli" "daemon" "gui" "web" "src" -type f -iname *.rs)
+	FIND=$(find "cli" "daemon" "gui" "web" "shukusai" -type f -iname *.rs)
 fi
 
 # PATH.

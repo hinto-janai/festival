@@ -60,10 +60,22 @@ macro_rules! impl_plural {
 		}
 
 		impl $plural {
-			//-------------------------------------------------- New (private).
+			//-------------------------------------------------- `pub(crate)` functions
 			#[inline(always)]
 			pub(crate) fn new() -> Self {
 				Self(Box::new([]))
+			}
+
+			#[inline(always)]
+			/// Calls [`slice::iter_mut`].
+			pub(crate) fn iter_mut(&mut self) -> std::slice::IterMut<'_, $name> {
+				self.0.iter_mut()
+			}
+
+			#[inline(always)]
+			/// Create self from a [`Vec`].
+			pub(crate) fn from_vec(vec: Vec<$name>) -> Self {
+				Self(vec.into_boxed_slice())
 			}
 
 			//-------------------------------------------------- Common `Vec` and related functions.
@@ -101,18 +113,6 @@ macro_rules! impl_plural {
 			/// Calls [`slice::is_empty`].
 			pub fn is_empty(&self) -> bool {
 				self.0.is_empty()
-			}
-			//-------------------------------------------------- `pub(crate)` functions
-			#[inline(always)]
-			/// Calls [`slice::iter_mut`].
-			pub(crate) fn iter_mut(&mut self) -> std::slice::IterMut<'_, $name> {
-				self.0.iter_mut()
-			}
-
-			#[inline(always)]
-			/// Create self from a [`Vec`].
-			pub(crate) fn from_vec(vec: Vec<$name>) -> Self {
-				Self(vec.into_boxed_slice())
 			}
 		}
 	}}

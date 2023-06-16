@@ -81,11 +81,18 @@ impl super::Ccd {
 		// 2. Move work into each scoped thread
 		// 3. Process data.
 		// 4. Join threads, return.
+		let chunks  = {
+			let c = collection.albums.len() / threads;
+			match c {
+				0 => 1,
+				_ => c,
+			}
+		};
 		std::thread::scope(|scope| {
 			match art_convert_type {
 				ArtConvertType::Resize => {
 					// Divide albums (mostly) evenly across threads.
-					for albums in collection.albums.0.chunks_mut(threads) {
+					for albums in collection.albums.0.chunks_mut(chunks) {
 						// Spawn scoped thread with chunked workload.
 						scope.spawn(|| {
 							Self::resize_worker(to_kernel, albums, total, increment);
@@ -93,7 +100,7 @@ impl super::Ccd {
 					}
 				},
 				ArtConvertType::ToKnown => {
-					for albums in collection.albums.0.chunks_mut(threads) {
+					for albums in collection.albums.0.chunks_mut(chunks) {
 						scope.spawn(|| {
 							Self::toknown_worker(to_kernel, albums, total, increment);
 						});
