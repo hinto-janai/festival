@@ -143,7 +143,7 @@ impl super::Ccd {
 			return Some(path)
 		}
 
-		debug!("CCD - Skipping non-audio PATH: {}", path.display());
+		trace!("CCD - Skipping non-audio PATH: {}", path.display());
 		None
 	}
 

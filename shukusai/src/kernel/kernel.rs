@@ -9,7 +9,11 @@ use crate::constants::{
 	AUDIO_VERSION,
 };
 use std::sync::{Arc,RwLock};
-use crate::collection::SongKey;
+use crate::logger::INIT_INSTANT;
+use crate::collection::{
+	UNKNOWN_ALBUM,
+	SongKey,
+};
 use crate::state::{
 	Phase,
 	RESET_STATE,
@@ -41,7 +45,10 @@ use once_cell::sync::Lazy;
 use std::sync::atomic::AtomicBool;
 
 #[cfg(feature = "gui")]
-use crate::frontend::egui::gui_request_update;
+use crate::frontend::egui::{
+	gui_context,
+	gui_request_update,
+};
 
 //---------------------------------------------------------------------------------------------------- Kernel
 /// The [`Kernel`] of `Festival`
@@ -119,6 +126,20 @@ impl Kernel {
 			.stack_size(16_000_000) // 16MB stack.
 			.spawn(move || Self::bios(to_frontend, from_frontend, watch, media_controls))?;
 
+		// Assert `OnceCell`'s were set.
+		#[cfg(feature = "gui")]
+		{
+			let _ = Lazy::force(&UNKNOWN_ALBUM);
+
+			assert!(crate::frontend::egui::GUI_CONTEXT.get().is_some());
+
+			// INVARIANT:
+			// `GUI` must not allocate any textures before this.
+			//
+			// This allocates unknown texture and makes sure it is index `1`.
+			debug_assert!(UNKNOWN_ALBUM.texture_id(gui_context()) == egui::TextureId::Managed(1));
+		}
+
 		// Return channels.
 		Ok((to_kernel, from_kernel))
 	}
@@ -141,11 +162,7 @@ impl Kernel {
 
 		// Initialize lazy statics.
 		let _         = Lazy::force(&DUMMY_COLLECTION);
-		let beginning = Lazy::force(&crate::logger::INIT_INSTANT);
-
-		// Assert `OnceCell`'s were set.
-		#[cfg(feature = "gui")]
-		debug_assert!(crate::frontend::egui::GUI_CONTEXT.get().is_some());
+		let beginning = Lazy::force(&INIT_INSTANT);
 
 		// Create `ResetState`, send to `Frontend`.
 		RESET_STATE.write().disk();

@@ -1,21 +1,9 @@
 [submodule "external/egui"]
 	path = external/egui
 	url = https://github.com/hinto-janaiyo/egui.git
-[submodule "external/fast_image_resize"]
-	path = external/fast_image_resize
-	url = https://github.com:/hinto-janaiyo/fast_image_resize.git
-[submodule "external/image"]
-	path = external/image
-	url = https://github.com:/hinto-janaiyo/image.git
-[submodule "lofty-rs"]
-	path = external/lofty-rs
-	url = https://github.com:/hinto-janai/lofty-rs.git
 [submodule "external/egui-notify"]
 	path = external/egui-notify
 	url = https://github.com/hinto-janai/egui-notify
-[submodule "external/egui_dnd"]
-	path = external/egui_dnd
-	url = https://github.com/hinto-janai/egui_dnd
 [submodule "external/Symphonia"]
 	path = external/Symphonia
 	url = https://github.com/hinto-janai/Symphonia

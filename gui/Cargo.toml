@@ -27,7 +27,6 @@ egui        = { version = "0.21.0", path = "../external/egui/crates/egui",      
 eframe      = { version = "0.21.0", path = "../external/egui/crates/eframe",      features = ["wgpu"],                   default-features = false }
 egui_extras = { version = "0.21.0", path = "../external/egui/crates/egui_extras", features = ["image"],                  default-features = false }
 epaint      = { version = "0.21.0", path = "../external/egui/crates/epaint" }
-egui_dnd    = { version = "0.3.0",  path = "../external/egui_dnd" }
 egui-notify = { version = "0.6.0",  path = "../external/egui-notify" }
 
 ### Shared.

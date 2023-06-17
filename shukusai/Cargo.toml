@@ -45,7 +45,6 @@ egui        = { version = "0.21.0", path = "../external/egui/crates/egui", featu
 eframe      = { version = "0.21.0", path = "../external/egui/crates/eframe", features = ["wgpu"], default-features = false, optional = true }
 egui_extras = { version = "0.21.0", path = "../external/egui/crates/egui_extras", features = ["image"], optional = true  }
 epaint      = { version = "0.21.0", path = "../external/egui/crates/epaint", optional = true  }
-egui_dnd    = { version = "0.3.0", path = "../external/egui_dnd" }
 egui-notify = { version = "0.6.0", path = "../external/egui-notify" }
 
 ### Shared.
@@ -66,7 +65,6 @@ serde        = { workspace = true }
 env_logger        = "0.10.0"
 fast_image_resize = "2.7.3"
 infer             = "0.13.0"
-lofty             = { version = "0.13.0", path = "../external/lofty-rs" }
 notify            = "6.0.0"
 memmap2           = "0.6.2"
 mime_guess        = "2.0.4"

@@ -1,19 +1,6 @@
 //---------------------------------------------------------------------------------------------------- Use
 use anyhow::{anyhow,bail,ensure};
 use log::{error,warn,info,debug,trace};
-//use serde::{Serialize,Deserialize};
-//use crate::macros::*;
-//use disk::prelude::*;
-//use disk::{};
-//use std::{};
-//use std::sync::{Arc,Mutex,RwLock};
-use lofty::{
-	Accessor,
-	TaggedFile,
-	TaggedFileExt,
-	AudioFile,
-	Picture,
-};
 use std::path::{Path,PathBuf};
 use std::collections::HashMap;
 use crate::collection::{
@@ -37,40 +24,36 @@ use readable::{
 	Unsigned,
 	Date,
 };
-use std::borrow::Cow;
 use std::sync::{Arc,Mutex};
 use std::sync::atomic::AtomicUsize;
+use std::marker::PhantomData;
+use symphonia::core::{
+	io::MediaSourceStream,
+	probe::{Probe,ProbeResult,Hint},
+	formats::Track,
+	meta::{Metadata,MetadataRevision,Tag,Visual,StandardTagKey},
+};
 
 //---------------------------------------------------------------------------------------------------- Tag Metadata (temporary) struct.
 #[derive(Debug)]
-// This is just a temporary container for
-// holding some borrowed data.
-//
-// Whether we need to clone the `&str`'s below
-// are in conditional branches, so this `struct`
-// is held in scope throughout "The Loop" so
-// we have the _choice_ to `to_string()` or not.
-struct TagMetadata<'a> {
+// This is just a temporary container tag data.
+struct TagMetadata {
+	// Required or we skip the file.
 	artist: String,
 	album: String,
 	title: String,
+	runtime: u64,
+	sample_rate: u32,
 
+	// Optional.
 	track: Option<u32>,
 	disc: Option<u32>,
-	track_total: Option<u32>,
-	disc_total: Option<u32>,
-	picture: Option<Vec<u8>>,
-
-	runtime: f64,
-	sample_rate: u32,
-	release: Option<&'a str>,
-	track_artists: Option<String>,
-
-	compilation: bool,
+	art: Option<Box<[u8]>>,
+	release: Option<String>,
 }
 
 //---------------------------------------------------------------------------------------------------- Metadata functions.
-impl super::Ccd {
+impl crate::ccd::Ccd {
 	// `The Loop`.
 	//
 	// Takes in input of a filtered `Vec<PathBuf>` of audio files.
@@ -173,7 +156,7 @@ impl super::Ccd {
 		// Get the tags for this `PathBuf`, skip on error.
 		//
 		// FIXME:
-		// `lofty` doesn't have a partial-`Tag` API. It always reads all
+		// `symphonia` doesn't have a partial-`Tag` API. It always reads all
 		// the data from a file. AKA, the `Picture` data gets allocated
 		// into an owned `Vec<u8>` for every single file...!
 		//
@@ -183,17 +166,12 @@ impl super::Ccd {
 		// For some reason though, this doesn't affect performance that much.
 		// Basic tests show maybe `~1.5x-2x` speed improvements upon commenting
 		// out all picture ops. Not that much faster.
-		let mut tagged_file = match Self::path_to_tagged_file(&path) {
+		let metadata = match Self::extract(&path) {
 			Ok(t)  => t,
-			Err(e) => { warn!("CCD - TaggedFile fail: {} ... {e}", path.display()); continue; },
-		};
-		let mut tag = match Self::tagged_file_to_tag(&mut tagged_file) {
-			Ok(t)  => t,
-			Err(e) => { warn!("CCD - Tag fail: {} ... {e}", path.display()); continue; },
-		};
-		let metadata = match Self::extract_tag_metadata(tagged_file, &mut tag, &path) {
-			Ok(t)  => t,
-			Err(e) => { warn!("CCD - Metadata fail: {} ... {e}", path.display()); continue; },
+			Err(e) => {
+				warn!("CCD - metadata fail: {} ... {e}", path.display());
+				continue;
+			},
 		};
 
 		// Destructure tag metadata
@@ -202,16 +180,13 @@ impl super::Ccd {
 			artist,
 			album,
 			title,
+			runtime,
+			sample_rate,
+
 			track,
 			disc,
-			track_total,
-			disc_total,
-			picture,
-			runtime,
+			art,
 			release,
-			sample_rate,
-			track_artists,
-			compilation,
 		} = metadata;
 
 		// Send update to `Kernel`.
@@ -232,10 +207,17 @@ impl super::Ccd {
 					runtime: Runtime::from(runtime),
 					sample_rate,
 					track,
-					track_artists,
 					disc,
 					path,
-					..Default::default()
+
+    				_track_artists: PhantomData,
+    				_lyrics: PhantomData,
+    				_reserved1: PhantomData,
+				    _reserved2: PhantomData,
+				    _reserved3: PhantomData,
+				    _reserved4: PhantomData,
+				    _reserved5: PhantomData,
+				    _reserved6: PhantomData,
 				};
 
 				// Lock.
@@ -248,7 +230,7 @@ impl super::Ccd {
 				// Update `Album`.
 				vec_album[*album_idx].songs.push(SongKey::from(vec_song.len() - 1));
 
-				continue
+				continue;
 			}
 
 			//------------------------------------------------------------- If `Artist` exists, but not `Album`.
@@ -258,13 +240,13 @@ impl super::Ccd {
 
 			// Prepare `Album`.
 			let release = match release {
-				Some(r) => Date::from_str_silent(r),
+				Some(r) => Date::from_str_silent(&r),
 				None    => Date::unknown(),
 			};
 			let album_title   = album.clone();
 			let song_count    = Unsigned::zero();
 			let runtime_album = Runtime::zero();
-			let art = match picture {
+			let art = match art {
 				Some(bytes) => {
 					*lock!(count_art) += 1;
 					Art::Bytes(bytes.into())
@@ -294,18 +276,24 @@ impl super::Ccd {
 				runtime,
 				sample_rate,
 				track,
-				track_artists,
 				disc,
 				path,
 				album: AlbumKey::from(vec_album.len()),
-				..Default::default()
+
+				_track_artists: PhantomData,
+				_lyrics: PhantomData,
+				_reserved1: PhantomData,
+			    _reserved2: PhantomData,
+			    _reserved3: PhantomData,
+			    _reserved4: PhantomData,
+			    _reserved5: PhantomData,
+			    _reserved6: PhantomData,
 			};
 
 			// Create `Album`.
 			let album_struct = Album {
 				title: album_title,
 				release,
-				compilation,
 
 				artist: ArtistKey::from(*artist_idx),
 				songs: vec![SongKey::from(vec_song.len())],
@@ -313,9 +301,18 @@ impl super::Ccd {
 
 				// Needs to be updated later.
 				runtime: runtime_album,
+				discs: 0,
 				song_count,
 				art,
-				..Default::default()
+
+			    _genre: PhantomData,
+			    _compilation: PhantomData,
+			    _reserved1: PhantomData,
+			    _reserved2: PhantomData,
+			    _reserved3: PhantomData,
+			    _reserved4: PhantomData,
+			    _reserved5: PhantomData,
+			    _reserved6: PhantomData,
 			};
 
 			// Update `Artist`.
@@ -343,13 +340,13 @@ impl super::Ccd {
 
 		// Prepare `Album`.
 		let release = match release {
-			Some(r) => Date::from_str_silent(r),
+			Some(r) => Date::from_str_silent(&r),
 			None    => Date::unknown(),
 		};
 		let album_title   = album.clone();
 		let song_count    = Unsigned::zero();
 		let runtime_album = Runtime::zero();
-		let art = match picture {
+		let art = match art {
 			Some(bytes) => {
 				*lock!(count_art) += 1;
 				Art::Bytes(bytes.into())
@@ -382,18 +379,24 @@ impl super::Ccd {
 			runtime,
 			sample_rate,
 			track,
-			track_artists,
 			disc,
 			path,
 			album: AlbumKey::from(vec_album.len()),
-			..Default::default()
+
+			_track_artists: PhantomData,
+			_lyrics: PhantomData,
+			_reserved1: PhantomData,
+		    _reserved2: PhantomData,
+		    _reserved3: PhantomData,
+		    _reserved4: PhantomData,
+		    _reserved5: PhantomData,
+		    _reserved6: PhantomData,
 		};
 
 		// Create `Album`.
 		let album_struct = Album {
 			title: album_title,
 			release,
-			compilation,
 
 			artist: ArtistKey::from(vec_artist.len()),
 			songs: vec![SongKey::from(vec_song.len())],
@@ -401,9 +404,18 @@ impl super::Ccd {
 
 			// Needs to be updated later.
 			runtime: runtime_album,
+			discs: 0,
 			song_count,
 			art,
-			..Default::default()
+
+		    _genre: PhantomData,
+		    _compilation: PhantomData,
+		    _reserved1: PhantomData,
+		    _reserved2: PhantomData,
+		    _reserved3: PhantomData,
+		    _reserved4: PhantomData,
+		    _reserved5: PhantomData,
+		    _reserved6: PhantomData,
 		};
 
 		// Create `Artist`.
@@ -411,8 +423,18 @@ impl super::Ccd {
 		let count_album  = vec_album.len();
 		let artist_struct = Artist {
 			name,
+
+			// Will be updated later.
+			runtime: Runtime::zero(),
 			albums: vec![AlbumKey::from(count_album)],
-			..Default::default()
+    		songs: Box::new([]),
+
+		    _reserved1: PhantomData,
+		    _reserved2: PhantomData,
+		    _reserved3: PhantomData,
+		    _reserved4: PhantomData,
+		    _reserved5: PhantomData,
+		    _reserved6: PhantomData,
 		};
 
 		// Push `Artist/Album/Song`.
@@ -442,12 +464,23 @@ impl super::Ccd {
 		// INVARIANT:
 		// As long as none of the above `scoped` threads
 		// `panic()!`'ed, these `.into_inner()`'s are safe.
-		(
+		let (
+			mut vec_artist,
+			mut vec_album,
+			mut vec_song,
+			count_art,
+		) = (
 			vec_artist.into_inner().unwrap(),
 			vec_album.into_inner().unwrap(),
 			vec_song.into_inner().unwrap(),
 			count_art.into_inner().unwrap(),
-		)
+		);
+
+		vec_artist.shrink_to_fit();
+		vec_album.shrink_to_fit();
+		vec_song.shrink_to_fit();
+
+		(vec_artist, vec_album, vec_song, count_art)
 	}
 
 	#[inline(always)]
@@ -520,329 +553,334 @@ impl super::Ccd {
 	//
 	// This is the 2nd `heaviest` function within the entire `new_collection()` function.
 	// It accounts for around 20% of the total time spent making the `Collection`.
-	fn path_to_tagged_file(path: &Path) -> Result<lofty::TaggedFile, anyhow::Error> {
-		use std::fs::File;
-		use std::io::BufReader;
+	fn probe(path: &Path) -> Result<ProbeResult, anyhow::Error> {
+		let file = std::fs::File::open(path)?;
+		let mss = MediaSourceStream::new(Box::new(file), Default::default());
 
-		// Open `Path`.
-		let file = File::open(path)?;
-		let reader = BufReader::new(file);
+		let probe = symphonia::default::get_probe();
 
-		// Create the `lofty::Probe` options.
-		let options = lofty::ParseOptions::new().parsing_mode(lofty::ParsingMode::Relaxed);
-
-		// Create `lofty::Probe`.
-		let probe = lofty::Probe::new(reader).options(options);
-
-		// This could include be a concrete type read since
-		// we already have MIME information, but in testing,
-		// it seems like it's actually the same speed whether
-		// `lofty` guesses or knows beforehand.
-		Ok(probe.guess_file_type()?.read()?)
+		Ok(probe.format(
+			&Hint::new(),
+			mss,
+			&Default::default(),
+			&Default::default(),
+		)?)
 	}
 
 	#[inline(always)]
-	// Attempts to extract tags from a `TaggedFile`.
-	fn tagged_file_to_tag(tagged_file: &mut lofty::TaggedFile) -> Result<lofty::Tag, anyhow::Error> {
-		if let Some(t) = tagged_file.remove(lofty::TagType::VorbisComments) {
-			Ok(t)
-		} else if let Some(t) = tagged_file.remove(lofty::TagType::Id3v2) {
-			Ok(t)
-		} else if let Some(t) = tagged_file.remove(lofty::TagType::Id3v1) {
-			Ok(t)
-		// TODO:
-		// Upstream a `.remove_primary_tag()` and `.remove_first_tag()`
-		// or maybe a `.remove_tag() -> Box<[Tag]>`
-		} else if let Some(t) = tagged_file.primary_tag() {
-			Ok(t.clone())
-		} else if let Some(t) = tagged_file.first_tag() {
-			Ok(t.clone())
-		} else {
-			Err(anyhow!("No tag"))
+	// Gets the metadata tags and the visuals.
+	fn metadata(mut p: ProbeResult) -> Result<MetadataRevision, anyhow::Error> {
+		// This is more likely to contain metadata.
+		if let Some(md) = p.format.metadata().into_current() {
+			return Ok(md);
 		}
-	}
 
-	#[inline(always)]
-	// Get the audio runtime of the `TaggedFile`.
-	fn tagged_file_runtime(tagged_file: &lofty::TaggedFile) -> f64 {
-		tagged_file.properties().duration().as_secs_f64()
-	}
-
-	#[inline(always)]
-	// Get the audio sample rate of the `TaggedFile`.
-	//
-	// INVARIANT:
-	// This is Option<_> because not all files have this property,
-	// although all the audio formats we support do, so this should
-	// never panic.
-	//
-	// This value isn't really needed at a higher level for Festival
-	// but it is actually very crucial for timestamps in `Audio`'s loop.
-	//
-	// Without this value, it's hard to figure out
-	// exactly where we are in the song.
-	fn tagged_file_sample_rate(tagged_file: &lofty::TaggedFile) -> u32 {
-		tagged_file.properties().sample_rate().expect("missing sample rate")
-	}
-
-	#[inline]
-	// Extracts `lofty`'s `ItemValue`.
-	fn item_value_to_str(item: &lofty::ItemValue) -> Option<&str> {
-		match item {
-			lofty::ItemValue::Text(s)    => Some(s),
-			lofty::ItemValue::Locator(s) => Some(s),
-			lofty::ItemValue::Binary(b)  => {
-				if let Ok(s) = std::str::from_utf8(b) {
-					Some(s)
-				} else {
-					None
-				}
-			},
-		}
-	}
-
-	#[inline(always)]
-	// Attempt to get the release date of the `TaggedFile`.
-	fn tag_release(tag: &lofty::Tag) -> Option<&str> {
-		// Attempt #1.
-		if let Some(t) = tag.get(&lofty::ItemKey::OriginalReleaseDate) {
-			if let Some(s) = Self::item_value_to_str(t.value()) {
-				return Some(s)
+		// But, sometimes it is found here.
+		if let Some(ml) = p.metadata.into_inner() {
+			let mut md = ml.into_inner();
+			if let Some(md) = md.pop_front() {
+				return Ok(md);
 			}
 		}
 
-		// Attempt #2.
-		if let Some(t) = tag.get(&lofty::ItemKey::RecordingDate) {
-			if let Some(s) = Self::item_value_to_str(t.value()) {
-				return Some(s)
-			}
-		}
+		Err(anyhow!("No metadata found"))
+	}
 
-		// Attempt #3.
-		if let Some(t) = tag.get(&lofty::ItemKey::Year) {
-			if let Some(s) = Self::item_value_to_str(t.value()) {
-				return Some(s)
-			}
-		}
+	#[inline(always)]
+	// Get a tracks sample rate.
+	fn sample_rate(track: &Track) -> Option<u32> {
+		track.codec_params.sample_rate
+	}
 
-		// Give up.
-		None
+	#[inline(always)]
+	// Get a tracks runtime.
+	fn runtime(track: &Track) -> Option<u64> {
+		let timestamp = match track.codec_params.n_frames {
+			Some(ts) => ts,
+			_        => return None,
+		};
+
+		let time = match track.codec_params.time_base {
+			Some(tb) => tb.calc_time(timestamp),
+			_        => return None,
+		};
+
+		Some(time.seconds)
 	}
 
 	#[inline(always)]
 	// Attempt to get artist.
-	fn tag_artist(tag: &lofty::Tag) -> Option<String> {
-		// Attempt #2.
-		if let Some(t) = tag.get(&lofty::ItemKey::AlbumArtist) {
-			if let Some(s) = Self::item_value_to_str(t.value()) {
-				return Some(s.to_string())
-			}
+	fn tag_artist(tag: &mut [Tag]) -> Option<String> {
+		if let Some(t) = tag.iter_mut().find(|i| i.std_key == Some(StandardTagKey::AlbumArtist)) {
+			let o = Self::value(t);
+			if o.is_some() { return o; }
 		}
 
-		// Attempt #1.
-		if let Some(s) = tag.artist() {
-			return Some(s.to_string());
+		if let Some(t) = tag.iter_mut().find(|i| i.std_key == Some(StandardTagKey::Artist)) {
+			let o = Self::value(t);
+			if o.is_some() { return o; }
 		}
 
-		// Attempt #3.
-		if let Some(t) = tag.get(&lofty::ItemKey::Performer) {
-			if let Some(s) = Self::item_value_to_str(t.value()) {
-				return Some(s.to_string())
-			}
+		if let Some(t) = tag.iter_mut().find(|i| i.std_key == Some(StandardTagKey::Composer)) {
+			let o = Self::value(t);
+			if o.is_some() { return o; }
 		}
 
-		// Attempt #4.
-		if let Some(t) = tag.get(&lofty::ItemKey::TrackArtist) {
-			if let Some(s) = Self::item_value_to_str(t.value()) {
-				return Some(s.to_string())
-			}
+		if let Some(t) = tag.iter_mut().find(|i| i.std_key == Some(StandardTagKey::Performer)) {
+			let o = Self::value(t);
+			if o.is_some() { return o; }
 		}
 
-		// Attempt #5.
-		if let Some(t) = tag.get(&lofty::ItemKey::OriginalArtist) {
-			if let Some(s) = Self::item_value_to_str(t.value()) {
-				return Some(s.to_string())
-			}
+		if let Some(t) = tag.iter_mut().find(|i| i.std_key == Some(StandardTagKey::OriginalArtist)) {
+			let o = Self::value(t);
+			if o.is_some() { return o; }
 		}
 
-		// Give up.
 		None
 	}
 
 	#[inline(always)]
 	// Attempt to get album title.
-	fn tag_album(tag: &lofty::Tag) -> Option<String> {
-		// Attempt #1.
-		if let Some(s) = tag.album() {
-			return Some(s.to_string());
+	fn tag_album(tag: &mut [Tag]) -> Option<String> {
+		if let Some(t) = tag.iter_mut().find(|i| i.std_key == Some(StandardTagKey::Album)) {
+			let o = Self::value(t);
+			if o.is_some() { return o; }
 		}
 
-		// Attempt #2.
-		if let Some(t) = tag.get(&lofty::ItemKey::AlbumTitle) {
-			if let Some(s) = Self::item_value_to_str(t.value()) {
-				return Some(s.to_string());
-			}
+		if let Some(t) = tag.iter_mut().find(|i| i.std_key == Some(StandardTagKey::OriginalAlbum)) {
+			let o = Self::value(t);
+			if o.is_some() { return o; }
 		}
 
-		// Attempt #3.
-		if let Some(t) = tag.get(&lofty::ItemKey::OriginalAlbumTitle) {
-			if let Some(s) = Self::item_value_to_str(t.value()) {
-				return Some(s.to_string());
-			}
-		}
-
-		// Give up.
 		None
 	}
 
 	#[inline(always)]
 	// Attempt to get song title.
-	fn tag_title(tag: &lofty::Tag, path: &Path) -> Option<String> {
-		// Attempt #1.
-		if let Some(s) = tag.title() {
-			return Some(s.to_string());
+	fn tag_title(tag: &mut [Tag], path: &Path) -> Option<String> {
+		if let Some(t) = tag.iter_mut().find(|i| i.std_key == Some(StandardTagKey::TrackTitle)) {
+			let o = Self::value(t);
+			if o.is_some() { return o; }
 		}
 
-		// Attempt #2.
-		if let Some(t) = tag.get(&lofty::ItemKey::TrackTitle) {
-			if let Some(s) = Self::item_value_to_str(t.value()) {
-				return Some(s.to_string());
-			}
-		}
-
-		// Attempt #3. If there's no tag, just fall back to the file name.
+		// Fallback to file name.
 		if let Some(os_str) = path.file_name() {
-			return Some(os_str.to_string_lossy().to_string());
+			Some(os_str.to_string_lossy().into_owned())
+		} else {
+			None
 		}
-
-		// Give up.
-		None
 	}
 
 	#[inline(always)]
 	// Attempt to get track number.
-	fn tag_track(tag: &lofty::Tag) -> Option<u32> {
-		// Attempt #1.
-		if let Some(s) = tag.track() {
-			return Some(s);
+	fn tag_track(tag: &mut [Tag]) -> Option<u32> {
+		if let Some(t) = tag.iter_mut().find(|i| i.std_key == Some(StandardTagKey::TrackNumber)) {
+			Self::value_unsigned(t)
+		} else {
+			None
 		}
+	}
 
-		// Attempt #2.
-		if let Some(t) = tag.get(&lofty::ItemKey::TrackTitle) {
-			if let Some(s) = Self::item_value_to_str(t.value()) {
+	#[inline(always)]
+	// Attempt to get track disc number.
+	fn tag_disc(tag: &mut [Tag]) -> Option<u32> {
+		if let Some(t) = tag.iter_mut().find(|i| i.std_key == Some(StandardTagKey::DiscNumber)) {
+			Self::value_unsigned(t)
+		} else {
+			None
+		}
+	}
+
+	#[inline(always)]
+	// Attempt to get the release date.
+	fn tag_release(tag: &mut [Tag]) -> Option<String> {
+		if let Some(t) = tag.iter_mut().find(|i| i.std_key == Some(StandardTagKey::Date)) {
+			Self::value(t)
+		} else if let Some(t) = tag.iter_mut().find(|i| i.std_key == Some(StandardTagKey::ReleaseDate)) {
+			Self::value(t)
+		} else if let Some(t) = tag.iter_mut().find(|i| i.std_key == Some(StandardTagKey::OriginalDate)) {
+			Self::value(t)
+		} else {
+			None
+		}
+	}
+
+	#[inline(always)]
+	fn art(mut visuals: Vec<Visual>) -> Option<Box<[u8]>> {
+		if !visuals.is_empty() {
+			Some(visuals.swap_remove(0).data)
+		} else {
+			None
+		}
+	}
+
+	#[inline(always)]
+	// Get the compilation bool.
+	// Assume `false` if it doesn't exist.
+	fn tag_compilation(tag: &[Tag]) -> bool {
+		if let Some(t) = tag.iter().find(|i| i.std_key == Some(StandardTagKey::Compilation)) {
+			Self::value_bool(t)
+		} else {
+			false
+		}
+	}
+
+	#[inline(always)]
+	// Extract a `Tag`'s `Value` to a string.
+	//
+	// This expects values that are supposed to be strings.
+	//
+	// If the value is empty, this returns none.
+	fn value(tag: &mut Tag) -> Option<String> {
+		use symphonia::core::meta::Value;
+		match &mut tag.value {
+			Value::String(s) => {
+				match s.split_whitespace().next() {
+					Some(_) => Some(std::mem::take(s)),
+					None    => None,
+				}
+			},
+			Value::Binary(b) => {
+				let mut dst: Box<[u8]> = Box::new([]);
+				std::mem::swap(b, &mut dst);
+				let vec = Vec::from(dst);
+				match std::string::String::from_utf8(vec) {
+					Ok(s) => {
+						match s.split_whitespace().next() {
+							Some(_) => Some(s),
+							None    => None,
+						}
+					},
+					_     => None,
+				}
+			},
+			Value::UnsignedInt(u) => Some(u.to_string()),
+			Value::SignedInt(s)   => Some(s.to_string()),
+			Value::Float(f)       => Some(f.to_string()),
+			Value::Boolean(b)     => Some(b.to_string()),
+			Value::Flag           => None,
+		}
+	}
+
+	#[inline(always)]
+	// Extract a `Tag`'s `Value` to a number.
+	//
+	// This expects values that are supposed to be unsigned integers.
+	fn value_unsigned(tag: &mut Tag) -> Option<u32> {
+		use symphonia::core::meta::Value;
+		match &tag.value {
+			Value::UnsignedInt(u) => Some(*u as u32),
+			Value::SignedInt(s)   => Some(*s as u32),
+			Value::Float(f)       => Some(*f as u32),
+			Value::Boolean(b) => {
+				match b {
+					true  => Some(1),
+					false => Some(0),
+				}
+			},
+			Value::String(s) => {
 				if let Ok(u) = s.parse::<u32>() {
-					return Some(u);
+					Some(u)
+				// Some `TrackNumber` fields are strings like `1/12`.
+				} else if let Some(u) = s.split("/").next() {
+					u.parse::<u32>().ok()
+				} else {
+					None
 				}
-			}
+			},
+			Value::Binary(b) => {
+				match std::str::from_utf8(&b) {
+					Ok(s) => {
+						if let Ok(u) = s.parse::<u32>() {
+							Some(u)
+						} else if let Some(u) = s.split("/").next() {
+							u.parse::<u32>().ok()
+						} else {
+							None
+						}
+					},
+					_ => None,
+				}
+			},
+			Value::Flag => None,
 		}
-
-		// Give up.
-		None
 	}
 
 	#[inline(always)]
-	// Attempt to get the _maybe_ multiple track artists of the `TaggedFile`.
-	fn tag_track_artists(tag: &lofty::Tag) -> Option<String> {
-		// Attempt #1.
-		if let Some(t) = tag.get(&lofty::ItemKey::Performer) {
-			if let Some(s) = Self::item_value_to_str(t.value()) {
-				return Some(s.to_string())
-			}
-		}
-
-		// Attempt #2.
-		if let Some(t) = tag.get(&lofty::ItemKey::TrackArtist) {
-			if let Some(s) = Self::item_value_to_str(t.value()) {
-				return Some(s.to_string())
-			}
-		}
-
-		// Give up.
-		None
-	}
-
-	#[inline(always)]
-	// Find out if this `TaggedFile` belongs to a compilation.
-	fn tag_compilation(artist: &str, tag: &lofty::Tag) -> bool {
-		// `FlagCompilation`.
-		if let Some(t) = tag.get(&lofty::ItemKey::FlagCompilation) {
-			if let Some(s) = Self::item_value_to_str(t.value()) {
-				if s == "1" {
-					return true
+	// Extract a `Tag`'s `Value` to a bool
+	//
+	// This expects values that are supposed to be bool.
+	fn value_bool(tag: &Tag) -> bool {
+		use symphonia::core::meta::Value;
+		match &tag.value {
+			Value::Boolean(b) => *b,
+			Value::String(s) => {
+				match s.parse::<bool>() {
+					Ok(b) => b,
+					_     => false,
 				}
-			}
-		}
-
-		// `Various Artists`
-		// This metadata is unique to Itunes.
-		if let Some(t) = tag.get(&lofty::ItemKey::AlbumArtist) {
-			if let Some(s) = Self::item_value_to_str(t.value()) {
-				if s == "Various Artists" && s != artist {
-					return true
+			},
+			Value::Binary(b) => {
+				match std::str::from_utf8(&b) {
+					Ok(s) => {
+						match s.parse::<bool>() {
+							Ok(b) => true,
+							_     => false,
+						}
+					},
+					_ => false,
 				}
-			}
-		}
+			},
 
-		false
+			_ => false,
+		}
 	}
 
 	#[inline(always)]
 	// Attempts to extract tags from a `TaggedFile`.
 	// `TaggedFile` gets dropped here, since it is no longer needed.
-	fn extract_tag_metadata<'a>(
-		tagged_file: lofty::TaggedFile,
-		tag: &'a mut lofty::Tag,
-		path: &'_ Path,
-	) -> Result<TagMetadata<'a>, anyhow::Error> {
-		// Image metadata.
-		// This needs to be first because it needs `mut`.
-		// and the next operations create `&`, meaning I
-		// can't mutate `tag` after that.
-		let picture = {
-			if tag.pictures().is_empty() {
-				None
-			} else {
-				// This removes the `Picture`, and cheaply
-				// takes ownership of the inner `Vec`.
-				Some(tag.remove_picture(0).into_data())
-			}
+	fn extract(path: &Path) -> Result<TagMetadata, anyhow::Error> {
+		let probe_result = match Self::probe(path) {
+			Ok(p)  => p,
+			Err(e) => bail!(e),
 		};
 
-		// Attempt to get _needed_ metadata.
-		// TODO:
-		// These don't always get the tag.
-		// Do manual tag parsing.
-		let artist      = match Self::tag_artist(tag)      { Some(t) => t, None => bail!("No artist") };
-		let album       = match Self::tag_album(tag)       { Some(t) => t, None => bail!("No album") };
-		let title       = match Self::tag_title(tag, path) { Some(t) => t, None => bail!("No title") };
+		let track       = match probe_result.format.tracks().get(0) { Some(t) => t, _ => bail!("track metadata missing") };
+		let sample_rate = match Self::sample_rate(&track)           { Some(t) => t, _ => bail!("sample rate metadata missing") };
+		let runtime     = match Self::runtime(&track)               { Some(t) => t, _ => bail!("runtime metadata missing") };
+		let metadata    = match Self::metadata(probe_result)        { Ok(md) => md, Err(e) => bail!(e) };
 
-		// Attempt to get not necessarily needed metadata.
-		let track       = Self::tag_track(tag);
-		let disc        = tag.disk();
-		let track_total = tag.track_total();
-		let disc_total  = tag.disk_total();
+		let (mut tags, visuals, _) = metadata.into_inner();
 
-		// Other data that can't be obtained from `tag._()`.
-		let runtime       = Self::tagged_file_runtime(&tagged_file);
-		let sample_rate   = Self::tagged_file_sample_rate(&tagged_file);
-		let release       = Self::tag_release(tag);
-		let track_artists = Self::tag_track_artists(tag);
-		let compilation   = Self::tag_compilation(&artist, tag);
+		// SOMEDAY:
+		// We should handle compilations correctly.
+		// But... for now, skip them entirely.
+		if Self::tag_compilation(&tags) {
+			bail!("compilation not supported");
+		}
+
+		// Attempt to get required metadata.
+		let artist      = match Self::tag_artist(&mut tags)      { Some(t) => t, _ => bail!("artist metadata missing") };
+		let album       = match Self::tag_album(&mut tags)       { Some(t) => t, _ => bail!("album metadata missing") };
+		let title       = match Self::tag_title(&mut tags, path) { Some(t) => t, _ => bail!("title metadata missing") };
+
+		// Optional metadta.
+		let art     = Self::art(visuals);
+		let track   = Self::tag_track(&mut tags);
+		let disc    = Self::tag_disc(&mut tags);
+		let release = Self::tag_release(&mut tags);
 
 		Ok(TagMetadata {
 			artist,
 			album,
 			title,
-			track,
-			disc,
-			track_total,
-			disc_total,
-			picture,
 			runtime,
 			sample_rate,
+
+			track,
+			disc,
+			art,
 			release,
-			track_artists,
-			compilation,
 		})
 	}
 }
@@ -852,7 +890,6 @@ impl super::Ccd {
 mod tests {
 	use crate::ccd::Ccd;
 	use std::path::PathBuf;
-	use lofty::TaggedFile;
 
 	#[test]
 	#[ignore]
@@ -966,7 +1003,7 @@ mod tests {
 		assert!(meta.disc.is_none());
 		assert!(meta.track_total.is_none());
 		assert!(meta.disc_total.is_none());
-		assert!(meta.picture.is_none());
+		assert!(meta.art.is_none());
 		assert!(meta.runtime       == 1.968);
 		assert!(meta.release       == Some("2023-03-08"));
 		assert!(meta.track_artists == Some("hinto".to_string()));

@@ -27,6 +27,7 @@ pub(super) struct Perf {
 
 #[derive(Copy,Clone,Debug,Default,PartialEq,PartialOrd,Serialize,Deserialize)]
 pub(super) struct Phases {
+	pub(super) deconstruct: f32,
 	pub(super) walkdir:     f32,
 	pub(super) metadata:    f32,
 	pub(super) fix:         f32,
@@ -40,7 +41,6 @@ pub(super) struct Phases {
 	pub(super) to_kernel:   f32,
 	pub(super) die:         f32,
 	pub(super) disk:        f32,
-	pub(super) deconstruct: f32,
 }
 
 #[derive(Copy,Clone,Debug,Default,PartialEq,PartialOrd,Serialize,Deserialize)]

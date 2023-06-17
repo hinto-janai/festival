@@ -33,14 +33,18 @@ pub struct Song {
 	pub sample_rate: u32,
 	/// The track number of this [`Song`].
 	pub track: Option<u32>,
-	/// Additional [`Artist`]'s that are on this [`Song`].
-	pub track_artists: Option<String>,
 	/// The disc number of this [`Song`].
 	pub disc: Option<u32>,
 	/// The [`PathBuf`] this [`Song`] is located at.
 	pub path: PathBuf,
 
-	// Reserved fields and their `size_of()`.
+	// Reserved fields that should SOMEDAY be implemented.
+	/// Additional [`Artist`]'s that are on this [`Song`].
+	pub(crate) _track_artists: PhantomData<Option<String>>,
+	/// The [`Song`]'s lyrics.
+	pub(crate) _lyrics: PhantomData<Option<String>>,
+
+	// Unknown reserved fields and their `size_of()`.
 	pub(crate) _reserved1: PhantomData<Box<[usize]>>, // 16
 	pub(crate) _reserved2: PhantomData<Box<[usize]>>, // 16
 	pub(crate) _reserved3: PhantomData<Box<[usize]>>, // 16

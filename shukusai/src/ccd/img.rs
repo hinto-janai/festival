@@ -241,13 +241,15 @@ pub(super) fn alloc_textures(albums: &crate::collection::Albums) {
 // texture, which can later be used to free it.
 //
 // INVARIANT: This must only be mutated in the below function, in a single thread.
-static mut NEXT_TEXTURE_ID: u64 = 1;
+static mut NEXT_TEXTURE_ID: u64 = 2;
 // The above counter is our local version so that we
 // know which counter (texture id) we are at.
 //
 // `egui` itself loads fonts and its texture data into the first
 // slot (`0`), so our textures that we allocate will always start at 1.
 // We must also _never_ free `0`, or `GUI` will turn into a black screen.
+//
+// We also interally use `1` for `UNKNOWN_IMAGE`.
 pub(super) fn free_textures(tex_manager: &mut epaint::TextureManager) {
 	// Increment our local number.
 	let current_texture_count = tex_manager.num_allocated() as u64;

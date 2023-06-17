@@ -75,9 +75,11 @@ pub struct Album {
 	/// directly, instead, use `album.art_or()`.
 	pub art: Art, // Always initialized after `CCD`.
 
-	// Misc data.
+	// Reserved fields that should SOMEDAY be implemented.
+	/// The [`Album`]'s genre.
+	pub _genre: PhantomData<Option<String>>,
 	/// Boolean representing if this is a compilation or not.
-	pub compilation: bool, //
+	pub _compilation: PhantomData<bool>,
 
 	// Reserved fields and their `size_of()`.
 	pub(crate) _reserved1: PhantomData<Box<[usize]>>, // 16
