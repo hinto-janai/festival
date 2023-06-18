@@ -88,7 +88,7 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &
 	ui.separator();
 
 	// `Song` list.
-	ScrollArea::both()
+	ScrollArea::vertical()
 		.id_source("view_song_list")
 		.max_width(f32::INFINITY)
 		.max_height(f32::INFINITY)

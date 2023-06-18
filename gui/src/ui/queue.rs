@@ -27,7 +27,7 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 	self.set_visuals(ui);
 
 	//-------------------------------------------------- Queue.
-	ScrollArea::both()
+	ScrollArea::vertical()
 		.id_source("Queue")
 		.max_width(f32::INFINITY)
 		.max_height(f32::INFINITY)

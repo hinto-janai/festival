@@ -176,7 +176,7 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame
 	);
 
 	// Albums.
-	ScrollArea::both()
+	ScrollArea::vertical()
 		.id_source("artist_view")
 		.max_width(f32::INFINITY)
 		.max_height(height)
@@ -192,8 +192,6 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame
 			ui.add(label_runtime);
 		});
 
-		crate::no_rounding!(ui);
-
 		// How many char's before we need
 		// to cut off the song title?
 		// (scales based on pixels available).
@@ -206,8 +204,11 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame
 			let album = &self.collection.albums[album_key];
 
 			ui.horizontal(|ui| {
-				// Album.
-				crate::album_button!(self, album, *album_key, ui, ctx, self.settings.album_pixel_size, "");
+				ui.scope(|ui| {
+					// Album.
+					crate::no_rounding!(ui);
+					crate::album_button!(self, album, *album_key, ui, ctx, self.settings.album_pixel_size, "");
+				});
 
 				ui.vertical(|ui| {
 					// Info.

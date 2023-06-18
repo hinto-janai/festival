@@ -230,13 +230,31 @@ macro_rules! song_button {
 			$crate::add_song!($self, $song.title, $key);
 		}
 
-		rect.max.x = rect.min.x;
+		// FIXME:
+		// This is a little too eager to chop and doesn't
+		// scale as the width gets longer, aka, we have enough
+		// space since we expanded the GUI horizontally, but
+		// this doesn't match it right.
+		//
+		// Chop song title with `Head`.
+		let width = rect.max.x - rect.min.x;
+		// HACK:
+		// Even though all fonts are monospace, non-ASCII characters,
+		// especially Chinese characters are really wide in width,
+		// so the character leeway depends on this.
+		let head_len = if $song.title.is_ascii() {
+			(width / 19.0)
+		} else {
+			(width / 32.0)
+		} as usize;
 
-		$ui.allocate_ui_at_rect(rect, |ui| {
+		let head = readable::HeadTail::head_dot(&$song.title, head_len);
+
+		let resp = $ui.allocate_ui_at_rect(rect, |ui| {
 			ui.horizontal_centered(|ui| {
 				match $song.track {
-					Some(t) => ui.add(egui::Label::new(format!("{: >3}{: >8}    {}", t, $song.runtime.as_str(), &$song.title))),
-					None    => ui.add(egui::Label::new(format!("{: >3}{: >8}    {}", "???", $song.runtime.as_str(), &$song.title))),
+					Some(t) => ui.add(egui::Label::new(format!("{: >3}{: >8}    {}", t, $song.runtime.as_str(), head))),
+					None    => ui.add(egui::Label::new(format!("{: >3}{: >8}    {}", "???", $song.runtime.as_str(), head))),
 				}
 			});
 		});

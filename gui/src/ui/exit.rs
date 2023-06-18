@@ -98,7 +98,7 @@ pub(super) fn exit(
 
 		if shukusai::state::saving() {
 			atomic_sub!(exit_countdown, 1);
-			info!("GUI - Waiting to Collection to be saved, force exit in [{e}] seconds");
+			info!("GUI - Waiting for Collection to be saved, force exit in [{e}] seconds");
 			sleep!(1);
 		} else {
 			// Exit.
