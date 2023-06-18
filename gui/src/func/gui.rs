@@ -38,9 +38,25 @@ use std::sync::{
 	atomic::AtomicU8,
 };
 use disk::{Bincode2,Toml,Json};
+use crate::data::Gui;
+
+//---------------------------------------------------------------------------------------------------- GUI `Drop` impl
+// On Windows/Linux, ALT+F4 will trigger `eframe::App::on_close_event()` and cause `Gui`
+// to run its exiting routine, however on macOS, the equivalent Control+Q does not trigger this.
+//
+// Destructors are run however, so this impl is specifically for macOS when Control+Q'ing.
+//
+// A `Collection` that is being saved to disk is not
+// respected here, although at least `GUI` state is saved.
+#[cfg(target_os = "macos")]
+impl Drop for Gui {
+	fn drop(&mut self) {
+		eframe::App::on_close_event(self);
+	}
+}
 
 //---------------------------------------------------------------------------------------------------- GUI convenience functions.
-impl crate::data::Gui {
+impl Gui {
 	// Sets a new `Collection`, all the related flags, and does validation.
 	pub fn new_collection(&mut self, c: Arc<Collection>) {
 		info!("GUI ... New Collection received");

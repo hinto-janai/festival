@@ -131,7 +131,7 @@ impl eframe::App for Gui {
 		}
 
 		// Audio leeway.
-		if secs_f32!(self.audio_leeway) > 0.05 {
+		if secs_f32!(self.audio_leeway) > 0.1 {
 			self.state.volume  = self.audio_state.volume.inner();
 			self.state.repeat  = self.audio_state.repeat;
 			self.audio_seek    = self.audio_state.elapsed.inner() as u64;
@@ -603,7 +603,6 @@ fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f
 			}
 
 			// Repeat.
-			ui.add_space(5.0);
 			use shukusai::audio::Repeat;
 			let (icon, text, color) = match self.state.repeat {
 				Repeat::Song  => (UI_REPEAT_SONG, REPEAT_SONG, YELLOW),
@@ -625,11 +624,10 @@ fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f
 			//
 			// This is subtracted by a magic number to allow
 			// for space for the number label below it.
-			let slider_height = ui.available_height() - 48.0;
+			let slider_height = ui.available_height() - 42.0;
 
-			ui.add_space(5.0);
 			ui.separator();
-			ui.add_space(5.0);
+			ui.add_space(2.5);
 
 			ui.spacing_mut().slider_width = slider_height;
 
