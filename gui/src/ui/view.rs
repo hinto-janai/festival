@@ -89,7 +89,7 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &
 
 	// `Song` list.
 	ScrollArea::both()
-		.id_source(album_key)
+		.id_source("view_song_list")
 		.max_width(f32::INFINITY)
 		.max_height(f32::INFINITY)
 		.auto_shrink([false; 2])
@@ -148,7 +148,7 @@ pub(super) fn show_tab_view_right_panel(&mut self, album_key: Option<AlbumKey>, 
 
 		// The scrollable area.
 		ScrollArea::vertical()
-			.id_source(artist_key)
+			.id_source("view_right_panel")
 			.max_width(width)
 			.max_height(f32::INFINITY)
 			.auto_shrink([false; 2])

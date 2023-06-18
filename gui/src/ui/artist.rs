@@ -69,7 +69,13 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame
 	match self.settings.artist_sub_tab {
 	ArtistSubTab::All => {
 
-	ScrollArea::vertical().id_source("Artist").max_width(f32::INFINITY).max_height(height).auto_shrink([false; 2]).show_viewport(ui, |ui, _| {
+	ScrollArea::vertical()
+		.id_source("Artist")
+		.max_width(f32::INFINITY)
+		.max_height(height)
+		.auto_shrink([false; 2])
+		.show_viewport(ui, |ui, _|
+	{
 		// For each `Artist`...
 		for key in self.collection.artist_iter(self.settings.artist_sort) {
 			let artist = &self.collection.artists[key];
@@ -105,7 +111,13 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame
 			ui.add_space(10.0);
 
 			// Their `Album`'s.
-			ScrollArea::horizontal().id_source(key).max_width(f32::INFINITY).max_height(120.0).auto_shrink([false; 2]).show_viewport(ui, |ui, _| {
+			ScrollArea::horizontal()
+				.id_source(key)
+				.max_width(f32::INFINITY)
+				.max_height(120.0)
+				.auto_shrink([false; 2])
+				.show_viewport(ui, |ui, _|
+			{
 				ui.horizontal(|ui| {
 					crate::no_rounding!(ui);
 
@@ -165,7 +177,7 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame
 
 	// Albums.
 	ScrollArea::both()
-		.id_source(&artist.name)
+		.id_source("artist_view")
 		.max_width(f32::INFINITY)
 		.max_height(height)
 		.auto_shrink([false; 2])

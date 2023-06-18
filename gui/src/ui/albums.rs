@@ -116,7 +116,13 @@ fn paint_albums(
 		.album_iter(self.settings.album_sort)
 		.peekable();
 
-	ScrollArea::vertical().id_source("Albums").max_width(f32::INFINITY).max_height(f32::INFINITY).auto_shrink([false; 2]).show_viewport(ui, |ui, _| {
+	ScrollArea::vertical()
+		.id_source("Albums")
+		.max_width(f32::INFINITY)
+		.max_height(f32::INFINITY)
+		.auto_shrink([false; 2])
+		.show_viewport(ui, |ui, _|
+	{
 		// Sizing.
 		let label_width = (pixel / 11.5) as usize;
 		let padding     = pixel / 100.0;

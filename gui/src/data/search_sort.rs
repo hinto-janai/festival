@@ -9,8 +9,8 @@ use bincode::{Encode,Decode};
 /// This selects which one it is.
 #[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
 pub enum SearchSort {
-	#[default]
 	Song,
+	#[default]
 	Album,
 	Artist,
 }

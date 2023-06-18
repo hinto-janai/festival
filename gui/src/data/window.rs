@@ -25,6 +25,7 @@ const SEP: &str = "   |   ";
 #[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
 /// Different ways the outer `Festival` window title can be set.
 pub enum WindowTitle {
+	#[default]
 	ArtistAlbumSong,
 	ArtistAlbumSongRuntime,
 	AlbumSong,
@@ -34,7 +35,6 @@ pub enum WindowTitle {
 	RuntimeSong,
 	SongAlbum,
 	RuntimeSongAlbum,
-	#[default]
 	SongAlbumArtist,
 	RuntimeSongAlbumArtist,
 	Queue,
