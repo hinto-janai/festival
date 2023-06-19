@@ -69,22 +69,22 @@ jobs:
         cargo build --workspace --profile ${{ matrix.build }}
 
     - name: Compress
-      if: ${{ matrix.build }} == 'release'
+      if: matrix.build == 'release'
       shell: bash
       run: |
         VERSION="$(grep -m1 "version" Cargo.toml | grep -o "[0-9].[0-9].[0-9]")"
         if [ "$RUNNER_OS" == "Linux" ]; then
-          tar -czpf "festival-${VERSION}-linux-x64.tar.gz" "target/release/festival" --owner=hinto --group=hinto
+          tar -czpf "festival-${VERSION}-linux-x64.tar.gz" "target/release/festival"
         elif [ "$RUNNER_OS" == "macOS" ]; then
-          tar -czpf "festival-${VERSION}-macos-x64.tar.gz" "target/release/festival" --owner=hinto --group=hinto
-          tar -czpf "festival-${VERSION}-macos-arm64.tar.gz" "target/aarch64-apple-darwin/release/festival" --owner=hinto --group=hinto
+          tar -czpf "festival-${VERSION}-macos-x64.tar.gz" "target/release/festival"
+          tar -czpf "festival-${VERSION}-macos-arm64.tar.gz" "target/aarch64-apple-darwin/release/festival"
         elif [ "$RUNNER_OS" == "Windows" ]; then
           mv "target/release/festival.exe" "target/release/Festival.exe"
-          zip -qr "festival-${VERSION}-windows-x64.zip" "target/release/Festival.exe"
+          powershell Compress-Archive -LiteralPath "target/release/Festival.exe" -DestinationPath "festival-${VERSION}-windows-x64.zip"
         fi
 
     - name: Archive
-      if: ${{ matrix.build }} == 'release'
+      if: matrix.build == 'release'
       uses: actions/upload-artifact@v3
       with:
         name: festival-${{ matrix.os }}

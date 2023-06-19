@@ -147,6 +147,9 @@ impl super::Ccd {
 			let art = match &mut album.art {
 				Art::Bytes(b) => {
 					ok_trace!("{}", album.title);
+
+					let b = std::mem::take(b);
+
 					match super::art_from_raw(b, &mut resizer) {
 						Ok(b)  => Art::Bytes(b),
 						Err(e) => { warn!("CCD - Art fail: {e} ... {}", album.title); Art::Unknown },
@@ -178,6 +181,7 @@ impl super::Ccd {
 			let art = match &mut album.art {
 				Art::Bytes(b) => {
 					ok_trace!("{}", album.title);
+					let b = std::mem::take(b);
 					Art::Known(super::art_from_known(b))
 				},
 				_ => {

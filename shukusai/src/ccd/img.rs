@@ -68,7 +68,7 @@ pub(crate) const ALBUM_ART_SIZE_NUM: NonZeroU32 = match NonZeroU32::new(ALBUM_AR
 // Input: abritary image bytes.
 // Output: `600x600` RGB image bytes.
 #[inline(always)]
-pub(crate) fn art_from_raw(bytes: &[u8], resizer: &mut fir::Resizer) -> Result<Box<[u8]>, anyhow::Error> {
+pub(crate) fn art_from_raw(bytes: Box<[u8]>, resizer: &mut fir::Resizer) -> Result<Box<[u8]>, anyhow::Error> {
 	// `.buffer()` must be called on `fir::Image`
 	// before passing it to the next function.
 	// It's cheap, it just returns a `&[u8]`.
@@ -76,12 +76,12 @@ pub(crate) fn art_from_raw(bytes: &[u8], resizer: &mut fir::Resizer) -> Result<B
 }
 
 #[inline(always)]
-pub(crate) fn art_raw_to_egui(bytes: &[u8]) -> egui_extras::RetainedImage {
+pub(crate) fn art_raw_to_egui(bytes: Box<[u8]>) -> egui_extras::RetainedImage {
 	color_img_to_retained(rgb_bytes_to_color_img(bytes))
 }
 
 #[inline(always)]
-pub(crate) fn art_from_known(bytes: &[u8]) -> egui_extras::RetainedImage {
+pub(crate) fn art_from_known(bytes: Box<[u8]>) -> egui_extras::RetainedImage {
 	color_img_to_retained(
 		rgb_bytes_to_color_img(bytes)
 	)
@@ -108,8 +108,8 @@ pub(crate) fn create_resizer() -> fir::Resizer {
 //
 // This is the `heaviest` function within the entire `new_collection()` function.
 // It accounts for around 70% of the total time spent making the `Collection`.
-fn bytes_to_dyn_image(bytes: &[u8]) -> Result<image::DynamicImage, anyhow::Error> {
-	match image::load_from_memory(bytes) {
+fn bytes_to_dyn_image(bytes: Box<[u8]>) -> Result<image::DynamicImage, anyhow::Error> {
+	match image::load_from_memory(&bytes) {
 		Ok(img) => Ok(img),
 		Err(e)  => {
 			use image::error::ImageError::*;
@@ -172,7 +172,7 @@ fn resize_dyn_image(img: image::DynamicImage, resizer: &mut fir::Resizer) -> Res
 // The image size must also be `600x600` or this will cause `egui` to `panic!()`.
 //
 // Original `egui` function has an `assert!()`.
-fn rgb_bytes_to_color_img(bytes: &[u8]) -> egui::ColorImage {
+fn rgb_bytes_to_color_img(bytes: Box<[u8]>) -> egui::ColorImage {
 	debug_assert!(bytes.len() % 3 == 0);
 
 	egui::ColorImage {
