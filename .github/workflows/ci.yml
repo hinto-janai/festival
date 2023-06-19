@@ -32,6 +32,7 @@ jobs:
       with:
         path: |
           ~/.cargo
+          ~/.rustup
           target
         key: ${{ matrix.os }}-${{ matrix.build }}
 
@@ -41,6 +42,8 @@ jobs:
         if [ "$RUNNER_OS" == "Linux" ]; then
           sudo apt update
           sudo apt install -y libgtk-3-dev libasound2-dev libjack-dev libpulse-dev
+        elif [ "$RUNNER_OS" == "macOS" ]; then
+          rustup target add aarch64-apple-darwin
         fi
       shell: bash
 
@@ -66,6 +69,7 @@ jobs:
         cargo build --workspace --profile ${{ matrix.build }}
 
     - name: Compress
+      if: ${{ matrix.build }} == 'release'
       shell: bash
       run: |
         VERSION="$(grep -m1 "version" Cargo.toml | grep -o "[0-9].[0-9].[0-9]")"
@@ -79,14 +83,9 @@ jobs:
           zip -qr "festival-${VERSION}-windows-x64.zip" "target/release/Festival.exe"
         fi
 
-    - name: Archive (debug)
+    - name: Archive
+      if: ${{ matrix.build }} == 'release'
       uses: actions/upload-artifact@v3
       with:
-        name: festival-debug-${{ matrix.os }}
-        path: festival*
-
-    - name: Archive (release)
-      uses: actions/upload-artifact@v3
-      with:
-        name: festival-release-${{ matrix.os }}
+        name: festival-${{ matrix.os }}
         path: festival*
