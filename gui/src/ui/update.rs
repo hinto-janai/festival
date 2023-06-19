@@ -231,10 +231,10 @@ impl Gui {
 
 		// Set window title.
 		if self.last_song != self.audio_state.song {
-			if let Some(key) = self.audio_state.song {
+			if let (Some(key), Some(index)) = (self.audio_state.song, self.audio_state.queue_idx) {
 				let (artist, album, song) = self.collection.walk(key);
 				frame.set_window_title(&self.settings.window_title.format(
-					self.audio_state.queue_idx.unwrap_or(0),
+					index + 1,
 					self.audio_state.queue.len(),
 					&song.runtime,
 					&artist.name,
