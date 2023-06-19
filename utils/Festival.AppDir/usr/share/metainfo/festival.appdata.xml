@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-  <id>io.github.hinto_janai.festival</id>
+  <id>pm.festival.festival</id>
   
   <name>Festival</name>
   <summary>Music player</summary>
@@ -14,7 +14,7 @@
   
   <description>
     <p>
-      Music player for Windows/macOS/Linux.
+      Music player.
     </p>
   </description>
   

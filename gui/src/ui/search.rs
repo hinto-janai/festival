@@ -163,7 +163,7 @@ CentralPanel::default().show(ctx, |ui| {
 				.max_height(f32::INFINITY)
 				.auto_shrink([false; 2])
 				.show_viewport(ui, |ui, _|
-			{
+			{ ui.push_id("SearchSongInner", |ui| {
 				// Sizing.
 				let width  = ui.available_width();
 				let height = ui.available_height();
@@ -251,7 +251,7 @@ CentralPanel::default().show(ctx, |ui| {
 						});
 					}
 				});
-			});
+			})});
 		},
 
 	//-------------------------------------------------- Album table.
@@ -262,7 +262,7 @@ CentralPanel::default().show(ctx, |ui| {
 				.max_height(f32::INFINITY)
 				.auto_shrink([false; 2])
 				.show_viewport(ui, |ui, _|
-			{
+			{ ui.push_id("SearchSortAlbumInner", |ui| {
 				// Sizing.
 				let width  = ui.available_width();
 				let height = ui.available_height();
@@ -271,8 +271,6 @@ CentralPanel::default().show(ctx, |ui| {
 				let c_title   = c_width * 4.0;
 				let c_artist  = c_width * 3.0;
 				let c_release = c_width * 2.0;
-
-				crate::no_rounding!(ui);
 
 				TableBuilder::new(ui)
 					.striped(true)
@@ -297,6 +295,7 @@ CentralPanel::default().show(ctx, |ui| {
 							let (artist, _) = self.collection.artist_from_album(key);
 
 							row.col(|ui| {
+								crate::no_rounding!(ui);
 								crate::album_button!(self, album, *key, ui, ctx, 120.0, "");
 								ui.label(&album.title);
 							});
@@ -310,7 +309,7 @@ CentralPanel::default().show(ctx, |ui| {
 						});
 					}
 				});
-			});
+			})});
 		},
 
 		SearchSort::Artist => {
@@ -320,15 +319,13 @@ CentralPanel::default().show(ctx, |ui| {
 				.max_height(f32::INFINITY)
 				.auto_shrink([false; 2])
 				.show_viewport(ui, |ui, _|
-			{
+			{ ui.push_id("SearchSortArtistInner", |ui| {
 				// Sizing.
 				let width  = ui.available_width();
 				let height = ui.available_height();
 				// c == Column sizing
 				let c_artist  = width / 4.0;
 				let c_runtime = width / 8.0;
-
-				crate::no_rounding!(ui);
 
 				TableBuilder::new(ui)
 					.striped(true)
@@ -357,6 +354,7 @@ CentralPanel::default().show(ctx, |ui| {
 							row.col(|ui| { ui.label(artist.runtime.as_str()); });
 
 							row.col(|ui| {
+								crate::no_rounding!(ui);
 								for key in artist.albums.iter() {
 									let album = &self.collection.albums[key];
 
@@ -366,7 +364,7 @@ CentralPanel::default().show(ctx, |ui| {
 						});
 					}
 				});
-			});
+			})});
 		},
 	} // End of match.
 });

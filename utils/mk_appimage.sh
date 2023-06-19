@@ -14,7 +14,7 @@ VERSION="v$(grep -m1 "version" ../Cargo.toml | grep -o "[0-9].[0-9].[0-9]")"
 [[ -f "Festival-x86_64.AppImage" ]] && rm "Festival-x86_64.AppImage"
 
 # Update icon/binary.
-cp -f ../assets/images/icon/256.png "${APP_DIR}/256.png"
+cp -f ../assets/images/icon/512.png "${APP_DIR}/512.png"
 cp -f ~/.cargo/target/release/festival "${APP_DIR}/usr/bin/festival"
 
 # Create AppImage.

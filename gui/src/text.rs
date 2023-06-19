@@ -15,6 +15,12 @@ use crate::constants::{
 };
 use const_format::formatcp;
 
+//---------------------------------------------------------------------------------------------------- Platform
+#[cfg(not(target_os = "macos"))]
+pub const MOD: &str = "CTRL";
+#[cfg(target_os = "macos")]
+pub const MOD: &str = "⌘";
+
 //---------------------------------------------------------------------------------------------------- Collection State
 pub const COLLECTION_LOADING:   &str = "Loading Collection";
 pub const COLLECTION_RESETTING: &str = "Resetting Collection";
@@ -55,12 +61,12 @@ pub const QUEUE_CLEAR:      &str = "Clear queue and stop playback";
 pub const QUEUE_SHUFFLE:    &str = "Shuffle the queue and reset to the first song";
 
 //---------------------------------------------------------------------------------------------------- Settings Tab
-pub const RESET:             &str = "Reset changes (CTRL+Z)";
-pub const SAVE:              &str = "Save changes to disk (CTRL+S)";
+pub const RESET:             &str = formatcp!("Reset changes ({MOD}+Z)");
+pub const SAVE:              &str = formatcp!("Save changes to disk ({MOD}+S)");
 pub const SHUFFLE_MODE:      &str = "Which method to shuffle songs by";
-pub const ARTIST_SORT_ORDER: &str = "Which method to sort the artists by in the [Artists] tab (CTRL+Q)";
-pub const ALBUM_SORT_ORDER:  &str = "Which method to sort the albums by in the [Albums] tab (CTRL+W)";
-pub const SONG_SORT_ORDER:   &str = "Which method to sort the songs by in the [Songs] tab (CTRL+E)";
+pub const ARTIST_SORT_ORDER: &str = formatcp!("Which method to sort the artists by in the [Artists] tab ({MOD}+Q)");
+pub const ALBUM_SORT_ORDER:  &str = formatcp!("Which method to sort the albums by in the [Albums] tab ({MOD}+W)");
+pub const SONG_SORT_ORDER:   &str = formatcp!("Which method to sort the songs by in the [Songs] tab ({MOD}+E)");
 pub const SEARCH_KIND:       &str = "Which type of search to use in the [Search] tab";
 pub const SEARCH_SORT:       &str = "Which sub-tab to use in the [Search] tab";
 pub const ALBUM_ART_SIZE:    &str = "How big the album art cover should be in the [Albums] tab";
@@ -79,15 +85,16 @@ pub const ACCENT_COLOR:      &str = formatcp!(
 	ACCENT_COLOR_RGB[2],
 );
 pub const COLLECTION:        &str = "The main music Collection that stores all metadata about the audio files";
-pub const ADD_FOLDER:        &str = "Add a maximum of 10 folders to scan for the Collection (CTRL+A)";
+pub const ADD_FOLDER:        &str = formatcp!("Add a maximum of 10 folders to scan for the Collection ({MOD}+A)");
 pub const REMOVE_FOLDER:     &str = "Remove this folder";
-pub const RESET_COLLECTION:  &str =
-r#"Scan the folders listed and create a new Collection (CTRL+R).
+pub const RESET_COLLECTION:  &str = formatcp!(
+r#"Scan the folders listed and create a new Collection ({MOD}+R).
 
-If no directories are listed, the default Music directory is scanned."#;
+If no directories are listed, the default Music directory is scanned."#);
 pub const EMPTY_AUTOPLAY:    &str = "Start playing automatically if songs are added to an empty queue";
 pub const STATS:             &str = "Stats about your current Collection";
 
+#[cfg(not(target_os = "macos"))]
 pub const HELP: &str =
 r#"*-------------------------------------------------------*
 |       Key/Mouse | Action                              |
@@ -108,6 +115,30 @@ r#"*-------------------------------------------------------*
 |   Primary Mouse | Set Artist, Album, Song             |
 | Secondary Mouse | Append Artist, Album, Song to Queue |
 |    Middle Mouse | Open Album/Song Directory           |
+*-------------------------------------------------------*"#;
+
+// macOS doesn't have a middle click on the trackpad natively...
+#[cfg(target_os = "macos")]
+pub const HELP: &str =
+r#"*-------------------------------------------------------*
+|       Key/Mouse | Action                              |
+|-------------------------------------------------------|
+|     [A-Za-z0-9] | Jump to search tab                  |
+|       Command+S | Save Settings                       |
+|       Command+Z | Reset Settings                      |
+|       Command+R | Reset Collection                    |
+|       Command+A | Add Scan Directory                  |
+|       Command+Q | Rotate Album Sort                   |
+|       Command+W | Rotate Artist Sort                  |
+|       Command+E | Rotate Song Sort                    |
+|       Command+D | Goto Last Tab                       |
+|              Up | Last Tab                            |
+|            Down | Next Tab                            |
+|           Right | Last Sub-Tab                        |
+|            Left | Last Sub-Tab                        |
+|   Primary Mouse | Set Artist, Album, Song             |
+| Secondary Mouse | Append Artist, Album, Song to Queue |
+| Command+Primary | Open Album/Song Directory           |
 *-------------------------------------------------------*"#;
 
 //---------------------------------------------------------------------------------------------------- Search Tab

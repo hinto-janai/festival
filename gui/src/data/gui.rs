@@ -152,4 +152,8 @@ pub struct Gui {
 	pub debug_screen: bool,
 	/// The debug info displayed on the debug screen.
 	pub debug_info: DebugInfo,
+
+	/// A local copy of `egui::Modifier` so we don't have to lock
+	/// `Context` every time we need access to this frames data.
+	pub modifiers: egui::Modifiers,
 }

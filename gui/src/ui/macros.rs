@@ -222,11 +222,16 @@ macro_rules! song_button {
 		rect.max.y = rect.min.y + 35.0;
 
 		let resp = $ui.put(rect, egui::SelectableLabel::new($self.audio_state.song == Some($key), ""));
-		if resp.clicked() {
-			$crate::play_album_offset!($self, $song.album, $offset);
-		} else if resp.middle_clicked() {
+
+		let primary   = resp.clicked();
+		let middle    = resp.middle_clicked();
+		let secondary = resp.secondary_clicked();
+
+		if middle || (primary && $self.modifiers.command) {
 			$crate::open!($self, $album);
-		} else if resp.secondary_clicked() {
+		} else if primary {
+			$crate::play_album_offset!($self, $song.album, $offset);
+		} else if secondary {
 			$crate::add_song!($self, $song.title, $key);
 		}
 
@@ -279,9 +284,15 @@ macro_rules! album_button {
 			$ui.add(img_button).on_hover_text($text)
 		};
 
-		if resp.clicked() {
+		let primary   = resp.clicked();
+		let middle    = resp.middle_clicked();
+		let secondary = resp.secondary_clicked();
+
+		if middle || (primary && $self.modifiers.command) {
+			$crate::open!($self, $album);
+		} else if primary {
 			$crate::album!($self, $key);
-		} else if resp.secondary_clicked() {
+		} else if secondary {
 			::benri::send!(
 				$self.to_kernel,
 				shukusai::kernel::FrontendToKernel::AddQueueAlbum(($key, shukusai::audio::Append::Back, false, 0))
@@ -290,8 +301,6 @@ macro_rules! album_button {
 				::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
 			}
 			$crate::toast!($self, format!("Added [{}] to queue", $album.title));
-		} else if resp.middle_clicked() {
-			$crate::open!($self, $album);
 		}
 	};
 }

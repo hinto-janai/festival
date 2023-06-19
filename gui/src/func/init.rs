@@ -234,6 +234,8 @@ impl crate::data::Gui {
 
 			debug_screen: false,
 			debug_info: DebugInfo::new(),
+
+			modifiers: Default::default(),
 		}
 	}
 }

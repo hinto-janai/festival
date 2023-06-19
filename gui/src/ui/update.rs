@@ -252,13 +252,18 @@ impl Gui {
 		// Show `egui_notify` toasts.
 		self.toasts.show(ctx);
 
+		// Update local `modifiers` state.
+		self.modifiers = ctx.input(|input| input.modifiers);
+
 		// Check for key presses.
 		if !ctx.wants_keyboard_input() && secs_f32!(self.resize_leeway) > 0.5 {
+			use egui::{PointerButton,Modifiers,Key};
+
 			ctx.input_mut(|input| {
 				// Last tab.
-				if input.pointer.button_clicked(egui::PointerButton::Extra1) ||  // FIXME:
-					input.pointer.button_clicked(egui::PointerButton::Extra2) || // These two don't work with my mouse.
-					input.consume_key(egui::Modifiers::CTRL, egui::Key::D)
+				if input.pointer.button_clicked(PointerButton::Extra1)  || // FIXME:
+					input.pointer.button_clicked(PointerButton::Extra2) || // These two don't work with my mouse.
+					input.consume_key(Modifiers::COMMAND, Key::D)
 				{
 					if let Some(tab) = self.state.last_tab {
 						crate::tab!(self, tab);
@@ -266,12 +271,12 @@ impl Gui {
 				}
 
 				// Check for `Up/Down` (Tab switch)
-				if input.consume_key(egui::Modifiers::NONE, egui::Key::ArrowDown) {
+				if input.consume_key(Modifiers::NONE, Key::ArrowDown) {
 					crate::tab!(self, self.state.tab.next());
-				} else if input.consume_key(egui::Modifiers::NONE, egui::Key::ArrowUp) {
+				} else if input.consume_key(Modifiers::NONE, Key::ArrowUp) {
 					crate::tab!(self, self.state.tab.previous());
 				// Check for `Left/Right`
-				} else if input.consume_key(egui::Modifiers::NONE, egui::Key::ArrowRight) {
+				} else if input.consume_key(Modifiers::NONE, Key::ArrowRight) {
 					match self.state.tab {
 						Tab::View   => {
 							if let Some(key) = self.state.album {
@@ -283,7 +288,7 @@ impl Gui {
 						Tab::Search  => self.settings.search_sort = self.settings.search_sort.next(),
 						_ => (),
 					}
-				} else if input.consume_key(egui::Modifiers::NONE, egui::Key::ArrowLeft) {
+				} else if input.consume_key(Modifiers::NONE, Key::ArrowLeft) {
 					match self.state.tab {
 						Tab::View   => {
 							if let Some(key) = self.state.album {
@@ -296,13 +301,13 @@ impl Gui {
 						_ => (),
 					}
 				// Check for `F11` (Fullscreen)
-				} else if input.consume_key(egui::Modifiers::NONE, egui::Key::F11) {
+				} else if input.consume_key(Modifiers::NONE, Key::F11) {
 					frame.set_fullscreen(!frame.info().window_info.fullscreen);
 				// Check for `Ctrl+R` (Reset Collection)
-				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::R) {
+				} else if input.consume_key(Modifiers::COMMAND, Key::R) {
 					self.reset_collection();
 				// Check for `Ctrl+S` (Save Settings)
-				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::S) {
+				} else if input.consume_key(Modifiers::COMMAND, Key::S) {
 					if self.diff_settings() {
 						match self.save_settings() {
 							Ok(_) => crate::toast!(self, "Saved settings"),
@@ -312,7 +317,7 @@ impl Gui {
 						crate::toast!(self, "No changes to save");
 					}
 				// Check for `Ctrl+Z` (Reset Settings)
-				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::Z) {
+				} else if input.consume_key(Modifiers::COMMAND, Key::Z) {
 					if self.diff_settings() {
 						self.reset_settings();
 						crate::toast!(self, "Reset settings");
@@ -320,39 +325,39 @@ impl Gui {
 						crate::toast!(self, "No changes to undo");
 					}
 				// Check for `Ctrl+A` (Add Folder)
-				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::A) {
+				} else if input.consume_key(Modifiers::COMMAND, Key::A) {
 					self.add_folder();
 				// Check for `Ctrl+Q` (Next Album Order)
-				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::Q) {
+				} else if input.consume_key(Modifiers::COMMAND, Key::Q) {
 					crate::tab!(self, Tab::Albums);
 					let next = self.settings.album_sort.next();
 					crate::toast!(self, next.as_str());
 					self.settings.album_sort = next;
 				// Check for `Ctrl+W` (Next Artist Order)
-				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::W) {
+				} else if input.consume_key(Modifiers::COMMAND, Key::W) {
 					crate::tab!(self, Tab::Artists);
 					let next = self.settings.artist_sort.next();
 					crate::toast!(self, next.as_str());
 					self.settings.artist_sort = next;
 				// Check for `Ctrl+E` (Next Song Order)
-				} else if input.consume_key(egui::Modifiers::CTRL, egui::Key::E) {
+				} else if input.consume_key(Modifiers::COMMAND, Key::E) {
 					crate::tab!(self, Tab::Songs);
 					let next = self.settings.song_sort.next();
 					crate::toast!(self, next.as_str());
 					self.settings.song_sort = next;
 				// Check for `Ctrl+Shift+P` (force `panic!()`)
 				} else if
-					input.modifiers.matches(egui::Modifiers::CTRL.plus(egui::Modifiers::SHIFT))
+					input.modifiers.matches(Modifiers::COMMAND.plus(Modifiers::SHIFT))
 					&&
-					input.key_pressed(egui::Key::P)
+					input.key_pressed(Key::P)
 				{
-					info!("GUI - CTRL+SHIFT+P was pressed, forcefully panic!()'ing...!");
-					panic!("GUI - CTRL+SHIFT+P force panic");
+					info!("GUI - COMMAND+SHIFT+P was pressed, forcefully panic!()'ing...!");
+					panic!("GUI - COMMAND+SHIFT+P force panic");
 				// Check for `Ctrl+Shift+D` (toggle debug screen)
 				} else if
-					input.modifiers.matches(egui::Modifiers::CTRL.plus(egui::Modifiers::SHIFT))
+					input.modifiers.matches(Modifiers::COMMAND.plus(Modifiers::SHIFT))
 					&&
-					input.key_pressed(egui::Key::D)
+					input.key_pressed(Key::D)
 				{
 					flip!(self.debug_screen);
 					// Refresh stats if true.
@@ -362,9 +367,9 @@ impl Gui {
 				// Check for [A-Za-z0-9] (Search)
 				} else {
 					for key in ALPHANUMERIC_KEY {
-						if input.consume_key(egui::Modifiers::NONE, key) {
+						if input.consume_key(Modifiers::NONE, key) {
 							crate::search!(self, key, false);
-						} else if input.consume_key(egui::Modifiers::SHIFT, key) {
+						} else if input.consume_key(Modifiers::SHIFT, key) {
 							crate::search!(self, key, true);
 						}
 					}
@@ -372,7 +377,7 @@ impl Gui {
 			});
 		}
 
-		// We must show the spinner here again because after `CTRL+R`,
+		// We must show the spinner here again because after `COMMAND+R`,
 		// a few frames of the "Empty Collection" will flash.
 		if self.resetting_collection {
 			self.show_collection_spinner(ctx, frame, width, height, COLLECTION_RESETTING);
@@ -807,7 +812,7 @@ fn show_collection_spinner(
 //---------------------------------------------------------------------------------------------------- Debug scren
 // This is a fullscreen debug screen, showing
 // a bunch of useful runtime information.
-// Toggled with `CTRL+SHIFT+D`.
+// Toggled with `COMMAND+SHIFT+D`.
 impl Gui {
 #[inline(always)]
 fn show_debug_screen(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
@@ -816,7 +821,7 @@ fn show_debug_screen(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, 
 		ui.vertical_centered(|ui| {
 			let header = height / 25.0;
 
-			let text = RichText::new("--- Debug Info ---\nCTRL+SHIFT+D to toggle")
+			let text = RichText::new("--- Debug Info ---\nCOMMAND+SHIFT+D to toggle")
 				.size(header)
 				.color(BONE);
 

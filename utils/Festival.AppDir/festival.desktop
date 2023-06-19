@@ -3,6 +3,6 @@ Name=Festival
 GenericName=Music player
 Comment=Music player
 Exec=festival
-Icon=256
+Icon=512
 Type=Application
 Categories=AudioVideo;Audio;Player;
