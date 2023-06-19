@@ -864,7 +864,7 @@ impl crate::ccd::Ccd {
 		let album       = match Self::tag_album(&mut tags)       { Some(t) => t, _ => bail!("album metadata missing") };
 		let title       = match Self::tag_title(&mut tags, path) { Some(t) => t, _ => bail!("title metadata missing") };
 
-		// Optional metadta.
+		// Optional metadata.
 		let art     = Self::art(visuals);
 		let track   = Self::tag_track(&mut tags);
 		let disc    = Self::tag_disc(&mut tags);

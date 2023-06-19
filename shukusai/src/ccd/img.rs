@@ -249,7 +249,7 @@ static mut NEXT_TEXTURE_ID: u64 = 2;
 // slot (`0`), so our textures that we allocate will always start at 1.
 // We must also _never_ free `0`, or `GUI` will turn into a black screen.
 //
-// We also interally use `1` for `UNKNOWN_IMAGE`.
+// We also internally use `1` for `UNKNOWN_IMAGE`.
 pub(super) fn free_textures(tex_manager: &mut epaint::TextureManager) {
 	// Increment our local number.
 	let current_texture_count = tex_manager.num_allocated() as u64;

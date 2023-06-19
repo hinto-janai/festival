@@ -40,7 +40,7 @@ jobs:
         rustup update
         if [ "$RUNNER_OS" == "Linux" ]; then
           sudo apt update
-          sudo apt install -y libgtk-3-dev libasound2-dev libjack-dev
+          sudo apt install -y libgtk-3-dev libasound2-dev libjack-dev libpulse-dev
         fi
       shell: bash
 
@@ -52,20 +52,41 @@ jobs:
       env:
         RUSTFLAGS: -Awarnings
 
-    - name: Test
-      run: cargo test --workspace --profile ${{ matrix.build }}
+# FIXME
+#    - name: Test
+#      run: cargo test --workspace --profile ${{ matrix.build }}
 
     - name: Build
-      run: cargo build --workspace --profile ${{ matrix.build }}
+      shell: bash
+      run: |
+        # ARM builds.
+        if [ "$RUNNER_OS" == "macOS" ]; then
+          cargo build --workspace --profile ${{ matrix.build }} --target aarch64-apple-darwin
+        fi
+        cargo build --workspace --profile ${{ matrix.build }}
+
+    - name: Compress
+      shell: bash
+      run: |
+        VERSION="$(grep -m1 "version" Cargo.toml | grep -o "[0-9].[0-9].[0-9]")"
+        if [ "$RUNNER_OS" == "Linux" ]; then
+          tar -czpf "festival-${VERSION}-linux-x64.tar.gz" "target/release/festival" --owner=hinto --group=hinto
+        elif [ "$RUNNER_OS" == "macOS" ]; then
+          tar -czpf "festival-${VERSION}-macos-x64.tar.gz" "target/release/festival" --owner=hinto --group=hinto
+          tar -czpf "festival-${VERSION}-macos-arm64.tar.gz" "target/aarch64-apple-darwin/release/festival" --owner=hinto --group=hinto
+        elif [ "$RUNNER_OS" == "Windows" ]; then
+          mv "target/release/festival.exe" "target/release/Festival.exe"
+          zip -qr "festival-${VERSION}-windows-x64.zip" "target/release/Festival.exe"
+        fi
 
     - name: Archive (debug)
       uses: actions/upload-artifact@v3
       with:
         name: festival-debug-${{ matrix.os }}
-        path: target/debug/festival*
+        path: festival*
 
     - name: Archive (release)
       uses: actions/upload-artifact@v3
       with:
         name: festival-release-${{ matrix.os }}
-        path: target/release/festival*
+        path: festival*

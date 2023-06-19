@@ -79,7 +79,7 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 			if !same_artist {
 				// Only add space if we've added previous `Artist`'s before.
 				if current_artist.is_some() {
-					ui.add_space(30.0);
+					ui.add_space(60.0);
 				}
 
 				// Artist info.
@@ -87,11 +87,18 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 					RichText::new(&artist.name)
 					.text_style(TextStyle::Name("30".into()))
 				);
+				crate::artist_label!(self, artist, album.artist, ui, artist_name);
+				current_artist = Some(artist);
+				ui.add_space(5.0);
+			}
+
+			if !same_album {
+				ui.separator();
 				ui.horizontal(|ui| {
 					// Remove button.
 					let button = Button::new(RichText::new("-").size(SIZE));
-					if ui.add_sized([SIZE, SIZE], button).clicked() {
-						// FIXME:
+					if ui.add_sized([SIZE, QUEUE_ALBUM_ART_SIZE], button).clicked() {
+						// HACK:
 						// Iterate until we find a `Song` that doesn't
 						// belong to the same `Album`.
 						//
@@ -117,17 +124,6 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 							crate::remove_queue_range!(self, index..end);
 						}
 					}
-					crate::artist_label!(self, artist, album.artist, ui, artist_name);
-				});
-				current_artist = Some(artist);
-
-				// FIXME:
-				// This code is duplicated below for new albums.
-				ui.add_space(10.0);
-				ui.separator();
-				ui.add_space(10.0);
-
-				ui.horizontal(|ui| {
 					crate::no_rounding!(ui);
 					crate::album_button!(self, album, song.album, ui, ctx, QUEUE_ALBUM_ART_SIZE, "");
 
@@ -140,30 +136,6 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 					});
 				});
 
-				ui.add_space(10.0);
-				ui.separator();
-				current_album = Some(album);
-			//-------------------------------------------------- Album.
-			} else if !same_album {
-				// FIXME: see above.
-				ui.add_space(10.0);
-				ui.separator();
-				ui.add_space(10.0);
-
-				ui.horizontal(|ui| {
-					crate::no_rounding!(ui);
-					crate::album_button!(self, album, song.album, ui, ctx, QUEUE_ALBUM_ART_SIZE, "");
-
-					ui.vertical(|ui| {
-						// Info.
-						let album_title = Label::new(RichText::new(&album.title).color(BONE));
-						ui.add(album_title);
-						ui.label(album.release.as_str());
-					});
-				});
-
-				ui.add_space(10.0);
-				ui.separator();
 				current_album = Some(album);
 			}
 
