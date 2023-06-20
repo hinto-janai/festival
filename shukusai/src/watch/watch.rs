@@ -101,6 +101,7 @@ impl Watch {
 		if let Err(e) = SeekForward::rm()  { error!("Watch - SeekForward: {}", e); }
 		if let Err(e) = SeekBackward::rm() { error!("Watch - SeekBackward: {}", e); }
 		if let Err(e) = Index::rm()        { error!("Watch - Index: {}", e); }
+		if let Err(e) = Clear::rm()        { error!("Watch - Clear: {}", e); }
 		if let Err(e) = Skip::rm()         { error!("Watch - Skip: {}", e); }
 		if let Err(e) = Back::rm()         { error!("Watch - Back: {}", e); }
 	}
@@ -159,6 +160,7 @@ impl Watch {
 			if let Ok(v) = Volume::from_file()       { send!(self.to_kernel, WatchToKernel::Volume(v.0)); }
 			if let Ok(s) = Skip::from_file()         { send!(self.to_kernel, WatchToKernel::Skip(s.0)); }
 			if let Ok(s) = Index::from_file()        { send!(self.to_kernel, WatchToKernel::Index(s.0.saturating_sub(1))); }
+			if let Ok(s) = Clear::from_file()        { send!(self.to_kernel, WatchToKernel::Clear(s.0)); }
 			if let Ok(s) = Seek::from_file()         { send!(self.to_kernel, WatchToKernel::Seek(s.0)); }
 			if let Ok(s) = SeekForward::from_file()  { send!(self.to_kernel, WatchToKernel::SeekForward(s.0)); }
 			if let Ok(s) = SeekBackward::from_file() { send!(self.to_kernel, WatchToKernel::SeekBackward(s.0)); }

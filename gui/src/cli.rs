@@ -12,7 +12,7 @@ use shukusai::signal::{
 	Volume,Toggle,Pause,Play,Skip,Back,
 	Previous,Next,Stop,Shuffle,Index,
 	RepeatSong,RepeatQueue,RepeatOff,
-	Seek,SeekForward,SeekBackward,
+	Clear,Seek,SeekForward,SeekBackward,
 };
 use disk::Empty;
 
@@ -42,6 +42,10 @@ pub struct Cli {
 	#[arg(long)]
 	/// Clear queue and stop playback
 	stop: bool,
+
+	#[arg(long)]
+	/// Clear queue but don't stop playback
+	clear: bool,
 
 	#[arg(long)]
 	/// Shuffle the current queue and reset to the first song
@@ -170,6 +174,7 @@ impl Cli {
 		if self.next         { handle(Next::touch())        }
 		if self.previous     { handle(Previous::touch())    }
 		if self.stop         { handle(Stop::touch())        }
+		if self.clear        { handle(Clear(true).save())   }
 		if self.shuffle      { handle(Shuffle::touch())     }
 		if self.repeat_song  { handle(RepeatSong::touch())  }
 		if self.repeat_queue { handle(RepeatQueue::touch()) }

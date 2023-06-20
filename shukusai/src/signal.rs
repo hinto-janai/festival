@@ -93,6 +93,9 @@ impl_signal_content! {
 	Index, usize, "index",
 	"Contents should be a [`usize`]. This skips to an index in the queue starting from 1. Will end the queue if the index is out of bounds.",
 
+	Clear, bool, "clear",
+	"Contents should be a [`bool`], either `true` or `false`. This signal clears the queue. The [`bool`] represents if we should continue playback.",
+
 	Skip, usize, "skip",
 	"Contents should be a [`usize`]. This is similar to `Next`, although you can specify any amount of [`Song`]'s to skip in the queue.",
 

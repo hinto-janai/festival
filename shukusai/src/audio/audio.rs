@@ -629,14 +629,14 @@ impl Audio {
 		trace!("Audio - clear({keep_playing})");
 
 		state.queue.clear();
-		state.queue_idx = None;
-		state.playing   = keep_playing;
-		state.song      = None;
+		state.playing = keep_playing;
 
 		self.state.playing = keep_playing;
 		if !keep_playing {
-			self.seek    = None;
-			self.current = None;
+			state.queue_idx = None;
+			state.song      = None;
+			self.seek       = None;
+			self.current    = None;
 			if let Some(media_controls) = &mut self.media_controls {
 				if let Err(e) = media_controls.set_playback(souvlaki::MediaPlayback::Stopped) {
 					warn!("Audio - Couldn't update souvlaki playback: {e:#?}");
