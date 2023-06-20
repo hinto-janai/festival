@@ -23,7 +23,7 @@ use readable::HeadTail;
 //---------------------------------------------------------------------------------------------------- Queue
 impl crate::data::Gui {
 #[inline(always)]
-pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
+pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: f32, height: f32) {
 	self.set_visuals(ui);
 
 	//-------------------------------------------------- Queue.

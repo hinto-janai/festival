@@ -22,7 +22,7 @@ use shukusai::kernel::{
 //---------------------------------------------------------------------------------------------------- Artists
 impl crate::data::Gui {
 #[inline(always)]
-pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
+pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: f32, height: f32) {
 	self.set_visuals(ui);
 
 	// Sizing.
@@ -71,7 +71,7 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame
 
 	ScrollArea::vertical()
 		.id_source("Artist")
-		.max_width(f32::INFINITY)
+		.max_width(width)
 		.max_height(height)
 		.auto_shrink([false; 2])
 		.show_viewport(ui, |ui, _|
@@ -178,7 +178,7 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame
 	// Albums.
 	ScrollArea::vertical()
 		.id_source("artist_view")
-		.max_width(f32::INFINITY)
+		.max_width(width)
 		.max_height(height)
 		.auto_shrink([false; 2])
 		.show_viewport(ui, |ui, _|

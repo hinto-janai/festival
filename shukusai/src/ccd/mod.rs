@@ -19,10 +19,6 @@ pub(crate) use img::*;
 mod convert;
 use convert::*;
 
-// Superseded by `readable::Date`.
-//mod date;
-//use date::*;
-
 mod the_loop;
 use the_loop::*;
 

@@ -25,7 +25,7 @@ use benri::send;
 //---------------------------------------------------------------------------------------------------- Main central panel.
 impl crate::data::Gui {
 #[inline(always)]
-pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
+pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: f32, height: f32) {
 	self.set_visuals(ui);
 
 	// Sizing.
@@ -123,7 +123,7 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &
 //---------------------------------------------------------------------------------------------------- Right Panel
 impl crate::data::Gui {
 #[inline(always)]
-pub(super) fn show_tab_view_right_panel(&mut self, album_key: Option<AlbumKey>, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
+pub(super) fn show_tab_view_right_panel(&mut self, album_key: Option<AlbumKey>, ctx: &egui::Context, width: f32, height: f32) {
 	let album_key = match album_key {
 		Some(k) => k,
 		None    => return,

@@ -209,7 +209,7 @@ impl Gui {
 			// when exiting really quickly, rack up enough
 			// time (100ms) before showing the spinner.
 			if self.exit_instant.elapsed().as_secs_f32() > 0.1 {
-				self.show_exit_spinner(ctx, frame, width, height);
+				self.show_exit_spinner(ctx, width, height);
 				return;
 			}
 			ctx.request_repaint();
@@ -218,14 +218,14 @@ impl Gui {
 		// If `Kernel` hasn't finished startup yet,
 		// show fullscreen spinner with info.
 		if !self.kernel_returned {
-			self.show_collection_spinner(ctx, frame, width, height, COLLECTION_LOADING);
+			self.show_collection_spinner(ctx, width, height, COLLECTION_LOADING);
 			return;
 		}
 
 		// If resetting the `Collection`,
 		// show fullscreen spinner with info.
 		if self.resetting_collection {
-			self.show_collection_spinner(ctx, frame, width, height, COLLECTION_RESETTING);
+			self.show_collection_spinner(ctx, width, height, COLLECTION_RESETTING);
 			return;
 		}
 
@@ -380,7 +380,7 @@ impl Gui {
 		// We must show the spinner here again because after `COMMAND+R`,
 		// a few frames of the "Empty Collection" will flash.
 		if self.resetting_collection {
-			self.show_collection_spinner(ctx, frame, width, height, COLLECTION_RESETTING);
+			self.show_collection_spinner(ctx, width, height, COLLECTION_RESETTING);
 			return;
 		}
 
@@ -405,7 +405,7 @@ impl Gui {
 
 		// Show debug screen if `true`.
 		if self.debug_screen {
-			self.show_debug_screen(ctx, frame, width, height);
+			self.show_debug_screen(ctx, width, height);
 			return;
 		}
 
@@ -415,25 +415,25 @@ impl Gui {
 		let side_panel_height   = height - (bottom_panel_height*2.0);
 
 		// Bottom Panel
-		self.show_bottom(ctx, frame, width, bottom_panel_height);
+		self.show_bottom(ctx, width, bottom_panel_height);
 
 		// Left Panel
-		self.show_left(ctx, frame, side_panel_width, side_panel_height);
+		self.show_left(ctx, side_panel_width, side_panel_height);
 
 		// If `Tab::View`, show right panel.
 		if self.state.tab == Tab::View {
-			self.show_tab_view_right_panel(self.state.album, ctx, frame, side_panel_width, height);
+			self.show_tab_view_right_panel(self.state.album, ctx, side_panel_width, height);
 		}
 
 		// Central Panel
-		self.show_central(ctx, frame, width, height, side_panel_width, side_panel_height);
+		self.show_central(ctx, width, height, side_panel_width, side_panel_height);
 	}
 }
 
 //---------------------------------------------------------------------------------------------------- Bottom Panel
 impl Gui {
 #[inline(always)]
-fn show_bottom(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
+fn show_bottom(&mut self, ctx: &egui::Context, width: f32, height: f32) {
 	TopBottomPanel::bottom("bottom").resizable(false).show(ctx, |ui| {
 		self.set_visuals(ui);
 		ui.set_height(height);
@@ -590,7 +590,7 @@ fn show_bottom(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width:
 //---------------------------------------------------------------------------------------------------- Left Panel
 impl Gui {
 #[inline(always)]
-fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
+fn show_left(&mut self, ctx: &egui::Context, width: f32, height: f32) {
 	SidePanel::left("left").resizable(false).show(ctx, |ui| {
 		self.set_visuals(ui);
 		ui.set_width(width);
@@ -692,24 +692,24 @@ fn show_left(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f
 //---------------------------------------------------------------------------------------------------- Central Panel
 impl Gui {
 #[inline(always)]
-fn show_central(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32, side_panel_width: f32, side_panel_height: f32) {
+fn show_central(&mut self, ctx: &egui::Context, width: f32, height: f32, side_panel_width: f32, side_panel_height: f32) {
 	CentralPanel::default().show(ctx, |ui| {
 		self.set_visuals(ui);
 
 		// Handle empty `Collection`.
 		if self.collection.empty && self.state.tab != Tab::Settings {
-			self.show_empty_collection(ui, ctx, frame, width, height);
+			self.show_empty_collection(ui, ctx, width, height);
 			return;
 		}
 
 		match self.state.tab {
-			Tab::View      => self.show_tab_view(ui, ctx, frame, width, height),
-			Tab::Albums    => self.show_tab_albums(ui, ctx, frame, width, height),
-			Tab::Artists   => self.show_tab_artists(ui, ctx, frame, width, height),
-			Tab::Songs     => self.show_tab_songs(ui, ctx, frame, width, height),
-			Tab::Queue     => self.show_tab_queue(ui, ctx, frame, width, height),
-			Tab::Search    => self.show_tab_search(ui, ctx, frame, width, height),
-			Tab::Settings  => self.show_tab_settings(ui, ctx, frame, width, height),
+			Tab::View      => self.show_tab_view(ui, ctx, width, height),
+			Tab::Albums    => self.show_tab_albums(ui, ctx, width, height),
+			Tab::Artists   => self.show_tab_artists(ui, ctx, width, height),
+			Tab::Songs     => self.show_tab_songs(ui, ctx, width, height),
+			Tab::Queue     => self.show_tab_queue(ui, ctx, width, height),
+			Tab::Search    => self.show_tab_search(ui, ctx, width, height),
+			Tab::Settings  => self.show_tab_settings(ui, ctx, width, height),
 		}
 	});
 }}
@@ -719,7 +719,7 @@ fn show_central(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width
 // Used for tabs when the `Collection` is empty.
 impl Gui {
 #[inline(always)]
-fn show_empty_collection(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
+fn show_empty_collection(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: f32, height: f32) {
 	// Handle empty or no `Collection`.
 	let button = Button::new(RichText::new("🔃 Empty Collection. Click to scan.").color(BONE));
 	let width  = width / 1.5;
@@ -744,7 +744,7 @@ fn show_empty_collection(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 // Used when exiting and waiting for everything to save.
 impl Gui {
 #[inline(always)]
-fn show_exit_spinner(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
+fn show_exit_spinner(&mut self, ctx: &egui::Context, width: f32, height: f32) {
 	CentralPanel::default().show(ctx, |ui| {
 		self.set_visuals(ui);
 		ui.vertical_centered(|ui| {
@@ -771,7 +771,6 @@ impl Gui {
 fn show_collection_spinner(
 	&mut self,
 	ctx: &egui::Context,
-	frame: &mut eframe::Frame,
 	width: f32,
 	height: f32,
 	text: &'static str,
@@ -819,7 +818,7 @@ fn show_collection_spinner(
 // Toggled with `COMMAND+SHIFT+D`.
 impl Gui {
 #[inline(always)]
-fn show_debug_screen(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width: f32, height: f32) {
+fn show_debug_screen(&mut self, ctx: &egui::Context, width: f32, height: f32) {
 	CentralPanel::default().show(ctx, |ui| {
 		self.set_visuals(ui);
 		ui.vertical_centered(|ui| {
