@@ -90,10 +90,16 @@ pub struct Cli {
 
 	#[arg(long)]
 	/// Skip `SKIP` amount of songs
+	///
+	/// If the last song in the queue is skipped over, and queue repeat is
+	/// turned on, this will reset the current song to the 1st in the queue.
 	skip: Option<usize>,
 
 	#[arg(long)]
 	/// Go backwards in the queue by `BACK` amount of songs
+	///
+	/// If `BACK` is greater than the amount of songs we can skip
+	/// backwards, this will reset the current song to the 1st in the queue.
 	back: Option<usize>,
 
 	#[arg(long)]
@@ -136,12 +142,12 @@ pub struct Cli {
 //---------------------------------------------------------------------------------------------------- CLI argument handling
 impl Cli {
 	#[inline(always)]
-	pub fn get() -> (bool, bool) {
+	pub fn get() -> (bool, bool, log::LevelFilter) {
 		Self::parse().handle_args()
 	}
 
 	#[inline(always)]
-	pub fn handle_args(self) -> (bool, bool) {
+	pub fn handle_args(self) -> (bool, bool, log::LevelFilter) {
 		use std::process::exit;
 
 		// Version.
@@ -182,19 +188,15 @@ impl Cli {
 
 		// Content signals.
 		use disk::Plain;
-		if let Some(volume)           = self.volume        { handle(Volume(shukusai::audio::Volume::new(volume)).save())
-			} else if let Some(seek)  = self.seek          { handle(Seek(seek).save())
-			} else if let Some(seek)  = self.seek_forward  { handle(SeekForward(seek).save())
-			} else if let Some(seek)  = self.seek_backward { handle(SeekBackward(seek).save())
-			} else if let Some(index) = self.index         { handle(Index(index).save())
-			} else if let Some(skip)  = self.skip          { handle(Skip(skip).save())
-			} else if let Some(back)  = self.back          { handle(Back(back).save())
-		}
-
-		// Logger.
-		init_logger(self.log_level);
+		if let Some(volume) = self.volume        { handle(Volume(shukusai::audio::Volume::new(volume)).save()) }
+		if let Some(seek)   = self.seek          { handle(Seek(seek).save())         }
+		if let Some(seek)   = self.seek_forward  { handle(SeekForward(seek).save())  }
+		if let Some(seek)   = self.seek_backward { handle(SeekBackward(seek).save()) }
+		if let Some(index)  = self.index         { handle(Index(index).save())       }
+		if let Some(skip)   = self.skip          { handle(Skip(skip).save())         }
+		if let Some(back)   = self.back          { handle(Back(back).save())         }
 
 		// Return.
-		(self.disable_watch, self.disable_media_controls)
+		(self.disable_watch, self.disable_media_controls, self.log_level)
 	}
 }

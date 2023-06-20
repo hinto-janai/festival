@@ -64,7 +64,6 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: 
 
 		ui.add_space(5.0);
 		ui.separator();
-		ui.add_space(10.0);
 
 		let mut current_artist = None;
 		let mut current_album  = None;

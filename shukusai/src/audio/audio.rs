@@ -740,7 +740,7 @@ impl Audio {
 			let len       = state.queue.len();
 
 			// Repeat the queue if we're over bounds (and it's enabled).
-			if new_index > len && state.repeat == Repeat::Queue {
+			if state.repeat == Repeat::Queue && new_index >= len {
 				if !state.queue.is_empty() {
 					let key = state.queue[0];
 					trace!("Audio - repeating queue, setting: {key:?}");
@@ -748,7 +748,7 @@ impl Audio {
 					state.song      = Some(key);
 					state.queue_idx = Some(0);
 				}
-			} else if len >= new_index {
+			} else if len > new_index {
 				let key = state.queue[new_index];
 				self.set(key, state);
 				state.song      = Some(key);
