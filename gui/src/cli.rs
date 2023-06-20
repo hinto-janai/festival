@@ -18,85 +18,85 @@ use disk::Empty;
 
 //---------------------------------------------------------------------------------------------------- CLI Parser (clap)
 #[derive(Parser, Debug)]
-#[command(override_usage = "festival [OPTIONS]")]
 pub struct Cli {
-	/// Start playback
 	#[arg(long)]
+	/// Start playback
 	play: bool,
 
-	/// Pause playback
 	#[arg(long)]
+	/// Pause playback
 	pause: bool,
 
-	/// Toggle playback (play/pause)
 	#[arg(long)]
+	/// Toggle playback (play/pause)
 	toggle: bool,
 
-	/// Skip to next track
 	#[arg(long)]
+	/// Skip to next track
 	next: bool,
 
-	/// Play previous track
 	#[arg(long)]
+	/// Play previous track
 	previous: bool,
 
-	/// Clear queue and stop playback
 	#[arg(long)]
+	/// Clear queue and stop playback
 	stop: bool,
 
-	/// Shuffle the current queue and reset to the first song
 	#[arg(long)]
+	/// Shuffle the current queue and reset to the first song
 	shuffle: bool,
 
-	/// Turn on single `Song` track repeat
 	#[arg(long)]
+	/// Turn on single `Song` track repeat
 	repeat_song: bool,
 
-	/// Turn on queue repeat
 	#[arg(long)]
+	/// Turn on queue repeat
 	repeat_queue: bool,
 
-	/// Turn off repeating
 	#[arg(long)]
+	/// Turn off repeating
 	repeat_off: bool,
 
-	/// Set the volume to `VOLUME` (0-100)
 	#[arg(long)]
 	#[arg(value_parser = clap::value_parser!(u8).range(0..=100))]
+	/// Set the volume to `VOLUME` (0-100)
 	volume: Option<u8>,
 
-	/// Seek to the absolute `SEEK` second in the current song
 	#[arg(long)]
+	/// Seek to the absolute `SEEK` second in the current song
 	seek: Option<u64>,
 
-	/// Seek `SEEK_FORWARD` seconds forwards in the current song
 	#[arg(long)]
+	/// Seek `SEEK_FORWARD` seconds forwards in the current song
 	seek_forward: Option<u64>,
 
-	/// Seek `SEEK_BACKWARD` seconds backwards in the current song
 	#[arg(long)]
+	/// Seek `SEEK_BACKWARD` seconds backwards in the current song
 	seek_backward: Option<u64>,
 
+	#[arg(long, verbatim_doc_comment)]
 	/// Set the current song to the index `INDEX` in the queue.
 	///
 	/// NOTE: The queue index starts from 1 (first song is `--index 1`).
 	///
 	/// Providing an index that is out-of-bounds will end the queue (even if repeat is turned on).
-	#[arg(long)]
 	index: Option<usize>,
 
-	/// Skip `SKIP` amount of songs
 	#[arg(long)]
+	/// Skip `SKIP` amount of songs
 	skip: Option<usize>,
 
-	/// Go backwards in the queue by `BACK` amount of songs
 	#[arg(long)]
+	/// Go backwards in the queue by `BACK` amount of songs
 	back: Option<usize>,
 
-	/// Print JSON metadata about the current `Collection` on disk
 	#[arg(long)]
+	/// Print JSON metadata about the current `Collection` on disk
 	metadata: bool,
 
+	#[arg(long, verbatim_doc_comment, default_value_t = false)]
 	/// Disable watching the filesystem for signals
 	///
 	/// The way a newly launched Festival communicates to
@@ -108,27 +108,24 @@ pub struct Cli {
 	///
 	/// Using `--disable-watch` will disable that part of the system so that
 	/// filesystem signals won't work, e.g, `festival --play` will not work.
-	#[arg(long)]
-	#[arg(default_value_t = false)]
 	disable_watch: bool,
 
+	#[arg(long, verbatim_doc_comment, default_value_t = false)]
 	/// Disable OS media controls
 	///
 	/// Festival plugs into the native OS's media controls so that signals
 	/// like `play/pause/stop` and/or keyboard controls can be processed.
 	///
 	/// `--disable-media-controls` disables this.
-	#[arg(long)]
-	#[arg(default_value_t = false)]
 	disable_media_controls: bool,
 
-	/// Set filter level for console logs
 	#[arg(long, value_name = "OFF|ERROR|INFO|WARN|DEBUG|TRACE")]
 	#[arg(default_value_t = log::LevelFilter::Info)]
+	/// Set filter level for console logs
 	log_level: log::LevelFilter,
 
-	/// Print version
 	#[arg(short, long)]
+	/// Print version
 	version: bool,
 }
 
@@ -145,7 +142,7 @@ impl Cli {
 
 		// Version.
 		if self.version {
-			println!("{FESTIVAL_NAME_VER} {SHUKUSAI_NAME_VER} {COMMIT}\n{COPYRIGHT}");
+			println!("{FESTIVAL_NAME_VER}\n{SHUKUSAI_NAME_VER}\n{COMMIT}\n{COPYRIGHT}");
 			exit(0);
 		}
 

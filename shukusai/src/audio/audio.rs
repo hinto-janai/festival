@@ -492,6 +492,22 @@ impl Audio {
 		}
 	}
 
+	// Media Control state.
+	fn set_media_controls_progress(&mut self, state: &mut std::sync::RwLockWriteGuard<'_, AudioState>) {
+		trace!("Audio - set_media_controls_progress(), playing: {}, elapsed: {}", state.playing, state.elapsed);
+
+		if let Some(media_controls) = &mut self.media_controls {
+			let progress = Some(souvlaki::MediaPosition(Duration::from_secs(state.elapsed.inner().into())));
+			let signal = match state.playing {
+				true  => souvlaki::MediaPlayback::Playing { progress },
+				false => souvlaki::MediaPlayback::Paused  { progress },
+			};
+			if let Err(e) = media_controls.set_playback(signal) {
+				warn!("Audio - Couldn't update souvlaki playback: {e:#?}");
+			}
+		}
+	}
+
 	//-------------------------------------------------- Non-msg functions.
 	// Error handling gets handled in these functions
 	// rather than the caller (it gets called everywhere).
@@ -638,16 +654,7 @@ impl Audio {
 			let mut state = AUDIO_STATE.write();
 			flip!(state.playing);
 
-			if let Some(media_controls) = &mut self.media_controls {
-				let progress = Some(souvlaki::MediaPosition(Duration::from_secs(state.elapsed.inner().into())));
-				let signal = match state.playing {
-					true  => souvlaki::MediaPlayback::Playing { progress },
-					false => souvlaki::MediaPlayback::Paused  { progress },
-				};
-				if let Err(e) = media_controls.set_playback(signal) {
-					warn!("Audio - Couldn't update souvlaki playback: {e:#?}");
-				}
-			}
+			self.set_media_controls_progress(&mut state);
 
 			#[cfg(feature = "gui")]
 			gui_request_update();
@@ -661,12 +668,7 @@ impl Audio {
 
 			let mut state = AUDIO_STATE.write();
 			state.playing = true;
-			if let Some(media_controls) = &mut self.media_controls {
-				let progress = Some(souvlaki::MediaPosition(Duration::from_secs(state.elapsed.inner().into())));
-				if let Err(e) = media_controls.set_playback(souvlaki::MediaPlayback::Playing { progress }) {
-					warn!("Audio - Couldn't update souvlaki playback: {e:#?}");
-				}
-			}
+			self.set_media_controls_progress(&mut state);
 
 			#[cfg(feature = "gui")]
 			gui_request_update();
@@ -680,12 +682,7 @@ impl Audio {
 
 			let mut state = AUDIO_STATE.write();
 			state.playing = false;
-			if let Some(media_controls) = &mut self.media_controls {
-				let progress = Some(souvlaki::MediaPosition(Duration::from_secs(state.elapsed.inner().into())));
-				if let Err(e) = media_controls.set_playback(souvlaki::MediaPlayback::Paused { progress }) {
-					warn!("Audio - Couldn't update souvlaki playback: {e:#?}");
-				}
-			}
+			self.set_media_controls_progress(&mut state);
 
 			#[cfg(feature = "gui")]
 			gui_request_update();
@@ -1152,20 +1149,37 @@ impl Audio {
 		trace!("Audio - Restoring: {:#?}", self.state);
 		*state = self.state.clone();
 
-		if state.playing {
-			if let Some(index) = state.queue_idx {
-				let key = state.queue[index];
-				let elapsed = state.elapsed.inner() as u64;
+		if let Some(index) = self.state.queue_idx {
+			let key = state.queue[index];
 
-				debug!("Audio - Restore ... setting {key:?}");
-				self.set(key, &mut state);
+			// Start playback.
+			let elapsed = state.elapsed.inner() as u64;
+			debug!("Audio - Restore ... setting {key:?}");
+			self.set(key, &mut state);
 
-				if elapsed > 0 {
-					debug!("Audio - Restore ... seeking {}/{}", state.elapsed, state.runtime);
-					self.seek(Seek::Absolute, elapsed, &mut state);
-				} else {
-					debug!("Audio - Restore ... skipping seek");
+			// Restore media control progress.
+			// (the metadata is set above in `.set()`)
+			//
+			// HACK:
+			// If playback is paused, the media controls won't
+			// register until a sample is played. To work around
+			// this, set the media controls to `playing` briefly
+			// if we're paused.
+			if !state.playing {
+				if let Some(media_controls) = &mut self.media_controls {
+					let signal = souvlaki::MediaPlayback::Playing { progress: None };
+					if let Err(e) = media_controls.set_playback(signal) {
+						warn!("Audio - Couldn't update souvlaki playback: {e:#?}");
+					}
 				}
+			}
+			self.set_media_controls_progress(&mut state);
+
+			if elapsed > 0 {
+				self.seek(Seek::Absolute, elapsed, &mut state);
+				debug!("Audio - Restore ... seeking {}/{}", state.elapsed, state.runtime);
+			} else {
+				debug!("Audio - Restore ... skipping seek");
 			}
 		}
 	}
