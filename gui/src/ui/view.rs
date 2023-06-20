@@ -115,7 +115,7 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &
 				last_disc = song.disc;
 			}
 
-			crate::song_button!(self, album, song, *key, ui, offset);
+			crate::song_button!(self, album, song, *key, ui, offset, None);
 		}
 	});
 }}

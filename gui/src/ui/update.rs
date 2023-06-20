@@ -570,8 +570,14 @@ fn show_bottom(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width:
 
 			// Only send signal if the slider was dragged + released.
 			if resp.drag_released() {
-				self.audio_leeway = now!();
-				send!(self.to_kernel, FrontendToKernel::Seek((shukusai::audio::Seek::Absolute, self.audio_seek)));
+				// If we dragged to the very last second, just skip.
+				if self.audio_seek == self.audio_state.runtime.inner() as u64 {
+					debug!("GUI - Seeked to last second, sending Next");
+					send!(self.to_kernel, FrontendToKernel::Next);
+				} else {
+					self.audio_leeway = now!();
+					send!(self.to_kernel, FrontendToKernel::Seek((shukusai::audio::Seek::Absolute, self.audio_seek)));
+				}
 			}
 
 			let time = format!("{} / {}", readable::Runtime::from(self.audio_seek), self.audio_state.runtime);

@@ -78,6 +78,18 @@ pub enum FrontendToKernel {
 	///   `Song` would be offset 2, etc.
 	///
 	/// If the offset is out of bounds, we will start at the first `Song`.
+	///
+	/// The exact ordering of the `Artist`'s songs and what the offsets are
+	/// relative to is the same as the internal struct's ordering:
+	/// [`Album`] in release order, then [`Song`] track order.
+	///
+	/// For example:
+	/// ```txt
+	/// 2010-01-01, album_1, song_1
+	/// 2010-01-01, album_1, song_2
+	/// 2022-01-01, album_2, song_1 // <- Offset of 2 would start at this song.
+	/// 2042-01-01, album_3, song_1
+	/// ```
 	AddQueueArtist((ArtistKey, Append, bool, usize)),
 	/// Shuffle the _current_ queue.
 	Shuffle,

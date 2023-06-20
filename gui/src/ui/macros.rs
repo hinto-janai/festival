@@ -136,6 +136,24 @@ macro_rules! play_album_offset {
 }
 
 #[macro_export]
+/// Send an `Artist` to `Kernel` to play, skipping arbitrarily deep into it.
+///
+/// - Queue should be cleared
+/// - The _clicked_ `Song` should be immediate played
+/// - All the `Album` by the `Artist` should be added to the queue
+/// - Going backwards should be possible, even if the clicked `Song`
+///   is not the first, e.g 5/12th track.
+macro_rules! play_artist_offset {
+	($self:ident, $key:expr, $offset:expr) => {
+		::benri::send!(
+			$self.to_kernel,
+			shukusai::kernel::FrontendToKernel::AddQueueArtist(($key, shukusai::audio::Append::Front, true, $offset))
+		);
+		::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
+	}
+}
+
+#[macro_export]
 /// Play a specific index in the `Queue`.
 ///
 /// This indicates:
@@ -213,11 +231,20 @@ macro_rules! clear_stop {
 /// Adds a clickable `Song` label button that:
 ///
 /// - Lists `track`, `runtime`, `title`
-/// - Primary click: `play_album_offset!()`
+/// - Primary click: play the song/album/artist
 /// - Secondary click: adds it to the queue
 /// - Middle click: opens its directory in a file explorer
+///
+/// HACK:
+/// This also takes in a optional `$artist`.
+/// This dictates whether we want to add a whole `Album` or `Artist`
+/// `Some(ArtistKey)` == `Artist`
+/// `None`            == `Album`
+///
+/// This is for the `Artist/View` tab, where users would probably
+/// expect all songs by that artist to be added when clicking a song.
 macro_rules! song_button {
-	($self:ident, $album:expr, $song:expr, $key:expr, $ui:ident, $offset:expr) => {
+	($self:ident, $album:expr, $song:expr, $key:expr, $ui:ident, $offset:expr, $artist:expr) => {
 		let mut rect = $ui.cursor();
 		rect.max.y = rect.min.y + 35.0;
 
@@ -230,7 +257,11 @@ macro_rules! song_button {
 		if middle || (primary && $self.modifiers.command) {
 			$crate::open!($self, $album);
 		} else if primary {
-			$crate::play_album_offset!($self, $song.album, $offset);
+			if let Some(artist_key) = $artist {
+				$crate::play_artist_offset!($self, artist_key, $offset);
+			} else {
+				$crate::play_album_offset!($self, $song.album, $offset);
+			}
 		} else if secondary {
 			$crate::add_song!($self, $song.title, $key);
 		}

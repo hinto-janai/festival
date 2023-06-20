@@ -391,7 +391,7 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 				.thickness(text)
 				.show_value(false)
 				.trailing_fill(false);
-			ui.add_sized([width, text], slider).on_hover_text(readable::itoa!(self.settings.previous_threshold));
+			ui.add_sized([width, text], slider);
 		});
 		if old_threshold != self.settings.previous_threshold {
 			atomic_store!(shukusai::audio::PREVIOUS_THRESHOLD, self.settings.previous_threshold);

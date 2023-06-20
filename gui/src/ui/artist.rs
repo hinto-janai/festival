@@ -197,6 +197,9 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame
 		// (scales based on pixels available).
 		let head = (width / 26.5) as usize;
 
+		// The total song offset of this `Artist`.
+		let mut offset = 0;
+
 		for album_key in artist.albums.iter() {
 			ui.separator();
 			ui.add_space(10.0);
@@ -219,9 +222,10 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame
 					ui.separator();
 
 					// Song list.
-					for (offset, key) in album.songs.iter().enumerate() {
+					for key in album.songs.iter() {
 						let song = &self.collection.songs[key];
-						crate::song_button!(self, album, song, *key, ui, offset);
+						crate::song_button!(self, album, song, *key, ui, offset, Some(artist_key));
+						offset += 1;
 					}
 				});
 			});
