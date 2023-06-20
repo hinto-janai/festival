@@ -163,7 +163,13 @@ pub const APP_WIDTH_MIN:          f32 = 1000.0;
 pub const APP_HEIGHT_MIN:         f32 = 800.0;
 pub const APP_RESOLUTION_MIN:     [f32; 2] = [APP_WIDTH_MIN, APP_HEIGHT_MIN];
 pub const ALBUM_ART_SIZE_MIN:     f32 = 100.0;
-pub const ALBUM_ART_SIZE_MAX:     f32 = shukusai::collection::ALBUM_ART_SIZE as f32;
+// Downscale the internal `shukusai` art
+// just a little bit for a sharper image.
+pub const ALBUM_ART_SIZE_MAX:     f32 = {
+	const SIZE: f32 = shukusai::collection::ALBUM_ART_SIZE as f32 * 0.8;
+	const_assert!(SIZE > ALBUM_ART_SIZE_MIN);
+	SIZE
+};
 pub const ALBUM_ART_SIZE_DEFAULT: f32 = 227.0;
 pub const ALBUMS_PER_ROW_MIN:      u8 = 1;
 pub const ALBUMS_PER_ROW_MAX:      u8 = 20;

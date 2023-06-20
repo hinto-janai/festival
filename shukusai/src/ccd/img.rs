@@ -66,7 +66,7 @@ pub(crate) const ALBUM_ART_SIZE_NUM: NonZeroU32 = match NonZeroU32::new(ALBUM_AR
 // The real functions are below.
 
 // Input: abritary image bytes.
-// Output: `600x600` RGB image bytes.
+// Output: `500x500` RGB image bytes.
 #[inline(always)]
 pub(crate) fn art_from_raw(bytes: Box<[u8]>, resizer: &mut fir::Resizer) -> Result<Box<[u8]>, anyhow::Error> {
 	// `.buffer()` must be called on `fir::Image`
@@ -90,13 +90,16 @@ pub(crate) fn art_from_known(bytes: Box<[u8]>) -> egui_extras::RetainedImage {
 //-------------------------- Real functions.
 #[inline(always)]
 pub(crate) fn create_resizer() -> fir::Resizer {
-	// FIXME:
-	// Test in blind test to see if you can
-	// actually tell the quality difference
-	// between these two.
-	//
-	// Nearest is faster but "lower quality".
-	fir::Resizer::new(ResizeAlg::Nearest)
+	// Fastest but pixels are noticably jagged.
+//	fir::Resizer::new(ResizeAlg::Nearest)
+
+	// Better quality when downscaling, same as `Nearest` when upscaling.
+	fir::Resizer::new(ResizeAlg::Convolution(FilterType::Box))
+
+	// Sharper than `Box` when downscaling, bad when upscaling.
+//	fir::Resizer::new(ResizeAlg::Convolution(FilterType::Hamming))
+
+	// Slowest, supposedly best but I don't think it's noticable.
 //	fir::Resizer::new(ResizeAlg::Convolution(FilterType::Lanczos3))
 }
 
@@ -169,7 +172,7 @@ fn resize_dyn_image(img: image::DynamicImage, resizer: &mut fir::Resizer) -> Res
 // Input to this function _must_ be bytes that are perfectly
 // separated into `3` chunks, as in `[R,G,B ... R,G,B]`.
 //
-// The image size must also be `600x600` or this will cause `egui` to `panic!()`.
+// The image size must also be `500x500` or this will cause `egui` to `panic!()`.
 //
 // Original `egui` function has an `assert!()`.
 fn rgb_bytes_to_color_img(bytes: Box<[u8]>) -> egui::ColorImage {
@@ -300,7 +303,7 @@ mod tests {
 		assert!(fir_img.len() % 3 == 0);
 
 		let retained = art_from_known(&fir_img);
-		assert!(retained.width() == 600);
-		assert!(retained.height() == 600);
+		assert!(retained.width() == 500);
+		assert!(retained.height() == 500);
 	}
 }

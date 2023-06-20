@@ -440,53 +440,54 @@ impl Ccd {
 		let objects_songs   = collection_for_disk.count_song.usize();
 		let objects_art     = count_art;
 
+		let timestamp = collection_for_disk.timestamp;
+
 		// SOMEDAY:
 		// Make this multi-threaded and/or async.
 		//
 		// Save images to `~/.cache/festival/image`.
 		let _ = ImageCache::rm_sub();
-		match ImageCache::base_path() {
-			Ok(mut path) => {
-				let image_cache = ImageCache(collection_for_disk.timestamp);
+		{
+			// This deconstructs `Collection`.
+			let albums = collection_for_disk.into_albums();
+
+			if let Ok(mut path) = ImageCache::base_path() {
+				let image_cache = ImageCache(timestamp);
 				if let Err(e) = image_cache.save() {
 					fail!("CCD ... ImageCache: {e}");
 				} else {
-					for (key, album) in collection_for_disk.albums.iter().enumerate() {
-						if let Art::Bytes(bytes) = &album.art {
+					for (key, album) in albums.into_iter().enumerate() {
+						if let Art::Bytes(bytes) = album.art {
 							path.push(format!("{key}.jpg"));
 
 							if let Err(e) = std::fs::File::create(&path) {
 								warn!("CCD ... ImageCache {e}: {}", path.display());
-								path.pop();
-								continue;
-							}
-
-							match image::save_buffer(
-								&path,
-								bytes,
-								crate::collection::ALBUM_ART_SIZE as u32,
-								crate::collection::ALBUM_ART_SIZE as u32,
-								image::ColorType::Rgb8,
-							) {
-								Ok(_)  => ok_trace!("CCD ... ImageCache: {}", path.display()),
-								Err(e) => warn!("CCD ... ImageCache {e}: {}", path.display()),
+							} else {
+								match image::save_buffer(
+									&path,
+									&bytes,
+									crate::collection::ALBUM_ART_SIZE as u32,
+									crate::collection::ALBUM_ART_SIZE as u32,
+									image::ColorType::Rgb8,
+								) {
+									Ok(_)  => ok_trace!("CCD ... ImageCache: {}", path.display()),
+									Err(e) => warn!("CCD ... ImageCache {e}: {}", path.display()),
+								}
 							}
 
 							path.pop();
 						}
 					}
 				}
-			},
-			_ => fail!("CCD ... ImageCache"),
+			} else {
+				fail!("CCD ... ImageCache");
+			}
 		}
 
 		// Set `saving` state.
 		atomic_store!(crate::state::SAVING, false);
 		let perf_disk = secs_f32!(now);
 		trace!("CCD [14/14] ... Disk: {perf_disk}");
-
-		// Don't need this anymore.
-		drop(collection_for_disk);
 
 		//-------------------------------------------------------------------------------- Print & save `Perf` stats.
 		// Gather and save perf data.

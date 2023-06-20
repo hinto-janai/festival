@@ -20,10 +20,10 @@ use once_cell::sync::Lazy;
 //---------------------------------------------------------------------------------------------------- Constant
 /// The [`Album`] art size in pixels
 ///
-/// 600x600 pixels.
+/// 500x500 pixels.
 ///
 /// Album art will _always_ be resized internally to this size.
-pub const ALBUM_ART_SIZE: usize = 600;
+pub const ALBUM_ART_SIZE: usize = 500;
 
 //---------------------------------------------------------------------------------------------------- Unknown Art (lazy) Constant
 pub(crate) const UNKNOWN_ALBUM_BYTES: &[u8] = include_bytes!("../../../assets/images/art/unknown.png");

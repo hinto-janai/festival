@@ -372,7 +372,7 @@ impl Collection {
 		Arc::clone(&DUMMY_COLLECTION)
 	}
 
-	//-------------------------------------------------- Metadata functions.
+	//-------------------------------------------------- Private functions.
 	// Set the proper metadata for this `Collection`.
 	pub(crate) fn set_metadata(&mut self) {
 		// Get `Vec` lengths.
@@ -394,6 +394,12 @@ impl Collection {
 
 		// Set `timestamp`.
 		self.timestamp = benri::unix!();
+	}
+
+	// Consume self returning an iterator over the album vec.
+	// This is used by `CCD` when saving images.
+	pub(crate) fn into_albums(self) -> Vec<Album> {
+		self.albums.0.into_vec()
 	}
 
 	//-------------------------------------------------- Searching.

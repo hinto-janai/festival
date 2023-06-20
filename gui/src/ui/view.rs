@@ -16,6 +16,7 @@ use shukusai::kernel::{
 };
 use crate::constants::{
 	BONE,GRAY,MEDIUM_GRAY,
+	ALBUM_ART_SIZE_MIN,ALBUM_ART_SIZE_MAX,
 };
 use readable::HeadTail;
 use log::warn;
@@ -50,12 +51,11 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, frame: &
 
 	// `Album` art.
 	ui.vertical_centered(|ui| {
-		ui.set_max_width(height/3.0);
+		let size = (height / 2.5).clamp(ALBUM_ART_SIZE_MIN, ALBUM_ART_SIZE_MAX);
+		let size = Vec2::new(size, size);
+		ui.set_max_size(size);
 		Frame::window(&ctx.style()).rounding(Rounding::none()).inner_margin(1.0).show(ui, |ui| {
-			// += `0.02` allows 7 songs to perfectly fit
-			// without a scrollbar on the min resolution.
-			let size = height / 2.52;
-			album.art_or().show_size(ui, Vec2::new(size, size));
+			album.art_or().show_size(ui, size);
 		});
 	});
 
