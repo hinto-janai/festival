@@ -33,8 +33,6 @@ pub enum Tab {
 	Artists,
 	Songs,
 	Queue,
-	// TODO: Make `shukusai` playlists suck less.
-//	Playlists,
 	Search,
 	Settings,
 }
@@ -48,8 +46,6 @@ impl Tab {
 			Self::Artists   => ARTISTS,
 			Self::Songs     => SONGS,
 			Self::Queue     => QUEUE,
-			// TODO: Make `shukusai` playlists suck less.
-//			Self::Playlists => PLAYLISTS,
 			Self::Search    => SEARCH,
 			Self::Settings  => SETTINGS,
 		}
@@ -64,8 +60,6 @@ impl Tab {
 			Self::Artists,
 			Self::Songs,
 			Self::Queue,
-			// TODO: Make `shukusai` playlists suck less.
-//			Self::Playlists,
 			Self::Search,
 			Self::Settings,
 		].iter()

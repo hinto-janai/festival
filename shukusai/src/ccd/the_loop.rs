@@ -149,7 +149,7 @@ impl crate::ccd::Ccd {
 		scope.spawn(|| {                         // Spawn a thread.
 		for path in paths.iter() {               // Make thread work over the chunked paths.
 
-		// TODO:
+		// FIXME:
 		// Figure out how to take ownership of this instead of cloning.
 		let path = path.clone();
 

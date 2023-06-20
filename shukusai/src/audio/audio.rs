@@ -308,8 +308,10 @@ impl Audio {
 						gui_request_update();
 						continue;
 					},
-//					Err(err) => break Err(err),
-					Err(err) => todo!(),
+					Err(err) => {
+						error!("Audio - {err}");
+						continue;
+					},
 				};
 
 				// Decode the packet into audio samples.
@@ -325,8 +327,20 @@ impl Audio {
 						let duration = decoded.capacity() as u64;
 
 						if spec != self.output.spec || duration != self.output.duration {
-							// TODO
-							self.output = AudioOutput::try_open(spec, duration).unwrap();
+							// If the spec/duration is different, we must re-open a
+							// matching audio output device or audio will get weird.
+							match AudioOutput::try_open(spec, duration) {
+								Ok(o)  => self.output = o,
+
+								// And if we couldn't, pause playback.
+								Err(e) => {
+									//
+									self.state.playing          = false;
+									AUDIO_STATE.write().playing = false;
+									send!(self.to_kernel, AudioToKernel::DeviceError(e.into_anyhow()));
+									continue;
+								},
+							}
 						}
 
 						// Convert the buffer to `f32` and multiply

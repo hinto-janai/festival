@@ -708,8 +708,6 @@ fn show_central(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width
 			Tab::Artists   => self.show_tab_artists(ui, ctx, frame, width, height),
 			Tab::Songs     => self.show_tab_songs(ui, ctx, frame, width, height),
 			Tab::Queue     => self.show_tab_queue(ui, ctx, frame, width, height),
-			// SOMEDAY: Make `shukusai` playlists suck less.
-//			Tab::Playlists => (),
 			Tab::Search    => self.show_tab_search(ui, ctx, frame, width, height),
 			Tab::Settings  => self.show_tab_settings(ui, ctx, frame, width, height),
 		}

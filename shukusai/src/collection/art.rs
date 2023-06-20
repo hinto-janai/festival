@@ -29,6 +29,13 @@ pub const ALBUM_ART_SIZE: usize = 500;
 pub(crate) const UNKNOWN_ALBUM_BYTES: &[u8] = include_bytes!("../../../assets/images/art/unknown.png");
 pub(crate) static UNKNOWN_ALBUM: Lazy<RetainedImage> = Lazy::new(|| RetainedImage::from_image_bytes("Unknown", UNKNOWN_ALBUM_BYTES).unwrap());
 
+// INVARIANT:
+// `egui` uses ID 0 for its own textures.
+//
+// `Kernel` _must_ initialize `UNKNOWN_ALBUM` before
+// anything other texture so that this ID is correct.
+pub(crate) const UNKNOWN_ALBUM_ID: egui::TextureId = egui::TextureId::Managed(1);
+
 //---------------------------------------------------------------------------------------------------- Art
 #[derive(Default)]
 /// An `enum` that is _always_ an image.
@@ -125,8 +132,7 @@ impl Art {
 	pub(crate) fn texture_id(&self, ctx: &egui::Context) -> egui::TextureId {
 		match self {
 			Self::Known(a) => a.texture_id(ctx),
-			// TODO: `lazy` this id, no need to lock
-			_ => UNKNOWN_ALBUM.texture_id(ctx),
+			_ => UNKNOWN_ALBUM_ID,
 		}
 	}
 }

@@ -14,6 +14,7 @@ use symphonia::core::audio::*;
 use symphonia::core::units::Duration;
 use crate::constants::FESTIVAL;
 use benri::log::*;
+use anyhow::anyhow;
 
 //---------------------------------------------------------------------------------------------------- Audio Output
 // This `Output` trait describes the functions
@@ -43,13 +44,28 @@ pub(crate) trait Output: Sized {
 
 #[derive(Debug)]
 pub(crate) enum AudioOutputError {
-	OpenStream,
-	PlayStream,
-	StreamClosed,
-	Channel,
-	InvalidSpec,
-	NonF32,
-	Resampler,
+	OpenStream(anyhow::Error),
+	PlayStream(anyhow::Error),
+	StreamClosed(anyhow::Error),
+	Channel(anyhow::Error),
+	InvalidSpec(anyhow::Error),
+	NonF32(anyhow::Error),
+	Resampler(anyhow::Error),
+}
+
+impl AudioOutputError {
+	pub(crate) fn into_anyhow(self) -> anyhow::Error {
+		use AudioOutputError::*;
+		match self {
+			OpenStream(a)   => a,
+			PlayStream(a)   => a,
+			StreamClosed(a) => a,
+			Channel(a)      => a,
+			InvalidSpec(a)  => a,
+			NonF32(a)       => a,
+			Resampler(a)    => a,
+		}
+	}
 }
 
 pub(crate) type Result<T> = result::Result<T, AudioOutputError>;
@@ -87,13 +103,13 @@ mod output {
 			};
 
 			if !pa_spec.is_valid() {
-				return Err(AudioOutputError::InvalidSpec);
+				return Err(AudioOutputError::InvalidSpec(anyhow!("invalid stream specification: {pa_spec:#?}")));
 			}
 
 			let pa_ch_map = map_channels_to_pa_channelmap(spec.channels);
 
 			if pa_ch_map.is_none() {
-				return Err(AudioOutputError::Channel);
+				return Err(AudioOutputError::Channel(anyhow!("invalid channels: {:#?}", spec.channels)));
 			}
 
 			// Create PulseAudio buffer attribute.
@@ -131,7 +147,7 @@ mod output {
 				Ok(pa) => Ok(AudioOutput { pa, sample_buf, spec, duration, }),
 				Err(err) => {
 					fail!("Audio - AudioOutput stream open error: {err}");
-					Err(AudioOutputError::OpenStream)
+					Err(AudioOutputError::OpenStream(anyhow!(err)))
 				}
 			}
 		}
@@ -149,7 +165,7 @@ mod output {
 			match self.pa.write(self.sample_buf.as_bytes()) {
 				Err(err) => {
 					error!("Audio - AudioOutput stream write error: {err}");
-					Err(AudioOutputError::StreamClosed)
+					Err(AudioOutputError::StreamClosed(anyhow!(err)))
 				}
 				_ => Ok(()),
 			}
@@ -218,7 +234,7 @@ mod output {
 
 	use log::{error, info, warn, trace};
 
-	// TODO: support i16/u16.
+	// SOMEDAY: support i16/u16.
 	pub(crate) struct AudioOutput {
 		ring_buf_producer: rb::Producer<f32>,
 		sample_buf: SampleBuffer<f32>,
@@ -236,17 +252,17 @@ mod output {
 			// Get the default audio output device.
 			let device = match host.default_output_device() {
 				Some(device) => device,
-				_ => return Err(AudioOutputError::OpenStream),
+				Err(err)     => return Err(AudioOutputError::OpenStream(anyhow!(err))),
 			};
 
 			let config = match device.default_output_config() {
 				Ok(config) => config,
-				Err(err) => return Err(AudioOutputError::OpenStream),
+				Err(err) => return Err(AudioOutputError::OpenStream(anyhow!(err))),
 			};
 
-			// TODO: support i16/u16.
+			// SOMEDAY: support i16/u16.
 			if config.sample_format() != cpal::SampleFormat::F32 {
-				return Err(AudioOutputError::NonF32);
+				return Err(AudioOutputError::NonF32(anyhow!("sample format is not f32")));
 			}
 
 			let num_channels = spec.channels.count();
@@ -282,12 +298,12 @@ mod output {
 
 			let stream = match stream_result {
 				Ok(s) => s,
-				Err(err) => return Err(AudioOutputError::OpenStream),
+				Err(err) => return Err(AudioOutputError::OpenStream(anyhow!(err))),
 			};
 
 			// Start the output stream.
 			if let Err(err) = stream.play() {
-				return Err(AudioOutputError::PlayStream);
+				return Err(AudioOutputError::PlayStream(anyhow!(err)));
 			}
 
 			let sample_buf = SampleBuffer::<f32>::new(duration, spec);
@@ -298,7 +314,7 @@ mod output {
 					Ok(r)  => Some(r),
 					Err(e) => {
 						error!("Audio - failed to create resampler: {e}");
-						return Err(AudioOutputError::Resampler);
+						return Err(AudioOutputError::Resampler(anyhow!(e)));
 					},
 				}
 			} else {

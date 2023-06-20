@@ -18,9 +18,6 @@ use crate::ccd::mime::{
 
 //---------------------------------------------------------------------------------------------------- __NAME__
 impl super::Ccd {
-	// TODO:
-	// Handle no PATHs.
-	//
 	// `WalkDir` given PATHs and filter for audio files.
 	// Ignore non-existing PATHs in the array.
 	pub(super) fn walkdir_audio(

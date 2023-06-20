@@ -43,7 +43,7 @@ pub fn init_logger(filter: log::LevelFilter) {
 	let mut env = String::new();
 	match std::env::var("RUST_LOG") {
 		Ok(e) => { std::env::set_var("RUST_LOG", &e); env = e; },
-		// TODO:
+		// SOMEDAY:
 		// Support frontend names without *festival*.
 		_     => std::env::set_var("RUST_LOG", format!("off,shukusai={},festival={}", filter, filter)),
 	}

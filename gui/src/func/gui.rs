@@ -95,7 +95,6 @@ impl Gui {
 	/// Set the current [`Settings`] to disk.
 	pub fn save_settings(&mut self) -> Result<(), anyhow::Error> {
 		self.set_settings();
-		// TODO: handle save error.
 		match self.settings.save_atomic() {
 			Ok(md) => { ok_debug!("GUI - Settings save: {md}"); Ok(()) },
 			Err(e) => { error!("GUI - Settings could not be saved to disk: {e}"); Err(e) },
@@ -105,7 +104,6 @@ impl Gui {
 	/// Set the current [`State`] to disk.
 	pub fn save_state(&mut self) {
 		self.set_state();
-		// TODO: handle save error.
 		match self.state.save_atomic() {
 			Ok(md) => ok_debug!("GUI - State save: {md}"),
 			Err(e) => error!("GUI - State could not be saved to disk: {e}"),
