@@ -10,7 +10,7 @@ use std::sync::Arc;
 use crate::{
 	state::AudioState,
 	collection::{
-		Collection,Keychain,QueueKey,
+		Collection,Keychain,
 		ArtistKey,AlbumKey,SongKey,
 	},
 	audio::{

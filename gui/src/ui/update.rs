@@ -61,7 +61,7 @@ use crate::constants::{
 	YELLOW,GREEN,MEDIUM_GRAY,
 };
 use crate::text::{
-	HELP,
+	HELP,MOD,
 	EMPTY_COLLECTION,
 	COLLECTION_LOADING,
 	COLLECTION_RESETTING,
@@ -116,11 +116,11 @@ impl eframe::App for Gui {
 	#[inline(always)]
 	fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
 		// If `souvlaki` sent an exit signal.
-		if atomic_load!(shukusai::state::MEDIA_CONTROLS_SHOULD_EXIT) {
+		if shukusai::state::media_controls_should_exit() {
 			self.on_close_event();
 		}
 		// If `souvlaki` sent a `Raise` signal.
-		if atomic_load!(shukusai::state::MEDIA_CONTROLS_RAISE) {
+		if shukusai::state::media_controls_raise() {
 			frame.set_always_on_top(true);
 			frame.set_always_on_top(false);
 		}
@@ -351,8 +351,8 @@ impl Gui {
 					&&
 					input.key_pressed(Key::P)
 				{
-					info!("GUI - COMMAND+SHIFT+P was pressed, forcefully panic!()'ing...!");
-					panic!("GUI - COMMAND+SHIFT+P force panic");
+					info!("GUI - {MOD}+SHIFT+P was pressed, forcefully panic!()'ing...!");
+					panic!("GUI - {MOD}+SHIFT+P force panic");
 				// Check for `Ctrl+Shift+D` (toggle debug screen)
 				} else if
 					input.modifiers.matches(Modifiers::COMMAND.plus(Modifiers::SHIFT))
@@ -377,7 +377,7 @@ impl Gui {
 			});
 		}
 
-		// We must show the spinner here again because after `COMMAND+R`,
+		// We must show the spinner here again because after `CTRL+R`,
 		// a few frames of the "Empty Collection" will flash.
 		if self.resetting_collection {
 			self.show_collection_spinner(ctx, width, height, COLLECTION_RESETTING);
@@ -815,7 +815,7 @@ fn show_collection_spinner(
 //---------------------------------------------------------------------------------------------------- Debug scren
 // This is a fullscreen debug screen, showing
 // a bunch of useful runtime information.
-// Toggled with `COMMAND+SHIFT+D`.
+// Toggled with `CTRL+SHIFT+D`.
 impl Gui {
 #[inline(always)]
 fn show_debug_screen(&mut self, ctx: &egui::Context, width: f32, height: f32) {
@@ -824,7 +824,7 @@ fn show_debug_screen(&mut self, ctx: &egui::Context, width: f32, height: f32) {
 		ui.vertical_centered(|ui| {
 			let header = height / 25.0;
 
-			let text = RichText::new("--- Debug Info ---\nCOMMAND+SHIFT+D to toggle")
+			let text = RichText::new(const_format::formatcp!("--- Debug Info ---\n{MOD}+SHIFT+D to toggle"))
 				.size(header)
 				.color(BONE);
 
@@ -833,15 +833,9 @@ fn show_debug_screen(&mut self, ctx: &egui::Context, width: f32, height: f32) {
 
 			// Save button.
 			ui.add_space(header);
-			if ui.add_sized([width, header], Button::new("Save to disk")).clicked() {
+			if ui.add_sized([width / 1.5, header], Button::new("Save to disk")).clicked() {
 				match self.debug_info.save_atomic() {
-					Ok(_)  => {
-						let path = match crate::data::DebugInfo::absolute_path() {
-							Ok(p) => p.display().to_string(),
-							_ => String::from("???"),
-						};
-						ok!("GUI - DebugInfo @ {path}");
-					},
+					Ok(md)  => ok!("GUI - {md}"),
 					Err(e) => error!("GUI - DebugInfo save to disk error: {e}"),
 				}
 			}

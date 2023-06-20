@@ -130,35 +130,35 @@ impl_common!(AlbumKey);
 pub struct SongKey(usize);
 impl_common!(SongKey);
 
-//---------------------------------------------------------------------------------------------------- QueueKey
-#[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
-#[repr(transparent)]
-#[serde(transparent)]
-/// A key representing an index in the `Queue`
-///
-/// This is used to index `Queue`, e.g:
-///
-/// 1. user clicks 'remove song #4 from queue'
-/// 2. gui sends QueueKey(3) to helper
-/// 3. kernel deletes queue\[3\]
-///
-/// This is just for type safety.
-///
-/// The inner type is just a [`usize`].
-pub struct QueueKey(usize);
-impl_common!(QueueKey);
-
-//---------------------------------------------------------------------------------------------------- PlaylistKey
-#[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
-#[repr(transparent)]
-#[serde(transparent)]
-/// A key representing an index in a `Playlist`
-///
-/// This is the same as [`QueueKey`] but for a `Playlist`.
-///
-/// The inner type is just a [`usize`].
-pub struct PlaylistKey(usize);
-impl_common!(PlaylistKey);
+////---------------------------------------------------------------------------------------------------- QueueKey
+//#[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
+//#[repr(transparent)]
+//#[serde(transparent)]
+///// A key representing an index in the `Queue`
+/////
+///// This is used to index `Queue`, e.g:
+/////
+///// 1. user clicks 'remove song #4 from queue'
+///// 2. gui sends QueueKey(3) to helper
+///// 3. kernel deletes queue\[3\]
+/////
+///// This is just for type safety.
+/////
+///// The inner type is just a [`usize`].
+//pub struct QueueKey(usize);
+//impl_common!(QueueKey);
+//
+////---------------------------------------------------------------------------------------------------- PlaylistKey
+//#[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
+//#[repr(transparent)]
+//#[serde(transparent)]
+///// A key representing an index in a `Playlist`
+/////
+///// This is the same as [`QueueKey`] but for a `Playlist`.
+/////
+///// The inner type is just a [`usize`].
+//pub struct PlaylistKey(usize);
+//impl_common!(PlaylistKey);
 
 //---------------------------------------------------------------------------------------------------- Key
 #[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]

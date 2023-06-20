@@ -284,32 +284,44 @@ impl Ccd {
 			sort_song_title,
 			sort_song_title_rev,
 
-			_reserved1: PhantomData,
-			_reserved2: PhantomData,
-			_reserved4: PhantomData,
-			_reserved5: PhantomData,
-			_reserved6: PhantomData,
-			_reserved7: PhantomData,
-			_reserved8: PhantomData,
-			_reserved9: PhantomData,
-			_reserved10: PhantomData,
-			_reserved11: PhantomData,
-			_reserved12: PhantomData,
-			_reserved13: PhantomData,
-			_reserved14: PhantomData,
-			_reserved15: PhantomData,
-			_reserved16: PhantomData,
-			_reserved17: PhantomData,
-			_reserved18: PhantomData,
-			_reserved19: PhantomData,
-			_reserved20: PhantomData,
-			_reserved21: PhantomData,
-			_reserved22: PhantomData,
-			_reserved23: PhantomData,
-			_reserved24: PhantomData,
+			// We don't use `..Default::default()` because
+			// we want to _explicit_ about the values here.
+			_reserved1: PhantomData, _reserved2: PhantomData, _reserved4: PhantomData, _reserved5: PhantomData,
+			_reserved6: PhantomData, _reserved7: PhantomData, _reserved8: PhantomData, _reserved9: PhantomData,
+			_reserved10: PhantomData, _reserved11: PhantomData, _reserved12: PhantomData, _reserved13: PhantomData,
+			_reserved14: PhantomData, _reserved15: PhantomData, _reserved16: PhantomData, _reserved17: PhantomData,
+			_reserved18: PhantomData, _reserved19: PhantomData, _reserved20: PhantomData, _reserved21: PhantomData,
+			_reserved22: PhantomData, _reserved23: PhantomData, _reserved24: PhantomData, _reserved25: PhantomData,
+			_reserved26: PhantomData, _reserved27: PhantomData, _reserved28: PhantomData, _reserved29: PhantomData,
+			_reserved30: PhantomData, _reserved31: PhantomData, _reserved32: PhantomData, _reserved33: PhantomData,
+			_reserved34: PhantomData, _reserved35: PhantomData, _reserved36: PhantomData, _reserved37: PhantomData,
+			_reserved38: PhantomData, _reserved39: PhantomData, _reserved40: PhantomData, _reserved41: PhantomData,
+			_reserved42: PhantomData, _reserved43: PhantomData, _reserved44: PhantomData, _reserved45: PhantomData,
+			_reserved46: PhantomData, _reserved47: PhantomData, _reserved48: PhantomData, _reserved49: PhantomData,
+			_reserved50: PhantomData,
 		};
 		// Fix metadata.
-		collection.set_metadata();
+		{
+			// Get `Vec` lengths.
+			let artists = collection.artists.len();
+			let albums  = collection.albums.len();
+			let songs   = collection.songs.len();
+
+			// Set `empty`.
+			if artists == 0 && albums == 0 && songs == 0 {
+				collection.empty = true;
+			} else {
+				collection.empty = false;
+			}
+
+			// Set `count_*`.
+			collection.count_artist = Unsigned::from(artists);
+			collection.count_album  = Unsigned::from(albums);
+			collection.count_song   = Unsigned::from(songs);
+
+			// Set `timestamp`.
+			collection.timestamp = benri::unix!();
+		}
 		let perf_prepare = secs_f32!(now);
 		trace!("CCD [7/14] ... Prepare: {perf_prepare}");
 
@@ -445,7 +457,7 @@ impl Ccd {
 		let _ = ImageCache::rm_sub();
 		{
 			// This deconstructs `Collection`.
-			let albums = collection_for_disk.into_albums();
+			let albums = collection_for_disk.albums.0.into_vec();
 
 			if let Ok(mut path) = ImageCache::base_path() {
 				let image_cache = ImageCache(timestamp);

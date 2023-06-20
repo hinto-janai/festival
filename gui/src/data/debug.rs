@@ -10,6 +10,7 @@ use shukusai::{
 		COMMIT,
 		FESTIVAL,
 		SHUKUSAI_NAME_VER,
+		TXT_SUB_DIR,
 	},
 	thread::THREADS,
 	state::AUDIO_STATE,
@@ -17,9 +18,10 @@ use shukusai::{
 };
 use benri::atomic_load;
 use serde::{Serialize,Deserialize};
+use const_format::formatcp;
 
 //---------------------------------------------------------------------------------------------------- Debug screen formatter.
-disk::plain!(DebugInfo, disk::Dir::Data, FESTIVAL, GUI, "debug.txt");
+disk::plain!(DebugInfo, disk::Dir::Data, FESTIVAL, formatcp!("{GUI}/{TXT_SUB_DIR}"), "debug.txt");
 #[derive(Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
 #[serde(transparent)]
 /// File representing GUI debug info.
@@ -38,7 +40,7 @@ impl DebugInfo {
 }
 
 //---------------------------------------------------------------------------------------------------- Debug screen formatter.
-impl super::Gui {
+impl Gui {
 	pub fn update_debug_info(&mut self) {
 		let info = format!(
 "{DASH} sys
@@ -48,8 +50,9 @@ threads | {}
 elapsed | {} seconds
 
 {DASH} festival
-build   | {}
-commit  | {}version | {}
+build    | {}
+commit   | {}version | {}
+shukusai | {}
 
 {DASH} diff
 state    | {}
@@ -66,6 +69,7 @@ search_string | {}
 count_artist | {}
 count_album  | {}
 count_song   | {}
+count_art    | {}
 
 {DASH} exit
 exiting        | {}
@@ -103,6 +107,7 @@ kernel_returned      | {}
 			BUILD,
 			COMMIT,
 			FESTIVAL_NAME_VER,
+			SHUKUSAI_NAME_VER,
 			self.diff_state(),
 			self.diff_settings(),
 			atomic_load!(self.rfd_open),
@@ -111,6 +116,7 @@ kernel_returned      | {}
 			self.count_artist,
 			self.count_album,
 			self.count_song,
+			self.count_art,
 			self.exiting,
 			atomic_load!(self.exit_countdown),
 			self.resetting_collection,

@@ -479,6 +479,7 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, widt
 		ui.add_sized([width, text], Label::new(&self.count_artist));
 		ui.add_sized([width, text], Label::new(&self.count_album));
 		ui.add_sized([width, text], Label::new(&self.count_song));
+		ui.add_sized([width, text], Label::new(&self.count_art));
 
 		ui.add_space(40.0);
 		ui.separator();

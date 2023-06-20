@@ -226,6 +226,7 @@ impl crate::data::Gui {
 			count_artist: "Artists: 0".to_string(),
 			count_album: "Albums: 0".to_string(),
 			count_song: "Songs: 0".to_string(),
+			count_art: "Art: 0".to_string(),
 
 			exiting: false,
 			exit_instant: now!(),

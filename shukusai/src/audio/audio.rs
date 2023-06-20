@@ -14,7 +14,7 @@ use std::sync::{
 use crate::{
 	collection::{
 		Collection,Keychain,ArtistKey,
-		AlbumKey,SongKey,QueueKey,
+		AlbumKey,SongKey,
 	},
 	audio::{
 		AudioToKernel,KernelToAudio,

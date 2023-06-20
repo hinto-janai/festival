@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------------------------------- Use
 use crate::collection::{
-	Collection,Keychain,Queue,Key,
+	Collection,Keychain,Key,
 	ArtistKey,AlbumKey,SongKey,
 };
 
@@ -64,18 +64,18 @@ pub fn keychain(c: &Collection, keychain: &Keychain) -> bool {
 	)
 }
 
-/// Check if a [`Queue`] contains valid indices into the [`Collection`]
-///
-/// If the [`Queue`] is completely empty, this returns `true`.
-///
-/// - `true` == valid
-/// - `false` == invalid
-pub fn queue(c: &Collection, queue: &Queue) -> bool {
-	match queue.iter().max() {
-		Some(key) => c.get(*key).is_some(),
-		None => true,
-	}
-}
+///// Check if a [`Queue`] contains valid indices into the [`Collection`]
+/////
+///// If the [`Queue`] is completely empty, this returns `true`.
+/////
+///// - `true` == valid
+///// - `false` == invalid
+//pub fn queue(c: &Collection, queue: &Queue) -> bool {
+//	match queue.iter().max() {
+//		Some(key) => c.get(*key).is_some(),
+//		None => true,
+//	}
+//}
 
 //---------------------------------------------------------------------------------------------------- TESTS
 //#[cfg(test)]

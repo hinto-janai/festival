@@ -9,7 +9,7 @@
 use std::sync::Arc;
 use crate::{
 	collection::{
-		Artist,Album,Song,QueueKey,
+		Artist,Album,Song,
 		ArtistKey,AlbumKey,SongKey,Key,
 		Collection,Keychain,
 	},

@@ -1,5 +1,4 @@
 //---------------------------------------------------------------------------------------------------- Use
-use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
 use crate::collection::{
 	Collection,
@@ -10,8 +9,7 @@ use crate::collection::{
 //---------------------------------------------------------------------------------------------------- Plural newtypes around `Vec<T>`.
 macro_rules! impl_plural {
 	($name:ident, $plural:ident, $key:ident) => { paste::paste! {
-		#[derive(Clone,Debug,Serialize,Deserialize,PartialEq,PartialOrd,Encode,Decode)]
-		#[serde(transparent)]
+		#[derive(Clone,Debug,PartialEq,PartialOrd,Encode,Decode)]
 		/// Type-safe wrapper around a [`Box`]'ed [`slice`].
 		///
 		#[doc = "This struct's inner value is just `Box<[" $name "]>`"]

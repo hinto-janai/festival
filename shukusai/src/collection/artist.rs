@@ -1,7 +1,4 @@
 //---------------------------------------------------------------------------------------------------- Use
-//use anyhow::{bail,ensure,Error};
-//use log::{info,error,warn,trace,debug};
-use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
 use std::marker::PhantomData;
 use readable::Runtime;
@@ -14,7 +11,7 @@ use crate::collection::{
 };
 
 //----------------------------------------------------------------------------------------------------
-#[derive(Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
+#[derive(Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Encode,Decode)]
 /// Struct holding [`Artist`] metadata, with pointers to [`Album`]\(s\)
 ///
 /// This struct holds all the metadata about a particular [`Artist`].

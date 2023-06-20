@@ -1,3 +1,13 @@
+/*
+ * `Slice` types.
+ *
+ * As long as this comment is here, this is not
+ * actually in use. If the day comes where the
+ * `Slice` types are actually used, this comment
+ * will be removed and this file will be added
+ * to the `mod.rs` file.
+ */
+
 //---------------------------------------------------------------------------------------------------- Use
 use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};

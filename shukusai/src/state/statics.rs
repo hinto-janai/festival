@@ -2,13 +2,6 @@
 use std::sync::atomic::AtomicBool;
 use benri::atomic_load;
 
-//---------------------------------------------------------------------------------------------------- Media Controls
-/// The user sent a signal via the OS Media Control's that the main window should be raised.
-pub static MEDIA_CONTROLS_RAISE: AtomicBool = AtomicBool::new(false);
-
-/// The user sent a signal via the OS Media Control's that we should exit (all of Festival).
-pub static MEDIA_CONTROLS_SHOULD_EXIT: AtomicBool = AtomicBool::new(false);
-
 //---------------------------------------------------------------------------------------------------- Saving.
 pub(crate) static SAVING: AtomicBool = AtomicBool::new(false);
 #[inline(always)]
@@ -25,4 +18,19 @@ pub(crate) static SAVING: AtomicBool = AtomicBool::new(false);
 /// for the [`Collection`] to be saved to disk.
 pub fn saving() -> bool {
 	atomic_load!(SAVING)
+}
+
+//---------------------------------------------------------------------------------------------------- Media Controls
+pub(crate) static MEDIA_CONTROLS_RAISE: AtomicBool = AtomicBool::new(false);
+#[inline(always)]
+/// The user sent a signal via the OS Media Control's that the main window should be raised.
+pub fn media_controls_raise() -> bool {
+	atomic_load!(MEDIA_CONTROLS_RAISE)
+}
+
+pub(crate) static MEDIA_CONTROLS_SHOULD_EXIT: AtomicBool = AtomicBool::new(false);
+#[inline(always)]
+/// The user sent a signal via the OS Media Control's that we should exit (all of Festival).
+pub fn media_controls_should_exit() -> bool {
+	atomic_load!(MEDIA_CONTROLS_SHOULD_EXIT)
 }

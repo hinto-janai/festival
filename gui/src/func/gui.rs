@@ -311,6 +311,7 @@ impl Gui {
 		self.count_artist = format!("Artists: {}", self.collection.count_artist);
 		self.count_album  = format!("Albums: {}", self.collection.count_album);
 		self.count_song   = format!("Songs: {}", self.collection.count_song);
+		self.count_art    = format!("Art: {}", self.collection.count_art);
 	}
 
 	/// Add and send a `Volume` to `Kernel`.

@@ -78,6 +78,7 @@ r#""metadata": {{
     "artists": {},
     "albums": {},
     "songs": {}
+    "art": {}
 }}"#,
 			path.display(),
 			size,
@@ -88,6 +89,7 @@ r#""metadata": {{
 			s.count_artist.inner(),
 			s.count_album.inner(),
 			s.count_song.inner(),
+			s.count_art.inner(),
 		))
 	}
 }
@@ -99,3 +101,4 @@ r#""metadata": {{
 //  fn __TEST__() {
 //  }
 //}
+

@@ -6,7 +6,6 @@ mod song;
 mod plural;
 mod map;
 mod key;
-mod slice;
 mod image_cache;
 pub use collection::*;
 pub use art::*;
@@ -16,7 +15,6 @@ pub use song::*;
 pub use plural::*;
 pub use map::*;
 pub use key::*;
-pub use slice::*;
 pub use image_cache::*;
 
 mod metadata;
@@ -27,3 +25,7 @@ pub use metadata::metadata;
 //pub(crate) use decode::*;
 //mod ptr;
 //pub(crate) use ptr::*;
+
+// Playlist/Queue code. To be used SOMEDAY.
+//mod slice;
+//pub use slice::*;

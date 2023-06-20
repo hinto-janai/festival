@@ -9,8 +9,6 @@ use crate::{
 		Collection,
 		Key,
 		Keychain,
-		Queue,
-		Playlist,
 	},
 	audio::Volume,
 	kernel::Kernel,

@@ -1,7 +1,4 @@
 //---------------------------------------------------------------------------------------------------- Use
-//use anyhow::{bail,ensure,Error};
-//use log::{info,error,warn,trace,debug};
-use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
 use std::marker::PhantomData;
 use super::{
@@ -24,7 +21,7 @@ use readable::{
 use std::path::PathBuf;
 
 //---------------------------------------------------------------------------------------------------- Album
-#[derive(Clone,Debug,Default,PartialEq,PartialOrd,Serialize,Deserialize,Encode,Decode)]
+#[derive(Clone,Debug,Default,PartialEq,PartialOrd,Encode,Decode)]
 /// Struct holding [`Album`] metadata, with pointers to an [`Artist`] and [`Song`]\(s\)
 ///
 /// This struct holds all the metadata about a particular [`Album`].

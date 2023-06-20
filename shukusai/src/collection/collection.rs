@@ -1,7 +1,6 @@
 //---------------------------------------------------------------------------------------------------- Use
 //use anyhow::{bail,ensure,Error};
 use log::{error,warn,info,debug,trace};
-use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
 use crate::collection::{
 	album::Album,
@@ -56,7 +55,6 @@ pub(crate) static DUMMY_COLLECTION: Lazy<Arc<Collection>> = Lazy::new(|| Arc::ne
 //---------------------------------------------------------------------------------------------------- Collection
 disk::bincode2!(Collection, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{STATE_SUB_DIR}"), "collection", HEADER, COLLECTION_VERSION);
 #[derive(Clone,Debug,PartialEq,Encode,Decode)]
-//#[derive(Clone,Debug,Serialize,Deserialize,PartialEq,Encode,Decode)]
 /// The main music `Collection`
 ///
 /// This is the `struct` that holds all the (meta)data about the user's music.
@@ -241,6 +239,10 @@ pub struct Collection {
 	pub sort_song_title_rev: Box<[SongKey]>,
 
 	// Reserved fields and their `size_of()`.
+
+	// SOMEDAY:
+	// These will probably be `sort_*` but
+	// direct pointers instead of indices.
 	pub(crate) _reserved1: PhantomData<Box<[usize]>>, // 16
 	pub(crate) _reserved2: PhantomData<Box<[usize]>>,
 	pub(crate) _reserved4: PhantomData<Box<[usize]>>,
@@ -256,14 +258,42 @@ pub struct Collection {
 	pub(crate) _reserved14: PhantomData<Box<[usize]>>,
 	pub(crate) _reserved15: PhantomData<Box<[usize]>>,
 	pub(crate) _reserved16: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved17: PhantomData<String>, // 24
-	pub(crate) _reserved18: PhantomData<String>,
-	pub(crate) _reserved19: PhantomData<usize>, // 8
-	pub(crate) _reserved20: PhantomData<usize>,
-	pub(crate) _reserved21: PhantomData<usize>,
-	pub(crate) _reserved22: PhantomData<usize>,
-	pub(crate) _reserved23: PhantomData<bool>, // 1
-	pub(crate) _reserved24: PhantomData<bool>,
+	pub(crate) _reserved17: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved18: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved19: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved20: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved21: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved22: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved23: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved24: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved25: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved26: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved27: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved28: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved29: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved30: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved31: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved32: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved33: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved34: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved35: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved36: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved37: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved38: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved39: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved40: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved41: PhantomData<Box<[usize]>>,
+	pub(crate) _reserved42: PhantomData<Box<[usize]>>,
+
+	// Misc reserved fields.
+	pub(crate) _reserved43: PhantomData<String>,    // 24
+	pub(crate) _reserved44: PhantomData<Box<[u8]>>, // 16
+	pub(crate) _reserved45: PhantomData<usize>,     // 8
+	pub(crate) _reserved46: PhantomData<usize>,
+	pub(crate) _reserved47: PhantomData<usize>,
+	pub(crate) _reserved48: PhantomData<usize>,
+	pub(crate) _reserved49: PhantomData<bool>, // 1
+	pub(crate) _reserved50: PhantomData<bool>,
 }
 
 impl Collection {
@@ -328,29 +358,21 @@ impl Collection {
 			sort_song_title: Box::new([]),
 			sort_song_title_rev: Box::new([]),
 
-			_reserved1: PhantomData,
-			_reserved2: PhantomData,
-			_reserved4: PhantomData,
-			_reserved5: PhantomData,
-			_reserved6: PhantomData,
-			_reserved7: PhantomData,
-			_reserved8: PhantomData,
-			_reserved9: PhantomData,
-			_reserved10: PhantomData,
-			_reserved11: PhantomData,
-			_reserved12: PhantomData,
-			_reserved13: PhantomData,
-			_reserved14: PhantomData,
-			_reserved15: PhantomData,
-			_reserved16: PhantomData,
-			_reserved17: PhantomData,
-			_reserved18: PhantomData,
-			_reserved19: PhantomData,
-			_reserved20: PhantomData,
-			_reserved21: PhantomData,
-			_reserved22: PhantomData,
-			_reserved23: PhantomData,
-			_reserved24: PhantomData,
+			// We don't use `..Default::default()` because
+			// we want to _explicit_ about the values here.
+			_reserved1: PhantomData, _reserved2: PhantomData, _reserved4: PhantomData, _reserved5: PhantomData,
+			_reserved6: PhantomData, _reserved7: PhantomData, _reserved8: PhantomData, _reserved9: PhantomData,
+			_reserved10: PhantomData, _reserved11: PhantomData, _reserved12: PhantomData, _reserved13: PhantomData,
+			_reserved14: PhantomData, _reserved15: PhantomData, _reserved16: PhantomData, _reserved17: PhantomData,
+			_reserved18: PhantomData, _reserved19: PhantomData, _reserved20: PhantomData, _reserved21: PhantomData,
+			_reserved22: PhantomData, _reserved23: PhantomData, _reserved24: PhantomData, _reserved25: PhantomData,
+			_reserved26: PhantomData, _reserved27: PhantomData, _reserved28: PhantomData, _reserved29: PhantomData,
+			_reserved30: PhantomData, _reserved31: PhantomData, _reserved32: PhantomData, _reserved33: PhantomData,
+			_reserved34: PhantomData, _reserved35: PhantomData, _reserved36: PhantomData, _reserved37: PhantomData,
+			_reserved38: PhantomData, _reserved39: PhantomData, _reserved40: PhantomData, _reserved41: PhantomData,
+			_reserved42: PhantomData, _reserved43: PhantomData, _reserved44: PhantomData, _reserved45: PhantomData,
+			_reserved46: PhantomData, _reserved47: PhantomData, _reserved48: PhantomData, _reserved49: PhantomData,
+			_reserved50: PhantomData,
 		}
 	}
 
@@ -370,36 +392,6 @@ impl Collection {
 	/// evaluated, empty [`Collection`] that has static lifetime.
 	pub fn dummy() -> Arc<Self> {
 		Arc::clone(&DUMMY_COLLECTION)
-	}
-
-	//-------------------------------------------------- Private functions.
-	// Set the proper metadata for this `Collection`.
-	pub(crate) fn set_metadata(&mut self) {
-		// Get `Vec` lengths.
-		let artists = self.artists.len();
-		let albums  = self.albums.len();
-		let songs   = self.songs.len();
-
-		// Set `empty`.
-		if artists == 0 && albums == 0 && songs == 0 {
-			self.empty = true;
-		} else {
-			self.empty = false;
-		}
-
-		// Set `count_*`.
-		self.count_artist = Unsigned::from(artists);
-		self.count_album  = Unsigned::from(albums);
-		self.count_song   = Unsigned::from(songs);
-
-		// Set `timestamp`.
-		self.timestamp = benri::unix!();
-	}
-
-	// Consume self returning an iterator over the album vec.
-	// This is used by `CCD` when saving images.
-	pub(crate) fn into_albums(self) -> Vec<Album> {
-		self.albums.0.into_vec()
 	}
 
 	//-------------------------------------------------- Searching.

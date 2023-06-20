@@ -7,8 +7,6 @@ use crate::collection::{
 	Collection,
 	SongKey,
 	Keychain,
-	Queue,QueueKey,
-	Playlist,
 };
 use crate::constants::{
 	FESTIVAL,

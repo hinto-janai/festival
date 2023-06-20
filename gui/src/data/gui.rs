@@ -123,6 +123,8 @@ pub struct Gui {
 	pub count_album: String,
 	/// A cached, formatted version of [`Collection::count_song`]
 	pub count_song: String,
+	/// A cached, formatted version of [`Collection::count_art`]
+	pub count_art: String,
 
 	// Exit state.
 	/// Are we currently in the process of exiting?
