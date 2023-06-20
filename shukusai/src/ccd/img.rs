@@ -90,16 +90,16 @@ pub(crate) fn art_from_known(bytes: Box<[u8]>) -> egui_extras::RetainedImage {
 //-------------------------- Real functions.
 #[inline(always)]
 pub(crate) fn create_resizer() -> fir::Resizer {
-	// Fastest but pixels are noticably jagged.
-//	fir::Resizer::new(ResizeAlg::Nearest)
+	// Fastest but pixels are noticeably jagged.
+	fir::Resizer::new(ResizeAlg::Nearest)
 
 	// Better quality when downscaling, same as `Nearest` when upscaling.
-	fir::Resizer::new(ResizeAlg::Convolution(FilterType::Box))
+//	fir::Resizer::new(ResizeAlg::Convolution(FilterType::Box))
 
 	// Sharper than `Box` when downscaling, bad when upscaling.
 //	fir::Resizer::new(ResizeAlg::Convolution(FilterType::Hamming))
 
-	// Slowest, supposedly best but I don't think it's noticable.
+	// Slowest, supposedly best but I don't think it's noticeable.
 //	fir::Resizer::new(ResizeAlg::Convolution(FilterType::Lanczos3))
 }
 

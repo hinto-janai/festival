@@ -186,6 +186,10 @@ pub const UI_CONTROL_WIDTH: f32 = 77.0;
 /// Fixed size of the `Album` art in the `Queue` tab.
 pub const QUEUE_ALBUM_ART_SIZE: f32 = 80.0;
 
+//---------------------------------------------------------------------------------------------------- Settings
+pub const PREVIOUS_THRESHOLD_MIN: u32 = 0;
+pub const PREVIOUS_THRESHOLD_MAX: u32 = 10;
+
 //---------------------------------------------------------------------------------------------------- Fonts
 pub const FONT_SOURCECODE_PRO: &[u8] = include_bytes!("../../assets/fonts/SourceCodePro-Regular.otf");
 pub const FONT_SOURCECODE_CN:  &[u8] = include_bytes!("../../assets/fonts/SourceHanSansCN-Regular.otf");

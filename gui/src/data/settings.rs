@@ -79,10 +79,15 @@ pub struct Settings {
 	pub window_title: WindowTitle,
 
 	/// Does the user want a certain amount of
-	//// `Album`'s per row or a static pixel size?
+	/// `Album`'s per row or a static pixel size?
 	pub album_sizing: AlbumSizing,
 	pub album_pixel_size: f32,
 	pub albums_per_row: u8,
+
+	/// How many seconds does a song need to play
+	/// before the `Previous` button resets the current
+	/// instead of going to the previous?
+	pub previous_threshold: u32,
 
 	/// Restore playback on re-open.
 	pub restore_state: bool,
@@ -113,6 +118,7 @@ impl Settings {
 			collection_paths: vec![],
 			album_pixel_size: ALBUM_ART_SIZE_DEFAULT,
 			albums_per_row: ALBUMS_PER_ROW_DEFAULT,
+			previous_threshold: 5,
 			empty_autoplay: true,
 			..Default::default()
 		}

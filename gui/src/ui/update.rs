@@ -456,7 +456,7 @@ fn show_bottom(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame, width:
 				let height = height + EXTRA_HEIGHT;
 
 				if ui.add_sized([UI_CONTROL_WIDTH, height], Button::new(RichText::new(UI_PREVIOUS).size(35.0))).clicked() {
-					send!(self.to_kernel, FrontendToKernel::Previous);
+					send!(self.to_kernel, FrontendToKernel::Previous(Some(self.settings.previous_threshold)));
 					send!(self.to_kernel, FrontendToKernel::Play);
 				}
 

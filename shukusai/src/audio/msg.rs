@@ -36,7 +36,7 @@ pub(crate) enum KernelToAudio {
 	Play,
 	Pause,
 	Next,
-	Previous,
+	Previous(Option<u32>),
 
 	// Audio settings.
 	Repeat(Repeat),

@@ -42,6 +42,7 @@ use symphonia::core::{
 };
 use std::time::{Instant, Duration};
 use readable::Runtime;
+use std::sync::atomic::AtomicU32;
 
 #[cfg(feature = "gui")]
 use crate::frontend::egui::gui_request_update;
@@ -70,6 +71,17 @@ const RECV_TIMEOUT: Duration = Duration::from_millis(10);
 // These messages don't wait additional time with `RECV_TIMEOUT`,
 // they either are there or we break and continue with audio.
 const MSG_PROCESS_LIMIT: u8 = 6;
+
+/// When receiving a `Previous` signal, there is runtime
+/// threshold for the song to reach until we reset the
+/// current instead of actually going to the previous song.
+///
+/// If `None` is passed in the `Previous` signal,
+/// this atomic is used instead.
+///
+/// A `Frontend` can mutate this data, and it will also affect
+/// the default threshold used by the media controls.
+pub static PREVIOUS_THRESHOLD: AtomicU32 = AtomicU32::new(5);
 
 //---------------------------------------------------------------------------------------------------- Audio Init
 pub(crate) struct Audio {
@@ -372,7 +384,7 @@ impl Audio {
 			Play      => self.play(),
 			Pause     => self.pause(),
 			Next      => self.skip(1, &mut AUDIO_STATE.write()),
-			Previous  => self.back(1, &mut AUDIO_STATE.write()),
+			Previous(threshold) => self.back(1, threshold, &mut AUDIO_STATE.write()),
 
 			// Audio settings.
 			Repeat(r)  => self.repeat(r),
@@ -390,7 +402,7 @@ impl Audio {
 			},
 			Seek((seek, time)) => self.seek(seek, time, &mut AUDIO_STATE.write()),
 			Skip(skip)         => self.skip(skip, &mut AUDIO_STATE.write()),
-			Back(back)         => self.back(back, &mut AUDIO_STATE.write()),
+			Back(back)         => self.back(back, None, &mut AUDIO_STATE.write()),
 
 			// Queue Index.
 			SetQueueIndex(idx)              => self.set_queue_index(idx),
@@ -414,7 +426,7 @@ impl Audio {
 			Play              => self.play(),
 			Pause             => self.pause(),
 			Next              => self.skip(1, &mut AUDIO_STATE.write()),
-			Previous          => self.back(1, &mut AUDIO_STATE.write()),
+			Previous          => self.back(1, None, &mut AUDIO_STATE.write()),
 			Stop              => {
 				self.clear(false, &mut AUDIO_STATE.write());
 				#[cfg(feature = "gui")]
@@ -768,9 +780,11 @@ impl Audio {
 	fn back(
 		&mut self,
 		back: usize,
+		threshold: Option<u32>,
 		state: &mut std::sync::RwLockWriteGuard<'_, AudioState>,
 	) {
-		trace!("Audio - back({back})");
+		let atomic_threshold = atomic_load!(PREVIOUS_THRESHOLD);
+		trace!("Audio - back(back: {back}, threshold: {threshold:?}), atomic_threshold: {atomic_threshold}");
 
 		if !state.queue.is_empty() {
 			// FIXME:
@@ -783,6 +797,19 @@ impl Audio {
 					self.set(key, state);
 					state.song      = Some(key);
 					state.queue_idx = Some(0);
+				} else if let Some(threshold) = threshold {
+					// Reset song if threshold.
+					if threshold != 0 && state.elapsed.inner() > threshold {
+						self.seek(Seek::Absolute, 0, state);
+					} else {
+						let new_index = index - back;
+						let key = state.queue[new_index];
+						self.set(key, state);
+						state.song      = Some(key);
+						state.queue_idx = Some(new_index);
+					}
+				} else if atomic_threshold != 0 && state.elapsed.inner() > atomic_threshold {
+					self.seek(Seek::Absolute, 0, state);
 				} else {
 					let new_index = index - back;
 					let key = state.queue[new_index];

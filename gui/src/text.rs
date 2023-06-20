@@ -76,6 +76,10 @@ pub const STATIC_PIXEL_SIZE: &str = formatcp!(
 	ALBUM_ART_SIZE_MAX as usize,
 );
 pub const ALBUM_PER_ROW:     &str = formatcp!("Show [x] amount of albums per row, scaling the pixel size to fit ({ALBUMS_PER_ROW_MIN}-{ALBUMS_PER_ROW_MAX})");
+pub const PREVIOUS_THRESHOLD:   &str =
+r#"If the current song runtime has passed this number, the [Previous] button will reset the current song instead of skipping backwards.
+
+Setting this to [0] will make the [Previous] button always go to the previous song."#;
 pub const RESTORE_STATE:     &str = "Restore playback state from the last session when opening Festival";
 pub const WINDOW_TITLE:      &str = "Set Festival's window title when changing songs";
 pub const ACCENT_COLOR:      &str = formatcp!(

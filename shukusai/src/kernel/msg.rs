@@ -39,7 +39,12 @@ pub enum FrontendToKernel {
 	/// Play the next song in queue (stop if none).
 	Next,
 	/// Play the previous song in queue (restart if at first song).
-	Previous,
+	///
+	/// - `Option<u32>`: if the current song has passed the given [`u64`] in runtime seconds,
+	///   the song will be restarted instead of going to the previous song.
+	///   If `None` is passed, `audio::PREVIOUS_THRESHOLD` will be used.
+	///   If `Some(0)` is passed, we will always skip to the previous song.
+	Previous(Option<u32>),
 	/// Clear the queue and stop playback.
 	///
 	/// This is the same as `Self::Clear(false)`.

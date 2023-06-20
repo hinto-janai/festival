@@ -450,7 +450,7 @@ impl Kernel {
 			Play                 => send!(self.to_audio, KernelToAudio::Play),
 			Pause                => send!(self.to_audio, KernelToAudio::Pause),
 			Next                 => send!(self.to_audio, KernelToAudio::Next),
-			Previous             => send!(self.to_audio, KernelToAudio::Previous),
+			Previous(threshold)  => send!(self.to_audio, KernelToAudio::Previous(threshold)),
 			Stop                 => send!(self.to_audio, KernelToAudio::Clear(false)),
 			// Audio settings.
 			Repeat(r)            => send!(self.to_audio, KernelToAudio::Repeat(r)),
@@ -513,7 +513,7 @@ impl Kernel {
 			Play          => send!(self.to_audio, KernelToAudio::Play),
 			Pause         => send!(self.to_audio, KernelToAudio::Pause),
 			Next          => send!(self.to_audio, KernelToAudio::Next),
-			Previous      => send!(self.to_audio, KernelToAudio::Previous),
+			Previous      => send!(self.to_audio, KernelToAudio::Previous(None)),
 			Stop          => send!(self.to_audio, KernelToAudio::Clear(false)),
 			Shuffle       => send!(self.to_audio, KernelToAudio::Shuffle),
 			RepeatSong    => send!(self.to_audio, KernelToAudio::Repeat(Repeat::Song)),

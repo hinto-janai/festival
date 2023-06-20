@@ -22,8 +22,9 @@ use crate::constants::{
 	SLIDER_CIRCLE_INACTIVE,
 	SLIDER_CIRCLE_HOVERED,
 	SLIDER_CIRCLE_ACTIVE,
+	PREVIOUS_THRESHOLD_MIN,
+	PREVIOUS_THRESHOLD_MAX,
 };
-use crate::text::HELP;
 use crate::data::{
 	AlbumSizing,
 	SearchSort,
@@ -41,6 +42,7 @@ use benri::{
 	send,
 	flip,
 	atomic_load,
+	atomic_store,
 	ok_debug,
 };
 use std::sync::Arc;
@@ -361,6 +363,39 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, fram
 				.trailing_fill(false);
 			ui.add_sized([width, text], slider).on_hover_text(hover);
 		});
+
+		ui.add_space(40.0);
+		ui.separator();
+		ui.add_space(40.0);
+
+		//-------------------------------------------------- Previous Leeway.
+		// Heading.
+		let label = Label::new(
+			RichText::new(format!("Previous Threshold ({})", self.settings.previous_threshold))
+			.color(BONE)
+			.text_style(TextStyle::Heading)
+		);
+		ui.add_sized([width, text], label).on_hover_text(PREVIOUS_THRESHOLD);
+
+		let old_threshold = self.settings.previous_threshold;
+		ui.scope(|ui| {
+			{
+				let v = &mut ui.visuals_mut().widgets;
+				v.inactive.fg_stroke = SLIDER_CIRCLE_INACTIVE;
+				v.hovered.fg_stroke  = SLIDER_CIRCLE_HOVERED;
+				v.active.fg_stroke   = SLIDER_CIRCLE_ACTIVE;
+			}
+			let slider = Slider::new(&mut self.settings.previous_threshold, PREVIOUS_THRESHOLD_MIN..=PREVIOUS_THRESHOLD_MAX);
+			let slider = slider
+				.step_by(1.0)
+				.thickness(text)
+				.show_value(false)
+				.trailing_fill(false);
+			ui.add_sized([width, text], slider).on_hover_text(readable::itoa!(self.settings.previous_threshold));
+		});
+		if old_threshold != self.settings.previous_threshold {
+			atomic_store!(shukusai::audio::PREVIOUS_THRESHOLD, self.settings.previous_threshold);
+		}
 
 		ui.add_space(40.0);
 		ui.separator();

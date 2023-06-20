@@ -153,6 +153,8 @@ impl crate::data::Gui {
 			Err(e) => { warn!("GUI Init [1/8] ... Settings failed from disk: {}", e); Settings::new() },
 		};
 
+		atomic_store!(shukusai::audio::PREVIOUS_THRESHOLD, settings.previous_threshold);
+
 		// Read `State` from disk.
 		let state = match State::from_file() {
 			Ok(s)  => { info!("GUI Init [2/8] ... State from disk"); s },
