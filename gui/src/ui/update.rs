@@ -121,8 +121,7 @@ impl eframe::App for Gui {
 		}
 		// If `souvlaki` sent a `Raise` signal.
 		if shukusai::state::media_controls_raise() {
-			frame.set_always_on_top(true);
-			frame.set_always_on_top(false);
+			frame.request_user_attention(egui::output::UserAttentionType::Informational);
 		}
 
 		// Acquire a local copy of the `AUDIO_STATE`.
@@ -500,7 +499,7 @@ fn show_bottom(&mut self, ctx: &egui::Context, width: f32, height: f32) {
 					let chopped    = song.title != song_head;
 					let song_title = Label::new(
 						RichText::new(song_head)
-							.text_style(TextStyle::Name("15".into()))
+							.text_style(TextStyle::Name("14".into()))
 							.color(BONE)
 					);
 					// Show the full title on hover
@@ -516,7 +515,7 @@ fn show_bottom(&mut self, ctx: &egui::Context, width: f32, height: f32) {
 					let chopped    = album.title != album_head;
 					let album_name = Label::new(
 						RichText::new(album_head)
-							.text_style(TextStyle::Name("15".into()))
+							.text_style(TextStyle::Name("14".into()))
 					);
 					if chopped {
 						ui.add(album_name).on_hover_text(&album.title);
@@ -529,7 +528,7 @@ fn show_bottom(&mut self, ctx: &egui::Context, width: f32, height: f32) {
 					let chopped     = artist.name != artist_head;
 					let artist_name = Label::new(
 						RichText::new(artist_head)
-							.text_style(TextStyle::Name("15".into()))
+							.text_style(TextStyle::Name("14".into()))
 					);
 					if chopped {
 						if ui.add(artist_name.sense(Sense::click())).on_hover_text(&artist.name).clicked() {

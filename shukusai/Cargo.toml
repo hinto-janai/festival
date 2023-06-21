@@ -41,11 +41,11 @@ disk     = { workspace = true }
 readable = { workspace = true }
 
 # GUI
-egui        = { version = "0.21.0", path = "../external/egui/crates/egui", features = ["default_fonts", "serde"], default-features = false, optional = true }
-eframe      = { version = "0.21.0", path = "../external/egui/crates/eframe", features = ["wgpu"], default-features = false, optional = true }
-egui_extras = { version = "0.21.0", path = "../external/egui/crates/egui_extras", features = ["image"], optional = true  }
-epaint      = { version = "0.21.0", path = "../external/egui/crates/epaint", optional = true  }
-egui-notify = { version = "0.6.0", path = "../external/egui-notify" }
+egui        = { version = "0.22.0", path = "../external/egui/crates/egui", features = ["default_fonts", "serde"], default-features = false, optional = true }
+eframe      = { version = "0.22.0", path = "../external/egui/crates/eframe", features = ["wgpu"], default-features = false, optional = true }
+egui_extras = { version = "0.22.0", path = "../external/egui/crates/egui_extras", features = ["image"], optional = true  }
+epaint      = { version = "0.22.0", path = "../external/egui/crates/epaint", optional = true  }
+egui-notify = { version = "0.7.0", path = "../external/egui-notify" }
 
 ### Shared.
 anyhow       = { workspace = true }

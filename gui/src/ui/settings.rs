@@ -13,6 +13,7 @@ use egui::{
 	Label,RichText,Slider,
 	SelectableLabel,Button,
 };
+use egui::containers::scroll_area::ScrollBarVisibility;
 use crate::constants::{
 	BONE,
 	ALBUM_ART_SIZE_MIN,
@@ -62,7 +63,7 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, widt
 	//-------------------------------------------------- Main ScrollArea.
 	ScrollArea::vertical()
 		.id_source("Settings")
-		.always_show_scroll(true)
+		.scroll_bar_visibility(ScrollBarVisibility::AlwaysVisible)
 		.max_width(f32::INFINITY)
 		.max_height(f32::INFINITY)
 		.auto_shrink([false; 2])

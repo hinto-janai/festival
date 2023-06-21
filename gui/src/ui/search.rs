@@ -61,7 +61,9 @@ CentralPanel::default().show(ctx, |ui| {
 		// Search bar.
 		let width = ui.available_width();
 		let id = egui::Id::new("Search TextEdit");
-		let text_edit = TextEdit::singleline(&mut self.state.search_string).id(id);
+		let text_edit = TextEdit::singleline(&mut self.state.search_string)
+			.char_limit(SEARCH_MAX_LEN)
+			.id(id);
 		ui.spacing_mut().text_edit_width = width;
 		let response = ui.add_sized([width, 35.0], text_edit).on_hover_text(SEARCH_BAR);
 

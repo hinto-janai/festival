@@ -67,6 +67,7 @@ impl crate::data::Gui {
 		Style {
 			text_styles: [
 				(TextStyle::Small,                 FontId::new(10.0, FontFamily::Monospace)),
+				(TextStyle::Name("14".into()),     FontId::new(14.0, FontFamily::Monospace)),
 				(TextStyle::Name("15".into()),     FontId::new(15.0, FontFamily::Monospace)),
 				(TextStyle::Body,                  FontId::new(20.0, FontFamily::Monospace)),
 				(TextStyle::Button,                FontId::new(20.0, FontFamily::Monospace)),
@@ -135,6 +136,7 @@ impl crate::data::Gui {
 			follow_system_theme: false,
 			default_theme: eframe::Theme::Dark,
 			renderer: eframe::Renderer::Wgpu,
+			app_id: Some(FESTIVAL_DBUS.to_string()),
 			icon_data,
 			..Default::default()
 		}
