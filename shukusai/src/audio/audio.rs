@@ -1198,6 +1198,10 @@ impl Audio {
 			debug!("Audio - Restore ... setting {key:?}");
 			self.set(key, &mut state);
 
+			// HACK:
+			// The above `set()` resets some of the state, so re-copy.
+			self.state.if_copy(&mut state);
+
 			// Restore media control progress.
 			// (the metadata is set above in `.set()`)
 			//
@@ -1207,12 +1211,9 @@ impl Audio {
 			// this, set the media controls to `playing` briefly
 			// if we're paused.
 			if !state.playing {
-				if let Some(media_controls) = &mut self.media_controls {
-					let signal = souvlaki::MediaPlayback::Playing { progress: None };
-					if let Err(e) = media_controls.set_playback(signal) {
-						warn!("Audio - Couldn't update souvlaki playback: {e:#?}");
-					}
-				}
+				state.playing = true;
+				self.set_media_controls_progress(&mut state);
+				state.playing = false;
 			}
 			self.set_media_controls_progress(&mut state);
 

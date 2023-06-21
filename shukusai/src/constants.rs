@@ -22,13 +22,25 @@ pub const SHUKUSAI_NAME_VER: &str = {
 	concat!("shukusai v", env!("CARGO_PKG_VERSION"))
 };
 
+#[cfg(not(target_os = "macos"))]
 /// Festival's icon:
 /// - `512x512`
 /// - `RGBA`
 /// - `PNG`
 pub const FESTIVAL_ICON: &[u8] = include_bytes!("../../assets/images/icon/512.png");
+#[cfg(not(target_os = "macos"))]
 /// The height and width of [`FESTIVAL_ICON`].
 pub const FESTIVAL_ICON_SIZE: u32 = 512;
+
+#[cfg(target_os = "macos")]
+/// Festival's icon:
+/// - `1024x1024`
+/// - `RGBA`
+/// - `PNG`
+pub const FESTIVAL_ICON: &[u8] = include_bytes!("../../assets/images/icon/icon@2x.png");
+#[cfg(target_os = "macos")]
+/// The height and width of [`FESTIVAL_ICON`].
+pub const FESTIVAL_ICON_SIZE: u32 = 1024;
 
 /// Festival's `dbus` connection name.
 pub const FESTIVAL_DBUS: &str = "pm.festival.Festival";
