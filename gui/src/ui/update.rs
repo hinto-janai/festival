@@ -112,7 +112,7 @@ impl eframe::App for Gui {
 			std::process::exit(0);
 		}
 
-		// If another thread sent an exit signal.
+		// If `souvlaki` sent an exit signal.
 		if shukusai::state::media_controls_should_exit() {
 			self.on_close_event();
 		}
@@ -128,7 +128,16 @@ impl eframe::App for Gui {
 		}
 
 		// Audio leeway.
-		if secs_f32!(self.audio_leeway) > 0.1 {
+		// HACK:
+		// This leeway needs to be big to account for slower
+		// computers, but it means there's a noticeable delay
+		// when `GUI` startsup; the sliders will be out-of-sync.
+		//
+		// To workaround this, unconditionally copy if we
+		// very recently started up. This is a hack because
+		// now this `Instant` has to be calculated every
+		// frame when it'll only matter in the startup.
+		if secs!(shukusai::logger::INIT_INSTANT) < 1 || secs_f32!(self.audio_leeway) > 0.5 {
 			self.state.volume  = self.audio_state.volume.inner();
 			self.state.repeat  = self.audio_state.repeat;
 			self.audio_seek    = self.audio_state.elapsed.inner() as u64;
@@ -452,7 +461,9 @@ fn show_bottom(&mut self, ctx: &egui::Context, width: f32, height: f32) {
 			ui.group(|ui| {
 				let height = height + EXTRA_HEIGHT;
 
-				if ui.add_sized([UI_CONTROL_WIDTH, height], Button::new(RichText::new(UI_PREVIOUS).size(35.0))).clicked() {
+				const SIZE: f32 = 33.0;
+
+				if ui.add_sized([UI_CONTROL_WIDTH, height], Button::new(RichText::new(UI_PREVIOUS).size(SIZE))).clicked() {
 					send!(self.to_kernel, FrontendToKernel::Previous(Some(self.settings.previous_threshold)));
 					send!(self.to_kernel, FrontendToKernel::Play);
 				}
@@ -463,11 +474,11 @@ fn show_bottom(&mut self, ctx: &egui::Context, width: f32, height: f32) {
 					UI_PLAY
 				};
 
-				if ui.add_sized([UI_CONTROL_WIDTH, height], Button::new(RichText::new(play_pause).size(35.0))).clicked() {
+				if ui.add_sized([UI_CONTROL_WIDTH, height], Button::new(RichText::new(play_pause).size(SIZE))).clicked() {
 					send!(self.to_kernel, FrontendToKernel::Toggle);
 				}
 
-				if ui.add_sized([UI_CONTROL_WIDTH, height], Button::new(RichText::new(UI_FORWARDS).size(35.0))).clicked() {
+				if ui.add_sized([UI_CONTROL_WIDTH, height], Button::new(RichText::new(UI_FORWARDS).size(SIZE))).clicked() {
 					send!(self.to_kernel, FrontendToKernel::Next);
 					send!(self.to_kernel, FrontendToKernel::Play);
 				}
@@ -625,6 +636,7 @@ fn show_left(&mut self, ctx: &egui::Context, width: f32, height: f32) {
 					.color(color)
 			);
 			if ui.add_sized([tab_width, tab_height], button).on_hover_text(text).clicked() {
+				self.audio_leeway = now!();
 				let next = self.state.repeat.next();
 				send!(self.to_kernel, FrontendToKernel::Repeat(next));
 				self.state.repeat = next;
