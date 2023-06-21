@@ -3,11 +3,8 @@ use clap::Parser;
 use log::{info,error};
 use shukusai::{
 	logger::init_logger,
-	constants::{SHUKUSAI_NAME_VER,COMMIT,COPYRIGHT},
 };
-use crate::constants::{
-	FESTIVAL_NAME_VER,
-};
+use crate::text::FESTIVAL_VERSION_COPYRIGHT;
 use shukusai::signal::{
 	Volume,Toggle,Pause,Play,Skip,Back,
 	Previous,Next,Stop,Shuffle,Index,
@@ -178,7 +175,7 @@ impl Cli {
 
 		// Version.
 		if self.version {
-			println!("{FESTIVAL_NAME_VER}\n{SHUKUSAI_NAME_VER}\n{COMMIT}\n{COPYRIGHT}");
+			println!("{FESTIVAL_VERSION_COPYRIGHT}");
 			exit(0);
 		}
 

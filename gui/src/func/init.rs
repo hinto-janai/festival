@@ -67,7 +67,6 @@ impl crate::data::Gui {
 			text_styles: [
 				(TextStyle::Small,                 FontId::new(10.0, FontFamily::Monospace)),
 				(TextStyle::Name("12.5".into()),   FontId::new(12.5, FontFamily::Monospace)),
-				(TextStyle::Name("14".into()),     FontId::new(14.0, FontFamily::Monospace)),
 				(TextStyle::Name("15".into()),     FontId::new(15.0, FontFamily::Monospace)),
 				(TextStyle::Body,                  FontId::new(20.0, FontFamily::Monospace)),
 				(TextStyle::Button,                FontId::new(20.0, FontFamily::Monospace)),

@@ -492,12 +492,6 @@ fn show_bottom(&mut self, ctx: &egui::Context, width: f32, height: f32) {
 					// (scales based on pixels available).
 					let head = (unit / 5.0) as usize;
 
-					// HACK:
-					// "14" slightly overflows on default Windows/macOS
-					// while "12.5" is too small for Linux.
-					#[cfg(target_os = "linux")]
-					let text_style = TextStyle::Name("14".into());
-					#[cfg(not(target_os = "linux"))]
 					let text_style = TextStyle::Name("12.5".into());
 
 					//-------------------------------------------------- `Song` title.

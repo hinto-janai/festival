@@ -496,6 +496,19 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, widt
 
 		ui.add_sized([width, text], Label::new(HELP));
 		ui.add_space(40.0);
+		ui.separator();
+		ui.add_space(40.0);
+
+		//-------------------------------------------------- Version/Copyright
+		let label = Label::new(
+			RichText::new("Version")
+			.color(BONE)
+			.text_style(TextStyle::Heading)
+		);
+		ui.add_sized([width, text], label);
+
+		ui.add_sized([width, text], Label::new(FESTIVAL_VERSION_COPYRIGHT));
+//		ui.add_space(40.0);
 //		ui.separator();
 //		ui.add_space(40.0);
 	});

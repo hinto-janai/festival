@@ -145,6 +145,26 @@ r#"*-------------------------------------------------------*
 | Command+Primary | Open Album/Song Directory           |
 *-------------------------------------------------------*"#;
 
+/// - Festival name + version
+/// - shukusai name + version
+/// - Git commit hash
+/// - Festival copyright notice
+pub const FESTIVAL_VERSION_COPYRIGHT: &str = {
+	use crate::constants::FESTIVAL_NAME_VER;
+
+	use shukusai::constants::{
+		COMMIT,
+		COPYRIGHT,
+		SHUKUSAI_NAME_VER,
+	};
+
+	formatcp!(
+r#"{FESTIVAL_NAME_VER}
+{SHUKUSAI_NAME_VER}
+{COMMIT}
+{COPYRIGHT}"#)
+};
+
 //---------------------------------------------------------------------------------------------------- Search Tab
 // This is inaccurate because `char` != `u8` but meh.
 pub const SEARCH_MAX:              &str = formatcp!("Search character limit has been reached ({SEARCH_MAX_LEN})");

@@ -72,13 +72,23 @@ pub const COMMIT: &str = {
 /// This is `Debug` is `debug_assertions` is detected, else it is `Release`.
 pub const BUILD: &str = if cfg!(debug_assertions) { "Debug" } else { "Release" };
 
-/// Copyright notice
+/// Festival's copyright notice.
 ///
-/// Festival's copyright.
+/// Most (if not all) of Festival's dependencies are `MIT` or`Apache-2.0`,
+/// with the major exception being `Symphonia`, which is `MPL-2.0`.
+///
+/// Under these guidelines: `https://www.mozilla.org/en-US/MPL/2.0/FAQ/`
+/// (questions 9-10), we must make modified MPL-2.0 code available,
+/// and inform users how they can obtain the source.
 pub const COPYRIGHT: &str =
 r#"Festival is licensed under the MIT License.
 For more information on the project, see below:
-<https://github.com/hinto-janai/festival>"#;
+<https://github.com/hinto-janai/festival>
+
+Symphonia, the audio decoding/demuxing/metadata
+library used by Festival is licensed under MPL-2.0.
+For more details and source code, see below:
+<https://github.com/pdeljanov/Symphonia>"#;
 
 /// Logging separator
 ///
