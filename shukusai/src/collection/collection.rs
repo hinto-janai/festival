@@ -1010,7 +1010,7 @@ r#"
             "albums": {},
             "songs": {}
         }}{comma}"#,
-a.name.replace("\"", "\\\""),
+a.name.replace('\"', "\\\""),
 a.runtime.inner(),
 a.albums.len(),
 a.songs.len(),

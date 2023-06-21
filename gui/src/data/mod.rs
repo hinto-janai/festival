@@ -27,3 +27,6 @@ pub use artist::*;
 
 mod window;
 pub use window::*;
+
+mod exit;
+pub use exit::*;

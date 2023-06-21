@@ -133,8 +133,6 @@ pub struct Gui {
 	/// when exiting really quickly, this `Instant`
 	/// needs to rack up some time before showing the spinner.
 	pub exit_instant: Instant,
-	/// How long before we force quit without saving.
-	pub exit_countdown: Arc<AtomicU8>,
 
 	// Reset/Collection state.
 	/// Are we in the middle of resetting the [`Collection`]?

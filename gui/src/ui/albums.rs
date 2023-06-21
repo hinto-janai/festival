@@ -79,7 +79,7 @@ pub fn show_tab_albums(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width:
 
 			let album_width = album_width as usize;
 
-			self.paint_albums(ui, ctx, width, height, pixel, rows, album_width, first_album_padding);
+			self.paint_albums(ui, ctx, pixel, rows, album_width, first_album_padding);
 		},
 		AlbumSizing::Row   => {
 			// Get per row count.
@@ -92,7 +92,7 @@ pub fn show_tab_albums(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width:
 			// How many rows?
 			let rows = (self.collection.count_album.inner() as f32 / per_f32).ceil() as usize;
 
-			self.paint_albums(ui, ctx, width, height, pixel, rows, album_width, 0.0);
+			self.paint_albums(ui, ctx, pixel, rows, album_width, 0.0);
 		},
 	};
 }
@@ -103,8 +103,6 @@ fn paint_albums(
 	&mut self,
 	ui: &mut egui::Ui,
 	ctx: &egui::Context,
-	width: f32,
-	height: f32,
 	pixel: f32,
 	rows: usize,
 	album_width: usize,

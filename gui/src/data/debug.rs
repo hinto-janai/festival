@@ -1,5 +1,8 @@
 //---------------------------------------------------------------------------------------------------- Use
-use crate::data::gui::Gui;
+use crate::data::{
+	gui::Gui,
+	exit::EXIT_COUNTDOWN,
+};
 use crate::constants::{
 	FESTIVAL_VERSION,GUI,
 };
@@ -118,7 +121,7 @@ kernel_returned      | {}
 			self.count_song,
 			self.count_art,
 			self.exiting,
-			atomic_load!(self.exit_countdown),
+			atomic_load!(EXIT_COUNTDOWN),
 			self.resetting_collection,
 			self.kernel_returned,
 			AUDIO_STATE.read(),

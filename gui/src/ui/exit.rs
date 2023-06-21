@@ -34,9 +34,12 @@ use crossbeam::channel::{
 use std::time::Duration;
 use std::sync::{
 	Arc,
-	atomic::AtomicU8,
+	atomic::{AtomicU8,AtomicBool},
 };
-use crate::constants::EXIT_COUNTDOWN;
+use crate::data::{
+	EXIT_COUNTDOWN,
+	SHOULD_EXIT,
+};
 
 //---------------------------------------------------------------------------------------------------- Gui::exit() - The thread that handles exiting.
 impl Gui {
@@ -46,7 +49,6 @@ pub(super) fn exit(
 	from_kernel: Receiver<KernelToFrontend>,
 	state: State,
 	settings: Settings,
-	exit_countdown: Arc<AtomicU8>,
 ) {
 	// Tell `Kernel` to save stuff.
 	send!(to_kernel, FrontendToKernel::Exit);
@@ -86,25 +88,31 @@ pub(super) fn exit(
 
 	// Wait until `Collection` is saved,
 	// or until we've elapsed total time.
-	atomic_store!(exit_countdown, EXIT_COUNTDOWN);
 	loop {
-		let e = atomic_load!(exit_countdown);
+		let e = atomic_load!(EXIT_COUNTDOWN);
 
 		if e == 0 {
 			// Exit with error.
 			error!("GUI - Collection save is taking more than {e} seconds, skipping save...!");
-			std::process::exit(1);
+			break;
 		}
 
 		if shukusai::state::saving() {
-			atomic_sub!(exit_countdown, 1);
+			atomic_sub!(EXIT_COUNTDOWN, 1);
 			info!("GUI - Waiting for Collection to be saved, force exit in [{e}] seconds");
 			sleep!(1);
 		} else {
-			// Exit.
-			std::process::exit(0);
+			break;
 		}
 	}
+
+	// FIXME:
+	// This used to be `std::process::exit()` but
+	// it caused some weird segfaults on certain machines
+	// if the main `GUI` thread was not the one calling it.
+	//
+	// So, use this signal so that `main()` can exit instead.
+	atomic_store!(SHOULD_EXIT, true);
 }}
 
 //---------------------------------------------------------------------------------------------------- TESTS

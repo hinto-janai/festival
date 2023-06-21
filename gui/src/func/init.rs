@@ -5,7 +5,6 @@ use crate::constants::{
 	SPACING,
 	FONT_ARRAY,
 	APP_RESOLUTION_MIN,
-	EXIT_COUNTDOWN,
 };
 use crate::data::{
 	State,
@@ -67,6 +66,7 @@ impl crate::data::Gui {
 		Style {
 			text_styles: [
 				(TextStyle::Small,                 FontId::new(10.0, FontFamily::Monospace)),
+				(TextStyle::Name("12.5".into()),   FontId::new(12.5, FontFamily::Monospace)),
 				(TextStyle::Name("14".into()),     FontId::new(14.0, FontFamily::Monospace)),
 				(TextStyle::Name("15".into()),     FontId::new(15.0, FontFamily::Monospace)),
 				(TextStyle::Body,                  FontId::new(20.0, FontFamily::Monospace)),
@@ -232,7 +232,6 @@ impl crate::data::Gui {
 
 			exiting: false,
 			exit_instant: now!(),
-			exit_countdown: Arc::new(AtomicU8::new(EXIT_COUNTDOWN)),
 
 			resetting_collection: false,
 			kernel_returned: false,

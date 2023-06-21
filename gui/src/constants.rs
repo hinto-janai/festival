@@ -139,11 +139,6 @@ pub static SPACING: Lazy<Spacing> = Lazy::new(|| {
 	}
 });
 
-//---------------------------------------------------------------------------------------------------- Exit
-/// How many seconds to wait for the `Collection`
-/// to be saved to disk before force-quitting the `GUI`.
-pub const EXIT_COUNTDOWN: u8 = 30;
-
 //---------------------------------------------------------------------------------------------------- Search
 /// How many bytes to allow in the search bar before truncating.
 pub const SEARCH_MAX_LEN: usize = u8::MAX as usize;

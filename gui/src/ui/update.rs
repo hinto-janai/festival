@@ -1,11 +1,4 @@
 //---------------------------------------------------------------------------------------------------- Use
-//use anyhow::{anyhow,bail,ensure};
-//use log::{info,error,warn,trace,debug};
-//use serde::{Serialize,Deserialize};
-//use disk::prelude::*;
-//use disk::{};
-//use std::{};
-//use std::sync::{Arc,Mutex,RwLock};
 use readable::HeadTail;
 use crate::data::Gui;
 use egui::{
@@ -22,6 +15,8 @@ use crate::data::{
 	Tab,
 	KeyPress,
 	ALPHANUMERIC_KEY,
+	EXIT_COUNTDOWN,
+	SHOULD_EXIT,
 };
 use disk::{Toml,Plain};
 use log::{error,warn,info,debug,trace};
@@ -78,10 +73,9 @@ use crate::text::{
 //---------------------------------------------------------------------------------------------------- `GUI`'s eframe impl.
 impl eframe::App for Gui {
 	//-------------------------------------------------------------------------------- On exit.
-	#[inline(always)]
 	fn on_close_event(&mut self) -> bool {
-		// If already exiting, return, else
-		// turn on `GUI`'s signal for exiting.
+		// If already in the process of exiting, return,
+		// else turn on `GUI`'s signal for exiting.
 		match self.exiting {
 			true  => {
 				warn!("GUI - Already in process of exiting, ignoring exit signal");
@@ -98,12 +92,9 @@ impl eframe::App for Gui {
 		let from_kernel    = self.from_kernel.clone();
 		let settings       = self.settings.clone();
 		let state          = self.state.clone();
-		let exit_countdown = self.exit_countdown.clone();
 
 		// Spawn `exit` thread.
-		std::thread::spawn(move || {
-			Self::exit(to_kernel, from_kernel, state, settings, exit_countdown);
-		});
+		std::thread::spawn(move || Self::exit(to_kernel, from_kernel, state, settings));
 
 		// Set the exit `Instant`.
 		self.exit_instant = Instant::now();
@@ -115,10 +106,17 @@ impl eframe::App for Gui {
 	//-------------------------------------------------------------------------------- Main event loop.
 	#[inline(always)]
 	fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
-		// If `souvlaki` sent an exit signal.
+		// If something has set this flag,
+		// it means we should exit immediately.
+		if atomic_load!(SHOULD_EXIT) {
+			std::process::exit(0);
+		}
+
+		// If another thread sent an exit signal.
 		if shukusai::state::media_controls_should_exit() {
 			self.on_close_event();
 		}
+
 		// If `souvlaki` sent a `Raise` signal.
 		if shukusai::state::media_controls_raise() {
 			frame.request_user_attention(egui::output::UserAttentionType::Informational);
@@ -494,12 +492,20 @@ fn show_bottom(&mut self, ctx: &egui::Context, width: f32, height: f32) {
 					// (scales based on pixels available).
 					let head = (unit / 5.0) as usize;
 
+					// HACK:
+					// "14" slightly overflows on default Windows/macOS
+					// while "12.5" is too small for Linux.
+					#[cfg(target_os = "linux")]
+					let text_style = TextStyle::Name("14".into());
+					#[cfg(not(target_os = "linux"))]
+					let text_style = TextStyle::Name("12.5".into());
+
 					//-------------------------------------------------- `Song` title.
 					let song_head  = song.title.head_dot(head);
 					let chopped    = song.title != song_head;
 					let song_title = Label::new(
 						RichText::new(song_head)
-							.text_style(TextStyle::Name("14".into()))
+							.text_style(text_style.clone())
 							.color(BONE)
 					);
 					// Show the full title on hover
@@ -515,7 +521,7 @@ fn show_bottom(&mut self, ctx: &egui::Context, width: f32, height: f32) {
 					let chopped    = album.title != album_head;
 					let album_name = Label::new(
 						RichText::new(album_head)
-							.text_style(TextStyle::Name("14".into()))
+							.text_style(text_style.clone())
 					);
 					if chopped {
 						ui.add(album_name).on_hover_text(&album.title);
@@ -528,7 +534,7 @@ fn show_bottom(&mut self, ctx: &egui::Context, width: f32, height: f32) {
 					let chopped     = artist.name != artist_head;
 					let artist_name = Label::new(
 						RichText::new(artist_head)
-							.text_style(TextStyle::Name("14".into()))
+							.text_style(text_style)
 					);
 					if chopped {
 						if ui.add(artist_name.sense(Sense::click())).on_hover_text(&artist.name).clicked() {
@@ -750,7 +756,7 @@ fn show_exit_spinner(&mut self, ctx: &egui::Context, width: f32, height: f32) {
 			let half = height / 2.0;
 			let hh   = half / 2.0;
 
-			let text = RichText::new(format!("--- Saving ---\n\nForce exiting in {}", atomic_load!(self.exit_countdown)))
+			let text = RichText::new(format!("--- Saving ---\n\nForce exiting in {}", atomic_load!(EXIT_COUNTDOWN)))
 				.size(hh / 4.0)
 				.color(BONE);
 
