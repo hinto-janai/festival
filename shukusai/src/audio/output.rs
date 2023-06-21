@@ -9,7 +9,6 @@
 // `https://github.com/pdeljanov/Symphonia/blob/master/symphonia-play/src/output.rs`
 
 //---------------------------------------------------------------------------------------------------- Use
-use std::result;
 use symphonia::core::audio::*;
 use symphonia::core::units::Duration;
 use crate::constants::FESTIVAL;
@@ -23,13 +22,13 @@ use anyhow::anyhow;
 // It's needed because Linux uses `PulseAudio`
 // while Windows/macOS will use the `cpal` backend.
 pub(crate) trait Output: Sized {
-	fn write(&mut self, decoded: AudioBufferRef<'_>) -> Result<(), AudioOutputError>;
+	fn write(&mut self, decoded: AudioBufferRef<'_>) -> std::result::Result<(), AudioOutputError>;
 	// Discard current audio samples.
 	fn flush(&mut self);
-	fn try_open(spec: SignalSpec, duration: Duration) -> Result<Self, AudioOutputError>;
+	fn try_open(spec: SignalSpec, duration: Duration) -> std::result::Result<Self, AudioOutputError>;
 
 	// Open the audio device with dummy values.
-	fn dummy() -> Result<Self, AudioOutputError> {
+	fn dummy() -> std::result::Result<Self, AudioOutputError> {
 		let spec = SignalSpec {
 			// INVARIANT: Must be non-zero.
 			rate: 48_000,
@@ -88,7 +87,7 @@ mod output {
 	}
 
 	impl Output for AudioOutput {
-		fn try_open(spec: SignalSpec, duration: Duration) -> Result<Self, AudioOutputError> {
+		fn try_open(spec: SignalSpec, duration: Duration) -> std::result::Result<Self, AudioOutputError> {
 			// An interleaved buffer is required to send data to PulseAudio. Use a SampleBuffer to
 			// move data between Symphonia AudioBuffers and the byte buffers required by PulseAudio.
 			let sample_buf = RawSampleBuffer::<f32>::new(duration, spec);
@@ -150,7 +149,7 @@ mod output {
 			}
 		}
 
-		fn write(&mut self, decoded: AudioBufferRef<'_>) -> Result<(), AudioOutputError> {
+		fn write(&mut self, decoded: AudioBufferRef<'_>) -> std::result::Result<(), AudioOutputError> {
 			// Do nothing if there are no audio frames.
 			if decoded.frames() == 0 {
 				return Ok(());
@@ -243,7 +242,7 @@ mod output {
 	}
 
 	impl Output for AudioOutput {
-		fn try_open(spec: SignalSpec, duration: Duration) -> Result<Self, AudioOutputError> {
+		fn try_open(spec: SignalSpec, duration: Duration) -> std::result::Result<Self, AudioOutputError> {
 			// Get default host.
 			let host = cpal::default_host();
 
@@ -322,7 +321,7 @@ mod output {
 			Ok(Self { ring_buf_producer, sample_buf, stream, resampler, spec, duration })
 		}
 
-		fn write(&mut self, decoded: AudioBufferRef<'_>) -> Result<(), AudioOutputError> {
+		fn write(&mut self, decoded: AudioBufferRef<'_>) -> std::result::Result<(), AudioOutputError> {
 			// Do nothing if there are no audio frames.
 			if decoded.frames() == 0 {
 				return Ok(());
