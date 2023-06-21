@@ -575,8 +575,8 @@ impl Collection {
 			.position(|i| i == key)
 			.unwrap_or(0);
 
-		if let Some(key) = other_albums.get(index.saturating_sub(1)) {
-			*key
+		if let Some(index) = index.checked_sub(1) {
+			other_albums[index]
 		} else {
 			other_albums[len - 1]
 		}
@@ -620,8 +620,8 @@ impl Collection {
 			.position(|i| i == key)
 			.unwrap_or(0);
 
-		if let Some(key) = other_songs.get(index.saturating_sub(1)) {
-			*key
+		if let Some(index) = index.checked_sub(1) {
+			other_songs[index]
 		} else {
 			other_songs[len - 1]
 		}
