@@ -38,8 +38,6 @@ pub(super) struct Phases {
 	pub(super) clone:       f32,
 	pub(super) convert:     f32,
 	pub(super) textures:    f32,
-	pub(super) to_kernel:   f32,
-	pub(super) die:         f32,
 	pub(super) disk:        f32,
 }
 

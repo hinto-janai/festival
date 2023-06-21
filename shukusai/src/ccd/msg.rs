@@ -13,32 +13,14 @@ use crate::{
 };
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
+// Since  `CCD` stuff are one-shot operations, there's no
+// need for `Kernel` to have a channel since it can just start `CCD`
+// with a function specific to whatever job it needs to do:
 pub(crate) enum CcdToKernel {
 	NewCollection(Arc<Collection>), // Here's the new (or modified) `Collection`.
 	Failed(anyhow::Error),          // Creating new or converting `Collection` has failed.
 	UpdatePhase((f64, Phase)),      // I'm starting a new phase. Set your `%` to this, and phase to this.
 	UpdateIncrement((f64, String)), // Increment your `%` by this much, and update the working string to this.
-}
-
-pub(crate) enum KernelToCcd {
-	// You can rest now.
-	//
-	// (But before you do, save `Collection`
-	// to disk and deconstruct the old one)
-	Die,
-
-	// Since the rest of `CCD` stuff are one-shot operations, there's no
-	// need for `Kernel` to have a channel since it can just start `CCD`
-	// with a function specific to whatever job it needs to do:
-	//
-	// `Kernel` will need to send multiple messages only in one case: When creating a new `Collection`:
-	//
-	// 1. `Kernel` ---- "Create a new Collection, here's the old pointer" ---> `CCD`
-	// 3. `Kernel` <---            "Here's the new Collection"            ---- `CCD`
-	// 4. `Kernel` ---- "Okay, I've dropped my pointer, you can die now." ---> `CCD`
-	//
-	// `CCD` needs to know for sure `Kernel` has dropped the old `Collection`
-	// before it drops its own since that determines who actually destructs it.
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

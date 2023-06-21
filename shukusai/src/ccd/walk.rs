@@ -4,10 +4,7 @@ use log::{error,warn,info,debug,trace};
 use benri::log::{
 	skip_warn,ok_trace,
 };
-use super::msg::{
-	CcdToKernel,
-	KernelToCcd,
-};
+use crate::ccd::msg::CcdToKernel;
 use walkdir::WalkDir;
 use crossbeam::channel::{Sender,Receiver};
 use std::path::{Path,PathBuf};

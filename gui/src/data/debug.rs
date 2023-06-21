@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------------------------------- Use
 use crate::data::gui::Gui;
 use crate::constants::{
-	FESTIVAL_NAME_VER,GUI,
+	FESTIVAL_VERSION,GUI,
 };
 use shukusai::{
 	constants::{
@@ -9,7 +9,7 @@ use shukusai::{
 		BUILD,
 		COMMIT,
 		FESTIVAL,
-		SHUKUSAI_NAME_VER,
+		SHUKUSAI_VERSION,
 		TXT_SUB_DIR,
 	},
 	thread::THREADS,
@@ -51,7 +51,7 @@ elapsed | {} seconds
 
 {DASH} festival
 build    | {}
-commit   | {}version | {}
+commit   | {}version  | {}
 shukusai | {}
 
 {DASH} diff
@@ -63,7 +63,7 @@ rfd_open | {}
 
 {DASH} search
 searching     | {}
-search_string | {}
+search_string | {:?}
 
 {DASH} cache
 count_artist | {}
@@ -106,8 +106,8 @@ kernel_returned      | {}
 			INIT_INSTANT.elapsed().as_secs_f64(),
 			BUILD,
 			COMMIT,
-			FESTIVAL_NAME_VER,
-			SHUKUSAI_NAME_VER,
+			FESTIVAL_VERSION,
+			SHUKUSAI_VERSION,
 			self.diff_state(),
 			self.diff_settings(),
 			atomic_load!(self.rfd_open),

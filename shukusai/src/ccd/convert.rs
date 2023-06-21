@@ -7,10 +7,7 @@
 //use std::{};
 //use std::sync::{Arc,Mutex,RwLock};
 use log::{error,warn,info,debug,trace};
-use super::msg::{
-	CcdToKernel,
-	KernelToCcd,
-};
+use crate::ccd::msg::CcdToKernel;
 use crossbeam::channel::{Sender,Receiver};
 use benri::{
 	log::*,

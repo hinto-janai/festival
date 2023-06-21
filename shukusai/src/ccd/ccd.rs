@@ -35,7 +35,7 @@ use readable::{
 };
 use crate::ccd::{
 	convert::ArtConvertType,
-	msg::{CcdToKernel,KernelToCcd},
+	msg::CcdToKernel,
 };
 use std::marker::PhantomData;
 
@@ -77,7 +77,6 @@ impl Ccd {
 	// functions mostly for testing flexibility.
 	pub(crate) fn new_collection(
 		to_kernel: Sender<CcdToKernel>,
-		from_kernel: Receiver<KernelToCcd>,
 		old_collection: Arc<Collection>,
 		paths: Vec<PathBuf>,
 	) {
@@ -95,8 +94,7 @@ impl Ccd {
 		// 10. Transform in-memory `Collection` album art bytes to `egui`'s `RetainedImage`
 		// 11. Pre-allocate the `RetainedImage`'s into `egui`
 		// 12. Send to `Kernel`
-		// 13. Wait for `Die` signal.
-		// 14. Save `Collection` to disk.
+		// 13. Save `Collection` to disk.
 		let beginning = now!();
 		debug!("CCD ... purpose in life: new_collection()");
 
@@ -118,7 +116,7 @@ impl Ccd {
 		{
 			let mut i = 1;
 			loop {
-				trace!("CCD [1/14] Deconstruct attempt {i}");
+				trace!("CCD [1/13] Deconstruct attempt {i}");
 
 				if Arc::strong_count(&old_collection) == 1 {
 					if let Some(c) = Arc::into_inner(old_collection) {
@@ -136,14 +134,14 @@ impl Ccd {
 			}
 		}
 		let perf_deconstruct = secs_f32!(now);
-		trace!("CCD [1/14] ... Deconstruct: {perf_deconstruct}");
+		trace!("CCD [1/13] ... Deconstruct: {perf_deconstruct}");
 
 		//-------------------------------------------------------------------------------- 2
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((2.50, Phase::WalkDir)));
 		let paths = Self::walkdir_audio(&to_kernel, paths);
 		let perf_walkdir = secs_f32!(now);
-		trace!("CCD [2/14] ... WalkDir: {perf_walkdir}");
+		trace!("CCD [2/13] ... WalkDir: {perf_walkdir}");
 
 		//-------------------------------------------------------------------------------- 3
 		let now = now!();
@@ -151,14 +149,14 @@ impl Ccd {
 		let (mut vec_artist, mut vec_album, vec_song, count_art) = Self::the_loop(&to_kernel, paths);
 		// Update should be < 50% at this point.
 		let perf_metadata = secs_f32!(now);
-		trace!("CCD [3/14] ... Metadata: {perf_metadata}");
+		trace!("CCD [3/13] ... Metadata: {perf_metadata}");
 
 		//-------------------------------------------------------------------------------- 4
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((50.00, Phase::Fix)));
 		Self::fix_metadata(&mut vec_artist, &mut vec_album, &vec_song);
 		let perf_fix = secs_f32!(now);
-		trace!("CCD [4/14] ... Fix: {perf_fix}");
+		trace!("CCD [4/13] ... Fix: {perf_fix}");
 
 		//-------------------------------------------------------------------------------- 5
 		let now = now!();
@@ -210,14 +208,14 @@ impl Ccd {
 		let sort_song_title_rev                         = sort_song_title.iter().rev().copied().collect::<Box<[SongKey]>>();
 
 		let perf_sort = secs_f32!(now);
-		trace!("CCD [5/14] ... Sort: {perf_sort}");
+		trace!("CCD [5/13] ... Sort: {perf_sort}");
 
 		//-------------------------------------------------------------------------------- 6
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((55.00, Phase::Search)));
 		let map = Map::from_3_vecs(&vec_artist, &vec_album, &vec_song);
 		let perf_map = secs_f32!(now);
-		trace!("CCD [6/14] ... Map: {perf_map}");
+		trace!("CCD [6/13] ... Map: {perf_map}");
 
 		//-------------------------------------------------------------------------------- 7
 		let now = now!();
@@ -323,7 +321,7 @@ impl Ccd {
 			collection.timestamp = benri::unix!();
 		}
 		let perf_prepare = secs_f32!(now);
-		trace!("CCD [7/14] ... Prepare: {perf_prepare}");
+		trace!("CCD [7/13] ... Prepare: {perf_prepare}");
 
 		//-------------------------------------------------------------------------------- 8
 		let now = now!();
@@ -334,7 +332,7 @@ impl Ccd {
 		Self::priv_convert_art(&to_kernel, &mut collection, ArtConvertType::Resize, increment, total_albums, threads);
 		// Update should be <= 90% at this point.
 		let perf_resize = secs_f32!(now);
-		trace!("CCD [8/14] ... Resize: {perf_resize}");
+		trace!("CCD [8/13] ... Resize: {perf_resize}");
 
 		//-------------------------------------------------------------------------------- 9
 		// FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
@@ -366,7 +364,7 @@ impl Ccd {
 		send!(to_kernel, CcdToKernel::UpdatePhase((90.00, Phase::Clone)));
 		let collection_for_disk = collection.clone();
 		let perf_clone = secs_f32!(now);
-		trace!("CCD [9/14] ... Clone: {perf_clone}");
+		trace!("CCD [9/13] ... Clone: {perf_clone}");
 		// FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
 		//-------------------------------------------------------------------------------- 10
@@ -386,7 +384,7 @@ impl Ccd {
 		Self::priv_convert_art(&to_kernel, &mut collection, ArtConvertType::ToKnown, increment, total_albums, threads);
 		// Update should be <= 99% at this point.
 		let perf_convert = secs_f32!(now);
-		trace!("CCD [10/14] ... Convert: {perf_convert}");
+		trace!("CCD [10/13] ... Convert: {perf_convert}");
 
 		//-------------------------------------------------------------------------------- 11
 		let now = now!();
@@ -399,30 +397,14 @@ impl Ccd {
 		// starve GUI, but can take way longer (0.00008 secs -> 1.xx secs...!!!).
 		crate::ccd::img::alloc_textures(&collection.albums);
 		let perf_textures = secs_f32!(now);
-		trace!("CCD [11/14] ... Textures: {perf_textures}");
+		trace!("CCD [11/13] ... Textures: {perf_textures}");
 
 		//-------------------------------------------------------------------------------- 12
-		let now = now!();
 		send!(to_kernel, CcdToKernel::NewCollection(Arc::new(collection)));
-		let perf_to_kernel = secs_f32!(now);
-		trace!("CCD [12/14] ... ToKernel: {perf_to_kernel}");
-
-		//-------------------------------------------------------------------------------- 13
-		// INVARIANT:
-		// In order to access `perf_die` out of scope
-		// there is not match/if_else here.
-		//
-		// Instead, we just block on `recv!()` assuming
-		// `KernelToCcd::Die` is the only message `CCD`
-		// can receive.
-		let now = now!();
-		let _ = recv!(from_kernel);
-		let perf_die = secs_f32!(now);
-		trace!("CCD [13/14] ... Die: {perf_die}");
 		let user_time = secs_f32!(beginning);
 		trace!("CCD ... User time: {}", user_time);
 
-		//-------------------------------------------------------------------------------- 14
+		//-------------------------------------------------------------------------------- 13
 		let now = now!();
 		// Set `saving` state.
 		atomic_store!(crate::state::SAVING, true);
@@ -495,7 +477,7 @@ impl Ccd {
 		// Set `saving` state.
 		atomic_store!(crate::state::SAVING, false);
 		let perf_disk = secs_f32!(now);
-		trace!("CCD [14/14] ... Disk: {perf_disk}");
+		trace!("CCD [13/13] ... Disk: {perf_disk}");
 
 		//-------------------------------------------------------------------------------- Print & save `Perf` stats.
 		// Gather and save perf data.
@@ -511,8 +493,6 @@ impl Ccd {
 			clone:       perf_clone,
 			convert:     perf_convert,
 			textures:    perf_textures,
-			to_kernel:   perf_to_kernel,
-			die:         perf_die,
 			disk:        perf_disk,
 		};
 		let objects = crate::ccd::perf::Objects {

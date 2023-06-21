@@ -12,6 +12,7 @@ use std::sync::{Arc,RwLock};
 use crate::logger::INIT_INSTANT;
 use crate::collection::{
 	UNKNOWN_ALBUM,
+	UNKNOWN_ALBUM_ID,
 	SongKey,
 };
 use crate::state::{
@@ -32,7 +33,7 @@ use benri::{
 use disk::{Bincode2,Json,Plain};
 use super::{KernelToFrontend, FrontendToKernel};
 use crate::{
-	ccd::{KernelToCcd, CcdToKernel, Ccd},
+	ccd::{CcdToKernel, Ccd},
 	search::{KernelToSearch, SearchToKernel, Search},
 	audio::{KernelToAudio, AudioToKernel, Audio},
 	watch::{WatchToKernel, Watch},
@@ -116,16 +117,6 @@ impl Kernel {
 		watch: bool,
 		media_controls: bool,
 	) -> Result<(Sender<FrontendToKernel>, Receiver<KernelToFrontend>), std::io::Error> {
-		// Create `Kernel` <-> `Frontend` channels.
-		let (to_frontend, from_kernel) = crossbeam::channel::unbounded::<KernelToFrontend>();
-		let (to_kernel, from_frontend) = crossbeam::channel::unbounded::<FrontendToKernel>();
-
-		// Spawn Kernel.
-		std::thread::Builder::new()
-			.name("Kernel".to_string())
-			.stack_size(16_000_000) // 16MB stack.
-			.spawn(move || Self::bios(to_frontend, from_frontend, watch, media_controls))?;
-
 		// Assert `OnceCell`'s were set.
 		#[cfg(feature = "gui")]
 		{
@@ -137,8 +128,21 @@ impl Kernel {
 			// `GUI` must not allocate any textures before this.
 			//
 			// This allocates unknown texture and makes sure it is index `1`.
-			debug_assert!(UNKNOWN_ALBUM.texture_id(gui_context()) == egui::TextureId::Managed(1));
+			let id = UNKNOWN_ALBUM.texture_id(gui_context());
+			if id != UNKNOWN_ALBUM_ID {
+				panic!("UNKNOWN_ALBUM id: {id:?}, expected: {UNKNOWN_ALBUM_ID:?}");
+			}
 		}
+
+		// Create `Kernel` <-> `Frontend` channels.
+		let (to_frontend, from_kernel) = crossbeam::channel::unbounded::<KernelToFrontend>();
+		let (to_kernel, from_frontend) = crossbeam::channel::unbounded::<FrontendToKernel>();
+
+		// Spawn Kernel.
+		std::thread::Builder::new()
+			.name("Kernel".to_string())
+			.stack_size(16_000_000) // 16MB stack.
+			.spawn(move || Self::bios(to_frontend, from_frontend, watch, media_controls))?;
 
 		// Return channels.
 		Ok((to_kernel, from_kernel))
@@ -578,8 +582,7 @@ impl Kernel {
 		send!(self.to_search, KernelToSearch::DropCollection);
 		send!(self.to_audio,  KernelToAudio::DropCollection);
 
-		// Create `CCD` channels.
-		let (to_ccd,   ccd_recv) = crossbeam::channel::unbounded::<KernelToCcd>();
+		// Create `CCD` channel.
 		let (ccd_send, from_ccd) = crossbeam::channel::unbounded::<CcdToKernel>();
 
 		// Give the last ownership of the
@@ -594,13 +597,13 @@ impl Kernel {
 		if let Err(e) = std::thread::Builder::new()
 			.name("CCD".to_string())
 			.stack_size(16_000_000) // 16MB stack.
-			.spawn(move || Ccd::new_collection(ccd_send, ccd_recv, old_collection, paths))
+			.spawn(move || Ccd::new_collection(ccd_send, old_collection, paths))
 		{
 			panic!("Kernel - failed to spawn CCD: {e}");
 		}
 
 		// Listen to `CCD`.
-		self.collection = loop {
+		let (error, collection) = loop {
 			use crate::ccd::CcdToKernel::*;
 
 			// What message did `CCD` send?
@@ -614,31 +617,25 @@ impl Kernel {
 				UpdatePhase((percent, phase)) => RESET_STATE.write().new_phase(percent, phase),
 
 				// `CCD` was successful. We got the new `Collection`.
-				NewCollection(collection) => break collection,
+				NewCollection(collection) => break (None, collection),
 
 				// `CCD` failed, tell `GUI` and give the
 				// old `Collection` pointer to everyone
 				// and return out of this function.
-				Failed(anyhow) => {
-					debug_panic!("{anyhow}");
-
-					send!(self.to_search,   KernelToSearch::NewCollection(Arc::clone(&self.collection)));
-					send!(self.to_audio,    KernelToAudio::NewCollection(Arc::clone(&self.collection)));
-					send!(self.to_frontend, KernelToFrontend::Failed((Arc::clone(&self.collection), anyhow.to_string())));
-					#[cfg(feature = "gui")]
-					gui_request_update();
-					return;
-				},
+				Failed(anyhow) => break (Some(anyhow), Collection::dummy()),
 			}
 		};
 
-		// We have the `Collection`, tell `CCD` to die.
-		send!(to_ccd, KernelToCcd::Die);
+		self.collection = collection;
 
-		// `CCD` succeeded, send new pointers to everyone.
-		send!(self.to_search,   KernelToSearch::NewCollection(Arc::clone(&self.collection)));
+		// Send new pointers to everyone.
 		send!(self.to_audio,    KernelToAudio::NewCollection(Arc::clone(&self.collection)));
-		send!(self.to_frontend, KernelToFrontend::NewCollection(Arc::clone(&self.collection)));
+		send!(self.to_search,   KernelToSearch::NewCollection(Arc::clone(&self.collection)));
+		if let Some(e) = error {
+			send!(self.to_frontend, KernelToFrontend::Failed((Arc::clone(&self.collection), e.to_string())));
+		} else {
+			send!(self.to_frontend, KernelToFrontend::NewCollection(Arc::clone(&self.collection)));
+		}
 
 		#[cfg(feature = "gui")]
 		gui_request_update();
