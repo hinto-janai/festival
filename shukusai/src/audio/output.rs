@@ -23,13 +23,13 @@ use anyhow::anyhow;
 // It's needed because Linux uses `PulseAudio`
 // while Windows/macOS will use the `cpal` backend.
 pub(crate) trait Output: Sized {
-	fn write(&mut self, decoded: AudioBufferRef<'_>) -> Result<()>;
+	fn write(&mut self, decoded: AudioBufferRef<'_>) -> Result<(), AudioOutputError>;
 	// Discard current audio samples.
 	fn flush(&mut self);
-	fn try_open(spec: SignalSpec, duration: Duration) -> Result<Self>;
+	fn try_open(spec: SignalSpec, duration: Duration) -> Result<Self, AudioOutputError>;
 
 	// Open the audio device with dummy values.
-	fn dummy() -> Result<Self> {
+	fn dummy() -> Result<Self, AudioOutputError> {
 		let spec = SignalSpec {
 			// INVARIANT: Must be non-zero.
 			rate: 48_000,
@@ -68,8 +68,6 @@ impl AudioOutputError {
 	}
 }
 
-pub(crate) type Result<T> = result::Result<T, AudioOutputError>;
-
 pub(crate) use output::*;
 
 //---------------------------------------------------------------------------------------------------- Linux
@@ -90,7 +88,7 @@ mod output {
 	}
 
 	impl Output for AudioOutput {
-		fn try_open(spec: SignalSpec, duration: Duration) -> Result<Self> {
+		fn try_open(spec: SignalSpec, duration: Duration) -> Result<Self, AudioOutputError> {
 			// An interleaved buffer is required to send data to PulseAudio. Use a SampleBuffer to
 			// move data between Symphonia AudioBuffers and the byte buffers required by PulseAudio.
 			let sample_buf = RawSampleBuffer::<f32>::new(duration, spec);
@@ -152,7 +150,7 @@ mod output {
 			}
 		}
 
-		fn write(&mut self, decoded: AudioBufferRef<'_>) -> Result<()> {
+		fn write(&mut self, decoded: AudioBufferRef<'_>) -> Result<(), AudioOutputError> {
 			// Do nothing if there are no audio frames.
 			if decoded.frames() == 0 {
 				return Ok(());
@@ -221,9 +219,9 @@ mod output {
 //---------------------------------------------------------------------------------------------------- Windows/macOS
 #[cfg(not(target_os = "linux"))]
 mod output {
-	use crate::audio::resampler::Resampler;
+	use super::*;
 
-	use super::{Output, AudioOutputError, Result};
+	use crate::audio::resampler::Resampler;
 
 	use symphonia::core::audio::{AudioBufferRef, RawSample, SampleBuffer, SignalSpec};
 	use symphonia::core::conv::{ConvertibleSample, IntoSample};
@@ -245,14 +243,14 @@ mod output {
 	}
 
 	impl Output for AudioOutput {
-		fn try_open(spec: SignalSpec, duration: Duration) -> Result<Self> {
+		fn try_open(spec: SignalSpec, duration: Duration) -> Result<Self, AudioOutputError> {
 			// Get default host.
 			let host = cpal::default_host();
 
 			// Get the default audio output device.
 			let device = match host.default_output_device() {
 				Some(device) => device,
-				Err(err)     => return Err(AudioOutputError::OpenStream(anyhow!(err))),
+				_            => return Err(AudioOutputError::OpenStream(anyhow!("no default audio output device"))),
 			};
 
 			let config = match device.default_output_config() {
@@ -324,7 +322,7 @@ mod output {
 			Ok(Self { ring_buf_producer, sample_buf, stream, resampler, spec, duration })
 		}
 
-		fn write(&mut self, decoded: AudioBufferRef<'_>) -> Result<()> {
+		fn write(&mut self, decoded: AudioBufferRef<'_>) -> Result<(), AudioOutputError> {
 			// Do nothing if there are no audio frames.
 			if decoded.frames() == 0 {
 				return Ok(());

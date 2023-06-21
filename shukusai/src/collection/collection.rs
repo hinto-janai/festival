@@ -500,7 +500,7 @@ impl Collection {
 	/// The [`ArtistKey`], [`AlbumKey`] and [`SongKey`] within
 	/// the [`Key`] must be valid indices into the [`Collection`].
 	pub fn index<K: Into<Key>>(&self, key: K) -> (&Artist, &Album, &Song) {
-		let (artist, album, song) = key.into().inner_usize();
+		let (artist, album, song) = key.into().into_usize();
 		(&self.artists.0[artist], &self.albums.0[album], &self.songs.0[song])
 	}
 
@@ -634,9 +634,9 @@ impl Collection {
 	/// The [`ArtistKey`], [`AlbumKey`] and [`SongKey`] within
 	/// the [`Key`] must be valid indices into the [`Collection`].
 	pub fn get<K: Into<Key>>(&self, key: K) -> Option<(&Artist, &Album, &Song)> {
-		let (artist, album, song) = key.into().inner_usize();
+		let (artist, album, song) = key.into().into_usize();
 
-		let artists = match self.artists.0.get(artist) {
+		let artist = match self.artists.0.get(artist) {
 			Some(a) => a,
 			None    => return None,
 		};
@@ -651,7 +651,7 @@ impl Collection {
 			None    => return None,
 		};
 
-		Some((artists, album, song))
+		Some((artist, album, song))
 	}
 
 	//-------------------------------------------------- Key traversal (index).
@@ -934,6 +934,156 @@ impl Collection {
 				Some(vec)
 			}
 		}
+	}
+
+	/// Format this [`Collection`]'s core metadata in JSON format.
+	///
+	/// This output is not meant to be relied on (yet).
+	///
+	/// It it mostly for quick displaying and debugging
+	/// purposes and may be changed at any time.
+	///
+	/// If you're reading the file directly via [`Collection::from_file()`],
+	/// you will have some extra metadata, like byte count and absolute path.
+	///
+	/// You can pass this in the optional arguments
+	/// and it will be added to the JSON output.
+	pub(crate) fn json(
+		&self,
+		path:    Option<std::path::PathBuf>,
+		bytes:   Option<u64>,
+		header:  Option<String>,
+		version: Option<u8>,
+	) -> String {
+		let path = match path {
+			Some(p) => format!("\n        \"path\": \"{}\",", p.display()),
+			_ => String::new(),
+		};
+		let bytes = match bytes {
+			Some(b) => format!("\n        \"bytes\": {b},"),
+			_ => String::new(),
+		};
+		let header = match header {
+			Some(h) => format!("\n        \"header\": \"{h}\","),
+			_ => String::new(),
+		};
+		let version = match version {
+			Some(v) => format!("\n        \"version\": {v},"),
+			_ => String::new(),
+		};
+
+		// Due to formatting, the indentation is gonna get weird.
+
+//--- Base string.
+let mut s = format!(
+r#"{{
+    "metadata": {{{path}{bytes}{header}{version}
+        "empty": {},
+        "timestamp": {},
+        "artists": {},
+        "albums": {},
+        "songs": {},
+        "art": {}
+    }},
+"#,
+self.empty,
+self.timestamp,
+self.count_artist.inner(),
+self.count_album.inner(),
+self.count_song.inner(),
+self.count_art.inner(),
+);
+
+//--- Artists.
+		s += r#"    "artists": ["#;
+		let mut iter = self.artists.iter().peekable();
+		let mut key  = 0;
+		while let Some(a) = iter.next() {
+			let comma = if iter.peek().is_none() { "\n" } else { "," };
+			s +=
+&format!(
+r#"
+        {{
+            "key": {key},
+            "name": "{}",
+            "runtime": {},
+            "albums": {},
+            "songs": {}
+        }}{comma}"#,
+a.name.replace("\"", "\\\""),
+a.runtime.inner(),
+a.albums.len(),
+a.songs.len(),
+);
+			key += 1;
+		}
+		s += "    ],\n";
+
+//--- Albums.
+		s += r#"    "albums": ["#;
+		let mut iter = self.albums.iter().peekable();
+		let mut key  = 0;
+		while let Some(a) = iter.next() {
+			let comma = if iter.peek().is_none() { "\n" } else { "," };
+			s +=
+&format!(
+r#"
+        {{
+            "key": {key},
+            "title": "{}",
+            "artist": {},
+            "release": "{}",
+            "runtime": {},
+            "songs": {},
+            "discs": {},
+            "path": "{}",
+            "art": "{:?}"
+        }}{comma}"#,
+a.title.replace("\"", "\\\""),
+a.artist.inner(),
+a.release,
+a.runtime.inner(),
+a.songs.len(),
+a.discs,
+a.path.display(),
+a.art,
+);
+			key += 1;
+		}
+		s += "    ],\n";
+
+//--- Songs.
+		s += r#"    "songs": ["#;
+		let mut iter = self.songs.iter().peekable();
+		let mut key  = 0;
+		while let Some(a) = iter.next() {
+			let comma = if iter.peek().is_none() { "\n" } else { "," };
+			let track = if let Some(t) = a.track { t.to_string() } else { "null".to_string() };
+			let disc  = if let Some(d) = a.disc  { d.to_string() } else { "null".to_string() };
+			s +=
+&format!(
+r#"
+        {{
+            "key": {key},
+            "title": "{}",
+            "album": {},
+            "runtime": {},
+            "sample_rate": {},
+            "track": {track},
+            "disc": {disc},
+            "path": "{}"
+        }}{comma}"#,
+a.title.replace("\"", "\\\""),
+a.album.inner(),
+a.runtime.inner(),
+a.sample_rate,
+a.path.display(),
+);
+			key += 1;
+		}
+		s += "    ]\n}";
+
+		s
 	}
 }
 

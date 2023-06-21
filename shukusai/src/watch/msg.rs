@@ -27,6 +27,12 @@ pub(crate) enum WatchToKernel {
 	Index(usize),
 	Skip(usize),
 	Back(usize),
+//	ArtistKey(usize),
+//	AlbumKey(usize),
+//	SongKey(usize),
+//	Artist(String),
+//	Album(String),
+//	Song(String),
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

@@ -96,7 +96,7 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: f
 		.show_viewport(ui, |ui, _|
 	{
 		let mut last_disc = self.collection.songs[album.songs[0]].disc;
-		if album.discs > 1 {
+		if album.discs != 0 {
 			ui.label(format!("Disc {}", last_disc.unwrap_or(0)));
 			ui.separator();
 		}
@@ -105,10 +105,10 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: f
 			let song = &self.collection.songs[key];
 
 			// Add a separator if on a different disc.
-			if album.discs > 1 {
+			if album.discs != 0 {
 				if song.disc != last_disc {
 					ui.add_space(10.0);
-					ui.label(format!("Disc {}", last_disc.unwrap_or(0)));
+					ui.label(format!("Disc {}", song.disc.unwrap_or(0)));
 					ui.separator();
 				}
 

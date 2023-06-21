@@ -47,7 +47,7 @@ pub const SAVING: &str = "Festival is still saving a recently created Collection
 
 //---------------------------------------------------------------------------------------------------- Albums tab
 pub const EMPTY_COLLECTION: &str =
-r#"This scans the system's Music directory.
+r#"This scans the system's Music directory by default.
 
 Configure which directories to scan in the [Settings] tab."#;
 

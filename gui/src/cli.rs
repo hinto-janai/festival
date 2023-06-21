@@ -18,7 +18,15 @@ use disk::Empty;
 use std::num::NonZeroUsize;
 
 //---------------------------------------------------------------------------------------------------- CLI Parser (clap)
+#[cfg(windows)]
+const USAGE: &str = "Festival.exe [OPTIONS]";
+#[cfg(unix)]
+const USAGE: &str = "festival [OPTIONS]";
+
 #[derive(Parser, Debug)]
+// Clap puts a really ugly non-wrapping list
+// of possible args if this isn't set.
+#[command(override_usage = USAGE)]
 pub struct Cli {
 	#[arg(long)]
 	/// Start playback
@@ -84,7 +92,8 @@ pub struct Cli {
 	#[arg(long, verbatim_doc_comment)]
 	/// Set the current song to the index `INDEX` in the queue.
 	///
-	/// NOTE: The queue index starts from 1 (first song is `--index 1`).
+	/// NOTE:
+	/// The queue index starts from 1 (first song is `--index 1`).
 	///
 	/// Providing an index that is out-of-bounds
 	/// will end the queue (even if repeat is turned on).
@@ -106,8 +115,21 @@ pub struct Cli {
 	/// the 1st in the queue.
 	back: Option<usize>,
 
-	#[arg(long)]
+	#[arg(long, verbatim_doc_comment)]
 	/// Print JSON metadata about the current `Collection` on disk
+	///
+	/// WARNING:
+	/// This output is not meant to be relied on (yet).
+	///
+	/// It it mostly for quick displaying and debugging
+	/// purposes and may be changed at any time.
+	///
+	/// This flag will attempt to parse the `Collection` that
+	/// is currently on disk and extract the metadata from it.
+	///
+	/// This also means the entire `Collection` will be read
+	/// and deserialized from disk, which may be very expensive
+	/// if you have a large `Collection`.
 	metadata: bool,
 
 	#[arg(long, verbatim_doc_comment, default_value_t = false)]

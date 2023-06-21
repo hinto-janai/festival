@@ -234,9 +234,21 @@ impl Key {
 	}
 
 	#[inline(always)]
+	/// Returns the inner keys, consuming [`Self`]
+	pub const fn into_inner(self) -> (ArtistKey, AlbumKey, SongKey) {
+		(self.artist, self.album, self.song)
+	}
+
+	#[inline(always)]
 	/// Returns the inner usize's of the inner keys.
-	pub const fn inner_usize(&self) -> (usize, usize, usize) {
-		(self.artist.inner(), self.album.inner(), self.song.inner())
+	pub const fn usize(&self) -> (usize, usize, usize) {
+		(self.artist.0, self.album.0, self.song.0)
+	}
+
+	#[inline(always)]
+	/// Returns the inner usize's of the inner keys, consuming [`Self`].
+	pub const fn into_usize(&self) -> (usize, usize, usize) {
+		(self.artist.0, self.album.0, self.song.0)
 	}
 }
 

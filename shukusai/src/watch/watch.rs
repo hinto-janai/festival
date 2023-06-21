@@ -104,6 +104,12 @@ impl Watch {
 		if let Err(e) = Clear::rm()        { error!("Watch - Clear: {}", e); }
 		if let Err(e) = Skip::rm()         { error!("Watch - Skip: {}", e); }
 		if let Err(e) = Back::rm()         { error!("Watch - Back: {}", e); }
+//		if let Err(e) = ArtistKey::rm()    { error!("Watch - ArtistKey: {}", e); }
+//		if let Err(e) = AlbumKey::rm()     { error!("Watch - AlbumKey: {}", e); }
+//		if let Err(e) = SongKey::rm()      { error!("Watch - SongKey: {}", e); }
+//		if let Err(e) = Artist::rm()       { error!("Watch - Artist: {}", e); }
+//		if let Err(e) = Album::rm()        { error!("Watch - Album: {}", e); }
+//		if let Err(e) = Song::rm()         { error!("Watch - Song: {}", e); }
 	}
 
 	fn main(self) {
@@ -165,6 +171,12 @@ impl Watch {
 			if let Ok(s) = SeekForward::from_file()  { send!(self.to_kernel, WatchToKernel::SeekForward(s.0)); }
 			if let Ok(s) = SeekBackward::from_file() { send!(self.to_kernel, WatchToKernel::SeekBackward(s.0)); }
 			if let Ok(s) = Back::from_file()         { send!(self.to_kernel, WatchToKernel::Back(s.0)); }
+//			if let Ok(s) = ArtistKey::from_file()    { send!(self.to_kernel, WatchToKernel::ArtistKey(s.0)); }
+//			if let Ok(s) = AlbumKey::from_file()     { send!(self.to_kernel, WatchToKernel::AlbumKey(s.0)); }
+//			if let Ok(s) = SongKey::from_file()      { send!(self.to_kernel, WatchToKernel::SongKey(s.0)); }
+//			if let Ok(s) = Artist::from_file()       { send!(self.to_kernel, WatchToKernel::Artist(s.0)); }
+//			if let Ok(s) = Album::from_file()        { send!(self.to_kernel, WatchToKernel::Album(s.0)); }
+//			if let Ok(s) = Song::from_file()         { send!(self.to_kernel, WatchToKernel::Song(s.0)); }
 
 			// Clean folder.
 			Self::clean();

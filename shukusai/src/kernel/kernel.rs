@@ -533,6 +533,12 @@ impl Kernel {
 			Index(s)        => send!(self.to_audio, KernelToAudio::SetQueueIndex(s)),
 			Skip(s)         => send!(self.to_audio, KernelToAudio::Skip(s)),
 			Back(s)         => send!(self.to_audio, KernelToAudio::Back(s)),
+//			ArtistKey(k)    => send!(self.to_audio, KernelToAudio::ArtistKey(k)),
+//			AlbumKey(k)     => send!(self.to_audio, KernelToAudio::AlbumKey(k)),
+//			SongKey(k)      => send!(self.to_audio, KernelToAudio::SongKey(k)),
+//			Artist(s)       => send!(self.to_audio, KernelToAudio::Artist(k)),
+//			Album(s)        => send!(self.to_audio, KernelToAudio::Album(k)),
+//			Song(s)         => send!(self.to_audio, KernelToAudio::Song(k)),
 		}
 	}
 

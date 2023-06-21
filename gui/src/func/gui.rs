@@ -78,7 +78,7 @@ impl Gui {
 			ok!("GUI - State validation");
 		} else {
 			fail!("GUI - State validation");
-			self.state = crate::data::State::default();
+			self.state = crate::data::State::new();
 		}
 	}
 

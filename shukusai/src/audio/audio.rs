@@ -1222,6 +1222,9 @@ impl Audio {
 			} else {
 				debug!("Audio - Restore ... skipping seek");
 			}
+
+			#[cfg(feature = "gui")]
+			gui_request_update();
 		}
 	}
 

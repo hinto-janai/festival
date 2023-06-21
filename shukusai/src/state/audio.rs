@@ -111,7 +111,7 @@ impl AudioState {
 			queue_idx: None,
 
 			playing: false,
-			volume: Volume::new_25(),
+			volume: Volume::const_default(),
 			song: None,
 			elapsed: Runtime::zero(),
 			runtime: Runtime::zero(),

@@ -45,13 +45,17 @@ impl Volume {
 	pub fn f32(&self) -> f32 {
 		self.0 as f32 / 100.0
 	}
+
+	pub(crate) const fn const_default() -> Self {
+		Self::new_25()
+	}
 }
 
 impl Default for Volume {
 	#[inline]
 	/// Calls [`Volume::new_25`].
 	fn default() -> Self {
-		Self::new_25()
+		Self::const_default()
 	}
 }
 

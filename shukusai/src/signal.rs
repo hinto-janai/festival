@@ -14,7 +14,6 @@ use crate::constants::{
 };
 use serde::{Serialize,Deserialize};
 use std::ops::RangeInclusive;
-use crate::collection::Song;
 use const_format::formatcp;
 
 //---------------------------------------------------------------------------------------------------- Signals
@@ -79,7 +78,7 @@ impl_signal_empty! {
 
 impl_signal_content! {
 	Volume, crate::audio::Volume, "volume",
-	"Contents should be a [`Volume`].",
+	"Contents should be a [`Volume`]. Sets the volume to the given value.",
 
 	Seek, u64, "seek",
 	"Contents should be a [`u64`] representing the absolute second to seek to in the current [`Song`]. Will skip if the value if larger than the current [`Song`]'s runtime.",
@@ -101,6 +100,25 @@ impl_signal_content! {
 
 	Back, usize, "back",
 	"Contents should be a [`usize`]. This is the same as `Skip`, although it skips backwards.",
+
+	// SOMEDAY
+//	ArtistKey, usize, "artist_key",
+//	"Contents should be a [`usize`] representing an [`ArtistKey`]. This will add the [`Artist`]'s songs to the queue",
+//
+//	AlbumKey, usize, "album_key",
+//	"Contents should be a [`usize`] representing an [`AlbumKey`]. This will add the [`Album`] to the queue",
+//
+//	SongKey, usize, "song_key",
+//	"Contents should be a [`usize`] representing a [`SongKey`]. This will add the [`Song`] to the queue",
+//
+//	Artist, usize, "artist",
+//	"Contents should be a [`String`] representing an [`Artist`] name. This will add the [`Artist`]'s songs to the queue",
+//
+//	Album, usize, "album",
+//	"Contents should be a [`String`] representing an [`Album`] title. This will add the [`Album`] to the queue",
+//
+//	Song, usize, "song",
+//	"Contents should be a [`String`] representing a [`Song`] title. This will add the [`Song`] to the queue",
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
