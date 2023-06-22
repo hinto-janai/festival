@@ -152,6 +152,19 @@ pub struct Cli {
 	/// `--disable-media-controls` disables this.
 	disable_media_controls: bool,
 
+	#[arg(long, verbatim_doc_comment)]
+	/// Delete all Festival files that are currently on disk
+	///
+	/// This includes:
+	/// - The `Collection`
+	/// - `GUI` settings (sort methods, color, etc)
+	/// - `GUI` state (currently selected album/artist, etc)
+	/// - Audio state (currently playing song, queue, etc)
+	/// - Cached images (found in local OS cache folder)
+	///
+	/// The PATH(s) deleted will be printed on success.
+	delete: bool,
+
 	#[arg(long, value_name = "OFF|ERROR|INFO|WARN|DEBUG|TRACE")]
 	#[arg(default_value_t = log::LevelFilter::Info)]
 	/// Set filter level for console logs
@@ -218,6 +231,27 @@ impl Cli {
 		if let Some(index)  = self.index         { handle(Index(index.into()).save()) }
 		if let Some(skip)   = self.skip          { handle(Skip(skip).save())          }
 		if let Some(back)   = self.back          { handle(Back(back).save())          }
+
+		// Delete.
+		use disk::{Bincode2, Json};
+		if self.delete {
+			// SAFETY:
+			// If we can't get a PATH, `panic!()`'ing is fine.
+
+			let p = crate::data::State::sub_dir_parent_path().unwrap();
+			match crate::data::State::rm_sub() {
+				Ok(md) => { println!("{}", md.path().display()); },
+				Err(e) => { eprintln!("festival error: {} - {e}", p.display()); exit(1); },
+			}
+
+			let p = shukusai::collection::ImageCache::sub_dir_parent_path().unwrap();
+			match shukusai::collection::ImageCache::rm_sub() {
+				Ok(md) => { println!("{}", md.path().display()); },
+				Err(e) => { eprintln!("festival error: {} -  {e}", p.display()); exit(1); },
+			}
+
+			exit(0);
+		}
 
 		// Return.
 		(self.disable_watch, self.disable_media_controls, self.log_level)
