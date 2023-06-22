@@ -8,7 +8,7 @@
 //use std::sync::{Arc,Mutex,RwLock};
 use log::{info,error,warn,trace,debug};
 use egui::{
-	TextStyle,
+	TextStyle,Sense,
 	ScrollArea,ComboBox,
 	Label,RichText,Slider,
 	SelectableLabel,Button,
@@ -25,6 +25,7 @@ use crate::constants::{
 	SLIDER_CIRCLE_ACTIVE,
 	PREVIOUS_THRESHOLD_MIN,
 	PREVIOUS_THRESHOLD_MAX,
+	FESTIVAL_NAME_VER,
 };
 use crate::data::{
 	AlbumSizing,
@@ -38,6 +39,10 @@ use shukusai::{
 	search::SearchKind,
 	kernel::FrontendToKernel,
 	collection::Collection,
+	constants::{
+		COMMIT,
+		SHUKUSAI_NAME_VER,
+	},
 };
 use benri::{
 	send,
@@ -502,12 +507,14 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, widt
 		//-------------------------------------------------- Version/Copyright
 		let label = Label::new(
 			RichText::new("Version")
-			.color(BONE)
 			.text_style(TextStyle::Heading)
 		);
 		ui.add_sized([width, text], label);
 
-		ui.add_sized([width, text], Label::new(FESTIVAL_VERSION_COPYRIGHT));
+		if ui.add_sized([width, text], Label::new(FESTIVAL_VERSION_COPYRIGHT).sense(Sense::click())).clicked() {
+			ui.output_mut(|o| o.copied_text = format!("{}\n{}\n{}", FESTIVAL_NAME_VER, SHUKUSAI_NAME_VER, COMMIT));
+			crate::toast!(self, "Copied version to clipboard");
+		}
 //		ui.add_space(40.0);
 //		ui.separator();
 //		ui.add_space(40.0);
