@@ -10,3 +10,4 @@ target/
 /assets/images/art/i.jpg
 /assets/albums/*
 /utils/Festival*AppImage
+/utils/*.dmg

@@ -9,6 +9,9 @@
 	unused_imports,
 )]
 
+// Hide console in Windows.
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
 mod cli;
 mod constants;
 mod data;

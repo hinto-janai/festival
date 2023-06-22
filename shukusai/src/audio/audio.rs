@@ -480,6 +480,8 @@ impl Audio {
 			// - `file:///c:\Users\hinto\AppData\Local\Festival\cache\gui\image\3.jpg`
 			//
 			// https://en.wikipedia.org/wiki/File_URI_scheme
+			//
+			// I'm pretty sure it's a bug in `souvlaki`.
 			let cover_url = None;
 
 			#[cfg(unix)]

@@ -51,11 +51,11 @@ pub fn init_logger(filter: log::LevelFilter) {
 	env_logger::Builder::new().format(move |buf, record| {
 		let mut style = buf.style();
 		let level = match record.level() {
-			log::Level::Debug => { style.set_color(env_logger::fmt::Color::Blue);    "DEBUG" },
-			log::Level::Trace => { style.set_color(env_logger::fmt::Color::Magenta); "TRACE" },
-			log::Level::Info  => { style.set_color(env_logger::fmt::Color::White);   "INFO"  },
-			log::Level::Warn  => { style.set_color(env_logger::fmt::Color::Yellow);  "WARN"  },
-			log::Level::Error => { style.set_color(env_logger::fmt::Color::Red);     "ERROR" },
+			log::Level::Debug => { style.set_color(env_logger::fmt::Color::Blue);    "D" },
+			log::Level::Trace => { style.set_color(env_logger::fmt::Color::Magenta); "T" },
+			log::Level::Info  => { style.set_color(env_logger::fmt::Color::White);   "I"  },
+			log::Level::Warn  => { style.set_color(env_logger::fmt::Color::Yellow);  "W"  },
+			log::Level::Error => { style.set_color(env_logger::fmt::Color::Red);     "E" },
 		};
 		writeln!(
 			buf,
@@ -64,10 +64,10 @@ pub fn init_logger(filter: log::LevelFilter) {
 			//
 			// Use `utils/longest.sh` to find this.
 			//
-			//          Longest PATH ---|         |--- Longest file
-			//                          |         |
-			//                          v         v
-			"| {: >5} | {: >10.3} | {: >38} @ {: <4} | {}",
+			//      Longest PATH ---|        |--- Longest file
+			//                      |        |
+			//                      v        v
+			"| {} | {: >9.3} | {: >38} @ {: <4} | {}",
 			style.set_bold(true).value(level),
 			buf.style().set_dimmed(true).value(now.elapsed().as_secs_f32()),
 			buf.style().set_dimmed(true).value(record.file_static().unwrap_or("???")),

@@ -50,7 +50,7 @@ cat << EOM > "${APP}/Contents/Info.plist"
   <key>CFBundleDisplayName</key>
   <string>${FESTIVAL_NAME}</string>
   <key>CFBundleExecutable</key>
-  <string>${FESTIVAL_BIN}</string>
+  <string>${FESTIVAL_NAME}</string>
   <key>CFBundleIconFile</key>
   <string>${FESTIVAL_NAME}.icns</string>
   <key>CFBundleIdentifier</key>
