@@ -147,10 +147,10 @@ pub const SEARCH_MAX_LEN: usize = u8::MAX as usize;
 /// "gui", `GUI`'s sub-directory in the `Festival` project folder.
 pub const GUI: &str = "gui";
 
-/// Current major version of `State`
+/// Current major version of `GUI`'s `State`
 pub const STATE_VERSION: u8 = 0;
 
-/// Current major version of `Settings`
+/// Current major version of `GUI`'s `Settings`
 pub const SETTINGS_VERSION: u8 = 0;
 
 //---------------------------------------------------------------------------------------------------- Resolution

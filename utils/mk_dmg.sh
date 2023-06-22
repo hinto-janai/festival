@@ -22,4 +22,8 @@ APP="${PWD}/Festival.app"
 # Create `.dmg`
 hdiutil create -fs HFS+ -srcfolder Festival.app -volname "Festival-${VERSION}" "$OUTPUT"
 
+# Wipe binary.
+rm "${APP}/Contents/MacOS/festival"
+touch "${APP}/Contents/MacOS/festival"
+
 echo "${OUTPUT}"

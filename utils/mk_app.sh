@@ -79,8 +79,4 @@ EOM
 rm "${APP}/Contents/MacOS/festival"
 cp -f "${BINARY}" "${APP}/Contents/MacOS/"
 
-# Wipe binary.
-rm "${APP}/Contents/MacOS/festival"
-touch "${APP}/Contents/MacOS/festival"
-
 echo "${APP}"

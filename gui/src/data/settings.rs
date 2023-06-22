@@ -42,6 +42,7 @@ use crate::data::{
 	WindowTitle,
 };
 use const_format::formatcp;
+use std::marker::PhantomData;
 
 //---------------------------------------------------------------------------------------------------- Settings
 #[cfg(debug_assertions)]
@@ -102,6 +103,19 @@ pub struct Settings {
 	/// List of [`PathBuf`]'s to source music
 	/// data from when making a new [`Collection`].
 	pub collection_paths: Vec<PathBuf>,
+
+	// Reserved fields.
+	_reserved1: PhantomData<Vec<String>>,
+	_reserved2: PhantomData<String>,
+	_reserved3: PhantomData<Option<String>>,
+	_reserved4: PhantomData<bool>,
+	_reserved5: PhantomData<bool>,
+	_reserved6: PhantomData<Option<bool>>,
+	_reserved7: PhantomData<Option<bool>>,
+	_reserved8: PhantomData<usize>,
+	_reserved9: PhantomData<usize>,
+	_reserved10: PhantomData<Option<usize>>,
+	_reserved11: PhantomData<Option<usize>>,
 }
 
 impl Settings {

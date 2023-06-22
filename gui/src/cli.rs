@@ -13,6 +13,7 @@ use shukusai::signal::{
 };
 use disk::Empty;
 use std::num::NonZeroUsize;
+use disk::{Bincode2, Json, Plain};
 
 //---------------------------------------------------------------------------------------------------- CLI Parser (clap)
 #[cfg(windows)]
@@ -196,7 +197,7 @@ impl Cli {
 		if self.metadata {
 			match shukusai::collection::metadata() {
 				Ok(md) => { println!("{md}"); exit(0); },
-				Err(e) => { println!("festival error: {e}"); exit(1); },
+				Err(e) => { eprintln!("festival error: {e}"); exit(1); },
 			}
 		}
 
@@ -223,7 +224,6 @@ impl Cli {
 		if self.repeat_off   { handle(RepeatOff::touch())   }
 
 		// Content signals.
-		use disk::Plain;
 		if let Some(volume) = self.volume        { handle(Volume(shukusai::audio::Volume::new(volume)).save()) }
 		if let Some(seek)   = self.seek          { handle(Seek(seek).save())          }
 		if let Some(seek)   = self.seek_forward  { handle(SeekForward(seek).save())   }
@@ -233,24 +233,25 @@ impl Cli {
 		if let Some(back)   = self.back          { handle(Back(back).save())          }
 
 		// Delete.
-		use disk::{Bincode2, Json};
 		if self.delete {
 			// SAFETY:
 			// If we can't get a PATH, `panic!()`'ing is fine.
 
+			let mut code = 0;
+
 			let p = crate::data::State::sub_dir_parent_path().unwrap();
 			match crate::data::State::rm_sub() {
 				Ok(md) => { println!("{}", md.path().display()); },
-				Err(e) => { eprintln!("festival error: {} - {e}", p.display()); exit(1); },
+				Err(e) => { eprintln!("festival error: {} - {e}", p.display()); code = 1; },
 			}
 
 			let p = shukusai::collection::ImageCache::sub_dir_parent_path().unwrap();
 			match shukusai::collection::ImageCache::rm_sub() {
 				Ok(md) => { println!("{}", md.path().display()); },
-				Err(e) => { eprintln!("festival error: {} -  {e}", p.display()); exit(1); },
+				Err(e) => { eprintln!("festival error: {} -  {e}", p.display()); code = 1; },
 			}
 
-			exit(0);
+			exit(code);
 		}
 
 		// Return.

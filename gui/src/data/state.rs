@@ -34,6 +34,7 @@ use shukusai::{
 };
 use shukusai::kernel::Kernel;
 use const_format::formatcp;
+use std::marker::PhantomData;
 
 //---------------------------------------------------------------------------------------------------- State
 #[cfg(debug_assertions)]
@@ -78,6 +79,19 @@ pub struct State {
 
 	/// Which [`Artist`] are we on in the `Artist` tab?
 	pub artist: Option<ArtistKey>,
+
+	// Reserved fields.
+	_reserved1: PhantomData<Vec<String>>,
+	_reserved2: PhantomData<String>,
+	_reserved3: PhantomData<Option<String>>,
+	_reserved4: PhantomData<bool>,
+	_reserved5: PhantomData<bool>,
+	_reserved6: PhantomData<Option<bool>>,
+	_reserved7: PhantomData<Option<bool>>,
+	_reserved8: PhantomData<usize>,
+	_reserved9: PhantomData<usize>,
+	_reserved10: PhantomData<Option<usize>>,
+	_reserved11: PhantomData<Option<usize>>,
 }
 
 impl State {
