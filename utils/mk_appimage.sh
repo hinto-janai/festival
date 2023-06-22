@@ -25,7 +25,7 @@ fi
 
 # Set variables.
 APP_DIR="${PWD}/Festival.AppDir"
-VERSION="v$(grep -m1 "version" ../Cargo.toml | grep -o "[0-9].[0-9].[0-9]")"
+VERSION="v$(grep -m1 "version" ../gui/Cargo.toml | grep -o "[0-9].[0-9].[0-9]")"
 
 # Remove old AppImage.
 [[ -f "Festival-${VERSION}-x86_64.AppImage" ]] && rm "Festival-${VERSION}-x86_64.AppImage"
@@ -39,14 +39,14 @@ cp -f "$BINARY" "${APP_DIR}/usr/bin/"
 #	mv "Festival-x86_64.AppImage" "Festival-${VERSION}-x86_64.AppImage"
 #fi
 if ! which appimagetool; then
-	wget "https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage" -o /tmp/appimagetool
+	wget "https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage" -O /tmp/appimagetool
 	chmod +x /tmp/appimagetool
 	APPIMAGETOOL=/tmp/appimagetool
 else
 	APPIMAGETOOL=appimagetool
 fi
 
-ARCH=x86_64 $APPIMAGETOOL "$APP_DIR"
+ARCH=x86_64 "$APPIMAGETOOL" "$APP_DIR"
 mv "Festival-x86_64.AppImage" "Festival-${VERSION}-x86_64.AppImage"
 
 # Wipe icon/binary.

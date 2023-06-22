@@ -8,19 +8,6 @@ members = [
 ]
 resolver = "2"
 
-[workspace.package]
-version        = "0.0.0"
-edition        = "2021"
-authors        = ["hinto.janai <hinto.janai@protonmail.com>"]
-homepage       = "https://festival.pm"
-documentation  = "https://docs.rs/shukusai"
-repository     = "https://github.com/hinto-janai/festival"
-keywords       = ["music", "player", "audio", "festival", "shukusai"]
-categories     = ["multimedia"]
-readme         = "README.md"
-license        = "MIT"
-license-file   = "LICENSE"
-
 [profile.release]
 lto           = true
 strip         = "none"

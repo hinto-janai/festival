@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-  <id>pm.festival.festival</id>
+  <id>pm.festival.Festival</id>
   
   <name>Festival</name>
   <summary>Music player</summary>

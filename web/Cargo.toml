@@ -1,14 +1,15 @@
 [package]
-name                    = "festival-web"
-version.workspace       = true
-edition.workspace       = true
-authors.workspace       = true
-homepage.workspace      = true
-documentation.workspace = true
-repository.workspace    = true
-keywords.workspace      = true
-categories.workspace    = true
-readme.workspace        = true
-license-file.workspace  = true
+name           = "festival-web"
+version        = "0.0.0"
+edition        = "2021"
+authors        = ["hinto.janai <hinto.janai@protonmail.com>"]
+homepage       = "https://festival.pm"
+documentation  = "https://docs.rs/shukusai"
+repository     = "https://github.com/hinto-janai/festival"
+keywords       = ["music", "player", "audio", "festival", "shukusai"]
+categories     = ["multimedia"]
+readme         = "README.md"
+license        = "MIT"
+description    = "Music player (web client)"
 
 [dependencies]

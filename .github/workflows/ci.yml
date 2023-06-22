@@ -76,26 +76,31 @@ jobs:
         VERSION="$(grep -m1 "version" Cargo.toml | grep -o "[0-9].[0-9].[0-9]")"
 
         if [ "$RUNNER_OS" == "Linux" ]; then
+          # AppImage
           utils/mk_appimage.sh
-          mv utils/"Festival-${VERSION}-x86_64.AppImage" OUTPUT/
+          mv utils/"Festival-v${VERSION}-x86_64.AppImage" OUTPUT/
 
+          # Tar
           cd target/release
-          tar -czpf "festival-${VERSION}-linux-x64.tar.gz" festival
-          mv "festival-${VERSION}-linux-x64.tar.gz" ../../OUTPUT/
+          tar -czpf "Festival-v${VERSION}-linux-x64.tar.gz" festival
+          mv "Festival-v${VERSION}-linux-x64.tar.gz" ../../OUTPUT/
         elif [ "$RUNNER_OS" == "macOS" ]; then
+          # x64
           utils/mk_app.sh
-          utils/mk_dmg.sh "festival-${VERSION}-macos-x64"
-          mv utils/"festival-${VERSION}-macos-x64.dmg" OUTPUT/
+          utils/mk_dmg.sh "Festival-v${VERSION}-macos-x64"
+          mv utils/"Festival-v${VERSION}-macos-x64.dmg" OUTPUT/
 
+          # ARM64
           mv target/aarch64-apple-darwin/release/festival target/release/
           utils/mk_app.sh
-          utils/mk_dmg.sh "festival-${VERSION}-macos-arm64"
-          mv utils/"festival-${VERSION}-macos-arm64.dmg" OUTPUT/
+          utils/mk_dmg.sh "Festival-v${VERSION}-macos-arm64"
+          mv utils/"Festival-v${VERSION}-macos-arm64.dmg" OUTPUT/
         elif [ "$RUNNER_OS" == "Windows" ]; then
+          # Zip
           mv target/release/festival.exe target/release/Festival.exe
           cd target/release
-          powershell Compress-Archive -LiteralPath Festival.exe -DestinationPath "festival-${VERSION}-windows-x64.zip"
-          mv "festival-${VERSION}-windows-x64.zip" ../../OUTPUT/
+          powershell Compress-Archive -LiteralPath Festival.exe -DestinationPath "Festival-v${VERSION}-windows-x64.zip"
+          mv "Festival-v${VERSION}-windows-x64.zip" ../../OUTPUT/
         fi
 
     - name: Archive

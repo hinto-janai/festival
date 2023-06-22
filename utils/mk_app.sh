@@ -36,9 +36,8 @@ cp -r "Festival.app.skel" "$APP"
 
 # Set `Info.plist` variables.
 FESTIVAL_NAME="Festival"
-FESTIVAL_BIN="festival"
-FESTIVAL_IDENT="pm.festival.festival"
-FESTIVAL_VERSION="$(grep -m1 "version" ../Cargo.toml | grep -o "[0-9].[0-9].[0-9]")"
+FESTIVAL_IDENT="pm.festival.Festival"
+FESTIVAL_VERSION="$(grep -m1 "version" ../gui/Cargo.toml | grep -o "[0-9].[0-9].[0-9]")"
 
 cat << EOM > "${APP}/Contents/Info.plist"
 <?xml version="1.0" encoding="UTF-8"?>
@@ -77,5 +76,11 @@ cat << EOM > "${APP}/Contents/Info.plist"
 </plist>
 EOM
 
+rm "${APP}/Contents/MacOS/festival"
 cp -f "${BINARY}" "${APP}/Contents/MacOS/"
+
+# Wipe binary.
+rm "${APP}/Contents/MacOS/festival"
+touch "${APP}/Contents/MacOS/festival"
+
 echo "${APP}"

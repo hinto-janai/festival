@@ -11,7 +11,7 @@ set -ex
 [[ $PWD == */festival/utils ]]
 
 # Set variables.
-VERSION="$(grep -m1 "version" ../Cargo.toml | grep -o "[0-9].[0-9].[0-9]")"
+VERSION="$(grep -m1 "version" ../gui/Cargo.toml | grep -o "[0-9].[0-9].[0-9]")"
 APP="${PWD}/Festival.app"
 
 [[ $1 ]] && OUTPUT="$1" || OUTPUT="Festival-${VERSION}.dmg"
