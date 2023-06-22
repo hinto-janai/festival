@@ -596,6 +596,18 @@ impl Kernel {
 		let old_collection = Arc::clone(&self.collection);
 		self.collection    = Collection::dummy();
 
+		// If there is another `CCD` still alive
+		// saving, wait for it to finish.
+		if crate::state::saving() {
+			// Set `ResetState` to `Wait` phase.
+			RESET_STATE.write().wait();
+
+			while crate::state::saving() {
+				info!("Kernel - Another CCD is still saving, waiting...");
+				benri::sleep_millis!(500);
+			}
+		}
+
 		// Set `ResetState` to `Start` phase.
 		RESET_STATE.write().start();
 

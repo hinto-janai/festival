@@ -116,6 +116,16 @@ impl ResetState {
 		};
 	}
 
+	// Sets an initial waiting version.
+	pub(crate) fn wait(&mut self) {
+		*self = Self {
+			resetting: true,
+			percent: Percent::zero(),
+			phase: Phase::Wait,
+			specific: String::new(),
+		};
+	}
+
 	// Sets the special `Disk` phase.
 	pub(crate) fn disk(&mut self) {
 		*self = Self {

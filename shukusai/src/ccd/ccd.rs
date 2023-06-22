@@ -402,7 +402,7 @@ impl Ccd {
 		//-------------------------------------------------------------------------------- 12
 		send!(to_kernel, CcdToKernel::NewCollection(Arc::new(collection)));
 		let user_time = secs_f32!(beginning);
-		trace!("CCD ... User time: {}", user_time);
+		info!("CCD ... User time: {}", user_time);
 
 		//-------------------------------------------------------------------------------- 13
 		let now = now!();
@@ -480,6 +480,9 @@ impl Ccd {
 		trace!("CCD [13/13] ... Disk: {perf_disk}");
 
 		//-------------------------------------------------------------------------------- Print & save `Perf` stats.
+		let ccd_time = secs_f32!(beginning);
+		info!("CCD ... CCD time: {}", ccd_time);
+
 		// Gather and save perf data.
 		let phases = crate::ccd::perf::Phases {
 			deconstruct: perf_deconstruct,
@@ -504,7 +507,7 @@ impl Ccd {
 		let total = crate::ccd::perf::Total {
 			bytes: total_bytes,
 			user: user_time,
-			ccd: secs_f32!(beginning),
+			ccd: ccd_time,
 		};
 		let perf = crate::ccd::perf::Perf {
 			objects,

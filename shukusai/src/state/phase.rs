@@ -9,7 +9,8 @@ use crate::{
 // This is the text actually displayed in the `GUI`.
 const NONE:        &str = "...";
 const DISK:        &str = "Reading From Disk";
-const START:       &str = "Starting...";
+const WAIT:        &str = "Waiting for previous Collection reset to finish";
+const START:       &str = "Starting";
 const DECONSTRUCT: &str = "Deconstructing Old Collection";
 const WALKDIR:     &str = "Walking Directories";
 const PARSE:       &str = "Parsing Metadata";
@@ -44,6 +45,7 @@ const FINALIZE:    &str = "Finalizing Collection";
 /// # use shukusai::kernel::Phase;
 /// assert!(Phase::None.as_str()     == "...");
 /// assert!(Phase::Disk.as_str()     == "Reading From Disk");
+/// assert!(Phase::Wait.as_str()     == "Waiting for previous Collection reset to finish");
 ///
 /// assert!(Phase::Start.as_str()       == "Starting");
 /// assert!(Phase::Deconstruct.as_str() == "Deconstructing Old Collection");
@@ -64,6 +66,8 @@ pub enum Phase {
 	None,
 	/// Phase 0.5
 	Disk,
+	/// Phase 0.999
+	Wait,
 
 	// Reset.
 	/// Phase 1 (start)
@@ -98,6 +102,7 @@ impl Phase {
 		match self {
 			Self::None        => NONE,
 			Self::Disk        => DISK,
+			Self::Wait        => WAIT,
 
 			Self::Start       => START,
 			Self::Deconstruct => START,
