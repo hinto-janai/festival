@@ -81,7 +81,7 @@ mod windows {
 				let wnd_class = WNDCLASSEXW {
 					cbSize: mem::size_of::<WNDCLASSEXW>() as u32,
 					hInstance: instance,
-					lpszClassName: PCWSTR::from(class_name),
+					lpszClassName: class_name,
 					lpfnWndProc: Some(Self::wnd_proc),
 					..Default::default()
 				};

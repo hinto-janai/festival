@@ -4,6 +4,10 @@
 
 set -ex
 
+# Check current directory.
+[[ $PWD == */festival ]] && cd utils
+[[ $PWD == */festival/utils ]]
+
 if [[ -z $1 ]]; then
 	TARGET1="../target/release/festival"
 	TARGET2="${HOME}/.cargo/target/release/festival"
@@ -20,10 +24,6 @@ else
 fi
 
 [[ -e "$BINARY" ]] || { echo "$BINARY doesn't exist, should be festival binary"; exit 1; }
-
-# Check current directory.
-[[ $PWD == */festival ]] && cd utils
-[[ $PWD == */festival/utils ]]
 
 # Set variables.
 APP="${PWD}/Festival.app"

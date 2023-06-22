@@ -782,18 +782,18 @@ impl crate::ccd::Ccd {
 				if let Ok(u) = s.parse::<u32>() {
 					Some(u)
 				// Some `TrackNumber` fields are strings like `1/12`.
-				} else if let Some(u) = s.split("/").next() {
+				} else if let Some(u) = s.split('/').next() {
 					u.parse::<u32>().ok()
 				} else {
 					None
 				}
 			},
 			Value::Binary(b) => {
-				match std::str::from_utf8(&b) {
+				match std::str::from_utf8(b) {
 					Ok(s) => {
 						if let Ok(u) = s.parse::<u32>() {
 							Some(u)
-						} else if let Some(u) = s.split("/").next() {
+						} else if let Some(u) = s.split('/').next() {
 							u.parse::<u32>().ok()
 						} else {
 							None
@@ -821,10 +821,10 @@ impl crate::ccd::Ccd {
 				}
 			},
 			Value::Binary(b) => {
-				match std::str::from_utf8(&b) {
+				match std::str::from_utf8(b) {
 					Ok(s) => {
 						match s.parse::<bool>() {
-							Ok(b) => true,
+							Ok(b) => b,
 							_     => false,
 						}
 					},
@@ -846,8 +846,8 @@ impl crate::ccd::Ccd {
 		};
 
 		let track       = match probe_result.format.tracks().get(0) { Some(t) => t, _ => bail!("track metadata missing") };
-		let sample_rate = match Self::sample_rate(&track)           { Some(t) => t, _ => bail!("sample rate metadata missing") };
-		let runtime     = match Self::runtime(&track)               { Some(t) => t, _ => bail!("runtime metadata missing") };
+		let sample_rate = match Self::sample_rate(track)            { Some(t) => t, _ => bail!("sample rate metadata missing") };
+		let runtime     = match Self::runtime(track)                { Some(t) => t, _ => bail!("runtime metadata missing") };
 		let metadata    = match Self::metadata(probe_result)        { Ok(md) => md, Err(e) => bail!(e) };
 
 		let (mut tags, visuals, _) = metadata.into_inner();

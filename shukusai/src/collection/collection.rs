@@ -1039,7 +1039,7 @@ r#"
             "path": "{}",
             "art": "{:?}"
         }}{comma}"#,
-a.title.replace("\"", "\\\""),
+a.title.replace('\"', "\\\""),
 a.artist.inner(),
 a.release,
 a.runtime.inner(),
@@ -1073,7 +1073,7 @@ r#"
             "disc": {disc},
             "path": "{}"
         }}{comma}"#,
-a.title.replace("\"", "\\\""),
+a.title.replace('\"', "\\\""),
 a.album.inner(),
 a.runtime.inner(),
 a.sample_rate,

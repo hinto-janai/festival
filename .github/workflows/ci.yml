@@ -68,29 +68,39 @@ jobs:
         fi
         cargo build --workspace --profile ${{ matrix.build }}
 
-#    - name: Compress
-#      if: matrix.build == 'release'
-#      shell: bash
-#      run: |
-#        VERSION="$(grep -m1 "version" Cargo.toml | grep -o "[0-9].[0-9].[0-9]")"
-#        if [ "$RUNNER_OS" == "Linux" ]; then
-#          cd target/release
-#          tar -czpf "festival-${VERSION}-linux-x64.tar.gz" festival
-#        elif [ "$RUNNER_OS" == "macOS" ]; then
-#          cd target/release
-#          tar -czpf "festival-${VERSION}-macos-x64.tar.gz" festival
-#          cd ../aarch64-apple-darwin/release
-#          tar -czpf "festival-${VERSION}-macos-arm64.tar.gz" festival
-#        elif [ "$RUNNER_OS" == "Windows" ]; then
-#          mv target/release/festival.exe target/release/Festival.exe
-#          cd target/release
-#          powershell Compress-Archive -LiteralPath Festival.exe -DestinationPath "festival-${VERSION}-windows-x64.zip"
-#        fi
+    - name: Compress
+      if: matrix.build == 'release'
+      shell: bash
+      run: |
+        mkdir OUTPUT
+        VERSION="$(grep -m1 "version" Cargo.toml | grep -o "[0-9].[0-9].[0-9]")"
+
+        if [ "$RUNNER_OS" == "Linux" ]; then
+          utils/mk_appimage.sh
+          mv utils/"Festival-${VERSION}-x86_64.AppImage" OUTPUT/
+
+          cd target/release
+          tar -czpf "festival-${VERSION}-linux-x64.tar.gz" festival
+          mv "festival-${VERSION}-linux-x64.tar.gz" ../../OUTPUT/
+        elif [ "$RUNNER_OS" == "macOS" ]; then
+          utils/mk_app.sh
+          utils/mk_dmg.sh "festival-${VERSION}-macos-x64"
+          mv utils/"festival-${VERSION}-macos-x64.dmg" OUTPUT/
+
+          mv target/aarch64-apple-darwin/release/festival target/release/
+          utils/mk_app.sh
+          utils/mk_dmg.sh "festival-${VERSION}-macos-arm64"
+          mv utils/"festival-${VERSION}-macos-arm64.dmg" OUTPUT/
+        elif [ "$RUNNER_OS" == "Windows" ]; then
+          mv target/release/festival.exe target/release/Festival.exe
+          cd target/release
+          powershell Compress-Archive -LiteralPath Festival.exe -DestinationPath "festival-${VERSION}-windows-x64.zip"
+          mv "festival-${VERSION}-windows-x64.zip" ../../OUTPUT/
+        fi
 
     - name: Archive
       if: matrix.build == 'release'
       uses: actions/upload-artifact@v3
       with:
         name: festival-${{ matrix.os }}
-#        path: festival*
-        path: target/release/festival*
+        path: OUTPUT

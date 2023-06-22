@@ -131,7 +131,7 @@ impl eframe::App for Gui {
 		// HACK:
 		// This leeway needs to be big to account for slower
 		// computers, but it means there's a noticeable delay
-		// when `GUI` startsup; the sliders will be out-of-sync.
+		// when `GUI` starts up; the sliders will be out-of-sync.
 		//
 		// To workaround this, unconditionally copy if we
 		// very recently started up. This is a hack because
