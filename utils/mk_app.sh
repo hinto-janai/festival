@@ -78,5 +78,3 @@ EOM
 
 rm "${APP}/Contents/MacOS/festival"
 cp -f "${BINARY}" "${APP}/Contents/MacOS/"
-
-echo "${APP}"

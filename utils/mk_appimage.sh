@@ -33,6 +33,7 @@ VERSION="v$(grep -m1 "version" ../gui/Cargo.toml | grep -o "[0-9].[0-9].[0-9]")"
 # Update icon/binary.
 cp -f ../assets/images/icon/512.png "${APP_DIR}/"
 cp -f "$BINARY" "${APP_DIR}/usr/bin/"
+chmod +x "${APP_DIR}/usr/bin/festival"
 
 # Create AppImage.
 #if ARCH=x86_64 appimagetool --sign --sign-key "2A8F883E016FED0380287FAFB1C5A64B80691E45" "$APP_DIR"; then
@@ -47,6 +48,7 @@ else
 fi
 
 ARCH=x86_64 "$APPIMAGETOOL" "$APP_DIR"
+chmod +x "Festival-x86_64.AppImage"
 mv "Festival-x86_64.AppImage" "Festival-${VERSION}-x86_64.AppImage"
 
 # Wipe icon/binary.
