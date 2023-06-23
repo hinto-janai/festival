@@ -346,6 +346,7 @@ impl Gui {
 					self.settings.album_sort = next;
 				// Check for `Ctrl+E` (Next Artist Order)
 				} else if input.consume_key(Modifiers::COMMAND, Key::E) {
+					self.settings.artist_sub_tab = crate::data::ArtistSubTab::All;
 					crate::tab!(self, Tab::Artists);
 					let next = self.settings.artist_sort.next();
 					crate::toast!(self, next.as_str());

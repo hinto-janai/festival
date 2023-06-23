@@ -64,9 +64,9 @@ pub const QUEUE_SHUFFLE:    &str = "Shuffle the queue and reset to the first son
 pub const RESET:             &str = formatcp!("Reset changes ({MOD}+Z)");
 pub const SAVE:              &str = formatcp!("Save changes to disk ({MOD}+S)");
 pub const SHUFFLE_MODE:      &str = "Which method to shuffle songs by";
-pub const ARTIST_SORT_ORDER: &str = formatcp!("Which method to sort the artists by in the [Artists] tab ({MOD}+Q)");
-pub const ALBUM_SORT_ORDER:  &str = formatcp!("Which method to sort the albums by in the [Albums] tab ({MOD}+W)");
-pub const SONG_SORT_ORDER:   &str = formatcp!("Which method to sort the songs by in the [Songs] tab ({MOD}+E)");
+pub const ARTIST_SORT_ORDER: &str = formatcp!("Which method to sort the artists by in the [Artists] tab ({MOD}+W)");
+pub const ALBUM_SORT_ORDER:  &str = formatcp!("Which method to sort the albums by in the [Albums] tab ({MOD}+E)");
+pub const SONG_SORT_ORDER:   &str = formatcp!("Which method to sort the songs by in the [Songs] tab ({MOD}+R)");
 pub const SEARCH_KIND:       &str = "Which type of search to use in the [Search] tab";
 pub const SEARCH_SORT:       &str = "Which sub-tab to use in the [Search] tab";
 pub const ALBUM_ART_SIZE:    &str = "How big the album art cover should be in the [Albums] tab";
@@ -92,7 +92,7 @@ pub const COLLECTION:        &str = "The main music Collection that stores all m
 pub const ADD_FOLDER:        &str = formatcp!("Add a maximum of 10 folders to scan for the Collection ({MOD}+A)");
 pub const REMOVE_FOLDER:     &str = "Remove this folder";
 pub const RESET_COLLECTION:  &str = formatcp!(
-r#"Scan the folders listed and create a new Collection ({MOD}+R).
+r#"Scan the folders listed and create a new Collection ({MOD}+C).
 
 If no directories are listed, the default Music directory is scanned."#);
 pub const EMPTY_AUTOPLAY:    &str = "Start playing automatically if songs are added to an empty queue";
