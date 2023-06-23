@@ -10,10 +10,13 @@
 use benri::debug_panic;
 
 //---------------------------------------------------------------------------------------------------- MIME constants.
-pub(crate) const SUPPORTED_AUDIO_MIME_TYPES: [&str; 22] = [
+pub(crate) const SUPPORTED_AUDIO_MIME_TYPES: [&str; 28] = [
 	// AAC
 	"audio/aac",
 	"audio/x-aac",
+	// ADPCM
+	"audio/adpcm",
+	"audio/x-adpcm",
 	// ALAC
 	"audio/m4a",
 	"audio/x-m4a",
@@ -40,17 +43,28 @@ pub(crate) const SUPPORTED_AUDIO_MIME_TYPES: [&str; 22] = [
 	"audio/x-wav",
 	"audio/aiff",
 	"audio/x-aiff",
+	// Wavpack
+	"audio/wavpack",
+	"audio/x-wavpack",
+	"audio/wavpack-correction",
+	"audio/x-wavpack-correction",
 ];
 
-pub(crate) const SUPPORTED_IMG_MIME_TYPES: [&str; 3] = [
+pub(crate) const SUPPORTED_IMG_MIME_TYPES: [&str; 8] = [
 	"image/jpg",
 	"image/jpeg",
 	"image/png",
+	"image/bmp",
+	"image/ico",
+	"image/tiff",
+	"image/webp",
+	"image/avif",
 ];
 
 #[derive(Debug,PartialEq,Eq,PartialOrd,Ord)]
 pub(super) enum Codec {
 	Aac,
+	Adpcm,
 	Alac,
 	Flac,
 	Mp3,
@@ -58,6 +72,7 @@ pub(super) enum Codec {
 	Opus,
 	Wav,
 	Aiff,
+	Wavpack,
 }
 
 impl Codec {
@@ -70,6 +85,8 @@ impl Codec {
 		match s {
 			// AAC
 			"audio/aac"|"audio/x-aac" => Self::Aac,
+			// ADPCM
+			"audio/adpcm"|"audio/x-adpcm" => Self::Adpcm,
 			// ALAC
 			"audio/m4a"|"audio/x-m4a" => Self::Alac,
 			// FLAC
@@ -83,6 +100,8 @@ impl Codec {
 			// PCM (wav, aiff)
 			"audio/wav"|"audio/x-wav" => Self::Wav,
 			"audio/aiff"|"audio/x-aiff" => Self::Aiff,
+			// Wavpack
+			"audio/wavpack"|"audio/x-wavpack" => Self::Wavpack,
 
 			_ => {
 				debug_panic!("input to from_supported() was wrong");

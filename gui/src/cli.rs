@@ -4,13 +4,14 @@ use log::{info,error};
 use shukusai::{
 	logger::init_logger,
 };
-use crate::text::FESTIVAL_VERSION_COPYRIGHT;
+use crate::text::FESTIVAL_SHUKUSAI_COMMIT;
 use shukusai::signal::{
 	Volume,Toggle,Pause,Play,Skip,Back,
 	Previous,Next,Stop,Shuffle,Index,
 	RepeatSong,RepeatQueue,RepeatOff,
 	Clear,Seek,SeekForward,SeekBackward,
 };
+use shukusai::constants::COPYRIGHT;
 use disk::Empty;
 use std::num::NonZeroUsize;
 use disk::{Bincode2, Json, Plain};
@@ -189,7 +190,7 @@ impl Cli {
 
 		// Version.
 		if self.version {
-			println!("{FESTIVAL_VERSION_COPYRIGHT}");
+			println!("{FESTIVAL_SHUKUSAI_COMMIT}\n{COPYRIGHT}");
 			exit(0);
 		}
 

@@ -477,7 +477,8 @@ checksum = "9e1b586273c5702936fe7b7d6896644d8be71e6314cfe09d3167c95f712589e8"
 [[package]]
 name = "benri"
 version = "0.1.12"
-source = "git+https://github.com/hinto-janai/benri#1ecd45d801f5ebe32b30a160a2e1ed81d95867f6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f5a499936c3a7a02af7a468b9fa7ed198c6b6353c474561b0ce9cc2de4bc3865"
 dependencies = [
  "log",
 ]
@@ -1421,7 +1422,8 @@ dependencies = [
 [[package]]
 name = "disk"
 version = "0.1.17"
-source = "git+https://github.com/hinto-janai/disk#430f2ea79cdec35156eebb671477b775b8be551e"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c707be323b0ebe03dd22989f597e6d21d3b49e5f17f0afb2f1922953e90c1bfc"
 dependencies = [
  "anyhow",
  "bincode",
@@ -1795,10 +1797,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "festival-cli"
-version = "0.0.0"
-
-[[package]]
 name = "festival-gui"
 version = "1.0.0"
 dependencies = [
@@ -1827,14 +1825,6 @@ dependencies = [
  "static_vcruntime",
  "winres",
 ]
-
-[[package]]
-name = "festival-web"
-version = "0.0.0"
-
-[[package]]
-name = "festivald"
-version = "0.0.0"
 
 [[package]]
 name = "filetime"
@@ -3487,7 +3477,8 @@ checksum = "3b42e27ef78c35d3998403c1d26f3efd9e135d3e5121b0a4845cc5cc27547f4f"
 [[package]]
 name = "readable"
 version = "0.8.9"
-source = "git+https://github.com/hinto-janai/readable#59771fd766817495c0c32e322cf866137f84df69"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8ebac56f81bfd3080773576d111b79078fa6ab76c77eee099c8aede53e12b493"
 dependencies = [
  "bincode",
  "compact_str",
@@ -3822,7 +3813,7 @@ checksum = "43b2853a4d09f215c24cc5489c992ce46052d359b5109343cbafbf26bc62f8a3"
 
 [[package]]
 name = "shukusai"
-version = "0.0.0"
+version = "0.0.1"
 dependencies = [
  "anyhow",
  "arrayvec",
@@ -3833,9 +3824,7 @@ dependencies = [
  "cpal",
  "crossbeam",
  "disk",
- "eframe",
  "egui",
- "egui-notify",
  "egui_extras",
  "env_logger",
  "epaint",

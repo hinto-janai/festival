@@ -3,7 +3,10 @@ pub(crate) use msg::*;
 
 mod audio;
 pub(crate) use audio::*;
-pub use audio::PREVIOUS_THRESHOLD;
+pub use audio::{
+	PREVIOUS_THRESHOLD,
+	PREVIOUS_THRESHOLD_DEFAULT,
+};
 
 // Public
 mod volume;

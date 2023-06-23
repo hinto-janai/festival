@@ -1,11 +1,11 @@
 //---------------------------------------------------------------------------------------------------- Use
 use crate::constants::{
-	BONE,MEDIUM_GRAY,
+	BONE,MEDIUM_GRAY,GRAY,
 	QUEUE_ALBUM_ART_SIZE,
 };
 use crate::text::{
 	UI_QUEUE_CLEAR,UI_QUEUE_SHUFFLE,
-	QUEUE_CLEAR,QUEUE_SHUFFLE,
+	QUEUE_CLEAR,QUEUE_SHUFFLE,SELECT_QUEUE,
 };
 use shukusai::collection::{
 	Song,Album
@@ -65,6 +65,17 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: 
 		ui.add_space(5.0);
 		ui.separator();
 
+		//-------------------------------------------------- Empty queue.
+		// INVARIANT:
+		// We're returning early if queue is empty.
+		// Make sure the code below knows this.
+		if self.audio_state.queue.is_empty() {
+			let label = Label::new(RichText::new(SELECT_QUEUE).color(GRAY));
+			ui.add_sized([width, height/1.35], label);
+			return;
+		}
+
+		//-------------------------------------------------- Start painting the artists/albums/songs.
 		let mut current_artist = None;
 		let mut current_album  = None;
 

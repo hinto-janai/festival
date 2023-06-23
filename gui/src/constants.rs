@@ -183,7 +183,7 @@ pub const QUEUE_ALBUM_ART_SIZE: f32 = 80.0;
 
 //---------------------------------------------------------------------------------------------------- Settings
 pub const PREVIOUS_THRESHOLD_MIN: u32 = 0;
-pub const PREVIOUS_THRESHOLD_MAX: u32 = 10;
+pub const PREVIOUS_THRESHOLD_MAX: u32 = 20;
 
 //---------------------------------------------------------------------------------------------------- Fonts
 pub const FONT_SOURCECODE_PRO: &[u8] = include_bytes!("../../assets/fonts/SourceCodePro-Regular.otf");

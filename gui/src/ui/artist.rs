@@ -4,12 +4,14 @@ use egui::{
 	TextEdit,Label,RichText,Spinner,
 	SelectableLabel,Sense,
 };
-use crate::constants::{
-	BONE,MEDIUM_GRAY,GRAY,
-};
-use crate::data::{
-	ArtistSubTab,
-	Tab,
+use crate::{
+	constants::{
+		BONE,MEDIUM_GRAY,GRAY,
+	},
+	text::SELECT_ARTIST,
+	data::{
+		ArtistSubTab,Tab,
+	},
 };
 use readable::Unsigned;
 use log::warn;
@@ -145,7 +147,7 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width
 
 		// If no `AlbumKey` selected, show text.
 		None => {
-			let label = Label::new(RichText::new("🗋 Select an artist in the [Artist] tab").color(GRAY));
+			let label = Label::new(RichText::new(SELECT_ARTIST).color(GRAY));
 			ui.add_sized([width, height], label);
 
 			return;

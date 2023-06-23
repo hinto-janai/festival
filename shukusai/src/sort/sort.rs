@@ -96,7 +96,7 @@ pub const SONG_RELEASE_REV:                   &str = "Songs latest-oldest";
 /// [`SongSort::Runtime`]
 pub const SONG_RUNTIME:                       &str = "Songs shortest-longest";
 /// [`SongSort::RuntimeRev`]
-pub const SONG_RUNTIME_REV:                   &str = "Songs longest-oldest";
+pub const SONG_RUNTIME_REV:                   &str = "Songs longest-shortest";
 /// [`SongSort::Title`]
 pub const SONG_TITLE:                         &str = "Song title shortest-longest";
 /// [`SongSort::TitleRev`]

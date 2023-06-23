@@ -32,6 +32,9 @@ pub const UI_PREVIOUS:     &str = "⏪";
 pub const UI_FORWARDS:     &str = "⏩";
 pub const UI_REPEAT_SONG:  &str = "🔂";
 pub const UI_REPEAT:       &str = "🔁";
+pub const SELECT_ARTIST:   &str = "🗋 Select an artist by clicking any artist name";
+pub const SELECT_ALBUM:    &str = "🗋 Select an album by clicking any album art";
+pub const SELECT_QUEUE:    &str = "🗋 Add any song/album/artist to the queue by right-clicking";
 
 //---------------------------------------------------------------------------------------------------- Left Tab
 pub const INCREMENT_ALBUM_SIZE: &str = "Increase the album art size";
@@ -69,7 +72,7 @@ pub const ALBUM_SORT_ORDER:  &str = formatcp!("Which method to sort the albums b
 pub const SONG_SORT_ORDER:   &str = formatcp!("Which method to sort the songs by in the [Songs] tab ({MOD}+R)");
 pub const SEARCH_KIND:       &str = "Which type of search to use in the [Search] tab";
 pub const SEARCH_SORT:       &str = "Which sub-tab to use in the [Search] tab";
-pub const ALBUM_ART_SIZE:    &str = "How big the album art cover should be in the [Albums] tab";
+pub const ALBUM_ART_SIZE:    &str = "How big album art should be in the [Albums] tab";
 pub const STATIC_PIXEL_SIZE: &str = formatcp!(
 	"Always show album art at a static pixel size regardless of the window size ({}-{})",
 	ALBUM_ART_SIZE_MIN as usize,
@@ -88,13 +91,13 @@ pub const ACCENT_COLOR:      &str = formatcp!(
 	ACCENT_COLOR_RGB[1],
 	ACCENT_COLOR_RGB[2],
 );
-pub const COLLECTION:        &str = "The main music Collection that stores all metadata about the audio files";
+pub const COLLECTION:        &str = "Festival's music Collection that stores all metadata about the audio files";
 pub const ADD_FOLDER:        &str = formatcp!("Add a maximum of 10 folders to scan for the Collection ({MOD}+A)");
 pub const REMOVE_FOLDER:     &str = "Remove this folder";
 pub const RESET_COLLECTION:  &str = formatcp!(
 r#"Scan the folders listed and create a new Collection ({MOD}+C).
 
-If no directories are listed, the default Music directory is scanned."#);
+If no folders are listed, the default Music directory is scanned."#);
 pub const EMPTY_AUTOPLAY:    &str = "Start playing automatically if songs are added to an empty queue";
 pub const STATS:             &str = "Stats about your current Collection";
 
@@ -145,11 +148,24 @@ r#"*-------------------------------------------------------*
 | Command+Primary | Open Album/Song Directory           |
 *-------------------------------------------------------*"#;
 
+#[cfg(target_os = "windows")]
+#[cfg(target_arch = "x86_64")]
+const OS_ARCH: &str = "Windows x64";
+#[cfg(target_os = "macos")]
+#[cfg(target_arch = "aarch64")]
+const OS_ARCH: &str = "macOS arm64";
+#[cfg(target_os = "macos")]
+#[cfg(target_arch = "x86_64")]
+const OS_ARCH: &str = "macOS x64";
+#[cfg(target_os = "linux")]
+#[cfg(target_arch = "x86_64")]
+const OS_ARCH: &str = "Linux x64";
+
 /// - Festival name + version
 /// - shukusai name + version
+/// - OS + Arch
 /// - Git commit hash
-/// - Festival copyright notice
-pub const FESTIVAL_VERSION_COPYRIGHT: &str = {
+pub const FESTIVAL_SHUKUSAI_COMMIT: &str = {
 	use crate::constants::FESTIVAL_NAME_VER;
 
 	use shukusai::constants::{
@@ -161,8 +177,8 @@ pub const FESTIVAL_VERSION_COPYRIGHT: &str = {
 	formatcp!(
 r#"{FESTIVAL_NAME_VER}
 {SHUKUSAI_NAME_VER}
-{COMMIT}
-{COPYRIGHT}"#)
+{OS_ARCH}
+{COMMIT}"#)
 };
 
 //---------------------------------------------------------------------------------------------------- Search Tab

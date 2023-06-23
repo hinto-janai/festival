@@ -81,7 +81,10 @@ const MSG_PROCESS_LIMIT: u8 = 3;
 ///
 /// A `Frontend` can mutate this data, and it will also affect
 /// the default threshold used by the media controls.
-pub static PREVIOUS_THRESHOLD: AtomicU32 = AtomicU32::new(5);
+pub static PREVIOUS_THRESHOLD: AtomicU32 = AtomicU32::new(PREVIOUS_THRESHOLD_DEFAULT);
+
+/// The default used in [`PREVIOUS_THRESHOLD`].
+pub const PREVIOUS_THRESHOLD_DEFAULT: u32 = 3;
 
 //---------------------------------------------------------------------------------------------------- Audio Init
 pub(crate) struct Audio {

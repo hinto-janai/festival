@@ -40,8 +40,7 @@ use shukusai::{
 	kernel::FrontendToKernel,
 	collection::Collection,
 	constants::{
-		COMMIT,
-		SHUKUSAI_NAME_VER,
+		COPYRIGHT,
 	},
 };
 use benri::{
@@ -374,7 +373,7 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, widt
 		ui.separator();
 		ui.add_space(40.0);
 
-		//-------------------------------------------------- Previous Leeway.
+		//-------------------------------------------------- Previous Threshold.
 		// Heading.
 		let label = Label::new(
 			RichText::new(format!("Previous Threshold ({})", self.settings.previous_threshold))
@@ -511,11 +510,15 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, widt
 		);
 		ui.add_sized([width, text], label);
 
-		if ui.add_sized([width, text], Label::new(FESTIVAL_VERSION_COPYRIGHT).sense(Sense::click())).clicked() {
-			ui.output_mut(|o| o.copied_text = format!("{}\n{}\n{}", FESTIVAL_NAME_VER, SHUKUSAI_NAME_VER, COMMIT));
+		// Version.
+		if ui.add_sized([width, text/2.0], Label::new(FESTIVAL_SHUKUSAI_COMMIT).sense(Sense::click())).clicked() {
+			ui.output_mut(|o| o.copied_text = FESTIVAL_SHUKUSAI_COMMIT.to_string());
 			crate::toast!(self, "Copied version to clipboard");
 		}
-//		ui.add_space(40.0);
+
+		// Copyright.
+		ui.add_sized([width, text/2.0], Label::new(COPYRIGHT));
+		ui.add_space(40.0);
 //		ui.separator();
 //		ui.add_space(40.0);
 	});

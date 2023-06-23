@@ -1,53 +1,9 @@
-//! # Festival
+//! # `shukusai`
 //! [`Festival`](https://github.com/hinto-janai/festival)'s internals, `shukusai`.
 //!
-//! The crate [`festival`](https://crates.io/crates/festival) is being squatted, so instead, `Festival`'s
-//! original name, [`shukusai`](https://crates.io/crates/shukusai), is used.
+//! **The internals are not stable and not meant for public usage.**
 //!
-//! `祝祭/shukusai` translated means: `Festival`.
-//!
-//! In documentation:
-//!
-//! - `shukusai` _specifically_ means `Festival`'s internals
-//! - `Festival` means a frontend OR the project as a whole
-//!
-//! ## Warning
-//! **The internals are not stable.**
-//!
-//! **If you're implementing a frontend, you are expected to implement the `Kernel`'s messages correctly.**
-//!
-//! You can look at [`festival-gui`](https://github.com/hinto-janai/festival/festival-gui)'s code as an example,
-//! and the [internal documentation](https://github.com/hinto-janai/festival/src) as reference.
-//!
-//! ## API
-//! The "API" between `shukusai` and the frontends are:
-//! - [`kernel::KernelToFrontend`]
-//! - [`kernel::FrontendToKernel`]
-//!
-//! Each frontend must implement the correct message passing behavior to/from the `Kernel` and other various things.
-//!
-//! `Kernel` itself will handle:
-//! - Logging initialization
-//! - `Collection` management
-//! - Pretty much everything
-//!
-//! The `Frontend` implementation must:
-//! - Keep a channel to `Kernel` open at _all times_
-//! - Save and manage its own state/settings
-//! - Properly implement the messages `To/From` the `Kernel`
-//! - Properly handle shared data
-//!
-//! ## Shared Data
-//! There are shared functions/data that `shukusai` exposes, notably:
-//! - [`collection::Collection`] (and everything within it)
-//! - [`collection::Key`] (and other keys)
-//! - [`audio::AudioState`]
-//!
-//! It is up to the frontend on how to use these functions/data.
-//!
-//! A lot of the correct behavior implementation depends on knowledge that _I_ have of the internals.
-//! Since _I_ will most likely be creating all the frontends, there are no plans
-//! to fully flesh out this documentation for now (it's a lot of work).
+//! Regardless, it is somewhat documented (mostly for my future self).
 
 //---------------------------------------------------------------------------------------------------- Lints
 #![allow(
@@ -125,7 +81,6 @@ pub use const_format::assertcp as const_assert;
 #[doc(hidden)]
 pub use const_format::formatcp as const_format;
 
-//---------------------------------------------------------------------------------------------------- Public `/` stuff.
 //---------------------------------------------------------------------------------------------------- Public modules.
 /// Panic.
 pub mod panic;

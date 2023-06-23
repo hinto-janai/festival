@@ -33,6 +33,7 @@ use shukusai::{
 		AlbumSort,
 		SongSort,
 	},
+	audio::PREVIOUS_THRESHOLD_DEFAULT,
 	search::SearchKind,
 };
 use crate::data::{
@@ -132,7 +133,7 @@ impl Settings {
 			collection_paths: vec![],
 			album_pixel_size: ALBUM_ART_SIZE_DEFAULT,
 			albums_per_row: ALBUMS_PER_ROW_DEFAULT,
-			previous_threshold: 5,
+			previous_threshold: PREVIOUS_THRESHOLD_DEFAULT,
 			empty_autoplay: true,
 			..Default::default()
 		}

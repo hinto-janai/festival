@@ -2,9 +2,9 @@
 members = [
 	"shukusai",
 	"gui",
-	"web",
-	"daemon",
-	"cli",
+#	"web",
+#	"daemon",
+#	"cli",
 ]
 resolver = "2"
 
@@ -25,12 +25,10 @@ opt-level = 1
 
 [workspace.dependencies]
 ### Personal.
-### TODO:
-### Lock in versions on `v1.0.0` release.
-shukusai = { version = "*", path = "shukusai" }
-benri    = { version = "*", git = "https://github.com/hinto-janai/benri", features = ["log"] }
-disk     = { version = "*", git = "https://github.com/hinto-janai/disk", features = ["bincode2", "empty", "toml", "plain", "json", "bytesize"] }
-readable = { version = "*", git = "https://github.com/hinto-janai/readable", features = ["ignore_nan_inf", "serde", "bincode"] }
+shukusai = { version = "0.0.1",  path = "shukusai" }
+benri    = { version = "0.1.12", features = ["log"] }
+disk     = { version = "0.1.17", features = ["bincode2", "empty", "toml", "plain", "json", "bytesize"] }
+readable = { version = "0.8.9",  features = ["ignore_nan_inf", "serde", "bincode"] }
 
 ### Regular libraries.
 anyhow       = { version = "1.0.71" }

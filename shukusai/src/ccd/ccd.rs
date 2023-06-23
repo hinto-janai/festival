@@ -437,7 +437,16 @@ impl Ccd {
 		// Make this multi-threaded and/or async.
 		//
 		// Save images to `~/.cache/festival/image`.
+
+		// See `shukusai/src/audio/audio.rs`.
+		// The `souvlaki` image setting doesn't work on
+		// Windows, so don't even both caching images on it.
+		#[cfg(windows)]
+		debug!("CCD ... Skipping ImageCache on Windows");
+
+		#[cfg(not(windows))]
 		let _ = ImageCache::rm_sub();
+		#[cfg(not(windows))]
 		{
 			// This deconstructs `Collection`.
 			let albums = collection_for_disk.albums.0.into_vec();

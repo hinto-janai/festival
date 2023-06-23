@@ -8,15 +8,18 @@ use egui::{
 	SelectableLabel,Label,Button,SidePanel,
 	Sense,
 };
-use shukusai::collection::{
-	AlbumKey,
+use shukusai::{
+	collection::AlbumKey,
+	kernel::FrontendToKernel,
 };
-use shukusai::kernel::{
-	FrontendToKernel,
-};
-use crate::constants::{
-	BONE,GRAY,MEDIUM_GRAY,
-	ALBUM_ART_SIZE_MIN,ALBUM_ART_SIZE_MAX,
+use crate::{
+	constants::{
+		BONE,GRAY,MEDIUM_GRAY,
+		ALBUM_ART_SIZE_MIN,ALBUM_ART_SIZE_MAX,
+	},
+	text::{
+		SELECT_ALBUM,
+	},
 };
 use readable::HeadTail;
 use log::warn;
@@ -38,7 +41,7 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: f
 
 		// If no `AlbumKey` selected, show text.
 		None => {
-			let label = Label::new(RichText::new("🗋 Select an album in the [Album] tab").color(GRAY));
+			let label = Label::new(RichText::new(SELECT_ALBUM).color(GRAY));
 			ui.add_sized([width, height], label);
 
 			return;
