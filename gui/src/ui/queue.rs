@@ -145,13 +145,6 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: 
 					crate::remove_queue_range!(self, index..index+1);
 				}
 
-				// FIXME:
-				// Queue's song buttons are slightly different,
-				// so we don't get to use the `song_button!()` macro.
-				let mut rect = ui.cursor();
-				rect.max.y = rect.min.y + SIZE;
-				rect.max.x = rect.min.x + ui.available_width();
-
 				// HACK:
 				// If we remove an index but are still playing the `Song`,
 				// the colored label indicating which one we're on will be wrong,
@@ -160,24 +153,7 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: 
 					self.audio_state.queue_idx == Some(index) &&
 					self.audio_state.song      == Some(*key);
 
-				let resp = ui.put(rect, SelectableLabel::new(same, ""));
-				if resp.clicked() {
-					crate::play_queue_index!(self, index);
-				} else if resp.middle_clicked() {
-					crate::open!(self, album);
-				} else if resp.secondary_clicked() {
-					crate::add_song!(self, song.title, *key);
-				}
-
-
-				ui.allocate_ui_at_rect(rect, |ui| {
-					ui.horizontal_centered(|ui| {
-						match song.track {
-							Some(t) => ui.add(Label::new(format!("{: >3}{: >8}    {}", t, song.runtime.as_str(), &song.title))),
-							None    => ui.add(Label::new(format!("{: >3}{: >8}    {}", "", song.runtime.as_str(), &song.title))),
-						}
-					});
-				});
+				crate::song_button!(self, same, album, song, *key, ui, 0, None, Some(index), SIZE, ui.available_width());
 			});
 		}
 	});

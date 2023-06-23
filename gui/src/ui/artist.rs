@@ -224,7 +224,7 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width
 					// Song list.
 					for key in album.songs.iter() {
 						let song = &self.collection.songs[key];
-						crate::song_button!(self, album, song, *key, ui, offset, Some(artist_key));
+						crate::song_button!(self, self.audio_state.song == Some(*key), album, song, *key, ui, offset, Some(artist_key), None, 35.0, 0.0);
 						offset += 1;
 					}
 				});

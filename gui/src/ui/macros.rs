@@ -243,12 +243,23 @@ macro_rules! clear_stop {
 ///
 /// This is for the `Artist/View` tab, where users would probably
 /// expect all songs by that artist to be added when clicking a song.
+///
+/// HACK HACK:
+/// This also takes in input for the `$queue` tab which
+/// has some special needs (wider width, head, etc).
+///
+/// This macro is terrible.
+/// Maintaining this 6 months in the future is going to be very painful.
 macro_rules! song_button {
-	($self:ident, $album:expr, $song:expr, $key:expr, $ui:ident, $offset:expr, $artist:expr) => {
+	($self:ident, $same:expr, $album:expr, $song:expr, $key:expr, $ui:ident, $offset:expr, $artist:expr, $queue_index:expr, $y_add:expr, $x_add:expr) => {
 		let mut rect = $ui.cursor();
-		rect.max.y = rect.min.y + 35.0;
+		rect.max.y = rect.min.y + $y_add;
 
-		let resp = $ui.put(rect, egui::SelectableLabel::new($self.audio_state.song == Some($key), ""));
+		if $x_add != 0.0 {
+			rect.max.x = rect.min.x + $x_add;
+		}
+
+		let resp = $ui.put(rect, egui::SelectableLabel::new($same, ""));
 
 		let primary   = resp.clicked();
 		let middle    = resp.middle_clicked();
@@ -257,7 +268,9 @@ macro_rules! song_button {
 		if middle || (primary && $self.modifiers.command) {
 			$crate::open!($self, $album);
 		} else if primary {
-			if let Some(artist_key) = $artist {
+			if let Some(queue_index) = $queue_index {
+				crate::play_queue_index!($self, queue_index);
+			} else if let Some(artist_key) = $artist {
 				$crate::play_artist_offset!($self, artist_key, $offset);
 			} else {
 				$crate::play_album_offset!($self, $song.album, $offset);
@@ -278,11 +291,16 @@ macro_rules! song_button {
 		// Even though all fonts are monospace, non-ASCII characters,
 		// especially Chinese characters are really wide in width,
 		// so the character leeway depends on this.
-		let head_len = if $song.title.is_ascii() {
-			(width / 19.0)
-		} else {
-			(width / 32.0)
-		} as usize;
+		//
+		// HACK HACK:
+		// Queue tab has wider song buttons, so
+		// we must vary the width for that.
+		let ascii = $song.title.is_ascii();
+		let head_len = match $self.state.tab == crate::data::Tab::Queue {
+			true  => if ascii { 17.0 } else { 20.0 },
+			false => if ascii { 19.0 } else { 32.0 },
+		};
+		let head_len = (width / head_len) as usize;
 
 		let head = readable::HeadTail::head_dot(&$song.title, head_len);
 
