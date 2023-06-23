@@ -29,6 +29,7 @@ use std::sync::{
 };
 use std::collections::VecDeque;
 use const_format::formatcp;
+use std::marker::PhantomData;
 
 //---------------------------------------------------------------------------------------------------- Lazy
 /// This is the single, global copy of `AudioState` that `Kernel` uses.
@@ -91,8 +92,6 @@ pub struct AudioState {
 
 	/// Are we playing audio right now?
 	pub playing: bool,
-	/// What is the current [`Volume`]?
-	pub volume: Volume,
 	/// Which song are we playing right now?
 	pub song: Option<SongKey>,
 	/// How much time has passed in this song?
@@ -101,6 +100,22 @@ pub struct AudioState {
 	pub runtime: Runtime,
 	/// Repeat mode.
 	pub repeat: Repeat,
+
+	/// # WARNING
+	/// This is simply for saving to disk.
+	/// It does not represent the current volume.
+	/// See [`crate::state::VOLUME`] for more info.
+	pub volume: Volume,
+
+	// Reserved fields.
+	_reserved1: PhantomData<bool>,
+	_reserved2: PhantomData<bool>,
+	_reserved3: PhantomData<bool>,
+	_reserved4: PhantomData<usize>,
+	_reserved5: PhantomData<usize>,
+	_reserved6: PhantomData<Option<usize>>,
+	_reserved7: PhantomData<Option<usize>>,
+	_reserved8: PhantomData<VecDeque<usize>>,
 }
 
 impl AudioState {
@@ -116,6 +131,15 @@ impl AudioState {
 			elapsed: Runtime::zero(),
 			runtime: Runtime::zero(),
 			repeat: Repeat::new(),
+
+			_reserved1: PhantomData,
+			_reserved2: PhantomData,
+			_reserved3: PhantomData,
+			_reserved4: PhantomData,
+			_reserved5: PhantomData,
+			_reserved6: PhantomData,
+			_reserved7: PhantomData,
+			_reserved8: PhantomData,
 		}
 	}
 

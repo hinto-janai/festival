@@ -38,6 +38,7 @@ use crate::ccd::{
 	msg::CcdToKernel,
 };
 use std::marker::PhantomData;
+use crate::constants::COLLECTION_VERSION;
 
 //---------------------------------------------------------------------------------------------------- CCD
 pub(crate) struct Ccd;
@@ -416,10 +417,10 @@ impl Ccd {
 		// We (`CCD`) are the only "entity" that should
 		// be touching `collection.bin` at this point.
 		let total_bytes = match unsafe { collection_for_disk.save_atomic_memmap() } {
-			Ok(md) => { debug!("CCD ... Collection: {md}"); md.size()},
+			Ok(md) => { debug!("CCD ... Collection{COLLECTION_VERSION}: {md}"); md.size()},
 			Err(e) => {
-				debug_panic!("CCD ... Collection: {e}");
-				fail!("CCD ... Collection: {e}");
+				debug_panic!("CCD ... Collection{COLLECTION_VERSION}: {e}");
+				fail!("CCD ... Collection{COLLECTION_VERSION}: {e}");
 				0
 			},
 		};

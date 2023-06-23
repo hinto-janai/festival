@@ -123,9 +123,15 @@ impl eframe::App for Gui {
 		}
 
 		// Acquire a local copy of the `AUDIO_STATE`.
-		if let Ok(audio_state) = AUDIO_STATE.try_read() {
-			audio_state.if_copy(&mut self.audio_state);
-		}
+		AUDIO_STATE.read().if_copy(&mut self.audio_state);
+
+		// HACK:
+		// Unconditionally copy this.
+		// See below `Volume` slider for more info on why this is a hack.
+		//
+		// We need to do this because the user might have
+		// `festival --volume x`, where we now should update to `x`.
+		self.state.volume = atomic_load!(shukusai::state::VOLUME);
 
 		// Audio leeway.
 		// HACK:
@@ -138,7 +144,6 @@ impl eframe::App for Gui {
 		// now this `Instant` has to be calculated every
 		// frame when it'll only matter in the startup.
 		if secs!(shukusai::logger::INIT_INSTANT) < 1 || secs_f32!(self.audio_leeway) > 0.5 {
-			self.state.volume  = self.audio_state.volume.inner();
 			self.state.repeat  = self.audio_state.repeat;
 			self.audio_seek    = self.audio_state.elapsed.inner() as u64;
 		}
@@ -674,9 +679,19 @@ fn show_left(&mut self, ctx: &egui::Context, width: f32, height: f32) {
 
 				// Send signal if the slider was/is being dragged.
 				if resp.dragged() {
-					self.audio_leeway = now!();
-					let v = Volume::new(self.state.volume);
-					send!(self.to_kernel, FrontendToKernel::Volume(v));
+					// HACK:
+					// THIS IS VERY VERY VERY TERRIBLE, REALLY BAD CODE.
+					//
+					// This used to be a `send!([ ... volume ... ])` but
+					// that actually ended up causing a DoS on `Audio` since
+					// we would be sending an insane amount of messages.
+					//
+					// To combat this specifically, this exact slider, `shukusai`
+					// now uses a global, mutable `AtomicU8` as the global "Volume"
+					// which `Audio` will use instead of `AUDIO_STATE`.
+					//
+					// Please please please please rewrite `Audio`.
+					atomic_store!(shukusai::state::VOLUME, self.state.volume);
 				// If scrolled up/down, send signal.
 				} else if resp.hovered() {
 					ctx.input_mut(|input| {

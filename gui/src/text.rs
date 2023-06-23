@@ -26,7 +26,7 @@ pub const COLLECTION_LOADING:   &str = "Loading Collection";
 pub const COLLECTION_RESETTING: &str = "Resetting Collection";
 
 //---------------------------------------------------------------------------------------------------- UI
-pub const UI_PLAY:         &str = "▶";
+pub const UI_PLAY:         &str = "⏵";
 pub const UI_PAUSE:        &str = "⏸";
 pub const UI_PREVIOUS:     &str = "⏪";
 pub const UI_FORWARDS:     &str = "⏩";

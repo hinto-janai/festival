@@ -4,6 +4,8 @@ use crate::constants::{
 	ALBUM_ART_SIZE_MIN,
 	ALBUMS_PER_ROW_MAX,
 	ALBUMS_PER_ROW_MIN,
+	SETTINGS_VERSION,
+	STATE_VERSION,
 };
 use crate::data::{
 	AlbumSizing,
@@ -48,7 +50,7 @@ use crate::data::Gui;
 //
 // A `Collection` that is being saved to disk is not
 // respected here, although at least `GUI` state is saved.
-#[cfg(target_os = "macos")]
+//#[cfg(target_os = "macos")]
 impl Drop for Gui {
 	fn drop(&mut self) {
 		eframe::App::on_close_event(self);
@@ -75,9 +77,9 @@ impl Gui {
 			validate::album(&self.collection, self.og_state.album.unwrap_or_default()) &&
 			validate::artist(&self.collection, self.og_state.artist.unwrap_or_default())
 		{
-			ok!("GUI - State validation");
+			ok!("GUI - State{STATE_VERSION} validation");
 		} else {
-			fail!("GUI - State validation");
+			fail!("GUI - State{STATE_VERSION} validation");
 			self.state = crate::data::State::new();
 		}
 	}
@@ -96,8 +98,8 @@ impl Gui {
 	pub fn save_settings(&mut self) -> Result<(), anyhow::Error> {
 		self.set_settings();
 		match self.settings.save_atomic() {
-			Ok(md) => { ok_debug!("GUI - Settings save: {md}"); Ok(()) },
-			Err(e) => { error!("GUI - Settings could not be saved to disk: {e}"); Err(e) },
+			Ok(md) => { ok_debug!("GUI - Settings{SETTINGS_VERSION} save: {md}"); Ok(()) },
+			Err(e) => { error!("GUI - Settings{SETTINGS_VERSION} could not be saved to disk: {e}"); Err(e) },
 		}
 	}
 
@@ -105,8 +107,8 @@ impl Gui {
 	pub fn save_state(&mut self) {
 		self.set_state();
 		match self.state.save_atomic() {
-			Ok(md) => ok_debug!("GUI - State save: {md}"),
-			Err(e) => error!("GUI - State could not be saved to disk: {e}"),
+			Ok(md) => ok_debug!("GUI - State{STATE_VERSION} save: {md}"),
+			Err(e) => error!("GUI - State{STATE_VERSION} could not be saved to disk: {e}"),
 		}
 	}
 

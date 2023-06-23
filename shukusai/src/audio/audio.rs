@@ -23,7 +23,7 @@ use crate::{
 	},
 	state::{
 		AudioState,
-		AUDIO_STATE,
+		AUDIO_STATE,VOLUME,
 		MEDIA_CONTROLS_RAISE,
 		MEDIA_CONTROLS_SHOULD_EXIT,
 	},
@@ -70,7 +70,7 @@ const RECV_TIMEOUT: Duration = Duration::from_millis(10);
 //
 // These messages don't wait additional time with `RECV_TIMEOUT`,
 // they either are there or we break and continue with audio.
-const MSG_PROCESS_LIMIT: u8 = 6;
+const MSG_PROCESS_LIMIT: u8 = 3;
 
 /// When receiving a `Previous` signal, there is runtime
 /// threshold for the song to reach until we reset the
@@ -345,9 +345,10 @@ impl Audio {
 
 						// Convert the buffer to `f32` and multiply
 						// it by `0.0..1.0` to set volume levels.
+						let volume = Volume::new(atomic_load!(VOLUME)).f32();
 						let mut buf = AudioBuffer::<f32>::new(duration, spec);
 						decoded.convert(&mut buf);
-						buf.transform(|f| f * self.state.volume.f32());
+						buf.transform(|f| f * volume);
 
 						// Write to audio output device.
 						self.output.write(buf.as_audio_buffer_ref()).unwrap();
@@ -924,8 +925,9 @@ impl Audio {
 
 	fn volume(&mut self, volume: Volume) {
 		trace!("Audio - {volume:?}");
-		self.state.volume = volume;
-		AUDIO_STATE.write().volume = volume;
+		atomic_store!(VOLUME, volume.inner());
+		#[cfg(feature = "gui")]
+		gui_request_update();
 	}
 
 	//-------------------------------------------------- Queue.
@@ -1191,6 +1193,8 @@ impl Audio {
 		// the state holds proper indices into the `Collection`.
 		trace!("Audio - Restoring: {:#?}", self.state);
 		*state = self.state.clone();
+
+		atomic_store!(VOLUME, state.volume.inner());
 
 		if let Some(index) = self.state.queue_idx {
 			let key = state.queue[index];

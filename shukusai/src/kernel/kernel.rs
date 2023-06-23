@@ -82,6 +82,13 @@ pub struct Kernel {
 	collection: Arc<Collection>,
 }
 
+// See `GUI`'s Drop impl for reasoning on why this exists.
+impl Drop for Kernel {
+	fn drop(&mut self) {
+		self.exit();
+	}
+}
+
 // `Kernel` boot process:
 //
 //`bios()` ---> `boot_loader()` ---> `kernel()` ---> `init()` ---> `userspace()`
@@ -227,7 +234,7 @@ impl Kernel {
 
 		// Before hanging on `CCD`, read `AudioState` file.
 		// Note: This is a `Result`.
-		debug!("Kernel Init [4/12] ... reading AudioState");
+		debug!("Kernel Init [4/12] ... reading AudioState{AUDIO_VERSION}");
 		let state = AudioState::from_file();
 
 		// Set `ResetState` to `Start` + `Art` phase.
@@ -259,7 +266,7 @@ impl Kernel {
 				Failed(anyhow) => {
 					debug_panic!("{anyhow}");
 
-					error!("Kernel Init ... Collection failed: {anyhow}");
+					error!("Kernel Init ... Collection{COLLECTION_VERSION} failed: {anyhow}");
 					break None;
 				},
 			}
@@ -546,20 +553,28 @@ impl Kernel {
 	#[inline(always)]
 	// The `Frontend` is exiting, save everything.
 	fn exit(&mut self) -> ! {
-		// Save `AudioState`.
-		match AUDIO_STATE.read().save() {
-			Ok(o)  => {
-				debug!("Kernel - State save: {o}");
-				send!(self.to_frontend, KernelToFrontend::Exit(Ok(())));
-			},
-			Err(e) => {
-				debug_panic!("{e}");
-				send!(self.to_frontend, KernelToFrontend::Exit(Err(e.to_string())));
-			},
+		{
+			// Set the saved state's volume
+			// to the correct global.
+			let volume    =  Volume::new(atomic_load!(crate::state::VOLUME));
+			let mut state = AUDIO_STATE.write();
+			state.volume  = volume;
+
+			// Save `AudioState`.
+			match state.save() {
+				Ok(o)  => {
+					ok!("Kernel - AudioState{AUDIO_VERSION} save: {o}");
+					send!(self.to_frontend, KernelToFrontend::Exit(Ok(())));
+				},
+				Err(e) => {
+					fail!("Kernel - AudioState{AUDIO_VERSION} save: {e}");
+					send!(self.to_frontend, KernelToFrontend::Exit(Err(e.to_string())));
+				},
+			}
 		}
 
 		// Hang forever.
-		debug!("Kernel - Entering exit() loop - Total uptime: {}", readable::Time::from(*crate::logger::INIT_INSTANT));
+		info!("Kernel - Total uptime: {}", readable::Time::from(*crate::logger::INIT_INSTANT));
 		loop {
 			std::thread::park();
 		}

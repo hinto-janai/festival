@@ -5,6 +5,8 @@ use crate::constants::{
 	SPACING,
 	FONT_ARRAY,
 	APP_RESOLUTION_MIN,
+	SETTINGS_VERSION,
+	STATE_VERSION,
 };
 use crate::data::{
 	State,
@@ -150,16 +152,16 @@ impl crate::data::Gui {
 	) -> Self {
 		// Read `Settings` from disk.
 		let settings = match Settings::from_file() {
-			Ok(s)  => { info!("GUI Init [1/8] ... Settings from disk"); s },
-			Err(e) => { warn!("GUI Init [1/8] ... Settings failed from disk: {}", e); Settings::new() },
+			Ok(s)  => { info!("GUI Init [1/8] ... Settings{SETTINGS_VERSION} from disk"); s },
+			Err(e) => { warn!("GUI Init [1/8] ... Settings{SETTINGS_VERSION} failed from disk: {}", e); Settings::new() },
 		};
 
 		atomic_store!(shukusai::audio::PREVIOUS_THRESHOLD, settings.previous_threshold);
 
 		// Read `State` from disk.
 		let state = match State::from_file() {
-			Ok(s)  => { info!("GUI Init [2/8] ... State from disk"); s },
-			Err(e) => { warn!("GUI Init [2/8] ... State failed from disk: {}", e); State::new() },
+			Ok(s)  => { info!("GUI Init [2/8] ... State{STATE_VERSION} from disk"); s },
+			Err(e) => { warn!("GUI Init [2/8] ... State{STATE_VERSION} failed from disk: {}", e); State::new() },
 		};
 
 		// Send signal to `Kernel` for `AudioState` if set.

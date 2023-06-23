@@ -9,6 +9,8 @@
 use crate::data::{
 	State,
 	Settings,
+	EXIT_COUNTDOWN,
+	SHOULD_EXIT,
 };
 use benri::{
 	log::*,
@@ -18,6 +20,7 @@ use benri::{
 use log::{
 	info,
 	error,
+	debug,
 };
 use shukusai::{
 	kernel::{
@@ -36,9 +39,9 @@ use std::sync::{
 	Arc,
 	atomic::{AtomicU8,AtomicBool},
 };
-use crate::data::{
-	EXIT_COUNTDOWN,
-	SHOULD_EXIT,
+use crate::constants::{
+	SETTINGS_VERSION,
+	STATE_VERSION,
 };
 
 //---------------------------------------------------------------------------------------------------- Gui::exit() - The thread that handles exiting.
@@ -55,14 +58,14 @@ pub(super) fn exit(
 
 	// Save `State`.
 	match state.save() {
-		Ok(md) => ok!("GUI - State save: {md}"),
-		Err(e) => fail!("GUI - State save: {e}"),
+		Ok(md) => ok!("GUI - State{STATE_VERSION} save: {md}"),
+		Err(e) => fail!("GUI - State{STATE_VERSION} save: {e}"),
 	}
 
 	// Save `Settings`.
 	match settings.save() {
-		Ok(md) => ok!("GUI - Settings save: {md}"),
-		Err(e) => fail!("GUI - Settings save: {e}"),
+		Ok(md) => ok!("GUI - Settings{SETTINGS_VERSION} save: {md}"),
+		Err(e) => fail!("GUI - Settings{SETTINGS_VERSION} save: {e}"),
 	}
 
 	// Check if `Kernel` succeeded.
@@ -75,12 +78,12 @@ pub(super) fn exit(
 	loop {
 		if let Ok(KernelToFrontend::Exit(r)) = from_kernel.recv_timeout(Duration::from_millis(300)) {
 			match r {
-				Ok(_)  => ok!("GUI - Kernel save"),
-				Err(e) => fail!("GUI - Kernel save failed: {}", e),
+				Ok(_)  => debug!("GUI - Kernel save"),
+				Err(e) => debug!("GUI - Kernel save failed: {e}"),
 			}
 			break
 		} else if n > 3 {
-			fail!("GUI - Could not determine Kernel's exit result");
+			debug!("GUI - Could not determine Kernel's exit result");
 		} else {
 			n += 1;
 		}

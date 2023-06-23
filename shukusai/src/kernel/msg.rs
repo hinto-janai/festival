@@ -54,6 +54,11 @@ pub enum FrontendToKernel {
 	/// See [`Repeat`] for the different ways to repeat.
 	Repeat(Repeat),
 	/// Change the audio volume.
+	///
+	/// ## WARNING
+	/// Do not use this signal if you are sending _many_ of them.
+	///
+	/// Use [`crate::state::VOLUME`] instead.
 	Volume(Volume),
 
 	// Queue.
