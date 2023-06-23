@@ -70,8 +70,6 @@ CentralPanel::default().show(ctx, |ui| {
 		// Check if we came from a different
 		// tab and need to lock focus.
 		if self.search_jump {
-			ctx.memory_mut(|m| m.request_focus(id));
-
 			// This forces the text cursor to move forward 1 character.
 			if let Some(mut state) = egui::widgets::text_edit::TextEditState::load(ctx, id) {
 				let cursor = egui::widgets::text_edit::CCursorRange {
@@ -84,6 +82,8 @@ CentralPanel::default().show(ctx, |ui| {
 
 				state.set_ccursor_range(Some(cursor));
 			}
+
+			ctx.memory_mut(|m| m.request_focus(id));
 		}
 
 		// Only update if user input has changed
