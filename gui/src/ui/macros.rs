@@ -75,6 +75,21 @@ macro_rules! add_song {
 }
 
 #[macro_export]
+/// Append an `Album` to the end of the queue.
+macro_rules! add_album {
+	($self:ident, $album_title:expr, $key:expr) => {
+		::benri::send!(
+			$self.to_kernel,
+			shukusai::kernel::FrontendToKernel::AddQueueAlbum(($key, shukusai::audio::Append::Back, false, 0))
+		);
+		if $self.settings.empty_autoplay && $self.audio_state.queue.is_empty() {
+			::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
+		}
+		$crate::toast!($self, format!("Added [{}] to queue", $album_title));
+	}
+}
+
+#[macro_export]
 /// Append all the `Album`'s of this `Artist` to the end of the queue.
 ///
 /// This indicates:
@@ -297,7 +312,7 @@ macro_rules! song_button {
 		// we must vary the width for that.
 		let ascii = $song.title.is_ascii();
 		let head_len = match $self.state.tab == crate::data::Tab::Queue {
-			true  => if ascii { 17.0 } else { 20.0 },
+			true  => if ascii { 17.0 } else { 28.0 },
 			false => if ascii { 19.0 } else { 32.0 },
 		};
 		let head_len = (width / head_len) as usize;
@@ -342,16 +357,49 @@ macro_rules! album_button {
 		} else if primary {
 			$crate::album!($self, $key);
 		} else if secondary {
-			::benri::send!(
-				$self.to_kernel,
-				shukusai::kernel::FrontendToKernel::AddQueueAlbum(($key, shukusai::audio::Append::Back, false, 0))
-			);
-			if $self.settings.empty_autoplay && $self.audio_state.queue.is_empty() {
-				::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
-			}
-			$crate::toast!($self, format!("Added [{}] to queue", $album.title));
+			$crate::add_album!($self, $album.title, $key);
 		}
 	};
+}
+
+#[macro_export]
+/// Same as `song_button!()` but a label.
+macro_rules! song_label {
+	($self:ident, $song:expr, $album:expr, $key:expr, $ui:ident, $label:expr) => {
+		let resp = $ui.add($label.sense(Sense::click()));
+
+		let primary   = resp.clicked();
+		let middle    = resp.middle_clicked();
+		let secondary = resp.secondary_clicked();
+
+		if middle || (primary && $self.modifiers.command) {
+			$crate::open!($self, $album);
+		} else if primary {
+			$crate::play_song!($self, $key);
+		} else if secondary {
+			$crate::add_song!($self, $song.title, $key);
+		}
+	}
+}
+
+#[macro_export]
+/// Same as `album_button!()` but a label.
+macro_rules! album_label {
+	($self:ident, $album:expr, $key:expr, $ui:ident, $label:expr) => {
+		let resp = $ui.add($label.sense(Sense::click()));
+
+		let primary   = resp.clicked();
+		let middle    = resp.middle_clicked();
+		let secondary = resp.secondary_clicked();
+
+		if middle || (primary && $self.modifiers.command) {
+			$crate::open!($self, $album);
+		} else if primary {
+			$crate::album!($self, $key);
+		} else if secondary {
+			$crate::add_album!($self, $album.title, $key);
+		}
+	}
 }
 
 #[macro_export]
@@ -361,6 +409,7 @@ macro_rules! album_button {
 macro_rules! artist_label {
 	($self:ident, $artist:expr, $key:expr, $ui:ident, $label:expr) => {
 		let resp = $ui.add($label.sense(Sense::click()));
+
 		if resp.clicked() {
 			$crate::artist!($self, $key);
 		} else if resp.secondary_clicked() {
