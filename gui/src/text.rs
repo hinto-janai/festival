@@ -106,11 +106,11 @@ r#"*-------------------------------------------------------*
 |     [A-Za-z0-9] | Jump to search tab                  |
 |          CTRL+S | Save Settings                       |
 |          CTRL+Z | Reset Settings                      |
-|          CTRL+R | Reset Collection                    |
+|          CTRL+C | Reset Collection                    |
 |          CTRL+A | Add Scan Directory                  |
-|          CTRL+Q | Rotate Album Sort                   |
-|          CTRL+W | Rotate Artist Sort                  |
-|          CTRL+E | Rotate Song Sort                    |
+|          CTRL+W | Rotate Album Sort                   |
+|          CTRL+E | Rotate Artist Sort                  |
+|          CTRL+R | Rotate Song Sort                    |
 |          CTRL+D | Goto Last Tab                       |
 |              Up | Last Tab                            |
 |            Down | Next Tab                            |
@@ -130,11 +130,11 @@ r#"*-------------------------------------------------------*
 |     [A-Za-z0-9] | Jump to search tab                  |
 |       Command+S | Save Settings                       |
 |       Command+Z | Reset Settings                      |
-|       Command+R | Reset Collection                    |
+|       Command+C | Reset Collection                    |
 |       Command+A | Add Scan Directory                  |
-|       Command+Q | Rotate Album Sort                   |
-|       Command+W | Rotate Artist Sort                  |
-|       Command+E | Rotate Song Sort                    |
+|       Command+W | Rotate Album Sort                   |
+|       Command+E | Rotate Artist Sort                  |
+|       Command+R | Rotate Song Sort                    |
 |       Command+D | Goto Last Tab                       |
 |              Up | Last Tab                            |
 |            Down | Next Tab                            |

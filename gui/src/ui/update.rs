@@ -314,8 +314,8 @@ impl Gui {
 				// Check for `F11` (Fullscreen)
 				} else if input.consume_key(Modifiers::NONE, Key::F11) {
 					frame.set_fullscreen(!frame.info().window_info.fullscreen);
-				// Check for `Ctrl+R` (Reset Collection)
-				} else if input.consume_key(Modifiers::COMMAND, Key::R) {
+				// Check for `Ctrl+C` (Reset Collection)
+				} else if input.consume_key(Modifiers::COMMAND, Key::C) {
 					self.reset_collection();
 				// Check for `Ctrl+S` (Save Settings)
 				} else if input.consume_key(Modifiers::COMMAND, Key::S) {
@@ -338,20 +338,20 @@ impl Gui {
 				// Check for `Ctrl+A` (Add Folder)
 				} else if input.consume_key(Modifiers::COMMAND, Key::A) {
 					self.add_folder();
-				// Check for `Ctrl+Q` (Next Album Order)
-				} else if input.consume_key(Modifiers::COMMAND, Key::Q) {
+				// Check for `Ctrl+W` (Next Album Order)
+				} else if input.consume_key(Modifiers::COMMAND, Key::W) {
 					crate::tab!(self, Tab::Albums);
 					let next = self.settings.album_sort.next();
 					crate::toast!(self, next.as_str());
 					self.settings.album_sort = next;
-				// Check for `Ctrl+W` (Next Artist Order)
-				} else if input.consume_key(Modifiers::COMMAND, Key::W) {
+				// Check for `Ctrl+E` (Next Artist Order)
+				} else if input.consume_key(Modifiers::COMMAND, Key::E) {
 					crate::tab!(self, Tab::Artists);
 					let next = self.settings.artist_sort.next();
 					crate::toast!(self, next.as_str());
 					self.settings.artist_sort = next;
-				// Check for `Ctrl+E` (Next Song Order)
-				} else if input.consume_key(Modifiers::COMMAND, Key::E) {
+				// Check for `Ctrl+R` (Next Song Order)
+				} else if input.consume_key(Modifiers::COMMAND, Key::R) {
 					crate::tab!(self, Tab::Songs);
 					let next = self.settings.song_sort.next();
 					crate::toast!(self, next.as_str());
