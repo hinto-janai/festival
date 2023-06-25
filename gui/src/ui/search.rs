@@ -156,15 +156,28 @@ CentralPanel::default().show(ctx, |ui| {
 
 	ui.add_space(10.0);
 
+	const HEADER_HEIGHT: f32 = 80.0;
+
 	//-------------------------------------------------- Song table.
 	match self.settings.search_sort {
 		SearchSort::Song => {
+			// `.show_rows()` is slightly faster than
+			// `.show_viewport()` but we need to know
+			// exactly how many rows we need to paint.
+			//
+			// The below needs to account for the scrollbar height,
+			// the title heights and must not overflow to the bottom bar.
+			const ROW_HEIGHT:    f32 = 35.0;
+			let height     = ui.available_height();
+			let max_rows   = ((height - (HEADER_HEIGHT - 5.0)) / ROW_HEIGHT) as usize;
+			let row_range  = 0..max_rows;
+
 			ScrollArea::horizontal()
 				.id_source("SearchSong")
 				.max_width(f32::INFINITY)
 				.max_height(f32::INFINITY)
 				.auto_shrink([false; 2])
-				.show_viewport(ui, |ui, _|
+				.show_rows(ui, ROW_HEIGHT, max_rows, |ui, row_range|
 			{ ui.push_id("SearchSongInner", |ui| {
 				// Sizing.
 				let width  = ui.available_width();
@@ -192,7 +205,7 @@ CentralPanel::default().show(ctx, |ui| {
 					.column(Column::remainder().clip(true))
 					.auto_shrink([false; 2])
 					.max_scroll_height(height)
-					.header(40.0, |mut header|
+					.header(HEADER_HEIGHT, |mut header|
 				{
 					header.col(|ui| { ui.strong("Title"); });
 					header.col(|ui| { ui.strong("Album"); });
@@ -205,7 +218,7 @@ CentralPanel::default().show(ctx, |ui| {
 				})
 				.body(|mut body| {
 					for key in self.state.search_result.songs.iter() {
-						body.row(35.0, |mut row| {
+						body.row(ROW_HEIGHT, |mut row| {
 							let (artist, album, song) = self.collection.walk(key);
 
 							row.col(|ui| {
@@ -283,7 +296,7 @@ CentralPanel::default().show(ctx, |ui| {
 					.column(Column::remainder().clip(true))
 					.auto_shrink([false; 2])
 					.max_scroll_height(height)
-					.header(80.0, |mut header|
+					.header(HEADER_HEIGHT, |mut header|
 				{
 					header.col(|ui| { ui.strong("Album"); });
 					header.col(|ui| { ui.strong("Artist"); });
@@ -337,7 +350,7 @@ CentralPanel::default().show(ctx, |ui| {
 					.column(Column::remainder().clip(true))
 					.auto_shrink([false; 2])
 					.max_scroll_height(height)
-					.header(80.0, |mut header|
+					.header(HEADER_HEIGHT, |mut header|
 				{
 					header.col(|ui| { ui.strong("Artist"); });
 					header.col(|ui| { ui.strong("Runtime"); });

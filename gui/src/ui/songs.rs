@@ -39,13 +39,24 @@ pub fn show_tab_songs(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: 
 	let c_track   = c_width;
 	let c_disc    = c_width;
 
+	// `.show_rows()` is slightly faster than
+	// `.show_viewport()` but we need to know
+	// exactly how many rows we need to paint.
+	//
+	// The below needs to account for the scrollbar height,
+	// the title heights and must not overflow to the bottom bar.
+	const HEADER_HEIGHT: f32 = 80.0;
+	const ROW_HEIGHT:    f32 = 35.0;
+	let max_rows  = ((height - (HEADER_HEIGHT - 5.0)) / ROW_HEIGHT) as usize;
+	let row_range = 0..max_rows;
+
 	// Show Table.
 	ScrollArea::horizontal()
 		.id_source("Songs")
 		.max_width(f32::INFINITY)
 		.max_height(f32::INFINITY)
 		.auto_shrink([false; 2])
-		.show_viewport(ui, |ui, _|
+		.show_rows(ui, ROW_HEIGHT, max_rows, |ui, row_range|
 	{
 		// FIXME:
 		// The opened ComboBox must be big enough so
@@ -79,7 +90,7 @@ pub fn show_tab_songs(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: 
 			.column(Column::remainder().clip(true))
 			.auto_shrink([false; 2])
 			.max_scroll_height(height)
-			.header(80.0, |mut header|
+			.header(HEADER_HEIGHT, |mut header|
 		{
 			use SongSort::*;
 
@@ -193,7 +204,7 @@ pub fn show_tab_songs(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: 
 		.body(|mut body| {
 			// Song iterator.
 			for key in self.collection.song_iter(self.settings.song_sort) {
-				body.row(35.0, |mut row| {
+				body.row(ROW_HEIGHT, |mut row| {
 					let (artist, album, song) = self.collection.walk(key);
 
 					row.col(|ui| {
