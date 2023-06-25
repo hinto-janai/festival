@@ -75,8 +75,8 @@ impl super::Ccd {
 	// parent directory of an audio file's PATH
 	// and copies it into a `Vec`.
 	pub(super) fn maybe_find_img(path: &Path) -> Option<Vec<u8>> {
-		let warn = || skip_warn!("CCD - Find Image: {}", path.display());
-		let ok   = || ok_trace!("CCD - Find Image: {}", path.display());
+		let warn = || skip_warn!("Find Image: {}", path.display());
+		let ok   = || ok_trace!("Find Image: {}", path.display());
 
 		let parent = match path.parent() {
 			Some(p) => p,

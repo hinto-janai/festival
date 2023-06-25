@@ -169,7 +169,7 @@ impl crate::ccd::Ccd {
 		let metadata = match Self::extract(&path) {
 			Ok(t)  => t,
 			Err(e) => {
-				warn!("CCD - metadata fail: {} ... {e}", path.display());
+				warn!("{} ... {e}", path.display());
 				continue;
 			},
 		};
@@ -616,6 +616,9 @@ impl crate::ccd::Ccd {
 			if o.is_some() { return o; }
 		}
 
+		// This isn't first because many `Artist` metadata
+		// fields contain the featured artists, e.g `Artist A x Artist B`.
+		// `AlbumArtist` usually contains just the main `Artist` name, which we want.
 		if let Some(t) = tag.iter_mut().find(|i| i.std_key == Some(StandardTagKey::Artist)) {
 			let o = Self::value(t);
 			if o.is_some() { return o; }
@@ -664,7 +667,7 @@ impl crate::ccd::Ccd {
 		}
 
 		// Fallback to file name.
-		if let Some(os_str) = path.file_name() {
+		if let Some(os_str) = path.file_stem() {
 			Some(os_str.to_string_lossy().into_owned())
 		} else {
 			None
