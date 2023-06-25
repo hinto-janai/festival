@@ -68,7 +68,7 @@ pub static VISUALS: Lazy<Visuals> = Lazy::new(|| {
 			weak_bg_fill: Color32::from_gray(60),
 			bg_fill:      Color32::from_gray(60),
 			bg_stroke:    Stroke::new(1.0, Color32::from_gray(150)), // e.g. hover over window edge or button
-			fg_stroke:    Stroke::new(1.5, Color32::from_gray(240)),
+			fg_stroke:    Stroke::new(1.5, Color32::from_gray(240)), // egui-notify uses this for toast text
 			rounding:     Rounding::same(10.0),
 			expansion:    1.0,
 		},
@@ -98,7 +98,7 @@ pub static VISUALS: Lazy<Visuals> = Lazy::new(|| {
 		hyperlink_color:         Color32::from_rgb(90, 170, 255),
 		faint_bg_color:          Color32::from_additive_luminance(5), // visible, but barely so
 		extreme_bg_color:        Color32::from_gray(10),            // e.g. TextEdit background
-		code_bg_color:           Color32::from_gray(64),
+		code_bg_color:           Color32::from_gray(35), // egui-notify uses this for toast background
 		warn_fg_color:           Color32::from_rgb(255, 143, 0), // orange
 		error_fg_color:          Color32::from_rgb(255, 0, 0),  // red
 		window_rounding:         Rounding::same(6.0),
