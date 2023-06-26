@@ -221,11 +221,28 @@ macro_rules! open {
 		match open::that(&$album.path) {
 			Ok(_) => {
 				log::info!("GUI - Opening path: {}", $album.path.display());
-				$crate::toast!($self, format!("Opening [{}]'s directory", $album.title));
+				$crate::toast!($self, format!("Opening [{}]", $album.title));
 			},
 			Err(e) => {
 				log::warn!("GUI - Could not open path: {e}");
-				$crate::toast_err!($self, format!("Opening [{}]'s directory", $album.title));
+				$crate::toast_err!($self, format!("Open error [{}]", $album.title));
+			},
+		}
+	}
+}
+
+#[macro_export]
+/// Open's an arbitrary `Path` directory in a file explorer.
+macro_rules! open_path {
+	($self:ident, $path:expr) => {
+		match open::that(&$path) {
+			Ok(_) => {
+				log::info!("GUI - Opening path: {}", $path.display());
+				$crate::toast!($self, format!("Opening [{}]", $path.display()));
+			},
+			Err(e) => {
+				log::warn!("GUI - Could not open path: {e}");
+				$crate::toast_err!($self, format!("Open error [{}]", $path.display()));
 			},
 		}
 	}

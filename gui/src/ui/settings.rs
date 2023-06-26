@@ -123,8 +123,9 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, widt
 		// List folders (max 10)
 		for i in 0..collection_paths_len {
 			ui.horizontal(|ui| {
-				let path  = format!("{}", self.settings.collection_paths[i].display());
-				let width = width / 20.0;
+				let path    = &self.settings.collection_paths[i];
+				let string  = format!("{}", path.display());
+				let width   = width / 20.0;
 
 				// Delete button.
 				if ui.add_sized([width, text], Button::new("-")).on_hover_text(REMOVE_FOLDER).clicked() {
@@ -132,7 +133,9 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, widt
 				}
 
 				// Show PATH.
-				ui.label(path.as_str()).on_hover_text(path.as_str());
+				if ui.add(Label::new(&string).sense(Sense::click())).on_hover_text(&string).clicked() {
+					crate::open_path!(self, path);
+				}
 			});
 		}
 
@@ -332,14 +335,14 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, widt
 		// Same issue as above. Slider centering is pain.
 		ui.spacing_mut().slider_width = width - 15.0;
 		ui.add_space(10.0);
-		let (slider, hover) = match self.settings.album_sizing {
+		let slider = match self.settings.album_sizing {
 			AlbumSizing::Pixel => {
 				let size = self.settings.album_pixel_size;
-				(Slider::new(&mut self.settings.album_pixel_size, ALBUM_ART_SIZE_MIN..=ALBUM_ART_SIZE_MAX), format!("{0}x{0} album art pixel size", size))
+				Slider::new(&mut self.settings.album_pixel_size, ALBUM_ART_SIZE_MIN..=ALBUM_ART_SIZE_MAX)
 			},
 			AlbumSizing::Row => {
 				let size = self.settings.albums_per_row;
-				(Slider::new(&mut self.settings.albums_per_row, ALBUMS_PER_ROW_MIN..=ALBUMS_PER_ROW_MAX), format!("{} albums per row", size))
+				Slider::new(&mut self.settings.albums_per_row, ALBUMS_PER_ROW_MIN..=ALBUMS_PER_ROW_MAX)
 			},
 		};
 
@@ -356,7 +359,7 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, widt
 				.fixed_decimals(0)
 				.show_value(false)
 				.trailing_fill(false);
-			ui.add_sized([width, text], slider).on_hover_text(hover);
+			ui.add_sized([width, text], slider);
 		});
 
 		ui.add_space(40.0);

@@ -233,12 +233,8 @@ pub fn show_tab_songs(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: 
 
 						if ui.add(Label::new(&*song.path.to_string_lossy()).sense(Sense::click())).clicked() {
 							match &song.path.parent() {
-								Some(p) => {
-									if let Err(e) = open::that(p) {
-										warn!("GUI - Could not open path: {e}");
-									}
-								}
-								None => warn!("GUI - Could not get parent path: {}", song.path.display()),
+								Some(p) => crate::open_path!(self, p),
+								None    => warn!("GUI - Could not get parent path: {}", song.path.display()),
 							}
 						}
 					});
