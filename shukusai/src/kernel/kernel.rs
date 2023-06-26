@@ -289,7 +289,7 @@ impl Kernel {
 		media_controls: bool,
 	) {
 		debug!("Kernel Init [6/12] ... entering kernel()");
-		let audio = match audio {
+		let mut audio = match audio {
 			Ok(audio) => {
 				ok_debug!("Kernel Init ... AudioState{AUDIO_VERSION} deserialization");
 				audio
@@ -300,15 +300,17 @@ impl Kernel {
 			},
 		};
 
-		use crate::validate;
+		// Check if `AUDIO_STATE`'s `SongKey` is valid.
+		if !crate::validate::song(&collection, audio.song.unwrap_or(SongKey::zero())) {
+			audio.song = None;
+		}
 
-		let audio = if validate::song(&collection, audio.song.unwrap_or(SongKey::zero())) {
-			ok_trace!("Kernel Init ... AudioState{AUDIO_VERSION} validation");
-			audio
-		} else {
-			fail!("Kernel Init ... AudioState{AUDIO_VERSION} validation");
-			AudioState::new()
-		};
+		// Check if `AUDIO_STATE` indices into itself are in-bounds.
+		if let Some(idx) = audio.queue_idx {
+			if audio.queue.get(idx).is_none() {
+				audio.queue_idx = None;
+			}
+		}
 
 		Self::init(Some(collection), Some(audio), to_frontend, from_frontend, beginning, watch, media_controls);
 	}

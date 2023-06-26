@@ -1192,15 +1192,14 @@ impl Audio {
 		// INVARIANT:
 		// `Kernel` validates `AUDIO_STATE` before handing
 		// it off to `Audio` so we should be safe to assume
-		// the state holds proper indices into the `Collection`.
+		// the state holds proper indices into the `Collection`
+		// and into itself.
 		trace!("Audio - Restoring: {:#?}", self.state);
 		*state = self.state.clone();
 
 		atomic_store!(VOLUME, state.volume.inner());
 
-		if let Some(index) = self.state.queue_idx {
-			let key = state.queue[index];
-
+		if let Some(key) = self.state.song {
 			// Start playback.
 			let elapsed = state.elapsed.inner() as u64;
 			debug!("Audio - Restore ... setting {key:?}");
