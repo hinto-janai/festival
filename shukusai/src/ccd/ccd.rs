@@ -1,6 +1,5 @@
 //---------------------------------------------------------------------------------------------------- Use
-use anyhow::{anyhow,bail,ensure};
-use log::{error,warn,info,debug,trace};
+use log::{warn,info,debug,trace};
 use benri::{
 	debug_panic,
 	log::*,
@@ -9,13 +8,11 @@ use benri::{
 	time::*,
 };
 use crate::collection::{
-	Album,
 	Collection,
 	Artists,
 	Albums,
 	Songs,
 	Map,
-	Keychain,
 	ArtistKey,
 	AlbumKey,
 	SongKey,
@@ -25,13 +22,12 @@ use crate::collection::{
 use crate::state::{
 	Phase,
 };
-use crossbeam::channel::{Sender,Receiver};
-use std::path::{Path,PathBuf};
-use std::sync::{Arc,RwLock};
+use crossbeam::channel::{Sender};
+use std::path::{PathBuf};
+use std::sync::{Arc};
 use disk::{Bincode2,Json,Plain};
 use readable::{
 	Unsigned,
-	Percent,
 };
 use crate::ccd::{
 	convert::ArtConvertType,

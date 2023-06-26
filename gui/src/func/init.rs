@@ -1,5 +1,4 @@
 //---------------------------------------------------------------------------------------------------- Use
-use anyhow::{anyhow,bail};
 use crate::constants::{
 	VISUALS,
 	SPACING,
@@ -17,7 +16,6 @@ use shukusai::{
 	constants::{
 		FESTIVAL_ICON,
 		FESTIVAL_DBUS,
-		FESTIVAL,
 	},
 	kernel::{
 		FrontendToKernel,
@@ -29,13 +27,11 @@ use shukusai::{
 	},
 	collection::{
 		Collection,
-		Keychain,
 	},
 };
 use benri::{
 	now,
 	send,
-	log::*,
 	atomic_store,
 };
 use log::{
@@ -53,9 +49,8 @@ use std::sync::{
 	Arc,
 	Mutex,
 	atomic::AtomicBool,
-	atomic::AtomicU8,
 };
-use disk::{Bincode2,Toml,Json};
+use disk::{Bincode2, Json};
 
 //---------------------------------------------------------------------------------------------------- GUI Init.
 // Instead of having [Gui::new()] be 1000s of lines long,

@@ -1,18 +1,6 @@
 //---------------------------------------------------------------------------------------------------- Use
-use bincode::{Encode,Decode};
-use crate::constants::{
-	TXT_SUB_DIR,
-	FESTIVAL,
-	HEADER,
-	HEADER_STR,
-	COLLECTION_VERSION,
-	FRONTEND_SUB_DIR,
-};
-use readable::Unsigned;
 use crate::collection::Collection;
 use disk::Bincode2;
-use const_format::formatcp;
-use std::mem::size_of;
 
 //---------------------------------------------------------------------------------------------------- Public function.
 /// Function that can access [`Collection`]'s on-disk metadata.

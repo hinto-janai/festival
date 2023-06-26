@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------------------------------- Use
 use egui::{
-	CentralPanel,ScrollArea,TextStyle,
-	TextEdit,Label,RichText,Spinner,
+	CentralPanel,ScrollArea,
+	TextEdit,Label,RichText,
 	SelectableLabel,Sense,
 };
 use benri::{
@@ -11,35 +11,21 @@ use shukusai::kernel::{
 	FrontendToKernel,
 };
 use crate::constants::{
-	BONE,
-	GRAY,
-	WHITE,
-	GREEN,
-	RED,
-	SEARCH_MAX_LEN
+	SEARCH_MAX_LEN,GRAY,
 };
 use crate::text::{
-	SEARCH_MAX,
 	SEARCH_BAR,
 	SEARCH_HELP,
-	SEARCH_EMPTY_COLLECTION,
 	SEARCH_SORT_SONG,
 	SEARCH_SORT_ALBUM,
 	SEARCH_SORT_ARTIST,
 };
 use log::debug;
 use egui_extras::{
-	StripBuilder,Size,
 	TableBuilder,Column,
 };
-use crate::data::{
-	Tab,
-	SearchSort,
-};
+use crate::data::SearchSort;
 use readable::Unsigned;
-use crate::text::{
-	OPEN_PARENT_FOLDER,
-};
 use log::warn;
 
 //---------------------------------------------------------------------------------------------------- Search

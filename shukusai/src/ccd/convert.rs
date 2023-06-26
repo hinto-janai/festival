@@ -1,14 +1,7 @@
 //---------------------------------------------------------------------------------------------------- Use
-//use anyhow::{anyhow,bail,ensure};
-//use serde::{Serialize,Deserialize};
-//use crate::macros::*;
-//use disk::prelude::*;
-//use disk::{};
-//use std::{};
-//use std::sync::{Arc,Mutex,RwLock};
-use log::{error,warn,info,debug,trace};
+use log::{warn};
 use crate::ccd::msg::CcdToKernel;
-use crossbeam::channel::{Sender,Receiver};
+use crossbeam::channel::{Sender};
 use benri::{
 	log::*,
 	sync::*,
@@ -17,10 +10,6 @@ use crate::collection::{
 	Art,
 	Album,
 	Collection,
-	Keychain,
-	ArtistKey,
-	AlbumKey,
-	SongKey,
 };
 
 //---------------------------------------------------------------------------------------------------- Types of conversions
@@ -128,7 +117,7 @@ impl super::Ccd {
 	fn resize_worker(
 		to_kernel: &Sender<CcdToKernel>,
 		albums: &mut [Album],
-		total: usize,
+		_total: usize,
 		increment: f64,
 	) {
 		// Resizer.
@@ -168,7 +157,7 @@ impl super::Ccd {
 	fn toknown_worker(
 		to_kernel: &Sender<CcdToKernel>,
 		albums: &mut [Album],
-		total: usize,
+		_total: usize,
 		increment: f64,
 	) {
 		for album in albums {

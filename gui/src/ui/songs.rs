@@ -1,17 +1,14 @@
 //---------------------------------------------------------------------------------------------------- Use
 use egui::{
 	ScrollArea,Label,ComboBox,
-	SelectableLabel,RichText,Sense,
+	RichText,Sense,
 };
 use egui_extras::{
-	StripBuilder,Size,
 	TableBuilder,Column,
 };
 use readable::Unsigned;
 use log::warn;
-use crate::constants::{
-	BONE,WHITE,GREEN,
-};
+use crate::constants::WHITE;
 use crate::text::{
 	OPEN_PARENT_FOLDER,
 };

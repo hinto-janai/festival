@@ -1,21 +1,10 @@
 //---------------------------------------------------------------------------------------------------- Use
-use anyhow::{anyhow,bail,ensure};
-use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
-//use crate::macros::*;
-//use std::{};
 use crate::{
-	collection::{
-		Collection,
-		Key,
-		Keychain,
-	},
-	audio::Volume,
-	kernel::Kernel,
 	state::Phase,
 };
 use readable::Percent;
-use once_cell::sync::Lazy;
+
 use std::sync::{
 	RwLock,
 	RwLockReadGuard,
@@ -148,7 +137,6 @@ impl ResetState {
 
 	// Set a new increment update, this increments the current values.
 	pub(crate) fn new_increment(&mut self, increment: f64, specific: String) {
-		let current    = self.percent.inner();
 		*self = Self {
 			percent: Percent::from(self.percent.inner() + increment),
 			specific,

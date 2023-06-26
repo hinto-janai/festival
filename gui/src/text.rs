@@ -170,7 +170,6 @@ pub const FESTIVAL_SHUKUSAI_COMMIT: &str = {
 
 	use shukusai::constants::{
 		COMMIT,
-		COPYRIGHT,
 		SHUKUSAI_NAME_VER,
 	};
 

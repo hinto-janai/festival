@@ -1,14 +1,10 @@
 //---------------------------------------------------------------------------------------------------- Use
-use anyhow::{anyhow,bail,ensure,Error};
-use log::{info,error,warn,trace,debug};
-use serde::{Serialize,Deserialize};
-//use disk::prelude::*;
-//use disk::{};
+use log::{info,error,warn,debug};
 use crate::constants::{
 	COLLECTION_VERSION,
 	AUDIO_VERSION,
 };
-use std::sync::{Arc,RwLock};
+use std::sync::{Arc};
 use crate::logger::INIT_INSTANT;
 use crate::collection::{
 	UNKNOWN_ALBUM,
@@ -18,7 +14,6 @@ use crate::collection::{
 use crate::state::{
 	Phase,
 	RESET_STATE,
-	ResetState,
 	AUDIO_STATE,
 	AudioState,
 };
@@ -26,11 +21,10 @@ use crate::audio::Volume;
 use benri::{
 	debug_panic,
 	time::*,
-	ops::*,
 	sync::*,
 	log::*,
 };
-use disk::{Bincode2,Json,Plain};
+use disk::{Bincode2,Json};
 use super::{KernelToFrontend, FrontendToKernel};
 use crate::{
 	ccd::{CcdToKernel, Ccd},
@@ -41,9 +35,9 @@ use crate::{
 };
 use crossbeam::channel::{Sender,Receiver};
 use std::path::PathBuf;
-use readable::Percent;
+
 use once_cell::sync::Lazy;
-use std::sync::atomic::AtomicBool;
+
 
 #[cfg(feature = "gui")]
 use crate::frontend::egui::{

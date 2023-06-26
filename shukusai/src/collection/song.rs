@@ -4,11 +4,7 @@ use std::path::PathBuf;
 use readable::Runtime;
 use std::marker::PhantomData;
 use crate::collection::{
-	Collection,
-	Artist,
-	Album,
 	AlbumKey,
-	SongKey,
 };
 
 //----------------------------------------------------------------------------------------------------

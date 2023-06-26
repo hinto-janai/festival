@@ -1,9 +1,5 @@
 //---------------------------------------------------------------------------------------------------- Use
 use clap::Parser;
-use log::{info,error};
-use shukusai::{
-	logger::init_logger,
-};
 use crate::text::FESTIVAL_SHUKUSAI_COMMIT;
 use shukusai::signal::{
 	Volume,Toggle,Pause,Play,Skip,Back,

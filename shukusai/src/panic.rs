@@ -1,12 +1,4 @@
 //---------------------------------------------------------------------------------------------------- Use
-//use anyhow::{anyhow,bail,ensure};
-//use log::{info,error,warn,trace,debug};
-//use crate::macros::*;
-//use disk::prelude::*;
-//use disk::{};
-//use std::{};
-//use std::sync::{Arc,Mutex,RwLock};
-use crate::kernel::Kernel;
 use crate::constants::{
 	FESTIVAL,
 	FRONTEND_SUB_DIR,
@@ -14,7 +6,7 @@ use crate::constants::{
 };
 use serde::{Serialize,Deserialize};
 use disk::Plain;
-use std::fmt::Write;
+
 use const_format::formatcp;
 
 //----------------------------------------------------------------------------------------------------

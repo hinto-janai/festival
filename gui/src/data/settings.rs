@@ -3,30 +3,20 @@
 //use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
-use super::{
-	Tab,
-};
+
 use std::path::PathBuf;
 use crate::constants::{
 	GUI,
-	SETTINGS_VERSION,
-	ALBUM_ART_SIZE_MIN,
-	ALBUMS_PER_ROW_MIN,
-	ALBUM_ART_SIZE_MAX,
-	ALBUMS_PER_ROW_MAX,
 	ALBUM_ART_SIZE_DEFAULT,
 	ALBUMS_PER_ROW_DEFAULT,
 	ACCENT_COLOR,
-	VISUALS,
+	SETTINGS_VERSION,
 };
 use shukusai::{
 	constants::{
+		HEADER,
 		FESTIVAL,
 		STATE_SUB_DIR,
-		HEADER,
-	},
-	collection::{
-		Collection,
 	},
 	sort::{
 		ArtistSort,

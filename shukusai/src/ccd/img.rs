@@ -1,33 +1,19 @@
 //---------------------------------------------------------------------------------------------------- Use
-use anyhow::{anyhow,bail,ensure};
-use image::codecs::png::PngEncoder;
-use image::codecs::jpeg::JpegEncoder;
-use std::io::BufWriter;
-use image::ImageEncoder;
-use image::ColorType;
-//use log::{info,error,warn,trace,debug};
-//use serde::{Serialize,Deserialize};
-//use crate::macros::*;
-//use disk::prelude::*;
-//use disk::{};
-//use std::{};
+use anyhow::{bail};
 use fast_image_resize as fir;
 use fir::{
 	Image,
-	Resizer,
 	ResizeAlg,
-	FilterType,
 	PixelType,
 };
 use std::num::NonZeroU32;
-use std::sync::Arc;
+
 use crate::collection::ALBUM_ART_SIZE;
 use benri::{
 	debug_panic,
 	sync::*,
-	time::*,
 };
-use log::{warn,trace,error};
+use log::{trace};
 use benri::log::fail;
 use crate::frontend::egui::gui_context;
 

@@ -3,9 +3,6 @@ use bincode::{Encode,Decode};
 use std::marker::PhantomData;
 use readable::Runtime;
 use crate::collection::{
-	Album,
-	Song,
-	Collection,
 	AlbumKey,
 	SongKey,
 };

@@ -1,15 +1,10 @@
 //---------------------------------------------------------------------------------------------------- Use
-use anyhow::{anyhow,bail,ensure};
-use log::{error,warn,info,debug,trace};
-use serde::{Serialize,Deserialize};
+use log::{error,debug,trace};
 use benri::{
 	log::*,
 	sync::*,
 };
 use disk::{Empty, Plain};
-//use std::{};
-//use std::sync::{Arc,Mutex,RwLock};
-use crate::constants::FESTIVAL;
 use crossbeam::channel::{
 	Sender,Receiver,
 };
@@ -21,7 +16,6 @@ use notify::{
 	Config,
 	Event,
 };
-use crate::kernel::Kernel;
 use crate::signal::*;
 
 //---------------------------------------------------------------------------------------------------- Watch
@@ -81,7 +75,7 @@ impl Watch {
 	// Make sure the directory exists.
 	fn clean() {
 		// Create base directory.
-		if let Err(e) = Pause::mkdir() { error!("Watch - Could not create signal folder"); }
+		if let Err(_e) = Pause::mkdir() { error!("Watch - Could not create signal folder"); }
 
 		// Clean files.
 		if let Err(e) = Toggle::rm()        { error!("Watch - Toggle: {}", e); }

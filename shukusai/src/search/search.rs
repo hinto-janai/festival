@@ -1,6 +1,5 @@
 //---------------------------------------------------------------------------------------------------- Use
-//use anyhow::{anyhow,bail,ensure};
-use log::{error,warn,info,debug,trace};
+use log::{error,debug,trace};
 use benri::{
 	debug_panic,
 	log::*,
@@ -73,8 +72,6 @@ impl Search {
 
 	#[inline]
 	fn search_sim70(&self, input: &str) -> Keychain {
-		let now = now!();
-
 		let mut artists: Box<[(f64, ArtistKey)]> = self.collection.artists
 			.iter().enumerate()
 			.map(|(i, x)| (strsim::jaro(&x.name.to_ascii_lowercase(), input), ArtistKey::from(i)))
@@ -107,8 +104,6 @@ impl Search {
 
 	#[inline]
 	fn search_top25(&self, input: &str) -> Keychain {
-		let now = now!();
-
 		let mut artists: Box<[(f64, ArtistKey)]> = self.collection.artists
 			.iter().enumerate()
 			.map(|(i, x)| (strsim::jaro(&x.name.to_ascii_lowercase(), input), ArtistKey::from(i)))
@@ -138,8 +133,6 @@ impl Search {
 
 	#[inline]
 	fn search_all(&self, input: &str) -> Keychain {
-		let now = now!();
-
 		let mut artists: Box<[(f64, ArtistKey)]> = self.collection.artists
 			.iter().enumerate()
 			.map(|(i, x)| (strsim::jaro(&x.name.to_ascii_lowercase(), input), ArtistKey::from(i)))

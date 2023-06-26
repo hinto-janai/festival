@@ -1,24 +1,20 @@
 //---------------------------------------------------------------------------------------------------- Use
 use crate::constants::{
-	BONE,MEDIUM_GRAY,GRAY,
+	BONE,GRAY,
 	QUEUE_ALBUM_ART_SIZE,
 };
 use crate::text::{
 	UI_QUEUE_CLEAR,UI_QUEUE_SHUFFLE,
 	QUEUE_CLEAR,QUEUE_SHUFFLE,SELECT_QUEUE,
 };
-use shukusai::collection::{
-	Song,Album
-};
 use shukusai::kernel::{
 	FrontendToKernel,
 };
 use egui::{
-	ScrollArea,Label,RichText,SelectableLabel,
+	ScrollArea,Label,RichText,
 	Sense,TextStyle,Button,
 };
 use benri::send;
-use readable::HeadTail;
 
 //---------------------------------------------------------------------------------------------------- Queue
 impl crate::data::Gui {

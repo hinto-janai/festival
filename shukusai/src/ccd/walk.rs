@@ -1,12 +1,11 @@
 //---------------------------------------------------------------------------------------------------- Use
-//use anyhow::{anyhow,bail,ensure};
-use log::{error,warn,info,debug,trace};
+use log::{trace};
 use benri::log::{
 	skip_warn,ok_trace,
 };
 use crate::ccd::msg::CcdToKernel;
 use walkdir::WalkDir;
-use crossbeam::channel::{Sender,Receiver};
+use crossbeam::channel::{Sender};
 use std::path::{Path,PathBuf};
 use crate::ccd::mime::{
 	SUPPORTED_AUDIO_MIME_TYPES,
@@ -18,7 +17,7 @@ impl super::Ccd {
 	// `WalkDir` given PATHs and filter for audio files.
 	// Ignore non-existing PATHs in the array.
 	pub(super) fn walkdir_audio(
-		to_kernel: &Sender<CcdToKernel>,
+		_to_kernel: &Sender<CcdToKernel>,
 		mut paths: Vec<PathBuf>,
 	) -> Vec<PathBuf> {
 

@@ -1,7 +1,6 @@
 //---------------------------------------------------------------------------------------------------- Use
 use egui::{
-	ScrollArea,TextStyle,ImageButton,
-	TextEdit,Label,RichText,Spinner,
+	ScrollArea,TextStyle,Label,RichText,
 	SelectableLabel,Sense,
 };
 use crate::{
@@ -9,17 +8,11 @@ use crate::{
 		BONE,MEDIUM_GRAY,GRAY,
 	},
 	text::SELECT_ARTIST,
-	data::{
-		ArtistSubTab,Tab,
-	},
+	data::ArtistSubTab,
 };
 use readable::Unsigned;
 use log::warn;
 use readable::HeadTail;
-use benri::send;
-use shukusai::kernel::{
-	FrontendToKernel,
-};
 
 //---------------------------------------------------------------------------------------------------- Artists
 impl crate::data::Gui {

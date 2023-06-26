@@ -2,8 +2,7 @@
 use readable::HeadTail;
 use crate::data::Gui;
 use egui::{
-	ScrollArea,Frame,ProgressBar,TextStyle,
-	Color32,Vec2,Stroke,Rounding,RichText,
+	ScrollArea,Frame,ProgressBar,TextStyle,RichText,
 	TopBottomPanel,SidePanel,CentralPanel,
 	Sense,
 };
@@ -18,12 +17,10 @@ use crate::data::{
 	EXIT_COUNTDOWN,
 	SHOULD_EXIT,
 };
-use disk::{Toml,Plain};
-use log::{error,warn,info,debug,trace};
+use disk::Plain;
+use log::{error,warn,info,debug};
 use shukusai::{
 	constants::FESTIVAL,
-	audio::Volume,
-	collection::AlbumKey,
 	kernel::{
 		FrontendToKernel,
 		KernelToFrontend,
@@ -36,23 +33,20 @@ use shukusai::{
 use benri::{
 	log::*,
 	sync::*,
-	panic::*,
 	time::*,
 	flip,
 	debug_panic,
 };
 use std::time::{
 	Instant,
-	Duration,
 };
-use std::sync::Arc;
+
 use crate::constants::{
-	VISUALS,
 	SLIDER_CIRCLE_INACTIVE,
 	SLIDER_CIRCLE_HOVERED,
 	SLIDER_CIRCLE_ACTIVE,
 	UI_CONTROL_WIDTH,
-	BONE,BLACK,GRAY,
+	BONE,BLACK,
 	YELLOW,GREEN,MEDIUM_GRAY,
 };
 use crate::text::{
@@ -64,9 +58,6 @@ use crate::text::{
 	UI_PLAY,
 	UI_PAUSE,
 	UI_FORWARDS,
-	DECREMENT_ALBUM_SIZE,
-	INCREMENT_ALBUM_SIZE,
-	VOLUME_SLIDER,
 	UI_REPEAT_SONG,UI_REPEAT,REPEAT_SONG,REPEAT_QUEUE,REPEAT_OFF,
 };
 

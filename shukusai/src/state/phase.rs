@@ -1,9 +1,5 @@
 //---------------------------------------------------------------------------------------------------- Use
 use serde::{Serialize,Deserialize};
-use crate::{
-	state::ResetState,
-	collection::Collection,
-};
 
 //---------------------------------------------------------------------------------------------------- Tab Constants
 // This is the text actually displayed in the `GUI`.
@@ -105,7 +101,7 @@ impl Phase {
 			Self::Wait        => WAIT,
 
 			Self::Start       => START,
-			Self::Deconstruct => START,
+			Self::Deconstruct => DECONSTRUCT,
 			Self::WalkDir     => WALKDIR,
 			Self::Parse       => PARSE,
 			Self::Fix         => FIX,

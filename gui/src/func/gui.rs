@@ -14,17 +14,12 @@ use shukusai::{
 	audio::Volume,
 	kernel::{
 		FrontendToKernel,
-		KernelToFrontend,
 	},
 	collection::{
 		Collection,
 	},
-	sort::{
-		ArtistSort,AlbumSort,SongSort,
-	},
 };
 use benri::{
-	debug_panic,
 	log::*,
 	sync::*,
 };
@@ -32,14 +27,11 @@ use log::{
 	info,
 	warn,
 	error,
-	debug,
 };
 use std::sync::{
 	Arc,
-	atomic::AtomicBool,
-	atomic::AtomicU8,
 };
-use disk::{Bincode2,Toml,Json};
+use disk::{Bincode2, Json};
 use crate::data::Gui;
 
 //---------------------------------------------------------------------------------------------------- GUI `Drop` impl

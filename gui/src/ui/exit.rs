@@ -28,17 +28,13 @@ use shukusai::{
 		KernelToFrontend,
 	},
 };
-use disk::{Bincode2,Toml,Json};
+use disk::{Bincode2, Json};
 use crate::data::Gui;
 use crossbeam::channel::{
 	Sender,
 	Receiver,
 };
 use std::time::Duration;
-use std::sync::{
-	Arc,
-	atomic::{AtomicU8,AtomicBool},
-};
 use crate::constants::{
 	SETTINGS_VERSION,
 	STATE_VERSION,

@@ -3,27 +3,20 @@
 //use log::{info,error,warn,trace,debug};
 //use serde::{Serialize,Deserialize};
 use egui::{
-	Rounding,Vec2,Color32,Stroke,TextStyle,
-	ScrollArea,Frame,RichText,ImageButton,
-	SelectableLabel,Label,Button,SidePanel,
-	Sense,
+	Rounding,Vec2,Color32,TextStyle,
+	ScrollArea,Frame,RichText,
+	Label,SidePanel,Sense,
 };
-use shukusai::{
-	collection::AlbumKey,
-	kernel::FrontendToKernel,
-};
+use shukusai::collection::AlbumKey;
 use crate::{
 	constants::{
-		BONE,GRAY,MEDIUM_GRAY,
+		BONE,GRAY,
 		ALBUM_ART_SIZE_MIN,ALBUM_ART_SIZE_MAX,
 	},
 	text::{
 		SELECT_ALBUM,
 	},
 };
-use readable::HeadTail;
-use log::warn;
-use benri::send;
 
 //---------------------------------------------------------------------------------------------------- Main central panel.
 impl crate::data::Gui {
@@ -143,7 +136,7 @@ pub(super) fn show_tab_view_right_panel(&mut self, album_key: Option<AlbumKey>, 
 		// - Find the artist of this album
 		// - Iterate over all the albums of that artist
 		// - Make the album we're on pop out
-		let (artist, artist_key) = self.collection.artist_from_album(album_key);
+		let (artist, _) = self.collection.artist_from_album(album_key);
 		let albums = artist.albums.iter();
 
 		// How big the albums (on the right side) should be.

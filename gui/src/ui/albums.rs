@@ -3,28 +3,15 @@
 //use log::{info,error,warn,trace,debug};
 //use serde::{Serialize,Deserialize};
 use egui::{
-	Rounding,Vec2,Color32,Stroke,
-	ScrollArea,Frame,RichText,
-	SelectableLabel,Label,Button,
-	ImageButton,TextStyle,Sense,
+	ScrollArea,RichText,Label,TextStyle,Sense,
 };
 use crate::data::{
 	AlbumSizing,
-	Tab,
 };
 use readable::HeadTail;
 use crate::constants::{
-	LESS_WHITE,BONE,
+	LESS_WHITE,
 };
-use crate::text::{
-	EMPTY_COLLECTION,
-};
-use shukusai::collection::{
-	AlbumKey,
-};
-use std::slice::Iter;
-use std::iter::Peekable;
-use log::warn;
 
 //---------------------------------------------------------------------------------------------------- Constants
 // How many `char`'s before we cut it off with `...`?
@@ -127,13 +114,13 @@ fn paint_albums(
 		crate::no_rounding!(ui);
 
 		// Start the row.
-		for row in 0..rows {
+		for _ in 0..rows {
 			// Paint `Album`'s horizontally.
 			ui.horizontal(|ui| {
 				ui.add_space(first_album_padding);
 
 				// Paint as many `Album`'s that can fit.
-				for i in 0..album_width {
+				for _ in 0..album_width {
 					match iter.next() {
 						Some(key) => {
 							ui.vertical(|ui| {

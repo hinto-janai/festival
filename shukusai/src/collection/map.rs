@@ -3,11 +3,9 @@ use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
 use std::collections::HashMap;
 use crate::collection::{
-	Collection,
 	Artist,
 	Album,
 	Song,
-	Key,
 	ArtistKey,
 	AlbumKey,
 	SongKey,

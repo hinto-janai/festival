@@ -1,6 +1,5 @@
 //---------------------------------------------------------------------------------------------------- Use
 use crate::data::{
-	Tab,
 	State,
 	Settings,
 	DebugInfo,
@@ -16,7 +15,6 @@ use shukusai::{
 	},
 	collection::{
 		Collection,
-		Keychain,
 		SongKey,
 	},
 };
@@ -28,7 +26,6 @@ use std::sync::{
 	Arc,
 	Mutex,
 	atomic::AtomicBool,
-	atomic::AtomicU8,
 };
 use std::time::Instant;
 

@@ -1,8 +1,6 @@
 //---------------------------------------------------------------------------------------------------- Use
 use anyhow::{anyhow,bail};
 use crossbeam::channel::Sender;
-use benri::send;
-use std::sync::atomic::AtomicBool;
 use log::warn;
 use crate::constants::{
 	FESTIVAL_DBUS,
@@ -46,7 +44,7 @@ pub(super) fn init_media_controls(to_audio: Sender<souvlaki::MediaControlEvent>)
 		}
 	}) {
 		Ok(_)  => Ok(media_controls),
-		Err(e) => Err(anyhow!("souvlaki::MediaControls::attach() failed")),
+		Err(_e) => Err(anyhow!("souvlaki::MediaControls::attach() failed")),
 	}
 }
 

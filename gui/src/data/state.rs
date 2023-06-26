@@ -6,33 +6,27 @@ use bincode::{Encode,Decode};
 use super::{
 	Tab,
 };
-use std::path::PathBuf;
 use crate::constants::{
-	STATE_VERSION,
 	GUI,
-	ALBUM_ART_SIZE_DEFAULT,
+	STATE_VERSION,
 };
 use shukusai::{
 	constants::{
+		HEADER,
 		FESTIVAL,
 		STATE_SUB_DIR,
-		HEADER,
 	},
-	state::AudioState,
 	audio::{
 		Volume,
 		Repeat,
 	},
 	collection::{
-		Album,
-		Collection,
-		Key,
 		ArtistKey,
 		AlbumKey,
 		Keychain,
 	},
 };
-use shukusai::kernel::Kernel;
+
 use const_format::formatcp;
 use std::marker::PhantomData;
 

@@ -2,11 +2,6 @@
 	clippy::len_zero,
 	clippy::type_complexity,
 	clippy::module_inception,
-
-	// Should be cleaned up after v1.0.0.
-	dead_code,
-	unused_variables,
-	unused_imports,
 )]
 
 // Hide console in Windows.

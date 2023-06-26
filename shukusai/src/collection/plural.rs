@@ -1,7 +1,6 @@
 //---------------------------------------------------------------------------------------------------- Use
 use bincode::{Encode,Decode};
 use crate::collection::{
-	Collection,
 	Artist,Album,Song,
 	ArtistKey,AlbumKey,SongKey,
 };

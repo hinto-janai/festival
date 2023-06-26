@@ -1,6 +1,4 @@
 //---------------------------------------------------------------------------------------------------- Use
-//use anyhow::{bail,ensure,Error};
-use log::{error,warn,info,debug,trace};
 use bincode::{Encode,Decode};
 use crate::collection::{
 	album::Album,
@@ -18,8 +16,8 @@ use crate::sort::{
 	AlbumSort,
 	SongSort,
 };
-use crate::kernel::Kernel;
-use std::collections::HashMap;
+
+
 //use disk::{Json,json_file};
 use crate::constants::{
 	FESTIVAL,
@@ -38,7 +36,6 @@ use benri::{
 	lock,
 };
 use readable::{
-	Time,
 	Unsigned,
 };
 use once_cell::sync::Lazy;
@@ -427,7 +424,7 @@ impl Collection {
 		artist_name: S,
 		album_title: S,
 	) -> Option<(&Album, AlbumKey)> {
-		if let Some((key, albums)) = self.map.0.get(artist_name.as_ref()) {
+		if let Some((_key, albums)) = self.map.0.get(artist_name.as_ref()) {
 			if let Some((key, _)) = albums.0.get(album_title.as_ref()) {
 				return Some((&self.albums[key], *key))
 			}

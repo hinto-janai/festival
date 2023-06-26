@@ -6,7 +6,6 @@
 //use disk::{};
 //use std::{};
 //use std::sync::{Arc,Mutex,RwLock};
-use log::{info,error,warn,trace,debug};
 use egui::{
 	TextStyle,Sense,
 	ScrollArea,ComboBox,
@@ -25,11 +24,9 @@ use crate::constants::{
 	SLIDER_CIRCLE_ACTIVE,
 	PREVIOUS_THRESHOLD_MIN,
 	PREVIOUS_THRESHOLD_MAX,
-	FESTIVAL_NAME_VER,
 };
 use crate::data::{
 	AlbumSizing,
-	SearchSort,
 	WindowTitle,
 };
 use shukusai::{
@@ -37,22 +34,15 @@ use shukusai::{
 		ArtistSort,AlbumSort,SongSort,
 	},
 	search::SearchKind,
-	kernel::FrontendToKernel,
-	collection::Collection,
 	constants::{
 		COPYRIGHT,
 	},
 };
 use benri::{
-	send,
 	flip,
-	atomic_load,
 	atomic_store,
-	ok_debug,
 };
-use std::sync::Arc;
 use crate::text::*;
-use disk::Bincode2;
 
 //---------------------------------------------------------------------------------------------------- Settings
 impl crate::data::Gui {

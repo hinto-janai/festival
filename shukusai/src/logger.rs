@@ -1,9 +1,7 @@
 //---------------------------------------------------------------------------------------------------- Use
 use std::io::Write;
-use benri::log::ok;
 use log::info;
 use std::time::Instant;
-use crate::kernel::Kernel;
 use once_cell::sync::Lazy;
 
 //---------------------------------------------------------------------------------------------------- Start of logger.

@@ -1,12 +1,6 @@
 //---------------------------------------------------------------------------------------------------- Use
 use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
-use crate::collection::{
-	Collection,
-	Artist,
-	Album,
-	Song,
-};
 
 //---------------------------------------------------------------------------------------------------- Macros to implement common traits.
 macro_rules! impl_common {

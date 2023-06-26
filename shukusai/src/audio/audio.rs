@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------------------------------- Use
-use anyhow::{anyhow,bail,ensure};
-use log::{error,warn,info,debug,trace};
+use anyhow::{anyhow,bail};
+use log::{error,warn,debug,trace};
 use benri::{
 	sleep,
 	flip,
@@ -9,11 +9,11 @@ use benri::{
 	sync::*,
 };
 use std::sync::{
-	Arc,RwLock,
+	Arc,
 };
 use crate::{
 	collection::{
-		Collection,Keychain,ArtistKey,
+		Collection,ArtistKey,
 		AlbumKey,SongKey,
 	},
 	audio::{
@@ -29,18 +29,18 @@ use crate::{
 	},
 };
 use crossbeam::channel::{Sender,Receiver};
-use std::io::BufReader;
+
 use std::fs::File;
 use symphonia::core::{
-	probe::{ProbeResult, Hint},
+	probe::{Hint},
 	meta::MetadataOptions,
 	io::MediaSourceStream,
-	formats::{FormatReader, FormatOptions, Track},
+	formats::{FormatReader, FormatOptions},
 	codecs::{Decoder, DecoderOptions},
 	audio::{Signal,AudioBuffer,AsAudioBufferRef},
-	units::{TimeBase,Time,TimeStamp},
+	units::{TimeBase,Time},
 };
-use std::time::{Instant, Duration};
+use std::time::{Duration};
 use readable::Runtime;
 use std::sync::atomic::AtomicU32;
 
@@ -305,7 +305,7 @@ impl Audio {
 					// We're done playing audio.
 					// This "end of stream" error is currently the only way
 					// a FormatReader can indicate the media is complete.
-					Err(symphonia::core::errors::Error::IoError(err)) => {
+					Err(symphonia::core::errors::Error::IoError(_err)) => {
 						self.skip(1, &mut AUDIO_STATE.write());
 						#[cfg(feature = "gui")]
 						gui_request_update();
@@ -378,7 +378,7 @@ impl Audio {
 						}
 					}
 					// We're done playing audio.
-					Err(symphonia::core::errors::Error::IoError(err)) => {
+					Err(symphonia::core::errors::Error::IoError(_err)) => {
 						self.skip(1, &mut AUDIO_STATE.write());
 						#[cfg(feature = "gui")]
 						gui_request_update();
@@ -909,9 +909,8 @@ impl Audio {
 
 		if !state.queue.is_empty() {
 			use rand::{
-				{Rng, SeedableRng},
+				{SeedableRng},
 				prelude::SliceRandom,
-				rngs::SmallRng,
 			};
 			let mut rng = rand::rngs::SmallRng::from_entropy();
 
@@ -1139,7 +1138,7 @@ impl Audio {
 		if let Some(index) = state.queue_idx {
 			// If the start is 0 and our index got wiped, we should reset to 0.
 			if start == 0 && contains && len > end {
-				let new = 0;
+				let _new = 0;
 				state.queue_idx = Some(0);
 				trace!("Audio - remove_queue_range({start}..{end}), beginning index: 0");
 				if next {

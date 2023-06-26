@@ -2,16 +2,11 @@
 use bincode::{Encode,Decode};
 use std::marker::PhantomData;
 use super::{
-	Collection,
-	Artist,
-	Song,
 	ArtistKey,
 	SongKey,
 };
 use super::art::{
 	Art,
-	UNKNOWN_ALBUM,
-	UNKNOWN_ALBUM_BYTES,
 };
 use readable::{
 	Runtime,

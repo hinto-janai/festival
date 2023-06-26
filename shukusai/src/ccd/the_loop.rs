@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------------------------------- Use
-use anyhow::{anyhow,bail,ensure};
-use log::{error,warn,info,debug,trace};
+use anyhow::{anyhow,bail};
+use log::{warn};
 use std::path::{Path,PathBuf};
 use std::collections::HashMap;
 use crate::collection::{
@@ -13,9 +13,7 @@ use crate::collection::{
 	SongKey,
 };
 use benri::{
-	log::*,
 	sync::*,
-	panic::*,
 };
 use crossbeam::channel::Sender;
 use super::CcdToKernel;
@@ -24,14 +22,14 @@ use readable::{
 	Unsigned,
 	Date,
 };
-use std::sync::{Arc,Mutex};
-use std::sync::atomic::AtomicUsize;
+use std::sync::{Mutex};
+
 use std::marker::PhantomData;
 use symphonia::core::{
 	io::MediaSourceStream,
-	probe::{Probe,ProbeResult,Hint},
+	probe::{ProbeResult,Hint},
 	formats::Track,
-	meta::{Metadata,MetadataRevision,Tag,Visual,StandardTagKey},
+	meta::{MetadataRevision,Tag,Visual,StandardTagKey},
 };
 
 //---------------------------------------------------------------------------------------------------- Tag Metadata (temporary) struct.
