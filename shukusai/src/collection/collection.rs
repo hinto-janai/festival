@@ -60,7 +60,7 @@ disk::bincode2!(Collection, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_
 /// This is the `struct` that holds all the (meta)data about the user's music.
 ///
 /// This holds:
-/// - The "3 Vecs", holding _all_ [`Artist`]'s, [`Album`]'s, and [`Song`]'s.
+/// - The "3 Slices", holding _all_ [`Artist`]'s, [`Album`]'s, and [`Song`]'s.
 /// - The "Map", a searchable [`HashMap`]
 /// - Pre-computed, sorted keys
 /// - Metadata about the [`Collection`] itself
@@ -104,7 +104,7 @@ disk::bincode2!(Collection, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_
 /// [`Artist`]'s will always be unique, so it acts as an identifier.
 ///
 /// ### Sort
-/// The "3 Vecs" are (basically) in random order due to how `Collection` is created.
+/// The "3 Slices" are (basically) in random order due to how `Collection` is created.
 ///
 /// Iterating directly on them is not very useful, so use the pre-calculated sorted keys.
 ///

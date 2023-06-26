@@ -29,7 +29,7 @@ impl Map {
 	}
 
 	#[inline(always)] // This only gets called once.
-	// Iterates over the the "3 Vecs"
+	// Iterates over the the "3 Slices"
 	// and creates a matching `Map`.
 	pub(crate) fn from_3_vecs(
 		artists: &[Artist],
