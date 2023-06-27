@@ -14,10 +14,7 @@ description    = "Festival (music player) internals"
 
 include = [
 	"src",
-	"assets/images/diagram",
     "assets/images/art/unknown.png",
-	"assets/images/icon/512.png",
-	"assets/images/cmp/*",
 ]
 
 [features]

@@ -31,9 +31,16 @@ VERSION="v$(grep -m1 "version" ../gui/Cargo.toml | grep -o "[0-9].[0-9].[0-9]")"
 [[ -f "Festival-${VERSION}-x86_64.AppImage" ]] && rm "Festival-${VERSION}-x86_64.AppImage"
 
 # Update icon/binary.
-cp -f ../assets/images/icon/512.png "${APP_DIR}/"
-cp -f "$BINARY" "${APP_DIR}/usr/bin/"
-chmod +x "${APP_DIR}/usr/bin/festival"
+cp -f ../assets/images/icon/512.png "${APP_DIR}/festival.png"
+# HACK:
+# I cannot figure out how to change the top toolbar
+# title from `festival` to `Festival` other than
+# changing the underlying binary itself.
+#
+# This is hacky but should be fine since
+# it's an AppImage anyway.
+cp -f "$BINARY" "${APP_DIR}/usr/bin/Festival"
+chmod +x "${APP_DIR}/usr/bin/Festival"
 
 # Create AppImage.
 #if ARCH=x86_64 appimagetool --sign --sign-key "2A8F883E016FED0380287FAFB1C5A64B80691E45" "$APP_DIR"; then
@@ -52,5 +59,5 @@ chmod +x "Festival-x86_64.AppImage"
 mv "Festival-x86_64.AppImage" "Festival-${VERSION}-x86_64.AppImage"
 
 # Wipe icon/binary.
-rm "${APP_DIR}/512.png" "${APP_DIR}/usr/bin/festival"
-touch "${APP_DIR}/512.png" "${APP_DIR}/usr/bin/festival"
+rm "${APP_DIR}/festival.png" "${APP_DIR}/usr/bin/Festival"
+touch "${APP_DIR}/festival.png" "${APP_DIR}/usr/bin/Festival"

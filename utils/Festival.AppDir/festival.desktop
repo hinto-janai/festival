@@ -2,7 +2,9 @@
 Name=Festival
 GenericName=Music player
 Comment=A music player for local album collections
-Exec=festival
+Exec=Festival
 Icon=festival
 Type=Application
 Categories=AudioVideo;Audio;Player;
+StartupWMClass=Festival
+Terminal=false
