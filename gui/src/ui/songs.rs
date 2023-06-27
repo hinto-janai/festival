@@ -44,7 +44,7 @@ pub fn show_tab_songs(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: 
 	// the title heights and must not overflow to the bottom bar.
 	const HEADER_HEIGHT: f32 = 80.0;
 	const ROW_HEIGHT:    f32 = 35.0;
-	let max_rows  = ((height - (HEADER_HEIGHT - 5.0)) / ROW_HEIGHT) as usize;
+	let max_rows  = ((height - (HEADER_HEIGHT - 5.0)) / (ROW_HEIGHT + 1.0)) as usize;
 	let row_range = 0..max_rows;
 
 	// Show Table.

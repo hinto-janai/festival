@@ -155,7 +155,7 @@ CentralPanel::default().show(ctx, |ui| {
 			// the title heights and must not overflow to the bottom bar.
 			const ROW_HEIGHT:    f32 = 35.0;
 			let height     = ui.available_height();
-			let max_rows   = ((height - (HEADER_HEIGHT - 5.0)) / ROW_HEIGHT) as usize;
+			let max_rows   = ((height - (HEADER_HEIGHT - 5.0)) / (ROW_HEIGHT + 1.0)) as usize;
 			let row_range  = 0..max_rows;
 
 			ScrollArea::horizontal()
