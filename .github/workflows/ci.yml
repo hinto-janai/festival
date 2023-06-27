@@ -81,8 +81,11 @@ jobs:
           mv utils/"Festival-v${VERSION}-x86_64.AppImage" OUTPUT/
 
           # Tar
+          cp assets/images/icon/512.png target/release/festival.png
+          cp utils/Festival.AppDir/festival.desktop target/release/
+          cp LICENSE target/release/
           cd target/release
-          tar -czpf "Festival-v${VERSION}-linux-x64.tar.gz" festival
+          tar -czpf "Festival-v${VERSION}-linux-x64.tar.gz" festival festival.png festival.desktop LICENSE
           mv "Festival-v${VERSION}-linux-x64.tar.gz" ../../OUTPUT/
         elif [ "$RUNNER_OS" == "macOS" ]; then
           # x64

@@ -1,8 +1,8 @@
 [Desktop Entry]
 Name=Festival
 GenericName=Music player
-Comment=Music player
+Comment=A music player for local album collections
 Exec=festival
-Icon=512
+Icon=festival
 Type=Application
 Categories=AudioVideo;Audio;Player;
