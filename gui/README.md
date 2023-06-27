@@ -129,6 +129,13 @@ Options:
           skip backwards, this will reset the current song to
           the 1st in the queue.
 
+      --path
+          Print the PATH used by Festival
+          
+          All data saved by Festival is saved here.
+          For more information, see:
+          https://github.com/hinto-janai/festival/tree/main/gui#Disk
+
       --metadata
           Print JSON metadata about the current `Collection` on disk
           
@@ -169,14 +176,14 @@ Options:
       --delete
           Delete all Festival files that are currently on disk
           
-          This includes:
+          This deletes the entire `GUI` Festival folder, which contains:
           - The `Collection`
           - `GUI` settings (sort methods, color, etc)
           - `GUI` state (currently selected album/artist, etc)
           - Audio state (currently playing song, queue, etc)
-          - Cached images (found in local OS cache folder)
+          - Cached images for the OS media controls
           
-          The PATH(s) deleted will be printed on success.
+          The PATH deleted will be printed on success.
 
       --log-level <OFF|ERROR|INFO|WARN|DEBUG|TRACE>
           Set filter level for console logs
@@ -191,7 +198,7 @@ Options:
 ```
 
 # Disk
-Festival saves all of its important files within the "OS data" directory.
+Festival saves all of its files within the "OS data" directory.
 
 You can delete this folder to reset Festival's state/settings and the Collection, or more easily, just run:
 ```bash

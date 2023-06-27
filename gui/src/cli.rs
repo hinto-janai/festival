@@ -111,6 +111,14 @@ pub struct Cli {
 	back: Option<usize>,
 
 	#[arg(long, verbatim_doc_comment)]
+	/// Print the PATH used by Festival
+	///
+	/// All data saved by Festival is saved here.
+	/// For more information, see:
+	/// https://github.com/hinto-janai/festival/tree/main/gui#Disk
+	path: bool,
+
+	#[arg(long, verbatim_doc_comment)]
 	/// Print JSON metadata about the current `Collection` on disk
 	///
 	/// WARNING:
@@ -228,6 +236,15 @@ impl Cli {
 		if let Some(index)  = self.index         { handle(Index(index.into()).save()) }
 		if let Some(skip)   = self.skip          { handle(Skip(skip).save())          }
 		if let Some(back)   = self.back          { handle(Back(back).save())          }
+
+		// Path.
+		if self.path {
+			// SAFETY:
+			// If we can't get a PATH, `panic!()`'ing is fine.
+			let p = crate::data::State::sub_dir_parent_path().unwrap();
+			println!("{}", p.display());
+			exit(0);
+		}
 
 		// Delete.
 		if self.delete {
