@@ -4,7 +4,7 @@
 	clippy::module_inception,
 )]
 
-// Hide console in Windows.
+// Hide console in Windows
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod cli;

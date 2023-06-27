@@ -94,7 +94,7 @@ mod windows {
 				let handle = CreateWindowExW(
 					WINDOW_EX_STYLE::default(),
 					class_name,
-					w!(""),
+					w!("Festival"),
 					WINDOW_STYLE::default(),
 					0,
 					0,
