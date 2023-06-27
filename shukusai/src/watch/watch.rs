@@ -106,6 +106,12 @@ impl Watch {
 //		if let Err(e) = Song::rm()         { error!("Watch - Song: {}", e); }
 	}
 
+	#[inline(always)]
+	fn send(&self, msg: WatchToKernel) {
+		debug!("Watch - {msg:?}");
+		send!(self.to_kernel, msg);
+	}
+
 	fn main(self) {
 		use notify::event::{EventKind,CreateKind};
 
@@ -113,27 +119,29 @@ impl Watch {
 			// Wait for a change in the filesystem.
 			// We only care if it was a file creation.
 			loop {
-				if let Ok(Ok(event)) = self.from_notify.recv() {              // If we got a msg...
-					if let EventKind::Create(CreateKind::File) = event.kind { // and it was a `Create` and it was a `File`...
-						break                                                 // break, and check files.
+				if let Ok(Ok(event)) = self.from_notify.recv() {
+					match event.kind {
+						// UNIX sends `File`, Windows sends `Any`.
+						EventKind::Create(CreateKind::File|CreateKind::Any) => break,
+						_ => trace!("Watch - ignoring: {event:?}"),
 					}
 				}
 			}
 
 			// Toggle.
 			if Toggle::exists().is_ok() {
-				send!(self.to_kernel, WatchToKernel::Toggle);
+				self.send(WatchToKernel::Toggle);
 			}
 
 			// Stop/Pause/Play.
 			//
 			// Priority is `Stop` > `Pause` > `Play`.
 			if Stop::exists().is_ok() {
-				send!(self.to_kernel, WatchToKernel::Stop);
+				self.send(WatchToKernel::Stop);
 			} else if Pause::exists().is_ok() {
-				send!(self.to_kernel, WatchToKernel::Pause);
+				self.send(WatchToKernel::Pause);
 			} else if Play::exists().is_ok() {
-				send!(self.to_kernel, WatchToKernel::Play);
+				self.send(WatchToKernel::Play);
 			}
 
 			// Next/Prev.
@@ -145,32 +153,27 @@ impl Watch {
 			if next && prev {
 				debug!("Watch - Next & Previous existed, doing nothing");
 			} else if next {
-				send!(self.to_kernel, WatchToKernel::Next);
+				self.send(WatchToKernel::Next);
 			} else if prev {
-				send!(self.to_kernel, WatchToKernel::Previous);
+				debug!("Watch - Previous");
+				self.send(WatchToKernel::Previous);
 			}
 
 			// Shuffle/Repeat.
-			if Shuffle::exists().is_ok()     { send!(self.to_kernel, WatchToKernel::Shuffle); }
-			if RepeatSong::exists().is_ok()  { send!(self.to_kernel, WatchToKernel::RepeatSong); }
-			if RepeatQueue::exists().is_ok() { send!(self.to_kernel, WatchToKernel::RepeatQueue); }
-			if RepeatOff::exists().is_ok()   { send!(self.to_kernel, WatchToKernel::RepeatOff); }
+			if Shuffle::exists().is_ok()     { self.send(WatchToKernel::Shuffle); }
+			if RepeatSong::exists().is_ok()  { self.send(WatchToKernel::RepeatSong); }
+			if RepeatQueue::exists().is_ok() { self.send(WatchToKernel::RepeatQueue); }
+			if RepeatOff::exists().is_ok()   { self.send(WatchToKernel::RepeatOff); }
 
 			// Content signals.
-			if let Ok(v) = Volume::from_file()       { send!(self.to_kernel, WatchToKernel::Volume(v.0)); }
-			if let Ok(s) = Skip::from_file()         { send!(self.to_kernel, WatchToKernel::Skip(s.0)); }
-			if let Ok(s) = Index::from_file()        { send!(self.to_kernel, WatchToKernel::Index(s.0.saturating_sub(1))); }
-			if let Ok(s) = Clear::from_file()        { send!(self.to_kernel, WatchToKernel::Clear(s.0)); }
-			if let Ok(s) = Seek::from_file()         { send!(self.to_kernel, WatchToKernel::Seek(s.0)); }
-			if let Ok(s) = SeekForward::from_file()  { send!(self.to_kernel, WatchToKernel::SeekForward(s.0)); }
-			if let Ok(s) = SeekBackward::from_file() { send!(self.to_kernel, WatchToKernel::SeekBackward(s.0)); }
-			if let Ok(s) = Back::from_file()         { send!(self.to_kernel, WatchToKernel::Back(s.0)); }
-//			if let Ok(s) = ArtistKey::from_file()    { send!(self.to_kernel, WatchToKernel::ArtistKey(s.0)); }
-//			if let Ok(s) = AlbumKey::from_file()     { send!(self.to_kernel, WatchToKernel::AlbumKey(s.0)); }
-//			if let Ok(s) = SongKey::from_file()      { send!(self.to_kernel, WatchToKernel::SongKey(s.0)); }
-//			if let Ok(s) = Artist::from_file()       { send!(self.to_kernel, WatchToKernel::Artist(s.0)); }
-//			if let Ok(s) = Album::from_file()        { send!(self.to_kernel, WatchToKernel::Album(s.0)); }
-//			if let Ok(s) = Song::from_file()         { send!(self.to_kernel, WatchToKernel::Song(s.0)); }
+			if let Ok(v) = Volume::from_file()       { self.send(WatchToKernel::Volume(v.0)); }
+			if let Ok(s) = Skip::from_file()         { self.send(WatchToKernel::Skip(s.0)); }
+			if let Ok(s) = Index::from_file()        { self.send(WatchToKernel::Index(s.0.saturating_sub(1))); }
+			if let Ok(s) = Clear::from_file()        { self.send(WatchToKernel::Clear(s.0)); }
+			if let Ok(s) = Seek::from_file()         { self.send(WatchToKernel::Seek(s.0)); }
+			if let Ok(s) = SeekForward::from_file()  { self.send(WatchToKernel::SeekForward(s.0)); }
+			if let Ok(s) = SeekBackward::from_file() { self.send(WatchToKernel::SeekBackward(s.0)); }
+			if let Ok(s) = Back::from_file()         { self.send(WatchToKernel::Back(s.0)); }
 
 			// Clean folder.
 			Self::clean();

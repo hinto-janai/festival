@@ -1,6 +1,7 @@
 use crate::audio::Volume;
 
 //---------------------------------------------------------------------------------------------------- Kernel Messages.
+#[derive(Debug)]
 pub(crate) enum WatchToKernel {
 	// Signals.
 	Toggle,   // Toggle playback.
