@@ -308,7 +308,7 @@ impl Gui {
 		self.count_art    = format!("Art: {}", self.collection.count_art);
 	}
 
-	/// Add and send a `Volume` to `Kernel`.
+	/// Add and set `Volume`.
 	pub fn add_volume(&mut self, v: u8) {
 		let v = self.state.volume + v;
 
@@ -318,17 +318,13 @@ impl Gui {
 			self.state.volume = v;
 		}
 
-		send!(self.to_kernel, FrontendToKernel::Volume(Volume::new(self.state.volume)));
+		atomic_store!(shukusai::state::VOLUME, self.state.volume);
 	}
 
-	/// Subtract and send a `Volume` to `Kernel`.
+	/// Subtract and set `Volume`.
 	pub fn sub_volume(&mut self, v: u8) {
-		if v > self.state.volume {
-			self.state.volume = 0;
-		} else {
-			self.state.volume -= v;
-		}
+		self.state.volume = self.state.volume.saturating_sub(v);
 
-		send!(self.to_kernel, FrontendToKernel::Volume(Volume::new(self.state.volume)));
+		atomic_store!(shukusai::state::VOLUME, self.state.volume);
 	}
 }
