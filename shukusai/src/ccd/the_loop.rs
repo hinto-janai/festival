@@ -167,7 +167,7 @@ impl crate::ccd::Ccd {
 		let metadata = match Self::extract(&path) {
 			Ok(t)  => t,
 			Err(e) => {
-				warn!("{} ... {e}", path.display());
+				warn!("{e}: {}", path.display());
 				continue;
 			},
 		};
@@ -846,9 +846,9 @@ impl crate::ccd::Ccd {
 			Err(e) => bail!(e),
 		};
 
-		let track       = match probe_result.format.tracks().get(0) { Some(t) => t, _ => bail!("track metadata missing") };
-		let sample_rate = match Self::sample_rate(track)            { Some(t) => t, _ => bail!("sample rate metadata missing") };
-		let runtime     = match Self::runtime(track)                { Some(t) => t, _ => bail!("runtime metadata missing") };
+		let track       = match probe_result.format.tracks().get(0) { Some(t) => t, _ => bail!("Track metadata missing") };
+		let sample_rate = match Self::sample_rate(track)            { Some(t) => t, _ => bail!("Sample rate metadata missing") };
+		let runtime     = match Self::runtime(track)                { Some(t) => t, _ => bail!("Runtime metadata missing") };
 		let metadata    = match Self::metadata(probe_result)        { Ok(md) => md, Err(e) => bail!(e) };
 
 		let (mut tags, visuals, _) = metadata.into_inner();
@@ -857,13 +857,13 @@ impl crate::ccd::Ccd {
 		// We should handle compilations correctly.
 		// But... for now, skip them entirely.
 		if Self::tag_compilation(&tags) {
-			bail!("compilation not supported");
+			bail!("Compilation not supported");
 		}
 
 		// Attempt to get required metadata.
-		let artist      = match Self::tag_artist(&mut tags)      { Some(t) => t, _ => bail!("artist metadata missing") };
-		let album       = match Self::tag_album(&mut tags)       { Some(t) => t, _ => bail!("album metadata missing") };
-		let title       = match Self::tag_title(&mut tags, path) { Some(t) => t, _ => bail!("title metadata missing") };
+		let artist      = match Self::tag_artist(&mut tags)      { Some(t) => t, _ => bail!("Artist metadata missing") };
+		let album       = match Self::tag_album(&mut tags)       { Some(t) => t, _ => bail!("Album metadata missing") };
+		let title       = match Self::tag_title(&mut tags, path) { Some(t) => t, _ => bail!("Title metadata missing") };
 
 		// Optional metadata.
 		let art     = Self::art(visuals);

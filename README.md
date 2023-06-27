@@ -173,6 +173,12 @@ The required tags are:
 
 If the song title tag does not exist, the filename will be used instead.
 
+For more details on metadata related errors, start Festival in a console:
+```bash
+./festival
+```
+and look for yellow `W` (Warn) log messages during a `Collection` reset.
+
 ---
 
 </details>
