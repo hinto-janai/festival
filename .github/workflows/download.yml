@@ -1,10 +1,12 @@
 # Attempt downloading all files from `festival.pm`
 # and verifies the SHA256SUMS & PGP signature.
 
-name: festival.pm
+name: Download
 on:
   schedule:
     - cron: "0 2 * * *"
+  push:
+    branches: [ "main" ]
 
 jobs:
   download:
@@ -12,20 +14,28 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Download Windows
-      run: wget --content-disposition "https://festival.pm/windows"
+      run: wget --content-disposition "https://festival.pm/windows-x64"
     - name: Download macOS
-      run: wget --content-disposition "https://festival.pm/macos"
+      run: |
+        wget --content-disposition "https://festival.pm/macos-x64" "https://festival.pm/macos-arm64"
     - name: Download Linux
-      run: wget --content-disposition "https://festival.pm/linux"
+      run: |
+        wget --content-disposition "https://festival.pm/linux-x64" "https://festival.pm/linux-x64-appimage"
     - name: Download Hashes
-      run: wget --content-disposition "https://festival.pm/hashes"
+      run: wget "https://festival.pm/hashes"
     - name: Download PGP key
-      run: wget --content-disposition "https://festival.pm/hinto"
+      run: wget "https://festival.pm/hinto"
     - name: Verify PGP key
-      run: bash -c "[[ $(sha256sum "hinto.asc" | awk '{print $1}') == 02242a2c4b4dfb2f49d30a15630a301c72910e6e5c212d432c8b7ff438696b00 ]]"
+      run: bash -c "[[ $(sha256sum "hinto" | awk '{print $1}') == 02242a2c4b4dfb2f49d30a15630a301c72910e6e5c212d432c8b7ff438696b00 ]]"
     - name: Import PGP key
-      run: gpg --import hinto.asc
+      run: gpg --import hinto
     - name: Verify Hashes
-      run: sha256sum -c hashes.asc
+      run: sha256sum -c hashes
     - name: Verify PGP Signature
-      run: gpg --verify hashes.asc
+      run: gpg --verify hashes
+    - name: Download Hashes (GitHub)
+      run: wget --content-disposition "https://github.com/hinto-janai/festival/releases/latest/download/SHA256SUMS"
+    - name: Verify Hashes (GitHub)
+      run: sha256sum -c SHA256SUMS
+    - name: Verify PGP Signature (GitHub)
+      run: gpg --verify SHA256SUMS
