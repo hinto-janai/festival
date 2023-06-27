@@ -153,14 +153,14 @@ pub struct Cli {
 	#[arg(long, verbatim_doc_comment)]
 	/// Delete all Festival files that are currently on disk
 	///
-	/// This includes:
+	/// This deletes the entire `GUI` Festival folder, which contains:
 	/// - The `Collection`
 	/// - `GUI` settings (sort methods, color, etc)
 	/// - `GUI` state (currently selected album/artist, etc)
 	/// - Audio state (currently playing song, queue, etc)
-	/// - Cached images (found in local OS cache folder)
+	/// - Cached images for the OS media controls
 	///
-	/// The PATH(s) deleted will be printed on success.
+	/// The PATH deleted will be printed on success.
 	delete: bool,
 
 	#[arg(long, value_name = "OFF|ERROR|INFO|WARN|DEBUG|TRACE")]
@@ -233,22 +233,11 @@ impl Cli {
 		if self.delete {
 			// SAFETY:
 			// If we can't get a PATH, `panic!()`'ing is fine.
-
-			let mut code = 0;
-
 			let p = crate::data::State::sub_dir_parent_path().unwrap();
 			match crate::data::State::rm_sub() {
-				Ok(md) => { println!("{}", md.path().display()); },
-				Err(e) => { eprintln!("festival error: {} - {e}", p.display()); code = 1; },
+				Ok(md) => { println!("{}", md.path().display()); exit(0); },
+				Err(e) => { eprintln!("festival error: {} - {e}", p.display()); exit(1); },
 			}
-
-			let p = shukusai::collection::ImageCache::sub_dir_parent_path().unwrap();
-			match shukusai::collection::ImageCache::rm_sub() {
-				Ok(md) => { println!("{}", md.path().display()); },
-				Err(e) => { eprintln!("festival error: {} -  {e}", p.display()); code = 1; },
-			}
-
-			exit(code);
 		}
 
 		// Return.

@@ -6,7 +6,7 @@ mod song;
 mod plural;
 mod map;
 mod key;
-mod image_cache;
+mod image;
 pub use collection::*;
 pub use art::*;
 pub use album::*;
@@ -15,7 +15,7 @@ pub use song::*;
 pub use plural::*;
 pub use map::*;
 pub use key::*;
-pub use image_cache::*;
+pub use crate::collection::image::*;
 
 mod metadata;
 pub use metadata::metadata;

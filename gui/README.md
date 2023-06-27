@@ -206,18 +206,6 @@ You can delete this folder to reset Festival's state/settings and the Collection
 
 ---
 
-Image cache is also saved, not because Festival needs it (all images are within the `Collection`) but because Festival hooks into the OS's native media controls, and the media controls need a PATH to an image to display the album cover art.
-
-This image cache is saved in the "OS cache" directory:
-
-| Platform | Value                                                         | Example                                           |
-|----------|---------------------------------------------------------------|---------------------------------------------------|
-| Windows  | `{FOLDERID_LocalAppData}\Festival\cache\gui`                  | `C:\Users\Hinto\AppData\Local\Festival\cache\gui` |
-| macOS    | `$HOME/Library/Caches/Festival/gui`                           | `/Users/Hinto/Library/Caches/Festival/gui`        |
-| Linux    | `$XDG_CACHE_HOME/festival/gui` or `$HOME/.cache/festival/gui` | `/home/hinto/.cache/festival/gui`                 |
-
----
-
 Festival saves everything into `gui` because other frontends will use the same `festival` project directory, e.g:
 ```
 ~/.local/share/festival/
@@ -234,6 +222,12 @@ The sub-directories and files within `gui/` and their purpose:
    ├  ├─ collection.bin # The main music `Collection`, holds metadata and PATHs to audio files.
    ├  ├─ settings.bin   # `GUI`-specific settings, e.g: sorting methods, album size.
    ├  ├─ state.bin      # `GUI`-specific state, e.g: current tab, search input.
+   ├
+   ├─ image/ # These are resized images of the album art.
+   ├         # Festival itself does not need these (all images are
+   ├         # within `collection.bin` itself) however, Festival hooks
+   ├         # into the OS's native controls which needs a PATH to an
+   ├         # image to display it. These are for that.
    ├
    ├─ signal/ # This is how Festival communicates with an existing one
    ├          # (e.g `festival --play`), via filesystem-based signals.

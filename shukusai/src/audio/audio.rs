@@ -491,7 +491,7 @@ impl Audio {
 			#[cfg(unix)]
 			let mut _buf = String::new();
 			#[cfg(unix)]
-			let cover_url = match crate::collection::ImageCache::base_path() {
+			let cover_url = match crate::collection::Image::base_path() {
 				Ok(p) => {
 					_buf = format!("file://{}/{}.jpg", p.display(), song.album);
 					Some(_buf.as_str())

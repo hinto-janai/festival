@@ -17,7 +17,7 @@ use crate::collection::{
 	AlbumKey,
 	SongKey,
 	Art,
-	ImageCache,
+	Image,
 };
 use crate::state::{
 	Phase,
@@ -432,32 +432,33 @@ impl Ccd {
 		// SOMEDAY:
 		// Make this multi-threaded and/or async.
 		//
-		// Save images to `~/.cache/festival/image`.
+		// Save images to `~/.local/share/festival/${FRONTEND}/image`.
 
 		// See `shukusai/src/audio/audio.rs`.
 		// The `souvlaki` image setting doesn't work on
 		// Windows, so don't even both caching images on it.
 		#[cfg(windows)]
-		debug!("CCD ... Skipping ImageCache on Windows");
+		debug!("CCD ... Skipping Image on Windows");
 
 		#[cfg(not(windows))]
-		let _ = ImageCache::rm_sub();
-		#[cfg(not(windows))]
 		{
+			// Delete old images.
+			let _ = Image::rm_base();
+
 			// This deconstructs `Collection`.
 			let albums = collection_for_disk.albums.0.into_vec();
 
-			if let Ok(mut path) = ImageCache::base_path() {
-				let image_cache = ImageCache(timestamp);
-				if let Err(e) = image_cache.save() {
-					fail!("CCD ... ImageCache: {e}");
+			if let Ok(mut path) = Image::base_path() {
+				let image = Image(timestamp);
+				if let Err(e) = image.save() {
+					fail!("CCD ... Image: {e}");
 				} else {
 					for (key, album) in albums.into_iter().enumerate() {
 						if let Art::Bytes(bytes) = album.art {
 							path.push(format!("{key}.jpg"));
 
 							if let Err(e) = std::fs::File::create(&path) {
-								warn!("CCD ... ImageCache {e}: {}", path.display());
+								warn!("CCD ... Image {e}: {}", path.display());
 							} else {
 								match image::save_buffer(
 									&path,
@@ -466,8 +467,8 @@ impl Ccd {
 									crate::collection::ALBUM_ART_SIZE as u32,
 									image::ColorType::Rgb8,
 								) {
-									Ok(_)  => ok_trace!("CCD ... ImageCache: {}", path.display()),
-									Err(e) => warn!("CCD ... ImageCache {e}: {}", path.display()),
+									Ok(_)  => ok_trace!("CCD ... Image: {}", path.display()),
+									Err(e) => warn!("CCD ... Image {e}: {}", path.display()),
 								}
 							}
 
@@ -476,7 +477,7 @@ impl Ccd {
 					}
 				}
 			} else {
-				fail!("CCD ... ImageCache");
+				fail!("CCD ... Image");
 			}
 		}
 

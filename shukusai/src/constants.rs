@@ -61,8 +61,8 @@ pub const FRONTEND_SUB_DIR: &str = "web";
 /// This include the [`Collection`] and [`AudioState`].
 pub const STATE_SUB_DIR: &str = "state";
 
-/// The sub-directory for image cache in the OS's cache directory.
-pub const IMAGE_CACHE_SUB_DIR: &str = "image";
+/// The sub-directory for resized images.
+pub const IMAGE_SUB_DIR: &str = "image";
 
 /// The sub-directory for misc text files.
 pub const TXT_SUB_DIR: &str = "txt";
