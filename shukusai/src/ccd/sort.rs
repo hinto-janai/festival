@@ -118,8 +118,8 @@ impl super::Ccd {
 		for artist in sorted_artists {
 			let mut tmp: Vec<AlbumKey> = artists[artist.inner()].albums.clone();
 			tmp.sort_by(|a, b|
-				albums[a.inner()].title.cmp(
-					&albums[b.inner()].title
+				albums[a.inner()].title.to_lowercase().cmp(
+					&albums[b.inner()].title.to_lowercase()
 				)
 			);
 			vec_album.push(tmp);
@@ -134,8 +134,8 @@ impl super::Ccd {
 		for artist in sorted_artists {
 			let mut tmp: Vec<AlbumKey> = artists[artist.inner()].albums.clone();
 			tmp.sort_by(|a, b|
-				albums[a.inner()].title.cmp(
-					&albums[b.inner()].title
+				albums[a.inner()].title.to_lowercase().cmp(
+					&albums[b.inner()].title.to_lowercase()
 				)
 			);
 			vec_album.push(tmp.into_iter().rev().collect());
@@ -149,8 +149,8 @@ impl super::Ccd {
 		let mut vec_album = Self::filled_vec_usize(albums.len());
 
 		vec_album.sort_by(|a, b|
-			albums[*a].title.cmp(
-				&albums[*b].title,
+			albums[*a].title.to_lowercase().cmp(
+				&albums[*b].title.to_lowercase(),
 			)
 		);
 
@@ -217,8 +217,8 @@ impl super::Ccd {
 		let mut vec_song = Self::filled_vec_usize(songs.len());
 
 		vec_song.sort_by(|a, b| {
-			songs[*a].title.cmp(
-				&songs[*b].title,
+			songs[*a].title.to_lowercase().cmp(
+				&songs[*b].title.to_lowercase(),
 			)
 		});
 
