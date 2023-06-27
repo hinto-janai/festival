@@ -92,7 +92,10 @@ pub const ACCENT_COLOR:      &str = formatcp!(
 	ACCENT_COLOR_RGB[2],
 );
 pub const COLLECTION:        &str = "Festival's music Collection that stores all metadata about the audio files";
-pub const ADD_FOLDER:        &str = formatcp!("Add a maximum of 10 folders to scan for the Collection ({MOD}+A)");
+pub const ADD_FOLDER:        &str = formatcp!(
+r#"Add a maximum of 10 folders to scan for the Collection ({MOD}+A).
+
+It's highly recommended to only add folders with music and art files to increase scanning speed."#);
 pub const REMOVE_FOLDER:     &str = "Remove this folder";
 pub const RESET_COLLECTION:  &str = formatcp!(
 r#"Scan the folders listed and create a new Collection ({MOD}+C).
