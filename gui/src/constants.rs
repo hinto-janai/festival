@@ -188,20 +188,20 @@ pub const PREVIOUS_THRESHOLD_MAX: u32 = 20;
 //---------------------------------------------------------------------------------------------------- Fonts
 pub const FONT_SOURCECODE_PRO: &[u8] = include_bytes!("../../assets/fonts/SourceCodePro-Regular.otf");
 pub const FONT_SOURCECODE_CN:  &[u8] = include_bytes!("../../assets/fonts/SourceHanSansCN-Regular.otf");
-pub const FONT_SOURCECODE_HK:  &[u8] = include_bytes!("../../assets/fonts/SourceHanSansHK-Regular.otf");
-pub const FONT_SOURCECODE_TW:  &[u8] = include_bytes!("../../assets/fonts/SourceHanSansTW-Regular.otf");
 pub const FONT_SOURCECODE_KR:  &[u8] = include_bytes!("../../assets/fonts/SourceHanSansKR-Regular.otf");
 pub const FONT_SOURCECODE_JP:  &[u8] = include_bytes!("../../assets/fonts/SourceHanSansJP-Regular.otf");
 pub const FONT_JULIAMONO:      &[u8] = include_bytes!("../../assets/fonts/JuliaMono-Regular.ttf");
 
-pub const FONT_ARRAY: [(&str, &[u8]); 7] = [
+pub const FONT_ARRAY: [(&str, &[u8]); 5] = [
 	("SourceCode-Pro", FONT_SOURCECODE_PRO),
 	("SourceCode-JP",  FONT_SOURCECODE_JP),
 	("JuliaMono",      FONT_JULIAMONO),
 	("SourceCode-KR",  FONT_SOURCECODE_KR),
 	("SourceCode-CN",  FONT_SOURCECODE_CN),
-	("SourceCode-HK",  FONT_SOURCECODE_HK),
-	("SourceCode-TW",  FONT_SOURCECODE_TW),
+	// This used to include `SourceCode-TW` and `SourceCode-HK`
+	// but `festival.pm`'s server has a 32MB file upload limit...
+	// I'm sorry HK and TW, you'll have to deal with
+	// slightly different character radicals.
 ];
 
 //---------------------------------------------------------------------------------------------------- Color

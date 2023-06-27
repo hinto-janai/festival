@@ -1,6 +1,6 @@
 <div align="center">
 
-# Festival (WIP)
+# Festival
 <img src="assets/images/icon/512.png" width="10%"/>
 
 ![CI](https://github.com/hinto-janai/festival/actions/workflows/ci.yml/badge.svg)
@@ -18,7 +18,7 @@ Currently, the most full frontend implementation is [`festival-gui`](https://git
 
 | Frontend                    | Description | Released |
 |-----------------------------|-------------|----------|
-| [`festival-gui`](https://github.com/hinto-janai/festival/tree/main/gui) | GUI ([`egui`](https://github.com/emilk/egui))                   | 🔴            |
+| [`festival-gui`](https://github.com/hinto-janai/festival/tree/main/gui) | GUI ([`egui`](https://github.com/emilk/egui))                   | 🟢 2023-06-28 |
 | [`festivald`](https://github.com/hinto-janai/festival/tree/main/daemon) | Daemon ([`mpd`](https://github.com/MusicPlayerDaemon/MPD)-like) | 🔴            |
 | [`festival-cli`](https://github.com/hinto-janai/festival/tree/main/cli) | CLI client                                                      | 🔴            |
 | [`festival-web`](https://github.com/hinto-janai/festival/tree/main/web) | WASM client                                                     | 🔴            |

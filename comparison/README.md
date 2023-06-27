@@ -22,7 +22,7 @@ Big thanks to [Rucknium](https://github.com/rucknium) for teaching me `R`.
 ## Comparison
 | Music Player | Version | OS | Open Source | Playlists | Sorting | Search | Features vs Minimal |
 |--------------|---------|----|-------------|-----------|---------|--------|---------------------|
-| [Festival](https://github.com/hinto-janai/festival)       | `1.0.0`                 | Windows, macOS, Linux | 🟢 | 🔴 | 🟢 | 🟢 | Minimal
+| [Festival](https://github.com/hinto-janai/festival)       | `1.0.0` (2023-06-28)    | Windows, macOS, Linux | 🟢 | 🔴 | 🟢 | 🟢 | Minimal
 | [Lollypop](https://gitlab.gnome.org/World/lollypop)       | `1.4.37` (2023-01-03)   | Linux (GTK)           | 🟢 | 🟡 | 🟡 | 🟡 | Both
 | [GNOME Music](https://gitlab.gnome.org/GNOME/gnome-music) | `1.42` (2022-04-25)     | Linux (GTK)           | 🟢 | 🟡 | 🔴 | 🟡 | Minimal
 | [MusicBee](https://www.getmusicbee.com)                   | `3.5.8447` (2023-02-19) | Windows               | 🔴 | 🟢 | 🟡 | 🟡 | Features
@@ -173,7 +173,7 @@ When opening the music player, how long does it take to render all the album art
 | GNOME Music   | 50
 
 ## Why Festival Sucks
-After paragraph and paragraph of basically gloating, it only makes sense to point out _some_ of the _many_ flaws in Festival.
+After basically gloating, it only makes sense to point out _some_ of the _many_ flaws in Festival.
 
 In no particular order:
 
