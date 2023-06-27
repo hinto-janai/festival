@@ -22,10 +22,22 @@ impl Volume {
 	/// The [`u8`] must be less than `100` or [`Self::new_100`] will be returned.
 	pub const fn new(volume: u8) -> Self {
 		if volume > 100 {
-			return Self::new_100()
+			return Self::new_100();
 		}
 
 		Self(volume)
+	}
+
+	#[inline]
+	/// Checks the [`Volume`] for correctness.
+	///
+	/// The [`u8`] must be less than `100` or [`Self::new_100`] will be returned.
+	pub const fn check(self) -> Self {
+		if self.inner() > 100 {
+			return Self::new_100();
+		}
+
+		self
 	}
 
 	#[inline(always)]

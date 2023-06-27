@@ -166,7 +166,7 @@ impl Watch {
 			if RepeatOff::exists().is_ok()   { self.send(WatchToKernel::RepeatOff); }
 
 			// Content signals.
-			if let Ok(v) = Volume::from_file()       { self.send(WatchToKernel::Volume(v.0)); }
+			if let Ok(v) = Volume::from_file()       { self.send(WatchToKernel::Volume(v.0.check())); }
 			if let Ok(s) = Skip::from_file()         { self.send(WatchToKernel::Skip(s.0)); }
 			if let Ok(s) = Index::from_file()        { self.send(WatchToKernel::Index(s.0.saturating_sub(1))); }
 			if let Ok(s) = Clear::from_file()        { self.send(WatchToKernel::Clear(s.0)); }
