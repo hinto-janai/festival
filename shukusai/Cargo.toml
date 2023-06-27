@@ -68,7 +68,7 @@ notify            = "6.0.0"
 memmap2           = "0.6.2"
 mime_guess        = "2.0.4"
 seq-macro         = "0.3.3"
-souvlaki          = "0.6.0"
+souvlaki          = "0.6.1"
 symphonia         = { version = "0.5.2", path = "../external/Symphonia/symphonia", features = ["all"] }
 strsim            = "0.10.0"
 walkdir           = "2.3.3"

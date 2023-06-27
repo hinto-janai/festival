@@ -433,14 +433,6 @@ impl Ccd {
 		// Make this multi-threaded and/or async.
 		//
 		// Save images to `~/.local/share/festival/${FRONTEND}/image`.
-
-		// See `shukusai/src/audio/audio.rs`.
-		// The `souvlaki` image setting doesn't work on
-		// Windows, so don't even both caching images on it.
-		#[cfg(windows)]
-		debug!("CCD ... Skipping Image on Windows");
-
-		#[cfg(not(windows))]
 		{
 			// Delete old images.
 			let _ = Image::rm_base();

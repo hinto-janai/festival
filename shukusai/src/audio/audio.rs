@@ -476,24 +476,14 @@ impl Audio {
 			let (artist, album, song) = self.collection.walk(key);
 
 			use disk::Plain;
-			#[cfg(windows)]
-			// FIXME:
-			// None of these work on Windows.
-			// - `file:///C:/Users/hinto/AppData/Local/Festival/cache/gui/image/3.jpg`
-			// - `file:///c:/Users/hinto/AppData/Local/Festival/cache/gui/image/3.jpg`
-			// - `file:///c:\Users\hinto\AppData\Local\Festival\cache\gui\image\3.jpg`
-			//
-			// https://en.wikipedia.org/wiki/File_URI_scheme
-			//
-			// I'm pretty sure it's a bug in `souvlaki`.
-			let cover_url = None;
-
-			#[cfg(unix)]
 			let mut _buf = String::new();
-			#[cfg(unix)]
 			let cover_url = match crate::collection::Image::base_path() {
 				Ok(p) => {
-					_buf = format!("file://{}/{}.jpg", p.display(), song.album);
+					// INVARIANT:
+					// `souvlaki` checks for `file://` prefix but
+					// the internal Windows impl _needs_ `\` as the
+					// separator or it will error.
+					_buf = format!("file://{}{}{}.jpg", p.display(), std::path::MAIN_SEPARATOR, song.album);
 					Some(_buf.as_str())
 				},
 				_ => None,
