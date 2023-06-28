@@ -9,6 +9,7 @@ use once_cell::sync::Lazy;
 ///
 /// Album art will _always_ be resized internally to this size.
 pub const ALBUM_ART_SIZE: usize = 500;
+pub(crate) const ALBUM_ART_SIZE_U32: u32 = ALBUM_ART_SIZE as u32;
 
 //---------------------------------------------------------------------------------------------------- Unknown Art (lazy) Constant
 pub(crate) const UNKNOWN_ALBUM_BYTES: &[u8] = include_bytes!("../../../assets/images/art/unknown.png");
