@@ -36,7 +36,7 @@ For a comparison between Festival and other music players, see [`comparison/`](h
 
 ---
 
-You need [`cargo`](https://www.rust-lang.org/learn/get-started).
+You need [`cargo`](https://www.rust-lang.org/learn/get-started) and at least `rustc 1.70`.
 
 You also need to clone the `submodules` that include patched libraries found in [`external/`](https://github.com/hinto-janai/festival/tree/main/external):
 ```bash
