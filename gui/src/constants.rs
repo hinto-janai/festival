@@ -154,9 +154,22 @@ pub const STATE_VERSION: u8 = 0;
 pub const SETTINGS_VERSION: u8 = 0;
 
 //---------------------------------------------------------------------------------------------------- Resolution
-pub const APP_WIDTH_MIN:          f32 = 1000.0;
-pub const APP_HEIGHT_MIN:         f32 = 800.0;
+// It can't be lower than this or some of
+// the static pixel size UI elements get weird.
+pub const APP_WIDTH_MIN:          f32 = 700.0;
+pub const APP_HEIGHT_MIN:         f32 = 560.0;
+pub const APP_WIDTH_DEFAULT:      f32 = 1000.0;
+pub const APP_HEIGHT_DEFAULT:     f32 = 800.0;
+
+// Ratios should be the same.
+const _: () = {
+	const RATIO_MIN:     f32 = APP_WIDTH_MIN / APP_HEIGHT_MIN;
+	const RATIO_DEFAULT: f32 = APP_WIDTH_DEFAULT / APP_HEIGHT_DEFAULT;
+	const_assert!(RATIO_MIN == RATIO_DEFAULT);
+};
+
 pub const APP_RESOLUTION_MIN:     [f32; 2] = [APP_WIDTH_MIN, APP_HEIGHT_MIN];
+pub const APP_RESOLUTION_DEFAULT: [f32; 2] = [APP_WIDTH_DEFAULT, APP_HEIGHT_DEFAULT];
 pub const ALBUM_ART_SIZE_MIN:     f32 = 100.0;
 // Downscale the internal `shukusai` art
 // just a little bit for a sharper image.

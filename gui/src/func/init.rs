@@ -3,7 +3,10 @@ use crate::constants::{
 	VISUALS,
 	SPACING,
 	FONT_ARRAY,
-	APP_RESOLUTION_MIN,
+	APP_WIDTH_MIN,
+	APP_HEIGHT_MIN,
+	APP_WIDTH_DEFAULT,
+	APP_HEIGHT_DEFAULT,
 	SETTINGS_VERSION,
 	STATE_VERSION,
 };
@@ -127,8 +130,8 @@ impl crate::data::Gui {
 
 		// The rest
 		eframe::NativeOptions {
-			min_window_size: Some(egui::vec2(APP_RESOLUTION_MIN[0], APP_RESOLUTION_MIN[1])),
-			initial_window_size: Some(egui::vec2(APP_RESOLUTION_MIN[0], APP_RESOLUTION_MIN[1])),
+			min_window_size: Some(egui::vec2(APP_WIDTH_MIN, APP_HEIGHT_MIN)),
+			initial_window_size: Some(egui::vec2(APP_WIDTH_DEFAULT, APP_HEIGHT_DEFAULT)),
 			follow_system_theme: false,
 			default_theme: eframe::Theme::Dark,
 			renderer: eframe::Renderer::Wgpu,
