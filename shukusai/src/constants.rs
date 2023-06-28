@@ -70,12 +70,14 @@ pub const TXT_SUB_DIR: &str = "txt";
 /// The sub-directory that is watched for [`crate::signal`]'s.
 pub const SIGNAL_SUB_DIR: &str = "signal";
 
-/// Current `git` commit of `festival`
-pub const COMMIT: &str = {
-	const COMMIT: &str = include_str!("../../.git/refs/heads/main");
-	const_assert!(COMMIT.len() != 0, "Commit file is 0 length");
-	COMMIT
-};
+/// Build commit.
+///
+/// This needs to be set with the environment variable `COMMIT`.
+/// It used to be just an `include_str!()` to the `main` branch but
+/// CI running on PR branches with different branch names messes it up.
+///
+/// This should get set automatically in `build.rs`.
+pub const COMMIT: &str = env!("COMMIT");
 
 /// Build profile (debug/release)
 ///
