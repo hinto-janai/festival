@@ -6,6 +6,7 @@
 * Fixed crashes with songs that have `MONTH-DAY` date metadata only ([#1](https://github.com/hinto-janai/readable/pull/1))
 * Fixed non-`jpg/png` album art image decoding issues (https://github.com/hinto-janai/festival/commit/f0e96b44e95555a08441e0b99983030bc528f490)
 
+
 ---
 
 
