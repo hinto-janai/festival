@@ -3654,9 +3654,9 @@ checksum = "3b42e27ef78c35d3998403c1d26f3efd9e135d3e5121b0a4845cc5cc27547f4f"
 
 [[package]]
 name = "readable"
-version = "0.8.9"
+version = "0.8.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8ebac56f81bfd3080773576d111b79078fa6ab76c77eee099c8aede53e12b493"
+checksum = "848abbe0a5e9fcf73c689aaeadcc9e3cfbcb11d75b35249916bab4d87bc851fe"
 dependencies = [
  "bincode",
  "compact_str",
