@@ -180,7 +180,8 @@ pub const FESTIVAL_SHUKUSAI_COMMIT: &str = {
 r#"{FESTIVAL_NAME_VER}
 {SHUKUSAI_NAME_VER}
 {OS_ARCH}
-{COMMIT}"#)
+{COMMIT}
+"#)
 };
 
 //---------------------------------------------------------------------------------------------------- Search Tab
