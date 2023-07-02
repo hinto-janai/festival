@@ -12,6 +12,9 @@ use crate::constants::{
 	ALBUM_ART_SIZE_MIN,
 	ALBUM_ART_SIZE_MAX,
 	SEARCH_MAX_LEN,
+	PIXELS_PER_POINT_UNIT_STR,
+	PIXELS_PER_POINT_MIN_STR,
+	PIXELS_PER_POINT_MAX_STR,
 };
 use const_format::formatcp;
 
@@ -91,6 +94,12 @@ pub const ACCENT_COLOR:      &str = formatcp!(
 	ACCENT_COLOR_RGB[1],
 	ACCENT_COLOR_RGB[2],
 );
+pub const PIXELS_PER_POINT:  &str = formatcp!(
+r#"Manually scale UI pixel size ({PIXELS_PER_POINT_MIN_STR}-{PIXELS_PER_POINT_MAX_STR})
+
+Warning: using a custom pixel size may lead to buggy UI."#);
+pub const PIXELS_PER_POINT_ADD: &str = formatcp!("Increase by {PIXELS_PER_POINT_UNIT_STR}");
+pub const PIXELS_PER_POINT_SUB: &str = formatcp!("Decrease by {PIXELS_PER_POINT_UNIT_STR}");
 pub const COLLECTION:        &str = "Festival's music Collection that stores all metadata about the audio files";
 pub const ADD_FOLDER:        &str = formatcp!(
 r#"Add a maximum of 10 folders to scan for the Collection ({MOD}+A).

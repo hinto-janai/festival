@@ -151,7 +151,7 @@ pub const GUI: &str = "gui";
 pub const STATE_VERSION: u8 = 0;
 
 /// Current major version of `GUI`'s `Settings`
-pub const SETTINGS_VERSION: u8 = 0;
+pub const SETTINGS_VERSION: u8 = 1;
 
 //---------------------------------------------------------------------------------------------------- Resolution
 // 700.0 works on some `Album`'s in view tabs
@@ -199,6 +199,16 @@ pub const QUEUE_ALBUM_ART_SIZE: f32 = 80.0;
 //---------------------------------------------------------------------------------------------------- Settings
 pub const PREVIOUS_THRESHOLD_MIN: u32 = 0;
 pub const PREVIOUS_THRESHOLD_MAX: u32 = 20;
+
+pub const PIXELS_PER_POINT_DEFAULT: f32 = 1.5;
+pub const PIXELS_PER_POINT_UNIT: f32 = 0.1;
+pub const PIXELS_PER_POINT_MIN:  f32 = 0.1;
+pub const PIXELS_PER_POINT_MAX:  f32 = 3.0;
+// INVARIANT: must be the same as above.
+// HACK: `const_format` can't take floats as input.
+pub const PIXELS_PER_POINT_UNIT_STR: &str = "0.1";
+pub const PIXELS_PER_POINT_MIN_STR:  &str = "0.1";
+pub const PIXELS_PER_POINT_MAX_STR:  &str = "3.0";
 
 //---------------------------------------------------------------------------------------------------- Fonts
 pub const FONT_SOURCECODE_PRO: &[u8] = include_bytes!("../../assets/fonts/SourceCodePro-Regular.otf");

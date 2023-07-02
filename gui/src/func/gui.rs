@@ -6,6 +6,9 @@ use crate::constants::{
 	ALBUMS_PER_ROW_MIN,
 	SETTINGS_VERSION,
 	STATE_VERSION,
+	PIXELS_PER_POINT_MIN,
+	PIXELS_PER_POINT_MAX,
+	PIXELS_PER_POINT_UNIT,
 };
 use crate::data::{
 	AlbumSizing,
@@ -326,5 +329,33 @@ impl Gui {
 		self.state.volume = self.state.volume.saturating_sub(v);
 
 		atomic_store!(shukusai::state::VOLUME, self.state.volume);
+	}
+
+	/// Add and set `pixels_per_point`
+	///
+	/// Returns the new `Some` if we added, else `None` if at max.
+	pub fn increment_pixels_per_point(&mut self) -> Option<f32> {
+		let new = self.settings.pixels_per_point + PIXELS_PER_POINT_UNIT;
+
+		if new <= PIXELS_PER_POINT_MAX {
+			self.settings.pixels_per_point = new;
+			Some(self.settings.pixels_per_point)
+		} else {
+			None
+		}
+	}
+
+	/// Subtract and set `pixels_per_point`
+	///
+	/// Returns the new `Some` if we subtracted, else `None` if at min.
+	pub fn decrement_pixels_per_point(&mut self) -> Option<f32> {
+		let new = self.settings.pixels_per_point - PIXELS_PER_POINT_UNIT;
+
+		if new >= PIXELS_PER_POINT_MIN {
+			self.settings.pixels_per_point = new;
+			Some(self.settings.pixels_per_point)
+		} else {
+			None
+		}
 	}
 }

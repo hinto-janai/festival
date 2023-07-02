@@ -38,9 +38,9 @@ use std::marker::PhantomData;
 
 //---------------------------------------------------------------------------------------------------- Settings
 //#[cfg(debug_assertions)]
-//disk::json!(Settings, disk::Dir::Data, FESTIVAL, formatcp!("{GUI}/{STATE_SUB_DIR}"), "settings");
+//disk::json!(Settings0, disk::Dir::Data, FESTIVAL, formatcp!("{GUI}/{STATE_SUB_DIR}"), "settings");
 //#[cfg(not(debug_assertions))]
-disk::bincode2!(Settings, disk::Dir::Data, FESTIVAL, formatcp!("{GUI}/{STATE_SUB_DIR}"), "settings", HEADER, SETTINGS_VERSION);
+disk::bincode2!(Settings0, disk::Dir::Data, FESTIVAL, formatcp!("{GUI}/{STATE_SUB_DIR}"), "settings", HEADER, 0);
 #[derive(Clone,Debug,Default,PartialEq,Serialize,Deserialize,Encode,Decode)]
 /// `GUI`'s settings.
 ///
@@ -48,7 +48,7 @@ disk::bincode2!(Settings, disk::Dir::Data, FESTIVAL, formatcp!("{GUI}/{STATE_SUB
 /// - Accent color
 /// - Album art size
 /// - etc
-pub struct Settings {
+pub struct Settings0 {
 	/// Collection sorting of artist view.
 	pub artist_sort: ArtistSort,
 
@@ -96,29 +96,21 @@ pub struct Settings {
 	/// data from when making a new [`Collection`].
 	pub collection_paths: Vec<PathBuf>,
 
-	/// What `egui::Context::pixels_per_point` are we set to?
-	/// Default is `1.0`, this allows the user to scale manually.
-	pub pixels_per_point: f32,
-
 	// Reserved fields.
-	pub _reserved1: Option<Vec<String>>,
-	pub _reserved2: Option<String>,
-	pub _reserved3: Option<Option<String>>,
-	pub _reserved4: Option<bool>,
-	pub _reserved5: Option<bool>,
-	pub _reserved6: Option<Option<bool>>,
-	pub _reserved7: Option<Option<bool>>,
-	pub _reserved8: Option<usize>,
-	pub _reserved9: Option<usize>,
-	pub _reserved10: Option<f32>,
-	pub _reserved11: Option<f32>,
-	pub _reserved12: Option<f64>,
-	pub _reserved13: Option<f64>,
-	pub _reserved14: Option<Option<usize>>,
-	pub _reserved15: Option<Option<usize>>,
+	pub _reserved1: PhantomData<Vec<String>>,
+	pub _reserved2: PhantomData<String>,
+	pub _reserved3: PhantomData<Option<String>>,
+	pub _reserved4: PhantomData<bool>,
+	pub _reserved5: PhantomData<bool>,
+	pub _reserved6: PhantomData<Option<bool>>,
+	pub _reserved7: PhantomData<Option<bool>>,
+	pub _reserved8: PhantomData<usize>,
+	pub _reserved9: PhantomData<usize>,
+	pub _reserved10: PhantomData<Option<usize>>,
+	pub _reserved11: PhantomData<Option<usize>>,
 }
 
-impl Settings {
+impl Settings0 {
 //	/// Returns the accent color in [`Settings`] in tuple form.
 //	pub const fn accent_color(&self) -> (u8, u8, u8) {
 //		let (r, g, b, _) = self.visuals.selection.bg_fill.to_tuple();
@@ -127,22 +119,58 @@ impl Settings {
 
 	pub fn new() -> Self {
 		Self {
-			artist_sort:        Default::default(),
-			album_sort:         Default::default(),
-			song_sort:          Default::default(),
-			search_kind:        Default::default(),
-			artist_sub_tab:     Default::default(),
-			search_sort:        Default::default(),
-			window_title:       Default::default(),
-			album_sizing:       Default::default(),
-			album_pixel_size:   ALBUM_ART_SIZE_DEFAULT,
-			albums_per_row:     ALBUMS_PER_ROW_DEFAULT,
+			accent_color: ACCENT_COLOR,
+			restore_state: true,
+			collection_paths: vec![],
+			album_pixel_size: ALBUM_ART_SIZE_DEFAULT,
+			albums_per_row: ALBUMS_PER_ROW_DEFAULT,
 			previous_threshold: PREVIOUS_THRESHOLD_DEFAULT,
-			restore_state:      true,
-			empty_autoplay:     true,
-			accent_color:       ACCENT_COLOR,
-			collection_paths:   vec![],
-			pixels_per_point:   PIXELS_PER_POINT_DEFAULT,
+			empty_autoplay: true,
+			..Default::default()
+		}
+	}
+}
+
+impl Into<crate::data::Settings> for Settings0 {
+	fn into(self) -> crate::data::Settings {
+		let Settings0 {
+			artist_sort,
+			album_sort,
+			song_sort,
+			search_kind,
+			artist_sub_tab,
+			search_sort,
+			window_title,
+			album_sizing,
+			album_pixel_size,
+			albums_per_row,
+			previous_threshold,
+			restore_state,
+			empty_autoplay,
+			accent_color,
+			collection_paths,
+			..
+		} = self;
+
+		crate::data::Settings {
+			artist_sort,
+			album_sort,
+			song_sort,
+			search_kind,
+			artist_sub_tab,
+			search_sort,
+			window_title,
+			album_sizing,
+			album_pixel_size,
+			albums_per_row,
+			previous_threshold,
+			restore_state,
+			empty_autoplay,
+			accent_color,
+			collection_paths,
+
+			// New fields.
+			pixels_per_point: PIXELS_PER_POINT_DEFAULT,
 
 			// Reserved fields.
 			_reserved1: None,
