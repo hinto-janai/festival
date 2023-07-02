@@ -200,7 +200,12 @@ pub const QUEUE_ALBUM_ART_SIZE: f32 = 80.0;
 pub const PREVIOUS_THRESHOLD_MIN: u32 = 0;
 pub const PREVIOUS_THRESHOLD_MAX: u32 = 20;
 
+#[cfg(target_os = "macos")]
+// This needs to be slightly bigger on macOS.
+pub const PIXELS_PER_POINT_DEFAULT: f32 = 2.0;
+#[cfg(not(target_os = "macos"))]
 pub const PIXELS_PER_POINT_DEFAULT: f32 = 1.5;
+
 pub const PIXELS_PER_POINT_UNIT: f32 = 0.1;
 pub const PIXELS_PER_POINT_MIN:  f32 = 0.1;
 pub const PIXELS_PER_POINT_MAX:  f32 = 3.0;

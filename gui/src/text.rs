@@ -97,7 +97,7 @@ pub const ACCENT_COLOR:      &str = formatcp!(
 pub const PIXELS_PER_POINT:  &str = formatcp!(
 r#"Manually scale UI pixel size ({PIXELS_PER_POINT_MIN_STR}-{PIXELS_PER_POINT_MAX_STR})
 
-Warning: using a custom pixel size may lead to buggy UI."#);
+Warning: using a custom pixel size may lead to improperly sized UI."#);
 pub const PIXELS_PER_POINT_ADD: &str = formatcp!("Increase by {PIXELS_PER_POINT_UNIT_STR}");
 pub const PIXELS_PER_POINT_SUB: &str = formatcp!("Decrease by {PIXELS_PER_POINT_UNIT_STR}");
 pub const COLLECTION:        &str = "Festival's music Collection that stores all metadata about the audio files";

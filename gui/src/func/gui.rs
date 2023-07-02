@@ -336,6 +336,11 @@ impl Gui {
 	/// Returns the new `Some` if we added, else `None` if at max.
 	pub fn increment_pixels_per_point(&mut self) -> Option<f32> {
 		let new = self.settings.pixels_per_point + PIXELS_PER_POINT_UNIT;
+		let new = if new > PIXELS_PER_POINT_MAX {
+			PIXELS_PER_POINT_MAX
+		} else {
+			new
+		};
 
 		if new <= PIXELS_PER_POINT_MAX {
 			self.settings.pixels_per_point = new;
@@ -350,6 +355,11 @@ impl Gui {
 	/// Returns the new `Some` if we subtracted, else `None` if at min.
 	pub fn decrement_pixels_per_point(&mut self) -> Option<f32> {
 		let new = self.settings.pixels_per_point - PIXELS_PER_POINT_UNIT;
+		let new = if new < PIXELS_PER_POINT_MIN {
+			PIXELS_PER_POINT_MIN
+		} else {
+			new
+		};
 
 		if new >= PIXELS_PER_POINT_MIN {
 			self.settings.pixels_per_point = new;

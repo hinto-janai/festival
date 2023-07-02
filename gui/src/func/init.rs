@@ -161,7 +161,7 @@ impl crate::data::Gui {
 							s.into()
 						},
 						Err(e) => {
-							warn!("GUI Init [1/8] ... Settings0 failed from disk: {e}, returing default Settings{SETTINGS_VERSION}");
+							warn!("GUI Init [1/8] ... Settings0 failed from disk: {e}, returning default Settings{SETTINGS_VERSION}");
 							Settings::new()
 						},
 					}

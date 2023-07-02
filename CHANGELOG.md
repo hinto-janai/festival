@@ -1,5 +1,6 @@
-# v1.x.x
+# v1.0.1
 ## Changes
+* Added `Pixels Per Point` setting for manual UI pixel sizing (https://github.com/hinto-janai/festival/commit/f1fc011fac05e6daec9894477e52030745fea25b)
 * Lowered minimum resolution to `870x486` from `1000x800` (https://github.com/hinto-janai/festival/commit/075f1b8e48e2c733878ce3ee982e54ca4051fee9)
 
 ## Fixes
