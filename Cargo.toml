@@ -27,7 +27,7 @@ opt-level = 1
 ### Personal.
 shukusai = { version = "0.0.2",  path = "shukusai" }
 benri    = { version = "0.1.12", features = ["log"] }
-disk     = { version = "0.1.17", features = ["bincode2", "empty", "toml", "plain", "json", "bytesize"] }
+disk     = { version = "0.1.19", features = ["bincode2", "empty", "toml", "plain", "json", "bytesize"] }
 readable = { version = "0.8.10",  features = ["ignore_nan_inf", "serde", "bincode"] }
 
 ### Regular libraries.
