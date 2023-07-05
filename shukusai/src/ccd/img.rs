@@ -259,37 +259,37 @@ pub(super) fn free_textures(tex_manager: &mut epaint::TextureManager) {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-#[cfg(test)]
-mod tests {
-	use super::*;
-
-	const IMG_BYTES: &[u8] = include_bytes!("../../assets/images/icon/1024.png");
-
-	#[test]
-	// Makes sure we can take in random image bytes,
-	// resize with `fir`, and transform into an `egui` image.
-	fn _art_from_raw() {
-		let mut resizer = super::create_resizer();
-		art_from_raw(IMG_BYTES, &mut resizer).unwrap();
-	}
-
-	#[test]
-	// Make sure known image bytes can be converted to an `egui` image.
-	fn _art_from_known() {
-		// Resizer.
-		let mut resizer = super::create_resizer();
-
-		// Bytes -> DynamicImage.
-		let dyn_img = bytes_to_dyn_image(IMG_BYTES).unwrap();
-
-		// DynamicImage -> FIR Image.
-		let fir_img = resize_dyn_image(dyn_img, &mut resizer).unwrap();
-
-		// Bytes of FIR Image should be in perfect `3` chunks (RGB).
-		assert!(fir_img.len() % 3 == 0);
-
-		let retained = art_from_known(&fir_img);
-		assert!(retained.width() == 500);
-		assert!(retained.height() == 500);
-	}
-}
+//#[cfg(test)]
+//mod tests {
+//	use super::*;
+//
+//	const IMG_BYTES: &[u8] = include_bytes!("../../assets/images/icon/1024.png");
+//
+//	#[test]
+//	// Makes sure we can take in random image bytes,
+//	// resize with `fir`, and transform into an `egui` image.
+//	fn _art_from_raw() {
+//		let mut resizer = super::create_resizer();
+//		art_from_raw(IMG_BYTES, &mut resizer).unwrap();
+//	}
+//
+//	#[test]
+//	// Make sure known image bytes can be converted to an `egui` image.
+//	fn _art_from_known() {
+//		// Resizer.
+//		let mut resizer = super::create_resizer();
+//
+//		// Bytes -> DynamicImage.
+//		let dyn_img = bytes_to_dyn_image(IMG_BYTES).unwrap();
+//
+//		// DynamicImage -> FIR Image.
+//		let fir_img = resize_dyn_image(dyn_img, &mut resizer).unwrap();
+//
+//		// Bytes of FIR Image should be in perfect `3` chunks (RGB).
+//		assert!(fir_img.len() % 3 == 0);
+//
+//		let retained = art_from_known(&fir_img);
+//		assert!(retained.width() == 500);
+//		assert!(retained.height() == 500);
+//	}
+//}

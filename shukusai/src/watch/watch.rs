@@ -66,7 +66,6 @@ impl Watch {
 			from_notify,
 		};
 
-		ok_debug!("Watch");
 		Self::main(watch)
 	}
 
@@ -75,35 +74,35 @@ impl Watch {
 	// Make sure the directory exists.
 	fn clean() {
 		// Create base directory.
-		if let Err(_e) = Pause::mkdir() { error!("Watch - Could not create signal folder"); }
+		if let Err(e) = Pause::mkdir() { error!("Watch - Could not create signal folder {e}"); }
 
 		// Clean files.
-		if let Err(e) = Toggle::rm()        { error!("Watch - Toggle: {}", e); }
-		if let Err(e) = Pause::rm()         { error!("Watch - Pause: {}", e); }
-		if let Err(e) = Play::rm()          { error!("Watch - Play: {}", e); }
-		if let Err(e) = Next::rm()          { error!("Watch - Next: {}", e); }
-		if let Err(e) = Previous::rm()      { error!("Watch - Previous: {}", e); }
-		if let Err(e) = Stop::rm()          { error!("Watch - Stop: {}", e); }
-		if let Err(e) = Shuffle::rm()       { error!("Watch - Shuffle: {}", e); }
-		if let Err(e) = RepeatSong::rm()    { error!("Watch - RepeatSong: {}", e); }
-		if let Err(e) = RepeatQueue::rm()   { error!("Watch - RepeatQueue: {}", e); }
-		if let Err(e) = RepeatOff::rm()     { error!("Watch - RepeatOff: {}", e); }
+		if let Err(e) = Toggle::rm()        { error!("Watch - Toggle: {e}"); }
+		if let Err(e) = Pause::rm()         { error!("Watch - Pause: {e}"); }
+		if let Err(e) = Play::rm()          { error!("Watch - Play: {e}"); }
+		if let Err(e) = Next::rm()          { error!("Watch - Next: {e}"); }
+		if let Err(e) = Previous::rm()      { error!("Watch - Previous: {e}"); }
+		if let Err(e) = Stop::rm()          { error!("Watch - Stop: {e}"); }
+		if let Err(e) = Shuffle::rm()       { error!("Watch - Shuffle: {e}"); }
+		if let Err(e) = RepeatSong::rm()    { error!("Watch - RepeatSong: {e}"); }
+		if let Err(e) = RepeatQueue::rm()   { error!("Watch - RepeatQueue: {e}"); }
+		if let Err(e) = RepeatOff::rm()     { error!("Watch - RepeatOff: {e}"); }
 
 		// Content files.
-		if let Err(e) = Volume::rm()       { error!("Watch - Volume: {}", e); }
-		if let Err(e) = Seek::rm()         { error!("Watch - Seek: {}", e); }
-		if let Err(e) = SeekForward::rm()  { error!("Watch - SeekForward: {}", e); }
-		if let Err(e) = SeekBackward::rm() { error!("Watch - SeekBackward: {}", e); }
-		if let Err(e) = Index::rm()        { error!("Watch - Index: {}", e); }
-		if let Err(e) = Clear::rm()        { error!("Watch - Clear: {}", e); }
-		if let Err(e) = Skip::rm()         { error!("Watch - Skip: {}", e); }
-		if let Err(e) = Back::rm()         { error!("Watch - Back: {}", e); }
-//		if let Err(e) = ArtistKey::rm()    { error!("Watch - ArtistKey: {}", e); }
-//		if let Err(e) = AlbumKey::rm()     { error!("Watch - AlbumKey: {}", e); }
-//		if let Err(e) = SongKey::rm()      { error!("Watch - SongKey: {}", e); }
-//		if let Err(e) = Artist::rm()       { error!("Watch - Artist: {}", e); }
-//		if let Err(e) = Album::rm()        { error!("Watch - Album: {}", e); }
-//		if let Err(e) = Song::rm()         { error!("Watch - Song: {}", e); }
+		if let Err(e) = Volume::rm()       { error!("Watch - Volume: {e}"); }
+		if let Err(e) = Seek::rm()         { error!("Watch - Seek: {e}"); }
+		if let Err(e) = SeekForward::rm()  { error!("Watch - SeekForward: {e}"); }
+		if let Err(e) = SeekBackward::rm() { error!("Watch - SeekBackward: {e}"); }
+		if let Err(e) = Index::rm()        { error!("Watch - Index: {e}"); }
+		if let Err(e) = Clear::rm()        { error!("Watch - Clear: {e}"); }
+		if let Err(e) = Skip::rm()         { error!("Watch - Skip: {e}"); }
+		if let Err(e) = Back::rm()         { error!("Watch - Back: {e}"); }
+//		if let Err(e) = ArtistKey::rm()    { error!("Watch - ArtistKey: {e}"); }
+//		if let Err(e) = AlbumKey::rm()     { error!("Watch - AlbumKey: {e}"); }
+//		if let Err(e) = SongKey::rm()      { error!("Watch - SongKey: {e}"); }
+//		if let Err(e) = Artist::rm()       { error!("Watch - Artist: {e}"); }
+//		if let Err(e) = Album::rm()        { error!("Watch - Album: {e}"); }
+//		if let Err(e) = Song::rm()         { error!("Watch - Song: {e}"); }
 	}
 
 	#[inline(always)]
@@ -113,6 +112,8 @@ impl Watch {
 	}
 
 	fn main(self) {
+		ok_debug!("Watch");
+
 		use notify::event::{EventKind,CreateKind};
 
 		loop {
@@ -182,9 +183,112 @@ impl Watch {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//  #[test]
-//  fn __TEST__() {
-//  }
-//}
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	// Tests if all files being created
+	// correspond to the correct signals.
+	fn signals() {
+		// Logger.
+		crate::logger::init_logger(log::LevelFilter::Debug);
+
+		// Set-up fake `Kernel`.
+		let (to_kernel, from_watch) = crossbeam::channel::unbounded::<WatchToKernel>();
+
+		// Spawn `Watch`
+		std::thread::spawn(move || Watch::init(to_kernel));
+
+		// Wait a bit.
+		use benri::sleep;
+		sleep!(3);
+
+		// Regular signals.
+		Toggle::touch().unwrap();
+		assert!(recv!(from_watch) == WatchToKernel::Toggle);
+		sleep!(1);
+
+		Pause::touch().unwrap();
+		assert!(recv!(from_watch) == WatchToKernel::Pause);
+		sleep!(1);
+
+		Play::touch().unwrap();
+		assert!(recv!(from_watch) == WatchToKernel::Play);
+		sleep!(1);
+
+		Next::touch().unwrap();
+		assert!(recv!(from_watch) == WatchToKernel::Next);
+		sleep!(1);
+
+		Previous::touch().unwrap();
+		assert!(recv!(from_watch) == WatchToKernel::Previous);
+		sleep!(1);
+
+		Stop::touch().unwrap();
+		assert!(recv!(from_watch) == WatchToKernel::Stop);
+		sleep!(1);
+
+		Shuffle::touch().unwrap();
+		assert!(recv!(from_watch) == WatchToKernel::Shuffle);
+		sleep!(1);
+
+		RepeatSong::touch().unwrap();
+		assert!(recv!(from_watch) == WatchToKernel::RepeatSong);
+		sleep!(1);
+
+		RepeatQueue::touch().unwrap();
+		assert!(recv!(from_watch) == WatchToKernel::RepeatQueue);
+		sleep!(1);
+
+		RepeatOff::touch().unwrap();
+		assert!(recv!(from_watch) == WatchToKernel::RepeatOff);
+		sleep!(1);
+
+		// Content signals.
+		// Should be 0..=100
+		for i in [0, 50, 100, 101, u8::MAX] {
+			let v = unsafe { crate::audio::Volume::new_unchecked(i) };
+			Volume(v).save().unwrap();
+			assert!(recv!(from_watch) == WatchToKernel::Volume(crate::audio::Volume::new(i)));
+			sleep!(1);
+		}
+
+		for i in [0, 5, usize::MAX] {
+			Skip(i).save().unwrap();
+			assert!(recv!(from_watch) == WatchToKernel::Skip(i));
+			sleep!(1);
+
+			Back(i).save().unwrap();
+			assert!(recv!(from_watch) == WatchToKernel::Back(i));
+			sleep!(1);
+		}
+
+		// Should saturate at 0.
+		for i in [0, 1, 5, usize::MAX] {
+			Index(i).save().unwrap();
+			assert!(recv!(from_watch) == WatchToKernel::Index(i.saturating_sub(1)));
+			sleep!(1);
+		}
+
+		for i in [true, false] {
+			Clear(i).save().unwrap();
+			assert!(recv!(from_watch) == WatchToKernel::Clear(i));
+			sleep!(1);
+		}
+
+		for i in [0, 10, u64::MAX] {
+			Seek(i).save().unwrap();
+			assert!(recv!(from_watch) == WatchToKernel::Seek(i));
+			sleep!(1);
+
+			SeekForward(i).save().unwrap();
+			assert!(recv!(from_watch) == WatchToKernel::SeekForward(i));
+			sleep!(1);
+
+			SeekBackward(i).save().unwrap();
+			assert!(recv!(from_watch) == WatchToKernel::SeekBackward(i));
+			sleep!(1);
+		}
+	}
+}

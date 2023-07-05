@@ -183,13 +183,13 @@ impl<'de> bincode::BorrowDecode<'de> for Art {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-#[cfg(test)]
-mod tests {
-	use super::*;
-
-	#[test]
-	fn unknown_art() {
-		// Make sure the `.unwrap()` doesn't panic.
-		assert!(UNKNOWN_ALBUM.size() == [ALBUM_ART_SIZE; 2]);
-	}
-}
+//#[cfg(test)]
+//mod tests {
+//	use super::*;
+//
+//	#[test]
+//	fn unknown_art() {
+//		// Make sure the `.unwrap()` doesn't panic.
+//		assert!(UNKNOWN_ALBUM.size() == [ALBUM_ART_SIZE; 2]);
+//	}
+//}

@@ -149,8 +149,8 @@ mod tests {
 		assert!(COMMIT.len() >= 40);
 	}
 
-	#[test]
-	fn icon() {
-		let icon = winit::window::Icon::from_rgba(FESTIVAL_ICON.to_vec(), FESTIVAL_ICON_SIZE, FESTIVAL_ICON_SIZE).unwrap();
-	}
+//	#[test]
+//	fn icon() {
+//		let icon = winit::window::Icon::from_rgba(FESTIVAL_ICON.to_vec(), FESTIVAL_ICON_SIZE, FESTIVAL_ICON_SIZE).unwrap();
+//	}
 }

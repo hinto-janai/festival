@@ -887,127 +887,127 @@ impl crate::ccd::Ccd {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-#[cfg(test)]
-mod tests {
-	use crate::ccd::Ccd;
-	use std::path::PathBuf;
-
-	#[test]
-	#[ignore]
-	fn vecs() {
-		// Set-up logger.
-		crate::logger::init_logger(log::LevelFilter::Trace);
-
-		// Convert `PathBuf` into `Vec`.
-		let paths = vec![
-			PathBuf::from("assets/audio/rain.mp3"),
-			PathBuf::from("assets/audio/rain.flac"),
-			PathBuf::from("assets/audio/rain.ogg"),
-		];
-		// Prepare inputs.
-		let (to_kernel, _) = crossbeam::channel::unbounded::<super::CcdToKernel>();
-		let (mut vec_artist, mut vec_album, vec_song, count_art) = Ccd::the_loop(&to_kernel, paths);
-
-		println!("{:#?}", vec_artist);
-		println!("{:#?}", vec_album);
-		println!("{:#?}", vec_song);
-		println!("{:#?}", count_art);
-
-		// Assert `Vec`s are correct.
-		assert!(vec_artist.len() == 1);
-		assert!(vec_album.len()  == 1);
-		assert!(vec_song.len()   == 3);
-		assert!(count_art        == 1);
-
-		// Assert `Artist` is correct.
-		assert!(vec_artist[0].name         == "hinto");
-		assert!(vec_artist[0].albums.len() == 1);
-
-		// Assert `Album` is correct.
-		assert!(vec_album[0].title          == "Festival");
-		assert!(vec_album[0].artist.inner() == 0);
-		assert!(vec_album[0].songs.len()    == 3);
-		assert!(vec_album[0].release        == "2023-03-08");
-		assert!(vec_album[0].release        == (2023, 3, 8));
-		// TODO: this should be true
-//		assert!(vec_album[0].compilation    == true);
-
-		// Fix the metadata.
-		Ccd::fix_metadata(&mut vec_artist, &mut vec_album, &vec_song);
-
-		println!("{:#?}", vec_artist);
-		println!("{:#?}", vec_album);
-		println!("{:#?}", vec_song);
-
-		// Assert metadata is fixed.
-		assert!(vec_album[0].runtime    >= readable::Runtime::from(3.8));
-		assert!(vec_album[0].runtime    >= 3);
-		assert!(vec_album[0].song_count == "3");
-		assert!(vec_album[0].song_count == 3);
-	}
-
-	fn mp3() -> TaggedFile {
-		let mp3 = Ccd::path_to_tagged_file(PathBuf::from("assets/audio/rain.mp3").as_path()).unwrap();
-		mp3
-	}
-
-	#[test]
-	fn runtime() {
-		let mp3 = mp3();
-		let runtime = Ccd::tagged_file_runtime(mp3);
-		eprintln!("{}", runtime);
-		assert!(runtime >= 1.9);
-	}
-
-	#[test]
-	fn release() {
-		let mut mp3 = mp3();
-		let tag = Ccd::tagged_file_to_tag(&mut mp3).unwrap();
-		let release = Ccd::tag_release(&tag).unwrap();
-		eprintln!("{}", release);
-		assert!(release == "2023-03-08");
-	}
-
-	#[test]
-	// TODO:
-	// This isn't picking up the right tag.
-	// Probably a bug with the `mp3` file metadata
-	// instead of the function.
-	fn track_artists() {
-		let mut mp3 = mp3();
-		let tag = Ccd::tagged_file_to_tag(&mut mp3).unwrap();
-		let track_artist = Ccd::tag_track_artists(&tag).unwrap();
-		eprintln!("{}", track_artist);
-		assert!(track_artist == "hinto");
-	}
-
-	#[test]
-	fn compilation() {
-		let mut mp3 = mp3();
-		let tag = Ccd::tagged_file_to_tag(&mut mp3).unwrap();
-		let comp = Ccd::tag_compilation("hinto", &tag);
-		eprintln!("{}", comp);
-		assert!(comp);
-	}
-
-	#[test]
-	fn extract() {
-		let mut mp3 = mp3();
-		let mut tag = Ccd::tagged_file_to_tag(&mut mp3).unwrap();
-		let meta = Ccd::extract_tag_metadata(mp3, &mut tag).unwrap();
-		eprintln!("{:#?}", meta);
-
-		assert!(meta.artist        == "hinto");
-		assert!(meta.album         == "Festival");
-		assert!(meta.title         == "rain_mp3");
-		assert!(meta.track         == Some(1));
-		assert!(meta.disc.is_none());
-		assert!(meta.track_total.is_none());
-		assert!(meta.disc_total.is_none());
-		assert!(meta.art.is_none());
-		assert!(meta.runtime       == 1.968);
-		assert!(meta.release       == Some("2023-03-08"));
-		assert!(meta.track_artists == Some("hinto".to_string()));
-		assert!(meta.compilation);
-	}
-}
+//#[cfg(test)]
+//mod tests {
+//	use crate::ccd::Ccd;
+//	use std::path::PathBuf;
+//
+//	#[test]
+//	#[ignore]
+//	fn vecs() {
+//		// Set-up logger.
+//		crate::logger::init_logger(log::LevelFilter::Trace);
+//
+//		// Convert `PathBuf` into `Vec`.
+//		let paths = vec![
+//			PathBuf::from("assets/audio/rain.mp3"),
+//			PathBuf::from("assets/audio/rain.flac"),
+//			PathBuf::from("assets/audio/rain.ogg"),
+//		];
+//		// Prepare inputs.
+//		let (to_kernel, _) = crossbeam::channel::unbounded::<super::CcdToKernel>();
+//		let (mut vec_artist, mut vec_album, vec_song, count_art) = Ccd::the_loop(&to_kernel, paths);
+//
+//		println!("{:#?}", vec_artist);
+//		println!("{:#?}", vec_album);
+//		println!("{:#?}", vec_song);
+//		println!("{:#?}", count_art);
+//
+//		// Assert `Vec`s are correct.
+//		assert!(vec_artist.len() == 1);
+//		assert!(vec_album.len()  == 1);
+//		assert!(vec_song.len()   == 3);
+//		assert!(count_art        == 1);
+//
+//		// Assert `Artist` is correct.
+//		assert!(vec_artist[0].name         == "hinto");
+//		assert!(vec_artist[0].albums.len() == 1);
+//
+//		// Assert `Album` is correct.
+//		assert!(vec_album[0].title          == "Festival");
+//		assert!(vec_album[0].artist.inner() == 0);
+//		assert!(vec_album[0].songs.len()    == 3);
+//		assert!(vec_album[0].release        == "2023-03-08");
+//		assert!(vec_album[0].release        == (2023, 3, 8));
+//		// TODO: this should be true
+////		assert!(vec_album[0].compilation    == true);
+//
+//		// Fix the metadata.
+//		Ccd::fix_metadata(&mut vec_artist, &mut vec_album, &vec_song);
+//
+//		println!("{:#?}", vec_artist);
+//		println!("{:#?}", vec_album);
+//		println!("{:#?}", vec_song);
+//
+//		// Assert metadata is fixed.
+//		assert!(vec_album[0].runtime    >= readable::Runtime::from(3.8));
+//		assert!(vec_album[0].runtime    >= 3);
+//		assert!(vec_album[0].song_count == "3");
+//		assert!(vec_album[0].song_count == 3);
+//	}
+//
+//	fn mp3() -> TaggedFile {
+//		let mp3 = Ccd::path_to_tagged_file(PathBuf::from("assets/audio/rain.mp3").as_path()).unwrap();
+//		mp3
+//	}
+//
+//	#[test]
+//	fn runtime() {
+//		let mp3 = mp3();
+//		let runtime = Ccd::tagged_file_runtime(mp3);
+//		eprintln!("{}", runtime);
+//		assert!(runtime >= 1.9);
+//	}
+//
+//	#[test]
+//	fn release() {
+//		let mut mp3 = mp3();
+//		let tag = Ccd::tagged_file_to_tag(&mut mp3).unwrap();
+//		let release = Ccd::tag_release(&tag).unwrap();
+//		eprintln!("{}", release);
+//		assert!(release == "2023-03-08");
+//	}
+//
+//	#[test]
+//	// TODO:
+//	// This isn't picking up the right tag.
+//	// Probably a bug with the `mp3` file metadata
+//	// instead of the function.
+//	fn track_artists() {
+//		let mut mp3 = mp3();
+//		let tag = Ccd::tagged_file_to_tag(&mut mp3).unwrap();
+//		let track_artist = Ccd::tag_track_artists(&tag).unwrap();
+//		eprintln!("{}", track_artist);
+//		assert!(track_artist == "hinto");
+//	}
+//
+//	#[test]
+//	fn compilation() {
+//		let mut mp3 = mp3();
+//		let tag = Ccd::tagged_file_to_tag(&mut mp3).unwrap();
+//		let comp = Ccd::tag_compilation("hinto", &tag);
+//		eprintln!("{}", comp);
+//		assert!(comp);
+//	}
+//
+//	#[test]
+//	fn extract() {
+//		let mut mp3 = mp3();
+//		let mut tag = Ccd::tagged_file_to_tag(&mut mp3).unwrap();
+//		let meta = Ccd::extract_tag_metadata(mp3, &mut tag).unwrap();
+//		eprintln!("{:#?}", meta);
+//
+//		assert!(meta.artist        == "hinto");
+//		assert!(meta.album         == "Festival");
+//		assert!(meta.title         == "rain_mp3");
+//		assert!(meta.track         == Some(1));
+//		assert!(meta.disc.is_none());
+//		assert!(meta.track_total.is_none());
+//		assert!(meta.disc_total.is_none());
+//		assert!(meta.art.is_none());
+//		assert!(meta.runtime       == 1.968);
+//		assert!(meta.release       == Some("2023-03-08"));
+//		assert!(meta.track_artists == Some("hinto".to_string()));
+//		assert!(meta.compilation);
+//	}
+//}

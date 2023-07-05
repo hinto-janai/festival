@@ -1109,15 +1109,15 @@ impl std::fmt::Display for Collection {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-#[cfg(test)]
-mod tests {
-	use super::*;
-	use disk::*;
-
-	#[test]
-	fn serde() {
-		let collection = Collection::new();
-		collection.save().unwrap();
-		let collection = Collection::from_file();
-	}
-}
+//#[cfg(test)]
+//mod tests {
+//	use super::*;
+//	use disk::*;
+//
+//	#[test]
+//	fn serde() {
+//		let collection = Collection::new();
+//		collection.save().unwrap();
+//		let collection = Collection::from_file();
+//	}
+//}

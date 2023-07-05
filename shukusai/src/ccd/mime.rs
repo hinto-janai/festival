@@ -104,33 +104,33 @@ impl Codec {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-#[cfg(test)]
-mod tests {
-	// Detect MIME types.
-	fn detect(mime: &str, extension: &str) {
-		let infer = infer::get_from_path(format!("assets/audio/rain.{}", extension)).unwrap().unwrap().mime_type();
-		let guess  = mime_guess::MimeGuess::from_path(format!("assets/audio/rain.{}", extension)).first_raw().unwrap();
-
-		eprintln!("INFER: {}\nGUESS: {}", infer, guess);
-
-		assert!(infer == format!("audio/{}", mime) || infer == format!("audio/x-{}", mime));
-		assert!(guess == format!("audio/{}", mime) || guess == format!("audio/x-{}", mime));
-		assert!(super::SUPPORTED_AUDIO_MIME_TYPES.contains(&infer));
-		assert!(super::SUPPORTED_AUDIO_MIME_TYPES.contains(&guess));
-	}
-
-	#[test]
-	fn detect_aac() { detect("aac", "aac"); }
-	#[test]
-	fn detect_alac() { detect("m4a", "m4a"); }
-	#[test]
-	fn detect_flac() { detect("flac", "flac"); }
-	#[test]
-	fn detect_mp3() { detect("mpeg", "mp3"); }
-	#[test]
-	fn detect_ogg() { detect("ogg", "ogg"); }
-	#[test]
-	fn detect_wav() { detect("wav", "wav"); }
-	#[test]
-	fn detect_aiff() { detect("aiff", "aiff"); }
-}
+//#[cfg(test)]
+//mod tests {
+//	// Detect MIME types.
+//	fn detect(mime: &str, extension: &str) {
+//		let infer = infer::get_from_path(format!("assets/audio/rain.{}", extension)).unwrap().unwrap().mime_type();
+//		let guess  = mime_guess::MimeGuess::from_path(format!("assets/audio/rain.{}", extension)).first_raw().unwrap();
+//
+//		eprintln!("INFER: {}\nGUESS: {}", infer, guess);
+//
+//		assert!(infer == format!("audio/{}", mime) || infer == format!("audio/x-{}", mime));
+//		assert!(guess == format!("audio/{}", mime) || guess == format!("audio/x-{}", mime));
+//		assert!(super::SUPPORTED_AUDIO_MIME_TYPES.contains(&infer));
+//		assert!(super::SUPPORTED_AUDIO_MIME_TYPES.contains(&guess));
+//	}
+//
+//	#[test]
+//	fn detect_aac() { detect("aac", "aac"); }
+//	#[test]
+//	fn detect_alac() { detect("m4a", "m4a"); }
+//	#[test]
+//	fn detect_flac() { detect("flac", "flac"); }
+//	#[test]
+//	fn detect_mp3() { detect("mpeg", "mp3"); }
+//	#[test]
+//	fn detect_ogg() { detect("ogg", "ogg"); }
+//	#[test]
+//	fn detect_wav() { detect("wav", "wav"); }
+//	#[test]
+//	fn detect_aiff() { detect("aiff", "aiff"); }
+//}

@@ -29,6 +29,16 @@ impl Volume {
 	}
 
 	#[inline]
+	/// Create a new [`Volume`] from a [`u8`] without checking if it's `=< 100`
+	///
+	/// # Safety
+	///
+	/// The [`u8`] must be less than `100`.
+	pub const unsafe fn new_unchecked(volume: u8) -> Self {
+		Self(volume)
+	}
+
+	#[inline]
 	/// Checks the [`Volume`] for correctness.
 	///
 	/// The [`u8`] must be less than `100` or [`Self::new_100`] will be returned.
