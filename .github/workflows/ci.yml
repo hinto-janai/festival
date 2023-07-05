@@ -32,7 +32,6 @@ jobs:
       with:
         path: |
           ~/.cargo
-          ~/.rustup
           target
         key: ${{ matrix.os }}-${{ matrix.build }}
 
