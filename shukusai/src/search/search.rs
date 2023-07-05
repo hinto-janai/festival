@@ -326,9 +326,132 @@ impl Search {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//  #[test]
-//  fn __TEST__() {
-//  }
-//}
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use std::cmp::Ordering;
+	use crate::collection::*;
+
+	#[test]
+	// Tests `cmp_f64()` with multiple inputs.
+	fn cmp_f64() {
+		assert!(Search::cmp_f64(1.1, 1.0) == Ordering::Greater);
+		assert!(Search::cmp_f64(1.0, 1.1) == Ordering::Less);
+		assert!(Search::cmp_f64(1.0, 1.0) == Ordering::Equal);
+		assert!(Search::cmp_f64(f64::INFINITY, 1.0) == Ordering::Greater);
+		assert!(Search::cmp_f64(1.0, f64::INFINITY) == Ordering::Less);
+	}
+
+	#[test]
+	// Tests all search functions, asserting the result output is correct.
+	fn search() {
+		// Create `Collection`, set up `Artist/Album/Song` names & titles.
+		// These are in order, most similar first, least similar last.
+		let mut c       = Collection::new();
+		let mut artist0 = Artist::default();
+		let mut artist1 = Artist::default();
+		let mut artist2 = Artist::default();
+		let mut artist3 = Artist::default();
+		let mut artist4 = Artist::default();
+		artist0.name    = "aaaa".into();
+		artist1.name    = "aaab".into();
+		artist2.name    = "aabb".into();
+		artist3.name    = "abbb".into();
+		artist4.name    = "bbbb".into();
+		let mut album0 = Album::default();
+		let mut album1 = Album::default();
+		let mut album2 = Album::default();
+		let mut album3 = Album::default();
+		let mut album4 = Album::default();
+		album0.title   = "aaaa".into();
+		album1.title   = "aaab".into();
+		album2.title   = "aabb".into();
+		album3.title   = "abbb".into();
+		album4.title   = "bbbb".into();
+		let mut song0 = Song::default();
+		let mut song1 = Song::default();
+		let mut song2 = Song::default();
+		let mut song3 = Song::default();
+		let mut song4 = Song::default();
+		song0.title   = "aaaa".into();
+		song1.title   = "aaab".into();
+		song2.title   = "aabb".into();
+		song3.title   = "abbb".into();
+		song4.title   = "bbbb".into();
+
+		// Insert into the `Collection`.
+		c.artists.0 = Box::new([artist0, artist1, artist2, artist3, artist4]);
+		c.albums.0  = Box::new([album0, album1, album2, album3, album4]);
+		c.songs.0   = Box::new([song0, song1, song2, song3, song4]);
+
+		// Spawn `Search`
+		let c = Arc::new(c);
+		let (to_kernel, from_search) = crossbeam::channel::unbounded::<SearchToKernel>();
+		let (to_search, from_kernel) = crossbeam::channel::unbounded::<KernelToSearch>();
+		std::thread::spawn(move || Search::init(c, to_kernel, from_kernel));
+
+		// Wait a bit.
+		use benri::sleep;
+		sleep!(3);
+
+		// Our search input.
+		const INPUT: &str = "aaaa";
+
+		//--- Assert `SearchKind::All|SearchKind::Top25` order is correct.
+		for i in [SearchKind::All, SearchKind::Top25] {
+			send!(to_search, KernelToSearch::Search((INPUT.into(), i)));
+			let k = match recv!(from_search) { SearchToKernel::Resp(keychain) => keychain };
+
+			println!("{:#?}", k.artists);
+			assert!(k.artists[..] == [
+				ArtistKey::from(0_u8),
+				ArtistKey::from(1_u8),
+				ArtistKey::from(2_u8),
+				ArtistKey::from(3_u8),
+				ArtistKey::from(4_u8),
+			]);
+
+			println!("{:#?}", k.albums);
+			assert!(k.albums[..] == [
+				AlbumKey::from(0_u8),
+				AlbumKey::from(1_u8),
+				AlbumKey::from(2_u8),
+				AlbumKey::from(3_u8),
+				AlbumKey::from(4_u8),
+			]);
+
+			println!("{:#?}", k.songs);
+			assert!(k.songs[..] == [
+				SongKey::from(0_u8),
+				SongKey::from(1_u8),
+				SongKey::from(2_u8),
+				SongKey::from(3_u8),
+				SongKey::from(4_u8),
+			]);
+		}
+
+		//--- Assert `SearchKind::Sim70` order is correct.
+		send!(to_search, KernelToSearch::Search((INPUT.into(), SearchKind::Sim70)));
+		let k = match recv!(from_search) { SearchToKernel::Resp(keychain) => keychain };
+
+		println!("{:#?}", k.artists);
+		assert!(k.artists[..] == [
+			ArtistKey::from(0_u8),
+			ArtistKey::from(1_u8),
+		]);
+
+		// Assert `Album` order is correct.
+		println!("{:#?}", k.albums);
+		assert!(k.albums[..] == [
+			AlbumKey::from(0_u8),
+			AlbumKey::from(1_u8),
+		]);
+
+		// Assert `Song` order is correct.
+		println!("{:#?}", k.songs);
+		assert!(k.songs[..] == [
+			SongKey::from(0_u8),
+			SongKey::from(1_u8),
+		]);
+	}
+}
