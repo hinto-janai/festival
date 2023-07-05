@@ -8,4 +8,4 @@ mod statics;
 pub use statics::*;
 
 mod phase;
-pub use phase::Phase;
+pub use phase::*;

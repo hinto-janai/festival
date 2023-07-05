@@ -20,6 +20,8 @@ const CONVERT:     &str = "Converting Album Art";
 const FINALIZE:    &str = "Finalizing Collection";
 
 //---------------------------------------------------------------------------------------------------- Phase
+/// HACK: until `std::mem::variant_count()` is stable.
+pub const PHASE_VARIANT_COUNT: usize = 15;
 #[derive(Copy,Clone,Debug,Hash,Serialize,Deserialize,PartialEq,Eq,PartialOrd,Ord)]
 /// The different phases of creating a new [`Collection`]
 ///
@@ -154,11 +156,24 @@ impl std::fmt::Display for Phase {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//	use super::*;
-//
-//	#[test]
-//	fn __TEST__() {
-//	}
-//}
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	// Asserts `.iter()` covers all variants.
+	fn iter_covers_all() {
+		assert!(Phase::iter().count() == PHASE_VARIANT_COUNT);
+	}
+
+	#[test]
+	// Asserts each variant gives a different string.
+	fn diff_str() {
+		let mut last = String::new();
+
+		for i in Phase::iter() {
+			assert!(last != i.as_str());
+			last = i.as_str().to_string();
+		}
+	}
+}
