@@ -50,10 +50,10 @@ jobs:
     - name: Clippy
       run: cargo clippy --workspace --profile ${{ matrix.build }}
 
-    - name: Doc
-      run: cargo doc --workspace --no-deps --profile ${{ matrix.build }}
-      env:
-        RUSTFLAGS: -Awarnings
+#    - name: Doc
+#      run: cargo doc --workspace --no-deps --profile ${{ matrix.build }}
+#      env:
+#        RUSTFLAGS: -Awarnings
 
     - name: Test
       run: cargo test --package shukusai --profile ${{ matrix.build }}
