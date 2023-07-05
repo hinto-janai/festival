@@ -55,9 +55,8 @@ jobs:
       env:
         RUSTFLAGS: -Awarnings
 
-# FIXME
-#    - name: Test
-#      run: cargo test --workspace --profile ${{ matrix.build }}
+    - name: Test
+      run: cargo test --package shukusai --profile ${{ matrix.build }}
 
     - name: Build
       shell: bash
