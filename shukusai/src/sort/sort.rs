@@ -95,6 +95,8 @@ pub const SONG_TITLE:                         &str = "Song title shortest-longes
 pub const SONG_TITLE_REV:                     &str = "Song title longest-shortest";
 
 //---------------------------------------------------------------------------------------------------- Sort
+/// HACK: until `std::mem::variant_count()` is stable.
+pub const ARTIST_SORT_VARIANT_COUNT: usize = 10;
 /// All the ways to sort the [`Collection`]'s [`Artist`]'s.
 ///
 /// String sorting is done lexicographically as per the `std` [`Ord` implementation.](https://doc.rust-lang.org/std/primitive.str.html#impl-Ord)
@@ -125,6 +127,8 @@ pub enum ArtistSort {
 	NameRev,
 }
 
+/// HACK: until `std::mem::variant_count()` is stable.
+pub const ALBUM_SORT_VARIANT_COUNT: usize = 16;
 /// All the ways to sort the [`Collection`]'s [`Album`]'s.
 ///
 /// String sorting is done lexicographically as per the `std` [`Ord` implementation.](https://doc.rust-lang.org/std/primitive.str.html#impl-Ord)
@@ -167,6 +171,8 @@ pub enum AlbumSort {
 	TitleRev,
 }
 
+/// HACK: until `std::mem::variant_count()` is stable.
+pub const SONG_SORT_VARIANT_COUNT: usize = 16;
 /// All the ways to sort the [`Collection`]'s [`Song`]'s.
 ///
 /// String sorting is done lexicographically as per the `std` [`Ord` implementation.](https://doc.rust-lang.org/std/primitive.str.html#impl-Ord)
@@ -483,9 +489,64 @@ impl SongSort {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//  #[test]
-//  fn _() {
-//  }
-//}
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	// Asserts `.iter()` covers all variants.
+	fn iter_covers_all() {
+		assert!(ArtistSort::iter().count() == ARTIST_SORT_VARIANT_COUNT);
+		assert!(AlbumSort::iter().count() == ALBUM_SORT_VARIANT_COUNT);
+		assert!(SongSort::iter().count() == SONG_SORT_VARIANT_COUNT);
+	}
+
+	#[test]
+	// Asserts each variant:
+	// 1. Gives a different string
+	// 2. `.next()` gives a different variant
+	// 3. `.prev()` gives a different variant
+	fn artist_diff() {
+		let mut last = String::new();
+
+		for i in ArtistSort::iter() {
+			// 1
+			assert!(last != i.as_str());
+			last = i.as_str().to_string();
+ 			// 2
+			assert!(*i != i.next());
+			// 3
+			assert!(*i != i.previous());
+		}
+	}
+
+	#[test]
+	fn album_diff() {
+		let mut last = String::new();
+
+		for i in AlbumSort::iter() {
+			// 1
+			assert!(last != i.as_str());
+			last = i.as_str().to_string();
+ 			// 2
+			assert!(*i != i.next());
+			// 3
+			assert!(*i != i.previous());
+		}
+	}
+
+	#[test]
+	fn song_diff() {
+		let mut last = String::new();
+
+		for i in SongSort::iter() {
+			// 1
+			assert!(last != i.as_str());
+			last = i.as_str().to_string();
+ 			// 2
+			assert!(*i != i.next());
+			// 3
+			assert!(*i != i.previous());
+		}
+	}
+}
