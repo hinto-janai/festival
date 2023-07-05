@@ -114,25 +114,31 @@ impl Phase {
 			Self::Finalize    => FINALIZE,
 		}
 	}
-//
-//	#[inline]
-//	/// Returns an iterator over all [`Phase`] variants in sequential order.
-//	///
-//	/// # Note
-//	/// This excludes [`Phase::None`].
-//	pub fn iter() -> std::slice::Iter<'static, Self> {
-//		[
-//			Self::Start,
-//			Self::WalkDir,
-//			Self::Parse,
-//			Self::Fix,
-//			Self::Sort,
-//			Self::Search,
-//			Self::Prepare,
-//			Self::Resize,
-//			Self::Finalize,
-//		].iter()
-//	}
+
+	#[inline]
+	/// Returns an iterator over all [`Phase`] variants in sequential order.
+	///
+	/// # Note
+	/// This includes the pre-phases, like [`Phase::None`].
+	pub fn iter() -> std::slice::Iter<'static, Self> {
+		[
+			Self::None,
+			Self::Disk,
+			Self::Wait,
+			Self::Start,
+			Self::Deconstruct,
+			Self::WalkDir,
+			Self::Parse,
+			Self::Fix,
+			Self::Sort,
+			Self::Search,
+			Self::Prepare,
+			Self::Art,
+			Self::Clone,
+			Self::Convert,
+			Self::Finalize,
+		].iter()
+	}
 }
 
 impl AsRef<str> for Phase {
@@ -150,7 +156,9 @@ impl std::fmt::Display for Phase {
 //---------------------------------------------------------------------------------------------------- TESTS
 //#[cfg(test)]
 //mod tests {
-//  #[test]
-//  fn __TEST__() {
-//  }
+//	use super::*;
+//
+//	#[test]
+//	fn __TEST__() {
+//	}
 //}
