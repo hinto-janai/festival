@@ -203,22 +203,6 @@ impl AudioState {
 
 		None
 	}
-
-	// Checks if we are at the last index in the queue.
-	pub(crate) fn at_last_queue_idx(&self) -> bool {
-		match self.queue_idx {
-			Some(i) => i + 1 == self.queue.len(),
-			None => false,
-		}
-	}
-
-	// Checks if we are at the first index in the queue.
-	pub(crate) fn at_first_queue_idx(&self) -> bool {
-		match self.queue_idx {
-			Some(i) => i == 0,
-			None => false,
-		}
-	}
 }
 
 impl Default for AudioState {
@@ -228,9 +212,137 @@ impl Default for AudioState {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//  #[test]
-//  fn __TEST__() {
-//  }
-//}
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	const SONG: SongKey = SongKey::new();
+
+	#[test]
+	// Tests `if_copy()` and asserts the following behavior:
+	//
+	// 1. If `self` and `dst` are the same, this does nothing
+	// 2. If `self` and `dst`'s queue are the same, everything but that is `clone()`'ed
+	// 3. If `self` and `dst`'s queue are different, all of `self` is `.clone()`'ed into `dst`
+	fn if_copy() {
+		let mut a = AudioState::new();
+		let mut dst = AudioState::new();
+
+		// 1.
+		a.if_copy(&mut dst);
+		assert!(a == dst);
+
+		// 2.
+		a.playing   = true;
+		a.queue_idx = Some(usize::MAX);
+		a.song      = Some(SONG);
+		a.elapsed   = Runtime::from(123_u32);
+		assert!(a != dst);
+		a.if_copy(&mut dst);
+		assert!(dst.song.unwrap() == SONG);
+		assert!(dst.queue.len() == 0);
+		assert!(a == dst);
+
+		// 3.
+		let mut a   = AudioState::new();
+		let mut dst = AudioState::new();
+		a.queue_idx = Some(usize::MAX);
+		a.song      = Some(SONG);
+		a.queue.push_front(SongKey::from(usize::MAX));
+		assert!(a.queue != dst.queue);
+		a.if_copy(&mut dst);
+		assert!(dst.song.unwrap() == SONG);
+		assert!(dst.queue.len() == 1);
+		assert!(a == dst);
+	}
+
+	#[test]
+	// Tests `finish()` and asserts state is correct.
+	fn finish() {
+		let mut a = AudioState::new();
+
+		// Set state as if we're playing a song.
+		a.queue.push_front(SONG);
+		a.queue_idx = Some(0);
+		a.playing   = true;
+		a.song      = Some(SONG);
+		a.elapsed   = Runtime::from(123_u32);
+		a.runtime   = Runtime::from(321_u32);
+
+		a.finish();
+
+		assert!(a.queue.is_empty());
+		assert!(a.queue_idx.is_none());
+		assert!(!a.playing);
+		assert!(a.song.is_none());
+		assert!(a.elapsed == Runtime::zero());
+		assert!(a.runtime == Runtime::zero());
+	}
+
+	#[test]
+	// Tests `next()` and asserts the following behavior:
+	//
+	// 1. `queue_idx` is `None` => Returns `None`;
+	//
+	// 2. Next key is `Some` => {
+	//       Increments the `queue_idx`;
+	//       Sets current song to the new index;
+	//       Returns `Some(new_song)`
+	//   }
+	//
+	// 3. Next key is `None` => {
+	//       Returns `None`;
+	//   }
+	fn next() {
+		let mut a = AudioState::new();
+
+		// 1
+		a.queue_idx = None;
+		assert!(a.next().is_none());
+
+		// 2
+		a.queue_idx = Some(0);
+		a.queue.push_front(SONG);
+		a.queue.push_front(SONG);
+		a.queue.push_front(SONG);
+		assert!(a.next() == Some(SONG));
+		assert!(a.queue_idx == Some(1));
+		assert!(a.next() == Some(SONG));
+		assert!(a.queue_idx == Some(2));
+
+		// 3
+		assert!(a.next().is_none());
+		// FIXME: maybe this should be set to `None`.
+		assert!(a.queue_idx == Some(2));
+	}
+
+	#[test]
+	// Tests `prev()` and asserts the following behavior:
+	//
+	// 1. `queue_idx` is `None` => Returns `None`;
+	// 2. Returns the new `SongKey` if a previous is available
+	// 3. Returns index `0` if at first index.
+	// 4. Returns `None` if nothing in queue.
+	fn prev() {
+		let mut a = AudioState::new();
+
+		// 1
+		a.queue_idx = None;
+		assert!(a.next().is_none());
+
+		// 2
+		a.queue_idx = Some(1);
+		a.queue.push_front(SONG);
+		a.queue.push_front(SONG);
+		assert!(a.prev() == Some(SONG));
+		assert!(a.queue_idx == Some(0));
+
+		// 3
+		assert!(a.prev() == Some(SONG));
+		assert!(a.queue_idx == Some(0));
+
+		// 4
+		a.queue.clear();
+		assert!(a.prev().is_none());
+	}
+}
