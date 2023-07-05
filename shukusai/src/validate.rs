@@ -44,6 +44,14 @@ pub fn song<K: Into<SongKey>>(c: &Collection, key: K) -> bool {
 /// - `true` == valid
 /// - `false` == invalid
 pub fn keychain(c: &Collection, keychain: &Keychain) -> bool {
+	let artists_len = c.artists.len();
+	let albums_len  = c.albums.len();
+	let songs_len   = c.songs.len();
+
+	if artists_len == 0 || albums_len == 0 || songs_len == 0 {
+		return false;
+	}
+
 	let artists_max = match keychain.artists.iter().max() {
 		Some(key) => key.inner(),
 		None => 0,
@@ -58,9 +66,9 @@ pub fn keychain(c: &Collection, keychain: &Keychain) -> bool {
 	};
 
 	!(
-		c.artists.len() < artists_max ||
-		c.albums.len() < albums_max   ||
-		c.songs.len()  < songs_max
+		artists_len < artists_max ||
+		albums_len  < albums_max  ||
+		songs_len   < songs_max
 	)
 }
 
@@ -78,9 +86,37 @@ pub fn keychain(c: &Collection, keychain: &Keychain) -> bool {
 //}
 
 //---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//  #[test]
-//  fn __TEST__() {
-//  }
-//}
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	fn validate() {
+		let collection = Collection::new();
+		let c = &collection;
+
+		assert!(c.artists.len() == 0);
+		assert!(c.albums.len()  == 0);
+		assert!(c.songs.len()   == 0);
+
+		let ar = ArtistKey::from(1_u8);
+		let al = AlbumKey::from(1_u8);
+		let s  = SongKey::from(1_u8);
+		let k  = Key::from_keys(ar, al, s);
+
+		assert!(!key(c, k));
+		assert!(!artist(c, ar));
+		assert!(!album(c, al));
+		assert!(!song(c, s));
+
+		let kc = Keychain {
+			artists: Box::new([ar]),
+			albums: Box::new([al]),
+			songs: Box::new([s]),
+		};
+		assert!(!keychain(c, &kc));
+
+		let kc = Keychain::new();
+		assert!(!keychain(c, &kc));
+	}
+}
