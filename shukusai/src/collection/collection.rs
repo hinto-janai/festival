@@ -1124,8 +1124,8 @@ mod tests {
 		let c2 = Collection::from_path("../assets/shukusai/state/collection0_new.bin").unwrap();
 		let b2 = c2.to_bytes().unwrap();
 
-		assert_ne!(c1, c2);
-		assert_ne!(b1, b2);
+		assert_eq!(c1, c2);
+		assert_eq!(b1, b2);
 	}
 
 	#[test]
