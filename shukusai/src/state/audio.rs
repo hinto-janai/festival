@@ -350,7 +350,7 @@ mod tests {
 
 	#[test]
 	// Compares a pre-saved `AudioState` against `AudioState::new()`.
-	fn audio0_new() {
+	fn audio_new() {
 		let a1 = AudioState::new();
 		let b1 = a1.to_bytes().unwrap();
 
