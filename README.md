@@ -242,7 +242,6 @@ The supported audio codecs are:
 - `Ogg/Vorbis`
 - `Opus`
 - `WAV`
-- `AIFF`
 - `WavPack`
 
 ---

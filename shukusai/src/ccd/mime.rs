@@ -2,7 +2,8 @@
 use benri::debug_panic;
 
 //---------------------------------------------------------------------------------------------------- MIME constants.
-pub(crate) const SUPPORTED_AUDIO_MIME_TYPES: [&str; 28] = [
+// SOMEDAY: Fix AIFF (symphonia doesn't parse metadata correctly)
+pub(crate) const SUPPORTED_AUDIO_MIME_TYPES: [&str; 26] = [
 	// AAC
 	"audio/aac",
 	"audio/x-aac",
@@ -33,8 +34,8 @@ pub(crate) const SUPPORTED_AUDIO_MIME_TYPES: [&str; 28] = [
 	// PCM (wav, aiff)
 	"audio/wav",
 	"audio/x-wav",
-	"audio/aiff",
-	"audio/x-aiff",
+//	"audio/aiff",
+//	"audio/x-aiff",
 	// Wavpack
 	"audio/wavpack",
 	"audio/x-wavpack",
@@ -63,7 +64,7 @@ pub(super) enum Codec {
 	Ogg, // Vorbis.
 	Opus,
 	Wav,
-	Aiff,
+//	Aiff,
 	Wavpack,
 }
 
@@ -91,7 +92,7 @@ impl Codec {
 			"audio/opus"|"audio/x-opus" => Self::Opus,
 			// PCM (wav, aiff)
 			"audio/wav"|"audio/x-wav" => Self::Wav,
-			"audio/aiff"|"audio/x-aiff" => Self::Aiff,
+//			"audio/aiff"|"audio/x-aiff" => Self::Aiff,
 			// Wavpack
 			"audio/wavpack"|"audio/x-wavpack" => Self::Wavpack,
 
