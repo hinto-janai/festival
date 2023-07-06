@@ -1146,12 +1146,13 @@ mod tests {
 	}
 
 	#[test]
-	// Compares a pre-saved `Collection` against `Collection::new()`.
-	fn collection_new() {
+	// Compares `Collection::new()` against C1 & C2.
+	fn collection_cmp() {
+		assert_eq!(Lazy::force(&C1), &Collection::new());
+		assert_ne!(Lazy::force(&C1), Lazy::force(&C2));
+
 		let b1 = C1.to_bytes().unwrap();
 		let b2 = C2.to_bytes().unwrap();
-
-		assert_ne!(Lazy::force(&C1), Lazy::force(&C2));
 		assert_ne!(b1, b2);
 	}
 

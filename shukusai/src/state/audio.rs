@@ -348,41 +348,35 @@ mod tests {
 
 	use disk::Bincode2;
 	use readable::Runtime;
+	use once_cell::sync::Lazy;
+	// Empty new `AudioState`.
+	const A1: Lazy<AudioState> = Lazy::new(|| AudioState::new());
+	// Filled, user `AudioState`.
+	const A2: Lazy<AudioState> = Lazy::new(|| AudioState::from_path("../assets/shukusai/state/audio0_real.bin").unwrap());
 
 	#[test]
-	// Compares a pre-saved `AudioState` against `AudioState::new()`.
-	fn audio_new() {
-		let a1 = AudioState::new();
-		let b1 = a1.to_bytes().unwrap();
+	// Compares `AudioState::new()` against A1 & A2.
+	fn audio_cmp() {
+		assert_eq!(Lazy::force(&A1), &AudioState::new());
+		assert_ne!(Lazy::force(&A1), Lazy::force(&A2));
 
-		let a2 = AudioState::from_path("../assets/shukusai/state/audio0_new.bin").unwrap();
-		let b2 = a2.to_bytes().unwrap();
-
-		assert_eq!(a1, a2);
-		assert_eq!(b1, b2);
+		let b1 = A1.to_bytes().unwrap();
+		let b2 = A2.to_bytes().unwrap();
+		assert_ne!(b1, b2);
 	}
 
 	#[test]
 	// Attempts to deserialize a non-empty `AudioState`.
 	fn audio_real() {
-		let a1 = AudioState::new();
-		let b1 = a1.to_bytes().unwrap();
-
-		let a2 = AudioState::from_path("../assets/shukusai/state/audio0_real.bin").unwrap();
-		let b2 = a2.to_bytes().unwrap();
-
-		assert_ne!(a1, a2);
-		assert_ne!(b1, b2);
-
 		// Assert data.
-		assert_eq!(a2.queue[0],  SongKey::from(0_u8));
-		assert_eq!(a2.queue[1],  SongKey::from(10_u8));
-		assert_eq!(a2.queue[2],  SongKey::from(100_u8));
-		assert_eq!(a2.queue_idx, Some(2));
-		assert_eq!(a2.song,      Some(SongKey::from(100_u8)));
-		assert_eq!(a2.elapsed,   Runtime::from(123_u16));
-		assert_eq!(a2.runtime,   Runtime::from(321_u16));
-		assert_eq!(a2.repeat,    Repeat::Queue);
-		assert!(a2.playing);
+		assert_eq!(A2.queue[0],  SongKey::from(0_u8));
+		assert_eq!(A2.queue[1],  SongKey::from(10_u8));
+		assert_eq!(A2.queue[2],  SongKey::from(100_u8));
+		assert_eq!(A2.queue_idx, Some(2));
+		assert_eq!(A2.song,      Some(SongKey::from(100_u8)));
+		assert_eq!(A2.elapsed,   Runtime::from(123_u16));
+		assert_eq!(A2.runtime,   Runtime::from(321_u16));
+		assert_eq!(A2.repeat,    Repeat::Queue);
+		assert!(A2.playing);
 	}
 }
