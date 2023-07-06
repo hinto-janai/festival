@@ -65,9 +65,9 @@ impl AudioStateLock {
 }
 
 //---------------------------------------------------------------------------------------------------- AudioState
-#[cfg(debug_assertions)]
-disk::json!(AudioState, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{STATE_SUB_DIR}"), "audio");
-#[cfg(not(debug_assertions))]
+//#[cfg(debug_assertions)]
+//disk::json!(AudioState, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{STATE_SUB_DIR}"), "audio");
+//#[cfg(not(debug_assertions))]
 disk::bincode2!(AudioState, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{STATE_SUB_DIR}"), "audio", HEADER, AUDIO_VERSION);
 /// Audio State
 ///
@@ -344,5 +344,20 @@ mod tests {
 		// 4
 		a.queue.clear();
 		assert!(a.prev().is_none());
+	}
+
+	use disk::Bincode2;
+
+	#[test]
+	// Compares a pre-saved `AudioState` against `AudioState::new()`.
+	fn audio0_new() {
+		let a1 = AudioState::new();
+		let b1 = a1.to_bytes().unwrap();
+
+		let a2 = AudioState::from_path("../assets/shukusai/state/audio0_new.bin").unwrap();
+		let b2 = a2.to_bytes().unwrap();
+
+		assert!(a1 == a2);
+		assert!(b1 == b2);
 	}
 }

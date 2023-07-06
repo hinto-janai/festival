@@ -295,8 +295,8 @@ pub struct Collection {
 
 impl Collection {
 	//-------------------------------------------------- New.
-	// Creates an empty [`Collection`].
-	pub(crate) fn new() -> Self {
+	/// Creates an empty [`Collection`].
+	pub fn new() -> Self {
 		Self {
 			empty: true,
 			timestamp: 0,
@@ -1109,15 +1109,38 @@ impl std::fmt::Display for Collection {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//	use super::*;
-//	use disk::*;
-//
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use disk::Bincode2;
+
+	#[test]
+	// Compares a pre-saved `Collection` against `Collection::new()`.
+	fn collection0_new() {
+		let c1 = Collection::new();
+		let b1 = c1.to_bytes().unwrap();
+
+		let c2 = Collection::from_path("../assets/shukusai/state/collection0_new.bin").unwrap();
+		let b2 = c2.to_bytes().unwrap();
+
+		assert!(c1 == c2);
+		assert!(b1 == b2);
+	}
+
 //	#[test]
-//	fn serde() {
-//		let collection = Collection::new();
-//		collection.save().unwrap();
-//		let collection = Collection::from_file();
+//	// Attempts to deserialize a non-empty `Collection`.
+//	//
+//	//
+//	fn collection0_real() {
+//		let c1 = Collection::new();
+//		let b1 = c1.to_bytes().unwrap();
+//
+//		let c2 = Collection::from_path("../assets/shukusai/state/collection0_real.bin").unwrap();
+//		let b2 = c2.to_bytes().unwrap();
+//
+//		assert!(c1 != c2);
+//		assert!(b1 != b2);
+//
+//		// Assert the metadata within the `Collection`.
 //	}
-//}
+}
