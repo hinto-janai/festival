@@ -347,6 +347,7 @@ mod tests {
 	}
 
 	use disk::Bincode2;
+	use readable::Runtime;
 
 	#[test]
 	// Compares a pre-saved `AudioState` against `AudioState::new()`.
@@ -359,5 +360,29 @@ mod tests {
 
 		assert!(a1 == a2);
 		assert!(b1 == b2);
+	}
+
+	#[test]
+	// Attempts to deserialize a non-empty `AudioState`.
+	fn audio_real() {
+		let a1 = AudioState::new();
+		let b1 = a1.to_bytes().unwrap();
+
+		let a2 = AudioState::from_path("../assets/shukusai/state/audio0_real.bin").unwrap();
+		let b2 = a2.to_bytes().unwrap();
+
+		assert_ne!(a1, a2);
+		assert_ne!(b1, b2);
+
+		// Assert data.
+		assert_eq!(a2.queue[0],  SongKey::from(0_u8));
+		assert_eq!(a2.queue[1],  SongKey::from(10_u8));
+		assert_eq!(a2.queue[2],  SongKey::from(100_u8));
+		assert_eq!(a2.queue_idx, Some(2));
+		assert_eq!(a2.song,      Some(SongKey::from(100_u8)));
+		assert_eq!(a2.elapsed,   Runtime::from(123_u16));
+		assert_eq!(a2.runtime,   Runtime::from(321_u16));
+		assert_eq!(a2.repeat,    Repeat::Queue);
+		assert!(a2.playing);
 	}
 }
