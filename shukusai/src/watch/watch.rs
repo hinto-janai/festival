@@ -204,91 +204,93 @@ mod tests {
 		use benri::sleep;
 		sleep!(3);
 
+		const T: std::time::Duration = std::time::Duration::from_secs(60);
+
 		// Regular signals.
 		Toggle::touch().unwrap();
-		sleep!(1);
-		assert_eq!(recv!(from_watch), WatchToKernel::Toggle);
+		sleep!(2);
+		assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Toggle);
 
 		Pause::touch().unwrap();
-		sleep!(1);
-		assert_eq!(recv!(from_watch), WatchToKernel::Pause);
+		sleep!(2);
+		assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Pause);
 
 		Play::touch().unwrap();
-		sleep!(1);
-		assert_eq!(recv!(from_watch), WatchToKernel::Play);
+		sleep!(2);
+		assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Play);
 
 		Next::touch().unwrap();
-		sleep!(1);
-		assert_eq!(recv!(from_watch), WatchToKernel::Next);
+		sleep!(2);
+		assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Next);
 
 		Previous::touch().unwrap();
-		sleep!(1);
-		assert_eq!(recv!(from_watch), WatchToKernel::Previous);
+		sleep!(2);
+		assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Previous);
 
 		Stop::touch().unwrap();
-		sleep!(1);
-		assert_eq!(recv!(from_watch), WatchToKernel::Stop);
+		sleep!(2);
+		assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Stop);
 
 		Shuffle::touch().unwrap();
-		sleep!(1);
-		assert_eq!(recv!(from_watch), WatchToKernel::Shuffle);
+		sleep!(2);
+		assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Shuffle);
 
 		RepeatSong::touch().unwrap();
-		sleep!(1);
-		assert_eq!(recv!(from_watch), WatchToKernel::RepeatSong);
+		sleep!(2);
+		assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::RepeatSong);
 
 		RepeatQueue::touch().unwrap();
-		sleep!(1);
-		assert_eq!(recv!(from_watch), WatchToKernel::RepeatQueue);
+		sleep!(2);
+		assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::RepeatQueue);
 
 		RepeatOff::touch().unwrap();
-		sleep!(1);
-		assert_eq!(recv!(from_watch), WatchToKernel::RepeatOff);
+		sleep!(2);
+		assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::RepeatOff);
 
 		// Content signals.
 		// Should be 0..=100
 		for i in [0, 50, 100, 101, u8::MAX] {
 			let v = unsafe { crate::audio::Volume::new_unchecked(i) };
 			Volume(v).save().unwrap();
-			sleep!(1);
-			assert_eq!(recv!(from_watch), WatchToKernel::Volume(crate::audio::Volume::new(i)));
+			assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Volume(crate::audio::Volume::new(i)));
+			sleep!(2);
 		}
 
 		for i in [0, 5, usize::MAX] {
 			Skip(i).save().unwrap();
-			sleep!(1);
-			assert_eq!(recv!(from_watch), WatchToKernel::Skip(i));
+			assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Skip(i));
+			sleep!(2);
 
 			Back(i).save().unwrap();
-			sleep!(1);
-			assert_eq!(recv!(from_watch), WatchToKernel::Back(i));
+			assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Back(i));
+			sleep!(2);
 		}
 
 		// Should saturate at 0.
 		for i in [0, 1, 5, usize::MAX] {
 			Index(i).save().unwrap();
-			sleep!(1);
-			assert_eq!(recv!(from_watch), WatchToKernel::Index(i.saturating_sub(1)));
+			assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Index(i.saturating_sub(1)));
+			sleep!(2);
 		}
 
 		for i in [true, false] {
 			Clear(i).save().unwrap();
-			sleep!(1);
-			assert_eq!(recv!(from_watch), WatchToKernel::Clear(i));
+			assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Clear(i));
+			sleep!(2);
 		}
 
 		for i in [0, 10, u64::MAX] {
 			Seek(i).save().unwrap();
-			sleep!(1);
-			assert_eq!(recv!(from_watch), WatchToKernel::Seek(i));
+			assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Seek(i));
+			sleep!(2);
 
 			SeekForward(i).save().unwrap();
-			sleep!(1);
-			assert_eq!(recv!(from_watch), WatchToKernel::SeekForward(i));
+			assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::SeekForward(i));
+			sleep!(2);
 
 			SeekBackward(i).save().unwrap();
-			sleep!(1);
-			assert_eq!(recv!(from_watch), WatchToKernel::SeekBackward(i));
+			assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::SeekBackward(i));
+			sleep!(2);
 		}
 	}
 }
