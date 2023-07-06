@@ -335,11 +335,11 @@ mod tests {
 	#[test]
 	// Tests `cmp_f64()` with multiple inputs.
 	fn cmp_f64() {
-		assert!(Search::cmp_f64(1.1, 1.0) == Ordering::Greater);
-		assert!(Search::cmp_f64(1.0, 1.1) == Ordering::Less);
-		assert!(Search::cmp_f64(1.0, 1.0) == Ordering::Equal);
-		assert!(Search::cmp_f64(f64::INFINITY, 1.0) == Ordering::Greater);
-		assert!(Search::cmp_f64(1.0, f64::INFINITY) == Ordering::Less);
+		assert_eq!(Search::cmp_f64(1.1, 1.0), Ordering::Greater);
+		assert_eq!(Search::cmp_f64(1.0, 1.1), Ordering::Less);
+		assert_eq!(Search::cmp_f64(1.0, 1.0), Ordering::Equal);
+		assert_eq!(Search::cmp_f64(f64::INFINITY, 1.0), Ordering::Greater);
+		assert_eq!(Search::cmp_f64(1.0, f64::INFINITY), Ordering::Less);
 	}
 
 	#[test]
@@ -403,7 +403,7 @@ mod tests {
 			let k = match recv!(from_search) { SearchToKernel::Resp(keychain) => keychain };
 
 			println!("{:#?}", k.artists);
-			assert!(k.artists[..] == [
+			assert_eq!(k.artists[..], [
 				ArtistKey::from(0_u8),
 				ArtistKey::from(1_u8),
 				ArtistKey::from(2_u8),
@@ -412,7 +412,7 @@ mod tests {
 			]);
 
 			println!("{:#?}", k.albums);
-			assert!(k.albums[..] == [
+			assert_eq!(k.albums[..], [
 				AlbumKey::from(0_u8),
 				AlbumKey::from(1_u8),
 				AlbumKey::from(2_u8),
@@ -421,7 +421,7 @@ mod tests {
 			]);
 
 			println!("{:#?}", k.songs);
-			assert!(k.songs[..] == [
+			assert_eq!(k.songs[..], [
 				SongKey::from(0_u8),
 				SongKey::from(1_u8),
 				SongKey::from(2_u8),
@@ -435,21 +435,21 @@ mod tests {
 		let k = match recv!(from_search) { SearchToKernel::Resp(keychain) => keychain };
 
 		println!("{:#?}", k.artists);
-		assert!(k.artists[..] == [
+		assert_eq!(k.artists[..], [
 			ArtistKey::from(0_u8),
 			ArtistKey::from(1_u8),
 		]);
 
 		// Assert `Album` order is correct.
 		println!("{:#?}", k.albums);
-		assert!(k.albums[..] == [
+		assert_eq!(k.albums[..], [
 			AlbumKey::from(0_u8),
 			AlbumKey::from(1_u8),
 		]);
 
 		// Assert `Song` order is correct.
 		println!("{:#?}", k.songs);
-		assert!(k.songs[..] == [
+		assert_eq!(k.songs[..], [
 			SongKey::from(0_u8),
 			SongKey::from(1_u8),
 		]);

@@ -230,18 +230,18 @@ mod tests {
 
 		// 1.
 		a.if_copy(&mut dst);
-		assert!(a == dst);
+		assert_eq!(a, dst);
 
 		// 2.
 		a.playing   = true;
 		a.queue_idx = Some(usize::MAX);
 		a.song      = Some(SONG);
 		a.elapsed   = Runtime::from(123_u32);
-		assert!(a != dst);
+		assert_ne!(a, dst);
 		a.if_copy(&mut dst);
-		assert!(dst.song.unwrap() == SONG);
-		assert!(dst.queue.len() == 0);
-		assert!(a == dst);
+		assert_eq!(dst.song.unwrap(), SONG);
+		assert_eq!(dst.queue.len(), 0);
+		assert_eq!(a, dst);
 
 		// 3.
 		let mut a   = AudioState::new();
@@ -249,11 +249,11 @@ mod tests {
 		a.queue_idx = Some(usize::MAX);
 		a.song      = Some(SONG);
 		a.queue.push_front(SongKey::from(usize::MAX));
-		assert!(a.queue != dst.queue);
+		assert_ne!(a.queue, dst.queue);
 		a.if_copy(&mut dst);
-		assert!(dst.song.unwrap() == SONG);
-		assert!(dst.queue.len() == 1);
-		assert!(a == dst);
+		assert_eq!(dst.song.unwrap(), SONG);
+		assert_eq!(dst.queue.len(), 1);
+		assert_eq!(a, dst);
 	}
 
 	#[test]
@@ -275,8 +275,8 @@ mod tests {
 		assert!(a.queue_idx.is_none());
 		assert!(!a.playing);
 		assert!(a.song.is_none());
-		assert!(a.elapsed == Runtime::zero());
-		assert!(a.runtime == Runtime::zero());
+		assert_eq!(a.elapsed, Runtime::zero());
+		assert_eq!(a.runtime, Runtime::zero());
 	}
 
 	#[test]
@@ -305,15 +305,15 @@ mod tests {
 		a.queue.push_front(SONG);
 		a.queue.push_front(SONG);
 		a.queue.push_front(SONG);
-		assert!(a.next() == Some(SONG));
-		assert!(a.queue_idx == Some(1));
-		assert!(a.next() == Some(SONG));
-		assert!(a.queue_idx == Some(2));
+		assert_eq!(a.next(),    Some(SONG));
+		assert_eq!(a.queue_idx, Some(1));
+		assert_eq!(a.next(),    Some(SONG));
+		assert_eq!(a.queue_idx, Some(2));
 
 		// 3
 		assert!(a.next().is_none());
 		// FIXME: maybe this should be set to `None`.
-		assert!(a.queue_idx == Some(2));
+		assert_eq!(a.queue_idx, Some(2));
 	}
 
 	#[test]
@@ -334,12 +334,12 @@ mod tests {
 		a.queue_idx = Some(1);
 		a.queue.push_front(SONG);
 		a.queue.push_front(SONG);
-		assert!(a.prev() == Some(SONG));
-		assert!(a.queue_idx == Some(0));
+		assert_eq!(a.prev(), Some(SONG));
+		assert_eq!(a.queue_idx, Some(0));
 
 		// 3
-		assert!(a.prev() == Some(SONG));
-		assert!(a.queue_idx == Some(0));
+		assert_eq!(a.prev(),    Some(SONG));
+		assert_eq!(a.queue_idx, Some(0));
 
 		// 4
 		a.queue.clear();
@@ -358,8 +358,8 @@ mod tests {
 		let a2 = AudioState::from_path("../assets/shukusai/state/audio0_new.bin").unwrap();
 		let b2 = a2.to_bytes().unwrap();
 
-		assert!(a1 == a2);
-		assert!(b1 == b2);
+		assert_eq!(a1, a2);
+		assert_eq!(b1, b2);
 	}
 
 	#[test]

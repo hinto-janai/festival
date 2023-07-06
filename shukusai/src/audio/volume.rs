@@ -153,19 +153,19 @@ mod tests {
 		let v5 = Volume::new_51();
 
 		// Make sure result is `0`.
-		assert!(v1 - v2 == v1);
+		assert_eq!(v1 - v2, v1);
 
 		// Make sure result is `50`.
-		assert!(v4 - v3 == v3);
+		assert_eq!(v4 - v3, v3);
 
 		// Make sure result is `100`.
-		assert!(v3 + v3 == v4);
+		assert_eq!(v3 + v3, v4);
 
 		// Make sure overflowed result is `100`.
 		println!("{}", v3 + v5);
-		assert!(v3 + v5 == v4);
+		assert_eq!(v3 + v5, v4);
 
 		// Make sure underflowed result is `0`.
-		assert!(v3 - v4 == v1);
+		assert_eq!(v3 - v4, v1);
 	}
 }

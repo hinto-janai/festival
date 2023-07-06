@@ -78,7 +78,7 @@ mod tests {
 	#[test]
 	// Asserts `.iter()` covers all variants.
 	fn iter_covers_all() {
-		assert!(SearchKind::iter().count() == SEARCH_KIND_VARIANT_COUNT);
+		assert_eq!(SearchKind::iter().count(), SEARCH_KIND_VARIANT_COUNT);
 	}
 
 	#[test]
@@ -91,12 +91,12 @@ mod tests {
 
 		for i in SearchKind::iter() {
 			// 1
-			assert!(last != i.as_str());
+			assert_ne!(last, i.as_str());
 			last = i.as_str().to_string();
  			// 2
-			assert!(*i != i.next());
+			assert_ne!(*i, i.next());
 			// 3
-			assert!(*i != i.previous());
+			assert_ne!(*i, i.previous());
 		}
 	}
 }

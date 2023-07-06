@@ -189,6 +189,6 @@ mod tests {
 	#[test]
 	// Make sure the `.unwrap()` doesn't panic.
 	fn unknown() {
-		assert!(UNKNOWN_ALBUM.size() == [ALBUM_ART_SIZE; 2]);
+		assert_eq!(UNKNOWN_ALBUM.size(), [ALBUM_ART_SIZE; 2]);
 	}
 }

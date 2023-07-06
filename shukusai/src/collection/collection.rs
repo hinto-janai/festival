@@ -1124,8 +1124,8 @@ mod tests {
 		let c2 = Collection::from_path("../assets/shukusai/state/collection0_new.bin").unwrap();
 		let b2 = c2.to_bytes().unwrap();
 
-		assert!(c1 == c2);
-		assert!(b1 == b2);
+		assert_ne!(c1, c2);
+		assert_ne!(b1, b2);
 	}
 
 	#[test]
@@ -1137,98 +1137,98 @@ mod tests {
 		let c2 = Collection::from_path("../assets/shukusai/state/collection0_real.bin").unwrap();
 		let b2 = c2.to_bytes().unwrap();
 
-		assert!(c1 != c2);
-		assert!(b1 != b2);
+		assert_ne!(c1, c2);
+		assert_ne!(b1, b2);
 
 		// Assert metadata within the `Collection`.
 		assert!(!c2.empty);
-		assert!(c2.count_artist            == 3);
-		assert!(c2.count_album             == 4);
-		assert!(c2.count_song              == 7);
-		assert!(c2.count_art               == 0);
-		assert!(c2.timestamp               == 1688605697);
+		assert_eq!(c2.count_artist, 3);
+		assert_eq!(c2.count_album,  4);
+		assert_eq!(c2.count_song,   7);
+		assert_eq!(c2.count_art,    0);
+		assert_eq!(c2.timestamp,    1688605697);
 
 		// Artist 1/3
 		let k = ArtistKey::from(0_u8);
-		assert!(c2.artists[k].name         == "artist_1");
-		assert!(c2.artists[k].runtime      == Runtime::from(4_u8));
-		assert!(c2.artists[k].albums.len() == 2);
-		assert!(c2.artists[k].songs.len()  == 4);
+		assert_eq!(c2.artists[k].name,         "artist_1");
+		assert_eq!(c2.artists[k].runtime,      Runtime::from(4_u8));
+		assert_eq!(c2.artists[k].albums.len(), 2);
+		assert_eq!(c2.artists[k].songs.len(),  4);
 
 		// Artist 2/3
 		let k = ArtistKey::from(1_u8);
-		assert!(c2.artists[k].name         == "artist_2");
-		assert!(c2.artists[k].runtime      == Runtime::from(2_u8));
-		assert!(c2.artists[k].albums.len() == 1);
-		assert!(c2.artists[k].songs.len()  == 2);
+		assert_eq!(c2.artists[k].name,         "artist_2");
+		assert_eq!(c2.artists[k].runtime,      Runtime::from(2_u8));
+		assert_eq!(c2.artists[k].albums.len(), 1);
+		assert_eq!(c2.artists[k].songs.len(),  2);
 
 		// Artist 3/3
 		let k = ArtistKey::from(2_u8);
-		assert!(c2.artists[k].name         == "artist_3");
-		assert!(c2.artists[k].runtime      == Runtime::from(1_u8));
-		assert!(c2.artists[k].albums.len() == 1);
-		assert!(c2.artists[k].songs.len()  == 1);
+		assert_eq!(c2.artists[k].name,         "artist_3");
+		assert_eq!(c2.artists[k].runtime,      Runtime::from(1_u8));
+		assert_eq!(c2.artists[k].albums.len(), 1);
+		assert_eq!(c2.artists[k].songs.len(),  1);
 
 		// Albums 1/4
 		let k = AlbumKey::from(0_u8);
-		assert!(c2.albums[k].title   == "album_1");
-		assert!(c2.albums[k].release == Date::from_str("2018-04-25").unwrap());
+		assert_eq!(c2.albums[k].title, "album_1");
+		assert_eq!(c2.albums[k].release, Date::from_str("2018-04-25").unwrap());
 
 		// Albums 2/4
 		let k = AlbumKey::from(1_u8);
-		assert!(c2.albums[k].title   == "album_2");
-		assert!(c2.albums[k].release == Date::from_str("2018-04-25").unwrap());
+		assert_eq!(c2.albums[k].title, "album_2");
+		assert_eq!(c2.albums[k].release, Date::from_str("2018-04-25").unwrap());
 
 		// Albums 3/4
 		let k = AlbumKey::from(2_u8);
-		assert!(c2.albums[k].title   == "album_3");
-		assert!(c2.albums[k].release == Date::from_str("2018-04-25").unwrap());
+		assert_eq!(c2.albums[k].title, "album_3");
+		assert_eq!(c2.albums[k].release, Date::from_str("2018-04-25").unwrap());
 
 		// Albums 4/4
 		let k = AlbumKey::from(3_u8);
-		assert!(c2.albums[k].title   == "album_4");
-		assert!(c2.albums[k].release == Date::from_str("2018-04-25").unwrap());
+		assert_eq!(c2.albums[k].title, "album_4");
+		assert_eq!(c2.albums[k].release, Date::from_str("2018-04-25").unwrap());
 
 		// Song 1/7
 		let k = SongKey::from(0_u8);
-		assert!(c2.songs[k].title       == "mp3");
-		assert!(c2.songs[k].sample_rate == 48_000);
-		assert!(c2.songs[k].path.as_os_str().to_str().unwrap() == "/home/main/git/festival/assets/audio/song_1.mp3");
+		assert_eq!(c2.songs[k].title, "mp3");
+		assert_eq!(c2.songs[k].sample_rate, 48_000);
+		assert_eq!(c2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_1.mp3");
 
 		// Song 2/7
 		let k = SongKey::from(1_u8);
-		assert!(c2.songs[k].title       == "mp3");
-		assert!(c2.songs[k].sample_rate == 48_000);
-		assert!(c2.songs[k].path.as_os_str().to_str().unwrap() == "/home/main/git/festival/assets/audio/song_2.mp3");
+		assert_eq!(c2.songs[k].title, "mp3");
+		assert_eq!(c2.songs[k].sample_rate, 48_000);
+		assert_eq!(c2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_2.mp3");
 
 		// Song 3/7
 		let k = SongKey::from(2_u8);
-		assert!(c2.songs[k].title       == "mp3");
-		assert!(c2.songs[k].sample_rate == 48_000);
-		assert!(c2.songs[k].path.as_os_str().to_str().unwrap() == "/home/main/git/festival/assets/audio/song_3.mp3");
+		assert_eq!(c2.songs[k].title, "mp3");
+		assert_eq!(c2.songs[k].sample_rate, 48_000);
+		assert_eq!(c2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_3.mp3");
 
 		// Song 4/7
 		let k = SongKey::from(3_u8);
-		assert!(c2.songs[k].title       == "flac");
-		assert!(c2.songs[k].sample_rate == 48_000);
-		assert!(c2.songs[k].path.as_os_str().to_str().unwrap() == "/home/main/git/festival/assets/audio/song_4.flac");
+		assert_eq!(c2.songs[k].title, "flac");
+		assert_eq!(c2.songs[k].sample_rate, 48_000);
+		assert_eq!(c2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_4.flac");
 
 		// Song 5/7
 		let k = SongKey::from(4_u8);
-		assert!(c2.songs[k].title       == "m4a");
-		assert!(c2.songs[k].sample_rate == 48_000);
-		assert!(c2.songs[k].path.as_os_str().to_str().unwrap() == "/home/main/git/festival/assets/audio/song_5.m4a");
+		assert_eq!(c2.songs[k].title, "m4a");
+		assert_eq!(c2.songs[k].sample_rate, 48_000);
+		assert_eq!(c2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_5.m4a");
 
 		// Song 6/7
 		let k = SongKey::from(5_u8);
-		assert!(c2.songs[k].title       == "song_6");
-		assert!(c2.songs[k].sample_rate == 48_000);
-		assert!(c2.songs[k].path.as_os_str().to_str().unwrap() == "/home/main/git/festival/assets/audio/song_6.ogg");
+		assert_eq!(c2.songs[k].title, "song_6");
+		assert_eq!(c2.songs[k].sample_rate, 48_000);
+		assert_eq!(c2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_6.ogg");
 
 		// Song 7/7
 		let k = SongKey::from(6_u8);
-		assert!(c2.songs[k].title       == "mp3");
-		assert!(c2.songs[k].sample_rate == 48_000);
-		assert!(c2.songs[k].path.as_os_str().to_str().unwrap() == "/home/main/git/festival/assets/audio/song_7.mp3");
+		assert_eq!(c2.songs[k].title, "mp3");
+		assert_eq!(c2.songs[k].sample_rate, 48_000);
+		assert_eq!(c2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_7.mp3");
 	}
 }

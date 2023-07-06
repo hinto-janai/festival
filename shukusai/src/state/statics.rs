@@ -78,8 +78,8 @@ mod tests {
 	#[test]
 	// Asserts function corresponds with the static.
 	fn __saving() {
-		assert!(SAVING.load(Ordering::SeqCst) == false);
-		assert!(saving() == false);
+		assert!(!SAVING.load(Ordering::SeqCst));
+		assert!(!saving());
 
 		SAVING.store(true, Ordering::SeqCst);
 
@@ -90,8 +90,8 @@ mod tests {
 	#[test]
 	// Asserts function corresponds with the static.
 	fn __media_controls_raise() {
-		assert!(MEDIA_CONTROLS_RAISE.load(Ordering::SeqCst) == false);
-		assert!(media_controls_raise() == false);
+		assert!(!MEDIA_CONTROLS_RAISE.load(Ordering::SeqCst));
+		assert!(!media_controls_raise());
 
 		MEDIA_CONTROLS_RAISE.store(true, Ordering::SeqCst);
 
@@ -102,8 +102,8 @@ mod tests {
 	#[test]
 	// Asserts function corresponds with the static.
 	fn __media_controls_should_exit() {
-		assert!(MEDIA_CONTROLS_SHOULD_EXIT.load(Ordering::SeqCst) == false);
-		assert!(media_controls_should_exit() == false);
+		assert!(!MEDIA_CONTROLS_SHOULD_EXIT.load(Ordering::SeqCst));
+		assert!(!media_controls_should_exit());
 
 		MEDIA_CONTROLS_SHOULD_EXIT.store(true, Ordering::SeqCst);
 

@@ -95,9 +95,9 @@ mod tests {
 		let collection = Collection::new();
 		let c = &collection;
 
-		assert!(c.artists.len() == 0);
-		assert!(c.albums.len()  == 0);
-		assert!(c.songs.len()   == 0);
+		assert_eq!(c.artists.len(), 0);
+		assert_eq!(c.albums.len(),  0);
+		assert_eq!(c.songs.len(),   0);
 
 		let ar = ArtistKey::from(1_u8);
 		let al = AlbumKey::from(1_u8);

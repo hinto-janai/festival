@@ -496,9 +496,9 @@ mod tests {
 	#[test]
 	// Asserts `.iter()` covers all variants.
 	fn iter_covers_all() {
-		assert!(ArtistSort::iter().count() == ARTIST_SORT_VARIANT_COUNT);
-		assert!(AlbumSort::iter().count() == ALBUM_SORT_VARIANT_COUNT);
-		assert!(SongSort::iter().count() == SONG_SORT_VARIANT_COUNT);
+		assert_eq!(ArtistSort::iter().count(), ARTIST_SORT_VARIANT_COUNT);
+		assert_eq!(AlbumSort::iter().count(), ALBUM_SORT_VARIANT_COUNT);
+		assert_eq!(SongSort::iter().count(), SONG_SORT_VARIANT_COUNT);
 	}
 
 	#[test]
@@ -511,12 +511,12 @@ mod tests {
 
 		for i in ArtistSort::iter() {
 			// 1
-			assert!(last != i.as_str());
+			assert_ne!(last, i.as_str());
 			last = i.as_str().to_string();
  			// 2
-			assert!(*i != i.next());
+			assert_ne!(*i, i.next());
 			// 3
-			assert!(*i != i.previous());
+			assert_ne!(*i, i.previous());
 		}
 	}
 
@@ -526,12 +526,12 @@ mod tests {
 
 		for i in AlbumSort::iter() {
 			// 1
-			assert!(last != i.as_str());
+			assert_ne!(last, i.as_str());
 			last = i.as_str().to_string();
  			// 2
-			assert!(*i != i.next());
+			assert_ne!(*i, i.next());
 			// 3
-			assert!(*i != i.previous());
+			assert_ne!(*i, i.previous());
 		}
 	}
 
@@ -541,12 +541,12 @@ mod tests {
 
 		for i in SongSort::iter() {
 			// 1
-			assert!(last != i.as_str());
+			assert_ne!(last, i.as_str());
 			last = i.as_str().to_string();
  			// 2
-			assert!(*i != i.next());
+			assert_ne!(*i, i.next());
 			// 3
-			assert!(*i != i.previous());
+			assert_ne!(*i, i.previous());
 		}
 	}
 }

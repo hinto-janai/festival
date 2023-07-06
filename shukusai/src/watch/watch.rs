@@ -207,43 +207,43 @@ mod tests {
 		// Regular signals.
 		Toggle::touch().unwrap();
 		sleep!(1);
-		assert!(recv!(from_watch) == WatchToKernel::Toggle);
+		assert_eq!(recv!(from_watch), WatchToKernel::Toggle);
 
 		Pause::touch().unwrap();
 		sleep!(1);
-		assert!(recv!(from_watch) == WatchToKernel::Pause);
+		assert_eq!(recv!(from_watch), WatchToKernel::Pause);
 
 		Play::touch().unwrap();
 		sleep!(1);
-		assert!(recv!(from_watch) == WatchToKernel::Play);
+		assert_eq!(recv!(from_watch), WatchToKernel::Play);
 
 		Next::touch().unwrap();
 		sleep!(1);
-		assert!(recv!(from_watch) == WatchToKernel::Next);
+		assert_eq!(recv!(from_watch), WatchToKernel::Next);
 
 		Previous::touch().unwrap();
 		sleep!(1);
-		assert!(recv!(from_watch) == WatchToKernel::Previous);
+		assert_eq!(recv!(from_watch), WatchToKernel::Previous);
 
 		Stop::touch().unwrap();
 		sleep!(1);
-		assert!(recv!(from_watch) == WatchToKernel::Stop);
+		assert_eq!(recv!(from_watch), WatchToKernel::Stop);
 
 		Shuffle::touch().unwrap();
 		sleep!(1);
-		assert!(recv!(from_watch) == WatchToKernel::Shuffle);
+		assert_eq!(recv!(from_watch), WatchToKernel::Shuffle);
 
 		RepeatSong::touch().unwrap();
 		sleep!(1);
-		assert!(recv!(from_watch) == WatchToKernel::RepeatSong);
+		assert_eq!(recv!(from_watch), WatchToKernel::RepeatSong);
 
 		RepeatQueue::touch().unwrap();
 		sleep!(1);
-		assert!(recv!(from_watch) == WatchToKernel::RepeatQueue);
+		assert_eq!(recv!(from_watch), WatchToKernel::RepeatQueue);
 
 		RepeatOff::touch().unwrap();
 		sleep!(1);
-		assert!(recv!(from_watch) == WatchToKernel::RepeatOff);
+		assert_eq!(recv!(from_watch), WatchToKernel::RepeatOff);
 
 		// Content signals.
 		// Should be 0..=100
@@ -251,44 +251,44 @@ mod tests {
 			let v = unsafe { crate::audio::Volume::new_unchecked(i) };
 			Volume(v).save().unwrap();
 			sleep!(1);
-			assert!(recv!(from_watch) == WatchToKernel::Volume(crate::audio::Volume::new(i)));
+			assert_eq!(recv!(from_watch), WatchToKernel::Volume(crate::audio::Volume::new(i)));
 		}
 
 		for i in [0, 5, usize::MAX] {
 			Skip(i).save().unwrap();
 			sleep!(1);
-			assert!(recv!(from_watch) == WatchToKernel::Skip(i));
+			assert_eq!(recv!(from_watch), WatchToKernel::Skip(i));
 
 			Back(i).save().unwrap();
 			sleep!(1);
-			assert!(recv!(from_watch) == WatchToKernel::Back(i));
+			assert_eq!(recv!(from_watch), WatchToKernel::Back(i));
 		}
 
 		// Should saturate at 0.
 		for i in [0, 1, 5, usize::MAX] {
 			Index(i).save().unwrap();
 			sleep!(1);
-			assert!(recv!(from_watch) == WatchToKernel::Index(i.saturating_sub(1)));
+			assert_eq!(recv!(from_watch), WatchToKernel::Index(i.saturating_sub(1)));
 		}
 
 		for i in [true, false] {
 			Clear(i).save().unwrap();
 			sleep!(1);
-			assert!(recv!(from_watch) == WatchToKernel::Clear(i));
+			assert_eq!(recv!(from_watch), WatchToKernel::Clear(i));
 		}
 
 		for i in [0, 10, u64::MAX] {
 			Seek(i).save().unwrap();
 			sleep!(1);
-			assert!(recv!(from_watch) == WatchToKernel::Seek(i));
+			assert_eq!(recv!(from_watch), WatchToKernel::Seek(i));
 
 			SeekForward(i).save().unwrap();
 			sleep!(1);
-			assert!(recv!(from_watch) == WatchToKernel::SeekForward(i));
+			assert_eq!(recv!(from_watch), WatchToKernel::SeekForward(i));
 
 			SeekBackward(i).save().unwrap();
 			sleep!(1);
-			assert!(recv!(from_watch) == WatchToKernel::SeekBackward(i));
+			assert_eq!(recv!(from_watch), WatchToKernel::SeekBackward(i));
 		}
 	}
 }

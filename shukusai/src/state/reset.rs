@@ -171,16 +171,16 @@ mod tests {
 		let old_resetting = r.resetting;
 		let old_phase     = r.phase;
 
-		assert!(r.percent == 0.0);
+		assert_eq!(r.percent, 0.0);
 		r.new_increment(10.0, "New string".into());
 
 		// 1
-		assert!(r.percent  == 10.0);
+		assert_eq!(r.percent, 10.0);
 		// 2
-		assert!(r.specific == "New string");
+		assert_eq!(r.specific, "New string");
 		// 3
-		assert!(r.resetting == old_resetting);
-		assert!(r.phase     == old_phase);
+		assert_eq!(r.resetting, old_resetting);
+		assert_eq!(r.phase, old_phase);
 	}
 
 	#[test]
@@ -196,16 +196,16 @@ mod tests {
 		let mut r = ResetState::new();
 		let old_resetting = r.resetting;
 
-		assert!(r.percent == 0.0);
+		assert_eq!(r.percent, 0.0);
 		r.new_phase(10.0, PHASE);
 
 		// 1
-		assert!(r.percent  == 10.0);
+		assert_eq!(r.percent, 10.0);
 		// 2
-		assert!(r.specific == "");
+		assert_eq!(r.specific, "");
 		// 4
-		assert!(r.phase == PHASE);
+		assert_eq!(r.phase, PHASE);
 		// 3
-		assert!(r.resetting == old_resetting);
+		assert_eq!(r.resetting, old_resetting);
 	}
 }

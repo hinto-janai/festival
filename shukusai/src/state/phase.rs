@@ -41,22 +41,21 @@ pub const PHASE_VARIANT_COUNT: usize = 15;
 /// Use [`Phase::as_str()`] to get a more `Frontend` friendly message related to the [`Phase`]:
 /// ```rust
 /// # use shukusai::state::Phase;
-/// assert!(Phase::None.as_str()     == "...");
-/// assert!(Phase::Disk.as_str()     == "Reading From Disk");
-/// assert!(Phase::Wait.as_str()     == "Waiting for previous Collection reset to finish");
-///
-/// assert!(Phase::Start.as_str()       == "Starting");
-/// assert!(Phase::Deconstruct.as_str() == "Deconstructing Old Collection");
-/// assert!(Phase::WalkDir.as_str()     == "Walking Directories");
-/// assert!(Phase::Parse.as_str()       == "Parsing Metadata");
-/// assert!(Phase::Fix.as_str()         == "Fixing Metadata");
-/// assert!(Phase::Sort.as_str()        == "Sorting");
-/// assert!(Phase::Search.as_str()      == "Creating Search Engine");
-/// assert!(Phase::Prepare.as_str()     == "Preparing Collection");
-/// assert!(Phase::Art.as_str()         == "Preparing Album Art");
-/// assert!(Phase::Clone.as_str()       == "Preparing Collection For Disk");
-/// assert!(Phase::Convert.as_str()     == "Converting Album Art");
-/// assert!(Phase::Finalize.as_str()    == "Finalizing Collection");
+/// assert_eq!(Phase::None.as_str(),        "...");
+/// assert_eq!(Phase::Disk.as_str(),        "Reading From Disk");
+/// assert_eq!(Phase::Wait.as_str(),        "Waiting for previous Collection reset to finish");
+/// assert_eq!(Phase::Start.as_str(),       "Starting");
+/// assert_eq!(Phase::Deconstruct.as_str(), "Deconstructing Old Collection");
+/// assert_eq!(Phase::WalkDir.as_str(),     "Walking Directories");
+/// assert_eq!(Phase::Parse.as_str(),       "Parsing Metadata");
+/// assert_eq!(Phase::Fix.as_str(),         "Fixing Metadata");
+/// assert_eq!(Phase::Sort.as_str(),        "Sorting");
+/// assert_eq!(Phase::Search.as_str(),      "Creating Search Engine");
+/// assert_eq!(Phase::Prepare.as_str(),     "Preparing Collection");
+/// assert_eq!(Phase::Art.as_str(),         "Preparing Album Art");
+/// assert_eq!(Phase::Clone.as_str(),       "Preparing Collection For Disk");
+/// assert_eq!(Phase::Convert.as_str(),     "Converting Album Art");
+/// assert_eq!(Phase::Finalize.as_str(),    "Finalizing Collection");
 /// ```
 pub enum Phase {
 	// Exceptions.
@@ -163,7 +162,7 @@ mod tests {
 	#[test]
 	// Asserts `.iter()` covers all variants.
 	fn iter_covers_all() {
-		assert!(Phase::iter().count() == PHASE_VARIANT_COUNT);
+		assert_eq!(Phase::iter().count(), PHASE_VARIANT_COUNT);
 	}
 
 	#[test]
@@ -172,7 +171,7 @@ mod tests {
 		let mut last = String::new();
 
 		for i in Phase::iter() {
-			assert!(last != i.as_str());
+			assert_ne!(last, i.as_str());
 			last = i.as_str().to_string();
 		}
 	}
