@@ -1164,8 +1164,8 @@ mod tests {
 		assert_eq!(C2.count_artist, 3);
 		assert_eq!(C2.count_album,  4);
 		assert_eq!(C2.count_song,   7);
-		assert_eq!(C2.count_art,    0);
-		assert_eq!(C2.timestamp,    1688605697);
+		assert_eq!(C2.count_art,    4);
+		assert_eq!(C2.timestamp,    1688690421);
 
 		// Artist 1/3
 		let k = ArtistKey::from(0_u8);

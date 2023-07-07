@@ -43,7 +43,7 @@ impl Volume {
 	///
 	/// The [`u8`] must be less than `100` or [`Self::new_100`] will be returned.
 	pub const fn check(self) -> Self {
-		if self.inner() > 100 {
+		if self.0 > 100 {
 			return Self::new_100();
 		}
 
@@ -145,6 +145,23 @@ mod tests {
 	use super::*;
 
 	#[test]
+	// Asserts that Volume must be 0..=100.
+	fn new_and_check() {
+		for i in 0..=100_u8 {
+			let v = Volume::new(i);
+			assert_eq!(v.inner(), i);
+			assert_eq!(v.check().inner(), i)
+		}
+
+		for i in 101..u8::MAX {
+			let v = Volume::new(i);
+			assert_eq!(v.inner(), 100);
+			assert_eq!(v.check().inner(), 100);
+		}
+	}
+
+	#[test]
+	// Tests math and under/overflows work correctly.
 	fn math() {
 		let v1 = Volume::new_0();
 		let v2 = Volume::new_0();

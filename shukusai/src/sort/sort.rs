@@ -256,7 +256,7 @@ impl ArtistSort {
 	/// Returns the next sequential [`ArtistSort`] variant.
 	///
 	/// This returns the _first_ if at the _last_.
-	pub fn next(&self) -> Self {
+	pub const fn next(&self) -> Self {
 		match self {
 			Self::Lexi          => Self::LexiRev,
 			Self::LexiRev       => Self::AlbumCount,
@@ -274,7 +274,7 @@ impl ArtistSort {
 	/// Returns the previous sequential [`ArtistSort`] variant.
 	///
 	/// This returns the _last_ if at the _first_.
-	pub fn previous(&self) -> Self {
+	pub const fn previous(&self) -> Self {
 		match self {
 			Self::Lexi          => Self::NameRev,
 			Self::LexiRev       => Self::Lexi,
@@ -343,7 +343,7 @@ impl AlbumSort {
 	/// Returns the next sequential [`AlbumSort`] variant.
 	///
 	/// This returns the _first_ if at the _last_.
-	pub fn next(&self) -> Self {
+	pub const fn next(&self) -> Self {
 		match self {
 			Self::ReleaseArtistLexi       => Self::ReleaseArtistLexiRev,
 			Self::ReleaseArtistLexiRev    => Self::ReleaseRevArtistLexi,
@@ -367,7 +367,7 @@ impl AlbumSort {
 	/// Returns the previous sequential [`AlbumSort`] variant.
 	///
 	/// This returns the _last_ if at the _first_.
-	pub fn previous(&self) -> Self {
+	pub const fn previous(&self) -> Self {
 		match self {
 			Self::ReleaseArtistLexi       => Self::TitleRev,
 			Self::ReleaseArtistLexiRev    => Self::ReleaseArtistLexi,
@@ -442,7 +442,7 @@ impl SongSort {
 	/// Returns the next sequential [`SongSort`] variant.
 	///
 	/// This returns the _first_ if at the _last_.
-	pub fn next(&self) -> Self {
+	pub const fn next(&self) -> Self {
 		match self {
 			Self::AlbumReleaseArtistLexi       => Self::AlbumReleaseArtistLexiRev,
 			Self::AlbumReleaseArtistLexiRev    => Self::AlbumReleaseRevArtistLexi,
@@ -466,7 +466,7 @@ impl SongSort {
 	/// Returns the previous sequential [`SongSort`] variant.
 	///
 	/// This returns the _last_ if at the _first_.
-	pub fn previous(&self) -> Self {
+	pub const fn previous(&self) -> Self {
 		match self {
 			Self::AlbumReleaseArtistLexi       => Self::TitleRev,
 			Self::AlbumReleaseArtistLexiRev    => Self::AlbumReleaseArtistLexi,

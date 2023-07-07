@@ -12,11 +12,11 @@ pub use audio::{
 mod volume;
 pub use volume::Volume;
 mod append;
-pub use append::Append;
+pub use append::*;
 mod repeat;
-pub use repeat::Repeat;
+pub use repeat::*;
 mod seek;
-pub use seek::Seek;
+pub use seek::*;
 
 // Symphonia-related.
 pub(super) mod output;

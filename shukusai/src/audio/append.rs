@@ -3,6 +3,8 @@ use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
 
 //---------------------------------------------------------------------------------------------------- Volume.
+/// HACK: until `std::mem::variant_count()` is stable.
+pub const APPEND_VARIANT_COUNT: usize = 3;
 /// The different ways you can append songs to the audio queue.
 ///
 /// The [`Default`] is `Append::Front`.
