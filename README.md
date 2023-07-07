@@ -22,6 +22,7 @@ Currently, the most full frontend implementation is [`festival-gui`](https://git
 | [`festivald`](https://github.com/hinto-janai/festival/tree/main/daemon) | Daemon ([`mpd`](https://github.com/MusicPlayerDaemon/MPD)-like) | 🔴            |
 | [`festival-cli`](https://github.com/hinto-janai/festival/tree/main/cli) | CLI client                                                      | 🔴            |
 | [`festival-web`](https://github.com/hinto-janai/festival/tree/main/web) | WASM client                                                     | 🔴            |
+| [`festival-tui`](https://github.com/hinto-janai/festival/tree/main/tui) | Standalone TUI                                                  | 🔴            |
 
 ## Documentation
 For a user guide on Festival, see [`gui/`](https://github.com/hinto-janai/festival/tree/main/gui).

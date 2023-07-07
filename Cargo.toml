@@ -2,9 +2,12 @@
 members = [
 	"shukusai",
 	"gui",
-#	"web",
-#	"daemon",
-#	"cli",
+]
+exclude = [
+	"web",
+	"daemon",
+	"cli",
+	"tui",
 ]
 resolver = "2"
 
