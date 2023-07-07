@@ -28,6 +28,7 @@ use shukusai::{
 	search::SearchKind,
 };
 use crate::data::{
+	Settings,
 	AlbumSizing,
 	SearchSort,
 	ArtistSubTab,
@@ -35,13 +36,14 @@ use crate::data::{
 };
 use const_format::formatcp;
 use std::marker::PhantomData;
+use disk::Bincode2;
 
 //---------------------------------------------------------------------------------------------------- Settings
 //#[cfg(debug_assertions)]
 //disk::json!(Settings0, disk::Dir::Data, FESTIVAL, formatcp!("{GUI}/{STATE_SUB_DIR}"), "settings");
 //#[cfg(not(debug_assertions))]
 disk::bincode2!(Settings0, disk::Dir::Data, FESTIVAL, formatcp!("{GUI}/{STATE_SUB_DIR}"), "settings", HEADER, 0);
-#[derive(Clone,Debug,Default,PartialEq,Serialize,Deserialize,Encode,Decode)]
+#[derive(Clone,Debug,PartialEq,Serialize,Deserialize,Encode,Decode)]
 /// `GUI`'s settings.
 ///
 /// Holds user-mutable `GUI` settings, e.g:
@@ -111,12 +113,6 @@ pub struct Settings0 {
 }
 
 impl Settings0 {
-//	/// Returns the accent color in [`Settings`] in tuple form.
-//	pub const fn accent_color(&self) -> (u8, u8, u8) {
-//		let (r, g, b, _) = self.visuals.selection.bg_fill.to_tuple();
-//		(r, g, b)
-//	}
-
 	pub fn new() -> Self {
 		Self {
 			accent_color: ACCENT_COLOR,
@@ -129,10 +125,22 @@ impl Settings0 {
 			..Default::default()
 		}
 	}
+
+	// Reads from disk, then calls `.into()` if `Ok`.
+	pub fn disk_into() -> Result<Settings, anyhow::Error> {
+		// SAFETY: memmap is used.
+		unsafe { Self::from_file_memmap().map(Into::into) }
+	}
 }
 
-impl Into<crate::data::Settings> for Settings0 {
-	fn into(self) -> crate::data::Settings {
+impl Default for Settings0 {
+	fn default() -> Self {
+		Self::new()
+	}
+}
+
+impl Into<Settings> for Settings0 {
+	fn into(self) -> Settings {
 		let Settings0 {
 			artist_sort,
 			album_sort,
@@ -152,7 +160,7 @@ impl Into<crate::data::Settings> for Settings0 {
 			..
 		} = self;
 
-		crate::data::Settings {
+		Settings {
 			artist_sort,
 			album_sort,
 			song_sort,

@@ -350,13 +350,13 @@ mod tests {
 	use readable::Runtime;
 	use once_cell::sync::Lazy;
 	// Empty new `AudioState`.
-	const A1: Lazy<AudioState> = Lazy::new(|| AudioState::new());
+	const A1: Lazy<AudioState> = Lazy::new(|| AudioState::from_path("../assets/shukusai/state/audio0_new.bin").unwrap());
 	// Filled, user `AudioState`.
 	const A2: Lazy<AudioState> = Lazy::new(|| AudioState::from_path("../assets/shukusai/state/audio0_real.bin").unwrap());
 
 	#[test]
 	// Compares `AudioState::new()` against A1 & A2.
-	fn audio_cmp() {
+	fn cmp() {
 		assert_eq!(Lazy::force(&A1), &AudioState::new());
 		assert_ne!(Lazy::force(&A1), Lazy::force(&A2));
 
@@ -367,7 +367,7 @@ mod tests {
 
 	#[test]
 	// Attempts to deserialize a non-empty `AudioState`.
-	fn audio_real() {
+	fn real() {
 		// Assert data.
 		assert_eq!(A2.queue[0],  SongKey::from(0_u8));
 		assert_eq!(A2.queue[1],  SongKey::from(10_u8));

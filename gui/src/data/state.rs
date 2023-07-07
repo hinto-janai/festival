@@ -35,7 +35,7 @@ use std::marker::PhantomData;
 disk::json!(State, disk::Dir::Data, FESTIVAL, formatcp!("{GUI}/{STATE_SUB_DIR}"), "state");
 #[cfg(not(debug_assertions))]
 disk::bincode2!(State, disk::Dir::Data, FESTIVAL, formatcp!("{GUI}/{STATE_SUB_DIR}"), "state", HEADER, STATE_VERSION);
-#[derive(Clone,Debug,Default,PartialEq,PartialOrd,Serialize,Deserialize,Encode,Decode)]
+#[derive(Clone,Debug,PartialEq,PartialOrd,Serialize,Deserialize,Encode,Decode)]
 /// `GUI`'s State.
 ///
 /// Holds `copy`-able, user-mutable `GUI` state.
@@ -94,8 +94,32 @@ impl State {
 	pub fn new() -> Self {
 		Self {
 			volume: Volume::default().inner(),
-			..Default::default()
+
+			tab: Default::default(),
+			last_tab: Default::default(),
+			search_string: Default::default(),
+			search_result: Default::default(),
+			repeat: Default::default(),
+			album: Default::default(),
+			artist: Default::default(),
+			_reserved1: PhantomData,
+			_reserved2: PhantomData,
+			_reserved3: PhantomData,
+			_reserved4: PhantomData,
+			_reserved5: PhantomData,
+			_reserved6: PhantomData,
+			_reserved7: PhantomData,
+			_reserved8: PhantomData,
+			_reserved9: PhantomData,
+			_reserved10: PhantomData,
+			_reserved11: PhantomData,
 		}
+	}
+}
+
+impl Default for State {
+	fn default() -> Self {
+		Self::new()
 	}
 }
 

@@ -1116,7 +1116,7 @@ mod tests {
 	use readable::{Runtime, Date};
 
 	// Empty new `Collection`.
-	const C1: Lazy<Collection> = Lazy::new(|| Collection::new());
+	const C1: Lazy<Collection> = Lazy::new(|| Collection::from_path("../assets/shukusai/state/collection0_new.bin").unwrap());
 	// Filled, user `Collection`.
 	const C2: Lazy<Collection> = Lazy::new(|| Collection::from_path("../assets/shukusai/state/collection0_real.bin").unwrap());
 
@@ -1147,7 +1147,7 @@ mod tests {
 
 	#[test]
 	// Compares `Collection::new()` against C1 & C2.
-	fn collection_cmp() {
+	fn cmp() {
 		assert_eq!(Lazy::force(&C1), &Collection::new());
 		assert_ne!(Lazy::force(&C1), Lazy::force(&C2));
 
@@ -1158,7 +1158,7 @@ mod tests {
 
 	#[test]
 	// Attempts to deserialize a non-empty `Collection`.
-	fn collection_real() {
+	fn real() {
 		// Assert metadata within the `Collection`.
 		assert!(!C2.empty);
 		assert_eq!(C2.count_artist, 3);

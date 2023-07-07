@@ -37,11 +37,8 @@ use const_format::formatcp;
 use std::marker::PhantomData;
 
 //---------------------------------------------------------------------------------------------------- Settings
-//#[cfg(debug_assertions)]
-//disk::json!(Settings, disk::Dir::Data, FESTIVAL, formatcp!("{GUI}/{STATE_SUB_DIR}"), "settings");
-//#[cfg(not(debug_assertions))]
 disk::bincode2!(Settings, disk::Dir::Data, FESTIVAL, formatcp!("{GUI}/{STATE_SUB_DIR}"), "settings", HEADER, SETTINGS_VERSION);
-#[derive(Clone,Debug,Default,PartialEq,Serialize,Deserialize,Encode,Decode)]
+#[derive(Clone,Debug,PartialEq,Serialize,Deserialize,Encode,Decode)]
 /// `GUI`'s settings.
 ///
 /// Holds user-mutable `GUI` settings, e.g:
@@ -119,12 +116,6 @@ pub struct Settings {
 }
 
 impl Settings {
-//	/// Returns the accent color in [`Settings`] in tuple form.
-//	pub const fn accent_color(&self) -> (u8, u8, u8) {
-//		let (r, g, b, _) = self.visuals.selection.bg_fill.to_tuple();
-//		(r, g, b)
-//	}
-
 	pub fn new() -> Self {
 		Self {
 			artist_sort:        Default::default(),
@@ -161,6 +152,12 @@ impl Settings {
 			_reserved14: None,
 			_reserved15: None,
 		}
+	}
+}
+
+impl Default for Settings {
+	fn default() -> Self {
+		Self::new()
 	}
 }
 
