@@ -324,9 +324,68 @@ impl Keychain {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//  #[test]
-//  fn __TEST__() {
-//  }
-//}
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	// Asserts `*::new()`, and `Default::default()` are the same as `*::zero()`.
+	// Multiple places in the codebase rely on this behavior.
+	fn default_is_new_is_zero() {
+		assert_eq!(Keychain::default(), Keychain::new());
+		assert_eq!(ArtistKey::default(), ArtistKey::new());
+		assert_eq!(AlbumKey::default(), AlbumKey::new());
+		assert_eq!(SongKey::default(), SongKey::new());
+
+		assert_eq!(ArtistKey::new(), ArtistKey::zero());
+		assert_eq!(AlbumKey::new(), AlbumKey::zero());
+		assert_eq!(SongKey::new(), SongKey::zero());
+	}
+
+	#[test]
+	// Asserts all `from()` functions result in the same output.
+	fn from() {
+		assert_eq!(ArtistKey::from(0_u8), ArtistKey::zero());
+		assert_eq!(ArtistKey::from(0_u16), ArtistKey::zero());
+		assert_eq!(ArtistKey::from(0_u32), ArtistKey::zero());
+		assert_eq!(ArtistKey::from(0_u64), ArtistKey::zero());
+		assert_eq!(ArtistKey::from(0_usize), ArtistKey::zero());
+
+		assert_eq!(AlbumKey::from(0_u8), AlbumKey::zero());
+		assert_eq!(AlbumKey::from(0_u16), AlbumKey::zero());
+		assert_eq!(AlbumKey::from(0_u32), AlbumKey::zero());
+		assert_eq!(AlbumKey::from(0_u64), AlbumKey::zero());
+		assert_eq!(AlbumKey::from(0_usize), AlbumKey::zero());
+
+		assert_eq!(SongKey::from(0_u8), SongKey::zero());
+		assert_eq!(SongKey::from(0_u16), SongKey::zero());
+		assert_eq!(SongKey::from(0_u32), SongKey::zero());
+		assert_eq!(SongKey::from(0_u64), SongKey::zero());
+		assert_eq!(SongKey::from(0_usize), SongKey::zero());
+	}
+
+	#[test]
+	// Asserts all comparison impls are correct.
+	fn cmp() {
+		for i in 0..=10_usize {
+			assert_eq!(i, ArtistKey::from(i));
+			assert_eq!(i, ArtistKey::from(i).inner());
+			assert_eq!(i, AlbumKey::from(i));
+			assert_eq!(i, AlbumKey::from(i).inner());
+			assert_eq!(i, SongKey::from(i));
+			assert_eq!(i, SongKey::from(i).inner());
+		}
+	}
+
+	#[test]
+	// Asserts `.inner()` is correct.
+	fn inner() {
+		for i in 0..=10_usize {
+			let (a, b, c) = (ArtistKey::from(i), AlbumKey::from(i), SongKey::from(i));
+			assert_eq!(i, a.inner());
+			assert_eq!(a.inner(), b.inner());
+			assert_eq!(a.inner(), c.inner());
+			assert_eq!(b.inner(), c.inner());
+		}
+	}
+}
