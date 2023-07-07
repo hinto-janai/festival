@@ -1,16 +1,7 @@
 //---------------------------------------------------------------------------------------------------- Use
-//use anyhow::{anyhow,bail,ensure};
-//use log::{info,error,warn,trace,debug};
-//use serde::{Serialize,Deserialize};
-//use benri::{
-//};
-//use disk::prelude::*;
-//use disk::{};
-//use std::{};
-//use std::sync::{Arc,Mutex,RwLock};
 
 //---------------------------------------------------------------------------------------------------- __NAME__
-pub const ALPHANUMERIC_KEY: [egui::Key; 37] = [
+pub const ALPHANUMERIC_KEY: [egui::Key; 36] = [
 	egui::Key::Num0,
 	egui::Key::Num1,
 	egui::Key::Num2,
@@ -21,7 +12,6 @@ pub const ALPHANUMERIC_KEY: [egui::Key; 37] = [
 	egui::Key::Num7,
 	egui::Key::Num8,
 	egui::Key::Num9,
-	egui::Key::A,
 	egui::Key::A,
 	egui::Key::B,
 	egui::Key::C,
@@ -98,9 +88,17 @@ impl KeyPress {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//  #[test]
-//  fn __TEST__() {
-//  }
-//}
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	// Asserts each variant gives a different string.
+	fn diff() {
+		let mut set = std::collections::HashSet::new();
+
+		for i in ALPHANUMERIC_KEY.iter() {
+			assert!(set.insert(KeyPress::from_egui_key(i)));
+		}
+	}
+}

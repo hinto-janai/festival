@@ -29,7 +29,7 @@ use std::sync::{
 };
 use std::time::Instant;
 
-//---------------------------------------------------------------------------------------------------- GUI struct. This hold ALL data.
+//---------------------------------------------------------------------------------------------------- GUI struct. This holds ALL data.
 pub struct Gui {
 	//-------------------------------------------------- Long-Term State.
 	// These represent state that pretty much
