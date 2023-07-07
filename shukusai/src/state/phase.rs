@@ -167,7 +167,7 @@ mod tests {
 
 	#[test]
 	// Asserts each variant gives a different string.
-	fn diff_str() {
+	fn diff() {
 		let mut set = std::collections::HashSet::new();
 
 		for i in Phase::iter() {

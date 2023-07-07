@@ -177,7 +177,15 @@ mod test {
 	#[test]
 	// Compares `new()`.
 	fn cmp() {
+		#[cfg(not(target_os = "macos"))]
 		assert_eq!(Lazy::force(&S1), &Settings::new());
+		#[cfg(target_os = "macos")]
+		{
+			let mut settings = Settings::new();
+			settings.pixels_per_point = 1.5;
+			assert_eq!(Lazy::force(&S1), &settings);
+		}
+
 		assert_ne!(Lazy::force(&S1), Lazy::force(&S2));
 
 		let b1 = S1.to_bytes().unwrap();

@@ -216,44 +216,44 @@ mod tests {
 
 		// Regular signals.
 		Toggle::touch().unwrap();
-		sleep!(t);
 		assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Toggle);
+		sleep!(t);
 
 		Pause::touch().unwrap();
-		sleep!(t);
 		assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Pause);
+		sleep!(t);
 
 		Play::touch().unwrap();
-		sleep!(t);
 		assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Play);
+		sleep!(t);
 
 		Next::touch().unwrap();
-		sleep!(t);
 		assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Next);
+		sleep!(t);
 
 		Previous::touch().unwrap();
-		sleep!(t);
 		assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Previous);
+		sleep!(t);
 
 		Stop::touch().unwrap();
-		sleep!(t);
 		assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Stop);
+		sleep!(t);
 
 		Shuffle::touch().unwrap();
-		sleep!(t);
 		assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Shuffle);
+		sleep!(t);
 
 		RepeatSong::touch().unwrap();
-		sleep!(t);
 		assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::RepeatSong);
+		sleep!(t);
 
 		RepeatQueue::touch().unwrap();
-		sleep!(t);
 		assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::RepeatQueue);
+		sleep!(t);
 
 		RepeatOff::touch().unwrap();
-		sleep!(t);
 		assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::RepeatOff);
+		sleep!(t);
 
 		// Content signals.
 		// Should be 0..=100

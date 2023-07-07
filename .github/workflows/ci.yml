@@ -84,7 +84,7 @@ jobs:
       shell: bash
 
     - name: Test
-      run: cargo test --package shukusai --profile ${{ matrix.build }}
+      run: cargo test --package shukusai --package festival-gui --profile ${{ matrix.build }}
 
   build:
     runs-on: ${{ matrix.os }}

@@ -150,29 +150,15 @@ impl crate::data::Gui {
 		from_kernel: Receiver<KernelToFrontend>,
 	) -> Self {
 		// Read `Settings` from disk.
-		let settings = {
-			let version = Settings::file_version();
+		let settings = Settings::from_versions(&[
+			(SETTINGS_VERSION, Settings::from_file),
+			(0,                Settings0::disk_into),
+		]);
 
-			match version {
-				Ok(0) => {
-					match Settings0::from_file() {
-						Ok(s)  => {
-							info!("GUI Init [1/8] ... Settings0 from disk, converting to Settings{SETTINGS_VERSION}");
-							s.into()
-						},
-						Err(e) => {
-							warn!("GUI Init [1/8] ... Settings0 failed from disk: {e}, returning default Settings{SETTINGS_VERSION}");
-							Settings::new()
-						},
-					}
-				},
-				_ => {
-					match Settings::from_file() {
-						Ok(s)  => { info!("GUI Init [1/8] ... Settings{SETTINGS_VERSION} from disk"); s },
-						Err(e) => { warn!("GUI Init [1/8] ... Settings{SETTINGS_VERSION} failed from disk: {}", e); Settings::new() },
-					}
-				},
-			}
+		let settings = match settings {
+			Ok((v, s)) if v == SETTINGS_VERSION => { info!("GUI Init [1/8] ... Settings{SETTINGS_VERSION} from disk"); s },
+			Ok((v, s)) => { info!("GUI Init [1/8] ... Settings0 from disk, converted to Settings{SETTINGS_VERSION}"); s },
+			Err(e) => { warn!("GUI Init [1/8] ... Settings failed from disk: {e}, returning default Settings{SETTINGS_VERSION}"); Settings::new() },
 		};
 
 		cc.egui_ctx.set_pixels_per_point(settings.pixels_per_point as f32);
