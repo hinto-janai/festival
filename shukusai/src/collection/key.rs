@@ -8,12 +8,12 @@ macro_rules! impl_common {
 		impl $type {
 			#[inline(always)]
 			/// Returns `Self(0)`.
-			pub(crate) const fn new() -> Self {
+			pub const fn new() -> Self {
 				Self(0)
 			}
 			#[inline(always)]
 			/// Returns `Self(0)`.
-			pub(crate) const fn zero() -> Self {
+			pub const fn zero() -> Self {
 				Self(0)
 			}
 			#[inline(always)]

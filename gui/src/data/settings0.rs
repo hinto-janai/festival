@@ -115,14 +115,32 @@ pub struct Settings0 {
 impl Settings0 {
 	pub fn new() -> Self {
 		Self {
-			accent_color: ACCENT_COLOR,
-			restore_state: true,
-			collection_paths: vec![],
+			artist_sort: Default::default(),
+			album_sort: Default::default(),
+			song_sort: Default::default(),
+			search_kind: Default::default(),
+			artist_sub_tab: Default::default(),
+			search_sort: Default::default(),
+			window_title: Default::default(),
+			album_sizing: Default::default(),
 			album_pixel_size: ALBUM_ART_SIZE_DEFAULT,
 			albums_per_row: ALBUMS_PER_ROW_DEFAULT,
 			previous_threshold: PREVIOUS_THRESHOLD_DEFAULT,
+			restore_state: true,
 			empty_autoplay: true,
-			..Default::default()
+			accent_color: ACCENT_COLOR,
+			collection_paths: vec![],
+			_reserved1: PhantomData,
+			_reserved2: PhantomData,
+			_reserved3: PhantomData,
+			_reserved4: PhantomData,
+			_reserved5: PhantomData,
+			_reserved6: PhantomData,
+			_reserved7: PhantomData,
+			_reserved8: PhantomData,
+			_reserved9: PhantomData,
+			_reserved10: PhantomData,
+			_reserved11: PhantomData,
 		}
 	}
 
@@ -201,9 +219,46 @@ impl Into<Settings> for Settings0 {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod test {
-//  #[test]
-//  fn _() {
-//  }
-//}
+#[cfg(test)]
+mod test {
+	use super::*;
+	use once_cell::sync::Lazy;
+	use std::path::PathBuf;
+	use disk::Bincode2;
+
+	// Empty.
+	const S1: Lazy<Settings0> = Lazy::new(|| Settings0::from_path("../assets/festival/gui/state/settings0_new.bin").unwrap());
+	// Filled.
+	const S2: Lazy<Settings0> = Lazy::new(|| Settings0::from_path("../assets/festival/gui/state/settings0_real.bin").unwrap());
+
+	#[test]
+	// Compares `new()`.
+	fn cmp() {
+		assert_eq!(Lazy::force(&S1), &Settings0::new());
+		assert_ne!(Lazy::force(&S1), Lazy::force(&S2));
+
+		let b1 = S1.to_bytes().unwrap();
+		let b2 = S2.to_bytes().unwrap();
+		assert_ne!(b1, b2);
+	}
+
+	#[test]
+	// Attempts to deserialize the non-empty.
+	fn real() {
+		assert_eq!(S2.artist_sort,        ArtistSort::RuntimeRev);
+		assert_eq!(S2.album_sort,         AlbumSort::LexiRevArtistLexi);
+		assert_eq!(S2.song_sort,          SongSort::Runtime);
+		assert_eq!(S2.search_kind,        SearchKind::All);
+		assert_eq!(S2.artist_sub_tab,     ArtistSubTab::View);
+		assert_eq!(S2.search_sort,        SearchSort::Album);
+		assert_eq!(S2.window_title,       WindowTitle::Queue);
+		assert_eq!(S2.album_sizing,       AlbumSizing::Row);
+		assert_eq!(S2.album_pixel_size,   227.0);
+		assert_eq!(S2.albums_per_row,     10);
+		assert_eq!(S2.previous_threshold, 10);
+		assert_eq!(S2.restore_state,      false);
+		assert_eq!(S2.empty_autoplay,     false);
+		assert_eq!(S2.accent_color,       egui::Color32::from_rgb(97,101,119));
+		assert_eq!(S2.collection_paths,   [PathBuf::from("/home/main/Music")]);
+	}
+}

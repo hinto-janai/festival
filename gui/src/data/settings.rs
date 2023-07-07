@@ -162,9 +162,47 @@ impl Default for Settings {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod test {
-//  #[test]
-//  fn _() {
-//  }
-//}
+#[cfg(test)]
+mod test {
+	use super::*;
+	use once_cell::sync::Lazy;
+	use std::path::PathBuf;
+	use disk::Bincode2;
+
+	// Empty.
+	const S1: Lazy<Settings> = Lazy::new(|| Settings::from_path("../assets/festival/gui/state/settings1_new.bin").unwrap());
+	// Filled.
+	const S2: Lazy<Settings> = Lazy::new(|| Settings::from_path("../assets/festival/gui/state/settings1_real.bin").unwrap());
+
+	#[test]
+	// Compares `new()`.
+	fn cmp() {
+		assert_eq!(Lazy::force(&S1), &Settings::new());
+		assert_ne!(Lazy::force(&S1), Lazy::force(&S2));
+
+		let b1 = S1.to_bytes().unwrap();
+		let b2 = S2.to_bytes().unwrap();
+		assert_ne!(b1, b2);
+	}
+
+	#[test]
+	// Attempts to deserialize the non-empty.
+	fn real() {
+		assert_eq!(S2.artist_sort,        ArtistSort::RuntimeRev);
+		assert_eq!(S2.album_sort,         AlbumSort::LexiRevArtistLexi);
+		assert_eq!(S2.song_sort,          SongSort::Runtime);
+		assert_eq!(S2.search_kind,        SearchKind::All);
+		assert_eq!(S2.artist_sub_tab,     ArtistSubTab::View);
+		assert_eq!(S2.search_sort,        SearchSort::Album);
+		assert_eq!(S2.window_title,       WindowTitle::Queue);
+		assert_eq!(S2.album_sizing,       AlbumSizing::Row);
+		assert_eq!(S2.album_pixel_size,   227.0);
+		assert_eq!(S2.albums_per_row,     10);
+		assert_eq!(S2.previous_threshold, 10);
+		assert_eq!(S2.restore_state,      false);
+		assert_eq!(S2.empty_autoplay,     false);
+		assert_eq!(S2.accent_color,       egui::Color32::from_rgb(97,101,119));
+		assert_eq!(S2.collection_paths,   [PathBuf::from("/home/main/git/festival/assets/audio")]);
+		assert_eq!(S2.pixels_per_point.round(), 1.0);
+	}
+}
