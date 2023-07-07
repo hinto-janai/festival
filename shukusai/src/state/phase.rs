@@ -168,11 +168,10 @@ mod tests {
 	#[test]
 	// Asserts each variant gives a different string.
 	fn diff_str() {
-		let mut last = String::new();
+		let mut set = std::collections::HashSet::new();
 
 		for i in Phase::iter() {
-			assert_ne!(last, i.as_str());
-			last = i.as_str().to_string();
+			assert!(set.insert(i.as_str()));
 		}
 	}
 }

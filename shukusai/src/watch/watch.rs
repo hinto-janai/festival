@@ -208,7 +208,7 @@ mod tests {
 
 		// GitHub CI is so insanely slow that signals need more
 		// time so `Watch` can delete the old file and reset.
-		let t: usize = if std::env::var("CI").is_some() {
+		let t: u64 = if std::env::var("CI").is_ok() {
 			5
 		} else {
 			1

@@ -13,7 +13,7 @@ env:
   RUST_BACKTRACE: "full"
 
 jobs:
-  ci:
+  clippy:
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -30,10 +30,8 @@ jobs:
     - name: Cache
       uses: actions/cache@v3
       with:
-        path: |
-          ~/.cargo
-          target
-        key: ${{ matrix.os }}-${{ matrix.build }}
+        path: target
+        key: ${{ matrix.os }}-${{ matrix.build }}-clippy
 
     - name: Install dependencies
       run: |
@@ -54,8 +52,70 @@ jobs:
 #      env:
 #        RUSTFLAGS: -Awarnings
 
+  test:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [windows-2019, macos-11, ubuntu-20.04]
+        build: [release]
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - name: Cache
+      uses: actions/cache@v3
+      with:
+        path: target
+        key: ${{ matrix.os }}-${{ matrix.build }}-test
+
+    - name: Install dependencies
+      run: |
+        rustup update
+        if [ "$RUNNER_OS" == "Linux" ]; then
+          sudo apt update
+          sudo apt install -y libgtk-3-dev libasound2-dev libjack-dev libpulse-dev
+        elif [ "$RUNNER_OS" == "macOS" ]; then
+          rustup target add aarch64-apple-darwin
+        fi
+      shell: bash
+
     - name: Test
       run: cargo test --package shukusai --profile ${{ matrix.build }}
+
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [windows-2019, macos-11, ubuntu-20.04]
+        build: [dev, release]
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - name: Cache
+      uses: actions/cache@v3
+      with:
+        path: target
+        key: ${{ matrix.os }}-${{ matrix.build }}-build
+
+    - name: Install dependencies
+      run: |
+        rustup update
+        if [ "$RUNNER_OS" == "Linux" ]; then
+          sudo apt update
+          sudo apt install -y libgtk-3-dev libasound2-dev libjack-dev libpulse-dev
+        elif [ "$RUNNER_OS" == "macOS" ]; then
+          rustup target add aarch64-apple-darwin
+        fi
+      shell: bash
 
     - name: Build
       shell: bash

@@ -78,6 +78,11 @@ mod tests {
 	#[test]
 	// Asserts function corresponds with the static.
 	fn __saving() {
+		// CCD test might be alive, wait for it to end.
+		while saving() {
+			benri::sleep!(1);
+		}
+
 		assert!(!SAVING.load(Ordering::SeqCst));
 		assert!(!saving());
 

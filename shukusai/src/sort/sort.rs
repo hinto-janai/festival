@@ -507,46 +507,40 @@ mod tests {
 	// 2. `.next()` gives a different variant
 	// 3. `.prev()` gives a different variant
 	fn artist_diff() {
-		let mut last = String::new();
+		let mut set1 = std::collections::HashSet::new();
+		let mut set2 = std::collections::HashSet::new();
+		let mut set3 = std::collections::HashSet::new();
 
 		for i in ArtistSort::iter() {
-			// 1
-			assert_ne!(last, i.as_str());
-			last = i.as_str().to_string();
- 			// 2
-			assert_ne!(*i, i.next());
-			// 3
-			assert_ne!(*i, i.previous());
+            assert!(set1.insert(i.as_str()));
+            assert!(set2.insert(i.next()));
+            assert!(set3.insert(i.previous()));
 		}
 	}
 
 	#[test]
 	fn album_diff() {
-		let mut last = String::new();
+		let mut set1 = std::collections::HashSet::new();
+		let mut set2 = std::collections::HashSet::new();
+		let mut set3 = std::collections::HashSet::new();
 
 		for i in AlbumSort::iter() {
-			// 1
-			assert_ne!(last, i.as_str());
-			last = i.as_str().to_string();
- 			// 2
-			assert_ne!(*i, i.next());
-			// 3
-			assert_ne!(*i, i.previous());
+            assert!(set1.insert(i.as_str()));
+            assert!(set2.insert(i.next()));
+            assert!(set3.insert(i.previous()));
 		}
 	}
 
 	#[test]
 	fn song_diff() {
-		let mut last = String::new();
+		let mut set1 = std::collections::HashSet::new();
+		let mut set2 = std::collections::HashSet::new();
+		let mut set3 = std::collections::HashSet::new();
 
 		for i in SongSort::iter() {
-			// 1
-			assert_ne!(last, i.as_str());
-			last = i.as_str().to_string();
- 			// 2
-			assert_ne!(*i, i.next());
-			// 3
-			assert_ne!(*i, i.previous());
+            assert!(set1.insert(i.as_str()));
+            assert!(set2.insert(i.next()));
+            assert!(set3.insert(i.previous()));
 		}
 	}
 }
