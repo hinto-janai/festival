@@ -43,7 +43,7 @@ pub(crate) const SUPPORTED_AUDIO_MIME_TYPES: [&str; 26] = [
 	"audio/x-wavpack-correction",
 ];
 
-pub(crate) const SUPPORTED_IMG_MIME_TYPES: [&str; 8] = [
+pub(crate) const SUPPORTED_IMG_MIME_TYPES: [&str; 7] = [
 	"image/jpg",
 	"image/jpeg",
 	"image/png",
@@ -51,7 +51,7 @@ pub(crate) const SUPPORTED_IMG_MIME_TYPES: [&str; 8] = [
 	"image/ico",
 	"image/tiff",
 	"image/webp",
-	"image/avif",
+//	"image/avif",
 ];
 
 #[derive(Debug,PartialEq,Eq,PartialOrd,Ord)]

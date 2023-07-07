@@ -203,7 +203,6 @@ The supported image file formats are:
 - `ICO`
 - `TIFF`
 - `WebP`
-- `AVIF`
 
 ---
 
