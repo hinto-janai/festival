@@ -261,4 +261,26 @@ mod test {
 		assert_eq!(S2.accent_color,       egui::Color32::from_rgb(97,101,119));
 		assert_eq!(S2.collection_paths,   [PathBuf::from("/home/main/Music")]);
 	}
+
+	#[test]
+	// Asserts previous versions can be converted.
+	fn convert() {
+		let s: Settings = Lazy::force(&S2).clone().into();
+		assert_eq!(s.artist_sort,        ArtistSort::RuntimeRev);
+		assert_eq!(s.album_sort,         AlbumSort::LexiRevArtistLexi);
+		assert_eq!(s.song_sort,          SongSort::Runtime);
+		assert_eq!(s.search_kind,        SearchKind::All);
+		assert_eq!(s.artist_sub_tab,     ArtistSubTab::View);
+		assert_eq!(s.search_sort,        SearchSort::Album);
+		assert_eq!(s.window_title,       WindowTitle::Queue);
+		assert_eq!(s.album_sizing,       AlbumSizing::Row);
+		assert_eq!(s.album_pixel_size,   227.0);
+		assert_eq!(s.albums_per_row,     10);
+		assert_eq!(s.previous_threshold, 10);
+		assert_eq!(s.restore_state,      false);
+		assert_eq!(s.empty_autoplay,     false);
+		assert_eq!(s.accent_color,       egui::Color32::from_rgb(97,101,119));
+		assert_eq!(s.collection_paths,   [PathBuf::from("/home/main/Music")]);
+		assert_eq!(s.pixels_per_point,   PIXELS_PER_POINT_DEFAULT);
+	}
 }

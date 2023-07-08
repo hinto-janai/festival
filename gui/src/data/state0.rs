@@ -204,4 +204,20 @@ mod test {
 		assert_eq!(S2.search_result.albums.len(), 4);
 		assert_eq!(S2.search_result.songs.len(), 7);
 	}
+
+	#[test]
+	// Asserts previous versions can be converted.
+	fn convert() {
+		let s: State = Lazy::force(&S2).clone().into();
+		assert_eq!(s.tab,           Tab::Settings);
+		assert_eq!(s.last_tab,      Some(Tab::Search));
+		assert_eq!(s.search_string, "asdf");
+		assert_eq!(s.volume,        0);
+		assert_eq!(s.repeat,        Repeat::Off);
+		assert_eq!(s.album,         Some(AlbumKey::from(1_u8)));
+		assert_eq!(s.artist,        Some(ArtistKey::zero()));
+		assert_eq!(s.search_result.artists.len(), 3);
+		assert_eq!(s.search_result.albums.len(), 4);
+		assert_eq!(s.search_result.songs.len(), 7);
+	}
 }
