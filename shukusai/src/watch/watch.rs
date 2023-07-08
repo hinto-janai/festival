@@ -191,6 +191,11 @@ mod tests {
 	// Tests if all files being created
 	// correspond to the correct signals.
 	fn signals() {
+		if std::env::var("CI").is_err() {
+			println!("skipping signals, only for CI");
+			return;
+		}
+
 		// Logger.
 		crate::logger::init_logger(log::LevelFilter::Debug);
 
@@ -208,11 +213,7 @@ mod tests {
 
 		// GitHub CI is so insanely slow that signals need more
 		// time so `Watch` can delete the old file and reset.
-		let t: u64 = if std::env::var("CI").is_ok() {
-			5
-		} else {
-			1
-		};
+		let t = 3;
 
 		// Regular signals.
 		Toggle::touch().unwrap();

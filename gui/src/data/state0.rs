@@ -68,17 +68,17 @@ pub struct State0 {
 	pub artist: Option<ArtistKey>,
 
 	// Reserved fields.
-	_reserved1: PhantomData<Vec<String>>,
-	_reserved2: PhantomData<String>,
-	_reserved3: PhantomData<Option<String>>,
-	_reserved4: PhantomData<bool>,
-	_reserved5: PhantomData<bool>,
-	_reserved6: PhantomData<Option<bool>>,
-	_reserved7: PhantomData<Option<bool>>,
-	_reserved8: PhantomData<usize>,
-	_reserved9: PhantomData<usize>,
-	_reserved10: PhantomData<Option<usize>>,
-	_reserved11: PhantomData<Option<usize>>,
+	pub _reserved1: PhantomData<Vec<String>>,
+	pub _reserved2: PhantomData<String>,
+	pub _reserved3: PhantomData<Option<String>>,
+	pub _reserved4: PhantomData<bool>,
+	pub _reserved5: PhantomData<bool>,
+	pub _reserved6: PhantomData<Option<bool>>,
+	pub _reserved7: PhantomData<Option<bool>>,
+	pub _reserved8: PhantomData<usize>,
+	pub _reserved9: PhantomData<usize>,
+	pub _reserved10: PhantomData<Option<usize>>,
+	pub _reserved11: PhantomData<Option<usize>>,
 }
 
 impl State0 {
@@ -95,6 +95,7 @@ impl State0 {
 			repeat: Default::default(),
 			album: Default::default(),
 			artist: Default::default(),
+			// Reserved fields.
 			_reserved1: PhantomData,
 			_reserved2: PhantomData,
 			_reserved3: PhantomData,
@@ -162,6 +163,15 @@ impl Into<State> for State0 {
 			_reserved13: None,
 			_reserved14: None,
 			_reserved15: None,
+			_reserved16: None,
+			_reserved17: None,
+			_reserved18: None,
+			_reserved19: None,
+			_reserved20: None,
+			_reserved21: None,
+			_reserved22: None,
+			_reserved23: None,
+			_reserved24: None,
 		}
 	}
 }
