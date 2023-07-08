@@ -28,18 +28,15 @@ use shukusai::{
 };
 
 use const_format::formatcp;
+use std::marker::PhantomData;
+use crate::data::State;
+use disk::Bincode2;
 
-//---------------------------------------------------------------------------------------------------- State
-disk::bincode2!(State, disk::Dir::Data, FESTIVAL, formatcp!("{GUI}/{STATE_SUB_DIR}"), "state", HEADER, STATE_VERSION);
+//---------------------------------------------------------------------------------------------------- State0
+disk::bincode2!(State0, disk::Dir::Data, FESTIVAL, formatcp!("{GUI}/{STATE_SUB_DIR}"), "state", HEADER, 0);
 #[derive(Clone,Debug,PartialEq,PartialOrd,Serialize,Deserialize,Encode,Decode)]
-/// `GUI`'s State.
-///
-/// Holds `copy`-able, user-mutable `GUI` state.
-///
-/// This struct holds an [`AudioState`] which is a local copy of [`KernelState`].
-/// This is so that within the `GUI` loop, [`KernelState`] only needs to be locked _once_,
-/// so its values can be locally cached, then used within the frame.
-pub struct State {
+/// Version 0 of `State`.
+pub struct State0 {
 	// Tab.
 	/// Which [`Tab`] are currently on?
 	pub tab: Tab,
@@ -71,26 +68,22 @@ pub struct State {
 	pub artist: Option<ArtistKey>,
 
 	// Reserved fields.
-	pub _reserved1: Option<Vec<String>>,
-	pub _reserved2: Option<String>,
-	pub _reserved3: Option<Option<String>>,
-	pub _reserved4: Option<bool>,
-	pub _reserved5: Option<bool>,
-	pub _reserved6: Option<Option<bool>>,
-	pub _reserved7: Option<Option<bool>>,
-	pub _reserved8: Option<usize>,
-	pub _reserved9: Option<usize>,
-	pub _reserved10: Option<f32>,
-	pub _reserved11: Option<f32>,
-	pub _reserved12: Option<f64>,
-	pub _reserved13: Option<f64>,
-	pub _reserved14: Option<Option<usize>>,
-	pub _reserved15: Option<Option<usize>>,
+	_reserved1: PhantomData<Vec<String>>,
+	_reserved2: PhantomData<String>,
+	_reserved3: PhantomData<Option<String>>,
+	_reserved4: PhantomData<bool>,
+	_reserved5: PhantomData<bool>,
+	_reserved6: PhantomData<Option<bool>>,
+	_reserved7: PhantomData<Option<bool>>,
+	_reserved8: PhantomData<usize>,
+	_reserved9: PhantomData<usize>,
+	_reserved10: PhantomData<Option<usize>>,
+	_reserved11: PhantomData<Option<usize>>,
 }
 
-impl State {
+impl State0 {
 	#[inline]
-	/// Creates a mostly empty [`State`].
+	/// Creates a mostly empty [`State0`].
 	pub fn new() -> Self {
 		Self {
 			volume: Volume::default().inner(),
@@ -102,6 +95,58 @@ impl State {
 			repeat: Default::default(),
 			album: Default::default(),
 			artist: Default::default(),
+			_reserved1: PhantomData,
+			_reserved2: PhantomData,
+			_reserved3: PhantomData,
+			_reserved4: PhantomData,
+			_reserved5: PhantomData,
+			_reserved6: PhantomData,
+			_reserved7: PhantomData,
+			_reserved8: PhantomData,
+			_reserved9: PhantomData,
+			_reserved10: PhantomData,
+			_reserved11: PhantomData,
+		}
+	}
+
+	/// Reads from disk, then calls `.into()` if `Ok`.
+	pub fn disk_into() -> Result<State, anyhow::Error> {
+		// SAFETY: memmap is used.
+		unsafe { Self::from_file_memmap().map(Into::into) }
+	}
+}
+
+impl Default for State0 {
+	fn default() -> Self {
+		Self::new()
+	}
+}
+
+impl Into<State> for State0 {
+	fn into(self) -> State {
+		let State0 {
+			volume,
+			tab,
+			last_tab,
+			search_string,
+			search_result,
+			repeat,
+			album,
+			artist,
+			..
+		} = self;
+
+		State {
+			volume,
+			tab,
+			last_tab,
+			search_string,
+			search_result,
+			repeat,
+			album,
+			artist,
+
+			// Reserved fields.
 			_reserved1: None,
 			_reserved2: None,
 			_reserved3: None,
@@ -121,12 +166,6 @@ impl State {
 	}
 }
 
-impl Default for State {
-	fn default() -> Self {
-		Self::new()
-	}
-}
-
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
 mod test {
@@ -136,14 +175,14 @@ mod test {
 	use disk::Bincode2;
 
 	// Empty.
-	const S1: Lazy<State> = Lazy::new(|| State::from_path("../assets/festival/gui/state/state1_new.bin").unwrap());
+	const S1: Lazy<State0> = Lazy::new(|| State0::from_path("../assets/festival/gui/state/state0_new.bin").unwrap());
 	// Filled.
-	const S2: Lazy<State> = Lazy::new(|| State::from_path("../assets/festival/gui/state/state1_real.bin").unwrap());
+	const S2: Lazy<State0> = Lazy::new(|| State0::from_path("../assets/festival/gui/state/state0_real.bin").unwrap());
 
 	#[test]
 	// Compares `new()`.
 	fn cmp() {
-		assert_eq!(Lazy::force(&S1), &State::new());
+		assert_eq!(Lazy::force(&S1), &State0::new());
 		assert_ne!(Lazy::force(&S1), Lazy::force(&S2));
 
 		let b1 = S1.to_bytes().unwrap();
@@ -157,7 +196,7 @@ mod test {
 		assert_eq!(S2.tab,           Tab::Settings);
 		assert_eq!(S2.last_tab,      Some(Tab::Search));
 		assert_eq!(S2.search_string, "asdf");
-		assert_eq!(S2.volume,        25);
+		assert_eq!(S2.volume,        0);
 		assert_eq!(S2.repeat,        Repeat::Off);
 		assert_eq!(S2.album,         Some(AlbumKey::from(1_u8)));
 		assert_eq!(S2.artist,        Some(ArtistKey::zero()));

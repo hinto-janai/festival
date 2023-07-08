@@ -144,7 +144,7 @@ impl Settings0 {
 		}
 	}
 
-	// Reads from disk, then calls `.into()` if `Ok`.
+	/// Reads from disk, then calls `.into()` if `Ok`.
 	pub fn disk_into() -> Result<Settings, anyhow::Error> {
 		// SAFETY: memmap is used.
 		unsafe { Self::from_file_memmap().map(Into::into) }
