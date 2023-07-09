@@ -58,7 +58,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-2019, macos-11, ubuntu-20.04]
-        build: [dev, release]
+        build: [release]
 
     steps:
     - name: Checkout

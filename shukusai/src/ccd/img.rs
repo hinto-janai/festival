@@ -26,43 +26,24 @@ pub(crate) const ALBUM_ART_SIZE_NUM: NonZeroU32 = match NonZeroU32::new(ALBUM_AR
 };
 
 //---------------------------------------------------------------------------------------------------- Image Manipulation Functions.
-// Image pipeline, from raw/unedited bytes to an actually displayable `egui::RetainedImage`:
-// ```
-// echo $RAW_BYTES                \
-//     | bytes_to_dyn_image()     \
-//     | resize_dyn_image()       \
-//     | rgb_bytes_to_color_img() \
-//     | color_img_to_retained()  \
-//     | retained_load_texture()
-// ```
-//
-// Image pipeline, from known good edited bytes to `egui::RetainedImage`:
-// ```
-// echo $KNOWN_BYTES              \
-//     | rgb_bytes_to_color_img() \
-//     | color_img_to_retained()  \
-//     | retained_load_texture()
-// ```
-// All these functions take input of the previous function
-// and their output goes straight into the next.
-//
-// Pipe syntax is for easy reading.
-// Ignore that they have arguments and side effects.
-
 //-------------------------- CONVENIENCE WRAPPER FUNCTIONS
-// These 2 just apply the pipeline above.
-// The real functions are below.
-
-// Input: abritary image bytes.
-// Output: `500x500` RGB image bytes.
+// These 2 functions are just wrappers
+// on the "real" functions below.
 #[inline(always)]
 pub(crate) fn art_from_raw(bytes: Box<[u8]>, resizer: &mut fir::Resizer) -> Result<Box<[u8]>, anyhow::Error> {
-	// Attempt `zune-jpeg` first.
-	if let Some((width, height, bytes)) = zune_decode(&bytes) {
+	// Attempt `zune-jpeg`.
+	if let Some((width, height, bytes)) = zune_jpg_decode(&bytes) {
 		if let Ok(bytes) = resize_image(width, height, bytes, resizer) {
 			return Ok(bytes);
 		}
 	}
+
+//	// Attempt `zune-png`.
+//	if let Some((width, height, bytes)) = zune_png_decode(&bytes) {
+//		if let Ok(bytes) = resize_image(width, height, bytes, resizer) {
+//			return Ok(bytes);
+//		}
+//	}
 
 	// Fallback to `image`.
 	match image_decode(bytes) {
@@ -117,7 +98,7 @@ pub(crate) fn create_resizer() -> fir::Resizer {
 // ```
 // so the output of this function _must_ go through
 // `fast_image_resize` regardless if the `width/height` are the same.
-fn zune_decode(bytes: &[u8]) -> Option<(u32, u32, Vec<u8>)> {
+fn zune_jpg_decode(bytes: &[u8]) -> Option<(u32, u32, Vec<u8>)> {
 	let options = zune_core::options::DecoderOptions::new_cmd()
 		.jpeg_set_out_colorspace(zune_core::colorspace::ColorSpace::RGB);
 	let mut decoder = zune_jpeg::JpegDecoder::new_with_options(options, &bytes);
@@ -129,6 +110,24 @@ fn zune_decode(bytes: &[u8]) -> Option<(u32, u32, Vec<u8>)> {
 
 	None
 }
+
+// This is slower than `image_decode()`.
+//
+//#[inline(always)]
+//// INVARIANT:
+//// same as `zune_jpg_decode()`.
+//fn zune_png_decode(bytes: &[u8]) -> Option<(u32, u32, Vec<u8>)> {
+//	let options = zune_core::options::DecoderOptions::new_cmd()
+//		.png_set_add_alpha_channel(false);
+//	let mut decoder = zune_png::PngDecoder::new_with_options(&bytes, options);
+//	if let Ok(bytes) = decoder.decode_raw() {
+//		if let Some((width, height)) = decoder.get_dimensions() {
+//			return Some((width as u32, height as u32, bytes));
+//		}
+//	}
+//
+//	None
+//}
 
 #[inline(always)]
 // Uses `image` to decode everything else.
