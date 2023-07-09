@@ -301,15 +301,23 @@ impl Kernel {
 		};
 
 		// Check if `AUDIO_STATE`'s `SongKey` is valid.
-		if !crate::validate::song(&collection, audio.song.unwrap_or(SongKey::zero())) {
+		if !crate::validate::song(&collection, audio.song.unwrap_or_else(SongKey::zero)) {
+			info!("AudioState ... SongKey invalid, resetting to None");
 			audio.song = None;
 		}
 
 		// Check if `AUDIO_STATE` indices into itself are in-bounds.
 		if let Some(idx) = audio.queue_idx {
 			if audio.queue.get(idx).is_none() {
+				info!("AudioState ... Queue index invalid, resetting to None");
 				audio.queue_idx = None;
 			}
+		}
+
+		// Check if all of `AUDIO_STATE`'s queue keys are valid.
+		if !crate::validate::song(&collection, audio.queue.iter().max().unwrap_or(&SongKey::zero())) {
+			info!("AudioState ... Queue contains SongKey that is out-of-bounds, clear()'ing");
+			audio.queue.clear();
 		}
 
 		Self::init(Some(collection), Some(audio), to_frontend, from_frontend, beginning, watch, media_controls);
