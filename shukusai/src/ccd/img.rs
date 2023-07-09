@@ -7,8 +7,10 @@ use fir::{
 	PixelType,
 };
 use std::num::NonZeroU32;
-
-use crate::collection::ALBUM_ART_SIZE;
+use crate::collection::{
+	ALBUM_ART_SIZE,
+	ALBUM_ART_SIZE_U32,
+};
 use benri::{
 	debug_panic,
 	sync::*,
@@ -18,47 +20,36 @@ use benri::log::fail;
 use crate::frontend::egui::gui_context;
 
 //---------------------------------------------------------------------------------------------------- Album Art Constants.
-pub(crate) const ALBUM_ART_SIZE_NUM: NonZeroU32 = match NonZeroU32::new(ALBUM_ART_SIZE as u32) {
+pub(crate) const ALBUM_ART_SIZE_NUM: NonZeroU32 = match NonZeroU32::new(ALBUM_ART_SIZE_U32) {
 	Some(n) => n,
 	None    => panic!(),
 };
 
 //---------------------------------------------------------------------------------------------------- Image Manipulation Functions.
-// Image pipeline, from raw/unedited bytes to an actually displayable `egui::RetainedImage`:
-// ```
-// echo $RAW_BYTES                \
-//     | bytes_to_dyn_image()     \
-//     | resize_dyn_image()       \
-//     | rgb_bytes_to_color_img() \
-//     | color_img_to_retained()  \
-//     | retained_load_texture()
-// ```
-//
-// Image pipeline, from known good edited bytes to `egui::RetainedImage`:
-// ```
-// echo $KNOWN_BYTES              \
-//     | rgb_bytes_to_color_img() \
-//     | color_img_to_retained()  \
-//     | retained_load_texture()
-// ```
-// All these functions take input of the previous function
-// and their output goes straight into the next.
-//
-// Pipe syntax is for easy reading.
-// Ignore that they have arguments and side effects.
-
 //-------------------------- CONVENIENCE WRAPPER FUNCTIONS
-// These 2 just apply the pipeline above.
-// The real functions are below.
-
-// Input: abritary image bytes.
-// Output: `500x500` RGB image bytes.
+// These 2 functions are just wrappers
+// on the "real" functions below.
 #[inline(always)]
 pub(crate) fn art_from_raw(bytes: Box<[u8]>, resizer: &mut fir::Resizer) -> Result<Box<[u8]>, anyhow::Error> {
-	// `.buffer()` must be called on `fir::Image`
-	// before passing it to the next function.
-	// It's cheap, it just returns a `&[u8]`.
-	resize_dyn_image(bytes_to_dyn_image(bytes)?, resizer)
+	// Attempt `zune-jpeg`.
+	if let Some((width, height, bytes)) = zune_jpg_decode(&bytes) {
+		if let Ok(bytes) = resize_image(width, height, bytes, resizer) {
+			return Ok(bytes);
+		}
+	}
+
+//	// Attempt `zune-png`.
+//	if let Some((width, height, bytes)) = zune_png_decode(&bytes) {
+//		if let Ok(bytes) = resize_image(width, height, bytes, resizer) {
+//			return Ok(bytes);
+//		}
+//	}
+
+	// Fallback to `image`.
+	match image_decode(bytes) {
+		Ok((w, h, bytes)) => resize_image(w, h, bytes, resizer),
+		Err(e)            => Err(e),
+	}
 }
 
 #[inline(always)]
@@ -85,16 +76,67 @@ pub(crate) fn create_resizer() -> fir::Resizer {
 }
 
 #[inline(always)]
-// FIXME:
-// This function is really slow.
-// The image probably doesn't need to be dynamic.
-// We should only expect RGB/RGBA images.
+// Uses `zune` to decode solely `JPG`.
 //
-// This is the `heaviest` function within the entire `new_collection()` function.
-// It accounts for around 70% of the total time spent making the `Collection`.
-fn bytes_to_dyn_image(bytes: Box<[u8]>) -> Result<image::DynamicImage, anyhow::Error> {
+// INVARIANT:
+// `zune` outputs some bad data sometimes (the sacrifices
+// we make for performance) but running it through the
+// resizer somehow... makes this data good again.
+//
+// If this isn't run through the resizer, `egui` will start panicking:
+// ```
+// message: Some(
+//     assertion failed: `(left == right)`
+//       left: `250000`,
+//      right: `83333`: Mismatch between texture size and texel count,
+// ),
+// location: Location {
+//     file: "external/egui/crates/egui-wgpu/src/renderer.rs",
+//     line: 509,
+//    col: 17,
+// },
+// ```
+// so the output of this function _must_ go through
+// `fast_image_resize` regardless if the `width/height` are the same.
+fn zune_jpg_decode(bytes: &[u8]) -> Option<(u32, u32, Vec<u8>)> {
+	let options = zune_core::options::DecoderOptions::new_cmd()
+		.jpeg_set_out_colorspace(zune_core::colorspace::ColorSpace::RGB);
+	let mut decoder = zune_jpeg::JpegDecoder::new_with_options(options, &bytes);
+	if let Ok(bytes) = decoder.decode() {
+		if let Some(info) = decoder.info() {
+			return Some((info.width as u32, info.height as u32, bytes));
+		}
+	}
+
+	None
+}
+
+// This is slower than `image_decode()`.
+//
+//#[inline(always)]
+//// INVARIANT:
+//// same as `zune_jpg_decode()`.
+//fn zune_png_decode(bytes: &[u8]) -> Option<(u32, u32, Vec<u8>)> {
+//	let options = zune_core::options::DecoderOptions::new_cmd()
+//		.png_set_add_alpha_channel(false);
+//	let mut decoder = zune_png::PngDecoder::new_with_options(&bytes, options);
+//	if let Ok(bytes) = decoder.decode_raw() {
+//		if let Some((width, height)) = decoder.get_dimensions() {
+//			return Some((width as u32, height as u32, bytes));
+//		}
+//	}
+//
+//	None
+//}
+
+#[inline(always)]
+// Uses `image` to decode everything else.
+//
+// This the fallback used when the above `zune` fails, or
+// if the resizer failed on `zune`'s bytes.
+fn image_decode(bytes: Box<[u8]>) -> Result<(u32, u32, Vec<u8>), anyhow::Error> {
 	match image::load_from_memory(&bytes) {
-		Ok(img) => Ok(img),
+		Ok(img) => Ok((img.width(), img.height(), img.into_rgb8().into_raw())),
 		Err(e)  => {
 			use image::error::ImageError::*;
 			match e {
@@ -110,24 +152,22 @@ fn bytes_to_dyn_image(bytes: Box<[u8]>) -> Result<image::DynamicImage, anyhow::E
 }
 
 #[inline(always)]
-// The bool returned represents:
-fn resize_dyn_image(img: image::DynamicImage, resizer: &mut fir::Resizer) -> Result<Box<[u8]>, anyhow::Error> {
+fn resize_image(width: u32, height: u32, bytes: Vec<u8>, resizer: &mut fir::Resizer) -> Result<Box<[u8]>, anyhow::Error> {
 	// Make sure the image width/height is not 0.
-	debug_assert!(img.width() != 0);
-	debug_assert!(img.height() != 0);
+	debug_assert!(width != 0);
+	debug_assert!(height != 0);
 
-	let width = match NonZeroU32::new(img.width()) {
+	let width = match NonZeroU32::new(width) {
 		Some(w) => w,
 		None    => bail!("Album art width was 0"),
 	};
-	let height = match NonZeroU32::new(img.height()) {
+	let height = match NonZeroU32::new(height) {
 		Some(w) => w,
 		None    => bail!("Album art height was 0"),
 	};
 
 	// Convert image to RGB, then into a `fir::Image`.
-	let old_img = Image::from_vec_u8(width, height, img.into_rgb8().into_raw(), PixelType::U8x3)?;
-
+	let old_img = Image::from_vec_u8(width, height, bytes, PixelType::U8x3)?;
 
 	// Create the image we'll resize into.
 	let mut new_img = Image::new(ALBUM_ART_SIZE_NUM, ALBUM_ART_SIZE_NUM, PixelType::U8x3);
@@ -264,7 +304,7 @@ mod tests {
 	// 1. Take in all image formats
 	// 2. Resize with `fir`
 	// 3. Convert to an `egui` image
-	fn __art_from_known() {
+	fn art() {
 		let mut resizer = super::create_resizer();
 
 		for ext in ["jpg", "png", "bmp", "ico", "tiff", "webp"] {
@@ -279,6 +319,24 @@ mod tests {
 			let retained = art_from_known(img);
 			assert_eq!(retained.width(), ALBUM_ART_SIZE);
 			assert_eq!(retained.height(), ALBUM_ART_SIZE);
+		}
+	}
+
+	#[test]
+	// Assert `zune-jpeg` works.
+	fn zune_jpg() {
+		let img = std::fs::read(format!("../assets/images/test/512.jpg")).unwrap();
+		let (_, _, bytes) = zune_jpg_decode(&img).unwrap();
+		assert!(!bytes.is_empty());
+	}
+
+	#[test]
+	// Assert `image` works.
+	fn image() {
+		for ext in ["jpg", "png", "bmp", "ico", "tiff", "webp"] {
+			let img = std::fs::read(format!("../assets/images/test/512.{ext}")).unwrap();
+			let (_, _, bytes) = image_decode(img.into()).unwrap();
+			assert!(!bytes.is_empty());
 		}
 	}
 }
