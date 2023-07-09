@@ -1,5 +1,3 @@
-# Changelog
-
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
@@ -19,6 +17,9 @@ While `festival-gui` is the only `Frontend` available, the changelog and release
 
 
 ## Unreleased
+## Changed
+* Faster `JPG` album art image decoding, 1.75x~ faster Collection reset ([#20](https://github.com/hinto-janai/festival/pull/20))
+
 ## Fixed
 * Crashes with songs that have odd date metadata, again (https://github.com/hinto-janai/readable/commit/02bdd467363e50627e68af56497eaeb13cdf632d)
 
