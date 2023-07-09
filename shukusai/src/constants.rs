@@ -132,7 +132,7 @@ pub const HEADER_STR: &str = match std::str::from_utf8(&HEADER) {
 pub const COLLECTION_VERSION: u8 = 0;
 
 /// Current major version of the [`AudioState`]
-pub const AUDIO_VERSION: u8 = 0;
+pub const AUDIO_VERSION: u8 = 1;
 
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
