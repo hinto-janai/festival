@@ -66,6 +66,7 @@ infer             = "0.13.0"
 notify            = "6.0.0"
 memmap2           = "0.6.2"
 mime_guess        = "2.0.4"
+rayon             = "1.7.0"
 seq-macro         = "0.3.3"
 souvlaki          = "0.6.1"
 symphonia         = { version = "0.5.2", path = "../external/Symphonia/symphonia", features = ["all"] }
