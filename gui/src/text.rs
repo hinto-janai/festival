@@ -15,6 +15,12 @@ use crate::constants::{
 	PIXELS_PER_POINT_UNIT_STR,
 	PIXELS_PER_POINT_MIN_STR,
 	PIXELS_PER_POINT_MAX_STR,
+	STATE_VERSION,
+	SETTINGS_VERSION,
+};
+use shukusai::constants::{
+	COLLECTION_VERSION,
+	AUDIO_VERSION,
 };
 use const_format::formatcp;
 
@@ -177,6 +183,7 @@ const OS_ARCH: &str = "Linux x64";
 /// - shukusai name + version
 /// - OS + Arch
 /// - Git commit hash
+/// - Binary struct versions
 pub const FESTIVAL_SHUKUSAI_COMMIT: &str = {
 	use crate::constants::FESTIVAL_NAME_VER;
 
@@ -190,6 +197,10 @@ r#"{FESTIVAL_NAME_VER}
 {SHUKUSAI_NAME_VER}
 {OS_ARCH}
 {COMMIT}
+Collection v{COLLECTION_VERSION}
+Audio v{AUDIO_VERSION}
+State v{STATE_VERSION}
+Settings v{SETTINGS_VERSION}
 "#)
 };
 

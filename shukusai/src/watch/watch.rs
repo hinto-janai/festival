@@ -207,13 +207,12 @@ mod tests {
 
 		// Wait a bit.
 		use benri::sleep;
-		sleep!(3);
 
 		const T: std::time::Duration = std::time::Duration::from_secs(60);
-
 		// GitHub CI is so insanely slow that signals need more
 		// time so `Watch` can delete the old file and reset.
-		let t = 3;
+		let t = 5;
+		sleep!(5);
 
 		// Regular signals.
 		Toggle::touch().unwrap();

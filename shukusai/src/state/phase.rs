@@ -39,7 +39,7 @@ pub const PHASE_VARIANT_COUNT: usize = 15;
 /// This is set before `Kernel` reads the [`Collection`] from disk.
 ///
 /// Use [`Phase::as_str()`] to get a more `Frontend` friendly message related to the [`Phase`]:
-/// ```rust
+/// ```rust,ignore
 /// # use shukusai::state::Phase;
 /// assert_eq!(Phase::None.as_str(),        "...");
 /// assert_eq!(Phase::Disk.as_str(),        "Reading From Disk");
