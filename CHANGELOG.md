@@ -19,6 +19,9 @@ While `festival-gui` is the only `Frontend` available, the changelog and release
 
 
 ## Unreleased
+## Changed
+* `Collection` directories are now pre-emptively cached on startup and addition; initial reset speeds are faster
+
 ## Fixed
 * Crashes with songs that have odd date metadata, again (https://github.com/hinto-janai/readable/commit/02bdd467363e50627e68af56497eaeb13cdf632d)
 
