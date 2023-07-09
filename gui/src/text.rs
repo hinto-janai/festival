@@ -12,6 +12,15 @@ use crate::constants::{
 	ALBUM_ART_SIZE_MIN,
 	ALBUM_ART_SIZE_MAX,
 	SEARCH_MAX_LEN,
+	PIXELS_PER_POINT_UNIT_STR,
+	PIXELS_PER_POINT_MIN_STR,
+	PIXELS_PER_POINT_MAX_STR,
+	STATE_VERSION,
+	SETTINGS_VERSION,
+};
+use shukusai::constants::{
+	COLLECTION_VERSION,
+	AUDIO_VERSION,
 };
 use const_format::formatcp;
 
@@ -91,6 +100,12 @@ pub const ACCENT_COLOR:      &str = formatcp!(
 	ACCENT_COLOR_RGB[1],
 	ACCENT_COLOR_RGB[2],
 );
+pub const PIXELS_PER_POINT:  &str = formatcp!(
+r#"Manually scale UI pixel size ({PIXELS_PER_POINT_MIN_STR}-{PIXELS_PER_POINT_MAX_STR})
+
+Warning: using a custom pixel size may lead to improperly sized UI."#);
+pub const PIXELS_PER_POINT_ADD: &str = formatcp!("Increase by {PIXELS_PER_POINT_UNIT_STR}");
+pub const PIXELS_PER_POINT_SUB: &str = formatcp!("Decrease by {PIXELS_PER_POINT_UNIT_STR}");
 pub const COLLECTION:        &str = "Festival's music Collection that stores all metadata about the audio files";
 pub const ADD_FOLDER:        &str = formatcp!(
 r#"Add a maximum of 10 folders to scan for the Collection ({MOD}+A).
@@ -168,6 +183,7 @@ const OS_ARCH: &str = "Linux x64";
 /// - shukusai name + version
 /// - OS + Arch
 /// - Git commit hash
+/// - Binary struct versions
 pub const FESTIVAL_SHUKUSAI_COMMIT: &str = {
 	use crate::constants::FESTIVAL_NAME_VER;
 
@@ -180,7 +196,12 @@ pub const FESTIVAL_SHUKUSAI_COMMIT: &str = {
 r#"{FESTIVAL_NAME_VER}
 {SHUKUSAI_NAME_VER}
 {OS_ARCH}
-{COMMIT}"#)
+{COMMIT}
+Collection v{COLLECTION_VERSION}
+Audio v{AUDIO_VERSION}
+State v{STATE_VERSION}
+Settings v{SETTINGS_VERSION}
+"#)
 };
 
 //---------------------------------------------------------------------------------------------------- Search Tab

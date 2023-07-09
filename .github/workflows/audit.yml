@@ -17,20 +17,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Cache
-      uses: actions/cache@v3.2.3
-      with:
-        path: |
-          ~/.cargo
-          target
-        key: audit
     - uses: actions/checkout@v3
       with:
         submodules: recursive
     - name: Install dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y libgtk-3-dev
-        cargo install cargo-audit
+      run: cargo install cargo-audit
     - name: Audit
       run: cargo audit

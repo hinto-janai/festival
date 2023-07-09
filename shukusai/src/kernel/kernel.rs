@@ -16,6 +16,7 @@ use crate::state::{
 	RESET_STATE,
 	AUDIO_STATE,
 	AudioState,
+	AudioState0,
 };
 use crate::audio::Volume;
 use benri::{
@@ -228,8 +229,12 @@ impl Kernel {
 
 		// Before hanging on `CCD`, read `AudioState` file.
 		// Note: This is a `Result`.
-		debug!("Kernel Init [4/12] ... reading AudioState{AUDIO_VERSION}");
-		let state = AudioState::from_file();
+		debug!("Kernel Init [4/12] ... reading AudioState");
+		let state = AudioState::from_versions(&[
+			// SAFETY: memmap is used.
+			(AUDIO_VERSION, || unsafe { AudioState::from_file_memmap() }),
+			(0,             AudioState0::disk_into),
+		]);
 
 		// Set `ResetState` to `Start` + `Art` phase.
 		{
@@ -281,7 +286,7 @@ impl Kernel {
 	//-------------------------------------------------- kernel()
 	fn kernel(
 		collection:     Arc<Collection>,
-		audio:          Result<AudioState, anyhow::Error>,
+		audio:          Result<(u8, AudioState), anyhow::Error>,
 		to_frontend:    Sender<KernelToFrontend>,
 		from_frontend:  Receiver<FrontendToKernel>,
 		beginning:      std::time::Instant,
@@ -290,26 +295,29 @@ impl Kernel {
 	) {
 		debug!("Kernel Init [6/12] ... entering kernel()");
 		let mut audio = match audio {
-			Ok(audio) => {
-				ok_debug!("Kernel Init ... AudioState{AUDIO_VERSION} deserialization");
-				audio
-			},
-			Err(e) => {
-				warn!("Kernel Init ... AudioState{AUDIO_VERSION} from file error: {}", e);
-				AudioState::new()
-			},
+			Ok((v, s)) if v == AUDIO_VERSION => { info!("Kernel Init ... AudioState{AUDIO_VERSION} from disk"); s },
+			Ok((v, s)) => { info!("Kernel Init ... AudioState{v} from disk, converted to AudioState{AUDIO_VERSION}"); s },
+			Err(e) => { warn!("Kernel Init ... AudioState failed from disk: {e}, returning default AudioState{AUDIO_VERSION}"); AudioState::new() },
 		};
 
 		// Check if `AUDIO_STATE`'s `SongKey` is valid.
-		if !crate::validate::song(&collection, audio.song.unwrap_or(SongKey::zero())) {
+		if !crate::validate::song(&collection, audio.song.unwrap_or_else(SongKey::zero)) {
+			info!("AudioState ... SongKey invalid, resetting to None");
 			audio.song = None;
 		}
 
 		// Check if `AUDIO_STATE` indices into itself are in-bounds.
 		if let Some(idx) = audio.queue_idx {
 			if audio.queue.get(idx).is_none() {
+				info!("AudioState ... Queue index invalid, resetting to None");
 				audio.queue_idx = None;
 			}
+		}
+
+		// Check if all of `AUDIO_STATE`'s queue keys are valid.
+		if !crate::validate::song(&collection, audio.queue.iter().max().unwrap_or(&SongKey::zero())) {
+			info!("AudioState ... Queue contains SongKey that is out-of-bounds, clear()'ing");
+			audio.queue.clear();
 		}
 
 		Self::init(Some(collection), Some(audio), to_frontend, from_frontend, beginning, watch, media_controls);

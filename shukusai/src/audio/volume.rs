@@ -29,11 +29,21 @@ impl Volume {
 	}
 
 	#[inline]
+	/// Create a new [`Volume`] from a [`u8`] without checking if it's `=< 100`
+	///
+	/// # Safety
+	///
+	/// The [`u8`] must be less than `100`.
+	pub const unsafe fn new_unchecked(volume: u8) -> Self {
+		Self(volume)
+	}
+
+	#[inline]
 	/// Checks the [`Volume`] for correctness.
 	///
 	/// The [`u8`] must be less than `100` or [`Self::new_100`] will be returned.
 	pub const fn check(self) -> Self {
-		if self.inner() > 100 {
+		if self.0 > 100 {
 			return Self::new_100();
 		}
 
@@ -135,6 +145,23 @@ mod tests {
 	use super::*;
 
 	#[test]
+	// Asserts that Volume must be 0..=100.
+	fn new_and_check() {
+		for i in 0..=100_u8 {
+			let v = Volume::new(i);
+			assert_eq!(v.inner(), i);
+			assert_eq!(v.check().inner(), i)
+		}
+
+		for i in 101..u8::MAX {
+			let v = Volume::new(i);
+			assert_eq!(v.inner(), 100);
+			assert_eq!(v.check().inner(), 100);
+		}
+	}
+
+	#[test]
+	// Tests math and under/overflows work correctly.
 	fn math() {
 		let v1 = Volume::new_0();
 		let v2 = Volume::new_0();
@@ -143,19 +170,19 @@ mod tests {
 		let v5 = Volume::new_51();
 
 		// Make sure result is `0`.
-		assert!(v1 - v2 == v1);
+		assert_eq!(v1 - v2, v1);
 
 		// Make sure result is `50`.
-		assert!(v4 - v3 == v3);
+		assert_eq!(v4 - v3, v3);
 
 		// Make sure result is `100`.
-		assert!(v3 + v3 == v4);
+		assert_eq!(v3 + v3, v4);
 
 		// Make sure overflowed result is `100`.
 		println!("{}", v3 + v5);
-		assert!(v3 + v5 == v4);
+		assert_eq!(v3 + v5, v4);
 
 		// Make sure underflowed result is `0`.
-		assert!(v3 - v4 == v1);
+		assert_eq!(v3 - v4, v1);
 	}
 }

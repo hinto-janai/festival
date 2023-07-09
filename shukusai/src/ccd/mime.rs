@@ -2,7 +2,8 @@
 use benri::debug_panic;
 
 //---------------------------------------------------------------------------------------------------- MIME constants.
-pub(crate) const SUPPORTED_AUDIO_MIME_TYPES: [&str; 28] = [
+// SOMEDAY: Fix AIFF (symphonia doesn't parse metadata correctly)
+pub(crate) const SUPPORTED_AUDIO_MIME_TYPES: [&str; 26] = [
 	// AAC
 	"audio/aac",
 	"audio/x-aac",
@@ -33,8 +34,8 @@ pub(crate) const SUPPORTED_AUDIO_MIME_TYPES: [&str; 28] = [
 	// PCM (wav, aiff)
 	"audio/wav",
 	"audio/x-wav",
-	"audio/aiff",
-	"audio/x-aiff",
+//	"audio/aiff",
+//	"audio/x-aiff",
 	// Wavpack
 	"audio/wavpack",
 	"audio/x-wavpack",
@@ -42,15 +43,15 @@ pub(crate) const SUPPORTED_AUDIO_MIME_TYPES: [&str; 28] = [
 	"audio/x-wavpack-correction",
 ];
 
-pub(crate) const SUPPORTED_IMG_MIME_TYPES: [&str; 8] = [
+pub(crate) const SUPPORTED_IMG_MIME_TYPES: [&str; 9] = [
 	"image/jpg",
 	"image/jpeg",
 	"image/png",
 	"image/bmp",
-	"image/ico",
+	"image/ico", "image/x-icon", "image/vnd.microsoft.icon", // thanks microsoft.
 	"image/tiff",
 	"image/webp",
-	"image/avif",
+//	"image/avif",
 ];
 
 #[derive(Debug,PartialEq,Eq,PartialOrd,Ord)]
@@ -63,7 +64,7 @@ pub(super) enum Codec {
 	Ogg, // Vorbis.
 	Opus,
 	Wav,
-	Aiff,
+//	Aiff,
 	Wavpack,
 }
 
@@ -91,7 +92,7 @@ impl Codec {
 			"audio/opus"|"audio/x-opus" => Self::Opus,
 			// PCM (wav, aiff)
 			"audio/wav"|"audio/x-wav" => Self::Wav,
-			"audio/aiff"|"audio/x-aiff" => Self::Aiff,
+//			"audio/aiff"|"audio/x-aiff" => Self::Aiff,
 			// Wavpack
 			"audio/wavpack"|"audio/x-wavpack" => Self::Wavpack,
 
@@ -101,36 +102,4 @@ impl Codec {
 			},
 		}
 	}
-}
-
-//---------------------------------------------------------------------------------------------------- TESTS
-#[cfg(test)]
-mod tests {
-	// Detect MIME types.
-	fn detect(mime: &str, extension: &str) {
-		let infer = infer::get_from_path(format!("assets/audio/rain.{}", extension)).unwrap().unwrap().mime_type();
-		let guess  = mime_guess::MimeGuess::from_path(format!("assets/audio/rain.{}", extension)).first_raw().unwrap();
-
-		eprintln!("INFER: {}\nGUESS: {}", infer, guess);
-
-		assert!(infer == format!("audio/{}", mime) || infer == format!("audio/x-{}", mime));
-		assert!(guess == format!("audio/{}", mime) || guess == format!("audio/x-{}", mime));
-		assert!(super::SUPPORTED_AUDIO_MIME_TYPES.contains(&infer));
-		assert!(super::SUPPORTED_AUDIO_MIME_TYPES.contains(&guess));
-	}
-
-	#[test]
-	fn detect_aac() { detect("aac", "aac"); }
-	#[test]
-	fn detect_alac() { detect("m4a", "m4a"); }
-	#[test]
-	fn detect_flac() { detect("flac", "flac"); }
-	#[test]
-	fn detect_mp3() { detect("mpeg", "mp3"); }
-	#[test]
-	fn detect_ogg() { detect("ogg", "ogg"); }
-	#[test]
-	fn detect_wav() { detect("wav", "wav"); }
-	#[test]
-	fn detect_aiff() { detect("aiff", "aiff"); }
 }

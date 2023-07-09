@@ -464,6 +464,35 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, widt
 		ui.separator();
 		ui.add_space(40.0);
 
+		//-------------------------------------------------- Pixels per point.
+		// Heading.
+		let label = Label::new(
+			RichText::new(format!("Pixels Per Point ({:.1})", self.settings.pixels_per_point))
+			.color(BONE)
+			.text_style(TextStyle::Heading)
+		);
+		ui.add_sized([width, text], label).on_hover_text(PIXELS_PER_POINT);
+
+		ui.add_space(10.0);
+		ui.group(|ui| { ui.horizontal(|ui| {
+			let width = (width / 2.0) - 25.0;
+			if ui.add_sized([width, text], Button::new("+")).on_hover_text(PIXELS_PER_POINT_ADD).clicked() {
+				if let Some(f) = self.increment_pixels_per_point() {
+					ctx.set_pixels_per_point(f);
+				}
+			}
+			ui.separator();
+			if ui.add_sized([width, text], Button::new("-")).on_hover_text(PIXELS_PER_POINT_SUB).clicked() {
+				if let Some(f) = self.decrement_pixels_per_point() {
+					ctx.set_pixels_per_point(f);
+				}
+			}
+		})});
+
+		ui.add_space(40.0);
+		ui.separator();
+		ui.add_space(40.0);
+
 		//-------------------------------------------------- Stats.
 		// Heading.
 		let label = Label::new(

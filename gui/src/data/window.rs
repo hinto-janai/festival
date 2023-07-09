@@ -22,6 +22,8 @@ const OFF:                  &str = "Off";
 const SEP: &str = "   |   ";
 
 //----------------------------------------------------------------------------------------------------
+/// HACK: until `std::mem::variant_count()` is stable.
+pub const WINDOW_TITLE_VARIANT_COUNT: usize = 13;
 #[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
 /// Different ways the outer `Festival` window title can be set.
 pub enum WindowTitle {
@@ -165,9 +167,30 @@ impl std::fmt::Display for WindowTitle {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//  #[test]
-//  fn _() {
-//  }
-//}
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	// Asserts `.iter()` covers all variants.
+	fn iter_covers_all() {
+		assert_eq!(WindowTitle::iter().count(), WINDOW_TITLE_VARIANT_COUNT);
+	}
+
+	#[test]
+	// Asserts each variant:
+	// 1. Gives a different string
+	// 2. `.next()` gives a different variant
+	// 3. `.prev()` gives a different variant
+	fn diff() {
+		let mut set1 = std::collections::HashSet::new();
+		let mut set2 = std::collections::HashSet::new();
+		let mut set3 = std::collections::HashSet::new();
+
+		for i in WindowTitle::iter() {
+			assert!(set1.insert(i.as_str()));
+			assert!(set2.insert(i.next()));
+			assert!(set3.insert(i.previous()));
+		}
+	}
+}

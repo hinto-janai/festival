@@ -95,6 +95,8 @@ pub const SONG_TITLE:                         &str = "Song title shortest-longes
 pub const SONG_TITLE_REV:                     &str = "Song title longest-shortest";
 
 //---------------------------------------------------------------------------------------------------- Sort
+/// HACK: until `std::mem::variant_count()` is stable.
+pub const ARTIST_SORT_VARIANT_COUNT: usize = 10;
 /// All the ways to sort the [`Collection`]'s [`Artist`]'s.
 ///
 /// String sorting is done lexicographically as per the `std` [`Ord` implementation.](https://doc.rust-lang.org/std/primitive.str.html#impl-Ord)
@@ -125,6 +127,8 @@ pub enum ArtistSort {
 	NameRev,
 }
 
+/// HACK: until `std::mem::variant_count()` is stable.
+pub const ALBUM_SORT_VARIANT_COUNT: usize = 16;
 /// All the ways to sort the [`Collection`]'s [`Album`]'s.
 ///
 /// String sorting is done lexicographically as per the `std` [`Ord` implementation.](https://doc.rust-lang.org/std/primitive.str.html#impl-Ord)
@@ -167,6 +171,8 @@ pub enum AlbumSort {
 	TitleRev,
 }
 
+/// HACK: until `std::mem::variant_count()` is stable.
+pub const SONG_SORT_VARIANT_COUNT: usize = 16;
 /// All the ways to sort the [`Collection`]'s [`Song`]'s.
 ///
 /// String sorting is done lexicographically as per the `std` [`Ord` implementation.](https://doc.rust-lang.org/std/primitive.str.html#impl-Ord)
@@ -250,7 +256,7 @@ impl ArtistSort {
 	/// Returns the next sequential [`ArtistSort`] variant.
 	///
 	/// This returns the _first_ if at the _last_.
-	pub fn next(&self) -> Self {
+	pub const fn next(&self) -> Self {
 		match self {
 			Self::Lexi          => Self::LexiRev,
 			Self::LexiRev       => Self::AlbumCount,
@@ -268,7 +274,7 @@ impl ArtistSort {
 	/// Returns the previous sequential [`ArtistSort`] variant.
 	///
 	/// This returns the _last_ if at the _first_.
-	pub fn previous(&self) -> Self {
+	pub const fn previous(&self) -> Self {
 		match self {
 			Self::Lexi          => Self::NameRev,
 			Self::LexiRev       => Self::Lexi,
@@ -337,7 +343,7 @@ impl AlbumSort {
 	/// Returns the next sequential [`AlbumSort`] variant.
 	///
 	/// This returns the _first_ if at the _last_.
-	pub fn next(&self) -> Self {
+	pub const fn next(&self) -> Self {
 		match self {
 			Self::ReleaseArtistLexi       => Self::ReleaseArtistLexiRev,
 			Self::ReleaseArtistLexiRev    => Self::ReleaseRevArtistLexi,
@@ -361,7 +367,7 @@ impl AlbumSort {
 	/// Returns the previous sequential [`AlbumSort`] variant.
 	///
 	/// This returns the _last_ if at the _first_.
-	pub fn previous(&self) -> Self {
+	pub const fn previous(&self) -> Self {
 		match self {
 			Self::ReleaseArtistLexi       => Self::TitleRev,
 			Self::ReleaseArtistLexiRev    => Self::ReleaseArtistLexi,
@@ -436,7 +442,7 @@ impl SongSort {
 	/// Returns the next sequential [`SongSort`] variant.
 	///
 	/// This returns the _first_ if at the _last_.
-	pub fn next(&self) -> Self {
+	pub const fn next(&self) -> Self {
 		match self {
 			Self::AlbumReleaseArtistLexi       => Self::AlbumReleaseArtistLexiRev,
 			Self::AlbumReleaseArtistLexiRev    => Self::AlbumReleaseRevArtistLexi,
@@ -460,7 +466,7 @@ impl SongSort {
 	/// Returns the previous sequential [`SongSort`] variant.
 	///
 	/// This returns the _last_ if at the _first_.
-	pub fn previous(&self) -> Self {
+	pub const fn previous(&self) -> Self {
 		match self {
 			Self::AlbumReleaseArtistLexi       => Self::TitleRev,
 			Self::AlbumReleaseArtistLexiRev    => Self::AlbumReleaseArtistLexi,
@@ -483,9 +489,58 @@ impl SongSort {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//  #[test]
-//  fn _() {
-//  }
-//}
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	// Asserts `.iter()` covers all variants.
+	fn iter_covers_all() {
+		assert_eq!(ArtistSort::iter().count(), ARTIST_SORT_VARIANT_COUNT);
+		assert_eq!(AlbumSort::iter().count(), ALBUM_SORT_VARIANT_COUNT);
+		assert_eq!(SongSort::iter().count(), SONG_SORT_VARIANT_COUNT);
+	}
+
+	#[test]
+	// Asserts each variant:
+	// 1. Gives a different string
+	// 2. `.next()` gives a different variant
+	// 3. `.prev()` gives a different variant
+	fn artist_diff() {
+		let mut set1 = std::collections::HashSet::new();
+		let mut set2 = std::collections::HashSet::new();
+		let mut set3 = std::collections::HashSet::new();
+
+		for i in ArtistSort::iter() {
+            assert!(set1.insert(i.as_str()));
+            assert!(set2.insert(i.next()));
+            assert!(set3.insert(i.previous()));
+		}
+	}
+
+	#[test]
+	fn album_diff() {
+		let mut set1 = std::collections::HashSet::new();
+		let mut set2 = std::collections::HashSet::new();
+		let mut set3 = std::collections::HashSet::new();
+
+		for i in AlbumSort::iter() {
+            assert!(set1.insert(i.as_str()));
+            assert!(set2.insert(i.next()));
+            assert!(set3.insert(i.previous()));
+		}
+	}
+
+	#[test]
+	fn song_diff() {
+		let mut set1 = std::collections::HashSet::new();
+		let mut set2 = std::collections::HashSet::new();
+		let mut set3 = std::collections::HashSet::new();
+
+		for i in SongSort::iter() {
+            assert!(set1.insert(i.as_str()));
+            assert!(set2.insert(i.next()));
+            assert!(set3.insert(i.previous()));
+		}
+	}
+}

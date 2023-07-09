@@ -11,6 +11,8 @@ pub const SIM_70: &str = "View only the results that are at least 70% similar";
 pub const TOP_25: &str = "View only the top 25 similar results";
 
 //---------------------------------------------------------------------------------------------------- SearchKind
+/// HACK: until `std::mem::variant_count()` is stable.
+pub const SEARCH_KIND_VARIANT_COUNT: usize = 3;
 #[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
 /// The different kinds of searches you can request from `Kernel`
 pub enum SearchKind {
@@ -69,9 +71,30 @@ impl SearchKind {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//  #[test]
-//  fn __TEST__() {
-//  }
-//}
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	// Asserts `.iter()` covers all variants.
+	fn iter_covers_all() {
+		assert_eq!(SearchKind::iter().count(), SEARCH_KIND_VARIANT_COUNT);
+	}
+
+	#[test]
+	// Asserts each variant:
+	// 1. Gives a different string
+	// 2. `.next()` gives a different variant
+	// 3. `.prev()` gives a different variant
+	fn diff() {
+		let mut set1 = std::collections::HashSet::new();
+		let mut set2 = std::collections::HashSet::new();
+		let mut set3 = std::collections::HashSet::new();
+
+		for i in SearchKind::iter() {
+            assert!(set1.insert(i.as_str()));
+            assert!(set2.insert(i.next()));
+            assert!(set3.insert(i.previous()));
+		}
+	}
+}

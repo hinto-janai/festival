@@ -11,6 +11,7 @@ use crate::constants::{
 	ALBUMS_PER_ROW_DEFAULT,
 	ACCENT_COLOR,
 	SETTINGS_VERSION,
+	PIXELS_PER_POINT_DEFAULT,
 };
 use shukusai::{
 	constants::{
@@ -36,11 +37,8 @@ use const_format::formatcp;
 use std::marker::PhantomData;
 
 //---------------------------------------------------------------------------------------------------- Settings
-#[cfg(debug_assertions)]
-disk::json!(Settings, disk::Dir::Data, FESTIVAL, formatcp!("{GUI}/{STATE_SUB_DIR}"), "settings");
-#[cfg(not(debug_assertions))]
 disk::bincode2!(Settings, disk::Dir::Data, FESTIVAL, formatcp!("{GUI}/{STATE_SUB_DIR}"), "settings", HEADER, SETTINGS_VERSION);
-#[derive(Clone,Debug,Default,PartialEq,Serialize,Deserialize,Encode,Decode)]
+#[derive(Clone,Debug,PartialEq,Serialize,Deserialize,Encode,Decode)]
 /// `GUI`'s settings.
 ///
 /// Holds user-mutable `GUI` settings, e.g:
@@ -95,45 +93,124 @@ pub struct Settings {
 	/// data from when making a new [`Collection`].
 	pub collection_paths: Vec<PathBuf>,
 
+	/// What `egui::Context::pixels_per_point` are we set to?
+	/// Default is `1.0`, this allows the user to scale manually.
+	pub pixels_per_point: f32,
+
 	// Reserved fields.
-	_reserved1: PhantomData<Vec<String>>,
-	_reserved2: PhantomData<String>,
-	_reserved3: PhantomData<Option<String>>,
-	_reserved4: PhantomData<bool>,
-	_reserved5: PhantomData<bool>,
-	_reserved6: PhantomData<Option<bool>>,
-	_reserved7: PhantomData<Option<bool>>,
-	_reserved8: PhantomData<usize>,
-	_reserved9: PhantomData<usize>,
-	_reserved10: PhantomData<Option<usize>>,
-	_reserved11: PhantomData<Option<usize>>,
+	pub _reserved1: Option<Vec<String>>,
+	pub _reserved2: Option<String>,
+	pub _reserved3: Option<Option<String>>,
+	pub _reserved4: Option<bool>,
+	pub _reserved5: Option<bool>,
+	pub _reserved6: Option<Option<bool>>,
+	pub _reserved7: Option<Option<bool>>,
+	pub _reserved8: Option<usize>,
+	pub _reserved9: Option<usize>,
+	pub _reserved10: Option<f32>,
+	pub _reserved11: Option<f32>,
+	pub _reserved12: Option<f64>,
+	pub _reserved13: Option<f64>,
+	pub _reserved14: Option<Option<usize>>,
+	pub _reserved15: Option<Option<usize>>,
 }
 
 impl Settings {
-//	/// Returns the accent color in [`Settings`] in tuple form.
-//	pub const fn accent_color(&self) -> (u8, u8, u8) {
-//		let (r, g, b, _) = self.visuals.selection.bg_fill.to_tuple();
-//		(r, g, b)
-//	}
-
 	pub fn new() -> Self {
 		Self {
-			accent_color: ACCENT_COLOR,
-			restore_state: true,
-			collection_paths: vec![],
-			album_pixel_size: ALBUM_ART_SIZE_DEFAULT,
-			albums_per_row: ALBUMS_PER_ROW_DEFAULT,
+			artist_sort:        Default::default(),
+			album_sort:         Default::default(),
+			song_sort:          Default::default(),
+			search_kind:        Default::default(),
+			artist_sub_tab:     Default::default(),
+			search_sort:        Default::default(),
+			window_title:       Default::default(),
+			album_sizing:       Default::default(),
+			album_pixel_size:   ALBUM_ART_SIZE_DEFAULT,
+			albums_per_row:     ALBUMS_PER_ROW_DEFAULT,
 			previous_threshold: PREVIOUS_THRESHOLD_DEFAULT,
-			empty_autoplay: true,
-			..Default::default()
+			restore_state:      true,
+			empty_autoplay:     true,
+			accent_color:       ACCENT_COLOR,
+			collection_paths:   vec![],
+			pixels_per_point:   PIXELS_PER_POINT_DEFAULT,
+
+			// Reserved fields.
+			_reserved1: None,
+			_reserved2: None,
+			_reserved3: None,
+			_reserved4: None,
+			_reserved5: None,
+			_reserved6: None,
+			_reserved7: None,
+			_reserved8: None,
+			_reserved9: None,
+			_reserved10: None,
+			_reserved11: None,
+			_reserved12: None,
+			_reserved13: None,
+			_reserved14: None,
+			_reserved15: None,
 		}
 	}
 }
 
+impl Default for Settings {
+	fn default() -> Self {
+		Self::new()
+	}
+}
+
 //---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod test {
-//  #[test]
-//  fn _() {
-//  }
-//}
+#[cfg(test)]
+mod test {
+	use super::*;
+	use once_cell::sync::Lazy;
+	use std::path::PathBuf;
+	use disk::Bincode2;
+
+	// Empty.
+	const S1: Lazy<Settings> = Lazy::new(|| Settings::from_path("../assets/festival/gui/state/settings1_new.bin").unwrap());
+	// Filled.
+	const S2: Lazy<Settings> = Lazy::new(|| Settings::from_path("../assets/festival/gui/state/settings1_real.bin").unwrap());
+
+	#[test]
+	// Compares `new()`.
+	fn cmp() {
+		#[cfg(not(target_os = "macos"))]
+		assert_eq!(Lazy::force(&S1), &Settings::new());
+		#[cfg(target_os = "macos")]
+		{
+			let mut settings = Settings::new();
+			settings.pixels_per_point = 1.5;
+			assert_eq!(Lazy::force(&S1), &settings);
+		}
+
+		assert_ne!(Lazy::force(&S1), Lazy::force(&S2));
+
+		let b1 = S1.to_bytes().unwrap();
+		let b2 = S2.to_bytes().unwrap();
+		assert_ne!(b1, b2);
+	}
+
+	#[test]
+	// Attempts to deserialize the non-empty.
+	fn real() {
+		assert_eq!(S2.artist_sort,        ArtistSort::RuntimeRev);
+		assert_eq!(S2.album_sort,         AlbumSort::LexiRevArtistLexi);
+		assert_eq!(S2.song_sort,          SongSort::Runtime);
+		assert_eq!(S2.search_kind,        SearchKind::All);
+		assert_eq!(S2.artist_sub_tab,     ArtistSubTab::View);
+		assert_eq!(S2.search_sort,        SearchSort::Album);
+		assert_eq!(S2.window_title,       WindowTitle::Queue);
+		assert_eq!(S2.album_sizing,       AlbumSizing::Row);
+		assert_eq!(S2.album_pixel_size,   227.0);
+		assert_eq!(S2.albums_per_row,     10);
+		assert_eq!(S2.previous_threshold, 10);
+		assert_eq!(S2.restore_state,      false);
+		assert_eq!(S2.empty_autoplay,     false);
+		assert_eq!(S2.accent_color,       egui::Color32::from_rgb(97,101,119));
+		assert_eq!(S2.collection_paths,   [PathBuf::from("/home/main/git/festival/assets/audio")]);
+		assert_eq!(S2.pixels_per_point.round(), 1.0);
+	}
+}

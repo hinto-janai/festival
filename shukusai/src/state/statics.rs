@@ -68,3 +68,51 @@ pub(crate) static MEDIA_CONTROLS_SHOULD_EXIT: AtomicBool = AtomicBool::new(false
 pub fn media_controls_should_exit() -> bool {
 	atomic_load!(MEDIA_CONTROLS_SHOULD_EXIT)
 }
+
+//---------------------------------------------------------------------------------------------------- TESTS
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use std::sync::atomic::Ordering;
+
+	#[test]
+	// Asserts function corresponds with the static.
+	fn __saving() {
+		// CCD test might be alive, wait for it to end.
+		while saving() {
+			benri::sleep!(1);
+		}
+
+		assert!(!SAVING.load(Ordering::SeqCst));
+		assert!(!saving());
+
+		SAVING.store(true, Ordering::SeqCst);
+
+		assert!(SAVING.load(Ordering::SeqCst));
+		assert!(saving());
+	}
+
+	#[test]
+	// Asserts function corresponds with the static.
+	fn __media_controls_raise() {
+		assert!(!MEDIA_CONTROLS_RAISE.load(Ordering::SeqCst));
+		assert!(!media_controls_raise());
+
+		MEDIA_CONTROLS_RAISE.store(true, Ordering::SeqCst);
+
+		assert!(MEDIA_CONTROLS_RAISE.load(Ordering::SeqCst));
+		assert!(media_controls_raise());
+	}
+
+	#[test]
+	// Asserts function corresponds with the static.
+	fn __media_controls_should_exit() {
+		assert!(!MEDIA_CONTROLS_SHOULD_EXIT.load(Ordering::SeqCst));
+		assert!(!media_controls_should_exit());
+
+		MEDIA_CONTROLS_SHOULD_EXIT.store(true, Ordering::SeqCst);
+
+		assert!(MEDIA_CONTROLS_SHOULD_EXIT.load(Ordering::SeqCst));
+		assert!(media_controls_should_exit());
+	}
+}

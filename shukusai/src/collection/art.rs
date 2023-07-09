@@ -144,7 +144,6 @@ impl Clone for Art {
 }
 
 //---------------------------------------------------------------------------------------------------- Art Bincode
-// Same thing as above, but for `bincode`'s `Encode` & `Decode`
 impl bincode::Encode for Art {
 	fn encode<E: bincode::enc::Encoder>(&self, encoder: &mut E) -> std::result::Result<(), bincode::error::EncodeError> {
 		match self {
@@ -189,8 +188,8 @@ mod tests {
 	use super::*;
 
 	#[test]
-	fn unknown_art() {
-		// Make sure the `.unwrap()` doesn't panic.
-		assert!(UNKNOWN_ALBUM.size() == [ALBUM_ART_SIZE; 2]);
+	// Make sure the `.unwrap()` doesn't panic.
+	fn unknown() {
+		assert_eq!(UNKNOWN_ALBUM.size(), [ALBUM_ART_SIZE; 2]);
 	}
 }

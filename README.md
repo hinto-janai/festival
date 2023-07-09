@@ -22,6 +22,7 @@ Currently, the most full frontend implementation is [`festival-gui`](https://git
 | [`festivald`](https://github.com/hinto-janai/festival/tree/main/daemon) | Daemon ([`mpd`](https://github.com/MusicPlayerDaemon/MPD)-like) | 🔴            |
 | [`festival-cli`](https://github.com/hinto-janai/festival/tree/main/cli) | CLI client                                                      | 🔴            |
 | [`festival-web`](https://github.com/hinto-janai/festival/tree/main/web) | WASM client                                                     | 🔴            |
+| [`festival-tui`](https://github.com/hinto-janai/festival/tree/main/tui) | Standalone TUI                                                  | 🔴            |
 
 ## Documentation
 For a user guide on Festival, see [`gui/`](https://github.com/hinto-janai/festival/tree/main/gui).
@@ -203,7 +204,35 @@ The supported image file formats are:
 - `ICO`
 - `TIFF`
 - `WebP`
-- `AVIF`
+
+---
+
+</details>
+
+<details>
+<summary>Missing date</summary>
+
+---
+
+Festival will look for a date metadata tag generally resembling the `YYYY-MM-DD` format.
+
+Some examples of dates that will work:
+- `2022-12-31` (YYYY-MM-DD)
+- `2022` (YYYY)
+- `31-12-2022` (DD-MM-YYYY)
+- `12-31-2022` (MM-DD-YYYY)
+- `2022/12/31` (YYYY-MM-DD but with a different separator)
+- `20221231` (YYYY-MM-DD but with no separator)
+- `2022-1-1` (YYYY-MM-DD)
+- `2022-01-01` (YYYY-MM-DD)
+
+As long as the year exists, the date will be parsed correctly. This means `MM-DD` metadata will be not parsed, so:
+- `12-31` (MM-DD)
+- `31-12` (DD-MM)
+
+will not work. These will show up as `????-??-??` in Festival.
+
+To fix your music metadata, see below for metadata editors.
 
 ---
 
@@ -242,7 +271,6 @@ The supported audio codecs are:
 - `Ogg/Vorbis`
 - `Opus`
 - `WAV`
-- `AIFF`
 - `WavPack`
 
 ---

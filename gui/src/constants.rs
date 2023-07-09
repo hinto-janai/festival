@@ -148,24 +148,26 @@ pub const SEARCH_MAX_LEN: usize = u8::MAX as usize;
 pub const GUI: &str = "gui";
 
 /// Current major version of `GUI`'s `State`
-pub const STATE_VERSION: u8 = 0;
+pub const STATE_VERSION: u8 = 1;
 
 /// Current major version of `GUI`'s `Settings`
-pub const SETTINGS_VERSION: u8 = 0;
+pub const SETTINGS_VERSION: u8 = 1;
 
 //---------------------------------------------------------------------------------------------------- Resolution
-// It can't be lower than this or some of
-// the static pixel size UI elements get weird.
-pub const APP_WIDTH_MIN:          f32 = 700.0;
-pub const APP_HEIGHT_MIN:         f32 = 560.0;
+// 700.0 works on some `Album`'s in view tabs
+// but `Album`'s with longer song titles makes
+// the right side UI disappear.
+pub const APP_WIDTH_MIN:          f32 = 870.0;
+// This is also as low as the height can get
+// before things get cut off.
+pub const APP_HEIGHT_MIN:         f32 = 486.0;
+
 pub const APP_WIDTH_DEFAULT:      f32 = 1000.0;
 pub const APP_HEIGHT_DEFAULT:     f32 = 800.0;
-
-// Ratios should be the same.
+// Default ratio should be 1.25
 const _: () = {
-	const RATIO_MIN:     f32 = APP_WIDTH_MIN / APP_HEIGHT_MIN;
-	const RATIO_DEFAULT: f32 = APP_WIDTH_DEFAULT / APP_HEIGHT_DEFAULT;
-	const_assert!(RATIO_MIN == RATIO_DEFAULT);
+	const RATIO: f32 = APP_WIDTH_DEFAULT / APP_HEIGHT_DEFAULT;
+	const_assert!(RATIO == 1.25);
 };
 
 pub const APP_RESOLUTION_MIN:     [f32; 2] = [APP_WIDTH_MIN, APP_HEIGHT_MIN];
@@ -197,6 +199,21 @@ pub const QUEUE_ALBUM_ART_SIZE: f32 = 80.0;
 //---------------------------------------------------------------------------------------------------- Settings
 pub const PREVIOUS_THRESHOLD_MIN: u32 = 0;
 pub const PREVIOUS_THRESHOLD_MAX: u32 = 20;
+
+#[cfg(target_os = "macos")]
+// This needs to be slightly bigger on macOS.
+pub const PIXELS_PER_POINT_DEFAULT: f32 = 2.0;
+#[cfg(not(target_os = "macos"))]
+pub const PIXELS_PER_POINT_DEFAULT: f32 = 1.5;
+
+pub const PIXELS_PER_POINT_UNIT: f32 = 0.1;
+pub const PIXELS_PER_POINT_MIN:  f32 = 0.1;
+pub const PIXELS_PER_POINT_MAX:  f32 = 3.0;
+// INVARIANT: must be the same as above.
+// HACK: `const_format` can't take floats as input.
+pub const PIXELS_PER_POINT_UNIT_STR: &str = "0.1";
+pub const PIXELS_PER_POINT_MIN_STR:  &str = "0.1";
+pub const PIXELS_PER_POINT_MAX_STR:  &str = "3.0";
 
 //---------------------------------------------------------------------------------------------------- Fonts
 pub const FONT_SOURCECODE_PRO: &[u8] = include_bytes!("../../assets/fonts/SourceCodePro-Regular.otf");

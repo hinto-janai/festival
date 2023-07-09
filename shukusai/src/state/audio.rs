@@ -24,7 +24,7 @@ use std::sync::{
 };
 use std::collections::VecDeque;
 use const_format::formatcp;
-use std::marker::PhantomData;
+use disk::Bincode2;
 
 //---------------------------------------------------------------------------------------------------- Lazy
 /// This is the single, global copy of `AudioState` that `Kernel` uses.
@@ -65,9 +65,6 @@ impl AudioStateLock {
 }
 
 //---------------------------------------------------------------------------------------------------- AudioState
-#[cfg(debug_assertions)]
-disk::json!(AudioState, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{STATE_SUB_DIR}"), "audio");
-#[cfg(not(debug_assertions))]
 disk::bincode2!(AudioState, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{STATE_SUB_DIR}"), "audio", HEADER, AUDIO_VERSION);
 /// Audio State
 ///
@@ -103,14 +100,26 @@ pub struct AudioState {
 	pub volume: Volume,
 
 	// Reserved fields.
-	_reserved1: PhantomData<bool>,
-	_reserved2: PhantomData<bool>,
-	_reserved3: PhantomData<bool>,
-	_reserved4: PhantomData<usize>,
-	_reserved5: PhantomData<usize>,
-	_reserved6: PhantomData<Option<usize>>,
-	_reserved7: PhantomData<Option<usize>>,
-	_reserved8: PhantomData<VecDeque<usize>>,
+	pub(crate) _reserved1: Option<bool>,
+	pub(crate) _reserved2: Option<bool>,
+	pub(crate) _reserved3: Option<bool>,
+	pub(crate) _reserved4: Option<usize>,
+	pub(crate) _reserved5: Option<usize>,
+	pub(crate) _reserved6: Option<u8>,
+	pub(crate) _reserved7: Option<u8>,
+	pub(crate) _reserved8: Option<u16>,
+	pub(crate) _reserved9: Option<u16>,
+	pub(crate) _reserved10: Option<u32>,
+	pub(crate) _reserved11: Option<u32>,
+	pub(crate) _reserved12: Option<u64>,
+	pub(crate) _reserved13: Option<u64>,
+	pub(crate) _reserved14: Option<f32>,
+	pub(crate) _reserved15: Option<f32>,
+	pub(crate) _reserved16: Option<f64>,
+	pub(crate) _reserved17: Option<f64>,
+	pub(crate) _reserved18: Option<Option<usize>>,
+	pub(crate) _reserved19: Option<Option<usize>>,
+	pub(crate) _reserved20: Option<VecDeque<usize>>,
 }
 
 impl AudioState {
@@ -121,20 +130,16 @@ impl AudioState {
 			queue_idx: None,
 
 			playing: false,
-			volume: Volume::const_default(),
 			song: None,
 			elapsed: Runtime::zero(),
 			runtime: Runtime::zero(),
 			repeat: Repeat::new(),
+			volume: Volume::const_default(),
 
-			_reserved1: PhantomData,
-			_reserved2: PhantomData,
-			_reserved3: PhantomData,
-			_reserved4: PhantomData,
-			_reserved5: PhantomData,
-			_reserved6: PhantomData,
-			_reserved7: PhantomData,
-			_reserved8: PhantomData,
+			_reserved1: None, _reserved2: None, _reserved3: None, _reserved4: None, _reserved5: None,
+			_reserved6: None, _reserved7: None, _reserved8: None, _reserved9: None, _reserved10: None,
+			_reserved11: None, _reserved12: None, _reserved13: None, _reserved14: None, _reserved15: None,
+			_reserved16: None, _reserved17: None, _reserved18: None, _reserved19: None, _reserved20: None,
 		}
 	}
 
@@ -203,22 +208,6 @@ impl AudioState {
 
 		None
 	}
-
-	// Checks if we are at the last index in the queue.
-	pub(crate) fn at_last_queue_idx(&self) -> bool {
-		match self.queue_idx {
-			Some(i) => i + 1 == self.queue.len(),
-			None => false,
-		}
-	}
-
-	// Checks if we are at the first index in the queue.
-	pub(crate) fn at_first_queue_idx(&self) -> bool {
-		match self.queue_idx {
-			Some(i) => i == 0,
-			None => false,
-		}
-	}
 }
 
 impl Default for AudioState {
@@ -228,9 +217,170 @@ impl Default for AudioState {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//  #[test]
-//  fn __TEST__() {
-//  }
-//}
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use disk::Bincode2;
+	use readable::Runtime;
+	use once_cell::sync::Lazy;
+
+	// Empty new `AudioState`.
+	const A1: Lazy<AudioState> = Lazy::new(|| AudioState::from_path("../assets/shukusai/state/audio1_new.bin").unwrap());
+	// Filled, user `AudioState`.
+	const A2: Lazy<AudioState> = Lazy::new(|| AudioState::from_path("../assets/shukusai/state/audio1_real.bin").unwrap());
+	const SONG: SongKey = SongKey::new();
+
+	#[test]
+	// Tests `if_copy()` and asserts the following behavior:
+	//
+	// 1. If `self` and `dst` are the same, this does nothing
+	// 2. If `self` and `dst`'s queue are the same, everything but that is `clone()`'ed
+	// 3. If `self` and `dst`'s queue are different, all of `self` is `.clone()`'ed into `dst`
+	fn if_copy() {
+		let mut a = AudioState::new();
+		let mut dst = AudioState::new();
+
+		// 1.
+		a.if_copy(&mut dst);
+		assert_eq!(a, dst);
+
+		// 2.
+		a.playing   = true;
+		a.queue_idx = Some(usize::MAX);
+		a.song      = Some(SONG);
+		a.elapsed   = Runtime::from(123_u32);
+		assert_ne!(a, dst);
+		a.if_copy(&mut dst);
+		assert_eq!(dst.song.unwrap(), SONG);
+		assert_eq!(dst.queue.len(), 0);
+		assert_eq!(a, dst);
+
+		// 3.
+		let mut a   = AudioState::new();
+		let mut dst = AudioState::new();
+		a.queue_idx = Some(usize::MAX);
+		a.song      = Some(SONG);
+		a.queue.push_front(SongKey::from(usize::MAX));
+		assert_ne!(a.queue, dst.queue);
+		a.if_copy(&mut dst);
+		assert_eq!(dst.song.unwrap(), SONG);
+		assert_eq!(dst.queue.len(), 1);
+		assert_eq!(a, dst);
+	}
+
+	#[test]
+	// Tests `finish()` and asserts state is correct.
+	fn finish() {
+		let mut a = AudioState::new();
+
+		// Set state as if we're playing a song.
+		a.queue.push_front(SONG);
+		a.queue_idx = Some(0);
+		a.playing   = true;
+		a.song      = Some(SONG);
+		a.elapsed   = Runtime::from(123_u32);
+		a.runtime   = Runtime::from(321_u32);
+
+		a.finish();
+
+		assert!(a.queue.is_empty());
+		assert!(a.queue_idx.is_none());
+		assert!(!a.playing);
+		assert!(a.song.is_none());
+		assert_eq!(a.elapsed, Runtime::zero());
+		assert_eq!(a.runtime, Runtime::zero());
+	}
+
+	#[test]
+	// Tests `next()` and asserts the following behavior:
+	//
+	// 1. `queue_idx` is `None` => Returns `None`;
+	//
+	// 2. Next key is `Some` => {
+	//       Increments the `queue_idx`;
+	//       Sets current song to the new index;
+	//       Returns `Some(new_song)`
+	//   }
+	//
+	// 3. Next key is `None` => {
+	//       Returns `None`;
+	//   }
+	fn next() {
+		let mut a = AudioState::new();
+
+		// 1
+		a.queue_idx = None;
+		assert!(a.next().is_none());
+
+		// 2
+		a.queue_idx = Some(0);
+		a.queue.push_front(SONG);
+		a.queue.push_front(SONG);
+		a.queue.push_front(SONG);
+		assert_eq!(a.next(),    Some(SONG));
+		assert_eq!(a.queue_idx, Some(1));
+		assert_eq!(a.next(),    Some(SONG));
+		assert_eq!(a.queue_idx, Some(2));
+
+		// 3
+		assert!(a.next().is_none());
+		// FIXME: maybe this should be set to `None`.
+		assert_eq!(a.queue_idx, Some(2));
+	}
+
+	#[test]
+	// Tests `prev()` and asserts the following behavior:
+	//
+	// 1. `queue_idx` is `None` => Returns `None`;
+	// 2. Returns the new `SongKey` if a previous is available
+	// 3. Returns index `0` if at first index.
+	// 4. Returns `None` if nothing in queue.
+	fn prev() {
+		let mut a = AudioState::new();
+
+		// 1
+		a.queue_idx = None;
+		assert!(a.next().is_none());
+
+		// 2
+		a.queue_idx = Some(1);
+		a.queue.push_front(SONG);
+		a.queue.push_front(SONG);
+		assert_eq!(a.prev(), Some(SONG));
+		assert_eq!(a.queue_idx, Some(0));
+
+		// 3
+		assert_eq!(a.prev(),    Some(SONG));
+		assert_eq!(a.queue_idx, Some(0));
+
+		// 4
+		a.queue.clear();
+		assert!(a.prev().is_none());
+	}
+
+	#[test]
+	// Compares `AudioState::new()` against A1 & A2.
+	fn cmp() {
+		assert_eq!(Lazy::force(&A1), &AudioState::new());
+		assert_ne!(Lazy::force(&A1), Lazy::force(&A2));
+
+		let b1 = A1.to_bytes().unwrap();
+		let b2 = A2.to_bytes().unwrap();
+		assert_ne!(b1, b2);
+	}
+
+	#[test]
+	// Attempts to deserialize a non-empty `AudioState`.
+	fn real() {
+		// Assert data.
+		assert_eq!(A2.queue[0],  SongKey::from(0_u8));
+		assert_eq!(A2.queue[1],  SongKey::from(10_u8));
+		assert_eq!(A2.queue[2],  SongKey::from(100_u8));
+		assert_eq!(A2.queue_idx, Some(2));
+		assert_eq!(A2.song,      Some(SongKey::from(100_u8)));
+		assert_eq!(A2.elapsed,   Runtime::from(123_u16));
+		assert_eq!(A2.runtime,   Runtime::from(321_u16));
+		assert_eq!(A2.repeat,    Repeat::Queue);
+		assert!(A2.playing);
+	}
+}

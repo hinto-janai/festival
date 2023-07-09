@@ -1,6 +1,6 @@
 [package]
 name           = "shukusai"
-version        = "0.0.1"
+version        = "0.0.2"
 edition        = "2021"
 authors        = ["hinto.janai <hinto.janai@protonmail.com>"]
 homepage       = "https://festival.pm"
@@ -56,6 +56,7 @@ once_cell    = { workspace = true }
 paste        = { workspace = true }
 rand         = { workspace = true }
 serde_bytes  = { workspace = true }
+serde_json   = { workspace = true }
 serde        = { workspace = true }
 
 ### Regular.

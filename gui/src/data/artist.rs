@@ -3,6 +3,8 @@ use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
 
 //----------------------------------------------------------------------------------------------------
+/// HACK: until `std::mem::variant_count()` is stable.
+pub const ARTIST_SUB_TAB_VARIANT_COUNT: usize = 2;
 /// The sub-tabs in the `Artists` tab.
 #[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
 pub enum ArtistSubTab {
@@ -59,9 +61,30 @@ impl std::fmt::Display for ArtistSubTab {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//  #[test]
-//  fn __TEST__() {
-//  }
-//}
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	// Asserts `.iter()` covers all variants.
+	fn iter_covers_all() {
+		assert_eq!(ArtistSubTab::iter().count(), ARTIST_SUB_TAB_VARIANT_COUNT);
+	}
+
+	#[test]
+	// Asserts each variant:
+	// 1. Gives a different string
+	// 2. `.next()` gives a different variant
+	// 3. `.prev()` gives a different variant
+	fn diff() {
+		let mut set1 = std::collections::HashSet::new();
+		let mut set2 = std::collections::HashSet::new();
+		let mut set3 = std::collections::HashSet::new();
+
+		for i in ArtistSubTab::iter() {
+			assert!(set1.insert(i.as_str()));
+			assert!(set2.insert(i.next()));
+			assert!(set3.insert(i.previous()));
+		}
+	}
+}

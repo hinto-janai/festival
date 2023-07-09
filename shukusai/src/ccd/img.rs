@@ -72,11 +72,6 @@ pub(crate) fn art_from_raw(bytes: Box<[u8]>, resizer: &mut fir::Resizer) -> Resu
 }
 
 #[inline(always)]
-pub(crate) fn art_raw_to_egui(bytes: Box<[u8]>) -> egui_extras::RetainedImage {
-	color_img_to_retained(rgb_bytes_to_color_img(bytes))
-}
-
-#[inline(always)]
 pub(crate) fn art_from_known(bytes: Box<[u8]>) -> egui_extras::RetainedImage {
 	color_img_to_retained(
 		rgb_bytes_to_color_img(bytes)
@@ -300,37 +295,31 @@ pub(super) fn free_textures(tex_manager: &mut epaint::TextureManager) {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
+// TODO: Add test for zune.
 #[cfg(test)]
 mod tests {
 	use super::*;
 
-	const IMG_BYTES: &[u8] = include_bytes!("../../assets/images/icon/1024.png");
-
 	#[test]
-	// Makes sure we can take in random image bytes,
-	// resize with `fir`, and transform into an `egui` image.
-	fn _art_from_raw() {
-		let mut resizer = super::create_resizer();
-		art_from_raw(IMG_BYTES, &mut resizer).unwrap();
-	}
-
-	#[test]
-	// Make sure known image bytes can be converted to an `egui` image.
-	fn _art_from_known() {
-		// Resizer.
+	// Assert we can:
+	// 1. Take in all image formats
+	// 2. Resize with `fir`
+	// 3. Convert to an `egui` image
+	fn __art_from_known() {
 		let mut resizer = super::create_resizer();
 
-		// Bytes -> DynamicImage.
-		let dyn_img = bytes_to_dyn_image(IMG_BYTES).unwrap();
+		for ext in ["jpg", "png", "bmp", "ico", "tiff", "webp"] {
+			let img = std::fs::read(format!("../assets/images/test/512.{ext}")).unwrap();
+			let img = art_from_raw(img.into(), &mut resizer).unwrap();
+			assert!(!img.is_empty());
 
-		// DynamicImage -> FIR Image.
-		let fir_img = resize_dyn_image(dyn_img, &mut resizer).unwrap();
+			// Bytes of FIR Image should be in perfect `3` chunks (RGB).
+			assert_eq!(img.len() % 3, 0);
 
-		// Bytes of FIR Image should be in perfect `3` chunks (RGB).
-		assert!(fir_img.len() % 3 == 0);
-
-		let retained = art_from_known(&fir_img);
-		assert!(retained.width() == 500);
-		assert!(retained.height() == 500);
+			// Convert to `egui` image.
+			let retained = art_from_known(img);
+			assert_eq!(retained.width(), ALBUM_ART_SIZE);
+			assert_eq!(retained.height(), ALBUM_ART_SIZE);
+		}
 	}
 }

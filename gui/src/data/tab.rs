@@ -16,6 +16,8 @@ pub const SEARCH:    &str = "Search";
 pub const SETTINGS:  &str = "Settings";
 
 //---------------------------------------------------------------------------------------------------- Tab Enum
+/// HACK: until `std::mem::variant_count()` is stable.
+pub const TAB_VARIANT_COUNT: usize = 7;
 #[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
 pub enum Tab {
 	/// The tab that represents a full-view of a
@@ -105,9 +107,30 @@ impl std::fmt::Display for Tab {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//  #[test]
-//  fn _() {
-//  }
-//}
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	// Asserts `.iter()` covers all variants.
+	fn iter_covers_all() {
+		assert_eq!(Tab::iter().count(), TAB_VARIANT_COUNT);
+	}
+
+	#[test]
+	// Asserts each variant:
+	// 1. Gives a different string
+	// 2. `.next()` gives a different variant
+	// 3. `.prev()` gives a different variant
+	fn diff() {
+		let mut set1 = std::collections::HashSet::new();
+		let mut set2 = std::collections::HashSet::new();
+		let mut set3 = std::collections::HashSet::new();
+
+		for i in Tab::iter() {
+			assert!(set1.insert(i.as_str()));
+			assert!(set2.insert(i.next()));
+			assert!(set3.insert(i.previous()));
+		}
+	}
+}
