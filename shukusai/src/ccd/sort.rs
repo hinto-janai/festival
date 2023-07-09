@@ -253,8 +253,12 @@ impl super::Ccd {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-// TODO:
-// Ensure all sorting orders are correct.
+// SOMEDAY: After eyeballing my own `Collection`'s sort orders
+// I'm pretty certain all the functions here (if used correctly) result
+// in the correct output.
+//
+// I really don't want to write these tests... but someday.
+//
 //#[cfg(test)]
 //mod tests {
 //  #[test]

@@ -204,7 +204,6 @@ The supported image file formats are:
 - `ICO`
 - `TIFF`
 - `WebP`
-- `AVIF`
 
 ---
 
@@ -272,7 +271,6 @@ The supported audio codecs are:
 - `Ogg/Vorbis`
 - `Opus`
 - `WAV`
-- `AIFF`
 - `WavPack`
 
 ---

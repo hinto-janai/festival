@@ -12,6 +12,7 @@ use crate::constants::{
 };
 use crate::data::{
 	State,
+	State0,
 	Settings,
 	Settings0,
 	DebugInfo,
@@ -41,6 +42,7 @@ use benri::{
 use log::{
 	info,
 	warn,
+	debug,
 };
 use egui::{
 	FontDefinitions,FontId,TextStyle,
@@ -150,39 +152,31 @@ impl crate::data::Gui {
 		from_kernel: Receiver<KernelToFrontend>,
 	) -> Self {
 		// Read `Settings` from disk.
-		let settings = {
-			let version = Settings::file_version();
-
-			match version {
-				Ok(0) => {
-					match Settings0::from_file() {
-						Ok(s)  => {
-							info!("GUI Init [1/8] ... Settings0 from disk, converting to Settings{SETTINGS_VERSION}");
-							s.into()
-						},
-						Err(e) => {
-							warn!("GUI Init [1/8] ... Settings0 failed from disk: {e}, returning default Settings{SETTINGS_VERSION}");
-							Settings::new()
-						},
-					}
-				},
-				_ => {
-					match Settings::from_file() {
-						Ok(s)  => { info!("GUI Init [1/8] ... Settings{SETTINGS_VERSION} from disk"); s },
-						Err(e) => { warn!("GUI Init [1/8] ... Settings{SETTINGS_VERSION} failed from disk: {}", e); Settings::new() },
-					}
-				},
-			}
+		let settings = Settings::from_versions(&[
+			(SETTINGS_VERSION, Settings::from_file),
+			(0,                Settings0::disk_into),
+		]);
+		let settings = match settings {
+			Ok((v, s)) if v == SETTINGS_VERSION => { info!("GUI Init [1/8] ... Settings{SETTINGS_VERSION} from disk"); s },
+			Ok((v, s)) => { info!("GUI Init [1/8] ... Settings{v} from disk, converted to Settings{SETTINGS_VERSION}"); s },
+			Err(e) => { warn!("GUI Init [1/8] ... Settings failed from disk: {e}, returning default Settings{SETTINGS_VERSION}"); Settings::new() },
 		};
+		debug!("Settings{SETTINGS_VERSION}: {settings:#?}");
 
 		cc.egui_ctx.set_pixels_per_point(settings.pixels_per_point as f32);
 		atomic_store!(shukusai::audio::PREVIOUS_THRESHOLD, settings.previous_threshold);
 
 		// Read `State` from disk.
-		let state = match State::from_file() {
-			Ok(s)  => { info!("GUI Init [2/8] ... State{STATE_VERSION} from disk"); s },
-			Err(e) => { warn!("GUI Init [2/8] ... State{STATE_VERSION} failed from disk: {}", e); State::new() },
+		let state = State::from_versions(&[
+			(STATE_VERSION, State::from_file),
+			(0,             State0::disk_into),
+		]);
+		let state = match state {
+			Ok((v, s)) if v == STATE_VERSION => { info!("GUI Init [2/8] ... State{STATE_VERSION} from disk"); s },
+			Ok((v, s)) => { info!("GUI Init [2/8] ... State{v} from disk, converted to State{STATE_VERSION}"); s },
+			Err(e) => { warn!("GUI Init [2/8] ... State failed from disk: {e}, returning default State{STATE_VERSION}"); State::new() },
 		};
+		debug!("State{STATE_VERSION}: {state:#?}");
 
 		// Send signal to `Kernel` for `AudioState` if set.
 		if settings.restore_state {

@@ -114,26 +114,6 @@ impl Album {
 	}
 }
 
-//impl Default for Album {
-//	fn default() -> Self {
-//		Self {
-//			title: String::new(),
-//			artist: ArtistKey::default(),
-//			release_human: String::new(),
-//			length_human: HumanTime::unknown(),
-//			song_count_human: HumanNumber::new(),
-//			songs: vec![],
-//			release: (None, None, None),
-//			length: 0.0,
-//			song_count: 0,
-//			disc_count: 0,
-//			art: Art::Unknown,
-//			art_bytes: None,
-//			compilation: false,
-//		}
-//	}
-//}
-
 //---------------------------------------------------------------------------------------------------- TESTS
 //#[cfg(test)]
 //mod tests {

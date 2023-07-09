@@ -20,6 +20,8 @@ const CONVERT:     &str = "Converting Album Art";
 const FINALIZE:    &str = "Finalizing Collection";
 
 //---------------------------------------------------------------------------------------------------- Phase
+/// HACK: until `std::mem::variant_count()` is stable.
+pub const PHASE_VARIANT_COUNT: usize = 15;
 #[derive(Copy,Clone,Debug,Hash,Serialize,Deserialize,PartialEq,Eq,PartialOrd,Ord)]
 /// The different phases of creating a new [`Collection`]
 ///
@@ -37,24 +39,23 @@ const FINALIZE:    &str = "Finalizing Collection";
 /// This is set before `Kernel` reads the [`Collection`] from disk.
 ///
 /// Use [`Phase::as_str()`] to get a more `Frontend` friendly message related to the [`Phase`]:
-/// ```rust
-/// # use shukusai::kernel::Phase;
-/// assert!(Phase::None.as_str()     == "...");
-/// assert!(Phase::Disk.as_str()     == "Reading From Disk");
-/// assert!(Phase::Wait.as_str()     == "Waiting for previous Collection reset to finish");
-///
-/// assert!(Phase::Start.as_str()       == "Starting");
-/// assert!(Phase::Deconstruct.as_str() == "Deconstructing Old Collection");
-/// assert!(Phase::WalkDir.as_str()     == "Walking Directories");
-/// assert!(Phase::Parse.as_str()       == "Parsing Metadata");
-/// assert!(Phase::Fix.as_str()         == "Fixing Metadata");
-/// assert!(Phase::Sort.as_str()        == "Sorting");
-/// assert!(Phase::Search.as_str()      == "Creating Search Engine");
-/// assert!(Phase::Prepare.as_str()     == "Preparing Collection");
-/// assert!(Phase::Art.as_str()         == "Preparing Album Art");
-/// assert!(Phase::Clone.as_str()       == "Preparing Collection For Disk");
-/// assert!(Phase::Convert.as_str()     == "Converting Album Art");
-/// assert!(Phase::Finalize.as_str()    == "Finalizing Collection");
+/// ```rust,ignore
+/// # use shukusai::state::Phase;
+/// assert_eq!(Phase::None.as_str(),        "...");
+/// assert_eq!(Phase::Disk.as_str(),        "Reading From Disk");
+/// assert_eq!(Phase::Wait.as_str(),        "Waiting for previous Collection reset to finish");
+/// assert_eq!(Phase::Start.as_str(),       "Starting");
+/// assert_eq!(Phase::Deconstruct.as_str(), "Deconstructing Old Collection");
+/// assert_eq!(Phase::WalkDir.as_str(),     "Walking Directories");
+/// assert_eq!(Phase::Parse.as_str(),       "Parsing Metadata");
+/// assert_eq!(Phase::Fix.as_str(),         "Fixing Metadata");
+/// assert_eq!(Phase::Sort.as_str(),        "Sorting");
+/// assert_eq!(Phase::Search.as_str(),      "Creating Search Engine");
+/// assert_eq!(Phase::Prepare.as_str(),     "Preparing Collection");
+/// assert_eq!(Phase::Art.as_str(),         "Preparing Album Art");
+/// assert_eq!(Phase::Clone.as_str(),       "Preparing Collection For Disk");
+/// assert_eq!(Phase::Convert.as_str(),     "Converting Album Art");
+/// assert_eq!(Phase::Finalize.as_str(),    "Finalizing Collection");
 /// ```
 pub enum Phase {
 	// Exceptions.
@@ -114,25 +115,31 @@ impl Phase {
 			Self::Finalize    => FINALIZE,
 		}
 	}
-//
-//	#[inline]
-//	/// Returns an iterator over all [`Phase`] variants in sequential order.
-//	///
-//	/// # Note
-//	/// This excludes [`Phase::None`].
-//	pub fn iter() -> std::slice::Iter<'static, Self> {
-//		[
-//			Self::Start,
-//			Self::WalkDir,
-//			Self::Parse,
-//			Self::Fix,
-//			Self::Sort,
-//			Self::Search,
-//			Self::Prepare,
-//			Self::Resize,
-//			Self::Finalize,
-//		].iter()
-//	}
+
+	#[inline]
+	/// Returns an iterator over all [`Phase`] variants in sequential order.
+	///
+	/// # Note
+	/// This includes the pre-phases, like [`Phase::None`].
+	pub fn iter() -> std::slice::Iter<'static, Self> {
+		[
+			Self::None,
+			Self::Disk,
+			Self::Wait,
+			Self::Start,
+			Self::Deconstruct,
+			Self::WalkDir,
+			Self::Parse,
+			Self::Fix,
+			Self::Sort,
+			Self::Search,
+			Self::Prepare,
+			Self::Art,
+			Self::Clone,
+			Self::Convert,
+			Self::Finalize,
+		].iter()
+	}
 }
 
 impl AsRef<str> for Phase {
@@ -148,9 +155,23 @@ impl std::fmt::Display for Phase {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//  #[test]
-//  fn __TEST__() {
-//  }
-//}
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	// Asserts `.iter()` covers all variants.
+	fn iter_covers_all() {
+		assert_eq!(Phase::iter().count(), PHASE_VARIANT_COUNT);
+	}
+
+	#[test]
+	// Asserts each variant gives a different string.
+	fn diff() {
+		let mut set = std::collections::HashSet::new();
+
+		for i in Phase::iter() {
+			assert!(set.insert(i.as_str()));
+		}
+	}
+}

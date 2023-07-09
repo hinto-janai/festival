@@ -295,8 +295,8 @@ pub struct Collection {
 
 impl Collection {
 	//-------------------------------------------------- New.
-	// Creates an empty [`Collection`].
-	pub(crate) fn new() -> Self {
+	/// Creates an empty [`Collection`].
+	pub fn new() -> Self {
 		Self {
 			empty: true,
 			timestamp: 0,
@@ -1112,12 +1112,142 @@ impl std::fmt::Display for Collection {
 #[cfg(test)]
 mod tests {
 	use super::*;
-	use disk::*;
+	use disk::Bincode2;
+	use readable::{Runtime, Date};
+
+	// Empty new `Collection`.
+	const C1: Lazy<Collection> = Lazy::new(|| Collection::from_path("../assets/shukusai/state/collection0_new.bin").unwrap());
+	// Filled, user `Collection`.
+	const C2: Lazy<Collection> = Lazy::new(|| Collection::from_path("../assets/shukusai/state/collection0_real.bin").unwrap());
 
 	#[test]
-	fn serde() {
-		let collection = Collection::new();
-		collection.save().unwrap();
-		let collection = Collection::from_file();
+	// Tests functions that depend on the correctness of the `Map`.
+	fn map() {
+		// Artist
+		let k = ArtistKey::zero();
+		assert_eq!(C2.artist("artist_1"), Some((&C2.artists[k], k)));
+
+		// Album
+		let k = AlbumKey::zero();
+		assert_eq!(C2.album("artist_1", "album_1"), Some((&C2.albums[k], k)));
+
+		// Song
+		let k = SongKey::from(1_u8);
+		assert_eq!(C2.song("artist_1", "album_1", "mp3"), Some((&C2.songs[k], Key::from_raw(0, 0, 1))));
+	}
+
+	#[test]
+	// Tests `index()`.
+	fn index() {
+		assert_eq!(
+			C2.index(Key::zero()),
+			(&C2.artists[ArtistKey::zero()], &C2.albums[AlbumKey::zero()], &C2.songs[SongKey::zero()])
+		);
+	}
+
+	#[test]
+	// Compares `Collection::new()` against C1 & C2.
+	fn cmp() {
+		assert_eq!(Lazy::force(&C1), &Collection::new());
+		assert_ne!(Lazy::force(&C1), Lazy::force(&C2));
+
+		let b1 = C1.to_bytes().unwrap();
+		let b2 = C2.to_bytes().unwrap();
+		assert_ne!(b1, b2);
+	}
+
+	#[test]
+	// Attempts to deserialize a non-empty `Collection`.
+	fn real() {
+		// Assert metadata within the `Collection`.
+		assert!(!C2.empty);
+		assert_eq!(C2.count_artist, 3);
+		assert_eq!(C2.count_album,  4);
+		assert_eq!(C2.count_song,   7);
+		assert_eq!(C2.count_art,    4);
+		assert_eq!(C2.timestamp,    1688690421);
+
+		// Artist 1/3
+		let k = ArtistKey::from(0_u8);
+		assert_eq!(C2.artists[k].name,         "artist_1");
+		assert_eq!(C2.artists[k].runtime,      Runtime::from(4_u8));
+		assert_eq!(C2.artists[k].albums.len(), 2);
+		assert_eq!(C2.artists[k].songs.len(),  4);
+
+		// Artist 2/3
+		let k = ArtistKey::from(1_u8);
+		assert_eq!(C2.artists[k].name,         "artist_2");
+		assert_eq!(C2.artists[k].runtime,      Runtime::from(2_u8));
+		assert_eq!(C2.artists[k].albums.len(), 1);
+		assert_eq!(C2.artists[k].songs.len(),  2);
+
+		// Artist 3/3
+		let k = ArtistKey::from(2_u8);
+		assert_eq!(C2.artists[k].name,         "artist_3");
+		assert_eq!(C2.artists[k].runtime,      Runtime::from(1_u8));
+		assert_eq!(C2.artists[k].albums.len(), 1);
+		assert_eq!(C2.artists[k].songs.len(),  1);
+
+		// Albums 1/4
+		let k = AlbumKey::from(0_u8);
+		assert_eq!(C2.albums[k].title, "album_1");
+		assert_eq!(C2.albums[k].release, Date::from_str("2018-04-25").unwrap());
+
+		// Albums 2/4
+		let k = AlbumKey::from(1_u8);
+		assert_eq!(C2.albums[k].title, "album_2");
+		assert_eq!(C2.albums[k].release, Date::from_str("2018-04-25").unwrap());
+
+		// Albums 3/4
+		let k = AlbumKey::from(2_u8);
+		assert_eq!(C2.albums[k].title, "album_3");
+		assert_eq!(C2.albums[k].release, Date::from_str("2018-04-25").unwrap());
+
+		// Albums 4/4
+		let k = AlbumKey::from(3_u8);
+		assert_eq!(C2.albums[k].title, "album_4");
+		assert_eq!(C2.albums[k].release, Date::from_str("2018-04-25").unwrap());
+
+		// Song 1/7
+		let k = SongKey::from(0_u8);
+		assert_eq!(C2.songs[k].title, "mp3");
+		assert_eq!(C2.songs[k].sample_rate, 48_000);
+		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_1.mp3");
+
+		// Song 2/7
+		let k = SongKey::from(1_u8);
+		assert_eq!(C2.songs[k].title, "mp3");
+		assert_eq!(C2.songs[k].sample_rate, 48_000);
+		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_2.mp3");
+
+		// Song 3/7
+		let k = SongKey::from(2_u8);
+		assert_eq!(C2.songs[k].title, "mp3");
+		assert_eq!(C2.songs[k].sample_rate, 48_000);
+		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_3.mp3");
+
+		// Song 4/7
+		let k = SongKey::from(3_u8);
+		assert_eq!(C2.songs[k].title, "flac");
+		assert_eq!(C2.songs[k].sample_rate, 48_000);
+		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_4.flac");
+
+		// Song 5/7
+		let k = SongKey::from(4_u8);
+		assert_eq!(C2.songs[k].title, "m4a");
+		assert_eq!(C2.songs[k].sample_rate, 48_000);
+		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_5.m4a");
+
+		// Song 6/7
+		let k = SongKey::from(5_u8);
+		assert_eq!(C2.songs[k].title, "song_6");
+		assert_eq!(C2.songs[k].sample_rate, 48_000);
+		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_6.ogg");
+
+		// Song 7/7
+		let k = SongKey::from(6_u8);
+		assert_eq!(C2.songs[k].title, "mp3");
+		assert_eq!(C2.songs[k].sample_rate, 48_000);
+		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_7.mp3");
 	}
 }

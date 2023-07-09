@@ -533,89 +533,69 @@ mod tests {
 	use disk::*;
 
 	#[test]
-	#[ignore]
-	fn serialize_and_convert_collection() {
-		// Set-up logger.
-		crate::logger::init_logger(log::LevelFilter::Trace);
-
+	// Converts the pre-saved `Collection`'s art.
+	fn convert_art() {
 		// Set-up inputs.
 		let (to_kernel, from_ccd) = crossbeam::channel::unbounded::<CcdToKernel>();
-
-		// Serialize.
-		let now = now!();
-		let collection = Collection::from_file().unwrap();
-		info!("Read: {}", secs_f32!(now));
+		crate::frontend::egui::GUI_CONTEXT.set(egui::Context::default());
 
 		// Convert.
-		let now = now!();
-		Ccd::convert_art(to_kernel, collection);
-		let collection = match from_ccd.recv().unwrap() {
-			CcdToKernel::NewCollection(c) => c,
-			_ => panic!("wrong msg received"),
-		};
-		info!("Convert: {}", secs_f32!(now));
+		std::thread::spawn(move || {
+			Ccd::convert_art(to_kernel, Collection::from_path("../assets/shukusai/state/collection0_real.bin").unwrap())
+		});
 
-		// Print.
-		info!("{:#?}", collection);
-
-		// Assert.
-		assert!(collection.count_artist >= 1);
-		assert!(collection.count_album  >= 1);
-		assert!(collection.count_song   >= 1);
-		assert!(collection.timestamp >= 1);
-		assert!(!collection.empty);
-	}
-
-	#[test]
-	#[ignore]
-	fn new_collection() {
-		// Set-up logger.
-		crate::logger::init_logger(log::LevelFilter::Trace);
-
-		// Set-up inputs.
-		let (to_kernel, from_ccd) = crossbeam::channel::unbounded::<CcdToKernel>();
-		let (to_ccd, from_kernel) = crossbeam::channel::unbounded::<KernelToCcd>();
-		let old_collection = Arc::new(Collection::new());
-		let paths = vec![
-			PathBuf::from("src"),
-			PathBuf::from("assets"),
-			PathBuf::from("assets"),
-			PathBuf::from("assets/audio"),
-			PathBuf::from("assets/images"),
-			PathBuf::from("assets/albums"),
-		];
-
-		// Spawn `CCD`.
-		let old_clone = Arc::clone(&old_collection);
-		std::thread::spawn(move || Ccd::new_collection(to_kernel, from_kernel, old_clone, paths));
-
-		// Act as `Kernel`.
-		// Receive.
-		let collection = loop {
+		let c = loop {
 			match recv!(from_ccd) {
-				CcdToKernel::NewCollection(collection) => break collection,
-				CcdToKernel::Failed(error)                    => panic!("{}", error),
-				CcdToKernel::UpdatePhase((float, string))     => eprintln!("percent: {float}, string: {string}"),
-				CcdToKernel::UpdateIncrement((float, string)) => eprintln!("percent: {float}, string: {string}"),
+				CcdToKernel::NewCollection(c) => break c,
+				_ => (),
 			}
 		};
 
-		// Send `Die` signal.
-		drop(old_collection);
-		send!(to_ccd, KernelToCcd::Die);
+		// Print.
+		println!("{c:#?}");
 
-		sleep!(5000);
-		info!("empty        | {}", collection.empty);
-		info!("timestamp    | {}", collection.timestamp);
-		info!("count_artist | {}", collection.count_artist);
-		info!("count_album  | {}", collection.count_album);
-		info!("count_song   | {}", collection.count_song);
+		// Assert.
+		assert!(!c.empty);
+		assert_eq!(c.count_artist, 3);
+		assert_eq!(c.count_album,  4);
+		assert_eq!(c.count_song,   7);
+		assert_eq!(c.count_art,    4);
+		assert_eq!(c.timestamp,    1688690421);
+	}
 
-		assert!(!collection.empty);
-		assert!(collection.timestamp > 1678382892);
-		assert!(collection.count_artist == 1 || collection.count_artist == 501);
-		assert!(collection.count_album  == 1 || collection.count_album  == 501);
-		assert!(collection.count_song   == 4 || collection.count_song   == 505);
+	#[test]
+	// Creates a new `Collection` from `assets/audio`.
+	// Metadata should be the same as the pre-saved `Collection`.
+	fn new_collection() {
+		// Set-up inputs.
+		let (to_kernel, from_ccd) = crossbeam::channel::unbounded::<CcdToKernel>();
+		crate::frontend::egui::GUI_CONTEXT.set(egui::Context::default());
+		let old = Collection::new();
+		let old = Arc::new(old);
+		let paths = vec![PathBuf::from("../assets")];
+
+		// Spawn `CCD`.
+		std::thread::spawn(move || {
+			Ccd::new_collection(to_kernel, old, paths)
+		});
+
+		// Act as `Kernel`.
+		// Receive.
+		let c = loop {
+			match recv!(from_ccd) {
+				CcdToKernel::NewCollection(c) => break c,
+				CcdToKernel::Failed(e) => panic!("{e}"),
+				_ => (),
+			}
+		};
+
+		println!("{c:#?}");
+
+		assert!(!c.empty);
+		assert_eq!(c.count_artist, 3);
+		assert_eq!(c.count_album,  4);
+		assert_eq!(c.count_song,   7);
+		assert_eq!(c.count_art,    4);
+		assert!(c.timestamp > 1688690421);
 	}
 }
-

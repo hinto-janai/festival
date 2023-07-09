@@ -3,6 +3,8 @@ use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
 
 //---------------------------------------------------------------------------------------------------- __NAME__
+/// HACK: until `std::mem::variant_count()` is stable.
+pub const SEARCH_SORT_VARIANT_COUNT: usize = 3;
 /// The table in the `Search` tab can show results
 /// as the `Song` title, `Album` title, or `Artist` name.
 ///
@@ -64,9 +66,30 @@ impl std::fmt::Display for SearchSort {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//  #[test]
-//  fn __TEST__() {
-//  }
-//}
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	// Asserts `.iter()` covers all variants.
+	fn iter_covers_all() {
+		assert_eq!(SearchSort::iter().count(), SEARCH_SORT_VARIANT_COUNT);
+	}
+
+	#[test]
+	// Asserts each variant:
+	// 1. Gives a different string
+	// 2. `.next()` gives a different variant
+	// 3. `.prev()` gives a different variant
+	fn diff() {
+		let mut set1 = std::collections::HashSet::new();
+		let mut set2 = std::collections::HashSet::new();
+		let mut set3 = std::collections::HashSet::new();
+
+		for i in SearchSort::iter() {
+			assert!(set1.insert(i.as_str()));
+			assert!(set2.insert(i.next()));
+			assert!(set3.insert(i.previous()));
+		}
+	}
+}

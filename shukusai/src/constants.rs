@@ -132,7 +132,7 @@ pub const HEADER_STR: &str = match std::str::from_utf8(&HEADER) {
 pub const COLLECTION_VERSION: u8 = 0;
 
 /// Current major version of the [`AudioState`]
-pub const AUDIO_VERSION: u8 = 0;
+pub const AUDIO_VERSION: u8 = 1;
 
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
@@ -150,7 +150,15 @@ mod tests {
 	}
 
 	#[test]
+	fn header_is_valid() {
+		assert!(HEADER_STR                                  == "-----BEGIN FESTIVAL-----");
+		assert!(String::from_utf8(HEADER.to_vec()).unwrap() == "-----BEGIN FESTIVAL-----");
+	}
+
+	#[test]
 	fn icon() {
-		let icon = winit::window::Icon::from_rgba(FESTIVAL_ICON.to_vec(), FESTIVAL_ICON_SIZE, FESTIVAL_ICON_SIZE).unwrap();
+		let icon = image::load_from_memory(FESTIVAL_ICON).unwrap();
+		assert!(icon.width()  == FESTIVAL_ICON_SIZE);
+		assert!(icon.height() == FESTIVAL_ICON_SIZE);
 	}
 }

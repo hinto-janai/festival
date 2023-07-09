@@ -3,10 +3,11 @@ pub use album::*;
 
 mod state;
 pub use state::*;
+mod state0;
+pub use state0::*;
 
 mod settings;
 pub use settings::*;
-
 mod settings0;
 pub use settings0::*;
 

@@ -156,9 +156,56 @@ impl ResetState {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//  #[test]
-//  fn __TEST__() {
-//  }
-//}
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	// Tests `new_increment()` and asserts the following behavior:
+	//
+	// 1. Percent is incremented
+	// 2. String is updated
+	// 3. Nothing else is changed
+	fn new_increment() {
+		let mut r = ResetState::new();
+		let old_resetting = r.resetting;
+		let old_phase     = r.phase;
+
+		assert_eq!(r.percent, 0.0);
+		r.new_increment(10.0, "New string".into());
+
+		// 1
+		assert_eq!(r.percent, 10.0);
+		// 2
+		assert_eq!(r.specific, "New string");
+		// 3
+		assert_eq!(r.resetting, old_resetting);
+		assert_eq!(r.phase, old_phase);
+	}
+
+	#[test]
+	// Tests `new_phase()` and asserts the following behavior:
+	//
+	// 1. Percent is incremented
+	// 2. String is reset
+	// 3. Phase is updated
+	// 4. Nothing else is changed
+	fn new_phase() {
+		const PHASE: Phase = Phase::Disk;
+
+		let mut r = ResetState::new();
+		let old_resetting = r.resetting;
+
+		assert_eq!(r.percent, 0.0);
+		r.new_phase(10.0, PHASE);
+
+		// 1
+		assert_eq!(r.percent, 10.0);
+		// 2
+		assert_eq!(r.specific, "");
+		// 4
+		assert_eq!(r.phase, PHASE);
+		// 3
+		assert_eq!(r.resetting, old_resetting);
+	}
+}

@@ -21,6 +21,7 @@ pub fn metadata() -> Result<String, anyhow::Error> {
 
 	let version = Collection::file_version()?;
 
+	// SAFETY: memmap is used.
 	let collection = unsafe { Collection::from_file_memmap() }?;
 
 	Ok(collection.json(
@@ -29,4 +30,32 @@ pub fn metadata() -> Result<String, anyhow::Error> {
 		Some(header),
 		Some(version),
 	))
+}
+
+//---------------------------------------------------------------------------------------------------- TESTS
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use disk::Bincode2;
+	use readable::{Runtime, Date};
+	use std::path::PathBuf;
+
+	#[test]
+	// Tests if `Collection::json` outputs valid `JSON`.
+	fn json() {
+		let path = PathBuf::from("../assets/shukusai/state/collection0_real.bin");
+
+		let collection = Collection::from_path(&path).unwrap();
+
+		let json = collection.json(
+			Some(path),
+			None,
+			None,
+			None,
+		);
+
+		assert_ne!(json.len(), 0);
+
+		let _: serde_json::Value = serde_json::from_str(&json).unwrap();
+	}
 }
