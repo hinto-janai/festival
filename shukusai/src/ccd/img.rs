@@ -304,7 +304,7 @@ mod tests {
 	// 1. Take in all image formats
 	// 2. Resize with `fir`
 	// 3. Convert to an `egui` image
-	fn __art_from_known() {
+	fn art() {
 		let mut resizer = super::create_resizer();
 
 		for ext in ["jpg", "png", "bmp", "ico", "tiff", "webp"] {
@@ -319,6 +319,24 @@ mod tests {
 			let retained = art_from_known(img);
 			assert_eq!(retained.width(), ALBUM_ART_SIZE);
 			assert_eq!(retained.height(), ALBUM_ART_SIZE);
+		}
+	}
+
+	#[test]
+	// Assert `zune-jpeg` works.
+	fn zune_jpg() {
+		let img = std::fs::read(format!("../assets/images/test/512.jpg")).unwrap();
+		let (_, _, bytes) = zune_jpg_decode(&img).unwrap();
+		assert!(!bytes.is_empty());
+	}
+
+	#[test]
+	// Assert `image` works.
+	fn image() {
+		for ext in ["jpg", "png", "bmp", "ico", "tiff", "webp"] {
+			let img = std::fs::read(format!("../assets/images/test/512.{ext}")).unwrap();
+			let (_, _, bytes) = image_decode(img.into()).unwrap();
+			assert!(!bytes.is_empty());
 		}
 	}
 }
