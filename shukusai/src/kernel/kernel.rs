@@ -16,7 +16,6 @@ use crate::state::{
 	RESET_STATE,
 	AUDIO_STATE,
 	AudioState,
-	AudioState0,
 	RESETTING,
 };
 use crate::audio::Volume;
@@ -231,11 +230,8 @@ impl Kernel {
 		// Before hanging on `CCD`, read `AudioState` file.
 		// Note: This is a `Result`.
 		debug!("Kernel Init [4/12] ... reading AudioState");
-		let state = AudioState::from_versions(&[
-			// SAFETY: memmap is used.
-			(AUDIO_VERSION, || unsafe { AudioState::from_file_memmap() }),
-			(0,             AudioState0::disk_into),
-		]);
+		// SAFETY: memmap is used.
+		let state = unsafe { AudioState::from_file_memmap() };
 
 		// Set `ResetState` to `Start` + `Art` phase.
 		{
@@ -287,7 +283,7 @@ impl Kernel {
 	//-------------------------------------------------- kernel()
 	fn kernel(
 		collection:     Arc<Collection>,
-		audio:          Result<(u8, AudioState), anyhow::Error>,
+		audio:          Result<AudioState, anyhow::Error>,
 		to_frontend:    Sender<KernelToFrontend>,
 		from_frontend:  Receiver<FrontendToKernel>,
 		beginning:      std::time::Instant,
@@ -296,8 +292,7 @@ impl Kernel {
 	) {
 		debug!("Kernel Init [6/12] ... entering kernel()");
 		let mut audio = match audio {
-			Ok((v, s)) if v == AUDIO_VERSION => { info!("Kernel Init ... AudioState{AUDIO_VERSION} from disk"); s },
-			Ok((v, s)) => { info!("Kernel Init ... AudioState{v} from disk, converted to AudioState{AUDIO_VERSION}"); s },
+			Ok(s) => { info!("Kernel Init ... AudioState{AUDIO_VERSION} from disk"); s },
 			Err(e) => { warn!("Kernel Init ... AudioState failed from disk: {e}, returning default AudioState{AUDIO_VERSION}"); AudioState::new() },
 		};
 
