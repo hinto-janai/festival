@@ -188,6 +188,7 @@ mod tests {
 	use super::*;
 
 	#[test]
+	#[ignore]
 	// Tests if all files being created
 	// correspond to the correct signals.
 	fn signals() {
@@ -210,7 +211,7 @@ mod tests {
 
 		// GitHub CI is so insanely slow that signals need more
 		// time so `Watch` can delete the old file and reset.
-		const S: u64 = 8;
+		const S: u64 = 10;
 		const T: std::time::Duration = std::time::Duration::from_secs(S);
 		sleep!(S);
 

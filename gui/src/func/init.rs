@@ -167,7 +167,17 @@ impl crate::data::Gui {
 		atomic_store!(shukusai::audio::PREVIOUS_THRESHOLD, settings.previous_threshold);
 
 		// Send `CachePath` signal to `Kernel`.
-		send!(to_kernel, FrontendToKernel::CachePath(settings.collection_paths.clone()));
+		if settings.collection_paths.is_empty() {
+			match dirs::audio_dir() {
+				Some(p) => {
+					debug!("GUI - collection_paths.is_empty(), using dir::audio_dir() for CachePath");
+					send!(to_kernel, FrontendToKernel::CachePath(vec![p]));
+				},
+				None => warn!("GUI - dirs::audio_dir() failed, can't send CachePath message"),
+			}
+		} else {
+			send!(to_kernel, FrontendToKernel::CachePath(settings.collection_paths.clone()));
+		}
 
 		// Read `State` from disk.
 		let state = State::from_versions(&[
