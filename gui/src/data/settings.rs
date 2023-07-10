@@ -98,21 +98,24 @@ pub struct Settings {
 	pub pixels_per_point: f32,
 
 	// Reserved fields.
-	pub _reserved1: Option<Vec<String>>,
-	pub _reserved2: Option<String>,
-	pub _reserved3: Option<Option<String>>,
-	pub _reserved4: Option<bool>,
-	pub _reserved5: Option<bool>,
-	pub _reserved6: Option<Option<bool>>,
-	pub _reserved7: Option<Option<bool>>,
-	pub _reserved8: Option<usize>,
-	pub _reserved9: Option<usize>,
-	pub _reserved10: Option<f32>,
-	pub _reserved11: Option<f32>,
-	pub _reserved12: Option<f64>,
-	pub _reserved13: Option<f64>,
-	pub _reserved14: Option<Option<usize>>,
-	pub _reserved15: Option<Option<usize>>,
+	pub _reserved1: String,
+	pub _reserved2: String,
+	pub _reserved3: Option<String>,
+	pub _reserved4: Vec<String>,
+	pub _reserved5: bool,
+	pub _reserved6: bool,
+	pub _reserved7: bool,
+	pub _reserved8: Option<bool>,
+	pub _reserved9: usize,
+	pub _reserved10: usize,
+	pub _reserved11: usize,
+	pub _reserved12: Option<usize>,
+	pub _reserved13: f32,
+	pub _reserved14: f32,
+	pub _reserved15: Option<f32>,
+	pub _reserved16: f64,
+	pub _reserved17: f64,
+	pub _reserved18: Option<f64>,
 }
 
 impl Settings {
@@ -136,21 +139,24 @@ impl Settings {
 			pixels_per_point:   PIXELS_PER_POINT_DEFAULT,
 
 			// Reserved fields.
-			_reserved1: None,
-			_reserved2: None,
+			_reserved1: String::new(),
+			_reserved2: String::new(),
 			_reserved3: None,
-			_reserved4: None,
-			_reserved5: None,
-			_reserved6: None,
-			_reserved7: None,
+			_reserved4: Vec::with_capacity(0),
+			_reserved5: false,
+			_reserved6: false,
+			_reserved7: false,
 			_reserved8: None,
-			_reserved9: None,
-			_reserved10: None,
-			_reserved11: None,
+			_reserved9: 0,
+			_reserved10: 0,
+			_reserved11: 0,
 			_reserved12: None,
-			_reserved13: None,
-			_reserved14: None,
+			_reserved13: 0.0,
+			_reserved14: 0.0,
 			_reserved15: None,
+			_reserved16: 0.0,
+			_reserved17: 0.0,
+			_reserved18: None,
 		}
 	}
 }
@@ -210,7 +216,7 @@ mod test {
 		assert_eq!(S2.restore_state,      false);
 		assert_eq!(S2.empty_autoplay,     false);
 		assert_eq!(S2.accent_color,       egui::Color32::from_rgb(97,101,119));
-		assert_eq!(S2.collection_paths,   [PathBuf::from("/home/main/git/festival/assets/audio")]);
-		assert_eq!(S2.pixels_per_point.round(), 1.0);
+		assert_eq!(S2.collection_paths,   [PathBuf::from("/home/main/Music")]);
+		assert_eq!(S2.pixels_per_point.round(), 2.0);
 	}
 }
