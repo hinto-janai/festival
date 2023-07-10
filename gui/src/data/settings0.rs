@@ -197,26 +197,6 @@ impl Into<Settings> for Settings0 {
 
 			// New fields.
 			pixels_per_point: PIXELS_PER_POINT_DEFAULT,
-
-			// Reserved fields.
-			_reserved1: String::new(),
-			_reserved2: String::new(),
-			_reserved3: None,
-			_reserved4: Vec::with_capacity(0),
-			_reserved5: false,
-			_reserved6: false,
-			_reserved7: false,
-			_reserved8: None,
-			_reserved9: 0,
-			_reserved10: 0,
-			_reserved11: 0,
-			_reserved12: None,
-			_reserved13: 0.0,
-			_reserved14: 0.0,
-			_reserved15: None,
-			_reserved16: 0.0,
-			_reserved17: 0.0,
-			_reserved18: None,
 		}
 	}
 }

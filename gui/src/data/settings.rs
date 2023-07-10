@@ -96,26 +96,6 @@ pub struct Settings {
 	/// What `egui::Context::pixels_per_point` are we set to?
 	/// Default is `1.0`, this allows the user to scale manually.
 	pub pixels_per_point: f32,
-
-	// Reserved fields.
-	pub _reserved1: String,
-	pub _reserved2: String,
-	pub _reserved3: Option<String>,
-	pub _reserved4: Vec<String>,
-	pub _reserved5: bool,
-	pub _reserved6: bool,
-	pub _reserved7: bool,
-	pub _reserved8: Option<bool>,
-	pub _reserved9: usize,
-	pub _reserved10: usize,
-	pub _reserved11: usize,
-	pub _reserved12: Option<usize>,
-	pub _reserved13: f32,
-	pub _reserved14: f32,
-	pub _reserved15: Option<f32>,
-	pub _reserved16: f64,
-	pub _reserved17: f64,
-	pub _reserved18: Option<f64>,
 }
 
 impl Settings {
@@ -137,26 +117,6 @@ impl Settings {
 			accent_color:       ACCENT_COLOR,
 			collection_paths:   vec![],
 			pixels_per_point:   PIXELS_PER_POINT_DEFAULT,
-
-			// Reserved fields.
-			_reserved1: String::new(),
-			_reserved2: String::new(),
-			_reserved3: None,
-			_reserved4: Vec::with_capacity(0),
-			_reserved5: false,
-			_reserved6: false,
-			_reserved7: false,
-			_reserved8: None,
-			_reserved9: 0,
-			_reserved10: 0,
-			_reserved11: 0,
-			_reserved12: None,
-			_reserved13: 0.0,
-			_reserved14: 0.0,
-			_reserved15: None,
-			_reserved16: 0.0,
-			_reserved17: 0.0,
-			_reserved18: None,
 		}
 	}
 }

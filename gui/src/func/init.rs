@@ -12,7 +12,6 @@ use crate::constants::{
 };
 use crate::data::{
 	State,
-	State0,
 	Settings,
 	Settings0,
 	DebugInfo,
@@ -180,13 +179,8 @@ impl crate::data::Gui {
 		}
 
 		// Read `State` from disk.
-		let state = State::from_versions(&[
-			(STATE_VERSION, State::from_file),
-			(0,             State0::disk_into),
-		]);
-		let state = match state {
-			Ok((v, s)) if v == STATE_VERSION => { info!("GUI Init [2/8] ... State{STATE_VERSION} from disk"); s },
-			Ok((v, s)) => { info!("GUI Init [2/8] ... State{v} from disk, converted to State{STATE_VERSION}"); s },
+		let state = match State::from_file() {
+			Ok(s) => { info!("GUI Init [2/8] ... State{STATE_VERSION} from disk"); s },
 			Err(e) => { warn!("GUI Init [2/8] ... State failed from disk: {e}, returning default State{STATE_VERSION}"); State::new() },
 		};
 		debug!("State{STATE_VERSION}: {state:#?}");
