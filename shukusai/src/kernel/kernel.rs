@@ -17,6 +17,7 @@ use crate::state::{
 	AUDIO_STATE,
 	AudioState,
 	AudioState0,
+	RESETTING,
 };
 use crate::audio::Volume;
 use benri::{
@@ -601,15 +602,23 @@ impl Kernel {
 			paths.sort();
 			paths.dedup();
 
-			paths
+			let iter = paths
 				.into_iter()
 				.flat_map(|p| walkdir::WalkDir::new(p).follow_links(true))
 				.filter_map(Result::ok)
-				.map(walkdir::DirEntry::into_path)
-				.for_each(|p| {
-					trace!("CachePath - {p:?}");
-					Ccd::path_infer_audio(&p);
-				});
+				.map(walkdir::DirEntry::into_path);
+
+			for path in iter {
+				// If we're resetting the `Collection`, we might be doing
+				// more harm by thrashing the filesystem, so just exit.
+				if atomic_load!(RESETTING) {
+					debug!("CachePath - CCD detected, exiting early");
+					break;
+				}
+
+				trace!("CachePath - {path:?}");
+				Ccd::path_infer_audio(&path);
+			}
 
 			debug!("CachePath - took {} seconds, bye!", secs_f32!(now));
 		}) {
@@ -629,6 +638,8 @@ impl Kernel {
 	// 6. Tell `CCD` to... `Die`
 	// 7. Give new `Arc<Collection>` to everyone
 	fn ccd_mode(&mut self, paths: Vec<PathBuf>) {
+		atomic_store!(RESETTING, true);
+
 		// Set our `ResetState`.
 		RESET_STATE.write().start();
 
@@ -712,6 +723,7 @@ impl Kernel {
 
 		// Set our `ResetState`, we're done.
 		RESET_STATE.write().done();
+		atomic_store!(RESETTING, false);
 	}
 }
 

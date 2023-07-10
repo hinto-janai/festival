@@ -18,8 +18,8 @@ While `festival-gui` is the only `Frontend` available, the changelog and release
 
 ## Unreleased
 ## Changed
-* `Collection` directories are now pre-emptively cached on startup and addition; initial reset speeds are faster
 * Faster `JPG` album art image decoding, 1.75x~ faster Collection reset ([#20](https://github.com/hinto-janai/festival/pull/20))
+* `Collection` directories are now pre-emptively cached on startup and addition; initial reset speeds are faster ([#30](https://github.com/hinto-janai/festival/pull/38))
 
 ## Fixed
 * Crashes with songs that have odd date metadata, again (https://github.com/hinto-janai/readable/commit/02bdd467363e50627e68af56497eaeb13cdf632d)
