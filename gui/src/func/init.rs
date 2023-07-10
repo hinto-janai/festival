@@ -9,6 +9,7 @@ use crate::constants::{
 	APP_HEIGHT_DEFAULT,
 	SETTINGS_VERSION,
 	STATE_VERSION,
+	RUNTIME_WIDTH,
 };
 use crate::data::{
 	State,
@@ -228,6 +229,7 @@ impl crate::data::Gui {
 			audio_seek: 0,
 			audio_leeway: now!(),
 			last_song: None,
+			runtime_width: RUNTIME_WIDTH,
 
 			reset_state: ResetState::new(),
 

@@ -76,6 +76,9 @@ pub struct Gui {
 	pub audio_leeway: Instant,
 	/// The [`SongKey`] we were playing in the last frame.
 	pub last_song: Option<SongKey>,
+	/// The pixel size needed for the `Runtime` in the bottom UI bar.
+	/// It depends on the length of the `Runtime` string.
+	pub runtime_width: f32,
 
 	/// Reset State.
 	///
