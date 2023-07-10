@@ -25,6 +25,7 @@ use crossbeam::channel::{Sender,Receiver};
 use benri::time::{
 	now,secs_f32,
 };
+use rayon::prelude::*;
 
 //---------------------------------------------------------------------------------------------------- Constants
 // How many `(String, Keychain)` results to
@@ -72,92 +73,92 @@ impl Search {
 
 	#[inline]
 	fn search_sim70(&self, input: &str) -> Keychain {
-		let mut artists: Box<[(f64, ArtistKey)]> = self.collection.artists
-			.iter().enumerate()
+		let mut artists: Vec<(f64, ArtistKey)> = self.collection.artists.0
+			.par_iter().enumerate()
 			.map(|(i, x)| (strsim::jaro(&x.name.to_ascii_lowercase(), input), ArtistKey::from(i)))
 			.filter(|(f, _)| *f >= 0.7)
 			.collect();
-		let mut albums:  Box<[(f64, AlbumKey)]> = self.collection.albums
-			.iter().enumerate()
+		let mut albums:  Vec<(f64, AlbumKey)> = self.collection.albums.0
+			.par_iter().enumerate()
 			.map(|(i, x)| (strsim::jaro(&x.title.to_ascii_lowercase(), input), AlbumKey::from(i)))
 			.filter(|(f, _)| *f >= 0.7)
 			.collect();
-		let mut songs:   Box<[(f64, SongKey)]>  = self.collection.songs
-			.iter().enumerate()
+		let mut songs:   Vec<(f64, SongKey)>  = self.collection.songs.0
+			.par_iter().enumerate()
 			.map(|(i, x)| (strsim::jaro(&x.title.to_ascii_lowercase(), input), SongKey::from(i)))
 			.filter(|(f, _)| *f >= 0.7)
 			.collect();
 
 		// Sort by lowest-to-highest similarity value first.
-		artists.sort_by(|a, b| Self::cmp_f64(a.0, b.0));
-		albums.sort_by(|a, b| Self::cmp_f64(a.0, b.0));
-		songs.sort_by(|a, b| Self::cmp_f64(a.0, b.0));
+		artists.par_sort_by(|a, b| Self::cmp_f64(a.0, b.0));
+		albums.par_sort_by(|a, b| Self::cmp_f64(a.0, b.0));
+		songs.par_sort_by(|a, b| Self::cmp_f64(a.0, b.0));
 
 		// Collect just the Keys (reverse, highest sim first).
-		let artists: Box<[ArtistKey]> = artists.iter().rev().map(|tuple| tuple.1).collect();
-		let albums:  Box<[AlbumKey]>  = albums.iter().rev().map(|tuple| tuple.1).collect();
-		let songs:   Box<[SongKey]>   = songs.iter().rev().map(|tuple| tuple.1).collect();
+		let artists: Vec<ArtistKey> = artists.into_par_iter().rev().map(|tuple| tuple.1).collect();
+		let albums:  Vec<AlbumKey>  = albums.into_par_iter().rev().map(|tuple| tuple.1).collect();
+		let songs:   Vec<SongKey>   = songs.into_par_iter().rev().map(|tuple| tuple.1).collect();
 
 		// Return keychain.
-		Keychain::from_boxes(artists, albums, songs)
+		Keychain::from_vecs(artists, albums, songs)
 	}
 
 	#[inline]
 	fn search_top25(&self, input: &str) -> Keychain {
-		let mut artists: Box<[(f64, ArtistKey)]> = self.collection.artists
-			.iter().enumerate()
+		let mut artists: Vec<(f64, ArtistKey)> = self.collection.artists.0
+			.par_iter().enumerate()
 			.map(|(i, x)| (strsim::jaro(&x.name.to_ascii_lowercase(), input), ArtistKey::from(i)))
 			.collect();
-		let mut albums:  Box<[(f64, AlbumKey)]> = self.collection.albums
-			.iter().enumerate()
+		let mut albums:  Vec<(f64, AlbumKey)> = self.collection.albums.0
+			.par_iter().enumerate()
 			.map(|(i, x)| (strsim::jaro(&x.title.to_ascii_lowercase(), input), AlbumKey::from(i)))
 			.collect();
-		let mut songs:   Box<[(f64, SongKey)]>  = self.collection.songs
+		let mut songs:   Vec<(f64, SongKey)>  = self.collection.songs.0
 			.iter().enumerate()
 			.map(|(i, x)| (strsim::jaro(&x.title.to_ascii_lowercase(), input), SongKey::from(i)))
 			.collect();
 
 		// Sort by lowest-to-highest similarity value first.
-		artists.sort_by(|a, b| Self::cmp_f64(a.0, b.0));
-		albums.sort_by(|a, b| Self::cmp_f64(a.0, b.0));
-		songs.sort_by(|a, b| Self::cmp_f64(a.0, b.0));
+		artists.par_sort_by(|a, b| Self::cmp_f64(a.0, b.0));
+		albums.par_sort_by(|a, b| Self::cmp_f64(a.0, b.0));
+		songs.par_sort_by(|a, b| Self::cmp_f64(a.0, b.0));
 
 		// Collect just the Keys (reverse, highest sim first).
-		let artists: Box<[ArtistKey]> = artists.iter().rev().map(|tuple| tuple.1).take(25).collect();
-		let albums:  Box<[AlbumKey]>  = albums.iter().rev().map(|tuple| tuple.1).take(25).collect();
-		let songs:   Box<[SongKey]>   = songs.iter().rev().map(|tuple| tuple.1).take(25).collect();
+		let artists: Vec<ArtistKey> = artists.into_par_iter().rev().map(|tuple| tuple.1).take(25).collect();
+		let albums:  Vec<AlbumKey>  = albums.into_par_iter().rev().map(|tuple| tuple.1).take(25).collect();
+		let songs:   Vec<SongKey>   = songs.into_par_iter().rev().map(|tuple| tuple.1).take(25).collect();
 
 		// Return keychain.
-		Keychain::from_boxes(artists, albums, songs)
+		Keychain::from_vecs(artists, albums, songs)
 	}
 
 	#[inline]
 	fn search_all(&self, input: &str) -> Keychain {
-		let mut artists: Box<[(f64, ArtistKey)]> = self.collection.artists
-			.iter().enumerate()
+		let mut artists: Vec<(f64, ArtistKey)> = self.collection.artists.0
+			.par_iter().enumerate()
 			.map(|(i, x)| (strsim::jaro(&x.name.to_ascii_lowercase(), input), ArtistKey::from(i)))
 			.collect();
-		let mut albums:  Box<[(f64, AlbumKey)]> = self.collection.albums
-			.iter().enumerate()
+		let mut albums:  Vec<(f64, AlbumKey)> = self.collection.albums.0
+			.par_iter().enumerate()
 			.map(|(i, x)| (strsim::jaro(&x.title.to_ascii_lowercase(), input), AlbumKey::from(i)))
 			.collect();
-		let mut songs:   Box<[(f64, SongKey)]>  = self.collection.songs
-			.iter().enumerate()
+		let mut songs:   Vec<(f64, SongKey)>  = self.collection.songs.0
+			.par_iter().enumerate()
 			.map(|(i, x)| (strsim::jaro(&x.title.to_ascii_lowercase(), input), SongKey::from(i)))
 			.collect();
 
 		// Sort by lowest-to-highest similarity value first.
-		artists.sort_by(|a, b| Self::cmp_f64(a.0, b.0));
-		albums.sort_by(|a, b| Self::cmp_f64(a.0, b.0));
-		songs.sort_by(|a, b| Self::cmp_f64(a.0, b.0));
+		artists.par_sort_by(|a, b| Self::cmp_f64(a.0, b.0));
+		albums.par_sort_by(|a, b| Self::cmp_f64(a.0, b.0));
+		songs.par_sort_by(|a, b| Self::cmp_f64(a.0, b.0));
 
 		// Collect just the Keys (reverse, highest sim first).
-		let artists: Box<[ArtistKey]> = artists.iter().rev().map(|tuple| tuple.1).collect();
-		let albums:  Box<[AlbumKey]>  = albums.iter().rev().map(|tuple| tuple.1).collect();
-		let songs:   Box<[SongKey]>   = songs.iter().rev().map(|tuple| tuple.1).collect();
+		let artists: Vec<ArtistKey> = artists.into_par_iter().rev().map(|tuple| tuple.1).collect();
+		let albums:  Vec<AlbumKey>  = albums.into_par_iter().rev().map(|tuple| tuple.1).collect();
+		let songs:   Vec<SongKey>   = songs.into_par_iter().rev().map(|tuple| tuple.1).collect();
 
 		// Return keychain.
-		Keychain::from_boxes(artists, albums, songs)
+		Keychain::from_vecs(artists, albums, songs)
 	}
 
 	#[inline]

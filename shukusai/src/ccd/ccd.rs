@@ -363,15 +363,6 @@ impl Ccd {
 		// FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
 		//-------------------------------------------------------------------------------- 10
-		// SOMEDAY:
-		// Consider using a threadpool.
-		//
-		// We're spinning up threads 3 times:
-		// - "The Loop"
-		// - Art Resize
-		// - Art ToKnown
-		//
-		// Spawning threads is surprisingly fast but still.
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((95.00, Phase::Convert)));
 		let increment = 4.0 / collection.albums.len() as f64;
@@ -384,12 +375,7 @@ impl Ccd {
 		//-------------------------------------------------------------------------------- 11
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((100.00, Phase::Finalize)));
-		// FIXME:
-		// This is a huge workaround around `egui`'s lack of bulk texture
-		// allocation. Although this is good enough for now, figure out
-		// how to bulk allocate all these images without causing the GUI
-		// to freeze. Currently it's done with `try_write()` which doesn't
-		// starve GUI, but can take way longer (0.00008 secs -> 1.xx secs...!!!).
+		// FIXME: See `img.rs`.
 		crate::ccd::img::alloc_textures(&collection.albums);
 		let perf_textures = secs_f32!(now);
 		trace!("CCD [11/13] ... Textures: {perf_textures}");
