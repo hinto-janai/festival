@@ -402,7 +402,10 @@ impl Gui {
 			}
 			match exists {
 				true  => info!("GUI - PATH exists, not adding: {}", p.display()),
-				false => self.settings.collection_paths.push(p),
+				false => {
+					self.settings.collection_paths.push(p);
+					send!(self.to_kernel, FrontendToKernel::CachePath(self.settings.collection_paths.clone()));
+				}
 			}
 		}
 

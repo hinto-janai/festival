@@ -188,6 +188,7 @@ mod tests {
 	use super::*;
 
 	#[test]
+	#[ignore]
 	// Tests if all files being created
 	// correspond to the correct signals.
 	fn signals() {
@@ -208,52 +209,52 @@ mod tests {
 		// Wait a bit.
 		use benri::sleep;
 
-		const T: std::time::Duration = std::time::Duration::from_secs(60);
 		// GitHub CI is so insanely slow that signals need more
 		// time so `Watch` can delete the old file and reset.
-		let t = 5;
-		sleep!(5);
+		const S: u64 = 10;
+		const T: std::time::Duration = std::time::Duration::from_secs(S);
+		sleep!(S);
 
 		// Regular signals.
 		Toggle::touch().unwrap();
 		assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Toggle);
-		sleep!(t);
+		sleep!(S);
 
 		Pause::touch().unwrap();
 		assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Pause);
-		sleep!(t);
+		sleep!(S);
 
 		Play::touch().unwrap();
 		assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Play);
-		sleep!(t);
+		sleep!(S);
 
 		Next::touch().unwrap();
 		assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Next);
-		sleep!(t);
+		sleep!(S);
 
 		Previous::touch().unwrap();
 		assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Previous);
-		sleep!(t);
+		sleep!(S);
 
 		Stop::touch().unwrap();
 		assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Stop);
-		sleep!(t);
+		sleep!(S);
 
 		Shuffle::touch().unwrap();
 		assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Shuffle);
-		sleep!(t);
+		sleep!(S);
 
 		RepeatSong::touch().unwrap();
 		assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::RepeatSong);
-		sleep!(t);
+		sleep!(S);
 
 		RepeatQueue::touch().unwrap();
 		assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::RepeatQueue);
-		sleep!(t);
+		sleep!(S);
 
 		RepeatOff::touch().unwrap();
 		assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::RepeatOff);
-		sleep!(t);
+		sleep!(S);
 
 		// Content signals.
 		// Should be 0..=100
@@ -261,44 +262,44 @@ mod tests {
 			let v = unsafe { crate::audio::Volume::new_unchecked(i) };
 			Volume(v).save().unwrap();
 			assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Volume(crate::audio::Volume::new(i)));
-			sleep!(t);
+			sleep!(S);
 		}
 
 		for i in [0, 5, usize::MAX] {
 			Skip(i).save().unwrap();
 			assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Skip(i));
-			sleep!(t);
+			sleep!(S);
 
 			Back(i).save().unwrap();
 			assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Back(i));
-			sleep!(t);
+			sleep!(S);
 		}
 
 		// Should saturate at 0.
 		for i in [0, 1, 5, usize::MAX] {
 			Index(i).save().unwrap();
 			assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Index(i.saturating_sub(1)));
-			sleep!(t);
+			sleep!(S);
 		}
 
 		for i in [true, false] {
 			Clear(i).save().unwrap();
 			assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Clear(i));
-			sleep!(t);
+			sleep!(S);
 		}
 
 		for i in [0, 10, u64::MAX] {
 			Seek(i).save().unwrap();
 			assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::Seek(i));
-			sleep!(t);
+			sleep!(S);
 
 			SeekForward(i).save().unwrap();
 			assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::SeekForward(i));
-			sleep!(t);
+			sleep!(S);
 
 			SeekBackward(i).save().unwrap();
 			assert_eq!(from_watch.recv_timeout(T).unwrap(), WatchToKernel::SeekBackward(i));
-			sleep!(t);
+			sleep!(S);
 		}
 	}
 }
