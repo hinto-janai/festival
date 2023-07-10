@@ -36,9 +36,8 @@ use crate::{
 };
 use crossbeam::channel::{Sender,Receiver};
 use std::path::PathBuf;
-
 use once_cell::sync::Lazy;
-
+use rayon::prelude::*;
 
 #[cfg(feature = "gui")]
 use crate::frontend::egui::{
@@ -594,26 +593,25 @@ impl Kernel {
 
 		if let Err(e) = cache_path.spawn(move || {
 			paths.retain(|p| p.exists());
-			paths.sort();
+			paths.par_sort();
 			paths.dedup();
 
-			let iter = paths
-				.into_iter()
-				.flat_map(|p| walkdir::WalkDir::new(p).follow_links(true))
+			paths
+				.into_par_iter()
+				.flat_map_iter(|p| walkdir::WalkDir::new(p).follow_links(true))
 				.filter_map(Result::ok)
-				.map(walkdir::DirEntry::into_path);
+				.map(walkdir::DirEntry::into_path)
+				.for_each(|path| {
+					// If we're resetting the `Collection`, we might be doing
+					// more harm by thrashing the filesystem, so just exit.
+					if atomic_load!(RESETTING) {
+						debug!("CachePath - CCD detected, exiting early");
+						return;
+					}
 
-			for path in iter {
-				// If we're resetting the `Collection`, we might be doing
-				// more harm by thrashing the filesystem, so just exit.
-				if atomic_load!(RESETTING) {
-					debug!("CachePath - CCD detected, exiting early");
-					break;
-				}
-
-				trace!("CachePath - {path:?}");
-				Ccd::path_infer_audio(&path);
-			}
+					trace!("CachePath - {path:?}");
+					Ccd::path_infer_audio(&path);
+				});
 
 			debug!("CachePath - took {} seconds, bye!", secs_f32!(now));
 		}) {

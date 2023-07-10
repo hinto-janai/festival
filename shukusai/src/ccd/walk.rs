@@ -11,6 +11,7 @@ use crate::ccd::mime::{
 	SUPPORTED_AUDIO_MIME_TYPES,
 	SUPPORTED_IMG_MIME_TYPES,
 };
+use rayon::prelude::*;
 
 //---------------------------------------------------------------------------------------------------- __NAME__
 impl super::Ccd {
@@ -23,7 +24,7 @@ impl super::Ccd {
 		// Test PATHs, collect valid ones.
 		// Sort, remove duplicates.
 		paths.retain(|p| p.exists());
-		paths.sort();
+		paths.par_sort();
 		paths.dedup();
 
 		// Create our `WalkDir` entries.
@@ -32,14 +33,14 @@ impl super::Ccd {
 		// Feeds `PathBuf`'s into that closure, flattening
 		// all the iterators, and only collecting valid paths.
 		let mut entries: Vec<PathBuf> = paths
-			.into_iter()
-			.flat_map(|p| WalkDir::new(p).follow_links(true))
+			.into_par_iter()
+			.flat_map_iter(|p| WalkDir::new(p).follow_links(true))
 			.filter_map(Result::ok)
 			.map(walkdir::DirEntry::into_path)
 			.filter_map(Self::path_is_audio)
 			.collect();
 
-		entries.sort();
+		entries.par_sort();
 		entries.dedup();
 		entries
 
