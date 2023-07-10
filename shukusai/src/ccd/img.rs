@@ -8,16 +8,20 @@ use fir::{
 };
 use std::num::NonZeroU32;
 use crate::collection::{
+	Art,Album,
 	ALBUM_ART_SIZE,
 	ALBUM_ART_SIZE_U32,
+	ALBUM_ART_SIZE_U16,
 };
 use benri::{
+	ok_trace,
 	debug_panic,
 	sync::*,
 };
-use log::{trace};
+use log::{warn, trace};
 use benri::log::fail;
 use crate::frontend::egui::gui_context;
+use std::path::{Path,PathBuf};
 
 //---------------------------------------------------------------------------------------------------- Album Art Constants.
 pub(crate) const ALBUM_ART_SIZE_NUM: NonZeroU32 = match NonZeroU32::new(ALBUM_ART_SIZE_U32) {
@@ -290,6 +294,43 @@ pub(super) fn free_textures(tex_manager: &mut epaint::TextureManager) {
 	trace!("CCD - current_texture_count: {current_texture_count}, freeing: {start}..{end}");
 	for id in start..end {
 		tex_manager.free(epaint::TextureId::Managed(id));
+	}
+}
+
+//---------------------------------------------------------------------------------------------------- Image()
+// These functions are for the images in `~/.local/share/festival/${FRONTEND}/image`.
+#[inline(always)]
+pub(super) fn save_image(key: usize, album: Album, base_path: &Path) {
+	if let Art::Bytes(bytes) = album.art {
+		let mut path = PathBuf::from(base_path);
+		path.push(format!("{key}.jpg"));
+
+		match std::fs::File::create(&path) {
+			Ok(file) => {
+				match jpeg_encoder::Encoder::new_file(&path, 90) {
+					Ok(e) => {
+						match e.encode(&bytes, ALBUM_ART_SIZE_U16, ALBUM_ART_SIZE_U16, jpeg_encoder::ColorType::Rgb) {
+							Ok(_)  => { ok_trace!("CCD ... Image: {}", path.display()); return; },
+							Err(e) => warn!("CCD ... Image {e}: {}", path.display()),
+						}
+					},
+					Err(e) => warn!("CCD ... Image: {e}"),
+				}
+
+				// Fallback to `image` if we didn't `return`.
+				match image::save_buffer(
+					&path,
+					&bytes,
+					ALBUM_ART_SIZE_U32,
+					ALBUM_ART_SIZE_U32,
+					image::ColorType::Rgb8,
+				) {
+					Ok(_)  => ok_trace!("CCD ... Image: {}", path.display()),
+					Err(e) => warn!("CCD ... Image {e}: {}", path.display()),
+				}
+			},
+			Err(e) => warn!("CCD ... Image {e}: {}", path.display()),
+		}
 	}
 }
 

@@ -74,6 +74,7 @@ strsim            = "0.10.0"
 walkdir           = "2.3.3"
 zune-core         = "0.2.14"
 zune-jpeg         = "0.3.17"
+jpeg-encoder = { version = "0.5.1", features = ["simd"] }
 #zune-png          = "0.2.1"
 
 [target.'cfg(target_os = "linux")'.dependencies]
