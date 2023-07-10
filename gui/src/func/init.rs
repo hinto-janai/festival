@@ -166,6 +166,9 @@ impl crate::data::Gui {
 		cc.egui_ctx.set_pixels_per_point(settings.pixels_per_point as f32);
 		atomic_store!(shukusai::audio::PREVIOUS_THRESHOLD, settings.previous_threshold);
 
+		// Send `CachePath` signal to `Kernel`.
+		send!(to_kernel, FrontendToKernel::CachePath(settings.collection_paths.clone()));
+
 		// Read `State` from disk.
 		let state = State::from_versions(&[
 			(STATE_VERSION, State::from_file),
