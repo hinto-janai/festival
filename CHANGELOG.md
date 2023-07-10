@@ -28,6 +28,8 @@ Performance improvements. Expect 2x~ faster Collection resets (user time) and 5x
 
 ## Fixed
 * Crashes with songs that have odd date metadata, again (https://github.com/hinto-janai/readable/commit/02bdd467363e50627e68af56497eaeb13cdf632d)
+* Over-saturated colors on Linux (KDE) ([#43](https://github.com/hinto-janai/festival/pull/43))
+
 
 ---
 
