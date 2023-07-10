@@ -136,6 +136,20 @@ impl crate::data::Gui {
 			initial_window_size: Some(egui::vec2(APP_WIDTH_DEFAULT, APP_HEIGHT_DEFAULT)),
 			follow_system_theme: false,
 			default_theme: eframe::Theme::Dark,
+			// FIXME:
+			// `eframe::Renderer::Wgpu` causes colors to
+			// be over-saturated on `KDE`. For now, use
+			// `Glow` on Linux (even though `Wgpu` works
+			// fine on GNOME).
+			//
+			// Not changing Windows/macOS off `Wgpu` since it works.
+			//
+			// https://github.com/hinto-janai/festival/pull/32
+			// https://github.com/hinto-janai/festival/pull/33
+			// https://github.com/hinto-janai/festival/pull/42
+			#[cfg(target_os = "linux")]
+			renderer: eframe::Renderer::Glow,
+			#[cfg(not(target_os = "linux"))]
 			renderer: eframe::Renderer::Wgpu,
 			app_id: Some(FESTIVAL_DBUS.to_string()),
 			icon_data,
