@@ -96,23 +96,6 @@ pub struct Settings {
 	/// What `egui::Context::pixels_per_point` are we set to?
 	/// Default is `1.0`, this allows the user to scale manually.
 	pub pixels_per_point: f32,
-
-	// Reserved fields.
-	pub _reserved1: Option<Vec<String>>,
-	pub _reserved2: Option<String>,
-	pub _reserved3: Option<Option<String>>,
-	pub _reserved4: Option<bool>,
-	pub _reserved5: Option<bool>,
-	pub _reserved6: Option<Option<bool>>,
-	pub _reserved7: Option<Option<bool>>,
-	pub _reserved8: Option<usize>,
-	pub _reserved9: Option<usize>,
-	pub _reserved10: Option<f32>,
-	pub _reserved11: Option<f32>,
-	pub _reserved12: Option<f64>,
-	pub _reserved13: Option<f64>,
-	pub _reserved14: Option<Option<usize>>,
-	pub _reserved15: Option<Option<usize>>,
 }
 
 impl Settings {
@@ -134,23 +117,6 @@ impl Settings {
 			accent_color:       ACCENT_COLOR,
 			collection_paths:   vec![],
 			pixels_per_point:   PIXELS_PER_POINT_DEFAULT,
-
-			// Reserved fields.
-			_reserved1: None,
-			_reserved2: None,
-			_reserved3: None,
-			_reserved4: None,
-			_reserved5: None,
-			_reserved6: None,
-			_reserved7: None,
-			_reserved8: None,
-			_reserved9: None,
-			_reserved10: None,
-			_reserved11: None,
-			_reserved12: None,
-			_reserved13: None,
-			_reserved14: None,
-			_reserved15: None,
 		}
 	}
 }
@@ -210,7 +176,7 @@ mod test {
 		assert_eq!(S2.restore_state,      false);
 		assert_eq!(S2.empty_autoplay,     false);
 		assert_eq!(S2.accent_color,       egui::Color32::from_rgb(97,101,119));
-		assert_eq!(S2.collection_paths,   [PathBuf::from("/home/main/git/festival/assets/audio")]);
-		assert_eq!(S2.pixels_per_point.round(), 1.0);
+		assert_eq!(S2.collection_paths,   [PathBuf::from("/home/main/Music")]);
+		assert_eq!(S2.pixels_per_point.round(), 2.0);
 	}
 }

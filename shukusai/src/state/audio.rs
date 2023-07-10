@@ -98,28 +98,6 @@ pub struct AudioState {
 	/// It does not represent the current volume.
 	/// See [`crate::state::VOLUME`] for more info.
 	pub volume: Volume,
-
-	// Reserved fields.
-	pub(crate) _reserved1: Option<bool>,
-	pub(crate) _reserved2: Option<bool>,
-	pub(crate) _reserved3: Option<bool>,
-	pub(crate) _reserved4: Option<usize>,
-	pub(crate) _reserved5: Option<usize>,
-	pub(crate) _reserved6: Option<u8>,
-	pub(crate) _reserved7: Option<u8>,
-	pub(crate) _reserved8: Option<u16>,
-	pub(crate) _reserved9: Option<u16>,
-	pub(crate) _reserved10: Option<u32>,
-	pub(crate) _reserved11: Option<u32>,
-	pub(crate) _reserved12: Option<u64>,
-	pub(crate) _reserved13: Option<u64>,
-	pub(crate) _reserved14: Option<f32>,
-	pub(crate) _reserved15: Option<f32>,
-	pub(crate) _reserved16: Option<f64>,
-	pub(crate) _reserved17: Option<f64>,
-	pub(crate) _reserved18: Option<Option<usize>>,
-	pub(crate) _reserved19: Option<Option<usize>>,
-	pub(crate) _reserved20: Option<VecDeque<usize>>,
 }
 
 impl AudioState {
@@ -135,11 +113,6 @@ impl AudioState {
 			runtime: Runtime::zero(),
 			repeat: Repeat::new(),
 			volume: Volume::const_default(),
-
-			_reserved1: None, _reserved2: None, _reserved3: None, _reserved4: None, _reserved5: None,
-			_reserved6: None, _reserved7: None, _reserved8: None, _reserved9: None, _reserved10: None,
-			_reserved11: None, _reserved12: None, _reserved13: None, _reserved14: None, _reserved15: None,
-			_reserved16: None, _reserved17: None, _reserved18: None, _reserved19: None, _reserved20: None,
 		}
 	}
 
@@ -225,9 +198,9 @@ mod tests {
 	use once_cell::sync::Lazy;
 
 	// Empty new `AudioState`.
-	const A1: Lazy<AudioState> = Lazy::new(|| AudioState::from_path("../assets/shukusai/state/audio1_new.bin").unwrap());
+	const A1: Lazy<AudioState> = Lazy::new(|| AudioState::from_path("../assets/shukusai/state/audio0_new.bin").unwrap());
 	// Filled, user `AudioState`.
-	const A2: Lazy<AudioState> = Lazy::new(|| AudioState::from_path("../assets/shukusai/state/audio1_real.bin").unwrap());
+	const A2: Lazy<AudioState> = Lazy::new(|| AudioState::from_path("../assets/shukusai/state/audio0_real.bin").unwrap());
 	const SONG: SongKey = SongKey::new();
 
 	#[test]
