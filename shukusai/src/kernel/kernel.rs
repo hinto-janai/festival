@@ -1,5 +1,5 @@
 //---------------------------------------------------------------------------------------------------- Use
-use log::{info,error,warn,debug};
+use log::{info,error,warn,debug,trace};
 use crate::constants::{
 	COLLECTION_VERSION,
 	AUDIO_VERSION,
@@ -490,6 +490,7 @@ impl Kernel {
 
 			// Collection.
 			NewCollection(paths) => self.ccd_mode(paths),
+			CachePath(paths)     => Self::cache_path(paths),
 			Search(string)       => send!(self.to_search, KernelToSearch::Search(string)),
 
 			// Exit.
@@ -581,6 +582,38 @@ impl Kernel {
 		info!("Kernel - Total uptime: {}", readable::Time::from(*crate::logger::INIT_INSTANT));
 		loop {
 			std::thread::park();
+		}
+	}
+
+	//-------------------------------------------------- CachePath.
+	// A separate thread is responsible for walking these
+	// directories since `Kernel` really shouldn't be blocked
+	// doing work at any given moment.
+	#[inline(always)]
+	fn cache_path(mut paths: Vec<PathBuf>) {
+		let now = now!();
+		debug!("Kernel - Starting CachePath...");
+
+		let cache_path = std::thread::Builder::new().name("CachePath".to_string());
+
+		if let Err(e) = cache_path.spawn(move || {
+			paths.retain(|p| p.exists());
+			paths.sort();
+			paths.dedup();
+
+			paths
+				.into_iter()
+				.flat_map(|p| walkdir::WalkDir::new(p).follow_links(true))
+				.filter_map(Result::ok)
+				.map(walkdir::DirEntry::into_path)
+				.for_each(|p| {
+					trace!("CachePath - {p:?}");
+					Ccd::path_infer_audio(&p);
+				});
+
+			debug!("CachePath - took {} seconds, bye!", secs_f32!(now));
+		}) {
+			panic!("Kernel ... failed to spawn CachePath: {e}");
 		}
 	}
 

@@ -16,8 +16,7 @@ use crate::ccd::mime::{
 impl super::Ccd {
 	// `WalkDir` given PATHs and filter for audio files.
 	// Ignore non-existing PATHs in the array.
-	pub(super) fn walkdir_audio(
-		_to_kernel: &Sender<CcdToKernel>,
+	pub(crate) fn walkdir_audio(
 		mut paths: Vec<PathBuf>,
 	) -> Vec<PathBuf> {
 
@@ -141,7 +140,7 @@ impl super::Ccd {
 	}
 
 	#[inline(always)]
-	fn path_infer_audio(path: &Path) -> bool {
+	pub(crate) fn path_infer_audio(path: &Path) -> bool {
 		if let Ok(Some(mime)) = infer::get_from_path(path) {
 			SUPPORTED_AUDIO_MIME_TYPES.contains(&mime.mime_type())
 		} else if let Some(mime) = mime_guess::MimeGuess::from_path(path).first_raw() {

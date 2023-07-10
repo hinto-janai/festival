@@ -136,7 +136,7 @@ impl Ccd {
 		//-------------------------------------------------------------------------------- 2
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((2.50, Phase::WalkDir)));
-		let paths = Self::walkdir_audio(&to_kernel, paths);
+		let paths = Self::walkdir_audio(paths);
 		let perf_walkdir = secs_f32!(now);
 		trace!("CCD [2/13] ... WalkDir: {perf_walkdir}");
 

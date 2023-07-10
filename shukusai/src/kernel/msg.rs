@@ -136,6 +136,9 @@ pub enum FrontendToKernel {
 	/// # Notes
 	/// [`Kernel`] will respond with [`KernelToFrontend::SearchResp`].
 	Search((String, SearchKind)),
+	/// Preemptively walk these directories so that the next `Collection`
+	/// reset benefits of the OS hopefully indexing them into cache.
+	CachePath(Vec<PathBuf>),
 
 	// Exiting.
 	/// I'm exiting, save everything.
