@@ -205,15 +205,15 @@ pub fn show_tab_songs(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: 
 					let (artist, album, song) = self.collection.walk(key);
 
 					row.col(|ui| {
-						crate::song_label!(self, song, album, *key, ui, Label::new(&song.title));
+						crate::song_label!(self, song, album, *key, ui, Label::new(&*song.title));
 					});
 
 					row.col(|ui| {
-						crate::album_label!(self, album, song.album, ui, Label::new(&album.title));
+						crate::album_label!(self, album, song.album, ui, Label::new(&*album.title));
 					});
 
 					row.col(|ui| {
-						crate::artist_label!(self, artist, album.artist, ui, Label::new(&artist.name));
+						crate::artist_label!(self, artist, album.artist, ui, Label::new(&*artist.name));
 					});
 
 					row.col(|ui| { ui.label(album.release.as_str()); });
