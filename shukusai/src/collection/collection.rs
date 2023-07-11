@@ -1250,4 +1250,54 @@ mod tests {
 		assert_eq!(C2.songs[k].sample_rate, 48_000);
 		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_7.mp3");
 	}
+
+	#[test]
+	// Assert the memory layout is correct.
+	// This must be correct or else `Bincode` won't be
+	// able to decode things.
+	//
+	// A `cargo update` might include a change that
+	// slightly changes the memory layout, which would
+	// make the `Collection` decoding broken.
+	//
+	// We can rely on `std` to be stable, but not 3rd party crates (even my own).
+	//
+	// All recursive structures within `Collection` are tested here.
+	fn layout() {
+		use crate::collection::{Art, Keychain};
+
+		crate::assert_size_of! {
+			// Collection
+			Collection       => 976,
+			Unsigned         => 48,
+			Map              => 48,
+			Artists          => 16,
+			Albums           => 16,
+			Songs            => 16,
+			Box<[ArtistKey]> => 16,
+			Box<[AlbumKey]>  => 16,
+			Box<[SongKey]>   => 16,
+
+			// Artist
+			Artist           => 88,
+			Runtime          => 24,
+			Vec<AlbumKey>    => 24,
+
+			// Album
+			Album        => 320,
+			Date         => 32,
+			Vec<SongKey> => 24,
+			Art          => 128,
+
+			// Song
+			Song => 104,
+
+			// Keys
+			Key       => 24,
+			Keychain  => 48,
+			ArtistKey => 8,
+			AlbumKey  => 8,
+			SongKey   => 8
+		}
+	}
 }
