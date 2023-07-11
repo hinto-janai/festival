@@ -117,8 +117,8 @@ impl Ccd {
 
 				if Arc::strong_count(&old_collection) == 1 {
 					if let Some(c) = Arc::into_inner(old_collection) {
-						let ctx = crate::frontend::egui::gui_context();
-						crate::ccd::img::free_textures(&mut ctx.tex_manager().write());
+//						let ctx = crate::frontend::egui::gui_context();
+//						crate::ccd::img::free_textures(&mut ctx.tex_manager().write());
 						drop(c);
 					} else {
 						debug_panic!("old_collection strong count was 1 but .into_inner() failed");
