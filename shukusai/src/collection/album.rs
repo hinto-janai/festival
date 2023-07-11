@@ -14,9 +14,10 @@ use readable::{
 	Date,
 };
 use std::path::PathBuf;
+use std::sync::Arc;
 
 //---------------------------------------------------------------------------------------------------- Album
-#[derive(Clone,Debug,Default,PartialEq,PartialOrd,Encode,Decode)]
+#[derive(Clone,Debug,PartialEq,PartialOrd,Encode,Decode)]
 /// Struct holding [`Album`] metadata, with pointers to an [`Artist`] and [`Song`]\(s\)
 ///
 /// This struct holds all the metadata about a particular [`Album`].
@@ -27,7 +28,11 @@ use std::path::PathBuf;
 pub struct Album {
 	// User-facing data.
 	/// Title of the [`Album`].
-	pub title: String,
+	pub title: Arc<str>,
+	/// Title of the [`Album`] in "Unicode Derived Core Property" lowercase.
+	pub title_lowercase: Arc<str>,
+	/// Title of the [`Album`] in "Unicode Derived Core Property" uppercase.
+	pub title_uppercase: Arc<str>,
 	/// Key to the [`Artist`].
 	pub artist: ArtistKey,
 	/// Human-readable release date of this [`Album`].
@@ -48,6 +53,9 @@ pub struct Album {
 	//
 	// So, doing `my_album.songs.iter()` will always
 	// result in the correct `Song` order for `my_album`.
+	//
+	// SOMEDAY:
+	// This should be a Box<[AlbumKey]>.
 	/// Key\(s\) to the [`Song`]\(s\).
 	pub songs: Vec<SongKey>,
 	/// How many discs are in this `Album`?

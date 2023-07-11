@@ -6,9 +6,10 @@ use std::marker::PhantomData;
 use crate::collection::{
 	AlbumKey,
 };
+use std::sync::Arc;
 
 //----------------------------------------------------------------------------------------------------
-#[derive(Clone,Debug,Default,Hash,PartialEq,PartialOrd,Encode,Decode)]
+#[derive(Clone,Debug,Hash,PartialEq,PartialOrd,Encode,Decode)]
 /// Struct holding [`Song`] metadata, with a pointer to the [`Album`] it belongs to
 ///
 /// This struct holds all the metadata about a particular [`Song`].
@@ -17,7 +18,11 @@ use crate::collection::{
 pub struct Song {
 	// User-facing data.
 	/// Title of the [`Song`].
-	pub title: String,
+	pub title: Arc<str>,
+	/// Title of the [`Song`] in "Unicode Derived Core Property" lowercase.
+	pub title_lowercase: Arc<str>,
+	/// Title of the [`Song`] in "Unicode Derived Core Property" uppercase.
+	pub title_uppercase: Arc<str>,
 	/// Key to the [`Album`].
 	pub album: AlbumKey,
 	/// Total runtime of this [`Song`].

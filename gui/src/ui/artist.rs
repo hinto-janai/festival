@@ -77,7 +77,7 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width
 
 			// `Artist` name.
 			let label_name = Label::new(
-				RichText::new(&artist.name)
+				RichText::new(artist.name)
 				.text_style(TextStyle::Name("30".into()))
 			);
 

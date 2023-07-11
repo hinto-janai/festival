@@ -118,6 +118,9 @@ impl Kernel {
 		watch: bool,
 		media_controls: bool,
 	) -> Result<(Sender<FrontendToKernel>, Receiver<KernelToFrontend>), std::io::Error> {
+		// Initialize `RESET_STATE`.
+//		let _ = Lazy::force(&UNKNOWN_ALBUM);
+
 		// Assert `OnceCell`'s were set.
 		#[cfg(feature = "gui")]
 		{
