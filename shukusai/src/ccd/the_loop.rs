@@ -24,7 +24,6 @@ use readable::{
 };
 use std::sync::{Mutex};
 
-use std::marker::PhantomData;
 use symphonia::core::{
 	io::MediaSourceStream,
 	probe::{ProbeResult,Hint},
@@ -207,15 +206,6 @@ impl crate::ccd::Ccd {
 					track,
 					disc,
 					path,
-
-    				_track_artists: PhantomData,
-    				_lyrics: PhantomData,
-    				_reserved1: PhantomData,
-				    _reserved2: PhantomData,
-				    _reserved3: PhantomData,
-				    _reserved4: PhantomData,
-				    _reserved5: PhantomData,
-				    _reserved6: PhantomData,
 				};
 
 				// Lock.
@@ -277,15 +267,6 @@ impl crate::ccd::Ccd {
 				disc,
 				path,
 				album: AlbumKey::from(vec_album.len()),
-
-				_track_artists: PhantomData,
-				_lyrics: PhantomData,
-				_reserved1: PhantomData,
-			    _reserved2: PhantomData,
-			    _reserved3: PhantomData,
-			    _reserved4: PhantomData,
-			    _reserved5: PhantomData,
-			    _reserved6: PhantomData,
 			};
 
 			// Create `Album`.
@@ -302,15 +283,6 @@ impl crate::ccd::Ccd {
 				discs: 0,
 				song_count,
 				art,
-
-			    _genre: PhantomData,
-			    _compilation: PhantomData,
-			    _reserved1: PhantomData,
-			    _reserved2: PhantomData,
-			    _reserved3: PhantomData,
-			    _reserved4: PhantomData,
-			    _reserved5: PhantomData,
-			    _reserved6: PhantomData,
 			};
 
 			// Update `Artist`.
@@ -380,15 +352,6 @@ impl crate::ccd::Ccd {
 			disc,
 			path,
 			album: AlbumKey::from(vec_album.len()),
-
-			_track_artists: PhantomData,
-			_lyrics: PhantomData,
-			_reserved1: PhantomData,
-		    _reserved2: PhantomData,
-		    _reserved3: PhantomData,
-		    _reserved4: PhantomData,
-		    _reserved5: PhantomData,
-		    _reserved6: PhantomData,
 		};
 
 		// Create `Album`.
@@ -405,15 +368,6 @@ impl crate::ccd::Ccd {
 			discs: 0,
 			song_count,
 			art,
-
-		    _genre: PhantomData,
-		    _compilation: PhantomData,
-		    _reserved1: PhantomData,
-		    _reserved2: PhantomData,
-		    _reserved3: PhantomData,
-		    _reserved4: PhantomData,
-		    _reserved5: PhantomData,
-		    _reserved6: PhantomData,
 		};
 
 		// Create `Artist`.
@@ -426,13 +380,6 @@ impl crate::ccd::Ccd {
 			runtime: Runtime::zero(),
 			albums: vec![AlbumKey::from(count_album)],
     		songs: Box::new([]),
-
-		    _reserved1: PhantomData,
-		    _reserved2: PhantomData,
-		    _reserved3: PhantomData,
-		    _reserved4: PhantomData,
-		    _reserved5: PhantomData,
-		    _reserved6: PhantomData,
 		};
 
 		// Push `Artist/Album/Song`.

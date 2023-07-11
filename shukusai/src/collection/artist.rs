@@ -25,14 +25,6 @@ pub struct Artist {
 	///
 	/// The order is [`Album`] release order, then [`Song`] track order.
 	pub songs: Box<[SongKey]>,
-
-	// Reserved fields and their `size_of()`.
-	pub(crate) _reserved1: PhantomData<Box<[usize]>>, // 16
-	pub(crate) _reserved2: PhantomData<Box<[usize]>>, // 16
-	pub(crate) _reserved3: PhantomData<Box<[usize]>>, // 16
-	pub(crate) _reserved4: PhantomData<Box<[usize]>>, // 16
-	pub(crate) _reserved5: PhantomData<String>,       // 24
-	pub(crate) _reserved6: PhantomData<usize>,        // 8
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
