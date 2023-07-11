@@ -27,40 +27,6 @@ impl Map {
 	pub(crate) fn new() -> Self {
 		Self::default()
 	}
-
-	#[inline(always)] // This only gets called once.
-	// Iterates over the the "3 Slices"
-	// and creates a matching `Map`.
-	pub(crate) fn from_3_vecs(
-		artists: &[Artist],
-		albums: &[Album],
-		songs: &[Song],
-	) -> Self {
-		let mut map = Self::default();
-
-		// For each `Artist`...
-		for (i, artist) in artists.iter().enumerate() {
-			let mut album_map = AlbumMap::default();
-
-			// For each `Album` within `Artist`...
-			for album in artist.albums.iter() {
-				let mut song_map  = SongMap::default();
-
-				// For each `Song` within the `Album`...
-				for song in albums[album.inner()].songs.iter() {
-					song_map.0.insert(songs[song.inner()].title.to_string(), *song);
-				}
-
-				// Insert the `SongMap` into the `AlbumMap`.
-				album_map.0.insert(albums[album.inner()].title.to_string(), (*album, song_map));
-			}
-
-			// Insert the `AlbumMap` into the `(Artist)Map`.
-			map.0.insert(artist.name.to_string(), (ArtistKey::from(i), album_map));
-		}
-
-		map
-	}
 }
 
 //---------------------------------------------------------------------------------------------------- AlbumMap

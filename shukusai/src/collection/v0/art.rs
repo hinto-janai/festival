@@ -95,35 +95,6 @@ impl Art {
 	}
 }
 
-impl Art {
-	#[inline]
-	// Return the associated art or the default `[?]` image if [`Art::Unknown`]
-	pub(crate) fn art_or(&self) -> &RetainedImage {
-		match self {
-			Self::Known(art) => art,
-			_ => &UNKNOWN_ALBUM,
-		}
-	}
-
-	#[inline]
-	// Same as [`Art::art_or`] but with no backup image.
-	pub(crate) fn get(&self) -> Option<&RetainedImage> {
-		match self {
-			Self::Known(art) => Some(art),
-			_ => None,
-		}
-	}
-
-	#[inline]
-	// Calls [`egui::extras::texture_id`].
-	pub(crate) fn texture_id(&self, ctx: &egui::Context) -> egui::TextureId {
-		match self {
-			Self::Known(a) => a.texture_id(ctx),
-			_ => UNKNOWN_ALBUM_ID,
-		}
-	}
-}
-
 impl std::fmt::Debug for Art {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		match self {

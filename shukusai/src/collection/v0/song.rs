@@ -31,11 +31,3 @@ pub(crate) struct Song {
 	/// The [`PathBuf`] this [`Song`] is located at.
 	pub(crate) path: PathBuf,
 }
-
-//---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//  #[test]
-//  fn _() {
-//  }
-//}

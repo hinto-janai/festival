@@ -26,11 +26,3 @@ pub(crate) struct Artist {
 	/// The order is [`Album`] release order, then [`Song`] track order.
 	pub(crate) songs: Box<[SongKey]>,
 }
-
-//---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//  #[test]
-//  fn _() {
-//  }
-//}
