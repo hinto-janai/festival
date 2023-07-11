@@ -37,6 +37,22 @@ pub struct Song {
 	pub path: PathBuf,
 }
 
+impl Default for Song {
+	fn default() -> Self {
+		Self {
+			title: "".into(),
+			title_lowercase: "".into(),
+			title_uppercase: "".into(),
+			album: Default::default(),
+			runtime: Default::default(),
+			sample_rate: Default::default(),
+			track: Default::default(),
+			disc: Default::default(),
+			path: Default::default(),
+		}
+	}
+}
+
 //---------------------------------------------------------------------------------------------------- TESTS
 //#[cfg(test)]
 //mod tests {

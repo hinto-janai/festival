@@ -108,6 +108,24 @@ impl Album {
 	}
 }
 
+impl Default for Album {
+	fn default() -> Self {
+		Self {
+			title: "".into(),
+			title_lowercase: "".into(),
+			title_uppercase: "".into(),
+			artist: Default::default(),
+			release: Default::default(),
+			runtime: Default::default(),
+			song_count: Default::default(),
+			songs: Vec::with_capacity(0),
+			discs: Default::default(),
+			path: Default::default(),
+			art: Default::default(),
+		}
+	}
+}
+
 //---------------------------------------------------------------------------------------------------- TESTS
 //#[cfg(test)]
 //mod tests {

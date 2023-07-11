@@ -13,8 +13,8 @@ use std::sync::{
 };
 use crate::{
 	collection::{
-		Collection,ArtistKey,
-		AlbumKey,SongKey,
+		Collection,CollectionPtr,
+		ArtistKey,AlbumKey,SongKey,
 	},
 	audio::{
 		AudioToKernel,KernelToAudio,
@@ -127,7 +127,7 @@ pub(crate) struct Audio {
 	// long enough when using `Select` in the main loop.
 	from_mc: Receiver<souvlaki::MediaControlEvent>,
 
-	collection:  Arc<Collection>,         // Pointer to `Collection`
+	collection:  CollectionPtr,           // Pointer to `Collection`
 	to_kernel:   Sender<AudioToKernel>,   // Channel TO `Kernel`
 	from_kernel: Receiver<KernelToAudio>, // Channel FROM `Kernel`
 }
@@ -150,7 +150,7 @@ impl Audio {
 	#[inline(always)]
 	// Kernel starts `Audio` with this.
 	pub(crate) fn init(
-		collection:     Arc<Collection>,
+		collection:     CollectionPtr,
 		state:          AudioState,
 		to_kernel:      Sender<AudioToKernel>,
 		from_kernel:    Receiver<KernelToAudio>,
@@ -431,7 +431,7 @@ impl Audio {
 
 			// Collection.
 			DropCollection     => self.drop_collection(),
-			NewCollection(arc) => self.collection = arc,
+			NewCollection(ptr) => self.collection = ptr,
 		}
 	}
 
@@ -1242,9 +1242,9 @@ impl Audio {
 		// Ignore messages until it's a pointer.
 		loop {
 			match recv!(self.from_kernel) {
-				KernelToAudio::NewCollection(arc) => {
+				KernelToAudio::NewCollection(ptr) => {
 					ok_debug!("Audio - New Collection received");
-					self.collection = arc;
+					self.collection = ptr;
 					return;
 				},
 				_ => {

@@ -9,6 +9,7 @@ use benri::{
 };
 use crate::collection::{
 	Collection,
+	CollectionPtr,
 	Artists,
 	Albums,
 	Songs,
@@ -52,7 +53,7 @@ impl Ccd {
 
 		// If no albums, return.
 		if collection.albums.is_empty() {
-			send!(to_kernel, CcdToKernel::NewCollection(Arc::new(collection)));
+			send!(to_kernel, CcdToKernel::NewCollection(CollectionPtr::new(collection)));
 		// Else, convert art, send to `Kernel`.
 		} else {
 			let total      = collection.albums.len();
@@ -60,7 +61,7 @@ impl Ccd {
 			Self::priv_convert_art(&to_kernel, &mut collection, ArtConvertType::ToKnown, increment);
 			send!(to_kernel, CcdToKernel::UpdatePhase((100.00, Phase::Finalize)));
 			crate::ccd::img::alloc_textures(&collection.albums);
-			send!(to_kernel, CcdToKernel::NewCollection(Arc::new(collection)));
+			send!(to_kernel, CcdToKernel::NewCollection(CollectionPtr::new(collection)));
 		}
 
 		debug!("CCD ... Took {} seconds, bye!", secs_f32!(beginning));
@@ -73,7 +74,7 @@ impl Ccd {
 	// functions mostly for testing flexibility.
 	pub(crate) fn new_collection(
 		to_kernel: Sender<CcdToKernel>,
-		old_collection: Arc<Collection>,
+		old_collection: CollectionPtr,
 		paths: Vec<PathBuf>,
 	) {
 		// `new_collection()` high-level overview:
@@ -109,25 +110,11 @@ impl Ccd {
 		// If `CCD` fails, `Kernel` just sends a `Collection::dummy()` back to everyone.
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((0.00, Phase::Deconstruct)));
-		{
-			let mut i = 1;
-			loop {
-				trace!("CCD [1/13] Deconstruct attempt {i}");
-
-				if Arc::strong_count(&old_collection) == 1 {
-					if let Some(c) = Arc::into_inner(old_collection) {
-						let ctx = crate::frontend::egui::gui_context();
-						crate::ccd::img::free_textures(&mut ctx.tex_manager().write());
-						drop(c);
-					} else {
-						debug_panic!("old_collection strong count was 1 but .into_inner() failed");
-					}
-					break;
-				}
-
-				i += 1;
-				sleep!(1);
-			}
+		if let Some(c) = old_collection.into_inner() {
+			drop(c);
+		} else {
+			warn!("CCD ... Old Collection deconstruction failed, we're leaking memory...!");
+			debug_panic!("old_collection .into_inner() failed");
 		}
 		let perf_deconstruct = secs_f32!(now);
 		trace!("CCD [1/13] ... Deconstruct: {perf_deconstruct}");
@@ -364,7 +351,7 @@ impl Ccd {
 		trace!("CCD [11/13] ... Textures: {perf_textures}");
 
 		//-------------------------------------------------------------------------------- 12
-		send!(to_kernel, CcdToKernel::NewCollection(Arc::new(collection)));
+		send!(to_kernel, CcdToKernel::NewCollection(CollectionPtr::new(collection)));
 		let user_time = secs_f32!(beginning);
 		info!("CCD ... User time: {}", user_time);
 
@@ -508,8 +495,7 @@ mod tests {
 		// Set-up inputs.
 		let (to_kernel, from_ccd) = crossbeam::channel::unbounded::<CcdToKernel>();
 		crate::frontend::egui::GUI_CONTEXT.set(egui::Context::default());
-		let old = Collection::new();
-		let old = Arc::new(old);
+		let old = Collection::dummy();
 		let paths = vec![PathBuf::from("../assets")];
 
 		// Spawn `CCD`.

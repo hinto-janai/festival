@@ -1,13 +1,3 @@
-/*
- * `*Ptr` types.
- *
- * As long as this comment is here, this is not
- * actually in use. If the day comes where the
- * `*Ptr` types are actually used, this comment
- * will be removed and this file will be added
- * to the `mod.rs` file.
- */
-
 //---------------------------------------------------------------------------------------------------- Use
 use crate::collection::{
 	Artists,Albums,Songs,
@@ -22,6 +12,35 @@ use bincode::{
 	error::{DecodeError,EncodeError},
 };
 use serde::{Serialize,Deserialize};
+
+//---------------------------------------------------------------------------------------------------- CollectionPtr
+#[derive(Clone,Debug,PartialEq)]
+///
+pub struct CollectionPtr(Pin<Arc<Collection>>);
+
+impl CollectionPtr {
+	pub(crate) fn new(collection: Collection) -> Self {
+		Self(Pin::new(Arc::new(collection)))
+	}
+
+	pub(crate) fn into_inner(self) -> Option<Collection> {
+		Arc::into_inner(Pin::into_inner(self.0))
+	}
+}
+
+impl std::ops::Deref for CollectionPtr {
+	type Target = Collection;
+
+	fn deref(&self) -> &Self::Target {
+		&self.0
+	}
+}
+
+impl AsRef<Collection> for CollectionPtr {
+	fn as_ref(&self) -> &Collection {
+		&self.0
+	}
+}
 
 //---------------------------------------------------------------------------------------------------- *Ptr
 macro_rules! impl_ptr {

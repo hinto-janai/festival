@@ -3,7 +3,7 @@ use std::sync::Arc;
 use crate::{
 	collection::{
 		ArtistKey,AlbumKey,SongKey,
-		Collection,Keychain,
+		Collection,CollectionPtr,Keychain,
 	},
 	search::SearchKind,
 	audio::{Volume, Append, Repeat, Seek},
@@ -166,7 +166,7 @@ pub enum FrontendToKernel {
 /// [`Kernel`] assumes that all of these messages are implemented correctly.
 ///
 /// # For example:
-/// If your frontend does _not_ actually drop the `Arc<Collection>`
+/// If your frontend does _not_ actually drop the `CollectionPtr`
 /// after receiving the message [`KernelToFrontend::DropCollection`],
 /// then `Festival`'s internals will not be able to destruct the old
 /// [`Collection`] correctly.
@@ -176,12 +176,12 @@ pub enum FrontendToKernel {
 /// probably skip a few frames or cause latency.
 pub enum KernelToFrontend {
 	// Collection.
-	/// Drop your [`Arc`] pointer to the [`Collection`].
+	/// Drop your pointer to the [`Collection`].
 	DropCollection,
 	/// Here's the new [`Collection`] pointer.
-	NewCollection(Arc<Collection>),
+	NewCollection(CollectionPtr),
 	/// Creating the new [`Collection`] failed, here's the old pointer and error message.
-	Failed((Arc<Collection>, String)),
+	Failed((CollectionPtr, String)),
 
 	// Audio error.
 	/// The device error'ed during initialization.

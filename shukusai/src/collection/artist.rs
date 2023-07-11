@@ -34,6 +34,19 @@ pub struct Artist {
 	pub songs: Box<[SongKey]>,
 }
 
+impl Default for Artist {
+	fn default() -> Self {
+		Self {
+			name: "".into(),
+			name_lowercase: "".into(),
+			name_uppercase: "".into(),
+			runtime: Default::default(),
+			albums: Vec::with_capacity(0),
+			songs: Box::new([]),
+		}
+	}
+}
+
 //---------------------------------------------------------------------------------------------------- TESTS
 //#[cfg(test)]
 //mod tests {

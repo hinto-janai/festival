@@ -10,6 +10,7 @@ use crate::collection::{
 	ArtistKey,
 	AlbumKey,
 	SongKey,
+	CollectionPtr,
 };
 use crate::sort::{
 	ArtistSort,
@@ -43,7 +44,7 @@ use const_format::formatcp;
 static RNG: Lazy<Mutex<rand::rngs::SmallRng>> = Lazy::new(|| Mutex::new(rand::rngs::SmallRng::from_entropy()));
 
 // This is an empty, dummy `Collection`.
-pub(crate) static DUMMY_COLLECTION: Lazy<Arc<Collection>> = Lazy::new(|| Arc::new(Collection::new()));
+pub(crate) static DUMMY_COLLECTION: Lazy<CollectionPtr> = Lazy::new(|| CollectionPtr::new(Collection::new()));
 
 //---------------------------------------------------------------------------------------------------- Collection
 disk::bincode2!(Collection, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{STATE_SUB_DIR}"), "collection", HEADER, COLLECTION_VERSION);
@@ -105,7 +106,7 @@ disk::bincode2!(Collection, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_
 ///
 /// ### Frontend
 /// As a `Frontend`, you will never produce a [`Collection`] yourself, rather,
-/// you ask [`Kernel`] to produce one for you. You will receive an immutable `Arc<Collection>`.
+/// you ask [`Kernel`] to produce one for you. You will receive an immutable `CollectionPtr`.
 ///
 /// ### Late initialization
 /// Waiting on [`Kernel`] to hand you the _real_ [`Collection`] may take a while.
@@ -297,10 +298,10 @@ impl Collection {
 	}
 
 	#[inline(always)]
-	/// Obtain an empty, dummy [`Collection`] wrapped in an [`Arc`].
+	/// Obtain an empty, dummy [`Collection`] wrapped in a [`CollectionPtr`].
 	///
 	/// This is useful when you need to initialize but don't want
-	/// to wait on [`Kernel`] to hand you the _real_ `Arc<Collection>`.
+	/// to wait on [`Kernel`] to hand you the _real_ `CollectionPtr`.
 	///
 	/// Details on the fields:
 	/// - All [`Vec`]'s are empty
@@ -310,8 +311,8 @@ impl Collection {
 	///
 	/// This [`Collection`] is [`Arc::clone`]'ed from a lazily
 	/// evaluated, empty [`Collection`] that has static lifetime.
-	pub fn dummy() -> Arc<Self> {
-		Arc::clone(&DUMMY_COLLECTION)
+	pub fn dummy() -> CollectionPtr {
+		DUMMY_COLLECTION.clone()
 	}
 
 	//-------------------------------------------------- Searching.
@@ -1092,84 +1093,84 @@ mod tests {
 
 		// Artist 1/3
 		let k = ArtistKey::from(0_u8);
-		assert_eq!(C2.artists[k].name,         "artist_1");
+		assert_eq!(&*C2.artists[k].name,       "artist_1");
 		assert_eq!(C2.artists[k].runtime,      Runtime::from(4_u8));
 		assert_eq!(C2.artists[k].albums.len(), 2);
 		assert_eq!(C2.artists[k].songs.len(),  4);
 
 		// Artist 2/3
 		let k = ArtistKey::from(1_u8);
-		assert_eq!(C2.artists[k].name,         "artist_2");
+		assert_eq!(&*C2.artists[k].name,       "artist_2");
 		assert_eq!(C2.artists[k].runtime,      Runtime::from(2_u8));
 		assert_eq!(C2.artists[k].albums.len(), 1);
 		assert_eq!(C2.artists[k].songs.len(),  2);
 
 		// Artist 3/3
 		let k = ArtistKey::from(2_u8);
-		assert_eq!(C2.artists[k].name,         "artist_3");
+		assert_eq!(&*C2.artists[k].name,       "artist_3");
 		assert_eq!(C2.artists[k].runtime,      Runtime::from(1_u8));
 		assert_eq!(C2.artists[k].albums.len(), 1);
 		assert_eq!(C2.artists[k].songs.len(),  1);
 
 		// Albums 1/4
 		let k = AlbumKey::from(0_u8);
-		assert_eq!(C2.albums[k].title, "album_1");
+		assert_eq!(&*C2.albums[k].title, "album_1");
 		assert_eq!(C2.albums[k].release, Date::from_str("2018-04-25").unwrap());
 
 		// Albums 2/4
 		let k = AlbumKey::from(1_u8);
-		assert_eq!(C2.albums[k].title, "album_2");
+		assert_eq!(&*C2.albums[k].title, "album_2");
 		assert_eq!(C2.albums[k].release, Date::from_str("2018-04-25").unwrap());
 
 		// Albums 3/4
 		let k = AlbumKey::from(2_u8);
-		assert_eq!(C2.albums[k].title, "album_3");
+		assert_eq!(&*C2.albums[k].title, "album_3");
 		assert_eq!(C2.albums[k].release, Date::from_str("2018-04-25").unwrap());
 
 		// Albums 4/4
 		let k = AlbumKey::from(3_u8);
-		assert_eq!(C2.albums[k].title, "album_4");
+		assert_eq!(&*C2.albums[k].title, "album_4");
 		assert_eq!(C2.albums[k].release, Date::from_str("2018-04-25").unwrap());
 
 		// Song 1/7
 		let k = SongKey::from(0_u8);
-		assert_eq!(C2.songs[k].title, "mp3");
+		assert_eq!(&*C2.songs[k].title, "mp3");
 		assert_eq!(C2.songs[k].sample_rate, 48_000);
 		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_1.mp3");
 
 		// Song 2/7
 		let k = SongKey::from(1_u8);
-		assert_eq!(C2.songs[k].title, "mp3");
+		assert_eq!(&*C2.songs[k].title, "mp3");
 		assert_eq!(C2.songs[k].sample_rate, 48_000);
 		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_2.mp3");
 
 		// Song 3/7
 		let k = SongKey::from(2_u8);
-		assert_eq!(C2.songs[k].title, "mp3");
+		assert_eq!(&*C2.songs[k].title, "mp3");
 		assert_eq!(C2.songs[k].sample_rate, 48_000);
 		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_3.mp3");
 
 		// Song 4/7
 		let k = SongKey::from(3_u8);
-		assert_eq!(C2.songs[k].title, "flac");
+		assert_eq!(&*C2.songs[k].title, "flac");
 		assert_eq!(C2.songs[k].sample_rate, 48_000);
 		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_4.flac");
 
 		// Song 5/7
 		let k = SongKey::from(4_u8);
-		assert_eq!(C2.songs[k].title, "m4a");
+		assert_eq!(&*C2.songs[k].title, "m4a");
 		assert_eq!(C2.songs[k].sample_rate, 48_000);
 		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_5.m4a");
 
 		// Song 6/7
 		let k = SongKey::from(5_u8);
-		assert_eq!(C2.songs[k].title, "song_6");
+		assert_eq!(&*C2.songs[k].title, "song_6");
 		assert_eq!(C2.songs[k].sample_rate, 48_000);
 		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_6.ogg");
 
 		// Song 7/7
 		let k = SongKey::from(6_u8);
-		assert_eq!(C2.songs[k].title, "mp3");
+		assert_eq!(&*C2.songs[k].title, "mp3");
 		assert_eq!(C2.songs[k].sample_rate, 48_000);
 		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_7.mp3");
 	}

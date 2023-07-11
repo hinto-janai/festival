@@ -2,6 +2,7 @@
 use std::sync::Arc;
 use crate::collection::{
 	Collection,
+	CollectionPtr,
 	Keychain,
 };
 use crate::search::SearchKind;
@@ -17,7 +18,7 @@ pub(crate) enum KernelToSearch {
 //	NewCache(String),               // Here's a new `String` key from a recently created `Collection`, add it to your cache.
 //	NewCacheVec(Vec<String>),       // Here's a `Vec` of `String` keys, add it to cache
 	DropCollection,                 // Drop your pointer.
-	NewCollection(Arc<Collection>), // Here's a new `Collection` pointer.
+	NewCollection(CollectionPtr),   // Here's a new `Collection` pointer.
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

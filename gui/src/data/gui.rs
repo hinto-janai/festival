@@ -15,6 +15,7 @@ use shukusai::{
 	},
 	collection::{
 		Collection,
+		CollectionPtr,
 		SongKey,
 	},
 };
@@ -42,7 +43,7 @@ pub struct Gui {
 	pub from_kernel: Receiver<KernelToFrontend>,
 
 	/// The `Collection`.
-	pub collection: Arc<Collection>,
+	pub collection: CollectionPtr,
 
 	/// `GUI` settings.
 	pub settings: Settings,

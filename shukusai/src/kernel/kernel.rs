@@ -32,7 +32,7 @@ use crate::{
 	search::{KernelToSearch, SearchToKernel, Search},
 	audio::{KernelToAudio, AudioToKernel, Audio},
 	watch::{WatchToKernel, Watch},
-	collection::{Collection,DUMMY_COLLECTION},
+	collection::{Collection,DUMMY_COLLECTION,CollectionPtr},
 };
 use crossbeam::channel::{Sender,Receiver};
 use std::path::PathBuf;
@@ -73,7 +73,7 @@ pub struct Kernel {
 	from_watch: Receiver<WatchToKernel>,
 
 	// Data.
-	collection: Arc<Collection>,
+	collection: CollectionPtr,
 }
 
 // See `GUI`'s Drop impl for reasoning on why this exists.
@@ -284,7 +284,7 @@ impl Kernel {
 
 	//-------------------------------------------------- kernel()
 	fn kernel(
-		collection:     Arc<Collection>,
+		collection:     CollectionPtr,
 		audio:          Result<AudioState, anyhow::Error>,
 		to_frontend:    Sender<KernelToFrontend>,
 		from_frontend:  Receiver<FrontendToKernel>,
@@ -323,7 +323,7 @@ impl Kernel {
 
 	//-------------------------------------------------- init()
 	fn init(
-		collection:     Option<Arc<Collection>>,
+		collection:     Option<CollectionPtr>,
 		audio:          Option<AudioState>,
 		to_frontend:    Sender<KernelToFrontend>,
 		from_frontend:  Receiver<FrontendToKernel>,
@@ -336,7 +336,7 @@ impl Kernel {
 		// Handle potentially missing `Collection`.
 		let collection = match collection {
 			Some(c) => { debug!("Kernel Init [8/12] ... Collection found"); c },
-			None    => { debug!("Kernel Init [8/12] ... Collection NOT found, returning default"); Arc::new(Collection::new()) },
+			None    => { debug!("Kernel Init [8/12] ... Collection NOT found, returning default"); Collection::dummy() },
 		};
 
 		// Handle potentially missing `AudioState`.
@@ -346,7 +346,7 @@ impl Kernel {
 		};
 
 		// Send `Collection/State` to `Frontend`.
-		send!(to_frontend, KernelToFrontend::NewCollection(Arc::clone(&collection)));
+		send!(to_frontend, KernelToFrontend::NewCollection(collection.clone()));
 		#[cfg(feature = "gui")]
 		gui_request_update();
 
@@ -372,7 +372,7 @@ impl Kernel {
 		};
 
 		// Spawn `Audio`.
-		let collection = Arc::clone(&kernel.collection);
+		let collection = kernel.collection.clone();
 		match std::thread::Builder::new()
 			.name("Audio".to_string())
 			.spawn(move || Audio::init(collection, audio, audio_send, audio_recv, media_controls))
@@ -382,7 +382,7 @@ impl Kernel {
 		}
 
 		// Spawn `Search`.
-		let collection = Arc::clone(&kernel.collection);
+		let collection = kernel.collection.clone();
 		match std::thread::Builder::new()
 			.name("Search".to_string())
 			.spawn(move || Search::init(collection, search_send, search_recv))
@@ -632,7 +632,7 @@ impl Kernel {
 	// 4. Tell everyone to drop the old `Collection` pointer
 	// 5. Wait until `CCD` gives the new `Collection`
 	// 6. Tell `CCD` to... `Die`
-	// 7. Give new `Arc<Collection>` to everyone
+	// 7. Give new `CollectionPtr` to everyone
 	fn ccd_mode(&mut self, paths: Vec<PathBuf>) {
 		atomic_store!(RESETTING, true);
 
@@ -652,7 +652,7 @@ impl Kernel {
 
 		// Give the last ownership of the
 		// old `Collection` pointer to `CCD`.
-		let old_collection = Arc::clone(&self.collection);
+		let old_collection = self.collection.clone();
 		self.collection    = Collection::dummy();
 
 		// If there is another `CCD` still alive
@@ -706,12 +706,12 @@ impl Kernel {
 		self.collection = collection;
 
 		// Send new pointers to everyone.
-		send!(self.to_audio,    KernelToAudio::NewCollection(Arc::clone(&self.collection)));
-		send!(self.to_search,   KernelToSearch::NewCollection(Arc::clone(&self.collection)));
+		send!(self.to_audio,    KernelToAudio::NewCollection(self.collection.clone()));
+		send!(self.to_search,   KernelToSearch::NewCollection(self.collection.clone()));
 		if let Some(e) = error {
-			send!(self.to_frontend, KernelToFrontend::Failed((Arc::clone(&self.collection), e.to_string())));
+			send!(self.to_frontend, KernelToFrontend::Failed((self.collection.clone(), e.to_string())));
 		} else {
-			send!(self.to_frontend, KernelToFrontend::NewCollection(Arc::clone(&self.collection)));
+			send!(self.to_frontend, KernelToFrontend::NewCollection(self.collection.clone()));
 		}
 
 		#[cfg(feature = "gui")]
