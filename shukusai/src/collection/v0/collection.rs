@@ -1,11 +1,13 @@
 //---------------------------------------------------------------------------------------------------- Use
 use bincode::{Encode,Decode};
-use crate::collection::{
+use crate::collection::v0::{
 	album::Album,
 	artist::Artist,
 	song::Song,
 	plural::{Artists,Albums,Songs},
 	Map,
+};
+use crate::collection::{
 	Key,
 	ArtistKey,
 	AlbumKey,
@@ -112,130 +114,130 @@ disk::bincode2!(Collection, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_
 ///
 /// This prevents your `Frontend` from finishing initializing beforehand, so instead, use [`Collection::dummy`]
 /// to _cheaply_ obtain an empty, dummy [`Collection`], then wait for [`Kernel`]'s signal later on.
-pub struct Collection {
+pub(crate) struct Collection {
 	// Metadata about the `Collection` itself.
 	/// Is this [`Collection`] empty?
 	///
 	/// Meaning, are there absolutely no [`Artist`]'s, [`Album`]'s and [`Song`]'s?
-	pub empty: bool,
+	pub(crate) empty: bool,
 	/// UNIX timestamp of the [`Collection`]'s creation date.
-	pub timestamp: u64,
+	pub(crate) timestamp: u64,
 	/// How many [`Artist`]'s in this [`Collection`]?
-	pub count_artist: Unsigned,
+	pub(crate) count_artist: Unsigned,
 	/// How many [`Album`]'s in this [`Collection`]?
-	pub count_album: Unsigned,
+	pub(crate) count_album: Unsigned,
 	/// How many [`Song`]'s in this [`Collection`]?
-	pub count_song: Unsigned,
+	pub(crate) count_song: Unsigned,
 	/// How many unique [`Album`] covers are there in this [`Collection`]?
-	pub count_art: Unsigned,
+	pub(crate) count_art: Unsigned,
 
 	// The "Map".
 	/// A [`HashMap`] that knows all [`Artist`]'s, [`Album`]'s and [`Song`]'s.
-	pub map: Map,
+	pub(crate) map: Map,
 
 	// The "3 arrays".
 	/// All the [`Artist`]'s in mostly random order.
-	pub artists: Artists,
+	pub(crate) artists: Artists,
 	/// All the [`Album`]'s in mostly random order.
-	pub albums: Albums,
+	pub(crate) albums: Albums,
 	/// All the [`Song`]'s in mostly random order.
-	pub songs: Songs,
+	pub(crate) songs: Songs,
 
 	// Sorted `Artist` keys.
 	/// [`Artist`] A-Z.
-	pub sort_artist_lexi: Box<[ArtistKey]>,
+	pub(crate) sort_artist_lexi: Box<[ArtistKey]>,
 	/// [`Artist`] Z-A.
-	pub sort_artist_lexi_rev: Box<[ArtistKey]>,
+	pub(crate) sort_artist_lexi_rev: Box<[ArtistKey]>,
 	/// [`Artist`] with most [`Album`]'s to least.
-	pub sort_artist_album_count: Box<[ArtistKey]>,
+	pub(crate) sort_artist_album_count: Box<[ArtistKey]>,
 	/// [`Artist`] with least [`Album`]'s to most.
-	pub sort_artist_album_count_rev: Box<[ArtistKey]>,
+	pub(crate) sort_artist_album_count_rev: Box<[ArtistKey]>,
 	/// [`Artist`] with most [`Song`]'s to least.
-	pub sort_artist_song_count: Box<[ArtistKey]>,
+	pub(crate) sort_artist_song_count: Box<[ArtistKey]>,
 	/// [`Artist`] with least [`Song`]'s to most.
-	pub sort_artist_song_count_rev: Box<[ArtistKey]>,
+	pub(crate) sort_artist_song_count_rev: Box<[ArtistKey]>,
 	/// [`Artist`] runtime least-most.
-	pub sort_artist_runtime: Box<[ArtistKey]>,
+	pub(crate) sort_artist_runtime: Box<[ArtistKey]>,
 	/// [`Artist`] runtime most-least.
-	pub sort_artist_runtime_rev: Box<[ArtistKey]>,
+	pub(crate) sort_artist_runtime_rev: Box<[ArtistKey]>,
 	/// [`Artist`] name shortest-longest.
-	pub sort_artist_name: Box<[ArtistKey]>,
+	pub(crate) sort_artist_name: Box<[ArtistKey]>,
 	/// [`Artist`] name longest-shortest
-	pub sort_artist_name_rev: Box<[ArtistKey]>,
+	pub(crate) sort_artist_name_rev: Box<[ArtistKey]>,
 
 	// Sorted `Album` keys.
 	/// [`Artist`] A-Z, [`Album`] oldest-latest.
-	pub sort_album_release_artist_lexi: Box<[AlbumKey]>,
+	pub(crate) sort_album_release_artist_lexi: Box<[AlbumKey]>,
 	/// [`Artist`] Z-A, [`Album`] oldest-latest.
-	pub sort_album_release_artist_lexi_rev: Box<[AlbumKey]>,
+	pub(crate) sort_album_release_artist_lexi_rev: Box<[AlbumKey]>,
 	/// [`Artist`] A-Z, [`Album`] latest-oldest.
-	pub sort_album_release_rev_artist_lexi: Box<[AlbumKey]>,
+	pub(crate) sort_album_release_rev_artist_lexi: Box<[AlbumKey]>,
 	/// [`Artist`] Z-A, [`Album`] latest-oldest.
-	pub sort_album_release_rev_artist_lexi_rev: Box<[AlbumKey]>,
+	pub(crate) sort_album_release_rev_artist_lexi_rev: Box<[AlbumKey]>,
 	/// [`Artist`] A-Z, [`Album`] A-Z.
-	pub sort_album_lexi_artist_lexi: Box<[AlbumKey]>,
+	pub(crate) sort_album_lexi_artist_lexi: Box<[AlbumKey]>,
 	/// [`Artist`] Z-A, [`Album`] A-Z.
-	pub sort_album_lexi_artist_lexi_rev: Box<[AlbumKey]>,
+	pub(crate) sort_album_lexi_artist_lexi_rev: Box<[AlbumKey]>,
 	/// [`Artist`] A-Z, [`Album`] Z-A.
-	pub sort_album_lexi_rev_artist_lexi: Box<[AlbumKey]>,
+	pub(crate) sort_album_lexi_rev_artist_lexi: Box<[AlbumKey]>,
 	/// [`Artist`] Z-A, [`Album`] Z-A.
-	pub sort_album_lexi_rev_artist_lexi_rev: Box<[AlbumKey]>,
+	pub(crate) sort_album_lexi_rev_artist_lexi_rev: Box<[AlbumKey]>,
 	/// [`Album`] A-Z.
-	pub sort_album_lexi: Box<[AlbumKey]>,
+	pub(crate) sort_album_lexi: Box<[AlbumKey]>,
 	/// [`Album`] Z-A.
-	pub sort_album_lexi_rev: Box<[AlbumKey]>,
+	pub(crate) sort_album_lexi_rev: Box<[AlbumKey]>,
 	/// [`Album`] oldest to latest.
-	pub sort_album_release: Box<[AlbumKey]>,
+	pub(crate) sort_album_release: Box<[AlbumKey]>,
 	/// [`Album`] latest to oldest.
-	pub sort_album_release_rev: Box<[AlbumKey]>,
+	pub(crate) sort_album_release_rev: Box<[AlbumKey]>,
 	/// [`Album`] shortest to longest.
-	pub sort_album_runtime: Box<[AlbumKey]>,
+	pub(crate) sort_album_runtime: Box<[AlbumKey]>,
 	/// [`Album`] longest to shortest.
-	pub sort_album_runtime_rev: Box<[AlbumKey]>,
+	pub(crate) sort_album_runtime_rev: Box<[AlbumKey]>,
 	/// [`Album`] title shortest to longest.
-	pub sort_album_title: Box<[AlbumKey]>,
+	pub(crate) sort_album_title: Box<[AlbumKey]>,
 	/// [`Album`] title longest to shortest.
-	pub sort_album_title_rev: Box<[AlbumKey]>,
+	pub(crate) sort_album_title_rev: Box<[AlbumKey]>,
 
 	// Sorted `Song` keys.
 	/// [`Artist`] A-Z, [`Album`] oldest-latest, [`Song`] track_number
-	pub sort_song_album_release_artist_lexi: Box<[SongKey]>,
+	pub(crate) sort_song_album_release_artist_lexi: Box<[SongKey]>,
 	/// [`Artist`] Z-A, [`Album`] oldest-latest, [`Song`] track_number
-	pub sort_song_album_release_artist_lexi_rev: Box<[SongKey]>,
+	pub(crate) sort_song_album_release_artist_lexi_rev: Box<[SongKey]>,
 	/// [`Artist`] A-Z, [`Album`] latest-oldest, [`Song`] track_number
-	pub sort_song_album_release_rev_artist_lexi: Box<[SongKey]>,
+	pub(crate) sort_song_album_release_rev_artist_lexi: Box<[SongKey]>,
 	/// [`Artist`] Z-A, [`Album`] latest-oldest, [`Song`] track_number
-	pub sort_song_album_release_rev_artist_lexi_rev: Box<[SongKey]>,
+	pub(crate) sort_song_album_release_rev_artist_lexi_rev: Box<[SongKey]>,
 	/// [`Artist`] A-Z, [`Album`] A-Z, [`Song`] track_number.
-	pub sort_song_album_lexi_artist_lexi: Box<[SongKey]>,
+	pub(crate) sort_song_album_lexi_artist_lexi: Box<[SongKey]>,
 	/// [`Artist`] Z-A, [`Album`] A-Z, [`Song`] track_number.
-	pub sort_song_album_lexi_artist_lexi_rev: Box<[SongKey]>,
+	pub(crate) sort_song_album_lexi_artist_lexi_rev: Box<[SongKey]>,
 	/// [`Artist`] A-Z, [`Album`] Z-A, [`Song`] track_number.
-	pub sort_song_album_lexi_rev_artist_lexi: Box<[SongKey]>,
+	pub(crate) sort_song_album_lexi_rev_artist_lexi: Box<[SongKey]>,
 	/// [`Artist`] Z-A, [`Album`] Z-A, [`Song`] track_number.
-	pub sort_song_album_lexi_rev_artist_lexi_rev: Box<[SongKey]>,
+	pub(crate) sort_song_album_lexi_rev_artist_lexi_rev: Box<[SongKey]>,
 	/// [`Song`] A-Z.
-	pub sort_song_lexi: Box<[SongKey]>,
+	pub(crate) sort_song_lexi: Box<[SongKey]>,
 	/// [`Song`] Z-A.
-	pub sort_song_lexi_rev: Box<[SongKey]>,
+	pub(crate) sort_song_lexi_rev: Box<[SongKey]>,
 	/// [`Song`] oldest to latest.
-	pub sort_song_release: Box<[SongKey]>,
+	pub(crate) sort_song_release: Box<[SongKey]>,
 	/// [`Song`] latest to oldest.
-	pub sort_song_release_rev: Box<[SongKey]>,
+	pub(crate) sort_song_release_rev: Box<[SongKey]>,
 	/// [`Song`] shortest to longest.
-	pub sort_song_runtime: Box<[SongKey]>,
+	pub(crate) sort_song_runtime: Box<[SongKey]>,
 	/// [`Song`] longest to shortest.
-	pub sort_song_runtime_rev: Box<[SongKey]>,
+	pub(crate) sort_song_runtime_rev: Box<[SongKey]>,
 	/// [`Song`] title shortest to longest.
-	pub sort_song_title: Box<[SongKey]>,
+	pub(crate) sort_song_title: Box<[SongKey]>,
 	/// [`Song`] title longest to shortest.
-	pub sort_song_title_rev: Box<[SongKey]>,
+	pub(crate) sort_song_title_rev: Box<[SongKey]>,
 }
 
 impl Collection {
 	//-------------------------------------------------- New.
 	/// Creates an empty [`Collection`].
-	pub fn new() -> Self {
+	pub(crate) fn new() -> Self {
 		Self {
 			empty: true,
 			timestamp: 0,
@@ -310,7 +312,7 @@ impl Collection {
 	///
 	/// This [`Collection`] is [`Arc::clone`]'ed from a lazily
 	/// evaluated, empty [`Collection`] that has static lifetime.
-	pub fn dummy() -> Arc<Self> {
+	pub(crate) fn dummy() -> Arc<Self> {
 		Arc::clone(&DUMMY_COLLECTION)
 	}
 
@@ -324,7 +326,7 @@ impl Collection {
 	/// ```
 	/// In the above example, we're searching for a:
 	/// - [`Artist`] called `hinto`
-	pub fn artist<S: AsRef<str>>(&self, artist_name: S) -> Option<(&Artist, ArtistKey)> {
+	pub(crate) fn artist<S: AsRef<str>>(&self, artist_name: S) -> Option<(&Artist, ArtistKey)> {
 		if let Some((key, _)) = self.map.0.get(artist_name.as_ref()) {
 			return Some((&self.artists[key], *key))
 		}
@@ -342,7 +344,7 @@ impl Collection {
 	/// In the above example, we're searching for a:
 	/// - [`Album`] called `festival` by the
 	/// - [`Artist`] called `hinto`
-	pub fn album<S: AsRef<str>>(
+	pub(crate) fn album<S: AsRef<str>>(
 		&self,
 		artist_name: S,
 		album_title: S,
@@ -367,7 +369,7 @@ impl Collection {
 	/// - [`Song`] called `track_1` in an
 	/// - [`Album`] called `festival` by the
 	/// - [`Artist`] called `hinto`
-	pub fn song<S: AsRef<str>>(
+	pub(crate) fn song<S: AsRef<str>>(
 		&self,
 		artist_name: S,
 		album_title: S,
@@ -394,7 +396,7 @@ impl Collection {
 	///
 	/// This is useful for starting a queue including songs of an [`Album`]
 	/// but not necessarily starting from the first [`Song`].
-	pub fn song_tail<K: Into<SongKey>>(&self, key: K) -> std::iter::Peekable<std::slice::Iter<'_, SongKey>> {
+	pub(crate) fn song_tail<K: Into<SongKey>>(&self, key: K) -> std::iter::Peekable<std::slice::Iter<'_, SongKey>> {
 		let key = key.into();
 		let (album, _) = self.album_from_song(key);
 		let mut iter = album.songs.iter().peekable();
@@ -419,7 +421,7 @@ impl Collection {
 	/// # Panics:
 	/// The [`ArtistKey`], [`AlbumKey`] and [`SongKey`] within
 	/// the [`Key`] must be valid indices into the [`Collection`].
-	pub fn index<K: Into<Key>>(&self, key: K) -> (&Artist, &Album, &Song) {
+	pub(crate) fn index<K: Into<Key>>(&self, key: K) -> (&Artist, &Album, &Song) {
 		let (artist, album, song) = key.into().into_usize();
 		(&self.artists.0[artist], &self.albums.0[album], &self.songs.0[song])
 	}
@@ -427,7 +429,7 @@ impl Collection {
 	/// Walk through the relational data from a
 	/// [`SongKey`] and return the full tuple.
 	#[inline]
-	pub fn walk<K: Into<SongKey>>(&self, key: K) -> (&Artist, &Album, &Song) {
+	pub(crate) fn walk<K: Into<SongKey>>(&self, key: K) -> (&Artist, &Album, &Song) {
 		let song   = &self.songs[key.into()];
 		let album  = &self.albums[song.album];
 		let artist = &self.artists[album.artist];
@@ -437,19 +439,19 @@ impl Collection {
 
 	/// Get all [`Album`]'s from the same [`Artist`] of this [`AlbumKey`].
 	#[inline]
-	pub fn other_albums<K: Into<AlbumKey>>(&self, key: K) -> &[AlbumKey] {
+	pub(crate) fn other_albums<K: Into<AlbumKey>>(&self, key: K) -> &[AlbumKey] {
 		&self.artists[self.albums[key.into()].artist].albums
 	}
 
 	/// Get all [`Song`]'s from the same [`Album`] of this [`SongKey`].
 	#[inline]
-	pub fn other_songs<K: Into<SongKey>>(&self, key: K) -> &[SongKey] {
+	pub(crate) fn other_songs<K: Into<SongKey>>(&self, key: K) -> &[SongKey] {
 		&self.albums[self.songs[key.into()].album].songs
 	}
 
 	/// Get all the [`SongKey`]'s belonging to this [`ArtistKey`].
 	#[inline]
-	pub fn all_songs<K: Into<ArtistKey>>(&self, key: K) -> Box<[SongKey]> {
+	pub(crate) fn all_songs<K: Into<ArtistKey>>(&self, key: K) -> Box<[SongKey]> {
 		self.artists[key.into()].albums
 			.iter()
 			.flat_map(|a| self.albums[a].songs.iter())
@@ -463,7 +465,7 @@ impl Collection {
 	/// - Iterates via release date
 	/// - Wraps around if at the last element
 	#[inline]
-	pub fn next_album<K: Into<AlbumKey>>(&self, key: K) -> AlbumKey {
+	pub(crate) fn next_album<K: Into<AlbumKey>>(&self, key: K) -> AlbumKey {
 		let key = key.into();
 		let other_albums = self.other_albums(key);
 
@@ -485,7 +487,7 @@ impl Collection {
 	/// - Iterates via release date
 	/// - Wraps around if at the first element
 	#[inline]
-	pub fn previous_album<K: Into<AlbumKey>>(&self, key: K) -> AlbumKey {
+	pub(crate) fn previous_album<K: Into<AlbumKey>>(&self, key: K) -> AlbumKey {
 		let key          = key.into();
 		let other_albums = self.other_albums(key);
 		let len          = other_albums.len();
@@ -508,7 +510,7 @@ impl Collection {
 	/// - Iterates via track order
 	/// - Wraps around if at the last element
 	#[inline]
-	pub fn next_song<K: Into<SongKey>>(&self, key: K) -> SongKey {
+	pub(crate) fn next_song<K: Into<SongKey>>(&self, key: K) -> SongKey {
 		let key = key.into();
 		let other_songs = self.other_songs(key);
 
@@ -530,7 +532,7 @@ impl Collection {
 	/// - Iterates via track order
 	/// - Wraps around if at the first element
 	#[inline]
-	pub fn previous_song<K: Into<SongKey>>(&self, key: K) -> SongKey {
+	pub(crate) fn previous_song<K: Into<SongKey>>(&self, key: K) -> SongKey {
 		let key         = key.into();
 		let other_songs = self.other_songs(key);
 		let len         = other_songs.len();
@@ -553,7 +555,7 @@ impl Collection {
 	/// # Errors:
 	/// The [`ArtistKey`], [`AlbumKey`] and [`SongKey`] within
 	/// the [`Key`] must be valid indices into the [`Collection`].
-	pub fn get<K: Into<Key>>(&self, key: K) -> Option<(&Artist, &Album, &Song)> {
+	pub(crate) fn get<K: Into<Key>>(&self, key: K) -> Option<(&Artist, &Album, &Song)> {
 		let (artist, album, song) = key.into().into_usize();
 
 		let artist = match self.artists.0.get(artist) {
@@ -580,7 +582,7 @@ impl Collection {
 	///
 	/// # Panics:
 	/// The [`AlbumKey`] must be a valid index.
-	pub fn artist_from_album<K: Into<AlbumKey>>(&self, key: K) -> (&Artist, ArtistKey) {
+	pub(crate) fn artist_from_album<K: Into<AlbumKey>>(&self, key: K) -> (&Artist, ArtistKey) {
 		let album = &self.albums[key.into()];
 		(&self.artists[album.artist], album.artist)
 	}
@@ -590,7 +592,7 @@ impl Collection {
 	///
 	/// # Panics:
 	/// The [`SongKey`] must be a valid index.
-	pub fn album_from_song<K: Into<SongKey>>(&self, key: K) -> (&Album, AlbumKey) {
+	pub(crate) fn album_from_song<K: Into<SongKey>>(&self, key: K) -> (&Album, AlbumKey) {
 		let song = &self.songs[key.into()];
 		(&self.albums[song.album], song.album)
 	}
@@ -600,7 +602,7 @@ impl Collection {
 	///
 	/// # Panics:
 	/// The [`SongKey`] must be a valid index.
-	pub fn artist_from_song<K: Into<SongKey>>(&self, key: K) -> (&Artist, ArtistKey) {
+	pub(crate) fn artist_from_song<K: Into<SongKey>>(&self, key: K) -> (&Artist, ArtistKey) {
 		self.artist_from_album(self.songs[key.into()].album)
 	}
 
@@ -610,7 +612,7 @@ impl Collection {
 	///
 	/// # Errors:
 	/// The [`AlbumKey`] must be a valid index.
-	pub fn get_artist_from_album<K: Into<AlbumKey>>(&self, key: K) -> Option<&Artist> {
+	pub(crate) fn get_artist_from_album<K: Into<AlbumKey>>(&self, key: K) -> Option<&Artist> {
 		let artist = match self.albums.get(key.into()) {
 			Some(a) => a.artist,
 			None    => return None,
@@ -624,7 +626,7 @@ impl Collection {
 	///
 	/// # Errors:
 	/// The [`SongKey`] must be a valid index.
-	pub fn get_album_from_song<K: Into<SongKey>>(&self, key: K) -> Option<&Album> {
+	pub(crate) fn get_album_from_song<K: Into<SongKey>>(&self, key: K) -> Option<&Album> {
 		let album = match self.songs.get(key.into()) {
 			Some(a) => a.album,
 			None    => return None,
@@ -638,7 +640,7 @@ impl Collection {
 	///
 	/// # Errors:
 	/// The [`SongKey`] must be a valid index.
-	pub fn get_artist_from_song<K: Into<SongKey>>(&self, key: K) -> Option<&Artist> {
+	pub(crate) fn get_artist_from_song<K: Into<SongKey>>(&self, key: K) -> Option<&Artist> {
 		let album = match self.songs.get(key.into()) {
 			Some(a) => a.album,
 			None    => return None,
@@ -649,7 +651,7 @@ impl Collection {
 
 	//-------------------------------------------------- Sorting
 	/// Access `sort_artist` fields in the [`Collection`] as an iterator via a [`ArtistSort`].
-	pub fn artist_iter(&self, sort: ArtistSort) -> std::slice::Iter<'_, ArtistKey> {
+	pub(crate) fn artist_iter(&self, sort: ArtistSort) -> std::slice::Iter<'_, ArtistKey> {
 		use ArtistSort::*;
 		match sort {
 			Lexi          => &self.sort_artist_lexi,
@@ -666,7 +668,7 @@ impl Collection {
 	}
 
 	/// Access `sort_album` fields in the [`Collection`] as an iterator via a [`AlbumSort`].
-	pub fn album_iter(&self, sort: AlbumSort) -> std::slice::Iter<'_, AlbumKey> {
+	pub(crate) fn album_iter(&self, sort: AlbumSort) -> std::slice::Iter<'_, AlbumKey> {
 		use AlbumSort::*;
 		match sort {
 			ReleaseArtistLexi       => &self.sort_album_release_artist_lexi,
@@ -689,7 +691,7 @@ impl Collection {
 	}
 
 	/// Access `sort_song` fields in the [`Collection`] as an iterator via a [`SongSort`].
-	pub fn song_iter(&self, sort: SongSort) -> std::slice::Iter<'_, SongKey> {
+	pub(crate) fn song_iter(&self, sort: SongSort) -> std::slice::Iter<'_, SongKey> {
 		use SongSort::*;
 		match sort {
 			AlbumReleaseArtistLexi       => &self.sort_song_album_release_artist_lexi,
@@ -720,7 +722,7 @@ impl Collection {
 	/// # Notes
 	/// - If there is only 1 [`ArtistKey`], `ArtistKey(0)` will always be returned.
 	/// - If there are _no_ [`Artist`]'s in the [`Collection`], [`Option::None`] is returned.
-	pub fn rand_artist(&self, key: Option<ArtistKey>) -> Option<ArtistKey> {
+	pub(crate) fn rand_artist(&self, key: Option<ArtistKey>) -> Option<ArtistKey> {
 		match self.count_artist.usize() {
 			0 => return None,
 			1 => return Some(ArtistKey::zero()),
@@ -748,7 +750,7 @@ impl Collection {
 	/// # Notes
 	/// - If there is only 1 [`AlbumKey`], `AlbumKey(0)` will always be returned.
 	/// - If there are _no_ [`Album`]'s in the [`Collection`], [`Option::None`] is returned.
-	pub fn rand_album(&self, key: Option<AlbumKey>) -> Option<AlbumKey> {
+	pub(crate) fn rand_album(&self, key: Option<AlbumKey>) -> Option<AlbumKey> {
 		match self.count_album.usize() {
 			0 => return None,
 			1 => return Some(AlbumKey::zero()),
@@ -776,7 +778,7 @@ impl Collection {
 	/// # Notes
 	/// - If there is only 1 [`SongKey`], `SongKey(0)` will always be returned.
 	/// - If there are _no_ [`Song`]'s in the [`Collection`], [`Option::None`] is returned.
-	pub fn rand_song(&self, key: Option<SongKey>) -> Option<SongKey> {
+	pub(crate) fn rand_song(&self, key: Option<SongKey>) -> Option<SongKey> {
 		match self.count_song.usize() {
 			0 => return None,
 			1 => return Some(SongKey::zero()),
@@ -802,7 +804,7 @@ impl Collection {
 	///
 	/// # Notes
 	/// - If there are _no_ [`Artist`]'s in the [`Collection`], [`Option::None`] is returned.
-	pub fn rand_artists(&self) -> Option<Box<[ArtistKey]>> {
+	pub(crate) fn rand_artists(&self) -> Option<Box<[ArtistKey]>> {
 		match self.count_artist.usize() {
 			0 => None,
 			1 => Some(Box::new([ArtistKey::zero()])),
@@ -822,7 +824,7 @@ impl Collection {
 	///
 	/// # Notes
 	/// - If there are _no_ [`Album`]'s in the [`Collection`], [`Option::None`] is returned.
-	pub fn rand_albums(&self) -> Option<Box<[AlbumKey]>> {
+	pub(crate) fn rand_albums(&self) -> Option<Box<[AlbumKey]>> {
 		match self.count_album.usize() {
 			0 => None,
 			1 => Some(Box::new([AlbumKey::zero()])),
@@ -842,7 +844,7 @@ impl Collection {
 	///
 	/// # Notes
 	/// - If there are _no_ [`Song`]'s in the [`Collection`], [`Option::None`] is returned.
-	pub fn rand_songs(&self) -> Option<Box<[SongKey]>> {
+	pub(crate) fn rand_songs(&self) -> Option<Box<[SongKey]>> {
 		match self.count_song.usize() {
 			0 => None,
 			1 => Some(Box::new([SongKey::zero()])),
