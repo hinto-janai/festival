@@ -148,7 +148,7 @@ pub const SEARCH_MAX_LEN: usize = u8::MAX as usize;
 pub const GUI: &str = "gui";
 
 /// Current major version of `GUI`'s `State`
-pub const STATE_VERSION: u8 = 1;
+pub const STATE_VERSION: u8 = 0;
 
 /// Current major version of `GUI`'s `Settings`
 pub const SETTINGS_VERSION: u8 = 1;
@@ -184,6 +184,13 @@ pub const ALBUM_ART_SIZE_DEFAULT: f32 = 227.0;
 pub const ALBUMS_PER_ROW_MIN:      u8 = 1;
 pub const ALBUMS_PER_ROW_MAX:      u8 = 20;
 pub const ALBUMS_PER_ROW_DEFAULT:  u8 = 5;
+
+//---------------------------------------------------------------------------------------------------- Update
+/// The pixel size needed for the `Runtime` in the bottom UI bar.
+/// It depends on the length of the `Runtime` string.
+///
+/// This is the default, assuming `xx:xx / yy:yy`.
+pub const RUNTIME_WIDTH: f32 = 165.0;
 
 //---------------------------------------------------------------------------------------------------- Playback controls
 /// The width of the previous/pause/play/next buttons.

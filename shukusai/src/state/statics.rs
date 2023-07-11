@@ -24,6 +24,15 @@ pub fn saving() -> bool {
 	atomic_load!(SAVING)
 }
 
+//---------------------------------------------------------------------------------------------------- Resetting.
+pub(crate) static RESETTING: AtomicBool = AtomicBool::new(false);
+#[inline(always)]
+/// This [`bool`] represents if we are currently in
+/// the process of resetting the [`Collection`].
+pub fn resetting() -> bool {
+	atomic_load!(RESETTING)
+}
+
 //---------------------------------------------------------------------------------------------------- Volume.
 /// The global [`Volume`] level that `Audio` will play samples at
 ///

@@ -48,6 +48,7 @@ use crate::constants::{
 	UI_CONTROL_WIDTH,
 	BONE,BLACK,
 	YELLOW,GREEN,MEDIUM_GRAY,
+	RUNTIME_WIDTH,
 };
 use crate::text::{
 	HELP,MOD,
@@ -231,8 +232,8 @@ impl Gui {
 			return;
 		}
 
-		// Set window title.
 		if self.last_song != self.audio_state.song {
+			// Set window title.
 			if let (Some(key), Some(index)) = (self.audio_state.song, self.audio_state.queue_idx) {
 				let (artist, album, song) = self.collection.walk(key);
 				frame.set_window_title(&self.settings.window_title.format(
@@ -246,6 +247,13 @@ impl Gui {
 			} else {
 				frame.set_window_title(FESTIVAL);
 			}
+
+			// Set bottom UI runtime text width.
+			self.runtime_width = match self.audio_state.runtime.as_str().len() {
+				4|5|3|2|1|0 => RUNTIME_WIDTH,
+				7|6         => RUNTIME_WIDTH + 65.0,
+				_           => RUNTIME_WIDTH + 85.0,
+			};
 		}
 
 		// Copied.
@@ -402,7 +410,10 @@ impl Gui {
 			}
 			match exists {
 				true  => info!("GUI - PATH exists, not adding: {}", p.display()),
-				false => self.settings.collection_paths.push(p),
+				false => {
+					self.settings.collection_paths.push(p);
+					send!(self.to_kernel, FrontendToKernel::CachePath(self.settings.collection_paths.clone()));
+				}
 			}
 		}
 
@@ -551,13 +562,7 @@ fn show_bottom(&mut self, ctx: &egui::Context, width: f32, height: f32) {
 			});
 
 			// Leave space for the runtime at the end.
-			//
-			// INVARIANT:
-			// The max length this must realistically fit is `xx:xx / yy:yy`.
-			// The max `readable::Runtime` allows for `99:99:99` and that
-			// will cause a UI overflow but... who has 99 hour long songs?
-			const RUNTIME_WIDTH: f32 = 165.0;
-			let width = ui.available_width() - RUNTIME_WIDTH;
+			let width = ui.available_width() - self.runtime_width;
 
 			// Slider (playback)
 			ui.spacing_mut().slider_width = width;

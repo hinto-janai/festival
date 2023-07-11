@@ -16,13 +16,11 @@ pub(crate) use img::*;
 
 // ----- CCD internal functions.
 mod convert;
-
+pub(super) use convert::*;
 
 mod the_loop;
 
-
 mod sort;
-
 
 mod walk;
 

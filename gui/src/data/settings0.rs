@@ -197,23 +197,6 @@ impl Into<Settings> for Settings0 {
 
 			// New fields.
 			pixels_per_point: PIXELS_PER_POINT_DEFAULT,
-
-			// Reserved fields.
-			_reserved1: None,
-			_reserved2: None,
-			_reserved3: None,
-			_reserved4: None,
-			_reserved5: None,
-			_reserved6: None,
-			_reserved7: None,
-			_reserved8: None,
-			_reserved9: None,
-			_reserved10: None,
-			_reserved11: None,
-			_reserved12: None,
-			_reserved13: None,
-			_reserved14: None,
-			_reserved15: None,
 		}
 	}
 }

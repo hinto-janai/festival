@@ -10,6 +10,7 @@ use once_cell::sync::Lazy;
 /// Album art will _always_ be resized internally to this size.
 pub const ALBUM_ART_SIZE: usize = 500;
 pub(crate) const ALBUM_ART_SIZE_U32: u32 = ALBUM_ART_SIZE as u32;
+pub(crate) const ALBUM_ART_SIZE_U16: u16 = ALBUM_ART_SIZE as u16;
 
 //---------------------------------------------------------------------------------------------------- Unknown Art (lazy) Constant
 pub(crate) const UNKNOWN_ALBUM_BYTES: &[u8] = include_bytes!("../../../assets/images/art/unknown.png");
@@ -188,8 +189,15 @@ mod tests {
 	use super::*;
 
 	#[test]
-	// Make sure the `.unwrap()` doesn't panic.
+	// Assert `UNKNOWN_ART` size is correct.
 	fn unknown() {
 		assert_eq!(UNKNOWN_ALBUM.size(), [ALBUM_ART_SIZE; 2]);
+	}
+
+	#[test]
+	// Assert the `ALBUM_SIZE` casts are lossless.
+	fn cast() {
+		assert_eq!(ALBUM_ART_SIZE_U32 as usize, ALBUM_ART_SIZE);
+		assert_eq!(ALBUM_ART_SIZE_U16 as usize, ALBUM_ART_SIZE);
 	}
 }

@@ -1,5 +1,5 @@
 //---------------------------------------------------------------------------------------------------- Use
-use log::{info,error,warn,debug};
+use log::{info,error,warn,debug,trace};
 use crate::constants::{
 	COLLECTION_VERSION,
 	AUDIO_VERSION,
@@ -16,7 +16,7 @@ use crate::state::{
 	RESET_STATE,
 	AUDIO_STATE,
 	AudioState,
-	AudioState0,
+	RESETTING,
 };
 use crate::audio::Volume;
 use benri::{
@@ -36,9 +36,8 @@ use crate::{
 };
 use crossbeam::channel::{Sender,Receiver};
 use std::path::PathBuf;
-
 use once_cell::sync::Lazy;
-
+use rayon::prelude::*;
 
 #[cfg(feature = "gui")]
 use crate::frontend::egui::{
@@ -230,11 +229,8 @@ impl Kernel {
 		// Before hanging on `CCD`, read `AudioState` file.
 		// Note: This is a `Result`.
 		debug!("Kernel Init [4/12] ... reading AudioState");
-		let state = AudioState::from_versions(&[
-			// SAFETY: memmap is used.
-			(AUDIO_VERSION, || unsafe { AudioState::from_file_memmap() }),
-			(0,             AudioState0::disk_into),
-		]);
+		// SAFETY: memmap is used.
+		let state = unsafe { AudioState::from_file_memmap() };
 
 		// Set `ResetState` to `Start` + `Art` phase.
 		{
@@ -286,7 +282,7 @@ impl Kernel {
 	//-------------------------------------------------- kernel()
 	fn kernel(
 		collection:     Arc<Collection>,
-		audio:          Result<(u8, AudioState), anyhow::Error>,
+		audio:          Result<AudioState, anyhow::Error>,
 		to_frontend:    Sender<KernelToFrontend>,
 		from_frontend:  Receiver<FrontendToKernel>,
 		beginning:      std::time::Instant,
@@ -295,8 +291,7 @@ impl Kernel {
 	) {
 		debug!("Kernel Init [6/12] ... entering kernel()");
 		let mut audio = match audio {
-			Ok((v, s)) if v == AUDIO_VERSION => { info!("Kernel Init ... AudioState{AUDIO_VERSION} from disk"); s },
-			Ok((v, s)) => { info!("Kernel Init ... AudioState{v} from disk, converted to AudioState{AUDIO_VERSION}"); s },
+			Ok(s) => { info!("Kernel Init ... AudioState{AUDIO_VERSION} from disk"); s },
 			Err(e) => { warn!("Kernel Init ... AudioState failed from disk: {e}, returning default AudioState{AUDIO_VERSION}"); AudioState::new() },
 		};
 
@@ -490,6 +485,7 @@ impl Kernel {
 
 			// Collection.
 			NewCollection(paths) => self.ccd_mode(paths),
+			CachePath(paths)     => Self::cache_path(paths),
 			Search(string)       => send!(self.to_search, KernelToSearch::Search(string)),
 
 			// Exit.
@@ -584,6 +580,45 @@ impl Kernel {
 		}
 	}
 
+	//-------------------------------------------------- CachePath.
+	// A separate thread is responsible for walking these
+	// directories since `Kernel` really shouldn't be blocked
+	// doing work at any given moment.
+	#[inline(always)]
+	fn cache_path(mut paths: Vec<PathBuf>) {
+		let now = now!();
+		debug!("Kernel - Starting CachePath...");
+
+		let cache_path = std::thread::Builder::new().name("CachePath".to_string());
+
+		if let Err(e) = cache_path.spawn(move || {
+			paths.retain(|p| p.exists());
+			paths.par_sort();
+			paths.dedup();
+
+			paths
+				.into_par_iter()
+				.flat_map_iter(|p| walkdir::WalkDir::new(p).follow_links(true))
+				.filter_map(Result::ok)
+				.map(walkdir::DirEntry::into_path)
+				.for_each(|path| {
+					// If we're resetting the `Collection`, we might be doing
+					// more harm by thrashing the filesystem, so just exit.
+					if atomic_load!(RESETTING) {
+						debug!("CachePath - CCD detected, exiting early");
+						return;
+					}
+
+					trace!("CachePath - {path:?}");
+					Ccd::path_infer_audio(&path);
+				});
+
+			debug!("CachePath - took {} seconds, bye!", secs_f32!(now));
+		}) {
+			panic!("Kernel ... failed to spawn CachePath: {e}");
+		}
+	}
+
 	//-------------------------------------------------- `CCD` Mode.
 	#[inline(always)]
 	// `GUI` wants a new `Collection`:
@@ -596,6 +631,8 @@ impl Kernel {
 	// 6. Tell `CCD` to... `Die`
 	// 7. Give new `Arc<Collection>` to everyone
 	fn ccd_mode(&mut self, paths: Vec<PathBuf>) {
+		atomic_store!(RESETTING, true);
+
 		// Set our `ResetState`.
 		RESET_STATE.write().start();
 
@@ -679,6 +716,7 @@ impl Kernel {
 
 		// Set our `ResetState`, we're done.
 		RESET_STATE.write().done();
+		atomic_store!(RESETTING, false);
 	}
 }
 

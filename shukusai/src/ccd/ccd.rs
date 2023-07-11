@@ -35,6 +35,7 @@ use crate::ccd::{
 };
 use std::marker::PhantomData;
 use crate::constants::COLLECTION_VERSION;
+use rayon::prelude::*;
 
 //---------------------------------------------------------------------------------------------------- CCD
 pub(crate) struct Ccd;
@@ -57,8 +58,7 @@ impl Ccd {
 		} else {
 			let total      = collection.albums.len();
 			let increment  = 99.0 / total as f64;
-			let threads    = super::threads_for_album_art(total);
-			Self::priv_convert_art(&to_kernel, &mut collection, ArtConvertType::ToKnown, increment, total, threads);
+			Self::priv_convert_art(&to_kernel, &mut collection, ArtConvertType::ToKnown, increment);
 			send!(to_kernel, CcdToKernel::UpdatePhase((100.00, Phase::Finalize)));
 			crate::ccd::img::alloc_textures(&collection.albums);
 			send!(to_kernel, CcdToKernel::NewCollection(Arc::new(collection)));
@@ -136,7 +136,7 @@ impl Ccd {
 		//-------------------------------------------------------------------------------- 2
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((2.50, Phase::WalkDir)));
-		let paths = Self::walkdir_audio(&to_kernel, paths);
+		let paths = Self::walkdir_audio(paths);
 		let perf_walkdir = secs_f32!(now);
 		trace!("CCD [2/13] ... WalkDir: {perf_walkdir}");
 
@@ -324,9 +324,7 @@ impl Ccd {
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((60.00, Phase::Art)));
 		let increment    = 30.0 / collection.albums.len() as f64;
-		let total_albums = collection.albums.len();
-		let threads      = super::threads_for_album_art(total_albums);
-		Self::priv_convert_art(&to_kernel, &mut collection, ArtConvertType::Resize, increment, total_albums, threads);
+		Self::priv_convert_art(&to_kernel, &mut collection, ArtConvertType::Resize, increment);
 		// Update should be <= 90% at this point.
 		let perf_resize = secs_f32!(now);
 		trace!("CCD [8/13] ... Resize: {perf_resize}");
@@ -365,20 +363,11 @@ impl Ccd {
 		// FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
 		//-------------------------------------------------------------------------------- 10
-		// SOMEDAY:
-		// Consider using a threadpool.
-		//
-		// We're spinning up threads 3 times:
-		// - "The Loop"
-		// - Art Resize
-		// - Art ToKnown
-		//
-		// Spawning threads is surprisingly fast but still.
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((95.00, Phase::Convert)));
 		let increment = 4.0 / collection.albums.len() as f64;
 		// Convert `Collection` art.
-		Self::priv_convert_art(&to_kernel, &mut collection, ArtConvertType::ToKnown, increment, total_albums, threads);
+		Self::priv_convert_art(&to_kernel, &mut collection, ArtConvertType::ToKnown, increment);
 		// Update should be <= 99% at this point.
 		let perf_convert = secs_f32!(now);
 		trace!("CCD [10/13] ... Convert: {perf_convert}");
@@ -386,12 +375,7 @@ impl Ccd {
 		//-------------------------------------------------------------------------------- 11
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((100.00, Phase::Finalize)));
-		// FIXME:
-		// This is a huge workaround around `egui`'s lack of bulk texture
-		// allocation. Although this is good enough for now, figure out
-		// how to bulk allocate all these images without causing the GUI
-		// to freeze. Currently it's done with `try_write()` which doesn't
-		// starve GUI, but can take way longer (0.00008 secs -> 1.xx secs...!!!).
+		// FIXME: See `img.rs`.
 		crate::ccd::img::alloc_textures(&collection.albums);
 		let perf_textures = secs_f32!(now);
 		trace!("CCD [11/13] ... Textures: {perf_textures}");
@@ -429,48 +413,19 @@ impl Ccd {
 
 		let timestamp = collection_for_disk.timestamp;
 
-		// SOMEDAY:
-		// Make this multi-threaded and/or async.
-		//
-		// Save images to `~/.local/share/festival/${FRONTEND}/image`.
-		{
-			// Delete old images.
-			let _ = Image::rm_base();
-
-			// This deconstructs `Collection`.
-			let albums = collection_for_disk.albums.0.into_vec();
-
-			if let Ok(mut path) = Image::base_path() {
-				let image = Image(timestamp);
-				if let Err(e) = image.save() {
-					fail!("CCD ... Image: {e}");
-				} else {
-					for (key, album) in albums.into_iter().enumerate() {
-						if let Art::Bytes(bytes) = album.art {
-							path.push(format!("{key}.jpg"));
-
-							if let Err(e) = std::fs::File::create(&path) {
-								warn!("CCD ... Image {e}: {}", path.display());
-							} else {
-								match image::save_buffer(
-									&path,
-									&bytes,
-									crate::collection::ALBUM_ART_SIZE as u32,
-									crate::collection::ALBUM_ART_SIZE as u32,
-									image::ColorType::Rgb8,
-								) {
-									Ok(_)  => ok_trace!("CCD ... Image: {}", path.display()),
-									Err(e) => warn!("CCD ... Image {e}: {}", path.display()),
-								}
-							}
-
-							path.pop();
-						}
-					}
-				}
-			} else {
-				fail!("CCD ... Image");
-			}
+		// Delete old images.
+		let _ = Image::rm_base();
+		// This deconstructs `Collection`.
+		let albums = collection_for_disk.albums.0.into_vec();
+		let (a, b) = (Image::base_path(), Image(timestamp).save());
+		match (a, b) {
+			(Ok(path), Ok(_)) => {
+				albums
+					.into_par_iter()
+					.enumerate()
+					.for_each(|(a, i)| crate::ccd::img::save_image(a, i, &path));
+			},
+			_ => fail!("CCD ... Error, Skipping Image"),
 		}
 
 		// Set `saving` state.

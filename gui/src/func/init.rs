@@ -9,10 +9,10 @@ use crate::constants::{
 	APP_HEIGHT_DEFAULT,
 	SETTINGS_VERSION,
 	STATE_VERSION,
+	RUNTIME_WIDTH,
 };
 use crate::data::{
 	State,
-	State0,
 	Settings,
 	Settings0,
 	DebugInfo,
@@ -137,6 +137,20 @@ impl crate::data::Gui {
 			initial_window_size: Some(egui::vec2(APP_WIDTH_DEFAULT, APP_HEIGHT_DEFAULT)),
 			follow_system_theme: false,
 			default_theme: eframe::Theme::Dark,
+			// FIXME:
+			// `eframe::Renderer::Wgpu` causes colors to
+			// be over-saturated on `KDE`. For now, use
+			// `Glow` on Linux (even though `Wgpu` works
+			// fine on GNOME).
+			//
+			// Not changing Windows/macOS off `Wgpu` since it works.
+			//
+			// https://github.com/hinto-janai/festival/pull/32
+			// https://github.com/hinto-janai/festival/pull/33
+			// https://github.com/hinto-janai/festival/pull/42
+			#[cfg(target_os = "linux")]
+			renderer: eframe::Renderer::Glow,
+			#[cfg(not(target_os = "linux"))]
 			renderer: eframe::Renderer::Wgpu,
 			app_id: Some(FESTIVAL_DBUS.to_string()),
 			icon_data,
@@ -166,14 +180,22 @@ impl crate::data::Gui {
 		cc.egui_ctx.set_pixels_per_point(settings.pixels_per_point as f32);
 		atomic_store!(shukusai::audio::PREVIOUS_THRESHOLD, settings.previous_threshold);
 
+		// Send `CachePath` signal to `Kernel`.
+		if settings.collection_paths.is_empty() {
+			match dirs::audio_dir() {
+				Some(p) => {
+					debug!("GUI - collection_paths.is_empty(), using dir::audio_dir() for CachePath");
+					send!(to_kernel, FrontendToKernel::CachePath(vec![p]));
+				},
+				None => warn!("GUI - dirs::audio_dir() failed, can't send CachePath message"),
+			}
+		} else {
+			send!(to_kernel, FrontendToKernel::CachePath(settings.collection_paths.clone()));
+		}
+
 		// Read `State` from disk.
-		let state = State::from_versions(&[
-			(STATE_VERSION, State::from_file),
-			(0,             State0::disk_into),
-		]);
-		let state = match state {
-			Ok((v, s)) if v == STATE_VERSION => { info!("GUI Init [2/8] ... State{STATE_VERSION} from disk"); s },
-			Ok((v, s)) => { info!("GUI Init [2/8] ... State{v} from disk, converted to State{STATE_VERSION}"); s },
+		let state = match State::from_file() {
+			Ok(s) => { info!("GUI Init [2/8] ... State{STATE_VERSION} from disk"); s },
 			Err(e) => { warn!("GUI Init [2/8] ... State failed from disk: {e}, returning default State{STATE_VERSION}"); State::new() },
 		};
 		debug!("State{STATE_VERSION}: {state:#?}");
@@ -221,6 +243,7 @@ impl crate::data::Gui {
 			audio_seek: 0,
 			audio_leeway: now!(),
 			last_song: None,
+			runtime_width: RUNTIME_WIDTH,
 
 			reset_state: ResetState::new(),
 
