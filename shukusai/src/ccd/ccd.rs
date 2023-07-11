@@ -17,6 +17,9 @@ use crate::collection::{
 	ArtistKey,
 	AlbumKey,
 	SongKey,
+	ArtistPtr,
+	AlbumPtr,
+	SongPtr,
 	Art,
 	Image,
 };
@@ -110,11 +113,21 @@ impl Ccd {
 		// If `CCD` fails, `Kernel` just sends a `Collection::dummy()` back to everyone.
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((0.00, Phase::Deconstruct)));
-		if let Some(c) = old_collection.into_inner() {
-			drop(c);
-		} else {
-			warn!("CCD ... Old Collection deconstruction failed, we're leaking memory...!");
-			debug_panic!("old_collection .into_inner() failed");
+		let old_collection = old_collection.into_inner();
+		for i in 0..3 {
+			trace!("CCD [1/13] Deconstruct attempt {i}");
+
+			if Arc::strong_count(&old_collection) == 1 {
+				if let Some(c) = Arc::into_inner(old_collection) {
+					drop(c);
+				} else {
+					debug_panic!("old_collection strong count was 1 but .into_inner() failed");
+				}
+
+				break;
+			}
+
+			sleep_millis!(100);
 		}
 		let perf_deconstruct = secs_f32!(now);
 		trace!("CCD [1/13] ... Deconstruct: {perf_deconstruct}");
@@ -146,15 +159,15 @@ impl Ccd {
 		send!(to_kernel, CcdToKernel::UpdatePhase((52.50, Phase::Sort)));
 
 		let sort_artist_lexi            = Self::sort_artist_lexi(&vec_artist);
-		let sort_artist_lexi_rev        = sort_artist_lexi.iter().rev().copied().collect::<Box<[ArtistKey]>>();
+		let sort_artist_lexi_rev        = sort_artist_lexi.iter().rev().copied().collect::<Box<[(ArtistKey, ArtistPtr)]>>();
 		let sort_artist_album_count     = Self::sort_artist_album_count(&vec_artist);
-		let sort_artist_album_count_rev = sort_artist_album_count.iter().rev().copied().collect::<Box<[ArtistKey]>>();
+		let sort_artist_album_count_rev = sort_artist_album_count.iter().rev().copied().collect::<Box<[(ArtistKey, ArtistPtr)]>>();
 		let sort_artist_song_count      = Self::sort_artist_song_count(&vec_artist, &vec_album);
-		let sort_artist_song_count_rev  = sort_artist_song_count.iter().rev().copied().collect::<Box<[ArtistKey]>>();
+		let sort_artist_song_count_rev  = sort_artist_song_count.iter().rev().copied().collect::<Box<[(ArtistKey, ArtistPtr)]>>();
 		let sort_artist_runtime         = Self::sort_artist_runtime(&vec_artist);
-		let sort_artist_runtime_rev     = sort_artist_runtime.iter().rev().copied().collect::<Box<[ArtistKey]>>();
+		let sort_artist_runtime_rev     = sort_artist_runtime.iter().rev().copied().collect::<Box<[(ArtistKey, ArtistPtr)]>>();
 		let sort_artist_name            = Self::sort_artist_name(&vec_artist);
-		let sort_artist_name_rev        = sort_artist_name.iter().rev().copied().collect::<Box<[ArtistKey]>>();
+		let sort_artist_name_rev        = sort_artist_name.iter().rev().copied().collect::<Box<[(ArtistKey, ArtistPtr)]>>();
 
 		let sort_album_release_artist_lexi         = Self::sort_album_release_artist_iter(&sort_artist_lexi, &vec_artist, &vec_album);
 		let sort_album_release_artist_lexi_rev     = Self::sort_album_release_artist_iter(&sort_artist_lexi_rev, &vec_artist, &vec_album);
@@ -165,13 +178,13 @@ impl Ccd {
 		let sort_album_lexi_rev_artist_lexi        = Self::sort_album_lexi_rev_artist_iter(&sort_artist_lexi, &vec_artist, &vec_album);
 		let sort_album_lexi_rev_artist_lexi_rev    = Self::sort_album_lexi_rev_artist_iter(&sort_artist_lexi_rev, &vec_artist, &vec_album);
 		let sort_album_lexi                        = Self::sort_album_lexi(&vec_album);
-		let sort_album_lexi_rev                    = sort_album_lexi.iter().rev().copied().collect::<Box<[AlbumKey]>>();
+		let sort_album_lexi_rev                    = sort_album_lexi.iter().rev().copied().collect::<Box<[(AlbumKey, AlbumPtr)]>>();
 		let sort_album_release                     = Self::sort_album_release(&vec_album);
-		let sort_album_release_rev                 = sort_album_release.iter().rev().copied().collect::<Box<[AlbumKey]>>();
+		let sort_album_release_rev                 = sort_album_release.iter().rev().copied().collect::<Box<[(AlbumKey, AlbumPtr)]>>();
 		let sort_album_runtime                     = Self::sort_album_runtime(&vec_album);
-		let sort_album_runtime_rev                 = sort_album_runtime.iter().rev().copied().collect::<Box<[AlbumKey]>>();
+		let sort_album_runtime_rev                 = sort_album_runtime.iter().rev().copied().collect::<Box<[(AlbumKey, AlbumPtr)]>>();
 		let sort_album_title                       = Self::sort_album_title(&vec_album);
-		let sort_album_title_rev                   = sort_album_title.iter().rev().copied().collect::<Box<[AlbumKey]>>();
+		let sort_album_title_rev                   = sort_album_title.iter().rev().copied().collect::<Box<[(AlbumKey, AlbumPtr)]>>();
 
 		let sort_song_album_release_artist_lexi         = Self::sort_song(&sort_album_release_artist_lexi,         &vec_album);
 		let sort_song_album_release_artist_lexi_rev     = Self::sort_song(&sort_album_release_artist_lexi_rev,     &vec_album);
@@ -182,13 +195,13 @@ impl Ccd {
 		let sort_song_album_lexi_rev_artist_lexi        = Self::sort_song(&sort_album_lexi_rev_artist_lexi,        &vec_album);
 		let sort_song_album_lexi_rev_artist_lexi_rev    = Self::sort_song(&sort_album_lexi_rev_artist_lexi_rev,    &vec_album);
 		let sort_song_release                           = Self::sort_song(&sort_album_release, &vec_album);
-		let sort_song_release_rev                       = sort_song_release.iter().rev().copied().collect::<Box<[SongKey]>>();
+		let sort_song_release_rev                       = sort_song_release.iter().rev().copied().collect::<Box<[(SongKey, SongPtr)]>>();
 		let sort_song_lexi                              = Self::sort_song_lexi(&vec_song);
-		let sort_song_lexi_rev                          = sort_song_lexi.iter().rev().copied().collect::<Box<[SongKey]>>();
+		let sort_song_lexi_rev                          = sort_song_lexi.iter().rev().copied().collect::<Box<[(SongKey, SongPtr)]>>();
 		let sort_song_runtime                           = Self::sort_song_runtime(&vec_song);
-		let sort_song_runtime_rev                       = sort_song_runtime.iter().rev().copied().collect::<Box<[SongKey]>>();
+		let sort_song_runtime_rev                       = sort_song_runtime.iter().rev().copied().collect::<Box<[(SongKey, SongPtr)]>>();
 		let sort_song_title                             = Self::sort_song_title(&vec_song);
-		let sort_song_title_rev                         = sort_song_title.iter().rev().copied().collect::<Box<[SongKey]>>();
+		let sort_song_title_rev                         = sort_song_title.iter().rev().copied().collect::<Box<[(SongKey, SongPtr)]>>();
 
 		let perf_sort = secs_f32!(now);
 		trace!("CCD [5/13] ... Sort: {perf_sort}");
@@ -283,6 +296,52 @@ impl Ccd {
 			collection.count_artist = Unsigned::from(artists);
 			collection.count_album  = Unsigned::from(albums);
 			collection.count_song   = Unsigned::from(songs);
+
+			// Fix pointers.
+			ArtistPtr::fix(&collection.artists, &mut collection.sort_artist_lexi);
+			ArtistPtr::fix(&collection.artists, &mut collection.sort_artist_lexi_rev);
+			ArtistPtr::fix(&collection.artists, &mut collection.sort_artist_album_count);
+			ArtistPtr::fix(&collection.artists, &mut collection.sort_artist_album_count_rev);
+			ArtistPtr::fix(&collection.artists, &mut collection.sort_artist_song_count);
+			ArtistPtr::fix(&collection.artists, &mut collection.sort_artist_song_count_rev);
+			ArtistPtr::fix(&collection.artists, &mut collection.sort_artist_runtime);
+			ArtistPtr::fix(&collection.artists, &mut collection.sort_artist_runtime_rev);
+			ArtistPtr::fix(&collection.artists, &mut collection.sort_artist_name);
+			ArtistPtr::fix(&collection.artists, &mut collection.sort_artist_name_rev);
+
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_release_artist_lexi);
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_release_artist_lexi_rev);
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_release_rev_artist_lexi);
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_release_rev_artist_lexi_rev);
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_lexi_artist_lexi);
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_lexi_artist_lexi_rev);
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_lexi_rev_artist_lexi);
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_lexi_rev_artist_lexi_rev);
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_lexi);
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_lexi_rev);
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_release);
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_release_rev);
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_runtime);
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_runtime_rev);
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_title);
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_title_rev);
+
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_album_release_artist_lexi);
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_album_release_artist_lexi_rev);
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_album_release_rev_artist_lexi);
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_album_release_rev_artist_lexi_rev);
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_album_lexi_artist_lexi);
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_album_lexi_artist_lexi_rev);
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_album_lexi_rev_artist_lexi);
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_album_lexi_rev_artist_lexi_rev);
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_lexi);
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_lexi_rev);
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_release);
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_release_rev);
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_runtime);
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_runtime_rev);
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_title);
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_title_rev);
 
 			// Set `timestamp`.
 			collection.timestamp = benri::unix!();

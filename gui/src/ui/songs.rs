@@ -200,7 +200,7 @@ pub fn show_tab_songs(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: 
 		})
 		.body(|mut body| {
 			// Song iterator.
-			for key in self.collection.song_iter(self.settings.song_sort) {
+			for (key, ptr) in self.collection.song_iter(self.settings.song_sort) {
 				body.row(ROW_HEIGHT, |mut row| {
 					let (artist, album, song) = self.collection.walk(key);
 

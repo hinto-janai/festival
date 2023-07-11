@@ -122,9 +122,9 @@ fn paint_albums(
 				// Paint as many `Album`'s that can fit.
 				for _ in 0..album_width {
 					match iter.next() {
-						Some(key) => {
+						Some((key, ptr)) => {
 							ui.vertical(|ui| {
-								let album = &self.collection.albums[key];
+								let album = *ptr;
 
 								// ImageButton.
 								crate::album_button!(self, album, *key, ui, ctx, pixel, "");

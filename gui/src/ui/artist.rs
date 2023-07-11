@@ -72,8 +72,8 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width
 		.show_viewport(ui, |ui, _|
 	{
 		// For each `Artist`...
-		for key in self.collection.artist_iter(self.settings.artist_sort) {
-			let artist = &self.collection.artists[key];
+		for (key, ptr) in self.collection.artist_iter(self.settings.artist_sort) {
+			let artist = *ptr;
 
 			// `Artist` name.
 			let label_name = Label::new(

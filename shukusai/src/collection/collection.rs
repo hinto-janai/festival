@@ -11,6 +11,9 @@ use crate::collection::{
 	AlbumKey,
 	SongKey,
 	CollectionPtr,
+	ArtistPtr,
+	AlbumPtr,
+	SongPtr,
 };
 use crate::sort::{
 	ArtistSort,
@@ -48,7 +51,7 @@ pub(crate) static DUMMY_COLLECTION: Lazy<CollectionPtr> = Lazy::new(|| Collectio
 
 //---------------------------------------------------------------------------------------------------- Collection
 disk::bincode2!(Collection, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{STATE_SUB_DIR}"), "collection", HEADER, COLLECTION_VERSION);
-#[derive(Clone,Debug,PartialEq,Encode,Decode)]
+#[derive(Clone,Debug,PartialEq,Encode)]
 /// The main music `Collection`
 ///
 /// This is the `struct` that holds all the (meta)data about the user's music.
@@ -144,93 +147,93 @@ pub struct Collection {
 
 	// Sorted `Artist` keys.
 	/// [`Artist`] A-Z.
-	pub sort_artist_lexi: Box<[ArtistKey]>,
+	pub sort_artist_lexi: Box<[(ArtistKey, ArtistPtr)]>,
 	/// [`Artist`] Z-A.
-	pub sort_artist_lexi_rev: Box<[ArtistKey]>,
+	pub sort_artist_lexi_rev: Box<[(ArtistKey, ArtistPtr)]>,
 	/// [`Artist`] with most [`Album`]'s to least.
-	pub sort_artist_album_count: Box<[ArtistKey]>,
+	pub sort_artist_album_count: Box<[(ArtistKey, ArtistPtr)]>,
 	/// [`Artist`] with least [`Album`]'s to most.
-	pub sort_artist_album_count_rev: Box<[ArtistKey]>,
+	pub sort_artist_album_count_rev: Box<[(ArtistKey, ArtistPtr)]>,
 	/// [`Artist`] with most [`Song`]'s to least.
-	pub sort_artist_song_count: Box<[ArtistKey]>,
+	pub sort_artist_song_count: Box<[(ArtistKey, ArtistPtr)]>,
 	/// [`Artist`] with least [`Song`]'s to most.
-	pub sort_artist_song_count_rev: Box<[ArtistKey]>,
+	pub sort_artist_song_count_rev: Box<[(ArtistKey, ArtistPtr)]>,
 	/// [`Artist`] runtime least-most.
-	pub sort_artist_runtime: Box<[ArtistKey]>,
+	pub sort_artist_runtime: Box<[(ArtistKey, ArtistPtr)]>,
 	/// [`Artist`] runtime most-least.
-	pub sort_artist_runtime_rev: Box<[ArtistKey]>,
+	pub sort_artist_runtime_rev: Box<[(ArtistKey, ArtistPtr)]>,
 	/// [`Artist`] name shortest-longest.
-	pub sort_artist_name: Box<[ArtistKey]>,
+	pub sort_artist_name: Box<[(ArtistKey, ArtistPtr)]>,
 	/// [`Artist`] name longest-shortest
-	pub sort_artist_name_rev: Box<[ArtistKey]>,
+	pub sort_artist_name_rev: Box<[(ArtistKey, ArtistPtr)]>,
 
 	// Sorted `Album` keys.
 	/// [`Artist`] A-Z, [`Album`] oldest-latest.
-	pub sort_album_release_artist_lexi: Box<[AlbumKey]>,
+	pub sort_album_release_artist_lexi: Box<[(AlbumKey, AlbumPtr)]>,
 	/// [`Artist`] Z-A, [`Album`] oldest-latest.
-	pub sort_album_release_artist_lexi_rev: Box<[AlbumKey]>,
+	pub sort_album_release_artist_lexi_rev: Box<[(AlbumKey, AlbumPtr)]>,
 	/// [`Artist`] A-Z, [`Album`] latest-oldest.
-	pub sort_album_release_rev_artist_lexi: Box<[AlbumKey]>,
+	pub sort_album_release_rev_artist_lexi: Box<[(AlbumKey, AlbumPtr)]>,
 	/// [`Artist`] Z-A, [`Album`] latest-oldest.
-	pub sort_album_release_rev_artist_lexi_rev: Box<[AlbumKey]>,
+	pub sort_album_release_rev_artist_lexi_rev: Box<[(AlbumKey, AlbumPtr)]>,
 	/// [`Artist`] A-Z, [`Album`] A-Z.
-	pub sort_album_lexi_artist_lexi: Box<[AlbumKey]>,
+	pub sort_album_lexi_artist_lexi: Box<[(AlbumKey, AlbumPtr)]>,
 	/// [`Artist`] Z-A, [`Album`] A-Z.
-	pub sort_album_lexi_artist_lexi_rev: Box<[AlbumKey]>,
+	pub sort_album_lexi_artist_lexi_rev: Box<[(AlbumKey, AlbumPtr)]>,
 	/// [`Artist`] A-Z, [`Album`] Z-A.
-	pub sort_album_lexi_rev_artist_lexi: Box<[AlbumKey]>,
+	pub sort_album_lexi_rev_artist_lexi: Box<[(AlbumKey, AlbumPtr)]>,
 	/// [`Artist`] Z-A, [`Album`] Z-A.
-	pub sort_album_lexi_rev_artist_lexi_rev: Box<[AlbumKey]>,
+	pub sort_album_lexi_rev_artist_lexi_rev: Box<[(AlbumKey, AlbumPtr)]>,
 	/// [`Album`] A-Z.
-	pub sort_album_lexi: Box<[AlbumKey]>,
+	pub sort_album_lexi: Box<[(AlbumKey, AlbumPtr)]>,
 	/// [`Album`] Z-A.
-	pub sort_album_lexi_rev: Box<[AlbumKey]>,
+	pub sort_album_lexi_rev: Box<[(AlbumKey, AlbumPtr)]>,
 	/// [`Album`] oldest to latest.
-	pub sort_album_release: Box<[AlbumKey]>,
+	pub sort_album_release: Box<[(AlbumKey, AlbumPtr)]>,
 	/// [`Album`] latest to oldest.
-	pub sort_album_release_rev: Box<[AlbumKey]>,
+	pub sort_album_release_rev: Box<[(AlbumKey, AlbumPtr)]>,
 	/// [`Album`] shortest to longest.
-	pub sort_album_runtime: Box<[AlbumKey]>,
+	pub sort_album_runtime: Box<[(AlbumKey, AlbumPtr)]>,
 	/// [`Album`] longest to shortest.
-	pub sort_album_runtime_rev: Box<[AlbumKey]>,
+	pub sort_album_runtime_rev: Box<[(AlbumKey, AlbumPtr)]>,
 	/// [`Album`] title shortest to longest.
-	pub sort_album_title: Box<[AlbumKey]>,
+	pub sort_album_title: Box<[(AlbumKey, AlbumPtr)]>,
 	/// [`Album`] title longest to shortest.
-	pub sort_album_title_rev: Box<[AlbumKey]>,
+	pub sort_album_title_rev: Box<[(AlbumKey, AlbumPtr)]>,
 
 	// Sorted `Song` keys.
 	/// [`Artist`] A-Z, [`Album`] oldest-latest, [`Song`] track_number
-	pub sort_song_album_release_artist_lexi: Box<[SongKey]>,
+	pub sort_song_album_release_artist_lexi: Box<[(SongKey, SongPtr)]>,
 	/// [`Artist`] Z-A, [`Album`] oldest-latest, [`Song`] track_number
-	pub sort_song_album_release_artist_lexi_rev: Box<[SongKey]>,
+	pub sort_song_album_release_artist_lexi_rev: Box<[(SongKey, SongPtr)]>,
 	/// [`Artist`] A-Z, [`Album`] latest-oldest, [`Song`] track_number
-	pub sort_song_album_release_rev_artist_lexi: Box<[SongKey]>,
+	pub sort_song_album_release_rev_artist_lexi: Box<[(SongKey, SongPtr)]>,
 	/// [`Artist`] Z-A, [`Album`] latest-oldest, [`Song`] track_number
-	pub sort_song_album_release_rev_artist_lexi_rev: Box<[SongKey]>,
+	pub sort_song_album_release_rev_artist_lexi_rev: Box<[(SongKey, SongPtr)]>,
 	/// [`Artist`] A-Z, [`Album`] A-Z, [`Song`] track_number.
-	pub sort_song_album_lexi_artist_lexi: Box<[SongKey]>,
+	pub sort_song_album_lexi_artist_lexi: Box<[(SongKey, SongPtr)]>,
 	/// [`Artist`] Z-A, [`Album`] A-Z, [`Song`] track_number.
-	pub sort_song_album_lexi_artist_lexi_rev: Box<[SongKey]>,
+	pub sort_song_album_lexi_artist_lexi_rev: Box<[(SongKey, SongPtr)]>,
 	/// [`Artist`] A-Z, [`Album`] Z-A, [`Song`] track_number.
-	pub sort_song_album_lexi_rev_artist_lexi: Box<[SongKey]>,
+	pub sort_song_album_lexi_rev_artist_lexi: Box<[(SongKey, SongPtr)]>,
 	/// [`Artist`] Z-A, [`Album`] Z-A, [`Song`] track_number.
-	pub sort_song_album_lexi_rev_artist_lexi_rev: Box<[SongKey]>,
+	pub sort_song_album_lexi_rev_artist_lexi_rev: Box<[(SongKey, SongPtr)]>,
 	/// [`Song`] A-Z.
-	pub sort_song_lexi: Box<[SongKey]>,
+	pub sort_song_lexi: Box<[(SongKey, SongPtr)]>,
 	/// [`Song`] Z-A.
-	pub sort_song_lexi_rev: Box<[SongKey]>,
+	pub sort_song_lexi_rev: Box<[(SongKey, SongPtr)]>,
 	/// [`Song`] oldest to latest.
-	pub sort_song_release: Box<[SongKey]>,
+	pub sort_song_release: Box<[(SongKey, SongPtr)]>,
 	/// [`Song`] latest to oldest.
-	pub sort_song_release_rev: Box<[SongKey]>,
+	pub sort_song_release_rev: Box<[(SongKey, SongPtr)]>,
 	/// [`Song`] shortest to longest.
-	pub sort_song_runtime: Box<[SongKey]>,
+	pub sort_song_runtime: Box<[(SongKey, SongPtr)]>,
 	/// [`Song`] longest to shortest.
-	pub sort_song_runtime_rev: Box<[SongKey]>,
+	pub sort_song_runtime_rev: Box<[(SongKey, SongPtr)]>,
 	/// [`Song`] title shortest to longest.
-	pub sort_song_title: Box<[SongKey]>,
+	pub sort_song_title: Box<[(SongKey, SongPtr)]>,
 	/// [`Song`] title longest to shortest.
-	pub sort_song_title_rev: Box<[SongKey]>,
+	pub sort_song_title_rev: Box<[(SongKey, SongPtr)]>,
 }
 
 impl Collection {
@@ -650,7 +653,7 @@ impl Collection {
 
 	//-------------------------------------------------- Sorting
 	/// Access `sort_artist` fields in the [`Collection`] as an iterator via a [`ArtistSort`].
-	pub fn artist_iter(&self, sort: ArtistSort) -> std::slice::Iter<'_, ArtistKey> {
+	pub fn artist_iter(&self, sort: ArtistSort) -> std::slice::Iter<'_, (ArtistKey, ArtistPtr)> {
 		use ArtistSort::*;
 		match sort {
 			Lexi          => &self.sort_artist_lexi,
@@ -667,7 +670,7 @@ impl Collection {
 	}
 
 	/// Access `sort_album` fields in the [`Collection`] as an iterator via a [`AlbumSort`].
-	pub fn album_iter(&self, sort: AlbumSort) -> std::slice::Iter<'_, AlbumKey> {
+	pub fn album_iter(&self, sort: AlbumSort) -> std::slice::Iter<'_, (AlbumKey, AlbumPtr)> {
 		use AlbumSort::*;
 		match sort {
 			ReleaseArtistLexi       => &self.sort_album_release_artist_lexi,
@@ -690,7 +693,7 @@ impl Collection {
 	}
 
 	/// Access `sort_song` fields in the [`Collection`] as an iterator via a [`SongSort`].
-	pub fn song_iter(&self, sort: SongSort) -> std::slice::Iter<'_, SongKey> {
+	pub fn song_iter(&self, sort: SongSort) -> std::slice::Iter<'_, (SongKey, SongPtr)> {
 		use SongSort::*;
 		match sort {
 			AlbumReleaseArtistLexi       => &self.sort_song_album_release_artist_lexi,

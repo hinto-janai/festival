@@ -24,8 +24,7 @@ pub use metadata::metadata;
 pub(crate) mod v0;
 
 // Pointer related code. To be used... eventually... maybe.
-//mod decode;
-//pub(crate) use decode::*;
+mod decode;
 mod ptr;
 pub use ptr::*;
 

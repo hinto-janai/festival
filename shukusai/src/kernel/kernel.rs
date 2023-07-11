@@ -636,9 +636,6 @@ impl Kernel {
 	fn ccd_mode(&mut self, paths: Vec<PathBuf>) {
 		atomic_store!(RESETTING, true);
 
-		// Set our `ResetState`.
-		RESET_STATE.write().start();
-
 		// INVARIANT:
 		// `GUI` is expected to drop its pointer by itself
 		// after requesting the new `Collection`.
@@ -646,6 +643,9 @@ impl Kernel {
 		// Drop your pointers.
 		send!(self.to_search, KernelToSearch::DropCollection);
 		send!(self.to_audio,  KernelToAudio::DropCollection);
+
+		// Set our `ResetState`.
+		RESET_STATE.write().start();
 
 		// Create `CCD` channel.
 		let (ccd_send, from_ccd) = crossbeam::channel::unbounded::<CcdToKernel>();
