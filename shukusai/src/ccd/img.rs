@@ -263,6 +263,9 @@ pub(super) fn alloc_textures(albums: &crate::collection::Albums) {
 	}
 }
 
+// UPDATE: We aren't manually allocating anymore. The `TextureHandle`
+// inside the `Art(RetainedImage)` is responsible for free'ing on `drop()`.
+//
 // Since we are manually allocated textures, we must also free them.
 // `epaint` internally increments (but never decrements) a counter
 // when allocating a texture. This counter is used as an "id" for the
