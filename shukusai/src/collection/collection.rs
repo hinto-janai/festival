@@ -328,9 +328,9 @@ impl Collection {
 	/// ```
 	/// In the above example, we're searching for a:
 	/// - [`Artist`] called `hinto`
-	pub fn artist<S: AsRef<str>>(&self, artist_name: S) -> Option<(&Artist, ArtistKey)> {
-		if let Some((key, _)) = self.map.0.get(artist_name.as_ref()) {
-			return Some((&self.artists[key], *key))
+	pub fn artist<S: AsRef<str>>(&self, artist_name: S) -> Option<(ArtistKey, ArtistPtr)> {
+		if let Some((artist, _)) = self.map.0.get(artist_name.as_ref()) {
+			return Some(*artist);
 		}
 
 		None
@@ -350,10 +350,10 @@ impl Collection {
 		&self,
 		artist_name: S,
 		album_title: S,
-	) -> Option<(&Album, AlbumKey)> {
-		if let Some((_key, albums)) = self.map.0.get(artist_name.as_ref()) {
-			if let Some((key, _)) = albums.0.get(album_title.as_ref()) {
-				return Some((&self.albums[key], *key))
+	) -> Option<(AlbumKey, AlbumPtr)> {
+		if let Some((_, albums)) = self.map.0.get(artist_name.as_ref()) {
+			if let Some((album, _)) = albums.0.get(album_title.as_ref()) {
+				return Some(*album);
 			}
 		}
 
@@ -376,12 +376,11 @@ impl Collection {
 		artist_name: S,
 		album_title: S,
 		song_title: S,
-	) -> Option<(&Song, Key)> {
-		if let Some((artist_key, albums)) = self.map.0.get(artist_name.as_ref()) {
-			if let Some((album_key, songs)) = albums.0.get(album_title.as_ref()) {
-				if let Some(song_key) = songs.0.get(song_title.as_ref()) {
-					let key = Key::from_keys(*artist_key, *album_key, *song_key);
-					return Some((&self.songs[song_key], key))
+	) -> Option<(SongKey, SongPtr)> {
+		if let Some((_, albums)) = self.map.0.get(artist_name.as_ref()) {
+			if let Some((_, songs)) = albums.0.get(album_title.as_ref()) {
+				if let Some(song) = songs.0.get(song_title.as_ref()) {
+					return Some(*song);
 				}
 			}
 		}
@@ -398,14 +397,14 @@ impl Collection {
 	///
 	/// This is useful for starting a queue including songs of an [`Album`]
 	/// but not necessarily starting from the first [`Song`].
-	pub fn song_tail<K: Into<SongKey>>(&self, key: K) -> std::iter::Peekable<std::slice::Iter<'_, SongKey>> {
+	pub fn song_tail<K: Into<SongKey>>(&self, key: K) -> std::iter::Peekable<std::slice::Iter<'_, (SongKey, SongPtr)>> {
 		let key = key.into();
 		let (album, _) = self.album_from_song(key);
 		let mut iter = album.songs.iter().peekable();
 
 		// The input `SongKey` should _always_ be found
 		// in the owning `Album`'s `song` field.
-		while let Some(song) = iter.peek() {
+		while let Some((song, ptr)) = iter.peek() {
 			if key == *song {
 				return iter;
 			}
@@ -428,52 +427,48 @@ impl Collection {
 		(&self.artists.0[artist], &self.albums.0[album], &self.songs.0[song])
 	}
 
+	#[inline]
 	/// Walk through the relational data from a
 	/// [`SongKey`] and return the full tuple.
-	#[inline]
 	pub fn walk<K: Into<SongKey>>(&self, key: K) -> (&Artist, &Album, &Song) {
 		let song   = &self.songs[key.into()];
-		let album  = &self.albums[song.album];
-		let artist = &self.artists[album.artist];
+		let album  = &*song.album_ptr;
+		let artist = &*album.artist_ptr;
 
 		(artist, album, song)
 	}
 
+	#[inline]
 	/// Get all [`Album`]'s from the same [`Artist`] of this [`AlbumKey`].
-	#[inline]
-	pub fn other_albums<K: Into<AlbumKey>>(&self, key: K) -> &[AlbumKey] {
-		&self.artists[self.albums[key.into()].artist].albums
+	pub fn other_albums<K: Into<AlbumKey>>(&self, key: K) -> &[(AlbumKey, AlbumPtr)] {
+		&self.albums[key.into()].artist_ptr.albums
 	}
 
+	#[inline]
 	/// Get all [`Song`]'s from the same [`Album`] of this [`SongKey`].
-	#[inline]
-	pub fn other_songs<K: Into<SongKey>>(&self, key: K) -> &[SongKey] {
-		&self.albums[self.songs[key.into()].album].songs
+	pub fn other_songs<K: Into<SongKey>>(&self, key: K) -> &[(SongKey, SongPtr)] {
+		&self.songs[key.into()].album_ptr.songs
 	}
 
+	#[inline]
 	/// Get all the [`SongKey`]'s belonging to this [`ArtistKey`].
-	#[inline]
-	pub fn all_songs<K: Into<ArtistKey>>(&self, key: K) -> Box<[SongKey]> {
-		self.artists[key.into()].albums
-			.iter()
-			.flat_map(|a| self.albums[a].songs.iter())
-			.copied()
-			.collect()
+	pub fn all_songs<K: Into<ArtistKey>>(&self, key: K) -> &[(SongKey, SongPtr)] {
+		&self.artists[key.into()].songs
 	}
 
+	#[inline]
 	/// Get the next [`Album`] belonging to this [`Artist`].
 	///
 	/// This:
 	/// - Iterates via release date
 	/// - Wraps around if at the last element
-	#[inline]
-	pub fn next_album<K: Into<AlbumKey>>(&self, key: K) -> AlbumKey {
+	pub fn next_album<K: Into<AlbumKey>>(&self, key: K) -> (AlbumKey, AlbumPtr) {
 		let key = key.into();
 		let other_albums = self.other_albums(key);
 
 		let index = other_albums
 			.iter()
-			.position(|i| i == key)
+			.position(|(k, _)| k == key)
 			.unwrap_or(0);
 
 		if let Some(key) = other_albums.get(index + 1) {
@@ -483,20 +478,20 @@ impl Collection {
 		}
 	}
 
+	#[inline]
 	/// Get the previous [`Album`] belonging to this [`Artist`].
 	///
 	/// This:
 	/// - Iterates via release date
 	/// - Wraps around if at the first element
-	#[inline]
-	pub fn previous_album<K: Into<AlbumKey>>(&self, key: K) -> AlbumKey {
+	pub fn previous_album<K: Into<AlbumKey>>(&self, key: K) -> (AlbumKey, AlbumPtr) {
 		let key          = key.into();
 		let other_albums = self.other_albums(key);
 		let len          = other_albums.len();
 
 		let index = other_albums
 			.iter()
-			.position(|i| i == key)
+			.position(|(k, _)| k == key)
 			.unwrap_or(0);
 
 		if let Some(index) = index.checked_sub(1) {
@@ -506,19 +501,19 @@ impl Collection {
 		}
 	}
 
+	#[inline]
 	/// Get the next [`Song`] belonging to this [`Album`].
 	///
 	/// This:
 	/// - Iterates via track order
 	/// - Wraps around if at the last element
-	#[inline]
-	pub fn next_song<K: Into<SongKey>>(&self, key: K) -> SongKey {
+	pub fn next_song<K: Into<SongKey>>(&self, key: K) -> (SongKey, SongPtr) {
 		let key = key.into();
 		let other_songs = self.other_songs(key);
 
 		let index = other_songs
 			.iter()
-			.position(|i| i == key)
+			.position(|(k, _)| k == key)
 			.unwrap_or(0);
 
 		if let Some(key) = other_songs.get(index + 1) {
@@ -528,20 +523,20 @@ impl Collection {
 		}
 	}
 
+	#[inline]
 	/// Get the previous [`Song`] belonging to this [`Album`].
 	///
 	/// This:
 	/// - Iterates via track order
 	/// - Wraps around if at the first element
-	#[inline]
-	pub fn previous_song<K: Into<SongKey>>(&self, key: K) -> SongKey {
+	pub fn previous_song<K: Into<SongKey>>(&self, key: K) -> (SongKey, SongPtr) {
 		let key         = key.into();
 		let other_songs = self.other_songs(key);
 		let len         = other_songs.len();
 
 		let index = other_songs
 			.iter()
-			.position(|i| i == key)
+			.position(|(k, _)| k == key)
 			.unwrap_or(0);
 
 		if let Some(index) = index.checked_sub(1) {
@@ -586,7 +581,7 @@ impl Collection {
 	/// The [`AlbumKey`] must be a valid index.
 	pub fn artist_from_album<K: Into<AlbumKey>>(&self, key: K) -> (&Artist, ArtistKey) {
 		let album = &self.albums[key.into()];
-		(&self.artists[album.artist], album.artist)
+		(&*album.artist_ptr, album.artist)
 	}
 
 	#[inline(always)]
@@ -596,7 +591,7 @@ impl Collection {
 	/// The [`SongKey`] must be a valid index.
 	pub fn album_from_song<K: Into<SongKey>>(&self, key: K) -> (&Album, AlbumKey) {
 		let song = &self.songs[key.into()];
-		(&self.albums[song.album], song.album)
+		(&*song.album_ptr, song.album)
 	}
 
 	#[inline(always)]
@@ -605,7 +600,8 @@ impl Collection {
 	/// # Panics:
 	/// The [`SongKey`] must be a valid index.
 	pub fn artist_from_song<K: Into<SongKey>>(&self, key: K) -> (&Artist, ArtistKey) {
-		self.artist_from_album(self.songs[key.into()].album)
+		let album = &*self.songs[key.into()].album_ptr;
+		(&*album.artist_ptr, album.artist)
 	}
 
 	//-------------------------------------------------- Key traversal (`.get()`).

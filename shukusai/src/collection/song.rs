@@ -4,12 +4,12 @@ use std::path::PathBuf;
 use readable::Runtime;
 use std::marker::PhantomData;
 use crate::collection::{
-	AlbumKey,
+	AlbumKey,AlbumPtr,
 };
 use std::sync::Arc;
 
 //----------------------------------------------------------------------------------------------------
-#[derive(Clone,Debug,Hash,PartialEq,PartialOrd,Encode,Decode)]
+#[derive(Clone,Debug,Hash,PartialEq,PartialOrd,Encode)]
 /// Struct holding [`Song`] metadata, with a pointer to the [`Album`] it belongs to
 ///
 /// This struct holds all the metadata about a particular [`Song`].
@@ -25,6 +25,8 @@ pub struct Song {
 	pub title_uppercase: Arc<str>,
 	/// Key to the [`Album`].
 	pub album: AlbumKey,
+	/// Pointer to the [`Album`].
+	pub album_ptr: AlbumPtr,
 	/// Total runtime of this [`Song`].
 	pub runtime: Runtime,
 	/// Sample rate of this [`Song`].
@@ -44,6 +46,7 @@ impl Default for Song {
 			title_lowercase: "".into(),
 			title_uppercase: "".into(),
 			album: Default::default(),
+			album_ptr: Default::default(),
 			runtime: Default::default(),
 			sample_rate: Default::default(),
 			track: Default::default(),

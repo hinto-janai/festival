@@ -991,25 +991,25 @@ impl Audio {
 		let keys = album.songs.iter();
 		match append {
 			Append::Back  => {
-				keys.for_each(|k| state.queue.push_back(*k));
+				keys.for_each(|(k, _)| state.queue.push_back(*k));
 				if self.current.is_none() {
 					state.queue_idx = Some(offset);
-					self.set(self.collection.albums[key].songs[offset], &mut state);
+					self.set(self.collection.albums[key].songs[offset].0, &mut state);
 				}
 			},
 			Append::Front => {
-				keys.rev().for_each(|k| state.queue.push_front(*k));
+				keys.rev().for_each(|(k, _)| state.queue.push_front(*k));
 				state.queue_idx = Some(offset);
-				self.set(self.collection.albums[key].songs[offset], &mut state);
+				self.set(self.collection.albums[key].songs[offset].0, &mut state);
 			},
 			Append::Index(mut i) => {
-				keys.for_each(|k| {
+				keys.for_each(|(k, _)| {
 					state.queue.insert(i, *k);
 					i += 1;
 				});
 				if i == 0 {
 					state.queue_idx = Some(0);
-					self.set(self.collection.albums[key].songs[offset], &mut state);
+					self.set(self.collection.albums[key].songs[offset].0, &mut state);
 				}
 			}
 		}
@@ -1024,13 +1024,13 @@ impl Audio {
 	) {
 		trace!("Audio - add_queue_artist({key:?}, {append:?}, {clear}, {offset}");
 
-		let keys: Box<[SongKey]> = self.collection.all_songs(key);
-
 		let mut state = AUDIO_STATE.write();
 
 		if clear {
 			self.clear(clear, &mut state)
 		}
+
+		let keys = self.collection.all_songs(key);
 
 		// Prevent bad offsets panicking.
 		let offset = if offset >= keys.len() {
@@ -1046,25 +1046,25 @@ impl Audio {
 		let iter = keys.iter();
 		match append {
 			Append::Back  => {
-				iter.for_each(|k| state.queue.push_back(*k));
+				iter.for_each(|(k, _)| state.queue.push_back(*k));
 				if self.current.is_none() {
 					state.queue_idx = Some(offset);
-					self.set(keys[offset], &mut state);
+					self.set(keys[offset].0, &mut state);
 				}
 			},
 			Append::Front => {
-				iter.rev().for_each(|k| state.queue.push_front(*k));
+				iter.rev().for_each(|(k, _)| state.queue.push_front(*k));
 				state.queue_idx = Some(offset);
-				self.set(keys[offset], &mut state);
+				self.set(keys[offset].0, &mut state);
 			},
 			Append::Index(mut i) => {
-				iter.for_each(|k| {
+				iter.for_each(|(k, _)| {
 					state.queue.insert(i, *k);
 					i += 1;
 				});
 				if i == 0 {
 					state.queue_idx = Some(0);
-					self.set(keys[offset], &mut state);
+					self.set(keys[offset].0, &mut state);
 				}
 			}
 		}

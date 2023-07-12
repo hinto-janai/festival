@@ -1,11 +1,11 @@
 //---------------------------------------------------------------------------------------------------- Use
 use bincode::{Encode,Decode};
 use std::marker::PhantomData;
-use crate::collection::key::{
+use crate::collection::{
 	ArtistKey,
+	ArtistPtr,
 	SongKey,
-};
-use crate::collection::art::{
+	SongPtr,
 	Art,
 };
 use readable::{
@@ -17,7 +17,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 //---------------------------------------------------------------------------------------------------- Album
-#[derive(Clone,Debug,PartialEq,PartialOrd,Encode,Decode)]
+#[derive(Clone,Debug,PartialEq,PartialOrd,Encode)]
 /// Struct holding [`Album`] metadata, with pointers to an [`Artist`] and [`Song`]\(s\)
 ///
 /// This struct holds all the metadata about a particular [`Album`].
@@ -35,6 +35,8 @@ pub struct Album {
 	pub title_uppercase: Arc<str>,
 	/// Key to the [`Artist`].
 	pub artist: ArtistKey,
+	/// Pointer to the [`Artist`].
+	pub artist_ptr: ArtistPtr,
 	/// Human-readable release date of this [`Album`].
 	pub release: Date,
 	/// Total runtime of this [`Album`].
@@ -57,7 +59,7 @@ pub struct Album {
 	// SOMEDAY:
 	// This should be a Box<[AlbumKey]>.
 	/// Key\(s\) to the [`Song`]\(s\).
-	pub songs: Vec<SongKey>,
+	pub songs: Vec<(SongKey, SongPtr)>,
 	/// How many discs are in this `Album`?
 	/// (Most will only have 1).
 	pub discs: u32,
@@ -115,6 +117,7 @@ impl Default for Album {
 			title_lowercase: "".into(),
 			title_uppercase: "".into(),
 			artist: Default::default(),
+			artist_ptr: Default::default(),
 			release: Default::default(),
 			runtime: Default::default(),
 			song_count: Default::default(),

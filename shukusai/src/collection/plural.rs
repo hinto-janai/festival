@@ -8,7 +8,7 @@ use crate::collection::{
 //---------------------------------------------------------------------------------------------------- Plural newtypes around `Vec<T>`.
 macro_rules! impl_plural {
 	($name:ident, $plural:ident, $key:ident) => { paste::paste! {
-		#[derive(Clone,Debug,PartialEq,PartialOrd,Encode,Decode)]
+		#[derive(Clone,Debug,PartialEq,PartialOrd,Encode)]
 		/// Type-safe wrapper around a [`Box`]'ed [`slice`].
 		///
 		#[doc = "This struct's inner value is just `Box<[" $name "]>`"]

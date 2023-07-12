@@ -12,7 +12,6 @@ const WALKDIR:     &str = "Walking Directories";
 const PARSE:       &str = "Parsing Metadata";
 const FIX:         &str = "Fixing Metadata";
 const SORT:        &str = "Sorting";
-const SEARCH:      &str = "Creating Search Engine";
 const PREPARE:     &str = "Preparing Collection";
 const ART:         &str = "Preparing Album Art";
 const CLONE:       &str = "Preparing Collection For Disk";
@@ -21,7 +20,7 @@ const FINALIZE:    &str = "Finalizing Collection";
 
 //---------------------------------------------------------------------------------------------------- Phase
 /// HACK: until `std::mem::variant_count()` is stable.
-pub const PHASE_VARIANT_COUNT: usize = 15;
+pub const PHASE_VARIANT_COUNT: usize = 14;
 #[derive(Copy,Clone,Debug,Hash,Serialize,Deserialize,PartialEq,Eq,PartialOrd,Ord)]
 /// The different phases of creating a new [`Collection`]
 ///
@@ -50,7 +49,6 @@ pub const PHASE_VARIANT_COUNT: usize = 15;
 /// assert_eq!(Phase::Parse.as_str(),       "Parsing Metadata");
 /// assert_eq!(Phase::Fix.as_str(),         "Fixing Metadata");
 /// assert_eq!(Phase::Sort.as_str(),        "Sorting");
-/// assert_eq!(Phase::Search.as_str(),      "Creating Search Engine");
 /// assert_eq!(Phase::Prepare.as_str(),     "Preparing Collection");
 /// assert_eq!(Phase::Art.as_str(),         "Preparing Album Art");
 /// assert_eq!(Phase::Clone.as_str(),       "Preparing Collection For Disk");
@@ -80,16 +78,14 @@ pub enum Phase {
 	/// Phase 6
 	Sort,
 	/// Phase 7
-	Search,
-	/// Phase 8
 	Prepare,
-	/// Phase 9
+	/// Phase 8
 	Art,
-	/// Phase 10
+	/// Phase 9
 	Clone,
-	/// Phase 11
+	/// Phase 10
 	Convert,
-	/// Phase 12 (final)
+	/// Phase 11 (final)
 	Finalize,
 }
 
@@ -107,7 +103,6 @@ impl Phase {
 			Self::Parse       => PARSE,
 			Self::Fix         => FIX,
 			Self::Sort        => SORT,
-			Self::Search      => SEARCH,
 			Self::Prepare     => PREPARE,
 			Self::Art         => ART,
 			Self::Clone       => CLONE,
@@ -132,7 +127,6 @@ impl Phase {
 			Self::Parse,
 			Self::Fix,
 			Self::Sort,
-			Self::Search,
 			Self::Prepare,
 			Self::Art,
 			Self::Clone,

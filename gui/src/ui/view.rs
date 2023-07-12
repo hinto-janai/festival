@@ -91,14 +91,14 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: f
 		.auto_shrink([false; 2])
 		.show_viewport(ui, |ui, _|
 	{
-		let mut last_disc = self.collection.songs[album.songs[0]].disc;
+		let mut last_disc = self.collection.songs[album.songs[0].0].disc;
 		if album.discs != 0 {
 			ui.label(format!("Disc {}", last_disc.unwrap_or(0)));
 			ui.separator();
 		}
 
-		for (offset, key) in album.songs.iter().enumerate() {
-			let song = &self.collection.songs[key];
+		for (offset, (key, ptr)) in album.songs.iter().enumerate() {
+			let song = &*ptr;
 
 			// Add a separator if on a different disc.
 			if album.discs != 0 {
@@ -165,9 +165,9 @@ pub(super) fn show_tab_view_right_panel(&mut self, album_key: Option<AlbumKey>, 
 				}
 
 				// For each album...
-				for key in albums {
+				for (key, ptr) in albums {
 					// Get the actual `Album`.
-					let album = &self.collection.albums[key];
+					let album = &*ptr;
 
 					// Album button.
 					crate::album_button!(self, album, *key, ui, ctx, album_size, "");

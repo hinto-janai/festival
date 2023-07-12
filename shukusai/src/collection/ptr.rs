@@ -7,7 +7,8 @@ use crate::collection::{
 use std::pin::Pin;
 use std::sync::Arc;
 use bincode::{
-	de::{Decode,Decoder},
+	BorrowDecode,
+	de::{Decode,Decoder,BorrowDecoder},
 	enc::{Encode,Encoder},
 	error::{DecodeError,EncodeError},
 };
@@ -45,7 +46,8 @@ impl AsRef<Collection> for CollectionPtr {
 //---------------------------------------------------------------------------------------------------- *Ptr
 macro_rules! impl_ptr {
 	($name_lit:literal, $name:ident, $plural:ident, $ptr:ident, $key:ident) => { paste::paste! {
-		#[derive(Copy,Clone,Debug,PartialEq,PartialOrd)]
+		#[derive(Copy,Clone,Debug,PartialEq,Eq,PartialOrd,Ord,Hash)]
+		#[repr(transparent)]
 		/// Raw pointer to [`" $name "`]
 		///
 		#[doc = "This struct's inner value is just `*const " $name "`"]
@@ -138,6 +140,16 @@ macro_rules! impl_ptr {
 			}
 		}
 
+		impl<'de> BorrowDecode<'de> for $ptr {
+			fn borrow_decode<D: BorrowDecoder<'de>>(
+				decoder: &mut D,
+			) -> Result<Self, DecodeError> {
+				// INVARIANT:
+				// These `nullptr`'s must be properly initialized
+				// during the outer `Collection` decoding process.
+				Ok(Self(std::ptr::null()))
+			}
+		}
 		//-------------------------------------------------- `nullptr` conversion
 		impl $ptr {
 			// 1. Index into plural (Artists, Albums, Songs)
@@ -159,6 +171,12 @@ macro_rules! impl_ptr {
 			// Return a self with an inner null pointer.
 			pub(crate) fn null() -> Self {
 				Self(std::ptr::null())
+			}
+		}
+
+		impl Default for $ptr {
+			fn default() -> Self {
+				Self::null()
 			}
 		}
 	}}

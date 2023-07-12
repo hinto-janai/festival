@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------------------------------- Use
 use crate::collection::{
 	Collection,
-	Artists,Albums,Songs,
+	Artist,Album,Song,Artists,Albums,Songs,
 	ArtistPtr,AlbumPtr,SongPtr,
 	ArtistKey,AlbumKey,SongKey,
 };
@@ -11,7 +11,7 @@ use bincode::{
 	error::{DecodeError,EncodeError},
 };
 
-//---------------------------------------------------------------------------------------------------- Decode
+//---------------------------------------------------------------------------------------------------- Collection
 // Custom `bincode::Decode` for `Collection`.
 //
 // INVARIANT:
@@ -138,6 +138,106 @@ impl Decode for Collection {
 			sort_song_runtime_rev,
 			sort_song_title,
 			sort_song_title_rev,
+		})
+	}
+}
+
+macro_rules! impl_decode_plural {
+	($($plural:ty),*) => {
+		$(
+			impl Decode for $plural {
+				fn decode<D: Decoder>(decoder: &mut D) -> Result<Self, DecodeError> {
+					Ok(Self(Decode::decode(decoder)?))
+				}
+			}
+		)*
+	}
+}
+
+impl_decode_plural!(Artists, Albums, Songs);
+
+impl Decode for Artist {
+	fn decode<D: Decoder>(decoder: &mut D) -> Result<Self, DecodeError> {
+		let name           = Decode::decode(decoder)?;
+		let name_lowercase = Decode::decode(decoder)?;
+		let name_uppercase = Decode::decode(decoder)?;
+		let runtime        = Decode::decode(decoder)?;
+
+		let albums: Vec<AlbumKey> = Decode::decode(decoder)?;
+		let songs:  Vec<SongKey>  = Decode::decode(decoder)?;
+		let albums: Vec<(AlbumKey, AlbumPtr)> = albums.into_iter().map(|k| (k, AlbumPtr::null())).collect();
+		let songs:  Box<[(SongKey, SongPtr)]> = songs.into_iter().map(|k| (k, SongPtr::null())).collect();
+
+		Ok(Self {
+			name,
+			name_lowercase,
+			name_uppercase,
+			runtime,
+			albums,
+			songs,
+		})
+	}
+}
+
+impl Decode for Album {
+	fn decode<D: Decoder>(decoder: &mut D) -> Result<Self, DecodeError> {
+		let title           = Decode::decode(decoder)?;
+		let title_lowercase = Decode::decode(decoder)?;
+		let title_uppercase = Decode::decode(decoder)?;
+		let artist          = Decode::decode(decoder)?;
+		let artist_ptr      = Decode::decode(decoder)?;
+		let release         = Decode::decode(decoder)?;
+		let runtime         = Decode::decode(decoder)?;
+		let song_count      = Decode::decode(decoder)?;
+
+		let songs: Vec<SongKey> = Decode::decode(decoder)?;
+		let songs: Vec<(SongKey, SongPtr)> = songs.into_iter().map(|k| (k, SongPtr::null())).collect();
+
+		let discs           = Decode::decode(decoder)?;
+		let path            = Decode::decode(decoder)?;
+		let art             = Decode::decode(decoder)?;
+
+		Ok(Self {
+			title,
+			title_lowercase,
+			title_uppercase,
+			artist,
+			artist_ptr,
+			release,
+			runtime,
+			song_count,
+			songs,
+			discs,
+			path,
+			art,
+		})
+	}
+}
+
+impl Decode for Song {
+	fn decode<D: Decoder>(decoder: &mut D) -> Result<Self, DecodeError> {
+		let title           = Decode::decode(decoder)?;
+		let title_lowercase = Decode::decode(decoder)?;
+		let title_uppercase = Decode::decode(decoder)?;
+		let album           = Decode::decode(decoder)?;
+		let album_ptr       = Decode::decode(decoder)?;
+		let runtime         = Decode::decode(decoder)?;
+		let sample_rate     = Decode::decode(decoder)?;
+		let track           = Decode::decode(decoder)?;
+		let disc            = Decode::decode(decoder)?;
+		let path            = Decode::decode(decoder)?;
+
+		Ok(Self {
+			title,
+			title_lowercase,
+			title_uppercase,
+			album,
+			album_ptr,
+			runtime,
+			sample_rate,
+			track,
+			disc,
+			path,
 		})
 	}
 }

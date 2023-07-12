@@ -54,8 +54,8 @@ impl super::Ccd {
 	pub(super) fn sort_artist_song_count(artists: &[Artist], albums: &[Album]) -> Box<[(ArtistKey, ArtistPtr)]> {
 		let mut vec_artist = Self::filled_vec_usize(artists.len());
 		vec_artist.sort_by(|a, b| {
- 			let first:  usize = artists[*a].albums.iter().map(|a| albums[a.inner()].songs.len()).sum();
-			let second: usize = artists[*b].albums.iter().map(|b| albums[b.inner()].songs.len()).sum();
+ 			let first:  usize = artists[*a].albums.iter().map(|(a, _)| albums[a.inner()].songs.len()).sum();
+			let second: usize = artists[*b].albums.iter().map(|(b, _)| albums[b.inner()].songs.len()).sum();
 
 			first.cmp(&second)
 		});
@@ -91,7 +91,7 @@ impl super::Ccd {
 		let mut vec_album: Vec<Vec<AlbumKey>> = Vec::with_capacity(albums.len());
 
 		for (artist, _) in sorted_artists {
-			let mut tmp: Vec<AlbumKey> = artists[artist.inner()].albums.clone();
+			let mut tmp: Vec<AlbumKey> = artists[artist.inner()].albums.iter().map(|(key, _)| *key).collect();
 			tmp.sort_by(|a, b|
 				albums[a.inner()].release.cmp(
 					&albums[b.inner()].release
@@ -111,7 +111,7 @@ impl super::Ccd {
 		let mut vec_album: Vec<Vec<AlbumKey>> = Vec::with_capacity(albums.len());
 
 		for (artist, _) in sorted_artists {
-			let mut tmp: Vec<AlbumKey> = artists[artist.inner()].albums.clone();
+			let mut tmp: Vec<AlbumKey> = artists[artist.inner()].albums.iter().map(|(key, _)| *key).collect();
 			tmp.sort_by(|a, b|
 				albums[a.inner()].release.cmp(
 					&albums[b.inner()].release
@@ -131,7 +131,7 @@ impl super::Ccd {
 		let mut vec_album: Vec<Vec<AlbumKey>> = Vec::with_capacity(albums.len());
 
 		for (artist, _) in sorted_artists {
-			let mut tmp: Vec<AlbumKey> = artists[artist.inner()].albums.clone();
+			let mut tmp: Vec<AlbumKey> = artists[artist.inner()].albums.iter().map(|(key, _)| *key).collect();
 			tmp.sort_by(|a, b|
 				albums[a.inner()].title.to_lowercase().cmp(
 					&albums[b.inner()].title.to_lowercase()
@@ -151,7 +151,7 @@ impl super::Ccd {
 		let mut vec_album: Vec<Vec<AlbumKey>> = Vec::with_capacity(albums.len());
 
 		for (artist, _) in sorted_artists {
-			let mut tmp: Vec<AlbumKey> = artists[artist.inner()].albums.clone();
+			let mut tmp: Vec<AlbumKey> = artists[artist.inner()].albums.iter().map(|(key, _)| *key).collect();
 			tmp.sort_by(|a, b|
 				albums[a.inner()].title.to_lowercase().cmp(
 					&albums[b.inner()].title.to_lowercase()
@@ -229,7 +229,7 @@ impl super::Ccd {
 	) -> Box<[(SongKey, SongPtr)]> {
 		let vec_song: Vec<Vec<SongKey>> = sorted_albums
 			.iter()
-			.map(|(a, _)| albums[a.inner()].songs.clone())
+			.map(|(a, _)| albums[a.inner()].songs.iter().map(|(key, _)| *key).collect())
 			.collect();
 
 		vec_song.into_iter().flatten().map(|k| (k, SongPtr::null())).collect()

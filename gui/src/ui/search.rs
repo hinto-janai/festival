@@ -356,9 +356,8 @@ CentralPanel::default().show(ctx, |ui| {
 
 							row.col(|ui| {
 								crate::no_rounding!(ui);
-								for key in artist.albums.iter() {
-									let album = &self.collection.albums[key];
-
+								for (key, ptr) in artist.albums.iter() {
+									let album = &*ptr;
 									crate::album_button!(self, album, *key, ui, ctx, 120.0, &*album.title);
 								}
 							});

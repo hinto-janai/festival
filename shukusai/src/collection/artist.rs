@@ -2,14 +2,16 @@
 use bincode::{Encode,Decode};
 use std::marker::PhantomData;
 use readable::Runtime;
-use crate::collection::key::{
+use crate::collection::{
 	AlbumKey,
+	AlbumPtr,
 	SongKey,
+	SongPtr,
 };
 use std::sync::Arc;
 
 //----------------------------------------------------------------------------------------------------
-#[derive(Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Encode,Decode)]
+#[derive(Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Encode)]
 /// Struct holding [`Artist`] metadata, with pointers to [`Album`]\(s\)
 ///
 /// This struct holds all the metadata about a particular [`Artist`].
@@ -27,11 +29,11 @@ pub struct Artist {
 	// SOMEDAY:
 	// This should be a Box<[AlbumKey]>.
 	/// Keys to the associated [`Album`]\(s\).
-	pub albums: Vec<AlbumKey>,
+	pub albums: Vec<(AlbumKey, AlbumPtr)>,
 	/// Keys to every [`Song`] by this [`Artist`].
 	///
 	/// The order is [`Album`] release order, then [`Song`] track order.
-	pub songs: Box<[SongKey]>,
+	pub songs: Box<[(SongKey, SongPtr)]>,
 }
 
 impl Default for Artist {

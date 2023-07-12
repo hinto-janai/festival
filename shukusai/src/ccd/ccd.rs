@@ -87,14 +87,13 @@ impl Ccd {
 		// 3. For each file, append metadata to appropriate `Vec`.
 		// 4. Make sure `Vec<Album>` metadata matches the songs.
 		// 5. Create sorted `Key`'s.
-		// 6. Create the "Map"
-		// 7. Create our `Collection`.
-		// 8. Transform in-memory `Collection` album art to bytes
-		// 9. Clone `Collection` for later saving
-		// 10. Transform in-memory `Collection` album art bytes to `egui`'s `RetainedImage`
-		// 11. Pre-allocate the `RetainedImage`'s into `egui`
-		// 12. Send to `Kernel`
-		// 13. Save `Collection` to disk.
+		// 6. Create our `Collection`, and fix it.
+		// 7. Transform in-memory `Collection` album art to bytes
+		// 8. Clone `Collection` for later saving
+		// 9. Transform in-memory `Collection` album art bytes to `egui`'s `RetainedImage`
+		// 10. Pre-allocate the `RetainedImage`'s into `egui`
+		// 11. Send to `Kernel`
+		// 12. Save `Collection` to disk.
 		let beginning = now!();
 		debug!("CCD ... purpose in life: new_collection()");
 
@@ -208,30 +207,22 @@ impl Ccd {
 
 		//-------------------------------------------------------------------------------- 6
 		let now = now!();
-		send!(to_kernel, CcdToKernel::UpdatePhase((55.00, Phase::Search)));
-		let map = Map::from_3_vecs(&vec_artist, &vec_album, &vec_song);
-		let perf_map = secs_f32!(now);
-		trace!("CCD [6/13] ... Map: {perf_map}");
-
-		//-------------------------------------------------------------------------------- 7
-		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((60.00, Phase::Prepare)));
 		let mut collection = Collection {
-			// These will be fixed after construction.
+			// We calculated this during "The Loop".
+			count_art: Unsigned::from(count_art),
+			artists: Artists::from_vec(vec_artist),
+			albums: Albums::from_vec(vec_album),
+			songs: Songs::from_vec(vec_song),
+
+			// INVARIANT: These fields must be fixed after construction.
 			empty: false,
 			timestamp: 0,
 			count_artist: Unsigned::zero(),
 			count_album: Unsigned::zero(),
 			count_song: Unsigned::zero(),
 
-			// We calculated this during "The Loop".
-			count_art: Unsigned::from(count_art),
-
-			map,
-
-			artists: Artists::from_vec(vec_artist),
-			albums: Albums::from_vec(vec_album),
-			songs: Songs::from_vec(vec_song),
+			map: Map::default(),
 
 			sort_artist_lexi,
 			sort_artist_lexi_rev,
@@ -343,13 +334,16 @@ impl Ccd {
 			SongPtr::fix(&collection.songs, &mut collection.sort_song_title);
 			SongPtr::fix(&collection.songs, &mut collection.sort_song_title_rev);
 
+			// Fix "Map".
+			collection.map = Map::from_collection(&collection);
+
 			// Set `timestamp`.
 			collection.timestamp = benri::unix!();
 		}
 		let perf_prepare = secs_f32!(now);
 		trace!("CCD [7/13] ... Prepare: {perf_prepare}");
 
-		//-------------------------------------------------------------------------------- 8
+		//-------------------------------------------------------------------------------- 7
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((60.00, Phase::Art)));
 		let increment    = 30.0 / collection.albums.len() as f64;
@@ -358,7 +352,7 @@ impl Ccd {
 		let perf_resize = secs_f32!(now);
 		trace!("CCD [8/13] ... Resize: {perf_resize}");
 
-		//-------------------------------------------------------------------------------- 9
+		//-------------------------------------------------------------------------------- 8
 		// FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 		// We need to serialize `Collection` and save to disk while we
 		// have the art bytes as an actual `Vec<u8>`. `egui` does not
@@ -391,7 +385,7 @@ impl Ccd {
 		trace!("CCD [9/13] ... Clone: {perf_clone}");
 		// FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
-		//-------------------------------------------------------------------------------- 10
+		//-------------------------------------------------------------------------------- 9
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((95.00, Phase::Convert)));
 		let increment = 4.0 / collection.albums.len() as f64;
@@ -401,7 +395,7 @@ impl Ccd {
 		let perf_convert = secs_f32!(now);
 		trace!("CCD [10/13] ... Convert: {perf_convert}");
 
-		//-------------------------------------------------------------------------------- 11
+		//-------------------------------------------------------------------------------- 10
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((100.00, Phase::Finalize)));
 		// FIXME: See `img.rs`.
@@ -409,12 +403,12 @@ impl Ccd {
 		let perf_textures = secs_f32!(now);
 		trace!("CCD [11/13] ... Textures: {perf_textures}");
 
-		//-------------------------------------------------------------------------------- 12
+		//-------------------------------------------------------------------------------- 11
 		send!(to_kernel, CcdToKernel::NewCollection(CollectionPtr::new(collection)));
 		let user_time = secs_f32!(beginning);
 		info!("CCD ... User time: {}", user_time);
 
-		//-------------------------------------------------------------------------------- 13
+		//-------------------------------------------------------------------------------- 12
 		let now = now!();
 		// Set `saving` state.
 		atomic_store!(crate::state::SAVING, true);
@@ -473,7 +467,6 @@ impl Ccd {
 			metadata:    perf_metadata,
 			fix:         perf_fix,
 			sort:        perf_sort,
-			map:         perf_map,
 			prepare:     perf_prepare,
 			resize:      perf_resize,
 			clone:       perf_clone,

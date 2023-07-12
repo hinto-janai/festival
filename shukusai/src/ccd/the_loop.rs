@@ -11,6 +11,9 @@ use crate::collection::{
 	ArtistKey,
 	AlbumKey,
 	SongKey,
+	ArtistPtr,
+	AlbumPtr,
+	SongPtr,
 };
 use benri::{
 	sync::*,
@@ -218,6 +221,9 @@ impl crate::ccd::Ccd {
 					track,
 					disc,
 					path,
+
+					// INVARIANT: Must be updated later.
+					album_ptr: AlbumPtr::null(),
 				};
 
 				// Lock.
@@ -228,7 +234,8 @@ impl crate::ccd::Ccd {
 				vec_song.push(song);
 
 				// Update `Album`.
-				vec_album[*album_idx].songs.push(SongKey::from(vec_song.len() - 1));
+				// INVARIANT: Must be updated later.
+				vec_album[*album_idx].songs.push((SongKey::from(vec_song.len() - 1), SongPtr::null()));
 
 				continue;
 			}
@@ -280,6 +287,9 @@ impl crate::ccd::Ccd {
 				disc,
 				path,
 				album: AlbumKey::from(vec_album.len()),
+
+				// INVARIANT: Must be updated later.
+				album_ptr: AlbumPtr::null(),
 			};
 
 			// Create `Album`.
@@ -290,10 +300,11 @@ impl crate::ccd::Ccd {
 				release,
 
 				artist: ArtistKey::from(*artist_idx),
-				songs: vec![SongKey::from(vec_song.len())],
 				path: path_parent,
 
-				// Needs to be updated later.
+				// INVARIANT: Must be updated later.
+				songs: vec![(SongKey::from(vec_song.len()), SongPtr::null())],
+				artist_ptr: ArtistPtr::null(),
 				runtime: runtime_album,
 				discs: 0,
 				song_count,
@@ -302,7 +313,8 @@ impl crate::ccd::Ccd {
 
 			// Update `Artist`.
 			let count_album = vec_album.len();
-			vec_artist[*artist_idx].albums.push(AlbumKey::from(count_album));
+			// INVARIANT: Must be updated later.
+			vec_artist[*artist_idx].albums.push((AlbumKey::from(count_album), AlbumPtr::null()));
 
 			// Push `Album/Song`.
 			vec_album.push(album_struct);
@@ -369,6 +381,9 @@ impl crate::ccd::Ccd {
 			disc,
 			path,
 			album: AlbumKey::from(vec_album.len()),
+
+			// INVARIANT: Must be updated later.
+			album_ptr: AlbumPtr::null(),
 		};
 
 		// Create `Album`.
@@ -379,10 +394,11 @@ impl crate::ccd::Ccd {
 			release,
 
 			artist: ArtistKey::from(vec_artist.len()),
-			songs: vec![SongKey::from(vec_song.len())],
 			path: path_parent,
 
-			// Needs to be updated later.
+			// INVARIANT: Must be updated later.
+			songs: vec![(SongKey::from(vec_song.len()), SongPtr::null())],
+			artist_ptr: ArtistPtr::null(),
 			runtime: runtime_album,
 			discs: 0,
 			song_count,
@@ -397,9 +413,9 @@ impl crate::ccd::Ccd {
 			name_lowercase: artist_lowercase,
 			name_uppercase: artist_uppercase,
 
-			// Will be updated later.
+			// INVARIANT: Must be updated later.
 			runtime: Runtime::zero(),
-			albums: vec![AlbumKey::from(count_album)],
+			albums: vec![(AlbumKey::from(count_album), AlbumPtr::null())],
     		songs: Box::new([]),
 		};
 
@@ -462,19 +478,19 @@ impl crate::ccd::Ccd {
 			// Total runtime.
 			album.runtime = Runtime::from(album.songs
 				.iter()
-				.map(|key| vec_song[key.inner()].runtime.inner())
+				.map(|(key, _)| vec_song[key.inner()].runtime.inner())
 				.sum::<u32>());
 
 			// Sort songs based off `track`.
-			album.songs.sort_by(|a, b|
+			album.songs.sort_by(|(a, _), (b, _)|
 				vec_song[a.inner()].track.cmp(
 					&vec_song[b.inner()].track
 				)
 			);
 
 			// Fix `Album` disc count.
-			let mut last_disc = vec_song[album.songs[0].inner()].disc;
-			for key in album.songs.iter() {
+			let mut last_disc = vec_song[album.songs[0].0.inner()].disc;
+			for (key, _) in album.songs.iter() {
 				let song = &vec_song[key.inner()];
 				if last_disc != song.disc {
 					album.discs += 1;
@@ -484,7 +500,7 @@ impl crate::ccd::Ccd {
 
 			// Sort songs based off `disc` (if there's more than 1).
 			if album.discs > 1 {
-				album.songs.sort_by(|a, b|
+				album.songs.sort_by(|(a, _), (b, _)|
 					vec_song[a.inner()].disc.cmp(
 						&vec_song[b.inner()].disc
 					)
@@ -494,20 +510,20 @@ impl crate::ccd::Ccd {
 
 		// Fix `Album` order in the `Artist` (release order).
 		for artist in vec_artist {
-			artist.albums.sort_by(|a, b| {
+			artist.albums.sort_by(|(a, _), (b, _)| {
 				vec_album[a.inner()].release.cmp(
 					&vec_album[b.inner()].release
 				)
 			});
 
 			// Total runtime.
-			let runtime: u32 = artist.albums.iter().map(|a| vec_album[a.inner()].runtime.inner()).sum();
+			let runtime: u32 = artist.albums.iter().map(|(key, _)| vec_album[key.inner()].runtime.inner()).sum();
 			artist.runtime = Runtime::from(runtime);
 
 			// Collect `SongKey` for the `Artist`'s.
 			artist.songs = artist.albums
 				.iter()
-				.flat_map(|k| vec_album[k.inner()].songs.iter().map(|k| *k))
+				.flat_map(|(key, _)| vec_album[key.inner()].songs.iter().map(|k| *k))
 				.collect();
 		}
 

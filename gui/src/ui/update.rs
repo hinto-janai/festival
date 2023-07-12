@@ -290,7 +290,7 @@ impl Gui {
 					match self.state.tab {
 						Tab::View   => {
 							if let Some(key) = self.state.album {
-								self.state.album = Some(self.collection.next_album(key));
+								self.state.album = Some(self.collection.next_album(key).0);
 							}
 						}
 						Tab::Albums  => self.increment_art_size(),
@@ -302,7 +302,7 @@ impl Gui {
 					match self.state.tab {
 						Tab::View   => {
 							if let Some(key) = self.state.album {
-								self.state.album = Some(self.collection.previous_album(key));
+								self.state.album = Some(self.collection.previous_album(key).0);
 							}
 						}
 						Tab::Albums => self.decrement_art_size(),
