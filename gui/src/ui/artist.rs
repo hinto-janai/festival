@@ -72,12 +72,12 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width
 		.show_viewport(ui, |ui, _|
 	{
 		// For each `Artist`...
-		for key in self.collection.artist_iter(self.settings.artist_sort) {
-			let artist = &self.collection.artists[key];
+		for (key, ptr) in self.collection.artist_iter(self.settings.artist_sort) {
+			let artist = *ptr;
 
 			// `Artist` name.
 			let label_name = Label::new(
-				RichText::new(&artist.name)
+				RichText::new(&*artist.name)
 				.text_style(TextStyle::Name("30".into()))
 			);
 
@@ -117,10 +117,10 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width
 					crate::no_rounding!(ui);
 
 					// Album
-					for key in &artist.albums {
-						let album = &self.collection.albums[key];
+					for (key, ptr) in artist.albums.iter() {
+						let album = &*ptr;
 
-						crate::album_button!(self, album, *key, ui, ctx, 120.0, &album.title);
+						crate::album_button!(self, album, *key, ui, ctx, 120.0, &*album.title);
 					}
 				});
 			});
@@ -151,7 +151,7 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width
 
 	// `Artist` name.
 	let label_name = Label::new(
-		RichText::new(&artist.name)
+		RichText::new(&*artist.name)
 		.color(BONE)
 		.text_style(TextStyle::Name("30".into()))
 	);
@@ -195,11 +195,11 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width
 		// The total song offset of this `Artist`.
 		let mut offset = 0;
 
-		for album_key in artist.albums.iter() {
+		for (album_key, album_ptr) in artist.albums.iter() {
 			ui.separator();
 			ui.add_space(10.0);
 
-			let album = &self.collection.albums[album_key];
+			let album = &*album_ptr;
 
 			ui.horizontal(|ui| {
 				ui.scope(|ui| {
@@ -210,15 +210,15 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width
 
 				ui.vertical(|ui| {
 					// Info.
-					let album_title = Label::new(RichText::new(&album.title).color(BONE));
+					let album_title = Label::new(RichText::new(&*album.title).color(BONE));
 					ui.add(album_title);
 					ui.label(album.release.as_str());
 					ui.label(album.runtime.as_str());
 					ui.separator();
 
 					// Song list.
-					for key in album.songs.iter() {
-						let song = &self.collection.songs[key];
+					for (key, ptr) in album.songs.iter() {
+						let song = &*ptr;
 						crate::song_button!(self, self.audio_state.song == Some(*key), album, song, *key, ui, offset, Some(artist_key), None, 35.0, 0.0);
 						offset += 1;
 					}

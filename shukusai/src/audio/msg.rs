@@ -2,7 +2,7 @@
 use std::sync::Arc;
 use crate::{
 	collection::{
-		Collection,
+		Collection,CollectionPtr,
 		ArtistKey,AlbumKey,SongKey,
 	},
 	audio::{
@@ -52,8 +52,8 @@ pub(crate) enum KernelToAudio {
 	RestoreAudioState,
 
 	// Collection.
-	DropCollection,                 // Drop your pointer.
-	NewCollection(Arc<Collection>), // Here's a new `Collection` pointer.
+	DropCollection,               // Drop your pointer.
+	NewCollection(CollectionPtr), // Here's a new `Collection` pointer.
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

@@ -1,24 +1,28 @@
 //---------------------------------------------------------------------------------------------------- Use
-use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
 use std::collections::HashMap;
 use crate::collection::{
+	Collection,
 	Artist,
 	Album,
 	Song,
 	ArtistKey,
 	AlbumKey,
 	SongKey,
+	ArtistPtr,
+	AlbumPtr,
+	SongPtr,
 };
+use std::sync::Arc;
 
 //---------------------------------------------------------------------------------------------------- Map
-#[derive(Clone,Debug,Default,Serialize,Deserialize,PartialEq,Encode,Decode)]
-#[serde(transparent)]
+#[derive(Clone,Debug,Default,PartialEq,Encode,Decode)]
+#[repr(transparent)]
 /// A [`HashMap`] that knows all [`Artist`]'s, [`Album`]'s and [`Song`]'s.
 ///
 /// No public functions are implemented on this type directly,
 /// use [`Collection`]'s functions instead.
-pub struct Map(pub(crate) HashMap<String, (ArtistKey, AlbumMap)>);
+pub struct Map(pub(crate) HashMap<Arc<str>, ((ArtistKey, ArtistPtr), AlbumMap)>);
 
 impl Map {
 	#[inline(always)]
@@ -29,15 +33,11 @@ impl Map {
 	#[inline(always)] // This only gets called once.
 	// Iterates over the the "3 Slices"
 	// and creates a matching `Map`.
-	pub(crate) fn from_3_vecs(
-		artists: &[Artist],
-		albums: &[Album],
-		songs: &[Song],
-	) -> Self {
-		let mut map = Self::default();
+	pub(crate) fn from_collection(c: &Collection) -> Self {
+		let mut map = Map::default();
 
 		// For each `Artist`...
-		for (i, artist) in artists.iter().enumerate() {
+		for (i, artist) in c.artists.iter().enumerate() {
 			let mut album_map = AlbumMap::default();
 
 			// For each `Album` within `Artist`...
@@ -45,16 +45,16 @@ impl Map {
 				let mut song_map  = SongMap::default();
 
 				// For each `Song` within the `Album`...
-				for song in albums[album.inner()].songs.iter() {
-					song_map.0.insert(songs[song.inner()].title.to_string(), *song);
+				for song in c.albums[album.0].songs.iter() {
+					song_map.0.insert(c.songs[song.0].title.clone(), *song);
 				}
 
 				// Insert the `SongMap` into the `AlbumMap`.
-				album_map.0.insert(albums[album.inner()].title.to_string(), (*album, song_map));
+				album_map.0.insert(c.albums[album.0].title.clone(), (*album, song_map));
 			}
 
 			// Insert the `AlbumMap` into the `(Artist)Map`.
-			map.0.insert(artist.name.to_string(), (ArtistKey::from(i), album_map));
+			map.0.insert(artist.name.clone(), ((ArtistKey::from(i), ArtistPtr::from(artist)), album_map));
 		}
 
 		map
@@ -62,14 +62,14 @@ impl Map {
 }
 
 //---------------------------------------------------------------------------------------------------- AlbumMap
-#[derive(Clone,Debug,Default,Serialize,Deserialize,PartialEq,Encode,Decode)]
-#[serde(transparent)]
-pub(crate) struct AlbumMap(pub(crate) HashMap<String, (AlbumKey, SongMap)>);
+#[derive(Clone,Debug,Default,PartialEq,Encode,Decode)]
+#[repr(transparent)]
+pub(crate) struct AlbumMap(pub(crate) HashMap<Arc<str>, ((AlbumKey, AlbumPtr), SongMap)>);
 
 //---------------------------------------------------------------------------------------------------- SongMap
-#[derive(Clone,Debug,Default,Serialize,Deserialize,PartialEq,Encode,Decode)]
-#[serde(transparent)]
-pub(crate) struct SongMap(pub(crate) HashMap<String, SongKey>);
+#[derive(Clone,Debug,Default,PartialEq,Encode,Decode)]
+#[repr(transparent)]
+pub(crate) struct SongMap(pub(crate) HashMap<Arc<str>, (SongKey, SongPtr)>);
 
 //---------------------------------------------------------------------------------------------------- TESTS
 //#[cfg(test)]

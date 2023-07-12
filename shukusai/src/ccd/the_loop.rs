@@ -11,6 +11,9 @@ use crate::collection::{
 	ArtistKey,
 	AlbumKey,
 	SongKey,
+	ArtistPtr,
+	AlbumPtr,
+	SongPtr,
 };
 use benri::{
 	sync::*,
@@ -22,9 +25,7 @@ use readable::{
 	Unsigned,
 	Date,
 };
-use std::sync::{Mutex};
-
-use std::marker::PhantomData;
+use std::sync::{Arc, Mutex};
 use symphonia::core::{
 	io::MediaSourceStream,
 	probe::{ProbeResult,Hint},
@@ -101,7 +102,7 @@ impl crate::ccd::Ccd {
 		// - We have a "Working Memory" that keeps track of what `Artist/Album` we've seen already.
 		// - We have 3 `Vec`'s (that will eventually become the `Collection`).
 		//
-		// The "Working Memory" is a `HashMap` that takes in `String` input of an artist name and returns the `index` to it,
+		// The "Working Memory" is a `HashMap` that takes in `str` input of an artist name and returns the `index` to it,
 		// along with another `HashMap` which represents that `Artist`'s `Album`'s and its appropriate `indices`.
 		//
 		// Using a `Vec` and/or `BTreeMap` instead was considered, since 99% of the time,
@@ -116,7 +117,7 @@ impl crate::ccd::Ccd {
 		//                            Name   in `Vec<Artist>`   Name   in `Vec<Album>`
 		//                              |          |              |         |
 		//                              v          v              v         v
-		let memory:       Mutex<HashMap<String, (usize, HashMap<String, usize>)>> = Mutex::new(HashMap::with_capacity(artist_len_maybe));
+		let memory:       Mutex<HashMap<Arc<str>, (usize, HashMap<Arc<str>, usize>)>> = Mutex::new(HashMap::with_capacity(artist_len_maybe));
 		let vec_artist:   Mutex<Vec<Artist>> = Mutex::new(Vec::with_capacity(artist_len_maybe));
 		let vec_album:    Mutex<Vec<Album>>  = Mutex::new(Vec::with_capacity(album_len_maybe));
 		let vec_song:     Mutex<Vec<Song>>   = Mutex::new(Vec::with_capacity(song_len_maybe));
@@ -187,8 +188,19 @@ impl crate::ccd::Ccd {
 			release,
 		} = metadata;
 
+		// Convert `String`'s to `Arc<str>`.
+		let artist_lowercase: Arc<str> = artist.to_lowercase().into();
+		let artist_uppercase: Arc<str> = artist.to_uppercase().into();
+		let album_lowercase: Arc<str>  = album.to_lowercase().into();
+		let album_uppercase: Arc<str>  = album.to_uppercase().into();
+		let title_uppercase: Arc<str>  = title.to_uppercase().into();
+		let title_lowercase: Arc<str>  = title.to_lowercase().into();
+		let artist: Arc<str> = artist.into();
+		let album: Arc<str>  = album.into();
+		let title: Arc<str>  = title.into();
+
 		// Send update to `Kernel`.
-		send!(to_kernel, CcdToKernel::UpdateIncrement((increment, title.to_string())));
+		send!(to_kernel, CcdToKernel::UpdateIncrement((increment, Arc::clone(&title))));
 
 		// Lock memory (HashMap).
 		let mut memory = lock!(memory);
@@ -201,6 +213,8 @@ impl crate::ccd::Ccd {
 				// Create `Song`.
 				let song = Song {
 					title,
+					title_lowercase,
+					title_uppercase,
 					album: AlbumKey::from(*album_idx),
 					runtime: Runtime::from(runtime),
 					sample_rate,
@@ -208,14 +222,8 @@ impl crate::ccd::Ccd {
 					disc,
 					path,
 
-    				_track_artists: PhantomData,
-    				_lyrics: PhantomData,
-    				_reserved1: PhantomData,
-				    _reserved2: PhantomData,
-				    _reserved3: PhantomData,
-				    _reserved4: PhantomData,
-				    _reserved5: PhantomData,
-				    _reserved6: PhantomData,
+					// INVARIANT: Must be updated later.
+					album_ptr: AlbumPtr::null(),
 				};
 
 				// Lock.
@@ -226,22 +234,22 @@ impl crate::ccd::Ccd {
 				vec_song.push(song);
 
 				// Update `Album`.
-				vec_album[*album_idx].songs.push(SongKey::from(vec_song.len() - 1));
+				// INVARIANT: Must be updated later.
+				vec_album[*album_idx].songs.push((SongKey::from(vec_song.len() - 1), SongPtr::null()));
 
 				continue;
 			}
 
 			//------------------------------------------------------------- If `Artist` exists, but not `Album`.
 			// Prepare `Song`.
-			let song_title    = title;
-			let runtime       = Runtime::from(runtime);
+			let runtime = Runtime::from(runtime);
 
 			// Prepare `Album`.
 			let release = match release {
 				Some(r) => Date::from_str_silent(&r),
 				None    => Date::unknown(),
 			};
-			let album_title   = album.clone();
+			let album_title   = Arc::clone(&album);
 			let song_count    = Unsigned::zero();
 			let runtime_album = Runtime::zero();
 			let art = match art {
@@ -270,7 +278,9 @@ impl crate::ccd::Ccd {
 
 			// Create `Song`.
 			let song = Song {
-				title: song_title,
+				title,
+				title_lowercase,
+				title_uppercase,
 				runtime,
 				sample_rate,
 				track,
@@ -278,44 +288,33 @@ impl crate::ccd::Ccd {
 				path,
 				album: AlbumKey::from(vec_album.len()),
 
-				_track_artists: PhantomData,
-				_lyrics: PhantomData,
-				_reserved1: PhantomData,
-			    _reserved2: PhantomData,
-			    _reserved3: PhantomData,
-			    _reserved4: PhantomData,
-			    _reserved5: PhantomData,
-			    _reserved6: PhantomData,
+				// INVARIANT: Must be updated later.
+				album_ptr: AlbumPtr::null(),
 			};
 
 			// Create `Album`.
 			let album_struct = Album {
 				title: album_title,
+				title_lowercase: album_lowercase,
+				title_uppercase: album_uppercase,
 				release,
 
 				artist: ArtistKey::from(*artist_idx),
-				songs: vec![SongKey::from(vec_song.len())],
 				path: path_parent,
 
-				// Needs to be updated later.
+				// INVARIANT: Must be updated later.
+				songs: vec![(SongKey::from(vec_song.len()), SongPtr::null())],
+				artist_ptr: ArtistPtr::null(),
 				runtime: runtime_album,
 				discs: 0,
 				song_count,
 				art,
-
-			    _genre: PhantomData,
-			    _compilation: PhantomData,
-			    _reserved1: PhantomData,
-			    _reserved2: PhantomData,
-			    _reserved3: PhantomData,
-			    _reserved4: PhantomData,
-			    _reserved5: PhantomData,
-			    _reserved6: PhantomData,
 			};
 
 			// Update `Artist`.
 			let count_album = vec_album.len();
-			vec_artist[*artist_idx].albums.push(AlbumKey::from(count_album));
+			// INVARIANT: Must be updated later.
+			vec_artist[*artist_idx].albums.push((AlbumKey::from(count_album), AlbumPtr::null()));
 
 			// Push `Album/Song`.
 			vec_album.push(album_struct);
@@ -341,7 +340,7 @@ impl crate::ccd::Ccd {
 			Some(r) => Date::from_str_silent(&r),
 			None    => Date::unknown(),
 		};
-		let album_title   = album.clone();
+		let album_title   = Arc::clone(&album);
 		let song_count    = Unsigned::zero();
 		let runtime_album = Runtime::zero();
 		let art = match art {
@@ -364,7 +363,7 @@ impl crate::ccd::Ccd {
 		};
 
 		// Prepare `Artist`.
-		let name = artist.clone();
+		let name = Arc::clone(&artist);
 
 		// Lock.
 		let mut vec_artist = lock!(vec_artist);
@@ -374,6 +373,8 @@ impl crate::ccd::Ccd {
 		// Create `Song`.
 		let song = Song {
 			title,
+			title_lowercase,
+			title_uppercase,
 			runtime,
 			sample_rate,
 			track,
@@ -381,39 +382,27 @@ impl crate::ccd::Ccd {
 			path,
 			album: AlbumKey::from(vec_album.len()),
 
-			_track_artists: PhantomData,
-			_lyrics: PhantomData,
-			_reserved1: PhantomData,
-		    _reserved2: PhantomData,
-		    _reserved3: PhantomData,
-		    _reserved4: PhantomData,
-		    _reserved5: PhantomData,
-		    _reserved6: PhantomData,
+			// INVARIANT: Must be updated later.
+			album_ptr: AlbumPtr::null(),
 		};
 
 		// Create `Album`.
 		let album_struct = Album {
 			title: album_title,
+			title_lowercase: album_lowercase,
+			title_uppercase: album_uppercase,
 			release,
 
 			artist: ArtistKey::from(vec_artist.len()),
-			songs: vec![SongKey::from(vec_song.len())],
 			path: path_parent,
 
-			// Needs to be updated later.
+			// INVARIANT: Must be updated later.
+			songs: vec![(SongKey::from(vec_song.len()), SongPtr::null())],
+			artist_ptr: ArtistPtr::null(),
 			runtime: runtime_album,
 			discs: 0,
 			song_count,
 			art,
-
-		    _genre: PhantomData,
-		    _compilation: PhantomData,
-		    _reserved1: PhantomData,
-		    _reserved2: PhantomData,
-		    _reserved3: PhantomData,
-		    _reserved4: PhantomData,
-		    _reserved5: PhantomData,
-		    _reserved6: PhantomData,
 		};
 
 		// Create `Artist`.
@@ -421,18 +410,13 @@ impl crate::ccd::Ccd {
 		let count_album  = vec_album.len();
 		let artist_struct = Artist {
 			name,
+			name_lowercase: artist_lowercase,
+			name_uppercase: artist_uppercase,
 
-			// Will be updated later.
+			// INVARIANT: Must be updated later.
 			runtime: Runtime::zero(),
-			albums: vec![AlbumKey::from(count_album)],
+			albums: vec![(AlbumKey::from(count_album), AlbumPtr::null())],
     		songs: Box::new([]),
-
-		    _reserved1: PhantomData,
-		    _reserved2: PhantomData,
-		    _reserved3: PhantomData,
-		    _reserved4: PhantomData,
-		    _reserved5: PhantomData,
-		    _reserved6: PhantomData,
 		};
 
 		// Push `Artist/Album/Song`.
@@ -446,7 +430,7 @@ impl crate::ccd::Ccd {
 		drop(vec_song);
 
 		// Add to `HashMap` memory.
-		let map    = HashMap::from([(album.to_string(), count_album)]);
+		let map    = HashMap::from([(album, count_album)]);
 		let tuple  = (count_artist, map);
 
 		memory.insert(artist, tuple);
@@ -494,19 +478,19 @@ impl crate::ccd::Ccd {
 			// Total runtime.
 			album.runtime = Runtime::from(album.songs
 				.iter()
-				.map(|key| vec_song[key.inner()].runtime.inner())
+				.map(|(key, _)| vec_song[key.inner()].runtime.inner())
 				.sum::<u32>());
 
 			// Sort songs based off `track`.
-			album.songs.sort_by(|a, b|
+			album.songs.sort_by(|(a, _), (b, _)|
 				vec_song[a.inner()].track.cmp(
 					&vec_song[b.inner()].track
 				)
 			);
 
 			// Fix `Album` disc count.
-			let mut last_disc = vec_song[album.songs[0].inner()].disc;
-			for key in album.songs.iter() {
+			let mut last_disc = vec_song[album.songs[0].0.inner()].disc;
+			for (key, _) in album.songs.iter() {
 				let song = &vec_song[key.inner()];
 				if last_disc != song.disc {
 					album.discs += 1;
@@ -516,7 +500,7 @@ impl crate::ccd::Ccd {
 
 			// Sort songs based off `disc` (if there's more than 1).
 			if album.discs > 1 {
-				album.songs.sort_by(|a, b|
+				album.songs.sort_by(|(a, _), (b, _)|
 					vec_song[a.inner()].disc.cmp(
 						&vec_song[b.inner()].disc
 					)
@@ -526,20 +510,20 @@ impl crate::ccd::Ccd {
 
 		// Fix `Album` order in the `Artist` (release order).
 		for artist in vec_artist {
-			artist.albums.sort_by(|a, b| {
+			artist.albums.sort_by(|(a, _), (b, _)| {
 				vec_album[a.inner()].release.cmp(
 					&vec_album[b.inner()].release
 				)
 			});
 
 			// Total runtime.
-			let runtime: u32 = artist.albums.iter().map(|a| vec_album[a.inner()].runtime.inner()).sum();
+			let runtime: u32 = artist.albums.iter().map(|(key, _)| vec_album[key.inner()].runtime.inner()).sum();
 			artist.runtime = Runtime::from(runtime);
 
 			// Collect `SongKey` for the `Artist`'s.
 			artist.songs = artist.albums
 				.iter()
-				.flat_map(|k| vec_album[k.inner()].songs.iter().map(|k| *k))
+				.flat_map(|(key, _)| vec_album[key.inner()].songs.iter().map(|k| *k))
 				.collect();
 		}
 

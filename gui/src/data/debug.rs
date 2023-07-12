@@ -130,7 +130,7 @@ kernel_returned      | {}
 			self.og_state,
 			self.settings,
 			self.og_settings,
-			self.collection,
+			*self.collection,
 		);
 
 		self.debug_info = DebugInfo(info);

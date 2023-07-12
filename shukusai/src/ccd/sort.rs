@@ -6,6 +6,9 @@ use crate::collection::{
 	ArtistKey,
 	AlbumKey,
 	SongKey,
+	ArtistPtr,
+	AlbumPtr,
+	SongPtr,
 };
 
 //---------------------------------------------------------------------------------------------------- __NAME__
@@ -28,63 +31,67 @@ impl super::Ccd {
 	}
 
 	//--------------------------------------------------------------- `ArtistKey` sorts.
-	pub(super) fn sort_artist_lexi(artists: &[Artist]) -> Box<[ArtistKey]> {
+	pub(super) fn sort_artist_lexi(artists: &[Artist]) -> Box<[(ArtistKey, ArtistPtr)]> {
 		let mut vec_artist = Self::filled_vec_usize(artists.len());
 		vec_artist.sort_by(|a, b|
 			artists[*a].name.to_lowercase().cmp(
 				&artists[*b].name.to_lowercase()
 			)
 		);
-		vec_artist.into_iter().map(ArtistKey::from).collect()
+		vec_artist.into_iter().map(|k| (ArtistKey::from(k), ArtistPtr::null())).collect()
 	}
 
-	pub(super) fn sort_artist_album_count(artists: &[Artist]) -> Box<[ArtistKey]> {
+	pub(super) fn sort_artist_album_count(artists: &[Artist]) -> Box<[(ArtistKey, ArtistPtr)]> {
 		let mut vec_artist = Self::filled_vec_usize(artists.len());
 		vec_artist.sort_by(|a, b|
 			artists[*a].albums.len().cmp(
 				&artists[*b].albums.len()
 			)
 		);
-		vec_artist.into_iter().map(ArtistKey::from).collect()
+		vec_artist.into_iter().map(|k| (ArtistKey::from(k), ArtistPtr::null())).collect()
 	}
 
-	pub(super) fn sort_artist_song_count(artists: &[Artist], albums: &[Album]) -> Box<[ArtistKey]> {
+	pub(super) fn sort_artist_song_count(artists: &[Artist], albums: &[Album]) -> Box<[(ArtistKey, ArtistPtr)]> {
 		let mut vec_artist = Self::filled_vec_usize(artists.len());
 		vec_artist.sort_by(|a, b| {
- 			let first:  usize = artists[*a].albums.iter().map(|a| albums[a.inner()].songs.len()).sum();
-			let second: usize = artists[*b].albums.iter().map(|b| albums[b.inner()].songs.len()).sum();
+ 			let first:  usize = artists[*a].albums.iter().map(|(a, _)| albums[a.inner()].songs.len()).sum();
+			let second: usize = artists[*b].albums.iter().map(|(b, _)| albums[b.inner()].songs.len()).sum();
 
 			first.cmp(&second)
 		});
 
-		vec_artist.into_iter().map(ArtistKey::from).collect()
+		vec_artist.into_iter().map(|k| (ArtistKey::from(k), ArtistPtr::null())).collect()
 	}
 
-	pub(super) fn sort_artist_runtime(artists: &[Artist]) -> Box<[ArtistKey]> {
+	pub(super) fn sort_artist_runtime(artists: &[Artist]) -> Box<[(ArtistKey, ArtistPtr)]> {
 		let mut vec_artist = Self::filled_vec_usize(artists.len());
 
 		vec_artist.sort_by(|a, b| artists[*a].runtime.cmp(&artists[*b].runtime));
 
-		vec_artist.into_iter().map(ArtistKey::from).collect()
+		vec_artist.into_iter().map(|k| (ArtistKey::from(k), ArtistPtr::null())).collect()
 	}
 
-	pub(super) fn sort_artist_name(artists: &[Artist]) -> Box<[ArtistKey]> {
+	pub(super) fn sort_artist_name(artists: &[Artist]) -> Box<[(ArtistKey, ArtistPtr)]> {
 		let mut vec_artist = Self::filled_vec_usize(artists.len());
 		vec_artist.sort_by(|a, b| {
 			artists[*a].name.len().cmp(&artists[*b].name.len())
 		});
-		vec_artist.into_iter().map(ArtistKey::from).collect()
+		vec_artist.into_iter().map(|k| (ArtistKey::from(k), ArtistPtr::null())).collect()
 	}
 
 	//--------------------------------------------------------------- `AlbumKey` sorts.
 	// INVARIANT:
 	// These album functions require an already lexi-sorted `Vec<ArtistKey>`
 	// since this iterates over the artists, and gets their albums along the way.
-	pub(super) fn sort_album_release_artist_iter(sorted_artists: &[ArtistKey], artists: &[Artist], albums: &[Album]) -> Box<[AlbumKey]> {
+	pub(super) fn sort_album_release_artist_iter(
+		sorted_artists: &[(ArtistKey, ArtistPtr)],
+		artists: &[Artist],
+		albums: &[Album]
+	) -> Box<[(AlbumKey, AlbumPtr)]> {
 		let mut vec_album: Vec<Vec<AlbumKey>> = Vec::with_capacity(albums.len());
 
-		for artist in sorted_artists {
-			let mut tmp: Vec<AlbumKey> = artists[artist.inner()].albums.clone();
+		for (artist, _) in sorted_artists {
+			let mut tmp: Vec<AlbumKey> = artists[artist.inner()].albums.iter().map(|(key, _)| *key).collect();
 			tmp.sort_by(|a, b|
 				albums[a.inner()].release.cmp(
 					&albums[b.inner()].release
@@ -93,14 +100,18 @@ impl super::Ccd {
 			vec_album.push(tmp);
 		}
 
-		vec_album.into_iter().flatten().collect()
+		vec_album.into_iter().flatten().map(|k| (k, AlbumPtr::null())).collect()
 	}
 
-	pub(super) fn sort_album_release_rev_artist_iter(sorted_artists: &[ArtistKey], artists: &[Artist], albums: &[Album]) -> Box<[AlbumKey]> {
+	pub(super) fn sort_album_release_rev_artist_iter(
+		sorted_artists: &[(ArtistKey, ArtistPtr)],
+		artists: &[Artist],
+		albums: &[Album]
+	) -> Box<[(AlbumKey, AlbumPtr)]> {
 		let mut vec_album: Vec<Vec<AlbumKey>> = Vec::with_capacity(albums.len());
 
-		for artist in sorted_artists {
-			let mut tmp: Vec<AlbumKey> = artists[artist.inner()].albums.clone();
+		for (artist, _) in sorted_artists {
+			let mut tmp: Vec<AlbumKey> = artists[artist.inner()].albums.iter().map(|(key, _)| *key).collect();
 			tmp.sort_by(|a, b|
 				albums[a.inner()].release.cmp(
 					&albums[b.inner()].release
@@ -109,14 +120,18 @@ impl super::Ccd {
 			vec_album.push(tmp.into_iter().rev().collect());
 		}
 
-		vec_album.into_iter().flatten().collect()
+		vec_album.into_iter().flatten().map(|k| (k, AlbumPtr::null())).collect()
 	}
 
-	pub(super) fn sort_album_lexi_artist_iter(sorted_artists: &[ArtistKey], artists: &[Artist], albums: &[Album]) -> Box<[AlbumKey]> {
+	pub(super) fn sort_album_lexi_artist_iter(
+		sorted_artists: &[(ArtistKey, ArtistPtr)],
+		artists: &[Artist],
+		albums: &[Album]
+	) -> Box<[(AlbumKey, AlbumPtr)]> {
 		let mut vec_album: Vec<Vec<AlbumKey>> = Vec::with_capacity(albums.len());
 
-		for artist in sorted_artists {
-			let mut tmp: Vec<AlbumKey> = artists[artist.inner()].albums.clone();
+		for (artist, _) in sorted_artists {
+			let mut tmp: Vec<AlbumKey> = artists[artist.inner()].albums.iter().map(|(key, _)| *key).collect();
 			tmp.sort_by(|a, b|
 				albums[a.inner()].title.to_lowercase().cmp(
 					&albums[b.inner()].title.to_lowercase()
@@ -125,14 +140,18 @@ impl super::Ccd {
 			vec_album.push(tmp);
 		}
 
-		vec_album.into_iter().flatten().collect()
+		vec_album.into_iter().flatten().map(|k| (k, AlbumPtr::null())).collect()
 	}
 
-	pub(super) fn sort_album_lexi_rev_artist_iter(sorted_artists: &[ArtistKey], artists: &[Artist], albums: &[Album]) -> Box<[AlbumKey]> {
+	pub(super) fn sort_album_lexi_rev_artist_iter(
+		sorted_artists: &[(ArtistKey, ArtistPtr)],
+		artists: &[Artist],
+		albums: &[Album]
+	) -> Box<[(AlbumKey, AlbumPtr)]> {
 		let mut vec_album: Vec<Vec<AlbumKey>> = Vec::with_capacity(albums.len());
 
-		for artist in sorted_artists {
-			let mut tmp: Vec<AlbumKey> = artists[artist.inner()].albums.clone();
+		for (artist, _) in sorted_artists {
+			let mut tmp: Vec<AlbumKey> = artists[artist.inner()].albums.iter().map(|(key, _)| *key).collect();
 			tmp.sort_by(|a, b|
 				albums[a.inner()].title.to_lowercase().cmp(
 					&albums[b.inner()].title.to_lowercase()
@@ -141,11 +160,11 @@ impl super::Ccd {
 			vec_album.push(tmp.into_iter().rev().collect());
 		}
 
-		vec_album.into_iter().flatten().collect()
+		vec_album.into_iter().flatten().map(|k| (k, AlbumPtr::null())).collect()
 	}
 
 	// Doesn't require `Vec<Artist>`.
-	pub(super) fn sort_album_lexi(albums: &[Album]) -> Box<[AlbumKey]> {
+	pub(super) fn sort_album_lexi(albums: &[Album]) -> Box<[(AlbumKey, AlbumPtr)]> {
 		let mut vec_album = Self::filled_vec_usize(albums.len());
 
 		vec_album.sort_by(|a, b|
@@ -154,10 +173,10 @@ impl super::Ccd {
 			)
 		);
 
-		vec_album.into_iter().map(AlbumKey::from).collect()
+		vec_album.into_iter().map(|k| (AlbumKey::from(k), AlbumPtr::null())).collect()
 	}
 
-	pub(super) fn sort_album_release(albums: &[Album]) -> Box<[AlbumKey]> {
+	pub(super) fn sort_album_release(albums: &[Album]) -> Box<[(AlbumKey, AlbumPtr)]> {
 		let mut vec_album = Self::filled_vec_usize(albums.len());
 
 		vec_album.sort_by(|a, b|
@@ -166,35 +185,35 @@ impl super::Ccd {
 			)
 		);
 
-		vec_album.into_iter().map(AlbumKey::from).collect()
+		vec_album.into_iter().map(|k| (AlbumKey::from(k), AlbumPtr::null())).collect()
 	}
 
 	// INVARIANT:
 	// `runtime` is a `f64` which could be `NaN`.
 	// Except I (CCD) control this and it's always at least
 	// initialized as `0.0` so using `cmp_f64` is fine (it ignores `NaN`s).
-	pub(super) fn sort_album_runtime(albums: &[Album]) -> Box<[AlbumKey]> {
+	pub(super) fn sort_album_runtime(albums: &[Album]) -> Box<[(AlbumKey, AlbumPtr)]> {
 		let mut vec_album = Self::filled_vec_usize(albums.len());
 
 		vec_album.sort_by(|a, b|
 			albums[*a].runtime.inner().cmp(&albums[*b].runtime.inner())
 		);
 
-		vec_album.into_iter().map(AlbumKey::from).collect()
+		vec_album.into_iter().map(|k| (AlbumKey::from(k), AlbumPtr::null())).collect()
 	}
 
 	// INVARIANT:
 	// `runtime` is a `f64` which could be `NaN`.
 	// Except I (CCD) control this and it's always at least
 	// initialized as `0.0` so using `cmp_f64` is fine (it ignores `NaN`s).
-	pub(super) fn sort_album_title(albums: &[Album]) -> Box<[AlbumKey]> {
+	pub(super) fn sort_album_title(albums: &[Album]) -> Box<[(AlbumKey, AlbumPtr)]> {
 		let mut vec_album = Self::filled_vec_usize(albums.len());
 
 		vec_album.sort_by(|a, b|
 			albums[*a].title.len().cmp(&albums[*b].title.len())
 		);
 
-		vec_album.into_iter().map(AlbumKey::from).collect()
+		vec_album.into_iter().map(|k| (AlbumKey::from(k), AlbumPtr::null())).collect()
 	}
 
 	//--------------------------------------------------------------- `SongKey` sorts.
@@ -204,16 +223,19 @@ impl super::Ccd {
 	// The ordering of the `Song`'s are just based off iterating
 	// on the given `AlbumKey`'s. So whatever order the `AlbumKey`'s
 	// are in, the `Song`'s will be as well.
-	pub(super) fn sort_song(sorted_albums: &[AlbumKey], albums: &[Album]) -> Box<[SongKey]> {
+	pub(super) fn sort_song(
+		sorted_albums: &[(AlbumKey, AlbumPtr)],
+		albums: &[Album]
+	) -> Box<[(SongKey, SongPtr)]> {
 		let vec_song: Vec<Vec<SongKey>> = sorted_albums
 			.iter()
-			.map(|a| albums[a.inner()].songs.clone())
+			.map(|(a, _)| albums[a.inner()].songs.iter().map(|(key, _)| *key).collect())
 			.collect();
 
-		vec_song.into_iter().flatten().collect()
+		vec_song.into_iter().flatten().map(|k| (k, SongPtr::null())).collect()
 	}
 
-	pub(super) fn sort_song_lexi(songs: &[Song]) -> Box<[SongKey]> {
+	pub(super) fn sort_song_lexi(songs: &[Song]) -> Box<[(SongKey, SongPtr)]> {
 		let mut vec_song = Self::filled_vec_usize(songs.len());
 
 		vec_song.sort_by(|a, b| {
@@ -222,33 +244,33 @@ impl super::Ccd {
 			)
 		});
 
-		vec_song.into_iter().map(SongKey::from).collect()
+		vec_song.into_iter().map(|k| (SongKey::from(k), SongPtr::null())).collect()
 	}
 
 	// INVARIANT:
 	// `f64` must not be a `NaN`.
 	// (It won't be, I control it).
-	pub(super) fn sort_song_runtime(songs: &[Song]) -> Box<[SongKey]> {
+	pub(super) fn sort_song_runtime(songs: &[Song]) -> Box<[(SongKey, SongPtr)]> {
 		let mut vec_song = Self::filled_vec_usize(songs.len());
 
 		vec_song.sort_by(|a, b|
 			songs[*a].runtime.inner().cmp(&songs[*b].runtime.inner())
 		);
 
-		vec_song.into_iter().map(SongKey::from).collect()
+		vec_song.into_iter().map(|k| (SongKey::from(k), SongPtr::null())).collect()
 	}
 
 	// INVARIANT:
 	// `f64` must not be a `NaN`.
 	// (It won't be, I control it).
-	pub(super) fn sort_song_title(songs: &[Song]) -> Box<[SongKey]> {
+	pub(super) fn sort_song_title(songs: &[Song]) -> Box<[(SongKey, SongPtr)]> {
 		let mut vec_song = Self::filled_vec_usize(songs.len());
 
 		vec_song.sort_by(|a, b|
 			songs[*a].title.len().cmp(&songs[*b].title.len())
 		);
 
-		vec_song.into_iter().map(SongKey::from).collect()
+		vec_song.into_iter().map(|k| (SongKey::from(k), SongPtr::null())).collect()
 	}
 }
 

@@ -9,6 +9,7 @@ use benri::{
 };
 use crate::collection::{
 	Collection,
+	CollectionPtr,
 	Artists,
 	Albums,
 	Songs,
@@ -16,6 +17,9 @@ use crate::collection::{
 	ArtistKey,
 	AlbumKey,
 	SongKey,
+	ArtistPtr,
+	AlbumPtr,
+	SongPtr,
 	Art,
 	Image,
 };
@@ -33,7 +37,6 @@ use crate::ccd::{
 	convert::ArtConvertType,
 	msg::CcdToKernel,
 };
-use std::marker::PhantomData;
 use crate::constants::COLLECTION_VERSION;
 use rayon::prelude::*;
 
@@ -53,7 +56,7 @@ impl Ccd {
 
 		// If no albums, return.
 		if collection.albums.is_empty() {
-			send!(to_kernel, CcdToKernel::NewCollection(Arc::new(collection)));
+			send!(to_kernel, CcdToKernel::NewCollection(CollectionPtr::new(collection)));
 		// Else, convert art, send to `Kernel`.
 		} else {
 			let total      = collection.albums.len();
@@ -61,7 +64,7 @@ impl Ccd {
 			Self::priv_convert_art(&to_kernel, &mut collection, ArtConvertType::ToKnown, increment);
 			send!(to_kernel, CcdToKernel::UpdatePhase((100.00, Phase::Finalize)));
 			crate::ccd::img::alloc_textures(&collection.albums);
-			send!(to_kernel, CcdToKernel::NewCollection(Arc::new(collection)));
+			send!(to_kernel, CcdToKernel::NewCollection(CollectionPtr::new(collection)));
 		}
 
 		debug!("CCD ... Took {} seconds, bye!", secs_f32!(beginning));
@@ -74,7 +77,7 @@ impl Ccd {
 	// functions mostly for testing flexibility.
 	pub(crate) fn new_collection(
 		to_kernel: Sender<CcdToKernel>,
-		old_collection: Arc<Collection>,
+		old_collection: CollectionPtr,
 		paths: Vec<PathBuf>,
 	) {
 		// `new_collection()` high-level overview:
@@ -84,14 +87,13 @@ impl Ccd {
 		// 3. For each file, append metadata to appropriate `Vec`.
 		// 4. Make sure `Vec<Album>` metadata matches the songs.
 		// 5. Create sorted `Key`'s.
-		// 6. Create the "Map"
-		// 7. Create our `Collection`.
-		// 8. Transform in-memory `Collection` album art to bytes
-		// 9. Clone `Collection` for later saving
-		// 10. Transform in-memory `Collection` album art bytes to `egui`'s `RetainedImage`
-		// 11. Pre-allocate the `RetainedImage`'s into `egui`
-		// 12. Send to `Kernel`
-		// 13. Save `Collection` to disk.
+		// 6. Create our `Collection`, and fix it.
+		// 7. Transform in-memory `Collection` album art to bytes
+		// 8. Clone `Collection` for later saving
+		// 9. Transform in-memory `Collection` album art bytes to `egui`'s `RetainedImage`
+		// 10. Pre-allocate the `RetainedImage`'s into `egui`
+		// 11. Send to `Kernel`
+		// 12. Save `Collection` to disk.
 		let beginning = now!();
 		debug!("CCD ... purpose in life: new_collection()");
 
@@ -110,25 +112,21 @@ impl Ccd {
 		// If `CCD` fails, `Kernel` just sends a `Collection::dummy()` back to everyone.
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((0.00, Phase::Deconstruct)));
-		{
-			let mut i = 1;
-			loop {
-				trace!("CCD [1/13] Deconstruct attempt {i}");
+		let old_collection = old_collection.into_inner();
+		for i in 0..3 {
+			trace!("CCD [1/13] Deconstruct attempt {i}");
 
-				if Arc::strong_count(&old_collection) == 1 {
-					if let Some(c) = Arc::into_inner(old_collection) {
-//						let ctx = crate::frontend::egui::gui_context();
-//						crate::ccd::img::free_textures(&mut ctx.tex_manager().write());
-						drop(c);
-					} else {
-						debug_panic!("old_collection strong count was 1 but .into_inner() failed");
-					}
-					break;
+			if Arc::strong_count(&old_collection) == 1 {
+				if let Some(c) = Arc::into_inner(old_collection) {
+					drop(c);
+				} else {
+					debug_panic!("old_collection strong count was 1 but .into_inner() failed");
 				}
 
-				i += 1;
-				sleep!(1);
+				break;
 			}
+
+			sleep_millis!(100);
 		}
 		let perf_deconstruct = secs_f32!(now);
 		trace!("CCD [1/13] ... Deconstruct: {perf_deconstruct}");
@@ -160,15 +158,15 @@ impl Ccd {
 		send!(to_kernel, CcdToKernel::UpdatePhase((52.50, Phase::Sort)));
 
 		let sort_artist_lexi            = Self::sort_artist_lexi(&vec_artist);
-		let sort_artist_lexi_rev        = sort_artist_lexi.iter().rev().copied().collect::<Box<[ArtistKey]>>();
+		let sort_artist_lexi_rev        = sort_artist_lexi.iter().rev().copied().collect::<Box<[(ArtistKey, ArtistPtr)]>>();
 		let sort_artist_album_count     = Self::sort_artist_album_count(&vec_artist);
-		let sort_artist_album_count_rev = sort_artist_album_count.iter().rev().copied().collect::<Box<[ArtistKey]>>();
+		let sort_artist_album_count_rev = sort_artist_album_count.iter().rev().copied().collect::<Box<[(ArtistKey, ArtistPtr)]>>();
 		let sort_artist_song_count      = Self::sort_artist_song_count(&vec_artist, &vec_album);
-		let sort_artist_song_count_rev  = sort_artist_song_count.iter().rev().copied().collect::<Box<[ArtistKey]>>();
+		let sort_artist_song_count_rev  = sort_artist_song_count.iter().rev().copied().collect::<Box<[(ArtistKey, ArtistPtr)]>>();
 		let sort_artist_runtime         = Self::sort_artist_runtime(&vec_artist);
-		let sort_artist_runtime_rev     = sort_artist_runtime.iter().rev().copied().collect::<Box<[ArtistKey]>>();
+		let sort_artist_runtime_rev     = sort_artist_runtime.iter().rev().copied().collect::<Box<[(ArtistKey, ArtistPtr)]>>();
 		let sort_artist_name            = Self::sort_artist_name(&vec_artist);
-		let sort_artist_name_rev        = sort_artist_name.iter().rev().copied().collect::<Box<[ArtistKey]>>();
+		let sort_artist_name_rev        = sort_artist_name.iter().rev().copied().collect::<Box<[(ArtistKey, ArtistPtr)]>>();
 
 		let sort_album_release_artist_lexi         = Self::sort_album_release_artist_iter(&sort_artist_lexi, &vec_artist, &vec_album);
 		let sort_album_release_artist_lexi_rev     = Self::sort_album_release_artist_iter(&sort_artist_lexi_rev, &vec_artist, &vec_album);
@@ -179,13 +177,13 @@ impl Ccd {
 		let sort_album_lexi_rev_artist_lexi        = Self::sort_album_lexi_rev_artist_iter(&sort_artist_lexi, &vec_artist, &vec_album);
 		let sort_album_lexi_rev_artist_lexi_rev    = Self::sort_album_lexi_rev_artist_iter(&sort_artist_lexi_rev, &vec_artist, &vec_album);
 		let sort_album_lexi                        = Self::sort_album_lexi(&vec_album);
-		let sort_album_lexi_rev                    = sort_album_lexi.iter().rev().copied().collect::<Box<[AlbumKey]>>();
+		let sort_album_lexi_rev                    = sort_album_lexi.iter().rev().copied().collect::<Box<[(AlbumKey, AlbumPtr)]>>();
 		let sort_album_release                     = Self::sort_album_release(&vec_album);
-		let sort_album_release_rev                 = sort_album_release.iter().rev().copied().collect::<Box<[AlbumKey]>>();
+		let sort_album_release_rev                 = sort_album_release.iter().rev().copied().collect::<Box<[(AlbumKey, AlbumPtr)]>>();
 		let sort_album_runtime                     = Self::sort_album_runtime(&vec_album);
-		let sort_album_runtime_rev                 = sort_album_runtime.iter().rev().copied().collect::<Box<[AlbumKey]>>();
+		let sort_album_runtime_rev                 = sort_album_runtime.iter().rev().copied().collect::<Box<[(AlbumKey, AlbumPtr)]>>();
 		let sort_album_title                       = Self::sort_album_title(&vec_album);
-		let sort_album_title_rev                   = sort_album_title.iter().rev().copied().collect::<Box<[AlbumKey]>>();
+		let sort_album_title_rev                   = sort_album_title.iter().rev().copied().collect::<Box<[(AlbumKey, AlbumPtr)]>>();
 
 		let sort_song_album_release_artist_lexi         = Self::sort_song(&sort_album_release_artist_lexi,         &vec_album);
 		let sort_song_album_release_artist_lexi_rev     = Self::sort_song(&sort_album_release_artist_lexi_rev,     &vec_album);
@@ -196,43 +194,35 @@ impl Ccd {
 		let sort_song_album_lexi_rev_artist_lexi        = Self::sort_song(&sort_album_lexi_rev_artist_lexi,        &vec_album);
 		let sort_song_album_lexi_rev_artist_lexi_rev    = Self::sort_song(&sort_album_lexi_rev_artist_lexi_rev,    &vec_album);
 		let sort_song_release                           = Self::sort_song(&sort_album_release, &vec_album);
-		let sort_song_release_rev                       = sort_song_release.iter().rev().copied().collect::<Box<[SongKey]>>();
+		let sort_song_release_rev                       = sort_song_release.iter().rev().copied().collect::<Box<[(SongKey, SongPtr)]>>();
 		let sort_song_lexi                              = Self::sort_song_lexi(&vec_song);
-		let sort_song_lexi_rev                          = sort_song_lexi.iter().rev().copied().collect::<Box<[SongKey]>>();
+		let sort_song_lexi_rev                          = sort_song_lexi.iter().rev().copied().collect::<Box<[(SongKey, SongPtr)]>>();
 		let sort_song_runtime                           = Self::sort_song_runtime(&vec_song);
-		let sort_song_runtime_rev                       = sort_song_runtime.iter().rev().copied().collect::<Box<[SongKey]>>();
+		let sort_song_runtime_rev                       = sort_song_runtime.iter().rev().copied().collect::<Box<[(SongKey, SongPtr)]>>();
 		let sort_song_title                             = Self::sort_song_title(&vec_song);
-		let sort_song_title_rev                         = sort_song_title.iter().rev().copied().collect::<Box<[SongKey]>>();
+		let sort_song_title_rev                         = sort_song_title.iter().rev().copied().collect::<Box<[(SongKey, SongPtr)]>>();
 
 		let perf_sort = secs_f32!(now);
 		trace!("CCD [5/13] ... Sort: {perf_sort}");
 
 		//-------------------------------------------------------------------------------- 6
 		let now = now!();
-		send!(to_kernel, CcdToKernel::UpdatePhase((55.00, Phase::Search)));
-		let map = Map::from_3_vecs(&vec_artist, &vec_album, &vec_song);
-		let perf_map = secs_f32!(now);
-		trace!("CCD [6/13] ... Map: {perf_map}");
-
-		//-------------------------------------------------------------------------------- 7
-		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((60.00, Phase::Prepare)));
 		let mut collection = Collection {
-			// These will be fixed after construction.
+			// We calculated this during "The Loop".
+			count_art: Unsigned::from(count_art),
+			artists: Artists::from_vec(vec_artist),
+			albums: Albums::from_vec(vec_album),
+			songs: Songs::from_vec(vec_song),
+
+			// INVARIANT: These fields must be fixed after construction.
 			empty: false,
 			timestamp: 0,
 			count_artist: Unsigned::zero(),
 			count_album: Unsigned::zero(),
 			count_song: Unsigned::zero(),
 
-			// We calculated this during "The Loop".
-			count_art: Unsigned::from(count_art),
-
-			map,
-
-			artists: Artists::from_vec(vec_artist),
-			albums: Albums::from_vec(vec_album),
-			songs: Songs::from_vec(vec_song),
+			map: Map::default(),
 
 			sort_artist_lexi,
 			sort_artist_lexi_rev,
@@ -278,22 +268,6 @@ impl Ccd {
 			sort_song_runtime_rev,
 			sort_song_title,
 			sort_song_title_rev,
-
-			// We don't use `..Default::default()` because
-			// we want to _explicit_ about the values here.
-			_reserved1: PhantomData, _reserved2: PhantomData, _reserved4: PhantomData, _reserved5: PhantomData,
-			_reserved6: PhantomData, _reserved7: PhantomData, _reserved8: PhantomData, _reserved9: PhantomData,
-			_reserved10: PhantomData, _reserved11: PhantomData, _reserved12: PhantomData, _reserved13: PhantomData,
-			_reserved14: PhantomData, _reserved15: PhantomData, _reserved16: PhantomData, _reserved17: PhantomData,
-			_reserved18: PhantomData, _reserved19: PhantomData, _reserved20: PhantomData, _reserved21: PhantomData,
-			_reserved22: PhantomData, _reserved23: PhantomData, _reserved24: PhantomData, _reserved25: PhantomData,
-			_reserved26: PhantomData, _reserved27: PhantomData, _reserved28: PhantomData, _reserved29: PhantomData,
-			_reserved30: PhantomData, _reserved31: PhantomData, _reserved32: PhantomData, _reserved33: PhantomData,
-			_reserved34: PhantomData, _reserved35: PhantomData, _reserved36: PhantomData, _reserved37: PhantomData,
-			_reserved38: PhantomData, _reserved39: PhantomData, _reserved40: PhantomData, _reserved41: PhantomData,
-			_reserved42: PhantomData, _reserved43: PhantomData, _reserved44: PhantomData, _reserved45: PhantomData,
-			_reserved46: PhantomData, _reserved47: PhantomData, _reserved48: PhantomData, _reserved49: PhantomData,
-			_reserved50: PhantomData,
 		};
 		// Fix metadata.
 		{
@@ -314,13 +288,62 @@ impl Ccd {
 			collection.count_album  = Unsigned::from(albums);
 			collection.count_song   = Unsigned::from(songs);
 
+			// Fix pointers.
+			ArtistPtr::fix(&collection.artists, &mut collection.sort_artist_lexi);
+			ArtistPtr::fix(&collection.artists, &mut collection.sort_artist_lexi_rev);
+			ArtistPtr::fix(&collection.artists, &mut collection.sort_artist_album_count);
+			ArtistPtr::fix(&collection.artists, &mut collection.sort_artist_album_count_rev);
+			ArtistPtr::fix(&collection.artists, &mut collection.sort_artist_song_count);
+			ArtistPtr::fix(&collection.artists, &mut collection.sort_artist_song_count_rev);
+			ArtistPtr::fix(&collection.artists, &mut collection.sort_artist_runtime);
+			ArtistPtr::fix(&collection.artists, &mut collection.sort_artist_runtime_rev);
+			ArtistPtr::fix(&collection.artists, &mut collection.sort_artist_name);
+			ArtistPtr::fix(&collection.artists, &mut collection.sort_artist_name_rev);
+
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_release_artist_lexi);
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_release_artist_lexi_rev);
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_release_rev_artist_lexi);
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_release_rev_artist_lexi_rev);
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_lexi_artist_lexi);
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_lexi_artist_lexi_rev);
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_lexi_rev_artist_lexi);
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_lexi_rev_artist_lexi_rev);
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_lexi);
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_lexi_rev);
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_release);
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_release_rev);
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_runtime);
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_runtime_rev);
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_title);
+			AlbumPtr::fix(&collection.albums, &mut collection.sort_album_title_rev);
+
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_album_release_artist_lexi);
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_album_release_artist_lexi_rev);
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_album_release_rev_artist_lexi);
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_album_release_rev_artist_lexi_rev);
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_album_lexi_artist_lexi);
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_album_lexi_artist_lexi_rev);
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_album_lexi_rev_artist_lexi);
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_album_lexi_rev_artist_lexi_rev);
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_lexi);
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_lexi_rev);
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_release);
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_release_rev);
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_runtime);
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_runtime_rev);
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_title);
+			SongPtr::fix(&collection.songs, &mut collection.sort_song_title_rev);
+
+			// Fix "Map".
+			collection.map = Map::from_collection(&collection);
+
 			// Set `timestamp`.
 			collection.timestamp = benri::unix!();
 		}
 		let perf_prepare = secs_f32!(now);
 		trace!("CCD [7/13] ... Prepare: {perf_prepare}");
 
-		//-------------------------------------------------------------------------------- 8
+		//-------------------------------------------------------------------------------- 7
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((60.00, Phase::Art)));
 		let increment    = 30.0 / collection.albums.len() as f64;
@@ -329,7 +352,7 @@ impl Ccd {
 		let perf_resize = secs_f32!(now);
 		trace!("CCD [8/13] ... Resize: {perf_resize}");
 
-		//-------------------------------------------------------------------------------- 9
+		//-------------------------------------------------------------------------------- 8
 		// FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 		// We need to serialize `Collection` and save to disk while we
 		// have the art bytes as an actual `Vec<u8>`. `egui` does not
@@ -362,7 +385,7 @@ impl Ccd {
 		trace!("CCD [9/13] ... Clone: {perf_clone}");
 		// FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
-		//-------------------------------------------------------------------------------- 10
+		//-------------------------------------------------------------------------------- 9
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((95.00, Phase::Convert)));
 		let increment = 4.0 / collection.albums.len() as f64;
@@ -372,7 +395,7 @@ impl Ccd {
 		let perf_convert = secs_f32!(now);
 		trace!("CCD [10/13] ... Convert: {perf_convert}");
 
-		//-------------------------------------------------------------------------------- 11
+		//-------------------------------------------------------------------------------- 10
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((100.00, Phase::Finalize)));
 		// FIXME: See `img.rs`.
@@ -380,12 +403,12 @@ impl Ccd {
 		let perf_textures = secs_f32!(now);
 		trace!("CCD [11/13] ... Textures: {perf_textures}");
 
-		//-------------------------------------------------------------------------------- 12
-		send!(to_kernel, CcdToKernel::NewCollection(Arc::new(collection)));
+		//-------------------------------------------------------------------------------- 11
+		send!(to_kernel, CcdToKernel::NewCollection(CollectionPtr::new(collection)));
 		let user_time = secs_f32!(beginning);
 		info!("CCD ... User time: {}", user_time);
 
-		//-------------------------------------------------------------------------------- 13
+		//-------------------------------------------------------------------------------- 12
 		let now = now!();
 		// Set `saving` state.
 		atomic_store!(crate::state::SAVING, true);
@@ -444,7 +467,6 @@ impl Ccd {
 			metadata:    perf_metadata,
 			fix:         perf_fix,
 			sort:        perf_sort,
-			map:         perf_map,
 			prepare:     perf_prepare,
 			resize:      perf_resize,
 			clone:       perf_clone,
@@ -525,8 +547,7 @@ mod tests {
 		// Set-up inputs.
 		let (to_kernel, from_ccd) = crossbeam::channel::unbounded::<CcdToKernel>();
 		crate::frontend::egui::GUI_CONTEXT.set(egui::Context::default());
-		let old = Collection::new();
-		let old = Arc::new(old);
+		let old = Collection::dummy();
 		let paths = vec![PathBuf::from("../assets")];
 
 		// Spawn `CCD`.

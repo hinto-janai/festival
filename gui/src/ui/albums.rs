@@ -122,9 +122,9 @@ fn paint_albums(
 				// Paint as many `Album`'s that can fit.
 				for _ in 0..album_width {
 					match iter.next() {
-						Some(key) => {
+						Some((key, ptr)) => {
 							ui.vertical(|ui| {
-								let album = &self.collection.albums[key];
+								let album = *ptr;
 
 								// ImageButton.
 								crate::album_button!(self, album, *key, ui, ctx, pixel, "");
@@ -132,14 +132,14 @@ fn paint_albums(
 								// `0.0` will cause the text to expand
 								// the `ui` to however much space it needs.
 								// Album title.
-								ui.add_sized([pixel, 0.0], Label::new(RichText::new(album.title.head_dot(ALBUM_TITLE_LIMIT).as_str()).color(LESS_WHITE))).on_hover_text(&album.title);
+								ui.add_sized([pixel, 0.0], Label::new(RichText::new(album.title.head_dot(ALBUM_TITLE_LIMIT).as_str()).color(LESS_WHITE))).on_hover_text(&*album.title);
 
 								// Artist name.
 								let (artist, _) = &self.collection.artist_from_album(key);
 								let artist_name = Label::new(artist.name.head_dot(label_width).as_str()).sense(Sense::click());
 								// We don't use `crate::artist_label!()` here
 								// because we need a custom `ui.add_sized()`
-								let resp = ui.add_sized([pixel, 0.0], artist_name).on_hover_text(&artist.name);
+								let resp = ui.add_sized([pixel, 0.0], artist_name).on_hover_text(&*artist.name);
 								if resp.clicked() {
 									crate::artist!(self, album.artist);
 								} else if resp.secondary_clicked() {

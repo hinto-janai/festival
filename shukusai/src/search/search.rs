@@ -7,6 +7,7 @@ use benri::{
 };
 use crate::collection::{
 	Collection,
+	CollectionPtr,
 	Keychain,
 	ArtistKey,
 	AlbumKey,
@@ -42,7 +43,7 @@ pub(crate) struct Search {
 	cache:       HashMap<String, Keychain>, // Search index cache
 	cache_t25:   HashMap<String, Keychain>, // Search index cache (Top25),
 	cache_s70:   HashMap<String, Keychain>, // Search index cache (Sim70),
-	collection:  Arc<Collection>,           // Pointer to `Collection`
+	collection:  CollectionPtr,             // Pointer to `Collection`
 	total_count: usize,                     // Local cache of all total `Collection` objects
 	to_kernel:   Sender<SearchToKernel>,    // Channel TO `Kernel`
 	from_kernel: Receiver<KernelToSearch>,  // Channel FROM `Kernel`
@@ -52,7 +53,7 @@ pub(crate) struct Search {
 impl Search {
 	// Kernel starts `Search` with this.
 	pub(crate) fn init(
-		collection:  Arc<Collection>,
+		collection:  CollectionPtr,
 		to_kernel:   Sender<SearchToKernel>,
 		from_kernel: Receiver<KernelToSearch>,
 	) {
@@ -307,9 +308,9 @@ impl Search {
 		loop {
 			match recv!(self.from_kernel) {
 				// We got the new `Collection` pointer.
-				KernelToSearch::NewCollection(arc) => {
+				KernelToSearch::NewCollection(ptr) => {
 					ok_debug!("Search - New Collection received");
-					self.collection = arc;
+					self.collection = ptr;
 					self.total_count = {
 						self.collection.count_artist.usize() +
 						self.collection.count_album.usize() +
@@ -386,7 +387,7 @@ mod tests {
 		c.songs.0   = Box::new([song0, song1, song2, song3, song4]);
 
 		// Spawn `Search`
-		let c = Arc::new(c);
+		let c = CollectionPtr::new(c);
 		let (to_kernel, from_search) = crossbeam::channel::unbounded::<SearchToKernel>();
 		let (to_search, from_kernel) = crossbeam::channel::unbounded::<KernelToSearch>();
 		std::thread::spawn(move || Search::init(c, to_kernel, from_kernel));

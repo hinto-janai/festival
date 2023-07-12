@@ -90,7 +90,7 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: 
 
 				// Artist info.
 				let artist_name = Label::new(
-					RichText::new(&artist.name)
+					RichText::new(&*artist.name)
 					.text_style(TextStyle::Name("30".into()))
 				);
 				crate::artist_label!(self, artist, album.artist, ui, artist_name);
@@ -135,7 +135,7 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: 
 
 					ui.vertical(|ui| {
 						// Info.
-						let album_title = Label::new(RichText::new(&album.title).color(BONE));
+						let album_title = Label::new(RichText::new(&*album.title).color(BONE));
 						ui.add(album_title);
 						ui.label(album.release.as_str());
 						ui.label(album.runtime.as_str());

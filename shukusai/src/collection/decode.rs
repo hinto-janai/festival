@@ -1,17 +1,7 @@
-/* Bincode decoding code, for use with
- * translating indices into the `*Ptr` types.
- *
- * As long as this comment is here, this is not
- * actually in use. If the day comes where the
- * `*Ptr` types are actually used, this comment
- * will be removed and this file will be added
- * to the `mod.rs` file.
- */
-
 //---------------------------------------------------------------------------------------------------- Use
 use crate::collection::{
 	Collection,
-	Artists,Albums,Songs,
+	Artist,Album,Song,Artists,Albums,Songs,
 	ArtistPtr,AlbumPtr,SongPtr,
 	ArtistKey,AlbumKey,SongKey,
 };
@@ -21,7 +11,7 @@ use bincode::{
 	error::{DecodeError,EncodeError},
 };
 
-//---------------------------------------------------------------------------------------------------- Decode
+//---------------------------------------------------------------------------------------------------- Collection
 // Custom `bincode::Decode` for `Collection`.
 //
 // INVARIANT:
@@ -33,57 +23,221 @@ use bincode::{
 // be `nullptr`'s, although, as long as this process goes well, all the
 // pointers within `Collection` are valid for the lifetime of the `Collection` itself.
 impl Decode for Collection {
-	#[inline(always)]
 	fn decode<D: Decoder>(decoder: &mut D) -> Result<Self, DecodeError> {
+		let empty        = Decode::decode(decoder)?;
+		let timestamp    = Decode::decode(decoder)?;
+		let count_artist = Decode::decode(decoder)?;
+		let count_album  = Decode::decode(decoder)?;
+		let count_song   = Decode::decode(decoder)?;
+		let count_art    = Decode::decode(decoder)?;
+
+		let map     = Decode::decode(decoder)?;
 		let artists = Decode::decode(decoder)?;
 		let albums  = Decode::decode(decoder)?;
 		let songs   = Decode::decode(decoder)?;
-		let map     = Decode::decode(decoder)?;
 
-		let sort_artist_lexi        = ArtistPtr::decode(&artists, Decode::decode(decoder)?);
-		let sort_artist_album_count = ArtistPtr::decode(&artists, Decode::decode(decoder)?);
-		let sort_artist_song_count  = ArtistPtr::decode(&artists, Decode::decode(decoder)?);
+		let sort_artist_lexi            = ArtistPtr::from_key(&artists, Decode::decode(decoder)?);
+		let sort_artist_lexi_rev        = ArtistPtr::from_key(&artists, Decode::decode(decoder)?);
+		let sort_artist_album_count     = ArtistPtr::from_key(&artists, Decode::decode(decoder)?);
+		let sort_artist_album_count_rev = ArtistPtr::from_key(&artists, Decode::decode(decoder)?);
+		let sort_artist_song_count      = ArtistPtr::from_key(&artists, Decode::decode(decoder)?);
+		let sort_artist_song_count_rev  = ArtistPtr::from_key(&artists, Decode::decode(decoder)?);
+		let sort_artist_runtime         = ArtistPtr::from_key(&artists, Decode::decode(decoder)?);
+		let sort_artist_runtime_rev     = ArtistPtr::from_key(&artists, Decode::decode(decoder)?);
+		let sort_artist_name            = ArtistPtr::from_key(&artists, Decode::decode(decoder)?);
+		let sort_artist_name_rev        = ArtistPtr::from_key(&artists, Decode::decode(decoder)?);
 
-		let sort_album_release_artist_lexi = AlbumPtr::decode(&albums, Decode::decode(decoder)?);
-		let sort_album_lexi_artist_lexi    = AlbumPtr::decode(&albums, Decode::decode(decoder)?);
-		let sort_album_lexi                = AlbumPtr::decode(&albums, Decode::decode(decoder)?);
-		let sort_album_release             = AlbumPtr::decode(&albums, Decode::decode(decoder)?);
-		let sort_album_runtime             = AlbumPtr::decode(&albums, Decode::decode(decoder)?);
+		let sort_album_release_artist_lexi         = AlbumPtr::from_key(&albums, Decode::decode(decoder)?);
+		let sort_album_release_artist_lexi_rev     = AlbumPtr::from_key(&albums, Decode::decode(decoder)?);
+		let sort_album_release_rev_artist_lexi     = AlbumPtr::from_key(&albums, Decode::decode(decoder)?);
+		let sort_album_release_rev_artist_lexi_rev = AlbumPtr::from_key(&albums, Decode::decode(decoder)?);
+		let sort_album_lexi_artist_lexi            = AlbumPtr::from_key(&albums, Decode::decode(decoder)?);
+		let sort_album_lexi_artist_lexi_rev        = AlbumPtr::from_key(&albums, Decode::decode(decoder)?);
+		let sort_album_lexi_rev_artist_lexi        = AlbumPtr::from_key(&albums, Decode::decode(decoder)?);
+		let sort_album_lexi_rev_artist_lexi_rev    = AlbumPtr::from_key(&albums, Decode::decode(decoder)?);
+		let sort_album_lexi                        = AlbumPtr::from_key(&albums, Decode::decode(decoder)?);
+		let sort_album_lexi_rev                    = AlbumPtr::from_key(&albums, Decode::decode(decoder)?);
+		let sort_album_release                     = AlbumPtr::from_key(&albums, Decode::decode(decoder)?);
+		let sort_album_release_rev                 = AlbumPtr::from_key(&albums, Decode::decode(decoder)?);
+		let sort_album_runtime                     = AlbumPtr::from_key(&albums, Decode::decode(decoder)?);
+		let sort_album_runtime_rev                 = AlbumPtr::from_key(&albums, Decode::decode(decoder)?);
+		let sort_album_title                       = AlbumPtr::from_key(&albums, Decode::decode(decoder)?);
+		let sort_album_title_rev                   = AlbumPtr::from_key(&albums, Decode::decode(decoder)?);
 
-		let sort_song_album_release_artist_lexi = SongPtr::decode(&songs, Decode::decode(decoder)?);
-		let sort_song_album_lexi_artist_lexi    = SongPtr::decode(&songs, Decode::decode(decoder)?);
-		let sort_song_lexi                      = SongPtr::decode(&songs, Decode::decode(decoder)?);
-		let sort_song_release                   = SongPtr::decode(&songs, Decode::decode(decoder)?);
-		let sort_song_runtime                   = SongPtr::decode(&songs, Decode::decode(decoder)?);
+		let sort_song_album_release_artist_lexi         = SongPtr::from_key(&songs, Decode::decode(decoder)?);
+		let sort_song_album_release_artist_lexi_rev     = SongPtr::from_key(&songs, Decode::decode(decoder)?);
+		let sort_song_album_release_rev_artist_lexi     = SongPtr::from_key(&songs, Decode::decode(decoder)?);
+		let sort_song_album_release_rev_artist_lexi_rev = SongPtr::from_key(&songs, Decode::decode(decoder)?);
+		let sort_song_album_lexi_artist_lexi            = SongPtr::from_key(&songs, Decode::decode(decoder)?);
+		let sort_song_album_lexi_artist_lexi_rev        = SongPtr::from_key(&songs, Decode::decode(decoder)?);
+		let sort_song_album_lexi_rev_artist_lexi        = SongPtr::from_key(&songs, Decode::decode(decoder)?);
+		let sort_song_album_lexi_rev_artist_lexi_rev    = SongPtr::from_key(&songs, Decode::decode(decoder)?);
+		let sort_song_lexi                              = SongPtr::from_key(&songs, Decode::decode(decoder)?);
+		let sort_song_lexi_rev                          = SongPtr::from_key(&songs, Decode::decode(decoder)?);
+		let sort_song_release                           = SongPtr::from_key(&songs, Decode::decode(decoder)?);
+		let sort_song_release_rev                       = SongPtr::from_key(&songs, Decode::decode(decoder)?);
+		let sort_song_runtime                           = SongPtr::from_key(&songs, Decode::decode(decoder)?);
+		let sort_song_runtime_rev                       = SongPtr::from_key(&songs, Decode::decode(decoder)?);
+		let sort_song_title                             = SongPtr::from_key(&songs, Decode::decode(decoder)?);
+		let sort_song_title_rev                         = SongPtr::from_key(&songs, Decode::decode(decoder)?);
 
 		Ok(Self {
+			empty,
+			timestamp,
+			count_artist,
+			count_album,
+			count_song,
+			count_art,
+
 			map,
 			artists,
 			albums,
 			songs,
 
 			sort_artist_lexi,
+			sort_artist_lexi_rev,
 			sort_artist_album_count,
+			sort_artist_album_count_rev,
 			sort_artist_song_count,
+			sort_artist_song_count_rev,
+			sort_artist_runtime,
+			sort_artist_runtime_rev,
+			sort_artist_name,
+			sort_artist_name_rev,
 
 			sort_album_release_artist_lexi,
+			sort_album_release_artist_lexi_rev,
+			sort_album_release_rev_artist_lexi,
+			sort_album_release_rev_artist_lexi_rev,
 			sort_album_lexi_artist_lexi,
+			sort_album_lexi_artist_lexi_rev,
+			sort_album_lexi_rev_artist_lexi,
+			sort_album_lexi_rev_artist_lexi_rev,
 			sort_album_lexi,
+			sort_album_lexi_rev,
 			sort_album_release,
+			sort_album_release_rev,
 			sort_album_runtime,
+			sort_album_runtime_rev,
+			sort_album_title,
+			sort_album_title_rev,
 
 			sort_song_album_release_artist_lexi,
+			sort_song_album_release_artist_lexi_rev,
+			sort_song_album_release_rev_artist_lexi,
+			sort_song_album_release_rev_artist_lexi_rev,
 			sort_song_album_lexi_artist_lexi,
+			sort_song_album_lexi_artist_lexi_rev,
+			sort_song_album_lexi_rev_artist_lexi,
+			sort_song_album_lexi_rev_artist_lexi_rev,
 			sort_song_lexi,
+			sort_song_lexi_rev,
 			sort_song_release,
+			sort_song_release_rev,
 			sort_song_runtime,
+			sort_song_runtime_rev,
+			sort_song_title,
+			sort_song_title_rev,
+		})
+	}
+}
 
-			empty: Decode::decode(decoder)?,
-			timestamp: Decode::decode(decoder)?,
-			count_artist: Decode::decode(decoder)?,
-			count_album: Decode::decode(decoder)?,
-			count_song: Decode::decode(decoder)?,
-			count_art: Decode::decode(decoder)?,
+macro_rules! impl_decode_plural {
+	($($plural:ty),*) => {
+		$(
+			impl Decode for $plural {
+				fn decode<D: Decoder>(decoder: &mut D) -> Result<Self, DecodeError> {
+					Ok(Self(Decode::decode(decoder)?))
+				}
+			}
+		)*
+	}
+}
+
+impl_decode_plural!(Artists, Albums, Songs);
+
+impl Decode for Artist {
+	fn decode<D: Decoder>(decoder: &mut D) -> Result<Self, DecodeError> {
+		let name           = Decode::decode(decoder)?;
+		let name_lowercase = Decode::decode(decoder)?;
+		let name_uppercase = Decode::decode(decoder)?;
+		let runtime        = Decode::decode(decoder)?;
+
+		let albums: Vec<AlbumKey> = Decode::decode(decoder)?;
+		let songs:  Vec<SongKey>  = Decode::decode(decoder)?;
+		let albums: Vec<(AlbumKey, AlbumPtr)> = albums.into_iter().map(|k| (k, AlbumPtr::null())).collect();
+		let songs:  Box<[(SongKey, SongPtr)]> = songs.into_iter().map(|k| (k, SongPtr::null())).collect();
+
+		Ok(Self {
+			name,
+			name_lowercase,
+			name_uppercase,
+			runtime,
+			albums,
+			songs,
+		})
+	}
+}
+
+impl Decode for Album {
+	fn decode<D: Decoder>(decoder: &mut D) -> Result<Self, DecodeError> {
+		let title           = Decode::decode(decoder)?;
+		let title_lowercase = Decode::decode(decoder)?;
+		let title_uppercase = Decode::decode(decoder)?;
+		let artist          = Decode::decode(decoder)?;
+		let artist_ptr      = Decode::decode(decoder)?;
+		let release         = Decode::decode(decoder)?;
+		let runtime         = Decode::decode(decoder)?;
+		let song_count      = Decode::decode(decoder)?;
+
+		let songs: Vec<SongKey> = Decode::decode(decoder)?;
+		let songs: Vec<(SongKey, SongPtr)> = songs.into_iter().map(|k| (k, SongPtr::null())).collect();
+
+		let discs           = Decode::decode(decoder)?;
+		let path            = Decode::decode(decoder)?;
+		let art             = Decode::decode(decoder)?;
+
+		Ok(Self {
+			title,
+			title_lowercase,
+			title_uppercase,
+			artist,
+			artist_ptr,
+			release,
+			runtime,
+			song_count,
+			songs,
+			discs,
+			path,
+			art,
+		})
+	}
+}
+
+impl Decode for Song {
+	fn decode<D: Decoder>(decoder: &mut D) -> Result<Self, DecodeError> {
+		let title           = Decode::decode(decoder)?;
+		let title_lowercase = Decode::decode(decoder)?;
+		let title_uppercase = Decode::decode(decoder)?;
+		let album           = Decode::decode(decoder)?;
+		let album_ptr       = Decode::decode(decoder)?;
+		let runtime         = Decode::decode(decoder)?;
+		let sample_rate     = Decode::decode(decoder)?;
+		let track           = Decode::decode(decoder)?;
+		let disc            = Decode::decode(decoder)?;
+		let path            = Decode::decode(decoder)?;
+
+		Ok(Self {
+			title,
+			title_lowercase,
+			title_uppercase,
+			album,
+			album_ptr,
+			runtime,
+			sample_rate,
+			track,
+			disc,
+			path,
 		})
 	}
 }

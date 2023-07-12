@@ -4,11 +4,12 @@ use std::path::PathBuf;
 use readable::Runtime;
 use std::marker::PhantomData;
 use crate::collection::{
-	AlbumKey,
+	AlbumKey,AlbumPtr,
 };
+use std::sync::Arc;
 
 //----------------------------------------------------------------------------------------------------
-#[derive(Clone,Debug,Default,Hash,PartialEq,PartialOrd,Encode,Decode)]
+#[derive(Clone,Debug,Hash,PartialEq,PartialOrd,Encode)]
 /// Struct holding [`Song`] metadata, with a pointer to the [`Album`] it belongs to
 ///
 /// This struct holds all the metadata about a particular [`Song`].
@@ -17,9 +18,15 @@ use crate::collection::{
 pub struct Song {
 	// User-facing data.
 	/// Title of the [`Song`].
-	pub title: String,
+	pub title: Arc<str>,
+	/// Title of the [`Song`] in "Unicode Derived Core Property" lowercase.
+	pub title_lowercase: Arc<str>,
+	/// Title of the [`Song`] in "Unicode Derived Core Property" uppercase.
+	pub title_uppercase: Arc<str>,
 	/// Key to the [`Album`].
 	pub album: AlbumKey,
+	/// Pointer to the [`Album`].
+	pub album_ptr: AlbumPtr,
 	/// Total runtime of this [`Song`].
 	pub runtime: Runtime,
 	/// Sample rate of this [`Song`].
@@ -30,20 +37,23 @@ pub struct Song {
 	pub disc: Option<u32>,
 	/// The [`PathBuf`] this [`Song`] is located at.
 	pub path: PathBuf,
+}
 
-	// Reserved fields that should SOMEDAY be implemented.
-	/// Additional [`Artist`]'s that are on this [`Song`].
-	pub(crate) _track_artists: PhantomData<Option<String>>,
-	/// The [`Song`]'s lyrics.
-	pub(crate) _lyrics: PhantomData<Option<String>>,
-
-	// Unknown reserved fields and their `size_of()`.
-	pub(crate) _reserved1: PhantomData<Box<[usize]>>, // 16
-	pub(crate) _reserved2: PhantomData<Box<[usize]>>, // 16
-	pub(crate) _reserved3: PhantomData<Box<[usize]>>, // 16
-	pub(crate) _reserved4: PhantomData<Box<[usize]>>, // 16
-	pub(crate) _reserved5: PhantomData<String>,       // 24
-	pub(crate) _reserved6: PhantomData<usize>,        // 8
+impl Default for Song {
+	fn default() -> Self {
+		Self {
+			title: "".into(),
+			title_lowercase: "".into(),
+			title_uppercase: "".into(),
+			album: Default::default(),
+			album_ptr: Default::default(),
+			runtime: Default::default(),
+			sample_rate: Default::default(),
+			track: Default::default(),
+			disc: Default::default(),
+			path: Default::default(),
+		}
+	}
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

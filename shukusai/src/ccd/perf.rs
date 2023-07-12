@@ -31,7 +31,6 @@ pub(super) struct Phases {
 	pub(super) metadata:    f32,
 	pub(super) fix:         f32,
 	pub(super) sort:        f32,
-	pub(super) map:         f32,
 	pub(super) prepare:     f32,
 	pub(super) resize:      f32,
 	pub(super) clone:       f32,

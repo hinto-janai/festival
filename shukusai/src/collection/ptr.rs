@@ -1,13 +1,3 @@
-/*
- * `*Ptr` types.
- *
- * As long as this comment is here, this is not
- * actually in use. If the day comes where the
- * `*Ptr` types are actually used, this comment
- * will be removed and this file will be added
- * to the `mod.rs` file.
- */
-
 //---------------------------------------------------------------------------------------------------- Use
 use crate::collection::{
 	Artists,Albums,Songs,
@@ -17,16 +7,47 @@ use crate::collection::{
 use std::pin::Pin;
 use std::sync::Arc;
 use bincode::{
-	de::{Decode,Decoder},
+	BorrowDecode,
+	de::{Decode,Decoder,BorrowDecoder},
 	enc::{Encode,Encoder},
 	error::{DecodeError,EncodeError},
 };
 use serde::{Serialize,Deserialize};
 
+//---------------------------------------------------------------------------------------------------- CollectionPtr
+#[derive(Clone,Debug,PartialEq)]
+///
+pub struct CollectionPtr(Pin<Arc<Collection>>);
+
+impl CollectionPtr {
+	pub(crate) fn new(collection: Collection) -> Self {
+		Self(Pin::new(Arc::new(collection)))
+	}
+
+	pub(crate) fn into_inner(self) -> Arc<Collection> {
+		Pin::into_inner(self.0)
+	}
+}
+
+impl std::ops::Deref for CollectionPtr {
+	type Target = Collection;
+
+	fn deref(&self) -> &Self::Target {
+		&self.0
+	}
+}
+
+impl AsRef<Collection> for CollectionPtr {
+	fn as_ref(&self) -> &Collection {
+		&self.0
+	}
+}
+
 //---------------------------------------------------------------------------------------------------- *Ptr
 macro_rules! impl_ptr {
 	($name_lit:literal, $name:ident, $plural:ident, $ptr:ident, $key:ident) => { paste::paste! {
-		#[derive(Copy,Clone,Debug,PartialEq,PartialOrd)]
+		#[derive(Copy,Clone,Debug,PartialEq,Eq,PartialOrd,Ord,Hash)]
+		#[repr(transparent)]
 		/// Raw pointer to [`" $name "`]
 		///
 		#[doc = "This struct's inner value is just `*const " $name "`"]
@@ -58,8 +79,10 @@ macro_rules! impl_ptr {
 		/// If "pointer" like objects need to be saved for later use,
 		/// `Copy` the `*Key` types and use those instead.
 		//-------------------------------------------------- Define ptr `struct`.
-		pub(crate) struct $ptr(pub(crate) *const $name);
+		pub struct $ptr(pub(crate) *const $name);
+		// SAFETY: only safe in the context of a outer `Collection`.
 		unsafe impl Send for $ptr {}
+		// SAFETY: only safe in the context of a outer `Collection`.
 		unsafe impl Sync for $ptr {}
 
 		//-------------------------------------------------- Implement Deref
@@ -82,11 +105,12 @@ macro_rules! impl_ptr {
 
 		//-------------------------------------------------- From
 		impl From<&$name> for $ptr {
+			#[inline]
 			fn from(object: &$name) -> Self {
 				// INVARIANT:
 				// This only works because:
 				// 1. The objects should be `Box`'ed (unmoving address)
-				// 2. The outer container (`Collection`) is immutable
+				// 2. The outer container (`Collection`) is immutable and pinned
 				//
 				// These invariants must be upheld to ensure
 				// dereferencing these pointers don't cause problems.
@@ -96,20 +120,18 @@ macro_rules! impl_ptr {
 
 		//-------------------------------------------------- Encode
 		impl Encode for $ptr {
-			#[inline(always)]
 			fn encode<E: Encoder>(&self, encoder: &mut E) -> std::result::Result<(), EncodeError> {
 				// INVARIANT:
 				// We cannot save memory addresses to disk, so
-				// `PhantomData` is saved (ZST) under the assumption
+				// nothing is saved under the assumption
 				// that the pointers will be properly initialized
 				// after/during the construction process.
-				Encode::encode(&std::marker::PhantomData::<Self>, encoder)
+				Ok(())
 			}
 		}
 
 		//-------------------------------------------------- Decode
 		impl Decode for $ptr {
-			#[inline(always)]
 			fn decode<D: Decoder>(decoder: &mut D) -> Result<Self, DecodeError> {
 				// INVARIANT:
 				// These `nullptr`'s must be properly initialized
@@ -118,21 +140,43 @@ macro_rules! impl_ptr {
 			}
 		}
 
+		impl<'de> BorrowDecode<'de> for $ptr {
+			fn borrow_decode<D: BorrowDecoder<'de>>(
+				decoder: &mut D,
+			) -> Result<Self, DecodeError> {
+				// INVARIANT:
+				// These `nullptr`'s must be properly initialized
+				// during the outer `Collection` decoding process.
+				Ok(Self(std::ptr::null()))
+			}
+		}
 		//-------------------------------------------------- `nullptr` conversion
 		impl $ptr {
-			#[inline(always)]
-			// Take the `bincode::Decode`'ed `Box` (which are full
-			// of `nullptr`'s) and replace them by chasing the index
-			// and getting the address of the actual object.
-			pub(crate) fn decode(
-				plural: &$plural,
-				mut boxed: Box<[($ptr, $key)]>,
-			) -> Box<[($ptr, $key)]> {
-				for (ptr, key) in boxed.iter_mut() {
-					*ptr = Self::from(&plural[*key]);
-				}
+			// 1. Index into plural (Artists, Albums, Songs)
+			// 2. Chase the index
+			// 3. Acquire and set the pointer
+			pub(crate) fn fix(plural: &$plural, slice: &mut [($key, Self)]) {
+				slice
+					.iter_mut()
+					.for_each(|tuple| tuple.1 = Self::from(&plural[tuple.0]));
+			}
 
-				boxed
+			pub(crate) fn from_key(plural: &$plural, slice: Box<[$key]>) -> Box<[($key, Self)]> {
+				slice
+					.into_iter()
+					.map(|key| (*key, Self::from(&plural[key])))
+					.collect()
+			}
+
+			// Return a self with an inner null pointer.
+			pub(crate) fn null() -> Self {
+				Self(std::ptr::null())
+			}
+		}
+
+		impl Default for $ptr {
+			fn default() -> Self {
+				Self::null()
 			}
 		}
 	}}

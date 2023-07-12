@@ -20,6 +20,7 @@ use shukusai::{
 	},
 	collection::{
 		Collection,
+		CollectionPtr,
 	},
 };
 use benri::{
@@ -55,7 +56,7 @@ impl Drop for Gui {
 //---------------------------------------------------------------------------------------------------- GUI convenience functions.
 impl Gui {
 	// Sets a new `Collection`, all the related flags, and does validation.
-	pub fn new_collection(&mut self, c: Arc<Collection>) {
+	pub fn new_collection(&mut self, c: CollectionPtr) {
 		info!("GUI ... New Collection received");
 		self.collection           = c;
 		self.resetting_collection = false;

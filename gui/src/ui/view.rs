@@ -62,7 +62,7 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: f
 
 		// `Album` title.
 		let label = Label::new(
-			RichText::new(&album.title)
+			RichText::new(&*album.title)
 				.color(BONE)
 				.text_style(TextStyle::Name("25".into()))
 		);
@@ -70,7 +70,7 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: f
 
 		// `Artist` name.
 		let artist = &self.collection.artists[album.artist];
-		crate::artist_label!(self, artist, album.artist, ui, Label::new(&artist.name));
+		crate::artist_label!(self, artist, album.artist, ui, Label::new(&*artist.name));
 
 		// `Album` release.
 		ui.label(album.release.as_str());
@@ -91,14 +91,14 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: f
 		.auto_shrink([false; 2])
 		.show_viewport(ui, |ui, _|
 	{
-		let mut last_disc = self.collection.songs[album.songs[0]].disc;
+		let mut last_disc = self.collection.songs[album.songs[0].0].disc;
 		if album.discs != 0 {
 			ui.label(format!("Disc {}", last_disc.unwrap_or(0)));
 			ui.separator();
 		}
 
-		for (offset, key) in album.songs.iter().enumerate() {
-			let song = &self.collection.songs[key];
+		for (offset, (key, ptr)) in album.songs.iter().enumerate() {
+			let song = &*ptr;
 
 			// Add a separator if on a different disc.
 			if album.discs != 0 {
@@ -165,18 +165,18 @@ pub(super) fn show_tab_view_right_panel(&mut self, album_key: Option<AlbumKey>, 
 				}
 
 				// For each album...
-				for key in albums {
+				for (key, ptr) in albums {
 					// Get the actual `Album`.
-					let album = &self.collection.albums[key];
+					let album = &*ptr;
 
 					// Album button.
 					crate::album_button!(self, album, *key, ui, ctx, album_size, "");
 
 					// If this is the album we're on, make it pop.
 					if key == album_key {
-						ui.add(Label::new(RichText::new(&album.title).color(Color32::LIGHT_BLUE)));
+						ui.add(Label::new(RichText::new(&*album.title).color(Color32::LIGHT_BLUE)));
 					} else {
-						ui.label(&album.title);
+						ui.label(&*album.title);
 					}
 					ui.add_space(5.0);
 				}
