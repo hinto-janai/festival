@@ -22,8 +22,8 @@ Big thanks to [Rucknium](https://github.com/rucknium) for teaching me `R`.
 ## Comparison
 | Music Player | Version | OS | Open Source | Playlists | Sorting | Search | Features vs Minimal |
 |--------------|---------|----|-------------|-----------|---------|--------|---------------------|
-| [Festival](https://github.com/hinto-janai/festival)       | `1.0.0` (2023-06-28)    | Windows, macOS, Linux | 🟢 | 🔴 | 🟢 | 🟢 | Minimal
-| [Lollypop](https://gitlab.gnome.org/World/lollypop)       | `1.4.37` (2023-01-03)   | Linux (GTK)           | 🟢 | 🟡 | 🟡 | 🟡 | Both
+| [Festival](https://github.com/hinto-janai/festival)       | `1.1.0` (2023-07-12)    | Windows, macOS, Linux | 🟢 | 🔴 | 🟢 | 🟢 | Minimal
+| [Lollypop](https://gitlab.gnome.org/World/lollypop)       | `1.437` (2023-01-03)    | Linux (GTK)           | 🟢 | 🟡 | 🟡 | 🟡 | Both
 | [GNOME Music](https://gitlab.gnome.org/GNOME/gnome-music) | `1.42` (2022-04-25)     | Linux (GTK)           | 🟢 | 🟡 | 🔴 | 🟡 | Minimal
 | [MusicBee](https://www.getmusicbee.com)                   | `3.5.8447` (2023-02-19) | Windows               | 🔴 | 🟢 | 🟡 | 🟡 | Features
 | [iTunes](https://www.apple.com/itunes)                    | `12.12.7` (2023-12-15)  | Windows               | 🔴 | 🟢 | 🟡 | 🔴 | Features
@@ -85,7 +85,7 @@ The tests were conducted on the following PC:
 | CPU       | AMD Ryzen 5950x (32 threads)
 | RAM       | 2x32GB DDR4 3800MHz
 | SSD       | 500GB Samsung Evo 850 (540MB/s sequential reads)
-| OS        | `Windows 10` and `Arch Linux (2023-06-24)`
+| OS        | `Windows 10` and `Arch Linux (2023-07)`
 
 Some things to keep in mind:
 
@@ -118,7 +118,7 @@ Right after a fresh system boot, with no system or application cache, how long d
 
 | Music Player  | Seconds (less is better) |
 |---------------|--------------------------|
-| Festival      | 4.5
+| Festival      | 2.25
 | MusicBee      | 35
 | GNOME Music   | 50
 | Lollypop      | 60
@@ -133,7 +133,7 @@ Right after the previous cold boot Collection creation, how long does it take to
 
 | Music Player  | Seconds (less is better) |
 |---------------|--------------------------|
-| Festival      | 2
+| Festival      | 1
 | MusicBee      | 21
 | Lollypop      | 94
 | GNOME Music   | 50

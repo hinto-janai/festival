@@ -2,7 +2,7 @@ library(ggplot2)
 
 # Festival.
 x.festival <- c(0)
-y.festival <- c(0, 4.5)
+y.festival <- c(0, 2.25)
 
 # Lollypop.
 x.lollypop <- c(0)
@@ -22,7 +22,7 @@ y.itunes <- c(0, 135)
 
 # Data.
 input.data <- rbind(
-  data.frame(x = x.festival, y = y.festival, series = "Festival (4.5s)"),
+  data.frame(x = x.festival, y = y.festival, series = "Festival (2.25s)"),
   data.frame(x = x.musicbee, y = y.musicbee, series = "MusicBee (35s)"),
   data.frame(x = x.gnome,    y = y.gnome,    series = "GNOME Music (50s)"),
   data.frame(x = x.lollypop, y = y.lollypop, series = "Lollypop (60s)"),
