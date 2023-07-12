@@ -75,17 +75,17 @@ impl Search {
 	fn search_sim70(&self, input: &str) -> Keychain {
 		let mut artists: Vec<(f64, ArtistKey)> = self.collection.artists.0
 			.par_iter().enumerate()
-			.map(|(i, x)| (strsim::jaro(&x.name.to_ascii_lowercase(), input), ArtistKey::from(i)))
+			.map(|(i, x)| (strsim::jaro(&x.name_lowercase, input), ArtistKey::from(i)))
 			.filter(|(f, _)| *f >= 0.7)
 			.collect();
 		let mut albums:  Vec<(f64, AlbumKey)> = self.collection.albums.0
 			.par_iter().enumerate()
-			.map(|(i, x)| (strsim::jaro(&x.title.to_ascii_lowercase(), input), AlbumKey::from(i)))
+			.map(|(i, x)| (strsim::jaro(&x.title_lowercase, input), AlbumKey::from(i)))
 			.filter(|(f, _)| *f >= 0.7)
 			.collect();
 		let mut songs:   Vec<(f64, SongKey)>  = self.collection.songs.0
 			.par_iter().enumerate()
-			.map(|(i, x)| (strsim::jaro(&x.title.to_ascii_lowercase(), input), SongKey::from(i)))
+			.map(|(i, x)| (strsim::jaro(&x.title_lowercase, input), SongKey::from(i)))
 			.filter(|(f, _)| *f >= 0.7)
 			.collect();
 
@@ -107,15 +107,15 @@ impl Search {
 	fn search_top25(&self, input: &str) -> Keychain {
 		let mut artists: Vec<(f64, ArtistKey)> = self.collection.artists.0
 			.par_iter().enumerate()
-			.map(|(i, x)| (strsim::jaro(&x.name.to_ascii_lowercase(), input), ArtistKey::from(i)))
+			.map(|(i, x)| (strsim::jaro(&x.name_lowercase, input), ArtistKey::from(i)))
 			.collect();
 		let mut albums:  Vec<(f64, AlbumKey)> = self.collection.albums.0
 			.par_iter().enumerate()
-			.map(|(i, x)| (strsim::jaro(&x.title.to_ascii_lowercase(), input), AlbumKey::from(i)))
+			.map(|(i, x)| (strsim::jaro(&x.title_lowercase, input), AlbumKey::from(i)))
 			.collect();
 		let mut songs:   Vec<(f64, SongKey)>  = self.collection.songs.0
 			.iter().enumerate()
-			.map(|(i, x)| (strsim::jaro(&x.title.to_ascii_lowercase(), input), SongKey::from(i)))
+			.map(|(i, x)| (strsim::jaro(&x.title_lowercase, input), SongKey::from(i)))
 			.collect();
 
 		// Sort by lowest-to-highest similarity value first.
@@ -136,15 +136,15 @@ impl Search {
 	fn search_all(&self, input: &str) -> Keychain {
 		let mut artists: Vec<(f64, ArtistKey)> = self.collection.artists.0
 			.par_iter().enumerate()
-			.map(|(i, x)| (strsim::jaro(&x.name.to_ascii_lowercase(), input), ArtistKey::from(i)))
+			.map(|(i, x)| (strsim::jaro(&x.name_lowercase, input), ArtistKey::from(i)))
 			.collect();
 		let mut albums:  Vec<(f64, AlbumKey)> = self.collection.albums.0
 			.par_iter().enumerate()
-			.map(|(i, x)| (strsim::jaro(&x.title.to_ascii_lowercase(), input), AlbumKey::from(i)))
+			.map(|(i, x)| (strsim::jaro(&x.title_lowercase, input), AlbumKey::from(i)))
 			.collect();
 		let mut songs:   Vec<(f64, SongKey)>  = self.collection.songs.0
 			.par_iter().enumerate()
-			.map(|(i, x)| (strsim::jaro(&x.title.to_ascii_lowercase(), input), SongKey::from(i)))
+			.map(|(i, x)| (strsim::jaro(&x.title_lowercase, input), SongKey::from(i)))
 			.collect();
 
 		// Sort by lowest-to-highest similarity value first.
@@ -247,9 +247,9 @@ impl Search {
 	}
 
 	#[inline(always)]
-	fn msg_sim(&mut self, mut input: String, kind: SearchKind) {
+	fn msg_sim(&mut self, input: String, kind: SearchKind) {
 		let now = now!();
-		input.make_ascii_lowercase();
+		let input = input.to_lowercase();
 
 		let keychain = match self.get_cache(&input, kind) {
 			Some(k) => {
