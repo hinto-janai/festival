@@ -126,7 +126,7 @@ impl Ccd {
 				}
 
 				i += 1;
-				sleep!(1);
+				sleep_millis!(1);
 			}
 		}
 		let perf_deconstruct = secs_f32!(now);
