@@ -77,7 +77,7 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width
 
 			// `Artist` name.
 			let label_name = Label::new(
-				RichText::new(&artist.name)
+				RichText::new(&*artist.name)
 				.text_style(TextStyle::Name("30".into()))
 			);
 
@@ -120,7 +120,7 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width
 					for key in &artist.albums {
 						let album = &self.collection.albums[key];
 
-						crate::album_button!(self, album, *key, ui, ctx, 120.0, &album.title);
+						crate::album_button!(self, album, *key, ui, ctx, 120.0, &*album.title);
 					}
 				});
 			});
@@ -151,7 +151,7 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width
 
 	// `Artist` name.
 	let label_name = Label::new(
-		RichText::new(&artist.name)
+		RichText::new(&*artist.name)
 		.color(BONE)
 		.text_style(TextStyle::Name("30".into()))
 	);
@@ -210,7 +210,7 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width
 
 				ui.vertical(|ui| {
 					// Info.
-					let album_title = Label::new(RichText::new(&album.title).color(BONE));
+					let album_title = Label::new(RichText::new(&*album.title).color(BONE));
 					ui.add(album_title);
 					ui.label(album.release.as_str());
 					ui.label(album.runtime.as_str());

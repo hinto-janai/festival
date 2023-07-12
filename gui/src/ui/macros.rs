@@ -334,17 +334,17 @@ macro_rules! song_button {
 		};
 		let head_len = (width / head_len) as usize;
 
-		let head    = readable::HeadTail::head_dot(&$song.title, head_len);
+		let head    = readable::HeadTail::head_dot(&&*$song.title, head_len);
 		// If we chopped the title, show the full title on hover.
-		let chopped = $song.title == head;
+		let chopped = &*$song.title == head;
 
 		let resp = $ui.allocate_ui_at_rect(rect, |ui| {
 			ui.horizontal_centered(|ui| {
 				match (chopped, $song.track) {
 					(true,  Some(t)) => ui.add(egui::Label::new(format!("{: >3}{: >8}    {}", t, $song.runtime.as_str(), head))),
-					(false, Some(t)) => ui.add(egui::Label::new(format!("{: >3}{: >8}    {}", t, $song.runtime.as_str(), head))).on_hover_text(&$song.title),
+					(false, Some(t)) => ui.add(egui::Label::new(format!("{: >3}{: >8}    {}", t, $song.runtime.as_str(), head))).on_hover_text(&*$song.title),
 					(true,  None)    => ui.add(egui::Label::new(format!("{: >3}{: >8}    {}", "???", $song.runtime.as_str(), head))),
-					(false, None)    => ui.add(egui::Label::new(format!("{: >3}{: >8}    {}", "???", $song.runtime.as_str(), head))).on_hover_text(&$song.title),
+					(false, None)    => ui.add(egui::Label::new(format!("{: >3}{: >8}    {}", "???", $song.runtime.as_str(), head))).on_hover_text(&*$song.title),
 				}
 			});
 		});

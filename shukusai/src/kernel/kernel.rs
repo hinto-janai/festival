@@ -118,6 +118,9 @@ impl Kernel {
 		watch: bool,
 		media_controls: bool,
 	) -> Result<(Sender<FrontendToKernel>, Receiver<KernelToFrontend>), std::io::Error> {
+		// Initialize `RESET_STATE`.
+//		let _ = Lazy::force(&UNKNOWN_ALBUM);
+
 		// Assert `OnceCell`'s were set.
 		#[cfg(feature = "gui")]
 		{
@@ -175,26 +178,21 @@ impl Kernel {
 		// Attempt to load `Collection` from file.
 		debug!("Kernel Init ... Reading Collection{COLLECTION_VERSION} from disk...");
 		let now = now!();
-		// SAFETY:
-		// `Collection` is `memmap`'ed from disk.
-		//
-		// We (`Kernel`) are the only "entity" that should
-		// be touching `collection.bin` at this point.
-		//
-		// `CCD` saves to `collection.bin`, but that function can
-		// only be called after `Kernel` initially loads this one.
-		// (we aren't in `userland()` yet, `Kernel` won't respond
-		//  to `FrontendToKernel::NewCollection` messages yet)
-		//
-		// I can't prevent other programs from touching this file
-		// although they shouldn't be messing around in other program's
-		// data directories anyway.
-		match unsafe { Collection::from_file_memmap() } {
+		let collection = Collection::from_versions(&[
+			// SAFETY: memmap is used.
+			(COLLECTION_VERSION, || unsafe { Collection::from_file_memmap() }),
+			(0, crate::collection::v0::Collection::disk_into),
+		]);
+		match collection {
 			// If success, continue to `boot_loader` to convert
 			// bytes to actual usable `egui` images.
-			Ok(collection) => {
+			Ok((v, collection)) if v == COLLECTION_VERSION => {
 				ok_debug!("Kernel Init ... Collection{COLLECTION_VERSION} deserialization ... Took {} seconds", secs_f32!(now));
-				Self::boot_loader(collection, to_frontend, from_frontend, *beginning, watch, media_controls);
+				Self::boot_loader(collection, to_frontend, from_frontend, *beginning, watch, media_controls, v);
+			},
+			Ok((v, collection)) => {
+				ok_debug!("Kernel Init ... Collection{v} converted to Collection{COLLECTION_VERSION} ... Took {} seconds", secs_f32!(now));
+				Self::boot_loader(collection, to_frontend, from_frontend, *beginning, watch, media_controls, v);
 			},
 			// Else, straight to `init` with default flag set.
 			Err(e) => {
@@ -212,8 +210,27 @@ impl Kernel {
 		beginning:      std::time::Instant,
 		watch:          bool,
 		media_controls: bool,
+		version:        u8,
 	) {
 		debug!("Kernel Init [2/12] ... entering boot_loader()");
+
+		// If the `Collection` got upgraded, that means
+		// we need to save the new version to disk.
+		if COLLECTION_VERSION != version {
+			let now = now!();
+
+			debug!("Kernel ... Collection{version} != Collection{COLLECTION_VERSION}, saving to disk...");
+
+			match unsafe { collection.save_atomic_memmap() } {
+				Ok(md) => debug!("Kernel ... Collection{COLLECTION_VERSION}: {md}"),
+				Err(e) => {
+					debug_panic!("Kernel ... Collection{COLLECTION_VERSION}: {e}");
+					fail!("Kernel ... Collection{COLLECTION_VERSION}: {e}");
+				},
+			}
+
+			debug!("Kernel ... Collection{COLLECTION_VERSION} save, took {} seconds", secs_f32!(now));
+		}
 
 		// We successfully loaded `Collection`.
 		// Create `CCD` channel + thread and make it convert images.

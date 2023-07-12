@@ -2,52 +2,49 @@
 use bincode::{Encode,Decode};
 use std::marker::PhantomData;
 use readable::Runtime;
-use crate::collection::key::{
+use crate::collection::{
 	AlbumKey,
 	SongKey,
 };
-use std::sync::Arc;
 
 //----------------------------------------------------------------------------------------------------
-#[derive(Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Encode,Decode)]
+#[derive(Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Encode,Decode)]
 /// Struct holding [`Artist`] metadata, with pointers to [`Album`]\(s\)
 ///
 /// This struct holds all the metadata about a particular [`Artist`].
 ///
 /// It contains an [`Vec`] of [`AlbumKey`]\(s\) that are the indices of the associated [`Album`]\(s\), in the [`Collection`].
-pub struct Artist {
+pub(crate) struct Artist {
 	/// The [`Artist`]'s name.
-	pub name: Arc<str>,
-	/// The [`Artist`]'s name in "Unicode Derived Core Property" lowercase.
-	pub name_lowercase: Arc<str>,
+	pub(crate) name: String,
 	/// Total runtime.
-	pub runtime: Runtime,
-	// SOMEDAY:
-	// This should be a Box<[AlbumKey]>.
+	pub(crate) runtime: Runtime,
 	/// Keys to the associated [`Album`]\(s\).
-	pub albums: Vec<AlbumKey>,
+	pub(crate) albums: Vec<AlbumKey>,
 	/// Keys to every [`Song`] by this [`Artist`].
 	///
 	/// The order is [`Album`] release order, then [`Song`] track order.
-	pub songs: Box<[SongKey]>,
+	pub(crate) songs: Box<[SongKey]>,
 }
 
-impl Default for Artist {
-	fn default() -> Self {
-		Self {
-			name: "".into(),
-			name_lowercase: "".into(),
-			runtime: Default::default(),
-			albums: Vec::with_capacity(0),
-			songs: Box::new([]),
+impl Into<crate::collection::Artist> for Artist {
+	fn into(self) -> crate::collection::Artist {
+		let Self {
+			name,
+			runtime,
+			albums,
+			songs,
+		} = self;
+
+		let name_lowercase = name.to_lowercase().into();
+		let name = name.into();
+
+		crate::collection::Artist {
+			name,
+			name_lowercase,
+			runtime,
+			albums,
+			songs,
 		}
 	}
 }
-
-//---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//  #[test]
-//  fn _() {
-//  }
-//}

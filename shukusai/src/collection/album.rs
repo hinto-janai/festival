@@ -1,11 +1,11 @@
 //---------------------------------------------------------------------------------------------------- Use
 use bincode::{Encode,Decode};
 use std::marker::PhantomData;
-use super::{
+use crate::collection::key::{
 	ArtistKey,
 	SongKey,
 };
-use super::art::{
+use crate::collection::art::{
 	Art,
 };
 use readable::{
@@ -14,9 +14,10 @@ use readable::{
 	Date,
 };
 use std::path::PathBuf;
+use std::sync::Arc;
 
 //---------------------------------------------------------------------------------------------------- Album
-#[derive(Clone,Debug,Default,PartialEq,PartialOrd,Encode,Decode)]
+#[derive(Clone,Debug,PartialEq,PartialOrd,Encode,Decode)]
 /// Struct holding [`Album`] metadata, with pointers to an [`Artist`] and [`Song`]\(s\)
 ///
 /// This struct holds all the metadata about a particular [`Album`].
@@ -27,7 +28,9 @@ use std::path::PathBuf;
 pub struct Album {
 	// User-facing data.
 	/// Title of the [`Album`].
-	pub title: String,
+	pub title: Arc<str>,
+	/// Title of the [`Album`] in "Unicode Derived Core Property" lowercase.
+	pub title_lowercase: Arc<str>,
 	/// Key to the [`Artist`].
 	pub artist: ArtistKey,
 	/// Human-readable release date of this [`Album`].
@@ -48,6 +51,9 @@ pub struct Album {
 	//
 	// So, doing `my_album.songs.iter()` will always
 	// result in the correct `Song` order for `my_album`.
+	//
+	// SOMEDAY:
+	// This should be a Box<[AlbumKey]>.
 	/// Key\(s\) to the [`Song`]\(s\).
 	pub songs: Vec<SongKey>,
 	/// How many discs are in this `Album`?
@@ -66,20 +72,6 @@ pub struct Album {
 	/// `Frontend`'s don't need to access this field
 	/// directly, instead, use `album.art_or()`.
 	pub art: Art, // Always initialized after `CCD`.
-
-	// Reserved fields that should SOMEDAY be implemented.
-	/// The [`Album`]'s genre.
-	pub _genre: PhantomData<Option<String>>,
-	/// Boolean representing if this is a compilation or not.
-	pub _compilation: PhantomData<bool>,
-
-	// Reserved fields and their `size_of()`.
-	pub(crate) _reserved1: PhantomData<Box<[usize]>>, // 16
-	pub(crate) _reserved2: PhantomData<Box<[usize]>>, // 16
-	pub(crate) _reserved3: PhantomData<Box<[usize]>>, // 16
-	pub(crate) _reserved4: PhantomData<Box<[usize]>>, // 16
-	pub(crate) _reserved5: PhantomData<String>,       // 24
-	pub(crate) _reserved6: PhantomData<usize>,        // 8
 }
 
 impl Album {
@@ -111,6 +103,23 @@ impl Album {
 	/// Calls [`egui_extras::RetainedImage::texture_id`].
 	pub fn texture_id(&self, ctx: &egui::Context) -> egui::TextureId {
 		self.art.texture_id(ctx)
+	}
+}
+
+impl Default for Album {
+	fn default() -> Self {
+		Self {
+			title: "".into(),
+			title_lowercase: "".into(),
+			artist: Default::default(),
+			release: Default::default(),
+			runtime: Default::default(),
+			song_count: Default::default(),
+			songs: Vec::with_capacity(0),
+			discs: Default::default(),
+			path: Default::default(),
+			art: Default::default(),
+		}
 	}
 }
 

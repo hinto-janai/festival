@@ -20,6 +20,9 @@ pub use crate::collection::image::*;
 mod metadata;
 pub use metadata::metadata;
 
+// Previous Collection versions.
+pub(crate) mod v0;
+
 // Pointer related code. To be used... eventually... maybe.
 //mod decode;
 //pub(crate) use decode::*;

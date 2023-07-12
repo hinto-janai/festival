@@ -4,20 +4,27 @@ use crate::{
 	state::Phase,
 };
 use readable::Percent;
-
 use std::sync::{
+	Arc,
 	RwLock,
 	RwLockReadGuard,
 	RwLockWriteGuard,
 	TryLockError,
 };
 use benri::{lockw,lockr};
+use once_cell::sync::Lazy;
 
 //---------------------------------------------------------------------------------------------------- Lazy
 /// This is the single, global copy of `ResetState` that `Kernel` uses.
 ///
 /// To obtain a read-only lock, use `RESET_STATE.read()`.
-pub static RESET_STATE: ResetStateLock = ResetStateLock(RwLock::new(ResetState::new()));
+// HACK:
+// This didn't have a `Lazy` before, but `specific` was
+// changed from `String` to `Arc<str>`, and `Arc` doesn't
+// have a `const` constructor so `Lazy` must be used.
+//
+// Not ideal.
+pub static RESET_STATE: Lazy<ResetStateLock> = Lazy::new(|| ResetStateLock(RwLock::new(ResetState::new())));
 
 //---------------------------------------------------------------------------------------------------- ResetStateLock
 /// There is only a single, global copy of `ResetState` that `Kernel` uses: [`RESET_STATE`].
@@ -81,17 +88,17 @@ pub struct ResetState {
 	/// [`String`] representing the specific work we're currently doing
 	///
 	/// Example: Current `Artist/Album/Song`.
-	pub specific: String,
+	pub specific: Arc<str>,
 }
 
 impl ResetState {
 	/// Creates an empty struct.
-	pub const fn new() -> Self {
+	pub fn new() -> Self {
 		Self {
 			resetting: false,
 			percent: Percent::zero(),
 			phase: Phase::None,
-			specific: String::new(),
+			specific: "".into(),
 		}
 	}
 
@@ -101,7 +108,7 @@ impl ResetState {
 			resetting: true,
 			percent: Percent::zero(),
 			phase: Phase::Start,
-			specific: String::new(),
+			specific: "".into(),
 		};
 	}
 
@@ -111,7 +118,7 @@ impl ResetState {
 			resetting: true,
 			percent: Percent::zero(),
 			phase: Phase::Wait,
-			specific: String::new(),
+			specific: "".into(),
 		};
 	}
 
@@ -121,7 +128,7 @@ impl ResetState {
 			resetting: true,
 			percent: Percent::zero(),
 			phase: Phase::Disk,
-			specific: String::new(),
+			specific: "".into(),
 		};
 	}
 
@@ -131,12 +138,12 @@ impl ResetState {
 			resetting: false,
 			percent: Percent::const_100(),
 			phase: Phase::None,
-			specific: String::new(),
+			specific: "".into(),
 		};
 	}
 
 	// Set a new increment update, this increments the current values.
-	pub(crate) fn new_increment(&mut self, increment: f64, specific: String) {
+	pub(crate) fn new_increment(&mut self, increment: f64, specific: Arc<str>) {
 		*self = Self {
 			percent: Percent::from(self.percent.inner() + increment),
 			specific,
@@ -148,7 +155,7 @@ impl ResetState {
 	pub(crate) fn new_phase(&mut self, percent: f64, phase: Phase) {
 		*self = Self {
 			percent: Percent::from(percent),
-			specific: String::new(),
+			specific: "".into(),
 			phase,
 			..*self
 		}
@@ -177,7 +184,7 @@ mod tests {
 		// 1
 		assert_eq!(r.percent, 10.0);
 		// 2
-		assert_eq!(r.specific, "New string");
+		assert_eq!(r.specific, "New string".into());
 		// 3
 		assert_eq!(r.resetting, old_resetting);
 		assert_eq!(r.phase, old_phase);
@@ -202,7 +209,7 @@ mod tests {
 		// 1
 		assert_eq!(r.percent, 10.0);
 		// 2
-		assert_eq!(r.specific, "");
+		assert_eq!(r.specific, "".into());
 		// 4
 		assert_eq!(r.phase, PHASE);
 		// 3

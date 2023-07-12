@@ -66,6 +66,8 @@ compile_error!("shukusai is only tested on Window/macOS/Linux");
 //---------------------------------------------------------------------------------------------------- Private `shukusai` internals.
 mod ccd;
 mod watch;
+mod macros;
+pub(crate) use macros::*;
 
 //---------------------------------------------------------------------------------------------------- Public Re-exports.
 pub use readable;

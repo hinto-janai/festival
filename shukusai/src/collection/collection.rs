@@ -16,9 +16,6 @@ use crate::sort::{
 	AlbumSort,
 	SongSort,
 };
-
-
-//use disk::{Json,json_file};
 use crate::constants::{
 	FESTIVAL,
 	HEADER,
@@ -39,7 +36,6 @@ use readable::{
 	Unsigned,
 };
 use once_cell::sync::Lazy;
-use std::marker::PhantomData;
 use const_format::formatcp;
 
 //---------------------------------------------------------------------------------------------------- Lazy
@@ -234,63 +230,6 @@ pub struct Collection {
 	pub sort_song_title: Box<[SongKey]>,
 	/// [`Song`] title longest to shortest.
 	pub sort_song_title_rev: Box<[SongKey]>,
-
-	// Reserved fields and their `size_of()`.
-
-	// SOMEDAY:
-	// These will probably be `sort_*` but
-	// direct pointers instead of indices.
-	pub(crate) _reserved1: PhantomData<Box<[usize]>>, // 16
-	pub(crate) _reserved2: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved4: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved5: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved6: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved7: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved8: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved9: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved10: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved11: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved12: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved13: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved14: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved15: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved16: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved17: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved18: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved19: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved20: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved21: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved22: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved23: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved24: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved25: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved26: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved27: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved28: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved29: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved30: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved31: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved32: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved33: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved34: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved35: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved36: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved37: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved38: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved39: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved40: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved41: PhantomData<Box<[usize]>>,
-	pub(crate) _reserved42: PhantomData<Box<[usize]>>,
-
-	// Misc reserved fields.
-	pub(crate) _reserved43: PhantomData<String>,    // 24
-	pub(crate) _reserved44: PhantomData<Box<[u8]>>, // 16
-	pub(crate) _reserved45: PhantomData<usize>,     // 8
-	pub(crate) _reserved46: PhantomData<usize>,
-	pub(crate) _reserved47: PhantomData<usize>,
-	pub(crate) _reserved48: PhantomData<usize>,
-	pub(crate) _reserved49: PhantomData<bool>, // 1
-	pub(crate) _reserved50: PhantomData<bool>,
 }
 
 impl Collection {
@@ -354,22 +293,6 @@ impl Collection {
 			sort_song_runtime_rev: Box::new([]),
 			sort_song_title: Box::new([]),
 			sort_song_title_rev: Box::new([]),
-
-			// We don't use `..Default::default()` because
-			// we want to _explicit_ about the values here.
-			_reserved1: PhantomData, _reserved2: PhantomData, _reserved4: PhantomData, _reserved5: PhantomData,
-			_reserved6: PhantomData, _reserved7: PhantomData, _reserved8: PhantomData, _reserved9: PhantomData,
-			_reserved10: PhantomData, _reserved11: PhantomData, _reserved12: PhantomData, _reserved13: PhantomData,
-			_reserved14: PhantomData, _reserved15: PhantomData, _reserved16: PhantomData, _reserved17: PhantomData,
-			_reserved18: PhantomData, _reserved19: PhantomData, _reserved20: PhantomData, _reserved21: PhantomData,
-			_reserved22: PhantomData, _reserved23: PhantomData, _reserved24: PhantomData, _reserved25: PhantomData,
-			_reserved26: PhantomData, _reserved27: PhantomData, _reserved28: PhantomData, _reserved29: PhantomData,
-			_reserved30: PhantomData, _reserved31: PhantomData, _reserved32: PhantomData, _reserved33: PhantomData,
-			_reserved34: PhantomData, _reserved35: PhantomData, _reserved36: PhantomData, _reserved37: PhantomData,
-			_reserved38: PhantomData, _reserved39: PhantomData, _reserved40: PhantomData, _reserved41: PhantomData,
-			_reserved42: PhantomData, _reserved43: PhantomData, _reserved44: PhantomData, _reserved45: PhantomData,
-			_reserved46: PhantomData, _reserved47: PhantomData, _reserved48: PhantomData, _reserved49: PhantomData,
-			_reserved50: PhantomData,
 		}
 	}
 
@@ -1116,9 +1039,9 @@ mod tests {
 	use readable::{Runtime, Date};
 
 	// Empty new `Collection`.
-	const C1: Lazy<Collection> = Lazy::new(|| Collection::from_path("../assets/shukusai/state/collection0_new.bin").unwrap());
+	const C1: Lazy<Collection> = Lazy::new(|| Collection::from_path("../assets/shukusai/state/collection1_new.bin").unwrap());
 	// Filled, user `Collection`.
-	const C2: Lazy<Collection> = Lazy::new(|| Collection::from_path("../assets/shukusai/state/collection0_real.bin").unwrap());
+	const C2: Lazy<Collection> = Lazy::new(|| Collection::from_path("../assets/shukusai/state/collection1_real.bin").unwrap());
 
 	#[test]
 	// Tests functions that depend on the correctness of the `Map`.
@@ -1169,85 +1092,156 @@ mod tests {
 
 		// Artist 1/3
 		let k = ArtistKey::from(0_u8);
-		assert_eq!(C2.artists[k].name,         "artist_1");
+		assert_eq!(C2.artists[k].name,         "artist_1".into());
 		assert_eq!(C2.artists[k].runtime,      Runtime::from(4_u8));
 		assert_eq!(C2.artists[k].albums.len(), 2);
 		assert_eq!(C2.artists[k].songs.len(),  4);
 
 		// Artist 2/3
 		let k = ArtistKey::from(1_u8);
-		assert_eq!(C2.artists[k].name,         "artist_2");
+		assert_eq!(C2.artists[k].name,         "artist_2".into());
 		assert_eq!(C2.artists[k].runtime,      Runtime::from(2_u8));
 		assert_eq!(C2.artists[k].albums.len(), 1);
 		assert_eq!(C2.artists[k].songs.len(),  2);
 
 		// Artist 3/3
 		let k = ArtistKey::from(2_u8);
-		assert_eq!(C2.artists[k].name,         "artist_3");
+		assert_eq!(C2.artists[k].name,         "artist_3".into());
 		assert_eq!(C2.artists[k].runtime,      Runtime::from(1_u8));
 		assert_eq!(C2.artists[k].albums.len(), 1);
 		assert_eq!(C2.artists[k].songs.len(),  1);
 
 		// Albums 1/4
 		let k = AlbumKey::from(0_u8);
-		assert_eq!(C2.albums[k].title, "album_1");
+		assert_eq!(C2.albums[k].title, "album_1".into());
 		assert_eq!(C2.albums[k].release, Date::from_str("2018-04-25").unwrap());
 
 		// Albums 2/4
 		let k = AlbumKey::from(1_u8);
-		assert_eq!(C2.albums[k].title, "album_2");
+		assert_eq!(C2.albums[k].title, "album_2".into());
 		assert_eq!(C2.albums[k].release, Date::from_str("2018-04-25").unwrap());
 
 		// Albums 3/4
 		let k = AlbumKey::from(2_u8);
-		assert_eq!(C2.albums[k].title, "album_3");
+		assert_eq!(C2.albums[k].title, "album_3".into());
 		assert_eq!(C2.albums[k].release, Date::from_str("2018-04-25").unwrap());
 
 		// Albums 4/4
 		let k = AlbumKey::from(3_u8);
-		assert_eq!(C2.albums[k].title, "album_4");
+		assert_eq!(C2.albums[k].title, "album_4".into());
 		assert_eq!(C2.albums[k].release, Date::from_str("2018-04-25").unwrap());
 
 		// Song 1/7
 		let k = SongKey::from(0_u8);
-		assert_eq!(C2.songs[k].title, "mp3");
+		assert_eq!(C2.songs[k].title, "mp3".into());
 		assert_eq!(C2.songs[k].sample_rate, 48_000);
 		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_1.mp3");
 
 		// Song 2/7
 		let k = SongKey::from(1_u8);
-		assert_eq!(C2.songs[k].title, "mp3");
+		assert_eq!(C2.songs[k].title, "mp3".into());
 		assert_eq!(C2.songs[k].sample_rate, 48_000);
 		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_2.mp3");
 
 		// Song 3/7
 		let k = SongKey::from(2_u8);
-		assert_eq!(C2.songs[k].title, "mp3");
+		assert_eq!(C2.songs[k].title, "mp3".into());
 		assert_eq!(C2.songs[k].sample_rate, 48_000);
 		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_3.mp3");
 
 		// Song 4/7
 		let k = SongKey::from(3_u8);
-		assert_eq!(C2.songs[k].title, "flac");
+		assert_eq!(C2.songs[k].title, "flac".into());
 		assert_eq!(C2.songs[k].sample_rate, 48_000);
 		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_4.flac");
 
 		// Song 5/7
 		let k = SongKey::from(4_u8);
-		assert_eq!(C2.songs[k].title, "m4a");
+		assert_eq!(C2.songs[k].title, "m4a".into());
 		assert_eq!(C2.songs[k].sample_rate, 48_000);
 		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_5.m4a");
 
 		// Song 6/7
 		let k = SongKey::from(5_u8);
-		assert_eq!(C2.songs[k].title, "song_6");
+		assert_eq!(C2.songs[k].title, "song_6".into());
 		assert_eq!(C2.songs[k].sample_rate, 48_000);
 		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_6.ogg");
 
 		// Song 7/7
 		let k = SongKey::from(6_u8);
-		assert_eq!(C2.songs[k].title, "mp3");
+		assert_eq!(C2.songs[k].title, "mp3".into());
 		assert_eq!(C2.songs[k].sample_rate, 48_000);
 		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_7.mp3");
+	}
+
+	#[test]
+	// Assert the memory layout is correct.
+	// This must be correct or else `Bincode` won't be
+	// able to decode things.
+	//
+	// A `cargo update` might include a change that
+	// slightly changes the memory layout, which would
+	// make the `Collection` decoding broken.
+	//
+	// We can rely on `std` to be stable, but not 3rd party crates (even my own).
+	//
+	// All recursive structures within `Collection` are tested here.
+	fn layout() {
+		use crate::collection::{Art, Keychain};
+
+		#[cfg(target_os = "linux")]
+		const ALBUM_SIZE: usize = 328;
+		#[cfg(target_os = "macos")]
+		const ALBUM_SIZE: usize = 344;
+		#[cfg(target_os = "windows")]
+		const ALBUM_SIZE: usize = 352;
+
+		#[cfg(target_os = "linux")]
+		const ART_SIZE: usize = 128;
+		#[cfg(target_os = "macos")]
+		const ART_SIZE: usize = 144;
+		#[cfg(target_os = "windows")]
+		const ART_SIZE: usize = 144;
+
+		#[cfg(target_os = "linux")]
+		const SONG_SIZE: usize = 112;
+		#[cfg(target_os = "macos")]
+		const SONG_SIZE: usize = 112;
+		#[cfg(target_os = "windows")]
+		const SONG_SIZE: usize = 120;
+
+		crate::assert_size_of! {
+			// Collection
+			Collection       => 976,
+			Unsigned         => 48,
+			Map              => 48,
+			Artists          => 16,
+			Albums           => 16,
+			Songs            => 16,
+			Box<[ArtistKey]> => 16,
+			Box<[AlbumKey]>  => 16,
+			Box<[SongKey]>   => 16,
+
+			// Artist
+			Artist           => 96,
+			Runtime          => 24,
+			Vec<AlbumKey>    => 24,
+
+			// Album
+			Album        => ALBUM_SIZE,
+			Date         => 32,
+			Vec<SongKey> => 24,
+			Art          => ART_SIZE,
+
+			// Song
+			Song => SONG_SIZE,
+
+			// Keys
+			Key       => 24,
+			Keychain  => 48,
+			ArtistKey => 8,
+			AlbumKey  => 8,
+			SongKey   => 8
+		}
 	}
 }

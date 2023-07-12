@@ -33,7 +33,6 @@ use crate::ccd::{
 	convert::ArtConvertType,
 	msg::CcdToKernel,
 };
-use std::marker::PhantomData;
 use crate::constants::COLLECTION_VERSION;
 use rayon::prelude::*;
 
@@ -278,22 +277,6 @@ impl Ccd {
 			sort_song_runtime_rev,
 			sort_song_title,
 			sort_song_title_rev,
-
-			// We don't use `..Default::default()` because
-			// we want to _explicit_ about the values here.
-			_reserved1: PhantomData, _reserved2: PhantomData, _reserved4: PhantomData, _reserved5: PhantomData,
-			_reserved6: PhantomData, _reserved7: PhantomData, _reserved8: PhantomData, _reserved9: PhantomData,
-			_reserved10: PhantomData, _reserved11: PhantomData, _reserved12: PhantomData, _reserved13: PhantomData,
-			_reserved14: PhantomData, _reserved15: PhantomData, _reserved16: PhantomData, _reserved17: PhantomData,
-			_reserved18: PhantomData, _reserved19: PhantomData, _reserved20: PhantomData, _reserved21: PhantomData,
-			_reserved22: PhantomData, _reserved23: PhantomData, _reserved24: PhantomData, _reserved25: PhantomData,
-			_reserved26: PhantomData, _reserved27: PhantomData, _reserved28: PhantomData, _reserved29: PhantomData,
-			_reserved30: PhantomData, _reserved31: PhantomData, _reserved32: PhantomData, _reserved33: PhantomData,
-			_reserved34: PhantomData, _reserved35: PhantomData, _reserved36: PhantomData, _reserved37: PhantomData,
-			_reserved38: PhantomData, _reserved39: PhantomData, _reserved40: PhantomData, _reserved41: PhantomData,
-			_reserved42: PhantomData, _reserved43: PhantomData, _reserved44: PhantomData, _reserved45: PhantomData,
-			_reserved46: PhantomData, _reserved47: PhantomData, _reserved48: PhantomData, _reserved49: PhantomData,
-			_reserved50: PhantomData,
 		};
 		// Fix metadata.
 		{
@@ -486,6 +469,7 @@ mod tests {
 	use crate::ccd::*;
 	use std::path::PathBuf;
 	use disk::*;
+	use crate::constants::COLLECTION_VERSION;
 
 	#[test]
 	// Converts the pre-saved `Collection`'s art.
@@ -496,7 +480,7 @@ mod tests {
 
 		// Convert.
 		std::thread::spawn(move || {
-			Ccd::convert_art(to_kernel, Collection::from_path("../assets/shukusai/state/collection0_real.bin").unwrap())
+			Ccd::convert_art(to_kernel, Collection::from_path(format!("../assets/shukusai/state/collection{COLLECTION_VERSION}_real.bin")).unwrap())
 		});
 
 		let c = loop {

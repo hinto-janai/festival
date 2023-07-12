@@ -39,11 +39,12 @@ mod tests {
 	use disk::Bincode2;
 	use readable::{Runtime, Date};
 	use std::path::PathBuf;
+	use crate::constants::COLLECTION_VERSION;
 
 	#[test]
 	// Tests if `Collection::json` outputs valid `JSON`.
 	fn json() {
-		let path = PathBuf::from("../assets/shukusai/state/collection0_real.bin");
+		let path = PathBuf::from(format!("../assets/shukusai/state/collection{COLLECTION_VERSION}_real.bin"));
 
 		let collection = Collection::from_path(&path).unwrap();
 

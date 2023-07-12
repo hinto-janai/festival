@@ -10,6 +10,7 @@ use crate::collection::{
 	AlbumKey,
 	SongKey,
 };
+use std::sync::Arc;
 
 //---------------------------------------------------------------------------------------------------- Map
 #[derive(Clone,Debug,Default,Serialize,Deserialize,PartialEq,Encode,Decode)]
@@ -18,7 +19,7 @@ use crate::collection::{
 ///
 /// No public functions are implemented on this type directly,
 /// use [`Collection`]'s functions instead.
-pub struct Map(pub(crate) HashMap<String, (ArtistKey, AlbumMap)>);
+pub struct Map(pub(crate) HashMap<Arc<str>, (ArtistKey, AlbumMap)>);
 
 impl Map {
 	#[inline(always)]
@@ -46,15 +47,15 @@ impl Map {
 
 				// For each `Song` within the `Album`...
 				for song in albums[album.inner()].songs.iter() {
-					song_map.0.insert(songs[song.inner()].title.to_string(), *song);
+					song_map.0.insert(songs[song.inner()].title.clone(), *song);
 				}
 
 				// Insert the `SongMap` into the `AlbumMap`.
-				album_map.0.insert(albums[album.inner()].title.to_string(), (*album, song_map));
+				album_map.0.insert(albums[album.inner()].title.clone(), (*album, song_map));
 			}
 
 			// Insert the `AlbumMap` into the `(Artist)Map`.
-			map.0.insert(artist.name.to_string(), (ArtistKey::from(i), album_map));
+			map.0.insert(artist.name.clone(), (ArtistKey::from(i), album_map));
 		}
 
 		map
@@ -64,12 +65,12 @@ impl Map {
 //---------------------------------------------------------------------------------------------------- AlbumMap
 #[derive(Clone,Debug,Default,Serialize,Deserialize,PartialEq,Encode,Decode)]
 #[serde(transparent)]
-pub(crate) struct AlbumMap(pub(crate) HashMap<String, (AlbumKey, SongMap)>);
+pub(crate) struct AlbumMap(pub(crate) HashMap<Arc<str>, (AlbumKey, SongMap)>);
 
 //---------------------------------------------------------------------------------------------------- SongMap
 #[derive(Clone,Debug,Default,Serialize,Deserialize,PartialEq,Encode,Decode)]
 #[serde(transparent)]
-pub(crate) struct SongMap(pub(crate) HashMap<String, SongKey>);
+pub(crate) struct SongMap(pub(crate) HashMap<Arc<str>, SongKey>);
 
 //---------------------------------------------------------------------------------------------------- TESTS
 //#[cfg(test)]

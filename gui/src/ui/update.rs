@@ -515,7 +515,7 @@ fn show_bottom(&mut self, ctx: &egui::Context, width: f32, height: f32) {
 
 					//-------------------------------------------------- `Song` title.
 					let song_head  = song.title.head_dot(head);
-					let chopped    = song.title != song_head;
+					let chopped    = &*song.title != song_head;
 					let song_title = Label::new(
 						RichText::new(song_head)
 							.text_style(text_style.clone())
@@ -524,33 +524,33 @@ fn show_bottom(&mut self, ctx: &egui::Context, width: f32, height: f32) {
 					// Show the full title on hover
 					// if we chopped it with head.
 					if chopped {
-						ui.add(song_title).on_hover_text(&song.title);
+						ui.add(song_title).on_hover_text(&*song.title);
 					} else {
 						ui.add(song_title);
 					}
 
 					//-------------------------------------------------- `Album` name.
 					let album_head = album.title.head_dot(head);
-					let chopped    = album.title != album_head;
+					let chopped    = &*album.title != album_head;
 					let album_name = Label::new(
 						RichText::new(album_head)
 							.text_style(text_style.clone())
 					);
 					if chopped {
-						ui.add(album_name).on_hover_text(&album.title);
+						ui.add(album_name).on_hover_text(&*album.title);
 					} else {
 						ui.add(album_name);
 					}
 
 					//-------------------------------------------------- `Artist` name.
 					let artist_head = artist.name.head_dot(head);
-					let chopped     = artist.name != artist_head;
+					let chopped     = &*artist.name != artist_head;
 					let artist_name = Label::new(
 						RichText::new(artist_head)
 							.text_style(text_style)
 					);
 					if chopped {
-						if ui.add(artist_name.sense(Sense::click())).on_hover_text(&artist.name).clicked() {
+						if ui.add(artist_name.sense(Sense::click())).on_hover_text(&*artist.name).clicked() {
 							crate::artist!(self, album.artist);
 						}
 					} else {
@@ -832,7 +832,7 @@ fn show_collection_spinner(
 			// Phase.
 			ui.add_sized([width, height], Label::new(self.reset_state.phase.as_str()));
 			// Specific.
-			ui.add_sized([width, height], Label::new(&self.reset_state.specific));
+			ui.add_sized([width, height], Label::new(&*self.reset_state.specific));
 			// ProgressBar.
 			ui.add_sized([width / 1.1, height], ProgressBar::new(self.reset_state.percent.inner() as f32 / 100.0));
 

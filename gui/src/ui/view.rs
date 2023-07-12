@@ -62,7 +62,7 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: f
 
 		// `Album` title.
 		let label = Label::new(
-			RichText::new(&album.title)
+			RichText::new(&*album.title)
 				.color(BONE)
 				.text_style(TextStyle::Name("25".into()))
 		);
@@ -70,7 +70,7 @@ pub fn show_tab_view(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: f
 
 		// `Artist` name.
 		let artist = &self.collection.artists[album.artist];
-		crate::artist_label!(self, artist, album.artist, ui, Label::new(&artist.name));
+		crate::artist_label!(self, artist, album.artist, ui, Label::new(&*artist.name));
 
 		// `Album` release.
 		ui.label(album.release.as_str());
@@ -174,9 +174,9 @@ pub(super) fn show_tab_view_right_panel(&mut self, album_key: Option<AlbumKey>, 
 
 					// If this is the album we're on, make it pop.
 					if key == album_key {
-						ui.add(Label::new(RichText::new(&album.title).color(Color32::LIGHT_BLUE)));
+						ui.add(Label::new(RichText::new(&*album.title).color(Color32::LIGHT_BLUE)));
 					} else {
-						ui.label(&album.title);
+						ui.label(&*album.title);
 					}
 					ui.add_space(5.0);
 				}

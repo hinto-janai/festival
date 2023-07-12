@@ -22,9 +22,7 @@ use readable::{
 	Unsigned,
 	Date,
 };
-use std::sync::{Mutex};
-
-use std::marker::PhantomData;
+use std::sync::{Arc, Mutex};
 use symphonia::core::{
 	io::MediaSourceStream,
 	probe::{ProbeResult,Hint},
@@ -101,7 +99,7 @@ impl crate::ccd::Ccd {
 		// - We have a "Working Memory" that keeps track of what `Artist/Album` we've seen already.
 		// - We have 3 `Vec`'s (that will eventually become the `Collection`).
 		//
-		// The "Working Memory" is a `HashMap` that takes in `String` input of an artist name and returns the `index` to it,
+		// The "Working Memory" is a `HashMap` that takes in `str` input of an artist name and returns the `index` to it,
 		// along with another `HashMap` which represents that `Artist`'s `Album`'s and its appropriate `indices`.
 		//
 		// Using a `Vec` and/or `BTreeMap` instead was considered, since 99% of the time,
@@ -116,7 +114,7 @@ impl crate::ccd::Ccd {
 		//                            Name   in `Vec<Artist>`   Name   in `Vec<Album>`
 		//                              |          |              |         |
 		//                              v          v              v         v
-		let memory:       Mutex<HashMap<String, (usize, HashMap<String, usize>)>> = Mutex::new(HashMap::with_capacity(artist_len_maybe));
+		let memory:       Mutex<HashMap<Arc<str>, (usize, HashMap<Arc<str>, usize>)>> = Mutex::new(HashMap::with_capacity(artist_len_maybe));
 		let vec_artist:   Mutex<Vec<Artist>> = Mutex::new(Vec::with_capacity(artist_len_maybe));
 		let vec_album:    Mutex<Vec<Album>>  = Mutex::new(Vec::with_capacity(album_len_maybe));
 		let vec_song:     Mutex<Vec<Song>>   = Mutex::new(Vec::with_capacity(song_len_maybe));
@@ -187,8 +185,16 @@ impl crate::ccd::Ccd {
 			release,
 		} = metadata;
 
+		// Convert `String`'s to `Arc<str>`.
+		let artist_lowercase: Arc<str> = artist.to_lowercase().into();
+		let album_lowercase: Arc<str>  = album.to_lowercase().into();
+		let title_lowercase: Arc<str>  = title.to_lowercase().into();
+		let artist: Arc<str> = artist.into();
+		let album: Arc<str>  = album.into();
+		let title: Arc<str>  = title.into();
+
 		// Send update to `Kernel`.
-		send!(to_kernel, CcdToKernel::UpdateIncrement((increment, title.to_string())));
+		send!(to_kernel, CcdToKernel::UpdateIncrement((increment, Arc::clone(&title))));
 
 		// Lock memory (HashMap).
 		let mut memory = lock!(memory);
@@ -201,21 +207,13 @@ impl crate::ccd::Ccd {
 				// Create `Song`.
 				let song = Song {
 					title,
+					title_lowercase,
 					album: AlbumKey::from(*album_idx),
 					runtime: Runtime::from(runtime),
 					sample_rate,
 					track,
 					disc,
 					path,
-
-    				_track_artists: PhantomData,
-    				_lyrics: PhantomData,
-    				_reserved1: PhantomData,
-				    _reserved2: PhantomData,
-				    _reserved3: PhantomData,
-				    _reserved4: PhantomData,
-				    _reserved5: PhantomData,
-				    _reserved6: PhantomData,
 				};
 
 				// Lock.
@@ -233,15 +231,14 @@ impl crate::ccd::Ccd {
 
 			//------------------------------------------------------------- If `Artist` exists, but not `Album`.
 			// Prepare `Song`.
-			let song_title    = title;
-			let runtime       = Runtime::from(runtime);
+			let runtime = Runtime::from(runtime);
 
 			// Prepare `Album`.
 			let release = match release {
 				Some(r) => Date::from_str_silent(&r),
 				None    => Date::unknown(),
 			};
-			let album_title   = album.clone();
+			let album_title   = Arc::clone(&album);
 			let song_count    = Unsigned::zero();
 			let runtime_album = Runtime::zero();
 			let art = match art {
@@ -270,27 +267,20 @@ impl crate::ccd::Ccd {
 
 			// Create `Song`.
 			let song = Song {
-				title: song_title,
+				title,
+				title_lowercase,
 				runtime,
 				sample_rate,
 				track,
 				disc,
 				path,
 				album: AlbumKey::from(vec_album.len()),
-
-				_track_artists: PhantomData,
-				_lyrics: PhantomData,
-				_reserved1: PhantomData,
-			    _reserved2: PhantomData,
-			    _reserved3: PhantomData,
-			    _reserved4: PhantomData,
-			    _reserved5: PhantomData,
-			    _reserved6: PhantomData,
 			};
 
 			// Create `Album`.
 			let album_struct = Album {
 				title: album_title,
+				title_lowercase: album_lowercase,
 				release,
 
 				artist: ArtistKey::from(*artist_idx),
@@ -302,15 +292,6 @@ impl crate::ccd::Ccd {
 				discs: 0,
 				song_count,
 				art,
-
-			    _genre: PhantomData,
-			    _compilation: PhantomData,
-			    _reserved1: PhantomData,
-			    _reserved2: PhantomData,
-			    _reserved3: PhantomData,
-			    _reserved4: PhantomData,
-			    _reserved5: PhantomData,
-			    _reserved6: PhantomData,
 			};
 
 			// Update `Artist`.
@@ -341,7 +322,7 @@ impl crate::ccd::Ccd {
 			Some(r) => Date::from_str_silent(&r),
 			None    => Date::unknown(),
 		};
-		let album_title   = album.clone();
+		let album_title   = Arc::clone(&album);
 		let song_count    = Unsigned::zero();
 		let runtime_album = Runtime::zero();
 		let art = match art {
@@ -364,7 +345,7 @@ impl crate::ccd::Ccd {
 		};
 
 		// Prepare `Artist`.
-		let name = artist.clone();
+		let name = Arc::clone(&artist);
 
 		// Lock.
 		let mut vec_artist = lock!(vec_artist);
@@ -374,26 +355,19 @@ impl crate::ccd::Ccd {
 		// Create `Song`.
 		let song = Song {
 			title,
+			title_lowercase,
 			runtime,
 			sample_rate,
 			track,
 			disc,
 			path,
 			album: AlbumKey::from(vec_album.len()),
-
-			_track_artists: PhantomData,
-			_lyrics: PhantomData,
-			_reserved1: PhantomData,
-		    _reserved2: PhantomData,
-		    _reserved3: PhantomData,
-		    _reserved4: PhantomData,
-		    _reserved5: PhantomData,
-		    _reserved6: PhantomData,
 		};
 
 		// Create `Album`.
 		let album_struct = Album {
 			title: album_title,
+			title_lowercase: album_lowercase,
 			release,
 
 			artist: ArtistKey::from(vec_artist.len()),
@@ -405,15 +379,6 @@ impl crate::ccd::Ccd {
 			discs: 0,
 			song_count,
 			art,
-
-		    _genre: PhantomData,
-		    _compilation: PhantomData,
-		    _reserved1: PhantomData,
-		    _reserved2: PhantomData,
-		    _reserved3: PhantomData,
-		    _reserved4: PhantomData,
-		    _reserved5: PhantomData,
-		    _reserved6: PhantomData,
 		};
 
 		// Create `Artist`.
@@ -421,18 +386,12 @@ impl crate::ccd::Ccd {
 		let count_album  = vec_album.len();
 		let artist_struct = Artist {
 			name,
+			name_lowercase: artist_lowercase,
 
 			// Will be updated later.
 			runtime: Runtime::zero(),
 			albums: vec![AlbumKey::from(count_album)],
     		songs: Box::new([]),
-
-		    _reserved1: PhantomData,
-		    _reserved2: PhantomData,
-		    _reserved3: PhantomData,
-		    _reserved4: PhantomData,
-		    _reserved5: PhantomData,
-		    _reserved6: PhantomData,
 		};
 
 		// Push `Artist/Album/Song`.
@@ -446,7 +405,7 @@ impl crate::ccd::Ccd {
 		drop(vec_song);
 
 		// Add to `HashMap` memory.
-		let map    = HashMap::from([(album.to_string(), count_album)]);
+		let map    = HashMap::from([(album, count_album)]);
 		let tuple  = (count_artist, map);
 
 		memory.insert(artist, tuple);

@@ -208,19 +208,19 @@ CentralPanel::default().show(ctx, |ui| {
 							let (artist, album, song) = self.collection.walk(key);
 
 							row.col(|ui| {
-								if ui.add(Label::new(&song.title).sense(Sense::click())).clicked() {
+								if ui.add(Label::new(&*song.title).sense(Sense::click())).clicked() {
 									crate::play_song!(self, *key);
 								}
 							});
 
 							row.col(|ui| {
-								if ui.add(Label::new(&album.title).sense(Sense::click())).clicked() {
+								if ui.add(Label::new(&*album.title).sense(Sense::click())).clicked() {
 									crate::album!(self, song.album);
 								}
 							});
 
 							row.col(|ui| {
-								crate::artist_label!(self, artist, album.artist, ui, Label::new(&artist.name));
+								crate::artist_label!(self, artist, album.artist, ui, Label::new(&*artist.name));
 							});
 
 							row.col(|ui| { ui.label(album.release.as_str()); });
@@ -298,11 +298,11 @@ CentralPanel::default().show(ctx, |ui| {
 							row.col(|ui| {
 								crate::no_rounding!(ui);
 								crate::album_button!(self, album, *key, ui, ctx, 120.0, "");
-								ui.label(&album.title);
+								ui.label(&*album.title);
 							});
 
 							row.col(|ui| {
-								crate::artist_label!(self, artist, album.artist, ui, Label::new(&artist.name));
+								crate::artist_label!(self, artist, album.artist, ui, Label::new(&*artist.name));
 							});
 
 							row.col(|ui| { ui.label(album.release.as_str()); });
@@ -349,7 +349,7 @@ CentralPanel::default().show(ctx, |ui| {
 							let artist = &self.collection.artists[key];
 
 							row.col(|ui| {
-								crate::artist_label!(self, artist, *key, ui, Label::new(&artist.name));
+								crate::artist_label!(self, artist, *key, ui, Label::new(&*artist.name));
 							});
 
 							row.col(|ui| { ui.label(artist.runtime.as_str()); });
@@ -359,7 +359,7 @@ CentralPanel::default().show(ctx, |ui| {
 								for key in artist.albums.iter() {
 									let album = &self.collection.albums[key];
 
-									crate::album_button!(self, album, *key, ui, ctx, 120.0, &album.title);
+									crate::album_button!(self, album, *key, ui, ctx, 120.0, &*album.title);
 								}
 							});
 						});
