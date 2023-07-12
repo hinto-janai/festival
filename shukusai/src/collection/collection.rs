@@ -1039,9 +1039,9 @@ mod tests {
 	use readable::{Runtime, Date};
 
 	// Empty new `Collection`.
-	const C1: Lazy<Collection> = Lazy::new(|| Collection::from_path("../assets/shukusai/state/collection0_new.bin").unwrap());
+	const C1: Lazy<Collection> = Lazy::new(|| Collection::from_path("../assets/shukusai/state/collection1_new.bin").unwrap());
 	// Filled, user `Collection`.
-	const C2: Lazy<Collection> = Lazy::new(|| Collection::from_path("../assets/shukusai/state/collection0_real.bin").unwrap());
+	const C2: Lazy<Collection> = Lazy::new(|| Collection::from_path("../assets/shukusai/state/collection1_real.bin").unwrap());
 
 	#[test]
 	// Tests functions that depend on the correctness of the `Map`.
@@ -1092,84 +1092,84 @@ mod tests {
 
 		// Artist 1/3
 		let k = ArtistKey::from(0_u8);
-		assert_eq!(C2.artists[k].name,         "artist_1");
+		assert_eq!(C2.artists[k].name,         "artist_1".into());
 		assert_eq!(C2.artists[k].runtime,      Runtime::from(4_u8));
 		assert_eq!(C2.artists[k].albums.len(), 2);
 		assert_eq!(C2.artists[k].songs.len(),  4);
 
 		// Artist 2/3
 		let k = ArtistKey::from(1_u8);
-		assert_eq!(C2.artists[k].name,         "artist_2");
+		assert_eq!(C2.artists[k].name,         "artist_2".into());
 		assert_eq!(C2.artists[k].runtime,      Runtime::from(2_u8));
 		assert_eq!(C2.artists[k].albums.len(), 1);
 		assert_eq!(C2.artists[k].songs.len(),  2);
 
 		// Artist 3/3
 		let k = ArtistKey::from(2_u8);
-		assert_eq!(C2.artists[k].name,         "artist_3");
+		assert_eq!(C2.artists[k].name,         "artist_3".into());
 		assert_eq!(C2.artists[k].runtime,      Runtime::from(1_u8));
 		assert_eq!(C2.artists[k].albums.len(), 1);
 		assert_eq!(C2.artists[k].songs.len(),  1);
 
 		// Albums 1/4
 		let k = AlbumKey::from(0_u8);
-		assert_eq!(C2.albums[k].title, "album_1");
+		assert_eq!(C2.albums[k].title, "album_1".into());
 		assert_eq!(C2.albums[k].release, Date::from_str("2018-04-25").unwrap());
 
 		// Albums 2/4
 		let k = AlbumKey::from(1_u8);
-		assert_eq!(C2.albums[k].title, "album_2");
+		assert_eq!(C2.albums[k].title, "album_2".into());
 		assert_eq!(C2.albums[k].release, Date::from_str("2018-04-25").unwrap());
 
 		// Albums 3/4
 		let k = AlbumKey::from(2_u8);
-		assert_eq!(C2.albums[k].title, "album_3");
+		assert_eq!(C2.albums[k].title, "album_3".into());
 		assert_eq!(C2.albums[k].release, Date::from_str("2018-04-25").unwrap());
 
 		// Albums 4/4
 		let k = AlbumKey::from(3_u8);
-		assert_eq!(C2.albums[k].title, "album_4");
+		assert_eq!(C2.albums[k].title, "album_4".into());
 		assert_eq!(C2.albums[k].release, Date::from_str("2018-04-25").unwrap());
 
 		// Song 1/7
 		let k = SongKey::from(0_u8);
-		assert_eq!(C2.songs[k].title, "mp3");
+		assert_eq!(C2.songs[k].title, "mp3".into());
 		assert_eq!(C2.songs[k].sample_rate, 48_000);
 		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_1.mp3");
 
 		// Song 2/7
 		let k = SongKey::from(1_u8);
-		assert_eq!(C2.songs[k].title, "mp3");
+		assert_eq!(C2.songs[k].title, "mp3".into());
 		assert_eq!(C2.songs[k].sample_rate, 48_000);
 		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_2.mp3");
 
 		// Song 3/7
 		let k = SongKey::from(2_u8);
-		assert_eq!(C2.songs[k].title, "mp3");
+		assert_eq!(C2.songs[k].title, "mp3".into());
 		assert_eq!(C2.songs[k].sample_rate, 48_000);
 		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_3.mp3");
 
 		// Song 4/7
 		let k = SongKey::from(3_u8);
-		assert_eq!(C2.songs[k].title, "flac");
+		assert_eq!(C2.songs[k].title, "flac".into());
 		assert_eq!(C2.songs[k].sample_rate, 48_000);
 		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_4.flac");
 
 		// Song 5/7
 		let k = SongKey::from(4_u8);
-		assert_eq!(C2.songs[k].title, "m4a");
+		assert_eq!(C2.songs[k].title, "m4a".into());
 		assert_eq!(C2.songs[k].sample_rate, 48_000);
 		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_5.m4a");
 
 		// Song 6/7
 		let k = SongKey::from(5_u8);
-		assert_eq!(C2.songs[k].title, "song_6");
+		assert_eq!(C2.songs[k].title, "song_6".into());
 		assert_eq!(C2.songs[k].sample_rate, 48_000);
 		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_6.ogg");
 
 		// Song 7/7
 		let k = SongKey::from(6_u8);
-		assert_eq!(C2.songs[k].title, "mp3");
+		assert_eq!(C2.songs[k].title, "mp3".into());
 		assert_eq!(C2.songs[k].sample_rate, 48_000);
 		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_7.mp3");
 	}
@@ -1190,11 +1190,11 @@ mod tests {
 		use crate::collection::{Art, Keychain};
 
 		#[cfg(target_os = "linux")]
-		const ALBUM_SIZE: usize = 320;
+		const ALBUM_SIZE: usize = 328;
 		#[cfg(target_os = "macos")]
-		const ALBUM_SIZE: usize = 336;
-		#[cfg(target_os = "windows")]
 		const ALBUM_SIZE: usize = 344;
+		#[cfg(target_os = "windows")]
+		const ALBUM_SIZE: usize = 352;
 
 		#[cfg(target_os = "linux")]
 		const ART_SIZE: usize = 128;
@@ -1204,11 +1204,11 @@ mod tests {
 		const ART_SIZE: usize = 144;
 
 		#[cfg(target_os = "linux")]
-		const SONG_SIZE: usize = 104;
-		#[cfg(target_os = "macos")]
-		const SONG_SIZE: usize = 104;
-		#[cfg(target_os = "windows")]
 		const SONG_SIZE: usize = 112;
+		#[cfg(target_os = "macos")]
+		const SONG_SIZE: usize = 112;
+		#[cfg(target_os = "windows")]
+		const SONG_SIZE: usize = 120;
 
 		crate::assert_size_of! {
 			// Collection
@@ -1223,7 +1223,7 @@ mod tests {
 			Box<[SongKey]>   => 16,
 
 			// Artist
-			Artist           => 88,
+			Artist           => 96,
 			Runtime          => 24,
 			Vec<AlbumKey>    => 24,
 

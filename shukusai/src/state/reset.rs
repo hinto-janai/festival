@@ -184,7 +184,7 @@ mod tests {
 		// 1
 		assert_eq!(r.percent, 10.0);
 		// 2
-		assert_eq!(r.specific, "New string");
+		assert_eq!(r.specific, "New string".into());
 		// 3
 		assert_eq!(r.resetting, old_resetting);
 		assert_eq!(r.phase, old_phase);
@@ -209,7 +209,7 @@ mod tests {
 		// 1
 		assert_eq!(r.percent, 10.0);
 		// 2
-		assert_eq!(r.specific, "");
+		assert_eq!(r.specific, "".into());
 		// 4
 		assert_eq!(r.phase, PHASE);
 		// 3

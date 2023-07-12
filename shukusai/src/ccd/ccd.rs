@@ -469,6 +469,7 @@ mod tests {
 	use crate::ccd::*;
 	use std::path::PathBuf;
 	use disk::*;
+	use crate::constants::COLLECTION_VERSION;
 
 	#[test]
 	// Converts the pre-saved `Collection`'s art.
@@ -479,7 +480,7 @@ mod tests {
 
 		// Convert.
 		std::thread::spawn(move || {
-			Ccd::convert_art(to_kernel, Collection::from_path("../assets/shukusai/state/collection0_real.bin").unwrap())
+			Ccd::convert_art(to_kernel, Collection::from_path(format!("../assets/shukusai/state/collection{COLLECTION_VERSION}_real.bin")).unwrap())
 		});
 
 		let c = loop {

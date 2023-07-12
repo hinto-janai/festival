@@ -590,6 +590,103 @@ mod tests {
 	}
 
 	#[test]
+	// Asserts conversion works losslessly.
+	fn convert() {
+		let c: crate::collection::Collection = C2.clone().into();
+
+		// Assert metadata within the `Collection`.
+		assert!(!c.empty);
+		assert_eq!(c.count_artist, 3);
+		assert_eq!(c.count_album,  4);
+		assert_eq!(c.count_song,   7);
+		assert_eq!(c.count_art,    4);
+		assert_eq!(c.timestamp,    1688690421);
+
+		// Artist 1/3
+		let k = ArtistKey::from(0_u8);
+		assert_eq!(c.artists[k].name,         "artist_1".into());
+		assert_eq!(c.artists[k].runtime,      Runtime::from(4_u8));
+		assert_eq!(c.artists[k].albums.len(), 2);
+		assert_eq!(c.artists[k].songs.len(),  4);
+
+		// Artist 2/3
+		let k = ArtistKey::from(1_u8);
+		assert_eq!(c.artists[k].name,         "artist_2".into());
+		assert_eq!(c.artists[k].runtime,      Runtime::from(2_u8));
+		assert_eq!(c.artists[k].albums.len(), 1);
+		assert_eq!(c.artists[k].songs.len(),  2);
+
+		// Artist 3/3
+		let k = ArtistKey::from(2_u8);
+		assert_eq!(c.artists[k].name,         "artist_3".into());
+		assert_eq!(c.artists[k].runtime,      Runtime::from(1_u8));
+		assert_eq!(c.artists[k].albums.len(), 1);
+		assert_eq!(c.artists[k].songs.len(),  1);
+
+		// Albums 1/4
+		let k = AlbumKey::from(0_u8);
+		assert_eq!(c.albums[k].title, "album_1".into());
+		assert_eq!(c.albums[k].release, Date::from_str("2018-04-25").unwrap());
+
+		// Albums 2/4
+		let k = AlbumKey::from(1_u8);
+		assert_eq!(c.albums[k].title, "album_2".into());
+		assert_eq!(c.albums[k].release, Date::from_str("2018-04-25").unwrap());
+
+		// Albums 3/4
+		let k = AlbumKey::from(2_u8);
+		assert_eq!(c.albums[k].title, "album_3".into());
+		assert_eq!(c.albums[k].release, Date::from_str("2018-04-25").unwrap());
+
+		// Albums 4/4
+		let k = AlbumKey::from(3_u8);
+		assert_eq!(c.albums[k].title, "album_4".into());
+		assert_eq!(c.albums[k].release, Date::from_str("2018-04-25").unwrap());
+
+		// Song 1/7
+		let k = SongKey::from(0_u8);
+		assert_eq!(c.songs[k].title, "mp3".into());
+		assert_eq!(c.songs[k].sample_rate, 48_000);
+		assert_eq!(c.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_1.mp3");
+
+		// Song 2/7
+		let k = SongKey::from(1_u8);
+		assert_eq!(c.songs[k].title, "mp3".into());
+		assert_eq!(c.songs[k].sample_rate, 48_000);
+		assert_eq!(c.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_2.mp3");
+
+		// Song 3/7
+		let k = SongKey::from(2_u8);
+		assert_eq!(c.songs[k].title, "mp3".into());
+		assert_eq!(c.songs[k].sample_rate, 48_000);
+		assert_eq!(c.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_3.mp3");
+
+		// Song 4/7
+		let k = SongKey::from(3_u8);
+		assert_eq!(c.songs[k].title, "flac".into());
+		assert_eq!(c.songs[k].sample_rate, 48_000);
+		assert_eq!(c.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_4.flac");
+
+		// Song 5/7
+		let k = SongKey::from(4_u8);
+		assert_eq!(c.songs[k].title, "m4a".into());
+		assert_eq!(c.songs[k].sample_rate, 48_000);
+		assert_eq!(c.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_5.m4a");
+
+		// Song 6/7
+		let k = SongKey::from(5_u8);
+		assert_eq!(c.songs[k].title, "song_6".into());
+		assert_eq!(c.songs[k].sample_rate, 48_000);
+		assert_eq!(c.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_6.ogg");
+
+		// Song 7/7
+		let k = SongKey::from(6_u8);
+		assert_eq!(c.songs[k].title, "mp3".into());
+		assert_eq!(c.songs[k].sample_rate, 48_000);
+		assert_eq!(c.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_7.mp3");
+	}
+
+	#[test]
 	// Assert the memory layout is correct.
 	// This must be correct or else `Bincode` won't be
 	// able to decode things.

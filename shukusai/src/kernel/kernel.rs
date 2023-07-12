@@ -217,7 +217,7 @@ impl Kernel {
 		// If the `Collection` got upgraded, that means
 		// we need to save the new version to disk.
 		if COLLECTION_VERSION != v {
-			info!("Kernel ... New Collection version detected, saving to disk...");
+			debug!("Kernel ... New Collection version detected, saving to disk...");
 
 			match unsafe { collection.save_atomic_memmap() } {
 				Ok(md) => debug!("Kernel ... Collection{COLLECTION_VERSION}: {md}"),
