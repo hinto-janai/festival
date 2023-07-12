@@ -1221,9 +1221,6 @@ mod tests {
 			Box<[ArtistKey]> => 16,
 			Box<[AlbumKey]>  => 16,
 			Box<[SongKey]>   => 16,
-			Box<[(ArtistKey, ArtistPtr)]> => 24,
-			Box<[(AlbumKey, AlbumPtr)]>   => 24,
-			Box<[(SongKey, SongPtr)]>     => 24,
 
 			// Artist
 			Artist           => 88,
