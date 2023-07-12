@@ -210,14 +210,16 @@ impl Kernel {
 		beginning:      std::time::Instant,
 		watch:          bool,
 		media_controls: bool,
-		v:              u8,
+		version:        u8,
 	) {
 		debug!("Kernel Init [2/12] ... entering boot_loader()");
 
 		// If the `Collection` got upgraded, that means
 		// we need to save the new version to disk.
-		if COLLECTION_VERSION != v {
-			debug!("Kernel ... New Collection version detected, saving to disk...");
+		if COLLECTION_VERSION != version {
+			let now = now!();
+
+			debug!("Kernel ... Collection{version} != Collection{COLLECTION_VERSION}, saving to disk...");
 
 			match unsafe { collection.save_atomic_memmap() } {
 				Ok(md) => debug!("Kernel ... Collection{COLLECTION_VERSION}: {md}"),
@@ -226,6 +228,8 @@ impl Kernel {
 					fail!("Kernel ... Collection{COLLECTION_VERSION}: {e}");
 				},
 			}
+
+			debug!("Kernel ... Collection{COLLECTION_VERSION} save, took {} seconds", secs_f32!(now));
 		}
 
 		// We successfully loaded `Collection`.
