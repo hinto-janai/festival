@@ -187,10 +187,7 @@ impl crate::ccd::Ccd {
 
 		// Convert `String`'s to `Arc<str>`.
 		let artist_lowercase: Arc<str> = artist.to_lowercase().into();
-		let artist_uppercase: Arc<str> = artist.to_uppercase().into();
 		let album_lowercase: Arc<str>  = album.to_lowercase().into();
-		let album_uppercase: Arc<str>  = album.to_uppercase().into();
-		let title_uppercase: Arc<str>  = title.to_uppercase().into();
 		let title_lowercase: Arc<str>  = title.to_lowercase().into();
 		let artist: Arc<str> = artist.into();
 		let album: Arc<str>  = album.into();
@@ -211,7 +208,6 @@ impl crate::ccd::Ccd {
 				let song = Song {
 					title,
 					title_lowercase,
-					title_uppercase,
 					album: AlbumKey::from(*album_idx),
 					runtime: Runtime::from(runtime),
 					sample_rate,
@@ -273,7 +269,6 @@ impl crate::ccd::Ccd {
 			let song = Song {
 				title,
 				title_lowercase,
-				title_uppercase,
 				runtime,
 				sample_rate,
 				track,
@@ -286,7 +281,6 @@ impl crate::ccd::Ccd {
 			let album_struct = Album {
 				title: album_title,
 				title_lowercase: album_lowercase,
-				title_uppercase: album_uppercase,
 				release,
 
 				artist: ArtistKey::from(*artist_idx),
@@ -362,7 +356,6 @@ impl crate::ccd::Ccd {
 		let song = Song {
 			title,
 			title_lowercase,
-			title_uppercase,
 			runtime,
 			sample_rate,
 			track,
@@ -375,7 +368,6 @@ impl crate::ccd::Ccd {
 		let album_struct = Album {
 			title: album_title,
 			title_lowercase: album_lowercase,
-			title_uppercase: album_uppercase,
 			release,
 
 			artist: ArtistKey::from(vec_artist.len()),
@@ -395,7 +387,6 @@ impl crate::ccd::Ccd {
 		let artist_struct = Artist {
 			name,
 			name_lowercase: artist_lowercase,
-			name_uppercase: artist_uppercase,
 
 			// Will be updated later.
 			runtime: Runtime::zero(),

@@ -31,8 +31,6 @@ pub struct Album {
 	pub title: Arc<str>,
 	/// Title of the [`Album`] in "Unicode Derived Core Property" lowercase.
 	pub title_lowercase: Arc<str>,
-	/// Title of the [`Album`] in "Unicode Derived Core Property" uppercase.
-	pub title_uppercase: Arc<str>,
 	/// Key to the [`Artist`].
 	pub artist: ArtistKey,
 	/// Human-readable release date of this [`Album`].
@@ -105,6 +103,23 @@ impl Album {
 	/// Calls [`egui_extras::RetainedImage::texture_id`].
 	pub fn texture_id(&self, ctx: &egui::Context) -> egui::TextureId {
 		self.art.texture_id(ctx)
+	}
+}
+
+impl Default for Album {
+	fn default() -> Self {
+		Self {
+			title: "".into(),
+			title_lowercase: "".into(),
+			artist: Default::default(),
+			release: Default::default(),
+			runtime: Default::default(),
+			song_count: Default::default(),
+			songs: Vec::with_capacity(0),
+			discs: Default::default(),
+			path: Default::default(),
+			art: Default::default(),
+		}
 	}
 }
 

@@ -20,8 +20,6 @@ pub struct Artist {
 	pub name: Arc<str>,
 	/// The [`Artist`]'s name in "Unicode Derived Core Property" lowercase.
 	pub name_lowercase: Arc<str>,
-	/// The [`Artist`]'s name in "Unicode Derived Core Property" uppercase.
-	pub name_uppercase: Arc<str>,
 	/// Total runtime.
 	pub runtime: Runtime,
 	// SOMEDAY:
@@ -32,6 +30,18 @@ pub struct Artist {
 	///
 	/// The order is [`Album`] release order, then [`Song`] track order.
 	pub songs: Box<[SongKey]>,
+}
+
+impl Default for Artist {
+	fn default() -> Self {
+		Self {
+			name: "".into(),
+			name_lowercase: "".into(),
+			runtime: Default::default(),
+			albums: Vec::with_capacity(0),
+			songs: Box::new([]),
+		}
+	}
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

@@ -21,8 +21,6 @@ pub struct Song {
 	pub title: Arc<str>,
 	/// Title of the [`Song`] in "Unicode Derived Core Property" lowercase.
 	pub title_lowercase: Arc<str>,
-	/// Title of the [`Song`] in "Unicode Derived Core Property" uppercase.
-	pub title_uppercase: Arc<str>,
 	/// Key to the [`Album`].
 	pub album: AlbumKey,
 	/// Total runtime of this [`Song`].
@@ -35,6 +33,21 @@ pub struct Song {
 	pub disc: Option<u32>,
 	/// The [`PathBuf`] this [`Song`] is located at.
 	pub path: PathBuf,
+}
+
+impl Default for Song {
+	fn default() -> Self {
+		Self {
+			title: "".into(),
+			title_lowercase: "".into(),
+			album: Default::default(),
+			runtime: Default::default(),
+			sample_rate: Default::default(),
+			track: Default::default(),
+			disc: Default::default(),
+			path: Default::default(),
+		}
+	}
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
