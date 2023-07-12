@@ -26,3 +26,25 @@ pub(crate) struct Artist {
 	/// The order is [`Album`] release order, then [`Song`] track order.
 	pub(crate) songs: Box<[SongKey]>,
 }
+
+impl Into<crate::collection::Artist> for Artist {
+	fn into(self) -> crate::collection::Artist {
+		let Self {
+			name,
+			runtime,
+			albums,
+			songs,
+		} = self;
+
+		let name_lowercase = name.to_lowercase().into();
+		let name = name.into();
+
+		crate::collection::Artist {
+			name,
+			name_lowercase,
+			runtime,
+			albums,
+			songs,
+		}
+	}
+}

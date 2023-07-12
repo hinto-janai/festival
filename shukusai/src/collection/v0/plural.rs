@@ -65,6 +65,18 @@ macro_rules! impl_plural {
 				Self(Box::new([]))
 			}
 		}
+
+		impl Into<crate::collection::$plural> for $plural {
+			fn into(self) -> crate::collection::$plural {
+				let vec = Vec::from(self.0);
+
+				crate::collection::$plural(vec
+					.into_iter()
+					.map(|i| i.into())
+					.collect()
+				)
+			}
+		}
 	}}
 }
 

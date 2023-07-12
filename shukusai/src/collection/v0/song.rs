@@ -31,3 +31,31 @@ pub(crate) struct Song {
 	/// The [`PathBuf`] this [`Song`] is located at.
 	pub(crate) path: PathBuf,
 }
+
+impl Into<crate::collection::Song> for Song {
+	fn into(self) -> crate::collection::Song {
+		let Self {
+			title,
+			album,
+			runtime,
+			sample_rate,
+			track,
+			disc,
+			path
+		} = self;
+
+		let title_lowercase = title.to_lowercase().into();
+		let title = title.into();
+
+		crate::collection::Song {
+			title,
+			title_lowercase,
+			album,
+			runtime,
+			sample_rate,
+			track,
+			disc,
+			path
+		}
+	}
+}

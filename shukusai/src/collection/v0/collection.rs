@@ -39,6 +39,7 @@ use readable::{
 };
 use once_cell::sync::Lazy;
 use const_format::formatcp;
+use disk::Bincode2;
 
 //---------------------------------------------------------------------------------------------------- Collection
 disk::bincode2!(Collection, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{STATE_SUB_DIR}"), "collection", HEADER, 0);
@@ -164,7 +165,140 @@ pub(crate) struct Collection {
 	pub(crate) sort_song_title_rev: Box<[SongKey]>,
 }
 
+impl Into<crate::collection::Collection> for Collection {
+	fn into(self) -> crate::collection::Collection {
+		let Self {
+			empty,
+			timestamp,
+			count_artist,
+			count_album,
+			count_song,
+			count_art,
+
+			map,
+			artists,
+			albums,
+			songs,
+
+			sort_artist_lexi,
+			sort_artist_lexi_rev,
+			sort_artist_album_count,
+			sort_artist_album_count_rev,
+			sort_artist_song_count,
+			sort_artist_song_count_rev,
+			sort_artist_runtime,
+			sort_artist_runtime_rev,
+			sort_artist_name,
+			sort_artist_name_rev,
+
+			sort_album_release_artist_lexi,
+			sort_album_release_artist_lexi_rev,
+			sort_album_release_rev_artist_lexi,
+			sort_album_release_rev_artist_lexi_rev,
+			sort_album_lexi_artist_lexi,
+			sort_album_lexi_artist_lexi_rev,
+			sort_album_lexi_rev_artist_lexi,
+			sort_album_lexi_rev_artist_lexi_rev,
+			sort_album_lexi,
+			sort_album_lexi_rev,
+			sort_album_release,
+			sort_album_release_rev,
+			sort_album_runtime,
+			sort_album_runtime_rev,
+			sort_album_title,
+			sort_album_title_rev,
+
+			sort_song_album_release_artist_lexi,
+			sort_song_album_release_artist_lexi_rev,
+			sort_song_album_release_rev_artist_lexi,
+			sort_song_album_release_rev_artist_lexi_rev,
+			sort_song_album_lexi_artist_lexi,
+			sort_song_album_lexi_artist_lexi_rev,
+			sort_song_album_lexi_rev_artist_lexi,
+			sort_song_album_lexi_rev_artist_lexi_rev,
+			sort_song_lexi,
+			sort_song_lexi_rev,
+			sort_song_release,
+			sort_song_release_rev,
+			sort_song_runtime,
+			sort_song_runtime_rev,
+			sort_song_title,
+			sort_song_title_rev,
+		} = self;
+
+		let artists: crate::collection::Artists = artists.into();
+		let albums:  crate::collection::Albums  = albums.into();
+		let songs:   crate::collection::Songs   = songs.into();
+		let map = crate::collection::Map::from_3_vecs(&artists.0, &albums.0, &songs.0);
+
+		crate::collection::Collection {
+			empty,
+			timestamp,
+			count_artist,
+			count_album,
+			count_song,
+			count_art,
+
+			map,
+			artists,
+			albums,
+			songs,
+
+			sort_artist_lexi,
+			sort_artist_lexi_rev,
+			sort_artist_album_count,
+			sort_artist_album_count_rev,
+			sort_artist_song_count,
+			sort_artist_song_count_rev,
+			sort_artist_runtime,
+			sort_artist_runtime_rev,
+			sort_artist_name,
+			sort_artist_name_rev,
+
+			sort_album_release_artist_lexi,
+			sort_album_release_artist_lexi_rev,
+			sort_album_release_rev_artist_lexi,
+			sort_album_release_rev_artist_lexi_rev,
+			sort_album_lexi_artist_lexi,
+			sort_album_lexi_artist_lexi_rev,
+			sort_album_lexi_rev_artist_lexi,
+			sort_album_lexi_rev_artist_lexi_rev,
+			sort_album_lexi,
+			sort_album_lexi_rev,
+			sort_album_release,
+			sort_album_release_rev,
+			sort_album_runtime,
+			sort_album_runtime_rev,
+			sort_album_title,
+			sort_album_title_rev,
+
+			sort_song_album_release_artist_lexi,
+			sort_song_album_release_artist_lexi_rev,
+			sort_song_album_release_rev_artist_lexi,
+			sort_song_album_release_rev_artist_lexi_rev,
+			sort_song_album_lexi_artist_lexi,
+			sort_song_album_lexi_artist_lexi_rev,
+			sort_song_album_lexi_rev_artist_lexi,
+			sort_song_album_lexi_rev_artist_lexi_rev,
+			sort_song_lexi,
+			sort_song_lexi_rev,
+			sort_song_release,
+			sort_song_release_rev,
+			sort_song_runtime,
+			sort_song_runtime_rev,
+			sort_song_title,
+			sort_song_title_rev,
+		}
+	}
+}
+
 impl Collection {
+	//-------------------------------------------------- Converts v0 from disk into current.
+	pub(crate) fn disk_into() -> Result<crate::collection::Collection, anyhow::Error> {
+		// SAFETY: memmap is used.
+		unsafe { Self::from_file_memmap().map(Into::into) }
+	}
+
 	//-------------------------------------------------- New.
 	/// Creates an empty [`Collection`].
 	pub(crate) fn new() -> Self {

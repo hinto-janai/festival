@@ -4,8 +4,6 @@ use std::marker::PhantomData;
 use crate::collection::{
 	ArtistKey,
 	SongKey,
-};
-use crate::collection::v0::art::{
 	Art,
 };
 use readable::{
@@ -66,4 +64,36 @@ pub(crate) struct Album {
 	/// `Frontend`'s don't need to access this field
 	/// directly, instead, use `album.art_or()`.
 	pub(crate) art: Art, // Always initialized after `CCD`.
+}
+
+impl Into<crate::collection::Album> for Album {
+	fn into(self) -> crate::collection::Album {
+		let Self {
+			title,
+			artist,
+			release,
+			runtime,
+			song_count,
+			songs,
+			discs,
+			path,
+			art,
+		} = self;
+
+		let title_lowercase = title.to_lowercase().into();
+		let title = title.into();
+
+		crate::collection::Album {
+			title,
+			title_lowercase,
+			artist,
+			release,
+			runtime,
+			song_count,
+			songs,
+			discs,
+			path,
+			art,
+		}
+	}
 }

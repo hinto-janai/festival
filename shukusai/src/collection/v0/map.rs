@@ -38,11 +38,3 @@ pub(crate) struct AlbumMap(pub(crate) HashMap<String, (AlbumKey, SongMap)>);
 #[derive(Clone,Debug,Default,Serialize,Deserialize,PartialEq,Encode,Decode)]
 #[serde(transparent)]
 pub(crate) struct SongMap(pub(crate) HashMap<String, SongKey>);
-
-//---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//  #[test]
-//  fn __TEST__() {
-//  }
-//}
