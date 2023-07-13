@@ -17,6 +17,8 @@ While `festival-gui` is the only `Frontend` available, the changelog and release
 
 
 # Unreleased
+## Added
+* Drag-and-drop support for `Collection` folders ([#51](https://github.com/hinto-janai/festival/pull/51)
 
 
 ---
