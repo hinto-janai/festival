@@ -265,10 +265,11 @@ impl Gui {
 		// Update local `modifiers` state.
 		self.modifiers = ctx.input(|input| input.modifiers);
 
-		// Check for key presses.
+		// Handle raw input.
 		if !ctx.wants_keyboard_input() && secs_f32!(self.resize_leeway) > 0.5 {
 			use egui::{PointerButton,Modifiers,Key};
 
+			//-------------------------------- Check for key presses.
 			ctx.input_mut(|input| {
 				// Last tab.
 				if input.pointer.button_clicked(PointerButton::Extra1)  || // FIXME:
@@ -384,6 +385,37 @@ impl Gui {
 							crate::search!(self, key, true);
 						}
 					}
+				}
+
+				//-------------------------------- Check for drag+dropped files.
+				// FIXME: We only handle 1 PATH per frame.
+				if let Some(file) = input.raw.dropped_files.get_mut(0) {
+					if let Some(path) = file.path.take() {
+						if path.is_absolute() {
+							let mut add = || {
+								info!("GUI - Adding dropped PATH: {}", path.display());
+								if self.collection.empty {
+									self.settings.collection_paths.clear();
+									self.settings.collection_paths.push(path.clone());
+									self.reset_collection();
+								} else {
+									// HACK: this isn't RFD but it's used to reuse the existing path code.
+									lock!(self.rfd_new).replace(path.to_path_buf());
+									crate::toast!(self, format!("Added [{}] to Collection folders", path.display()));
+								}
+							};
+
+							if path.is_dir() {
+								add();
+							} else if path.is_file() {
+								if let Some(path) = path.parent() {
+									add();
+								}
+							}
+						}
+					}
+
+					input.raw.dropped_files.clear();
 				}
 			});
 		}
