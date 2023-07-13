@@ -51,7 +51,7 @@ use crate::constants::{
 	RUNTIME_WIDTH,
 };
 use crate::text::{
-	HELP,MOD,
+	HELP,MOD,DRAG_AND_DROP,
 	EMPTY_COLLECTION,
 	COLLECTION_LOADING,
 	COLLECTION_RESETTING,
@@ -786,16 +786,15 @@ fn show_empty_collection(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, widt
 	let height = height / 10.0;
 
 	ui.vertical_centered(|ui| {
-		let space = height / 2.0;
-		ui.add_space(space);
+		ui.add_space(height / 2.0);
 
 		if ui.add_sized([width, height], button).on_hover_text(EMPTY_COLLECTION).clicked() {
 			self.reset_collection();
 		}
 
-		ui.add_space(space);
+		ui.add_space(ui.available_height() / 3.0);
 
-		ui.label(HELP);
+		ui.label(DRAG_AND_DROP);
 	});
 }}
 

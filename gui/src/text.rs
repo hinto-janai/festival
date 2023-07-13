@@ -214,6 +214,14 @@ pub const SEARCH_SORT_SONG:        &str = "Search by song title";
 pub const SEARCH_SORT_ALBUM:       &str = "Search by album title";
 pub const SEARCH_SORT_ARTIST:      &str = "Search by artist name";
 
+//---------------------------------------------------------------------------------------------------- Misc
+pub const DRAG_AND_DROP: &str =
+r#"🗁
+
+Or drag and drop a folder anywhere in
+
+Festival to start scanning it."#;
+
 //---------------------------------------------------------------------------------------------------- TESTS
 //#[cfg(test)]
 //mod tests {
