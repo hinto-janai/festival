@@ -110,6 +110,8 @@ pub const COLLECTION:        &str = "Festival's music Collection that stores all
 pub const ADD_FOLDER:        &str = formatcp!(
 r#"Add a maximum of 10 folders to scan for the Collection ({MOD}+A).
 
+You can also add folders by drag-and-dropping them anywhere into Festival.
+
 It's highly recommended to only add folders with music and art files to increase scanning speed."#);
 pub const REMOVE_FOLDER:     &str = "Remove this folder";
 pub const RESET_COLLECTION:  &str = formatcp!(
@@ -218,7 +220,7 @@ pub const SEARCH_SORT_ARTIST:      &str = "Search by artist name";
 pub const DRAG_AND_DROP: &str =
 r#"🗁
 
-Or drag and drop a folder anywhere in
+Or drag and drop a folder anywhere into
 
 Festival to start scanning it."#;
 
