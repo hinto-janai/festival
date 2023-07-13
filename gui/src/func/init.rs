@@ -137,6 +137,7 @@ impl crate::data::Gui {
 			initial_window_size: Some(egui::vec2(APP_WIDTH_DEFAULT, APP_HEIGHT_DEFAULT)),
 			follow_system_theme: false,
 			default_theme: eframe::Theme::Dark,
+			drag_and_drop_support: true,
 			// FIXME:
 			// `eframe::Renderer::Wgpu` causes colors to
 			// be over-saturated on `KDE`. For now, use
