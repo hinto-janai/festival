@@ -1,6 +1,6 @@
 // This sets the git `COMMIT` environment variable.
 fn main() {
-	println!("cargo:rerun-if-changed=../../.git/refs/heads/");
+	println!("cargo:rerun-if-changed=../.git/refs/heads/");
 
 	let output = std::process::Command::new("git")
 		.arg("rev-parse")
