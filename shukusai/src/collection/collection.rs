@@ -39,9 +39,6 @@ use once_cell::sync::Lazy;
 use const_format::formatcp;
 
 //---------------------------------------------------------------------------------------------------- Lazy
-// `RNG`: Global RNG state for `Collection`'s `rand_*` functions.
-static RNG: Lazy<Mutex<rand::rngs::SmallRng>> = Lazy::new(|| Mutex::new(rand::rngs::SmallRng::from_entropy()));
-
 // This is an empty, dummy `Collection`.
 pub(crate) static DUMMY_COLLECTION: Lazy<Arc<Collection>> = Lazy::new(|| Arc::new(Collection::new()));
 
@@ -729,14 +726,14 @@ impl Collection {
 
 		if let Some(key) = key {
 			loop {
-				let rand_usize: usize = lock!(RNG).gen_range(0..self.count_artist.usize());
+				let rand_usize: usize = rand::thread_rng().gen_range(0..self.count_artist.usize());
 				if rand_usize != key {
 					return Some(ArtistKey::from(rand_usize))
 				}
 			}
 		}
 
-		let rand_usize: usize = lock!(RNG).gen_range(0..self.count_artist.usize());
+		let rand_usize: usize = rand::thread_rng().gen_range(0..self.count_artist.usize());
 		Some(ArtistKey::from(rand_usize))
 	}
 
@@ -757,14 +754,14 @@ impl Collection {
 
 		if let Some(key) = key {
 			loop {
-				let rand_usize: usize = lock!(RNG).gen_range(0..self.count_album.usize());
+				let rand_usize: usize = rand::thread_rng().gen_range(0..self.count_album.usize());
 				if rand_usize != key {
 					return Some(AlbumKey::from(rand_usize))
 				}
 			}
 		}
 
-		let rand_usize: usize = lock!(RNG).gen_range(0..self.count_album.usize());
+		let rand_usize: usize = rand::thread_rng().gen_range(0..self.count_album.usize());
 		Some(AlbumKey::from(rand_usize))
 	}
 
@@ -785,14 +782,14 @@ impl Collection {
 
 		if let Some(key) = key {
 			loop {
-				let rand_usize: usize = lock!(RNG).gen_range(0..self.count_song.usize());
+				let rand_usize: usize = rand::thread_rng().gen_range(0..self.count_song.usize());
 				if rand_usize != key {
 					return Some(SongKey::from(rand_usize))
 				}
 			}
 		}
 
-		let rand_usize: usize = lock!(RNG).gen_range(0..self.count_song.usize());
+		let rand_usize: usize = rand::thread_rng().gen_range(0..self.count_song.usize());
 		Some(SongKey::from(rand_usize))
 	}
 
@@ -810,7 +807,7 @@ impl Collection {
 				let mut vec: Box<[ArtistKey]> = (0..self.count_artist.usize())
 					.map(ArtistKey::from)
 					.collect();
-				vec.shuffle(&mut *lock!(RNG));
+				vec.shuffle(&mut rand::thread_rng());
 				Some(vec)
 			}
 		}
@@ -830,7 +827,7 @@ impl Collection {
 				let mut vec: Box<[AlbumKey]> = (0..self.count_album.usize())
 					.map(AlbumKey::from)
 					.collect();
-				vec.shuffle(&mut *lock!(RNG));
+				vec.shuffle(&mut rand::thread_rng());
 				Some(vec)
 			}
 		}
@@ -850,7 +847,7 @@ impl Collection {
 				let mut vec: Box<[SongKey]> = (0..self.count_song.usize())
 					.map(SongKey::from)
 					.collect();
-				vec.shuffle(&mut *lock!(RNG));
+				vec.shuffle(&mut rand::thread_rng());
 				Some(vec)
 			}
 		}
