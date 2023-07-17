@@ -2,10 +2,10 @@
 members = [
 	"shukusai",
 	"gui",
+	"daemon",
 ]
 exclude = [
 	"web",
-	"daemon",
 	"cli",
 	"tui",
 ]
@@ -32,6 +32,7 @@ shukusai = { version = "0.0.3",  path = "shukusai" }
 benri    = { version = "0.1.12", features = ["log"] }
 disk     = { version = "0.1.20", features = ["bincode2", "empty", "toml", "plain", "json", "bytesize"] }
 readable = { version = "0.8.12",  features = ["ignore_nan_inf", "serde", "bincode"] }
+json-rpc = { version = "0.1.0", git = "https://github.com/hinto-janai/json-rpc" }
 
 ### Regular libraries.
 anyhow       = { version = "1.0.71" }
