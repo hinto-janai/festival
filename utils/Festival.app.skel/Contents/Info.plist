@@ -5,17 +5,17 @@
   <key>CFBundleDevelopmentRegion</key>
   <string>English</string>
   <key>CFBundleDisplayName</key>
-  <string>Gupax</string>
+  <string>Festival</string>
   <key>CFBundleExecutable</key>
-  <string>gupax</string>
+  <string>festival</string>
   <key>CFBundleIconFile</key>
-  <string>Gupax.icns</string>
+  <string>Festival.icns</string>
   <key>CFBundleIdentifier</key>
-  <string>com.github.hinto-janai.gupax</string>
+  <string>pm.festival.Festival</string>
   <key>CFBundleInfoDictionaryVersion</key>
   <string>6.0</string>
   <key>CFBundleName</key>
-  <string>Gupax</string>
+  <string>Festival</string>
   <key>CFBundlePackageType</key>
   <string>APPL</string>
   <key>CFBundleShortVersionString</key>

@@ -6,6 +6,7 @@ Big thanks to [Rucknium](https://github.com/rucknium) for teaching me `R`.
 
 * [Comparison](#Comparison)
 	- [Playlists](#Playlists)
+	- [Compilations](#Compilations)
 	- [Sorting](#Sorting)
 	- [Search](#Search)
 	- [Features](#Features)
@@ -20,15 +21,15 @@ Big thanks to [Rucknium](https://github.com/rucknium) for teaching me `R`.
 * [Closing Notes](#Closing-Notes)
 
 ## Comparison
-| Music Player | Version | OS | Open Source | Playlists | Sorting | Search | Features vs Minimal |
-|--------------|---------|----|-------------|-----------|---------|--------|---------------------|
-| [Festival](https://github.com/hinto-janai/festival)       | `1.1.0` (2023-07-12)    | Windows, macOS, Linux | 🟢 | 🔴 | 🟢 | 🟢 | Minimal
-| [Lollypop](https://gitlab.gnome.org/World/lollypop)       | `1.437` (2023-01-03)    | Linux (GTK)           | 🟢 | 🟡 | 🟡 | 🟡 | Both
-| [GNOME Music](https://gitlab.gnome.org/GNOME/gnome-music) | `1.42` (2022-04-25)     | Linux (GTK)           | 🟢 | 🟡 | 🔴 | 🟡 | Minimal
-| [MusicBee](https://www.getmusicbee.com)                   | `3.5.8447` (2023-02-19) | Windows               | 🔴 | 🟢 | 🟡 | 🟡 | Features
-| [iTunes](https://www.apple.com/itunes)                    | `12.12.7` (2023-12-15)  | Windows               | 🔴 | 🟢 | 🟡 | 🔴 | Features
+| Music Player | Version | OS | Open Source | Playlists | Compilations | Sorting | Search | Features vs Minimal |
+|--------------|---------|----|-------------|-----------|--------------|---------|--------|---------------------|
+| [Festival](https://github.com/hinto-janai/festival)       | `1.1.0` (2023-07-12)    | Windows, macOS, Linux | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | Minimal
+| [Lollypop](https://gitlab.gnome.org/World/lollypop)       | `1.437` (2023-01-03)    | Linux (GTK)           | 🟢 | 🟡 | 🟢 | 🟡 | 🟡 | Both
+| [GNOME Music](https://gitlab.gnome.org/GNOME/gnome-music) | `1.42` (2022-04-25)     | Linux (GTK)           | 🟢 | 🟡 | 🟡 | 🔴 | 🟡 | Minimal
+| [MusicBee](https://www.getmusicbee.com)                   | `3.5.8447` (2023-02-19) | Windows               | 🔴 | 🟢 | 🟡 | 🟡 | 🟡 | Features
+| [iTunes](https://www.apple.com/itunes)                    | `12.12.7` (2023-12-15)  | Windows               | 🔴 | 🟢 | 🟢 | 🟡 | 🔴 | Features
 
-#### Playlists
+### Playlists
 Playlist handling: What happens when you delete the underlying file of a song in an existing playlist? Or worse, reset the whole Collection?
 
 | Music Player                 | Behavior |
@@ -39,7 +40,26 @@ Playlist handling: What happens when you delete the underlying file of a song in
 
 I believe `MusicBee` and `iTunes` have the best approach here. If/when `Festival` gets playlist support, their approach will probably be used.
 
-#### Sorting
+### Compilations
+Compilations: A single `Album` owned by many artists.
+
+Figuring out how to treat these "objects" is hard, since there is no clear ownership.
+
+| Music Player  | Behavior |
+|---------------|----------|
+| `Festival`    | Will separate albums per artist (even if in the same compilation)
+| `GNOME Music` | Supports compilations as a single album, but the "artist" of the whole album is whatever the first song's artist is
+| `Lollypop`    | Supports compilations, shows them in a separate tab with no artist, but each song retains the original artist
+| `MusicBee`    | Supports compilations, shows them in the same album tab, with no artists at all
+| `iTunes`      | Supports compilations, shows them in the same album tab, album artist is _always_ "Various Artists", but all songs retain original artists and different compilations are all separated even though they are all owned by "Various Artists"
+
+I believe `Lollypop` and `iTunes` have good approaches here. If/when `Festival` gets compilation support, one of their approaches will probably be used.
+
+`iTunes` treats compilations as normal albums (they show in the main album view), while also separating all the different compilations, even though _all_ compilations have the "Various Artists" artist.
+
+`Lollypop` separates compilations into a different tab (different "object" than an `Album`), doesn't assign the mysterious "Various Artists" artist, and retains per-song artist metadata, which is more logically correct (although maybe less convenient than the `iTunes` approach).
+
+### Sorting
 "Sorting methods" refers to how many options the music player provides to sort the music, either by artist, album, song, or a cross-sort combining them, e.g: album covers by artist name and album release:
 ```
 a_artist
@@ -56,18 +76,20 @@ This also accounts for how painful it is to switch the sorting methods, e.g, it'
 
 Festival has _many_ sorting methods and switching is instantaneous due to it being very lightweight to do so internally (sorting method is just an `enum` that gets `match`'ed to an already existing `Vec<usize>` representing `Song` indices in the already existing `Collection`, basically we just use a different field in a struct we already have).
 
-#### Search
+### Search
 "Search" refers to how quick and how accurate the search functionality is.
 
 All of the listed music players can search for `Artist` names, `Album` titles, and `Song` titles.
 
-- Festival: accurate, no delay
-- GNOME Music: accurate, slightly slower
-- Lollypop: accurate, slower
-- MusicBee: a little less accurate, but slightly faster than GNOME Music
-- iTunes: accurate, good UI, but has an _enormous_ amount of lag any time a key is inputted, making it unusable
+| Music Player  | Behavior |
+|---------------|----------|
+| `Festival`    | Accurate, no delay
+| `GNOME Music` | Accurate, slightly slower
+| `Lollypop`    | Accurate, slower
+| `MusicBee`    | A little less accurate, but slightly faster than GNOME Music
+| `iTunes`      | Accurate, good UI, but has an _enormous_ amount of lag any time a key is inputted, making it unusable
 
-#### Features
+### Features
 "Features vs Minimal" refers to if the music player is packed with (useful) features or if it's just a minimal music player.
 
 Features could be things like:

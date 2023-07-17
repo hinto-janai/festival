@@ -29,7 +29,7 @@ Performance improvements. Expect 2x~ faster Collection resets (user time) and 5x
 
 ## Changed
 * Faster `JPG` album art decoding, 1.75x~ faster `Collection` reset ([#20](https://github.com/hinto-janai/festival/pull/20))
-* `Collection` directories are now pre-emptively cached on startup and addition; initial reset speeds are faster ([#30](https://github.com/hinto-janai/festival/pull/30))
+* `Collection` directories are now pre-emptively cached on startup and addition; initial reset speeds are faster ([#38](https://github.com/hinto-janai/festival/pull/38))
 * Album art conversion now uses all available threads, 1.25x~ faster ([#20](https://github.com/hinto-janai/festival/pull/20))
 * Post-`Collection` reset image encoding/save can now use multiple threads, 5x~ faster ([#37](https://github.com/hinto-janai/festival/pull/37))
 * Search can now use multiple threads, 1.8x~ faster ([#37](https://github.com/hinto-janai/festival/pull/37))
