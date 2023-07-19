@@ -2,6 +2,7 @@
 members = [
 	"shukusai",
 	"gui",
+	"rpc",
 	"daemon",
 ]
 exclude = [
@@ -49,6 +50,7 @@ rand         = { version = "0.8.5", features = ["small_rng"] }
 serde        = { version = "1.0.163", features = ["derive"] }
 serde_bytes  = { version = "0.11.9" }
 serde_json   = { version = "1.0.100" }
+seq-macro    = { version = "0.3.3" }
 
 ### HACK:
 ### `egui`'s workspace needs this.

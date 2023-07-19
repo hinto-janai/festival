@@ -1,5 +1,5 @@
 [package]
-name           = "festivald"
+name           = "rpc"
 version        = "0.0.0"
 edition        = "2021"
 authors        = ["hinto.janai <hinto.janai@protonmail.com>"]
@@ -10,7 +10,7 @@ keywords       = ["music", "player", "audio", "festival", "shukusai"]
 categories     = ["multimedia"]
 readme         = "README.md"
 license        = "MIT"
-description    = "Music player (daemon)"
+description    = "JSON-RPC 2.0 types for Festival"
 
 [dependencies]
 ### Personal Libraries.
@@ -29,11 +29,11 @@ compact_str  = { workspace = true }
 crossbeam    = { workspace = true }
 image        = { workspace = true }
 log          = { workspace = true }
+paste        = { workspace = true }
 serde        = { workspace = true }
 serde_json   = { workspace = true }
 once_cell    = { workspace = true }
+seq-macro    = { workspace = true }
 
 ### Regular libraries.
-hyper     = { version = "0.14.27", features = ["full"] }
-tokio     = { version = "1.29.1", features = ["full"] }
 strum = { version = "0.25.0", features = ["derive"] }
