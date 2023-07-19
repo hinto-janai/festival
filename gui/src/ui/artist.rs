@@ -30,7 +30,7 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width
 
 		{
 			const TAB: ArtistSubTab = ArtistSubTab::All;
-			let label = SelectableLabel::new(self.settings.artist_sub_tab == TAB, TAB.as_str());
+			let label = SelectableLabel::new(self.settings.artist_sub_tab == TAB, TAB.human());
 			if ui.add_sized([width, 30.0], label).clicked() {
 				self.settings.artist_sub_tab = TAB;
 			}
@@ -45,7 +45,7 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width
 					let name = self.collection.artists[key].name.head_dot(18);
 					SelectableLabel::new(self.settings.artist_sub_tab == TAB, name)
 				},
-				None => SelectableLabel::new(self.settings.artist_sub_tab == TAB, TAB.as_str())
+				None => SelectableLabel::new(self.settings.artist_sub_tab == TAB, TAB.human())
 			};
 
 			if ui.add_sized([width, 30.0], label).clicked() {

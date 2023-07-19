@@ -1,6 +1,15 @@
 //---------------------------------------------------------------------------------------------------- Use
 use bincode::{Encode,Decode};
 use serde::{Serialize,Deserialize};
+use strum::{
+	AsRefStr,
+	Display,
+	EnumCount,
+	EnumIter,
+	EnumString,
+	EnumVariantNames,
+	IntoStaticStr,
+};
 
 //---------------------------------------------------------------------------------------------------- Sort Constants
 /// [`SearchKind::All`]
@@ -11,9 +20,10 @@ pub const SIM_70: &str = "View only the results that are at least 70% similar";
 pub const TOP_25: &str = "View only the top 25 similar results";
 
 //---------------------------------------------------------------------------------------------------- SearchKind
-/// HACK: until `std::mem::variant_count()` is stable.
-pub const SEARCH_KIND_VARIANT_COUNT: usize = 3;
 #[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
+#[derive(AsRefStr,Display,EnumCount,EnumIter,EnumString,EnumVariantNames,IntoStaticStr)]
+#[strum(serialize_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
 /// The different kinds of searches you can request from `Kernel`
 pub enum SearchKind {
 	/// String similarity, returns all calculated keys
@@ -29,22 +39,12 @@ pub enum SearchKind {
 impl SearchKind {
 	#[inline]
 	/// Returns formatted, human readable versions.
-	pub const fn as_str(&self) -> &'static str {
+	pub const fn human(&self) -> &'static str {
 		match self {
 			Self::Sim70 => SIM_70,
 			Self::Top25 => TOP_25,
 			Self::All   => ALL,
 		}
-	}
-
-	#[inline]
-	/// Returns an iterator over all [`Self`] variants.
-	pub fn iter() -> std::slice::Iter<'static, Self> {
-		[
-			Self::All,
-			Self::Sim70,
-			Self::Top25,
-		].iter()
 	}
 
 	/// Returns the next sequential [`Self`] variant.
@@ -74,12 +74,7 @@ impl SearchKind {
 #[cfg(test)]
 mod tests {
 	use super::*;
-
-	#[test]
-	// Asserts `.iter()` covers all variants.
-	fn iter_covers_all() {
-		assert_eq!(SearchKind::iter().count(), SEARCH_KIND_VARIANT_COUNT);
-	}
+	use strum::*;
 
 	#[test]
 	// Asserts each variant:
@@ -92,7 +87,7 @@ mod tests {
 		let mut set3 = std::collections::HashSet::new();
 
 		for i in SearchKind::iter() {
-            assert!(set1.insert(i.as_str()));
+            assert!(set1.insert(i.human()));
             assert!(set2.insert(i.next()));
             assert!(set3.insert(i.previous()));
 		}

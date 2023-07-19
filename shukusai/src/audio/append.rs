@@ -1,14 +1,24 @@
 //---------------------------------------------------------------------------------------------------- Use
 use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
+use strum::{
+	AsRefStr,
+	Display,
+	EnumCount,
+	EnumIter,
+	EnumString,
+	EnumVariantNames,
+	IntoStaticStr,
+};
 
 //---------------------------------------------------------------------------------------------------- Volume.
-/// HACK: until `std::mem::variant_count()` is stable.
-pub const APPEND_VARIANT_COUNT: usize = 3;
+#[derive(Copy,Clone,Default,Debug,Hash,Eq,Ord,PartialEq,PartialOrd,Serialize,Deserialize,Encode,Decode)]
+#[derive(AsRefStr,Display,EnumCount,EnumIter,EnumString,EnumVariantNames,IntoStaticStr)]
+#[strum(serialize_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
 /// The different ways you can append songs to the audio queue.
 ///
 /// The [`Default`] is `Append::Front`.
-#[derive(Copy,Clone,Default,Debug,Hash,Eq,Ord,PartialEq,PartialOrd,Serialize,Deserialize,Encode,Decode)]
 pub enum Append {
 	#[default]
 	/// Add a single or multiple songs to the front.

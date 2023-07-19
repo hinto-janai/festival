@@ -1,12 +1,22 @@
 //---------------------------------------------------------------------------------------------------- Use
 use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
+use strum::{
+	AsRefStr,
+	Display,
+	EnumCount,
+	EnumIter,
+	EnumString,
+	EnumVariantNames,
+	IntoStaticStr,
+};
 
 //----------------------------------------------------------------------------------------------------
-/// HACK: until `std::mem::variant_count()` is stable.
-pub const ARTIST_SUB_TAB_VARIANT_COUNT: usize = 2;
-/// The sub-tabs in the `Artists` tab.
 #[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
+#[derive(AsRefStr,Display,EnumCount,EnumIter,EnumString,EnumVariantNames,IntoStaticStr)]
+#[strum(serialize_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
+/// The sub-tabs in the `Artists` tab.
 pub enum ArtistSubTab {
 	#[default]
 	/// Show all `Artists`.
@@ -18,19 +28,11 @@ pub enum ArtistSubTab {
 
 impl ArtistSubTab {
 	/// No [`String`] allocation.
-	pub fn as_str(&self) -> &'static str {
+	pub fn human(&self) -> &'static str {
 		match self {
 			Self::All  => "All",
 			Self::View => "View",
 		}
-	}
-
-	/// Returns an iterator over all the variants.
-	pub fn iter() -> std::slice::Iter<'static, Self> {
-		[
-			Self::All,
-			Self::View,
-		].iter()
 	}
 
 	/// Returns the next sequential [`ArtistSubTab`] variant.
@@ -54,22 +56,11 @@ impl ArtistSubTab {
 	}
 }
 
-impl std::fmt::Display for ArtistSubTab {
-	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		write!(f, "{:?}", self)
-	}
-}
-
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
 mod tests {
 	use super::*;
-
-	#[test]
-	// Asserts `.iter()` covers all variants.
-	fn iter_covers_all() {
-		assert_eq!(ArtistSubTab::iter().count(), ARTIST_SUB_TAB_VARIANT_COUNT);
-	}
+	use strum::*;
 
 	#[test]
 	// Asserts each variant:
@@ -82,7 +73,7 @@ mod tests {
 		let mut set3 = std::collections::HashSet::new();
 
 		for i in ArtistSubTab::iter() {
-			assert!(set1.insert(i.as_str()));
+			assert!(set1.insert(i.human()));
 			assert!(set2.insert(i.next()));
 			assert!(set3.insert(i.previous()));
 		}

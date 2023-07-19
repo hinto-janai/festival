@@ -1,8 +1,15 @@
 //---------------------------------------------------------------------------------------------------- Use
-//use anyhow::{bail,ensure,Error};
-//use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
+use strum::{
+	AsRefStr,
+	Display,
+	EnumCount,
+	EnumIter,
+	EnumString,
+	EnumVariantNames,
+	IntoStaticStr,
+};
 
 //---------------------------------------------------------------------------------------------------- Tab Constants
 // This is the text actually displayed in the `GUI`.
@@ -16,9 +23,10 @@ pub const SEARCH:    &str = "Search";
 pub const SETTINGS:  &str = "Settings";
 
 //---------------------------------------------------------------------------------------------------- Tab Enum
-/// HACK: until `std::mem::variant_count()` is stable.
-pub const TAB_VARIANT_COUNT: usize = 7;
 #[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
+#[derive(AsRefStr,Display,EnumCount,EnumIter,EnumString,EnumVariantNames,IntoStaticStr)]
+#[strum(serialize_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
 pub enum Tab {
 	/// The tab that represents a full-view of a
 	/// particular `Album`, showing the full art,
@@ -41,7 +49,7 @@ pub enum Tab {
 
 impl Tab {
 	/// No [`String`] allocation.
-	pub fn as_str(&self) -> &'static str {
+	pub fn human(&self) -> &'static str {
 		match self {
 			Self::View      => VIEW,
 			Self::Albums    => ALBUMS,
@@ -51,20 +59,6 @@ impl Tab {
 			Self::Search    => SEARCH,
 			Self::Settings  => SETTINGS,
 		}
-	}
-
-	#[inline]
-	/// Returns an iterator over all [`Tab`] variants.
-	pub fn iter() -> std::slice::Iter<'static, Self> {
-		[
-			Self::View,
-			Self::Albums,
-			Self::Artists,
-			Self::Songs,
-			Self::Queue,
-			Self::Search,
-			Self::Settings,
-		].iter()
 	}
 
 	#[inline]
@@ -100,22 +94,11 @@ impl Tab {
 	}
 }
 
-impl std::fmt::Display for Tab {
-	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		write!(f, "{:?}", self)
-	}
-}
-
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
 mod tests {
 	use super::*;
-
-	#[test]
-	// Asserts `.iter()` covers all variants.
-	fn iter_covers_all() {
-		assert_eq!(Tab::iter().count(), TAB_VARIANT_COUNT);
-	}
+	use strum::*;
 
 	#[test]
 	// Asserts each variant:
@@ -128,7 +111,7 @@ mod tests {
 		let mut set3 = std::collections::HashSet::new();
 
 		for i in Tab::iter() {
-			assert!(set1.insert(i.as_str()));
+			assert!(set1.insert(i.human()));
 			assert!(set2.insert(i.next()));
 			assert!(set3.insert(i.previous()));
 		}
