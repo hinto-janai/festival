@@ -1,6 +1,15 @@
 //---------------------------------------------------------------------------------------------------- Use
 use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
+use strum::{
+	AsRefStr,
+	Display,
+	EnumCount,
+	EnumIter,
+	EnumString,
+	EnumVariantNames,
+	IntoStaticStr,
+};
 
 //---------------------------------------------------------------------------------------------------- Sort Constants
 /// [`ArtistSort::Lexi`]
@@ -95,14 +104,15 @@ pub const SONG_TITLE:                         &str = "Song title shortest-longes
 pub const SONG_TITLE_REV:                     &str = "Song title longest-shortest";
 
 //---------------------------------------------------------------------------------------------------- Sort
-/// HACK: until `std::mem::variant_count()` is stable.
-pub const ARTIST_SORT_VARIANT_COUNT: usize = 10;
+#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
+#[derive(AsRefStr,Display,EnumCount,EnumIter,EnumString,EnumVariantNames,IntoStaticStr)]
+#[strum(serialize_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
 /// All the ways to sort the [`Collection`]'s [`Artist`]'s.
 ///
 /// String sorting is done lexicographically as per the `std` [`Ord` implementation.](https://doc.rust-lang.org/std/primitive.str.html#impl-Ord)
 ///
 /// `lexi` is shorthand for `lexicographically`.
-#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
 pub enum ArtistSort {
 	/// [`Artist`] A-Z. Field: [`Collection::sort_artist_lexi`].
 	Lexi,
@@ -127,14 +137,15 @@ pub enum ArtistSort {
 	NameRev,
 }
 
-/// HACK: until `std::mem::variant_count()` is stable.
-pub const ALBUM_SORT_VARIANT_COUNT: usize = 16;
+#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
+#[derive(AsRefStr,Display,EnumCount,EnumIter,EnumString,EnumVariantNames,IntoStaticStr)]
+#[strum(serialize_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
 /// All the ways to sort the [`Collection`]'s [`Album`]'s.
 ///
 /// String sorting is done lexicographically as per the `std` [`Ord` implementation.](https://doc.rust-lang.org/std/primitive.str.html#impl-Ord)
 ///
 /// `lexi` is shorthand for `lexicographically`.
-#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
 pub enum AlbumSort {
 	#[default]
 	/// [`Artist`] A-Z, [`Album`] oldest-latest. Field: [`Collection::sort_album_release_artist_lexi`].
@@ -171,14 +182,15 @@ pub enum AlbumSort {
 	TitleRev,
 }
 
-/// HACK: until `std::mem::variant_count()` is stable.
-pub const SONG_SORT_VARIANT_COUNT: usize = 16;
+#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
+#[derive(AsRefStr,Display,EnumCount,EnumIter,EnumString,EnumVariantNames,IntoStaticStr)]
+#[strum(serialize_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
 /// All the ways to sort the [`Collection`]'s [`Song`]'s.
 ///
 /// String sorting is done lexicographically as per the `std` [`Ord` implementation.](https://doc.rust-lang.org/std/primitive.str.html#impl-Ord)
 ///
 /// `lexi` is shorthand for `lexicographically`.
-#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
 pub enum SongSort {
 	/// [`Artist`] A-Z, [`Album`] oldest-latest, [`Song`] track_number. Field: [`Collection::sort_song_album_release_artist_lexi`].
 	AlbumReleaseArtistLexi,
@@ -220,7 +232,7 @@ impl ArtistSort {
 	/// Returns formatted, human readable versions.
 	///
 	/// e.g: [`ArtistSort::AlbumCount`] returns [`ARTIST_ALBUM_COUNT`]
-	pub const fn as_str(&self) -> &'static str {
+	pub const fn human(&self) -> &'static str {
 		use ArtistSort::*;
 		match self {
 			Lexi          => ARTIST_LEXI,
@@ -234,23 +246,6 @@ impl ArtistSort {
 			Name          => ARTIST_NAME,
 			NameRev       => ARTIST_NAME_REV,
 		}
-	}
-
-	#[inline]
-	/// Returns an iterator over all [`ArtistSort`] variants.
-	pub fn iter() -> std::slice::Iter<'static, Self> {
-		[
-			Self::Lexi,
-			Self::LexiRev,
-			Self::AlbumCount,
-			Self::AlbumCountRev,
-			Self::SongCount,
-			Self::SongCountRev,
-			Self::Runtime,
-			Self::RuntimeRev,
-			Self::Name,
-			Self::NameRev,
-		].iter()
 	}
 
 	/// Returns the next sequential [`ArtistSort`] variant.
@@ -295,7 +290,7 @@ impl AlbumSort {
 	/// Returns formatted, human readable versions.
 	///
 	/// e.g: [`AlbumSort::ReleaseArtistLexi`] returns [`ALBUM_RELEASE_ARTIST_LEXI`]
-	pub const fn as_str(&self) -> &'static str {
+	pub const fn human(&self) -> &'static str {
 		use AlbumSort::*;
 		match self {
 			ReleaseArtistLexi       => ALBUM_RELEASE_ARTIST_LEXI,
@@ -315,29 +310,6 @@ impl AlbumSort {
 			Title                   => ALBUM_TITLE,
 			TitleRev                => ALBUM_TITLE_REV,
 		}
-	}
-
-	#[inline]
-	/// Returns an iterator over all [`AlbumSort`] variants.
-	pub fn iter() -> std::slice::Iter<'static, Self> {
-		[
-			Self::ReleaseArtistLexi,
-			Self::ReleaseArtistLexiRev,
-			Self::ReleaseRevArtistLexi,
-			Self::ReleaseRevArtistLexiRev,
-			Self::LexiArtistLexi,
-			Self::LexiArtistLexiRev,
-			Self::LexiRevArtistLexi,
-			Self::LexiRevArtistLexiRev,
-			Self::Lexi,
-			Self::LexiRev,
-			Self::Release,
-			Self::ReleaseRev,
-			Self::Runtime,
-			Self::RuntimeRev,
-			Self::Title,
-			Self::TitleRev,
-		].iter()
 	}
 
 	/// Returns the next sequential [`AlbumSort`] variant.
@@ -394,7 +366,7 @@ impl SongSort {
 	/// Returns formatted, human readable versions.
 	///
 	/// e.g: [`SongSort::AlbumReleaseArtistLexi`] returns [`SONG_ALBUM_RELEASE_ARTIST_LEXI`]
-	pub const fn as_str(&self) -> &'static str {
+	pub const fn human(&self) -> &'static str {
 		use SongSort::*;
 		match self {
 			AlbumReleaseArtistLexi       => SONG_ALBUM_RELEASE_ARTIST_LEXI,
@@ -414,29 +386,6 @@ impl SongSort {
 			Title                        => SONG_TITLE,
 			TitleRev                     => SONG_TITLE_REV,
 		}
-	}
-
-	#[inline]
-	/// Returns an iterator over all [`SongSort`] variants.
-	pub fn iter() -> std::slice::Iter<'static, Self> {
-		[
-			Self::AlbumReleaseArtistLexi,
-			Self::AlbumReleaseArtistLexiRev,
-			Self::AlbumReleaseRevArtistLexi,
-			Self::AlbumReleaseRevArtistLexiRev,
-			Self::AlbumLexiArtistLexi,
-			Self::AlbumLexiArtistLexiRev,
-			Self::AlbumLexiRevArtistLexi,
-			Self::AlbumLexiRevArtistLexiRev,
-			Self::Lexi,
-			Self::LexiRev,
-			Self::Release,
-			Self::ReleaseRev,
-			Self::Runtime,
-			Self::RuntimeRev,
-			Self::Title,
-			Self::TitleRev,
-		].iter()
 	}
 
 	/// Returns the next sequential [`SongSort`] variant.
@@ -492,14 +441,7 @@ impl SongSort {
 #[cfg(test)]
 mod tests {
 	use super::*;
-
-	#[test]
-	// Asserts `.iter()` covers all variants.
-	fn iter_covers_all() {
-		assert_eq!(ArtistSort::iter().count(), ARTIST_SORT_VARIANT_COUNT);
-		assert_eq!(AlbumSort::iter().count(), ALBUM_SORT_VARIANT_COUNT);
-		assert_eq!(SongSort::iter().count(), SONG_SORT_VARIANT_COUNT);
-	}
+	use strum::*;
 
 	#[test]
 	// Asserts each variant:
@@ -512,7 +454,7 @@ mod tests {
 		let mut set3 = std::collections::HashSet::new();
 
 		for i in ArtistSort::iter() {
-            assert!(set1.insert(i.as_str()));
+            assert!(set1.insert(i.human()));
             assert!(set2.insert(i.next()));
             assert!(set3.insert(i.previous()));
 		}
@@ -525,7 +467,7 @@ mod tests {
 		let mut set3 = std::collections::HashSet::new();
 
 		for i in AlbumSort::iter() {
-            assert!(set1.insert(i.as_str()));
+            assert!(set1.insert(i.human()));
             assert!(set2.insert(i.next()));
             assert!(set3.insert(i.previous()));
 		}
@@ -538,7 +480,7 @@ mod tests {
 		let mut set3 = std::collections::HashSet::new();
 
 		for i in SongSort::iter() {
-            assert!(set1.insert(i.as_str()));
+            assert!(set1.insert(i.human()));
             assert!(set2.insert(i.next()));
             assert!(set3.insert(i.previous()));
 		}

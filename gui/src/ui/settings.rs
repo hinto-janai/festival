@@ -43,6 +43,7 @@ use benri::{
 	atomic_store,
 };
 use crate::text::*;
+use strum::*;
 
 //---------------------------------------------------------------------------------------------------- Settings
 impl crate::data::Gui {
@@ -191,12 +192,12 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, widt
 		// ComboBox.
 		ui.add_space(10.0);
 		ComboBox::from_id_source("settings_artist_sort_order")
-			.selected_text(RichText::new(self.settings.artist_sort.as_str()).color(BONE))
+			.selected_text(RichText::new(self.settings.artist_sort.human()).color(BONE))
 			.show_ui(ui, |ui|
 		{
 			// Album Sort methods.
 			for i in ArtistSort::iter() {
-				ui.selectable_value(&mut self.settings.artist_sort, *i, i.as_str());
+				ui.selectable_value(&mut self.settings.artist_sort, i, i.human());
 			}
 		});
 
@@ -216,12 +217,12 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, widt
 		// ComboBox.
 		ui.add_space(10.0);
 		ComboBox::from_id_source("settings_album_sort_order")
-			.selected_text(RichText::new(self.settings.album_sort.as_str()).color(BONE))
+			.selected_text(RichText::new(self.settings.album_sort.human()).color(BONE))
 			.show_ui(ui, |ui|
 		{
 			// Album Sort methods.
 			for i in AlbumSort::iter() {
-				ui.selectable_value(&mut self.settings.album_sort, *i, i.as_str());
+				ui.selectable_value(&mut self.settings.album_sort, i, i.human());
 			}
 		});
 
@@ -241,12 +242,12 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, widt
 		// ComboBox.
 		ui.add_space(10.0);
 		ComboBox::from_id_source("settings_song_sort_order")
-			.selected_text(RichText::new(self.settings.song_sort.as_str()).color(BONE))
+			.selected_text(RichText::new(self.settings.song_sort.human()).color(BONE))
 			.show_ui(ui, |ui|
 		{
 			// Song Sort methods.
 			for i in SongSort::iter() {
-				ui.selectable_value(&mut self.settings.song_sort, *i, i.as_str());
+				ui.selectable_value(&mut self.settings.song_sort, i, i.human());
 			}
 		});
 
@@ -266,11 +267,11 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, widt
 		// ComboBox.
 		ui.add_space(10.0);
 		ComboBox::from_id_source("settings_search_kind")
-			.selected_text(RichText::new(self.settings.search_kind.as_str()).color(BONE))
+			.selected_text(RichText::new(self.settings.search_kind.human()).color(BONE))
 			.show_ui(ui, |ui|
 		{
 			for i in SearchKind::iter() {
-				ui.selectable_value(&mut self.settings.search_kind, *i, i.as_str());
+				ui.selectable_value(&mut self.settings.search_kind, i, i.human());
 			}
 		});
 
@@ -292,11 +293,11 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, widt
 		// ComboBox.
 		ui.add_space(10.0);
 		ComboBox::from_id_source("settings_window_title")
-			.selected_text(RichText::new(self.settings.window_title.as_str()).color(BONE))
+			.selected_text(RichText::new(self.settings.window_title.human()).color(BONE))
 			.show_ui(ui, |ui|
 		{
 			for i in WindowTitle::iter() {
-				ui.selectable_value(&mut self.settings.window_title, *i, i.as_str());
+				ui.selectable_value(&mut self.settings.window_title, i, i.human());
 			}
 		});
 

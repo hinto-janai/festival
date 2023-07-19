@@ -113,7 +113,7 @@ CentralPanel::default().show(ctx, |ui| {
 
 		{
 			const SORT: SearchSort = SearchSort::Song;
-			let label = SelectableLabel::new(self.settings.search_sort == SORT, SORT.as_str());
+			let label = SelectableLabel::new(self.settings.search_sort == SORT, SORT.human());
 			if ui.add_sized([width, 30.0], label).on_hover_text(SEARCH_SORT_SONG).clicked() {
 				self.settings.search_sort = SORT;
 			}
@@ -123,7 +123,7 @@ CentralPanel::default().show(ctx, |ui| {
 
 		{
 			const SORT: SearchSort = SearchSort::Album;
-			let label = SelectableLabel::new(self.settings.search_sort == SORT, SORT.as_str());
+			let label = SelectableLabel::new(self.settings.search_sort == SORT, SORT.human());
 			if ui.add_sized([width, 30.0], label).on_hover_text(SEARCH_SORT_ALBUM).clicked() {
 				self.settings.search_sort = SORT;
 			}
@@ -133,7 +133,7 @@ CentralPanel::default().show(ctx, |ui| {
 
 		{
 			const SORT: SearchSort = SearchSort::Artist;
-			let label = SelectableLabel::new(self.settings.search_sort == SORT, SORT.as_str());
+			let label = SelectableLabel::new(self.settings.search_sort == SORT, SORT.human());
 			if ui.add_sized([width, 30.0], label).on_hover_text(SEARCH_SORT_ARTIST).clicked() {
 				self.settings.search_sort = SORT;
 			}

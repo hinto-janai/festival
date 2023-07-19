@@ -1,9 +1,21 @@
 //---------------------------------------------------------------------------------------------------- Use
 use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
+use strum::{
+	AsRefStr,
+	Display,
+	EnumCount,
+	EnumIter,
+	EnumString,
+	EnumVariantNames,
+	IntoStaticStr,
+};
 
 //---------------------------------------------------------------------------------------------------- Settings
-#[derive(Clone,Debug,Default,PartialEq,Serialize,Deserialize,Encode,Decode)]
+#[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
+#[derive(AsRefStr,Display,EnumCount,EnumIter,EnumString,EnumVariantNames,IntoStaticStr)]
+#[strum(serialize_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
 /// Does the user want a certain amount of `Album`'s per row or a static pixel size?
 pub enum AlbumSizing {
 	#[default]

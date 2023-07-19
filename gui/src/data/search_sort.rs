@@ -1,15 +1,25 @@
 //---------------------------------------------------------------------------------------------------- Use
 use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
+use strum::{
+	AsRefStr,
+	Display,
+	EnumCount,
+	EnumIter,
+	EnumString,
+	EnumVariantNames,
+	IntoStaticStr,
+};
 
 //---------------------------------------------------------------------------------------------------- __NAME__
-/// HACK: until `std::mem::variant_count()` is stable.
-pub const SEARCH_SORT_VARIANT_COUNT: usize = 3;
 /// The table in the `Search` tab can show results
 /// as the `Song` title, `Album` title, or `Artist` name.
 ///
 /// This selects which one it is.
 #[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
+#[derive(AsRefStr,Display,EnumCount,EnumIter,EnumString,EnumVariantNames,IntoStaticStr)]
+#[strum(serialize_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
 pub enum SearchSort {
 	Song,
 	#[default]
@@ -19,7 +29,7 @@ pub enum SearchSort {
 
 impl SearchSort {
 	/// No [`String`] allocation.
-	pub fn as_str(&self) -> &'static str {
+	pub fn human(&self) -> &'static str {
 		match self {
 			Self::Song   => "Song",
 			Self::Album  => "Album",
@@ -59,22 +69,10 @@ impl SearchSort {
 	}
 }
 
-impl std::fmt::Display for SearchSort {
-	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		write!(f, "{:?}", self)
-	}
-}
-
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
 mod tests {
 	use super::*;
-
-	#[test]
-	// Asserts `.iter()` covers all variants.
-	fn iter_covers_all() {
-		assert_eq!(SearchSort::iter().count(), SEARCH_SORT_VARIANT_COUNT);
-	}
 
 	#[test]
 	// Asserts each variant:
@@ -87,7 +85,7 @@ mod tests {
 		let mut set3 = std::collections::HashSet::new();
 
 		for i in SearchSort::iter() {
-			assert!(set1.insert(i.as_str()));
+			assert!(set1.insert(i.human()));
 			assert!(set2.insert(i.next()));
 			assert!(set3.insert(i.previous()));
 		}

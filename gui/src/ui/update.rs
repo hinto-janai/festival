@@ -61,6 +61,7 @@ use crate::text::{
 	UI_FORWARDS,
 	UI_REPEAT_SONG,UI_REPEAT,REPEAT_SONG,REPEAT_QUEUE,REPEAT_OFF,
 };
+use strum::*;
 
 //---------------------------------------------------------------------------------------------------- `GUI`'s eframe impl.
 impl eframe::App for Gui {
@@ -342,20 +343,20 @@ impl Gui {
 				} else if input.consume_key(Modifiers::COMMAND, Key::W) {
 					crate::tab!(self, Tab::Albums);
 					let next = self.settings.album_sort.next();
-					crate::toast!(self, next.as_str());
+					crate::toast!(self, next.human());
 					self.settings.album_sort = next;
 				// Check for `Ctrl+E` (Next Artist Order)
 				} else if input.consume_key(Modifiers::COMMAND, Key::E) {
 					self.settings.artist_sub_tab = crate::data::ArtistSubTab::All;
 					crate::tab!(self, Tab::Artists);
 					let next = self.settings.artist_sort.next();
-					crate::toast!(self, next.as_str());
+					crate::toast!(self, next.human());
 					self.settings.artist_sort = next;
 				// Check for `Ctrl+R` (Next Song Order)
 				} else if input.consume_key(Modifiers::COMMAND, Key::R) {
 					crate::tab!(self, Tab::Songs);
 					let next = self.settings.song_sort.next();
-					crate::toast!(self, next.as_str());
+					crate::toast!(self, next.human());
 					self.settings.song_sort = next;
 				// Check for `Ctrl+Shift+P` (force `panic!()`)
 				} else if
@@ -656,8 +657,8 @@ fn show_left(&mut self, ctx: &egui::Context, width: f32, height: f32) {
 			// Display `SelectableLabel` for each `Tab`.
 			ui.add_space(2.5);
 			for tab in Tab::iter() {
-				if ui.add_sized([tab_width, tab_height], SelectableLabel::new(self.state.tab == *tab, tab.as_str())).clicked() {
-					crate::tab!(self, *tab);
+				if ui.add_sized([tab_width, tab_height], SelectableLabel::new(self.state.tab == tab, tab.human())).clicked() {
+					crate::tab!(self, tab);
 				}
 				ui.separator();
 			}
@@ -861,7 +862,7 @@ fn show_collection_spinner(
 			// Percent.
 			ui.add_sized([width, height], Label::new(self.reset_state.percent.as_str()));
 			// Phase.
-			ui.add_sized([width, height], Label::new(self.reset_state.phase.as_str()));
+			ui.add_sized([width, height], Label::new(self.reset_state.phase.human()));
 			// Specific.
 			ui.add_sized([width, height], Label::new(&*self.reset_state.specific));
 			// ProgressBar.

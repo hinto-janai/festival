@@ -2,6 +2,15 @@
 use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
 use shukusai::constants::FESTIVAL;
+use strum::{
+	AsRefStr,
+	Display,
+	EnumCount,
+	EnumIter,
+	EnumString,
+	EnumVariantNames,
+	IntoStaticStr,
+};
 
 //---------------------------------------------------------------------------------------------------- Constants
 const ARTIST_ALBUM_SONG:    &str = "Artist name | Album title | Song title";
@@ -22,9 +31,10 @@ const OFF:                  &str = "Off";
 const SEP: &str = "   |   ";
 
 //----------------------------------------------------------------------------------------------------
-/// HACK: until `std::mem::variant_count()` is stable.
-pub const WINDOW_TITLE_VARIANT_COUNT: usize = 13;
 #[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
+#[derive(AsRefStr,Display,EnumCount,EnumIter,EnumString,EnumVariantNames,IntoStaticStr)]
+#[strum(serialize_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
 /// Different ways the outer `Festival` window title can be set.
 pub enum WindowTitle {
 	#[default]
@@ -73,7 +83,7 @@ impl WindowTitle {
 	}
 
 	/// No [`String`] allocation.
-	pub fn as_str(&self) -> &'static str {
+	pub fn human(&self) -> &'static str {
 		use WindowTitle::*;
 		match self {
 			ArtistAlbumSong        => ARTIST_ALBUM_SONG,
@@ -90,27 +100,6 @@ impl WindowTitle {
 			Queue                  => QUEUE,
 			Off                    => OFF,
 		}
-	}
-
-	#[inline]
-	/// Returns an iterator over all [`Self`] variants.
-	pub fn iter() -> std::slice::Iter<'static, Self> {
-		use WindowTitle::*;
-		[
-			ArtistAlbumSong,
-			ArtistAlbumSongRuntime,
-			AlbumSong,
-			AlbumSongRuntime,
-			Song,
-			SongRuntime,
-			RuntimeSong,
-			SongAlbum,
-			RuntimeSongAlbum,
-			SongAlbumArtist,
-			RuntimeSongAlbumArtist,
-			Queue,
-			Off,
-		].iter()
 	}
 
 	#[inline]
@@ -160,22 +149,11 @@ impl WindowTitle {
 	}
 }
 
-impl std::fmt::Display for WindowTitle {
-	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		write!(f, "{:?}", self)
-	}
-}
-
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
 mod tests {
 	use super::*;
-
-	#[test]
-	// Asserts `.iter()` covers all variants.
-	fn iter_covers_all() {
-		assert_eq!(WindowTitle::iter().count(), WINDOW_TITLE_VARIANT_COUNT);
-	}
+	use strum::*;
 
 	#[test]
 	// Asserts each variant:
@@ -188,7 +166,7 @@ mod tests {
 		let mut set3 = std::collections::HashSet::new();
 
 		for i in WindowTitle::iter() {
-			assert!(set1.insert(i.as_str()));
+			assert!(set1.insert(i.human()));
 			assert!(set2.insert(i.next()));
 			assert!(set3.insert(i.previous()));
 		}

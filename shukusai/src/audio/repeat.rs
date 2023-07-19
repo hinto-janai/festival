@@ -1,6 +1,15 @@
 //---------------------------------------------------------------------------------------------------- Use
 use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
+use strum::{
+	AsRefStr,
+	Display,
+	EnumCount,
+	EnumIter,
+	EnumString,
+	EnumVariantNames,
+	IntoStaticStr,
+};
 
 //---------------------------------------------------------------------------------------------------- Constants
 /// [`Repeat::Song`]
@@ -11,11 +20,12 @@ const REPEAT_QUEUE: &str = "Repeat the entire queue after it finishes";
 const REPEAT_OFF:   &str = "Turn off all repeating";
 
 //---------------------------------------------------------------------------------------------------- Repeat
-/// HACK: until `std::mem::variant_count()` is stable.
-pub const REPEAT_VARIANT_COUNT: usize = 3;
+#[derive(Copy,Clone,Debug,Hash,Eq,Ord,PartialEq,PartialOrd,Serialize,Deserialize,Encode,Decode)]
+#[derive(AsRefStr,Display,EnumCount,EnumIter,EnumString,EnumVariantNames,IntoStaticStr)]
+#[strum(serialize_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
 /// The different ways a "repeat" value
 /// can be interpreted when playing audio.
-#[derive(Copy,Clone,Debug,Hash,Eq,Ord,PartialEq,PartialOrd,Serialize,Deserialize,Encode,Decode)]
 pub enum Repeat {
 	/// When finishing a [`Song`] in the queue, repeat it, forever.
 	Song,
@@ -33,7 +43,7 @@ impl Repeat {
 
 	#[inline]
 	/// Returns formatted, human readable versions.
-	pub const fn as_str(&self) -> &'static str {
+	pub const fn human(&self) -> &'static str {
 		use Repeat::*;
 		match self {
 			Song        => REPEAT_SONG,
@@ -63,17 +73,6 @@ impl Repeat {
 			Self::Off   => Self::Queue,
 		}
 	}
-
-	#[inline]
-	/// Returns an iterator over all [`Self`] variants.
-	pub fn iter() -> std::slice::Iter<'static, Self> {
-		[
-			Self::Song,
-			Self::Queue,
-			Self::Off,
-		].iter()
-	}
-
 }
 
 impl Default for Repeat {
@@ -86,12 +85,7 @@ impl Default for Repeat {
 #[cfg(test)]
 mod tests {
 	use super::*;
-
-	#[test]
-	// Asserts `.iter()` covers all variants.
-	fn iter_covers_all() {
-		assert_eq!(Repeat::iter().count(), REPEAT_VARIANT_COUNT);
-	}
+	use strum::*;
 
 	#[test]
 	// Asserts each variant:
@@ -104,7 +98,7 @@ mod tests {
 		let mut set3 = std::collections::HashSet::new();
 
 		for i in Repeat::iter() {
-			assert!(set1.insert(i.as_str()));
+			assert!(set1.insert(i.human()));
 			assert!(set2.insert(i.next()));
 			assert!(set3.insert(i.previous()));
 		}

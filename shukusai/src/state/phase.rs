@@ -1,5 +1,14 @@
 //---------------------------------------------------------------------------------------------------- Use
 use serde::{Serialize,Deserialize};
+use strum::{
+	AsRefStr,
+	Display,
+	EnumCount,
+	EnumIter,
+	EnumString,
+	EnumVariantNames,
+	IntoStaticStr,
+};
 
 //---------------------------------------------------------------------------------------------------- Tab Constants
 // This is the text actually displayed in the `GUI`.
@@ -20,9 +29,10 @@ const CONVERT:     &str = "Converting Album Art";
 const FINALIZE:    &str = "Finalizing Collection";
 
 //---------------------------------------------------------------------------------------------------- Phase
-/// HACK: until `std::mem::variant_count()` is stable.
-pub const PHASE_VARIANT_COUNT: usize = 15;
-#[derive(Copy,Clone,Debug,Hash,Serialize,Deserialize,PartialEq,Eq,PartialOrd,Ord)]
+#[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
+#[derive(AsRefStr,Display,EnumCount,EnumIter,EnumString,EnumVariantNames,IntoStaticStr)]
+#[strum(serialize_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
 /// The different phases of creating a new [`Collection`]
 ///
 /// [`ResetState::phase`] will hold a [`Phase`] representing
@@ -95,7 +105,7 @@ pub enum Phase {
 
 impl Phase {
 	/// Human-readable version, no [`String`] allocation.
-	pub fn as_str(&self) -> &'static str {
+	pub fn human(&self) -> &'static str {
 		match self {
 			Self::None        => NONE,
 			Self::Disk        => DISK,
@@ -115,55 +125,13 @@ impl Phase {
 			Self::Finalize    => FINALIZE,
 		}
 	}
-
-	#[inline]
-	/// Returns an iterator over all [`Phase`] variants in sequential order.
-	///
-	/// # Note
-	/// This includes the pre-phases, like [`Phase::None`].
-	pub fn iter() -> std::slice::Iter<'static, Self> {
-		[
-			Self::None,
-			Self::Disk,
-			Self::Wait,
-			Self::Start,
-			Self::Deconstruct,
-			Self::WalkDir,
-			Self::Parse,
-			Self::Fix,
-			Self::Sort,
-			Self::Search,
-			Self::Prepare,
-			Self::Art,
-			Self::Clone,
-			Self::Convert,
-			Self::Finalize,
-		].iter()
-	}
-}
-
-impl AsRef<str> for Phase {
-	fn as_ref(&self) -> &'static str {
-		self.as_str()
-	}
-}
-
-impl std::fmt::Display for Phase {
-	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		write!(f, "{}", self.as_str())
-	}
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
 mod tests {
 	use super::*;
-
-	#[test]
-	// Asserts `.iter()` covers all variants.
-	fn iter_covers_all() {
-		assert_eq!(Phase::iter().count(), PHASE_VARIANT_COUNT);
-	}
+	use strum::*;
 
 	#[test]
 	// Asserts each variant gives a different string.
@@ -171,7 +139,7 @@ mod tests {
 		let mut set = std::collections::HashSet::new();
 
 		for i in Phase::iter() {
-			assert!(set.insert(i.as_str()));
+			assert!(set.insert(i.human()));
 		}
 	}
 }

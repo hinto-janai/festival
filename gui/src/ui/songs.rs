@@ -101,7 +101,7 @@ pub fn show_tab_songs(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: 
 					.show_ui(ui, |ui|
 				{
 					for i in SORT {
-						if ui.selectable_label(self.settings.song_sort == i, i.as_str()).clicked() {
+						if ui.selectable_label(self.settings.song_sort == i, i.human()).clicked() {
 							self.settings.song_sort = i;
 						}
 					}
@@ -127,7 +127,7 @@ pub fn show_tab_songs(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: 
 					.show_ui(ui, |ui|
 				{
 					for i in SORT {
-						if ui.selectable_label(self.settings.song_sort == i, i.as_str()).clicked() {
+						if ui.selectable_label(self.settings.song_sort == i, i.human()).clicked() {
 							self.settings.song_sort = i;
 						}
 					}
@@ -153,7 +153,7 @@ pub fn show_tab_songs(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: 
 					.show_ui(ui, |ui|
 				{
 					for i in SORT {
-						if ui.selectable_label(self.settings.song_sort == i, i.as_str()).clicked() {
+						if ui.selectable_label(self.settings.song_sort == i, i.human()).clicked() {
 							self.settings.song_sort = i;
 						}
 					}
@@ -170,7 +170,7 @@ pub fn show_tab_songs(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: 
 					.show_ui(ui, |ui|
 				{
 					for i in SORT {
-						if ui.selectable_label(self.settings.song_sort == i, i.as_str()).clicked() {
+						if ui.selectable_label(self.settings.song_sort == i, i.human()).clicked() {
 							self.settings.song_sort = i;
 						}
 					}
@@ -187,7 +187,7 @@ pub fn show_tab_songs(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: 
 					.show_ui(ui, |ui|
 				{
 					for i in SORT {
-						if ui.selectable_label(self.settings.song_sort == i, i.as_str()).clicked() {
+						if ui.selectable_label(self.settings.song_sort == i, i.human()).clicked() {
 							self.settings.song_sort = i;
 						}
 					}
