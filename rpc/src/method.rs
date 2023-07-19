@@ -90,15 +90,6 @@ mod tests {
 	use strum::*;
 
 	#[test]
-	fn ser() {
-		let x = serde_json::json!({
-			"contin": true,
-		});
-
-		let x: Clear = serde_json::from_value(x).unwrap();
-	}
-
-	#[test]
 	fn serde() {
 		for i in Method::iter() {
 			assert_eq!(format!("\"{}\"", i.as_ref()), to_string(&i).unwrap());
@@ -114,4 +105,3 @@ mod tests {
 		}
 	}
 }
-
