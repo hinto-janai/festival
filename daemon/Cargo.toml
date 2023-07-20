@@ -30,6 +30,7 @@ compact_str  = { workspace = true }
 crossbeam    = { workspace = true }
 image        = { workspace = true }
 log          = { workspace = true }
+rand         = { workspace = true }
 serde        = { workspace = true }
 serde_json   = { workspace = true }
 strum        = { workspace = true }
@@ -39,3 +40,5 @@ once_cell    = { workspace = true }
 hyper     = { version = "1.0.0-rc.4", features = ["full"] }
 tokio     = { version = "1.29.1", features = ["full"] }
 toml_edit = { version = "0.19.14", features = ["perf"] }
+sha3      = { version = "0.10.8" }
+hex = "0.4.3"
