@@ -1,0 +1,83 @@
+####################
+# festivald config #
+####################
+# This `festivald`'s config file. It is in the [`TOML`](https://en.wikipedia.org/wiki/TOML) format.
+#
+# Values will be loaded from this file on startup.
+#
+# If overlapping `--command-flags` are provided, they will be used instead.
+#
+# For full documentation on config options, see:
+# <https://github.com/hinto-janai/festival/tree/main/daemon/README.md#Config>
+
+
+################################################################## Network
+# The IPv4 address `festivald` will bind to.
+#
+# DEFAULT | "127.0.0.1"
+# EXAMPLE | "192.168.2.10", "0.0.0.0"
+ip = "127.0.0.1"
+
+# The port `festivald` bind to.
+#
+# DEFAULT | 18425
+# EXAMPLE | 15000, 8080
+port = 18425
+
+################################################################## Logging
+# The logging level `festivald` will use.
+#
+# DEFAULT | "info"
+# VALUES  | "off", "error", "warn", "info", "debug", "trace"
+log_level = "info"
+
+# Only show logs for `festivald` and don't show
+# anything related to the internals, `shukusai`.
+#
+# DEFAULT | false
+# VALUES  | true, false
+log_daemon_only = false
+
+################################################################## Watch
+# Enable/disable watching the filesystem for signals
+#
+# Other than RPC calls, `festivald` can send signals
+# to another local `festivald`, e.g:
+# `./festivald --play`
+#
+# The way this is done is by creating a file
+# in Festival's `signal` directory.
+#
+# `./festivald --FLAG` just creates a file in that directory,
+# which an existing Festival will notice and do the appropriate task.
+#
+# Setting this to `false` will disable that part of the system so that
+# filesystem signals won't work, e.g, `./festivald --play` will not work.
+#
+# DEFAULT | true
+# VALUES  | true, false
+watch = true
+
+################################################################## Controls
+# Enable/disable OS media controls
+#
+# `festivald` plugs into the native OS's media controls so that signals
+# like `play/pause/stop` and/or keyboard controls can be processed.
+#
+# Setting this to `false` will disable media controls.
+#
+# DEFAULT | true
+# VALUES  | true, false
+media_controls = true
+
+################################################################## Password
+# Only process `festivald` connections to
+# `festivald` that have this password.
+# Empty password disables this feature.
+# By default, this is sent in clear-text via HTTP.
+# Do not expect this to be anything more
+# than a small security measure.
+#
+# DEFAULT | "" (disabled)
+# EXAMPLE | "my_password_123", "aoig2A%^$AWS^%",
+password = ""

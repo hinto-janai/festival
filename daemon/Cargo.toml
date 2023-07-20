@@ -14,6 +14,7 @@ description    = "Music player (daemon)"
 
 [dependencies]
 ### Personal Libraries.
+# FIXME: change `gui` to `daemon` once `shukusai` is no longer coupled
 shukusai = { workspace = true, features = ["gui", "panic"] }
 benri    = { workspace = true }
 disk     = { workspace = true }
@@ -31,9 +32,10 @@ image        = { workspace = true }
 log          = { workspace = true }
 serde        = { workspace = true }
 serde_json   = { workspace = true }
+strum        = { workspace = true }
 once_cell    = { workspace = true }
 
 ### Regular libraries.
 hyper     = { version = "1.0.0-rc.4", features = ["full"] }
 tokio     = { version = "1.29.1", features = ["full"] }
-strum     = { version = "0.25.0", features = ["derive"] }
+toml_edit = { version = "0.19.14", features = ["perf"] }
