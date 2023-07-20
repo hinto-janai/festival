@@ -53,6 +53,12 @@ macro_rules! impl_param_vec {
 }
 
 //---------------------------------------------------------------------------------------------------- Param impl
+use shukusai::{
+	collection::{SongKey,AlbumKey,ArtistKey},
+	audio::Append,
+	search::SearchKind,
+};
+
 impl_param!(Previous, threshold: Option<u32>);
 impl_param!(Volume, volume: u8);
 impl_param!(Clear, playback: bool);
@@ -60,18 +66,26 @@ impl_param!(Skip, skip: usize);
 impl_param!(Back, back: usize);
 impl_param!(SetQueueIndex, index: usize);
 impl_param!(RemoveQueueRange, start: usize, end: usize, skip: bool);
-impl_param_lt!(AddQueueSong, key: usize, append: Cow<'a, str>, clear: bool);
-impl_param_lt!(AddQueueAlbum, key: usize, append: Cow<'a, str>, clear: bool, offset: usize);
-impl_param_lt!(AddQueueArtist, key: usize, append: Cow<'a, str>, clear: bool, offset: usize);
-impl_param_lt!(Seek, seek: Cow<'a, str>, second: u64);
-impl_param_lt!(Search, input: Cow<'a, str>, kind: Cow<'a, str>);
+impl_param!(AddQueueSong, key: SongKey, append: Append, clear: bool);
+impl_param!(AddQueueAlbum, key: AlbumKey, append: Append, clear: bool, offset: usize);
+impl_param!(AddQueueArtist, key: ArtistKey, append: Append, clear: bool, offset: usize);
+impl_param!(Seek, seek: shukusai::audio::Seek, second: u64);
+impl_param!(Artist, key: ArtistKey);
+impl_param!(Album, key: AlbumKey);
+impl_param!(Song, key: SongKey);
+impl_param_lt!(Search, input: Cow<'a, str>, kind: SearchKind);
+impl_param_lt!(SearchArtist, input: Cow<'a, str>, kind: SearchKind);
+impl_param_lt!(SearchAlbum, input: Cow<'a, str>, kind: SearchKind);
+impl_param_lt!(SearchSong, input: Cow<'a, str>, kind: SearchKind);
+impl_param_lt!(MapArtist, artist: Cow<'a, str>);
+impl_param_lt!(MapAlbum, artist: Cow<'a, str>, album: Cow<'a, str>);
+impl_param_lt!(MapSong, artist: Cow<'a, str>, album: Cow<'a, str>, song: Cow<'a, str>);
 impl_param_vec!(NewCollection, PathBuf);
 
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
 mod tests {
 	use super::*;
-
 
 	//------------------------------------- Serde sanity tests.
 	// Testing function.
@@ -130,13 +144,79 @@ mod tests {
 		t(&RemoveQueueRange { start: 0, end: 0, skip: false },                  r#"{"start":0,"end":0,"skip":false}"#);
 	}
 
-//	#[test]
-//	fn add_queue_song() {
-//		t(&AddQueueSong { key: 0, append: , clear: },          r#"{"index":0}"#);
-//	}
-
 	#[test]
 	fn add_queue_song() {
-		t(&AddQueueSong { key: 0, append: "front".into(), clear: true }, r#"{"key":0,"append":"front","clear":true}"#);
+		t(&AddQueueSong { key: SongKey::from(0_u8), append: shukusai::audio::Append::Front, clear: true }, r#"{"key":0,"append":"front","clear":true}"#);
+		t(&AddQueueSong { key: SongKey::from(1_u8), append: shukusai::audio::Append::Back, clear: false }, r#"{"key":1,"append":"back","clear":false}"#);
+		t(&AddQueueSong { key: SongKey::from(2_u8), append: shukusai::audio::Append::Index(0), clear: true }, r#"{"key":2,"append":{"index":0},"clear":true}"#);
+	}
+
+	#[test]
+	fn add_queue_album() {
+		t(&AddQueueAlbum { key: AlbumKey::from(0_u8), append: shukusai::audio::Append::Front, clear: true, offset: 0 }, r#"{"key":0,"append":"front","clear":true,"offset":0}"#);
+		t(&AddQueueAlbum { key: AlbumKey::from(1_u8), append: shukusai::audio::Append::Back, clear: false, offset: 1 }, r#"{"key":1,"append":"back","clear":false,"offset":1}"#);
+		t(&AddQueueAlbum { key: AlbumKey::from(2_u8), append: shukusai::audio::Append::Index(0), clear: true, offset: 2 }, r#"{"key":2,"append":{"index":0},"clear":true,"offset":2}"#);
+	}
+
+	#[test]
+	fn add_queue_artist() {
+		t(&AddQueueArtist { key: ArtistKey::from(0_u8), append: shukusai::audio::Append::Front, clear: true, offset: 0 }, r#"{"key":0,"append":"front","clear":true,"offset":0}"#);
+		t(&AddQueueArtist { key: ArtistKey::from(1_u8), append: shukusai::audio::Append::Back, clear: false, offset: 1 }, r#"{"key":1,"append":"back","clear":false,"offset":1}"#);
+		t(&AddQueueArtist { key: ArtistKey::from(2_u8), append: shukusai::audio::Append::Index(0), clear: true, offset: 2 }, r#"{"key":2,"append":{"index":0},"clear":true,"offset":2}"#);
+	}
+
+	#[test]
+	fn seek() {
+		t(&Seek { seek: shukusai::audio::Seek::Forward, second: 0 }, r#"{"seek":"forward","second":0}"#);
+		t(&Seek { seek: shukusai::audio::Seek::Backward, second: 1 }, r#"{"seek":"backward","second":1}"#);
+		t(&Seek { seek: shukusai::audio::Seek::Absolute, second: 2 }, r#"{"seek":"absolute","second":2}"#);
+	}
+
+	#[test]
+	fn search() {
+		t(&Search { input: "hello1".into(), kind: shukusai::search::SearchKind::All }, r#"{"input":"hello1","kind":"all"}"#);
+		t(&Search { input: "hello2".into(), kind: shukusai::search::SearchKind::Sim70 }, r#"{"input":"hello2","kind":"sim70"}"#);
+		t(&Search { input: "hello3".into(), kind: shukusai::search::SearchKind::Top25 }, r#"{"input":"hello3","kind":"top25"}"#);
+	}
+
+	#[test]
+	fn search_artist() {
+		t(&SearchArtist { input: "hello1".into(), kind: shukusai::search::SearchKind::All }, r#"{"input":"hello1","kind":"all"}"#);
+		t(&SearchArtist { input: "hello2".into(), kind: shukusai::search::SearchKind::Sim70 }, r#"{"input":"hello2","kind":"sim70"}"#);
+		t(&SearchArtist { input: "hello3".into(), kind: shukusai::search::SearchKind::Top25 }, r#"{"input":"hello3","kind":"top25"}"#);
+	}
+
+	#[test]
+	fn search_album() {
+		t(&SearchAlbum { input: "hello1".into(), kind: shukusai::search::SearchKind::All }, r#"{"input":"hello1","kind":"all"}"#);
+		t(&SearchAlbum { input: "hello2".into(), kind: shukusai::search::SearchKind::Sim70 }, r#"{"input":"hello2","kind":"sim70"}"#);
+		t(&SearchAlbum { input: "hello3".into(), kind: shukusai::search::SearchKind::Top25 }, r#"{"input":"hello3","kind":"top25"}"#);
+	}
+
+	#[test]
+	fn search_song() {
+		t(&SearchSong { input: "hello1".into(), kind: shukusai::search::SearchKind::All }, r#"{"input":"hello1","kind":"all"}"#);
+		t(&SearchSong { input: "hello2".into(), kind: shukusai::search::SearchKind::Sim70 }, r#"{"input":"hello2","kind":"sim70"}"#);
+		t(&SearchSong { input: "hello3".into(), kind: shukusai::search::SearchKind::Top25 }, r#"{"input":"hello3","kind":"top25"}"#);
+	}
+
+	#[test]
+	fn map_artist() {
+		t(&MapArtist { artist: "hello".into() }, r#"{"artist":"hello"}"#);
+	}
+
+	#[test]
+	fn map_album() {
+		t(&MapAlbum { artist: "hello".into(), album: "hello2".into() }, r#"{"artist":"hello","album":"hello2"}"#);
+	}
+
+	#[test]
+	fn map_song() {
+		t(&MapSong { artist: "hello".into(), album: "hello2".into(), song: "hello3".into() }, r#"{"artist":"hello","album":"hello2","song":"hello3"}"#);
+	}
+
+	#[test]
+	fn new_collection() {
+		t(&NewCollection(vec![PathBuf::from("/path_1"), PathBuf::from("/path_2")]), r#"["/path_1","/path_2"]"#);
 	}
 }

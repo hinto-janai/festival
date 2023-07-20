@@ -78,6 +78,18 @@ pub enum Method {
 	RemoveQueueRange,
 	/// [`crate::param::Search`]
 	Search,
+	/// [`crate::param::SearchArtist`]
+	SearchArtist,
+	/// [`crate::param::SearchAlbum`]
+	SearchAlbum,
+	/// [`crate::param::SearchSong`]
+	SearchSong,
+	/// [`crate::param::MapArtist`]
+	MapArtist,
+	/// [`crate::param::MapAlbum`]
+	MapAlbum,
+	/// [`crate::param::MapSong`]
+	MapSong,
 	/// [`crate::param::NewCollection`]
 	NewCollection,
 }

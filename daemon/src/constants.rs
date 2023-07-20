@@ -17,6 +17,9 @@ pub const FESTIVALD_NAME_VER: &str = {
 	concat!("Festival v", env!("CARGO_PKG_VERSION"))
 };
 
+//---------------------------------------------------------------------------------------------------- CONFIG
+pub const FESTIVALD_CONFIG: &str = include_str!("../config/festivald.toml");
+
 //---------------------------------------------------------------------------------------------------- TESTS
 //#[cfg(test)]
 //mod tests {
