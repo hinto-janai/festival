@@ -1,57 +1,60 @@
 //---------------------------------------------------------------------------------------------------- Use
-use sha3::{Digest, Sha3_256};
+use sha2::{Digest, Sha256};
 use rand::Rng;
 use zeroize::{ZeroizeOnDrop,Zeroize};
+use std::pin::Pin;
 
-//---------------------------------------------------------------------------------------------------- __NAME__
+//---------------------------------------------------------------------------------------------------- Constants
+const LEN: usize = 32;
+
+//---------------------------------------------------------------------------------------------------- Hash
 #[cfg_attr(debug_assertions, derive(Debug,PartialEq))]
 #[derive(Zeroize,ZeroizeOnDrop)]
 pub struct Hash {
-	// Contains hex-encoded hash input (with salt).
-	hash: String,
+	// Contains hash output (with salt).
+	hash: PinBox,
 
-	// The salt used.
-	salt: Salt,
-}
-
-#[cfg_attr(debug_assertions, derive(Debug,PartialEq))]
-#[derive(Clone,Zeroize,ZeroizeOnDrop)]
-pub(super) struct Salt([u8; 32]);
-
-impl Salt {
-	fn new() -> Self {
-		Self(rand::thread_rng().gen())
-	}
+	// The salt that was used.
+	salt: PinBox,
 }
 
 impl Hash {
 	/// Hash an input with a random salt.
 	pub fn new(input: String) -> Self {
-		Self::with_salt(input, Salt::new())
+		Self::with_salt(input, PinBox::rand())
 	}
 
-	pub(super) fn with_salt(input: String, salt: Salt) -> Self {
-		// Hash.
-		let mut hasher = Sha3_256::new();
-		hasher.update(input);
-		hasher.update(salt.0);
-
+	pub(super) fn with_salt(input: String, salt: PinBox) -> Self {
 		Self {
-			// Hex encode.
-			hash: hex::encode(hasher.finalize()),
+			hash: Self::hash(input, &salt),
 			salt,
 		}
 	}
 
+	fn hash(input: String, salt: &PinBox) -> PinBox {
+		let mut hasher = Sha256::new();
+		hasher.update(input);
+		hasher.update(&*salt.0);
+		PinBox(Box::pin(hasher.finalize().into()))
+	}
+
 	/// Compare `self` with a hash of another `String`.
 	pub fn same(&self, new_input: String) -> bool {
-		let new = Hash::with_salt(new_input, self.salt.clone());
-		let cmp = &self.hash == &new.hash;
+		&self.hash == &Hash::hash(new_input, &self.salt)
+	}
+}
 
-		// Zero the memory.
-		drop(new);
+#[cfg_attr(debug_assertions, derive(Debug,PartialEq))]
+#[derive(Zeroize,ZeroizeOnDrop)]
+pub(super) struct PinBox(Pin<Box<[u8; LEN]>>);
 
-		cmp
+impl PinBox {
+	fn zero() -> Self {
+		Self(Box::pin([0; LEN]))
+	}
+
+	fn rand() -> Self {
+		Self(Box::pin(rand::thread_rng().gen()))
 	}
 }
 
@@ -61,11 +64,16 @@ mod tests {
 	use super::*;
 
 	fn h1() -> Hash {
-		Hash::with_salt("h1".into(), Salt([0;32]))
+		Hash::with_salt("h1".into(), PinBox::zero())
 	}
 
 	fn h2() -> Hash {
-		Hash::with_salt("h2".into(), Salt([0;32]))
+		Hash::with_salt("h2".into(), PinBox::zero())
+	}
+
+	#[test]
+	fn salt_rand() {
+		assert_ne!(PinBox::rand(), PinBox::rand());
 	}
 
 	#[test]
@@ -76,10 +84,7 @@ mod tests {
 
 	#[test]
 	fn hash() {
-		assert_eq!(h1().hash.len(), 64);
-		assert_eq!(h2().hash, "05db833ef2c1b99a2a345dfb0987e9917af31206142120025b248c939879dffe");
-
-		assert_eq!(h2().hash.len(), 64);
-		assert_eq!(h2().hash, "05db833ef2c1b99a2a345dfb0987e9917af31206142120025b248c939879dffe");
+		assert!(h1().same("h1".into()));
+		assert!(h2().same("h2".into()));
 	}
 }

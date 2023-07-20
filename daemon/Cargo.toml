@@ -40,6 +40,6 @@ once_cell    = { workspace = true }
 hyper     = { version = "1.0.0-rc.4", features = ["full"] }
 tokio     = { version = "1.29.1", features = ["full"] }
 toml_edit = { version = "0.19.14", features = ["perf"] }
-sha3      = { version = "0.10.8" }
+sha2      = { version = "0.10.7" }
 hex       = { version = "0.4.3" }
 zeroize   = { version = "1.6.0", features = ["std", "zeroize_derive"] }
