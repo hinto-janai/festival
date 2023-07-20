@@ -1,34 +1,79 @@
-####################
-# festivald config #
-####################
-# This is `festivald`'s config file. It is in the TOML (https://en.wikipedia.org/wiki/TOML) format.
-#
-# Values will be loaded from this file on startup.
-#
-# If overlapping `--command-flags` are provided, they will be used instead.
-#
-# For full documentation on config options, see:
-# <https://github.com/hinto-janai/festival/tree/main/daemon/README.md#Config>
+#================#
+# festivald.toml #
+#=============================================================================#
+# This is `festivald`'s config file.                                          #
+# It is in the TOML (https://en.wikipedia.org/wiki/TOML) format.              #
+#                                                                             #
+# Values will be loaded from this file on startup.                            #
+# If overlapping `--command-flags` are provided, they will be used instead.   #
+#                                                                             #
+# For full documentation on config options, see:                              #
+# <https://github.com/hinto-janai/festival/tree/main/daemon/README.md#Config> #
+#=============================================================================#
 
 
-################################################################## Network
+#----------------------------------------------------------#
+#                         NETWORK                          #
+#----------------------------------------------------------#
 # The IPv4 address `festivald` will bind to.
 #
 # DEFAULT | "127.0.0.1"
 # EXAMPLE | "192.168.2.10", "0.0.0.0"
+# TYPE    | string
 ip = "127.0.0.1"
 
 # The port `festivald` bind to.
 #
 # DEFAULT | 18425
 # EXAMPLE | 15000, 8080
+# TYPE    | 16-bit unsigned integer (0..65535)
 port = 18425
 
-################################################################## Logging
+#----------------------------------------------------------#
+#                         THREADS                          #
+#----------------------------------------------------------#
+# The amount of threads `festivald` will
+# use for handling JSON-RPC requests.
+# `0` will spawn as many system threads you have.
+#
+# DEFAULT | 0
+# EXAMPLE | 2, 4, 5, 6, 7, 8, 16
+# TYPE    | unsigned integer
+threads_rpc = 0
+
+# The amount of threads `festivald` will
+# use for handling REST resource requests (audio, images).
+# `0` will spawn as many system threads you have.
+#
+# DEFAULT | 0
+# EXAMPLE | 2, 4, 5, 6, 7, 8, 16
+# TYPE    | unsigned integer
+threads_rest = 0
+
+#----------------------------------------------------------#
+#                           API                            #
+#----------------------------------------------------------#
+# Enable/disable the REST API.
+# This is responsible for the `/rest` API that
+# serves image, audio, and other heavy resource data.
+#
+# Setting this to `false` will disable this part
+# of the system, and will only leave the JSON-RPC
+# API available.
+#
+# DEFAULT | true
+# VALUES  | true, false
+# TYPE    | boolean
+rest = true
+
+#----------------------------------------------------------#
+#                         LOGGING                          #
+#----------------------------------------------------------#
 # The logging level `festivald` will use.
 #
 # DEFAULT | "info"
 # VALUES  | "off", "error", "warn", "info", "debug", "trace"
+# TYPE    | string
 log_level = "info"
 
 # Only show logs for `festivald` and don't show
@@ -36,9 +81,12 @@ log_level = "info"
 #
 # DEFAULT | false
 # VALUES  | true, false
+# TYPE    | boolean
 log_daemon_only = false
 
-################################################################## Watch
+#----------------------------------------------------------#
+#                   FILESYSTEM WATCHING                    #
+#----------------------------------------------------------#
 # Enable/disable watching the filesystem for signals
 #
 # Other than RPC calls, `festivald` can send signals
@@ -56,9 +104,12 @@ log_daemon_only = false
 #
 # DEFAULT | true
 # VALUES  | true, false
+# TYPE    | boolean
 watch = true
 
-################################################################## Controls
+#----------------------------------------------------------#
+#                      MEDIA CONTROLS                      #
+#----------------------------------------------------------#
 # Enable/disable OS media controls
 #
 # `festivald` plugs into the native OS's media controls so that signals
@@ -68,9 +119,12 @@ watch = true
 #
 # DEFAULT | true
 # VALUES  | true, false
+# TYPE    | boolean
 media_controls = true
 
-################################################################## Password
+#----------------------------------------------------------#
+#                         PASSWORD                         #
+#----------------------------------------------------------#
 # Only process `festivald` connections to
 # `festivald` that have this password.
 # Empty password disables this feature.
@@ -80,4 +134,5 @@ media_controls = true
 #
 # DEFAULT | "" (disabled)
 # EXAMPLE | "my_password_123", "aoig2A%^$AWS^%",
+# TYPE    | string
 password = ""

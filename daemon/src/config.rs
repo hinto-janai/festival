@@ -29,6 +29,9 @@ disk::toml!(Config, disk::Dir::Config, FESTIVAL, FRONTEND_SUB_DIR, "festivald");
 pub struct ConfigBuilder {
 	pub ip:              Option<Ipv4Addr>,
 	pub port:            Option<u16>,
+	pub threads_rpc:     Option<usize>,
+	pub threads_rest:    Option<usize>,
+	pub rest:            Option<bool>,
 	pub log_level:       Option<log::LevelFilter>,
 	pub log_daemon_only: Option<bool>,
 	pub watch:           Option<bool>,
@@ -41,6 +44,9 @@ impl ConfigBuilder {
 		let ConfigBuilder {
 			ip,
 			port,
+			threads_rpc,
+			threads_rest,
+			rest,
 			log_level,
 			log_daemon_only,
 			watch,
@@ -63,6 +69,9 @@ impl ConfigBuilder {
 		Config {
 			ip:              get!(ip,              "ip",              Ipv4Addr::LOCALHOST),
 			port:            get!(port,            "port",            FESTIVALD_PORT),
+			threads_rpc:     get!(threads_rpc,     "threads_rpc",     0),
+			threads_rest:    get!(threads_rest,    "threads_rest",    0),
+			rest:            get!(rest,            "rest",            true),
 			log_level:       get!(log_level,       "log-level",       log::LevelFilter::Info),
 			log_daemon_only: get!(log_daemon_only, "log-daemon-only", false),
 			watch:           get!(watch,           "watch",           true),
@@ -77,6 +86,9 @@ impl Default for ConfigBuilder {
 		Self {
 			ip:              Some(Ipv4Addr::LOCALHOST),
 			port:            Some(FESTIVALD_PORT),
+			threads_rpc:     Some(0),
+			threads_rest:    Some(0),
+			rest:            Some(true),
 			log_level:       Some(log::LevelFilter::Info),
 			log_daemon_only: Some(false),
 			watch:           Some(true),
@@ -91,6 +103,9 @@ impl Default for ConfigBuilder {
 pub struct Config {
 	pub ip:              std::net::Ipv4Addr,
 	pub port:            u16,
+	pub threads_rpc:     usize,
+	pub threads_rest:    usize,
+	pub rest:            bool,
 	pub log_level:       log::LevelFilter,
 	pub log_daemon_only: bool,
 	pub watch:           bool,
@@ -116,6 +131,9 @@ mod tests {
 		let t2 = t1.clone().build();
 		assert_eq!(t1.ip.unwrap(),              t2.ip);
 		assert_eq!(t1.port.unwrap(),            t2.port);
+		assert_eq!(t1.threads_rpc.unwrap(),     t2.threads_rpc);
+		assert_eq!(t1.threads_rest.unwrap(),    t2.threads_rest);
+		assert_eq!(t1.rest.unwrap(),            t2.rest);
 		assert_eq!(t1.log_level.unwrap(),       t2.log_level);
 		assert_eq!(t1.log_daemon_only.unwrap(), t2.log_daemon_only);
 		assert_eq!(t1.watch.unwrap(),           t2.watch);
