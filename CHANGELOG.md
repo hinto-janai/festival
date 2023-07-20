@@ -11,12 +11,11 @@ Types of changes:
 - `Fixed` for any bug fixes
 - `Security` in case of vulnerabilities
 
-While `festival-gui` is the only `Frontend` available, the changelog and release versions will refer to `festival-gui`'s version.
 
 ---
 
 
-# Unreleased
+# Festival GUI Unreleased
 ## Added
 * Drag-and-drop support for `Collection` folders ([#51](https://github.com/hinto-janai/festival/pull/51))
 
@@ -24,7 +23,7 @@ While `festival-gui` is the only `Frontend` available, the changelog and release
 ---
 
 
-# v1.1.0 - 2023-07-12
+# Festival GUI v1.1.0 - 2023-07-12
 Performance improvements. Expect 2x~ faster Collection resets (user time) and 5x~ faster overall time (including save).
 
 ## Changed
@@ -43,7 +42,7 @@ Performance improvements. Expect 2x~ faster Collection resets (user time) and 5x
 ---
 
 
-# v1.0.1 - 2023-07-02
+# Festival GUI v1.0.1 - 2023-07-02
 ## Added
 * `Pixels Per Point` setting for manual UI pixel sizing (https://github.com/hinto-janai/festival/commit/f1fc011fac05e6daec9894477e52030745fea25b)
 
@@ -58,5 +57,5 @@ Performance improvements. Expect 2x~ faster Collection resets (user time) and 5x
 ---
 
 
-# v1.0.0 - 2023-06-28
+# Festival GUI v1.0.0 - 2023-06-28
 The PGP key used to sign releases can be found at https://festival.pm/hinto or [`pgp/hinto-janai.asc`](https://github.com/hinto-janai/festival/blob/main/pgp/hinto-janai.asc).

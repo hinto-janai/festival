@@ -481,7 +481,7 @@ impl Kernel {
 			Stop                 => send!(self.to_audio, KernelToAudio::Clear(false)),
 			// Audio settings.
 			Repeat(r)            => send!(self.to_audio, KernelToAudio::Repeat(r)),
-			Volume(volume)       => send!(self.to_audio, KernelToAudio::Volume(volume)),
+			Volume(volume)       => send!(self.to_audio, KernelToAudio::Volume(volume.check())),
 			Seek(tuple)          => send!(self.to_audio, KernelToAudio::Seek(tuple)),
 
 			// Queue.
@@ -549,7 +549,7 @@ impl Kernel {
 			RepeatOff     => send!(self.to_audio, KernelToAudio::Repeat(Repeat::Off)),
 
 			// Content signals.
-			Volume(v)       => send!(self.to_audio, KernelToAudio::Volume(v)),
+			Volume(v)       => send!(self.to_audio, KernelToAudio::Volume(v.check())),
 			Clear(b)        => send!(self.to_audio, KernelToAudio::Clear(b)),
 			Seek(s)         => send!(self.to_audio, KernelToAudio::Seek((Seek::Absolute, s))),
 			SeekForward(s)  => send!(self.to_audio, KernelToAudio::Seek((Seek::Forward, s))),
