@@ -1,5 +1,12 @@
 //---------------------------------------------------------------------------------------------------- Use
-use const_format::assertcp;
+use const_format::{formatcp,assertcp};
+use shukusai::constants::{
+	COMMIT,
+	SHUKUSAI_NAME_VER,
+	COLLECTION_VERSION,
+	AUDIO_VERSION,
+	OS_ARCH,
+};
 
 //---------------------------------------------------------------------------------------------------- Version.
 /// `festivald` version
@@ -15,7 +22,23 @@ pub const FESTIVALD_VERSION: &str = {
 /// Just a string concatenating "festivald" and the current version, e.g: `festivald v0.0.1`
 pub const FESTIVALD_NAME_VER: &str = {
 	assertcp!(env!("CARGO_PKG_VERSION").len() != 0, "CARGO_PKG_VERSION is 0 length");
-	concat!("Festival v", env!("CARGO_PKG_VERSION"))
+	concat!("festivald v", env!("CARGO_PKG_VERSION"))
+};
+
+/// - festivald name + version
+/// - shukusai name + version
+/// - OS + Arch
+/// - Git commit hash
+/// - Binary struct versions
+pub const FESTIVALD_SHUKUSAI_COMMIT: &str = {
+	formatcp!(
+r#"{FESTIVALD_NAME_VER}
+{SHUKUSAI_NAME_VER}
+{OS_ARCH}
+Collection v{COLLECTION_VERSION}
+Audio v{AUDIO_VERSION}
+{COMMIT}
+"#)
 };
 
 //---------------------------------------------------------------------------------------------------- Network

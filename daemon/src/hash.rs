@@ -1,26 +1,58 @@
 //---------------------------------------------------------------------------------------------------- Use
 use sha3::{Digest, Sha3_256};
 use rand::Rng;
+use zeroize::{ZeroizeOnDrop,Zeroize};
 
 //---------------------------------------------------------------------------------------------------- __NAME__
-/// Get random 32 bytes.
-pub fn r32() -> [u8; 32] {
-	rand::thread_rng().gen()
+#[cfg_attr(debug_assertions, derive(Debug,PartialEq))]
+#[derive(Zeroize,ZeroizeOnDrop)]
+pub struct Hash {
+	// Contains hex-encoded hash input (with salt).
+	hash: String,
+
+	// The salt used.
+	salt: Salt,
 }
 
-/// Hash an input with a salt.
-pub fn sha3_256_salt(input: String, salt: &[u8; 32]) -> String {
-	// Hash.
-	let mut hasher = Sha3_256::new();
-	hasher.update(input);
-	hasher.update(salt);
+#[cfg_attr(debug_assertions, derive(Debug,PartialEq))]
+#[derive(Clone,Zeroize,ZeroizeOnDrop)]
+pub(super) struct Salt([u8; 32]);
 
-	// Hex encode.
-	hex::encode(hasher.finalize())
+impl Salt {
+	fn new() -> Self {
+		Self(rand::thread_rng().gen())
+	}
 }
 
-pub fn hash_same(hash: &str, salt: &[u8; 32], new_input: String) -> bool {
-	hash == sha3_256_salt(new_input, salt)
+impl Hash {
+	/// Hash an input with a random salt.
+	pub fn new(input: String) -> Self {
+		Self::with_salt(input, Salt::new())
+	}
+
+	pub(super) fn with_salt(input: String, salt: Salt) -> Self {
+		// Hash.
+		let mut hasher = Sha3_256::new();
+		hasher.update(input);
+		hasher.update(salt.0);
+
+		Self {
+			// Hex encode.
+			hash: hex::encode(hasher.finalize()),
+			salt,
+		}
+	}
+
+	/// Compare `self` with a hash of another `String`.
+	pub fn same(&self, new_input: String) -> bool {
+		let new = Hash::with_salt(new_input, self.salt.clone());
+		let cmp = &self.hash == &new.hash;
+
+		// Zero the memory.
+		drop(new);
+
+		cmp
+	}
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
@@ -28,26 +60,26 @@ pub fn hash_same(hash: &str, salt: &[u8; 32], new_input: String) -> bool {
 mod tests {
 	use super::*;
 
-	#[test]
-	fn same() {
-		let input = "input".to_string();
-		let salt  = [1; 32];
-		let hash  = sha3_256_salt(input.clone(), &salt);
-		assert!(hash_same(&hash, &salt, input));
-		assert!(!hash_same(&hash, &salt, "inputt".into()));
+	fn h1() -> Hash {
+		Hash::with_salt("h1".into(), Salt([0;32]))
+	}
+
+	fn h2() -> Hash {
+		Hash::with_salt("h2".into(), Salt([0;32]))
 	}
 
 	#[test]
-	fn rand() {
-		assert_ne!(r32(), r32());
+	fn same() {
+		assert_eq!(h1(), h1());
+		assert_ne!(h1(), h2());
 	}
 
 	#[test]
 	fn hash() {
-		assert_eq!(sha3_256_salt("input".into(), &[1; 32]).len(), 64);
-		assert_eq!(sha3_256_salt("input".into(), &[1; 32]), "045cae48d449c3c4e20a8f413c8e7f921b6858bf4ca7fa91f81f17f23736b8f0");
+		assert_eq!(h1().hash.len(), 64);
+		assert_eq!(h2().hash, "05db833ef2c1b99a2a345dfb0987e9917af31206142120025b248c939879dffe");
 
-		assert_ne!(sha3_256_salt("input".into(), &[1; 32]), sha3_256_salt("input".into(), &[0; 32]));
-		assert_ne!(sha3_256_salt("inputt".into(), &[1; 32]), sha3_256_salt("input".into(), &[1; 32]));
+		assert_eq!(h2().hash.len(), 64);
+		assert_eq!(h2().hash, "05db833ef2c1b99a2a345dfb0987e9917af31206142120025b248c939879dffe");
 	}
 }

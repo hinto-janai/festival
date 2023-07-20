@@ -17,10 +17,14 @@ use crate::constants::{
 	PIXELS_PER_POINT_MAX_STR,
 	STATE_VERSION,
 	SETTINGS_VERSION,
+	FESTIVAL_NAME_VER,
 };
 use shukusai::constants::{
 	COLLECTION_VERSION,
 	AUDIO_VERSION,
+	OS_ARCH,
+	COMMIT,
+	SHUKUSAI_NAME_VER,
 };
 use const_format::formatcp;
 
@@ -168,32 +172,12 @@ r#"*-------------------------------------------------------*
 | Command+Primary | Open Album/Song Directory           |
 *-------------------------------------------------------*"#;
 
-#[cfg(target_os = "windows")]
-#[cfg(target_arch = "x86_64")]
-const OS_ARCH: &str = "Windows x64";
-#[cfg(target_os = "macos")]
-#[cfg(target_arch = "aarch64")]
-const OS_ARCH: &str = "macOS arm64";
-#[cfg(target_os = "macos")]
-#[cfg(target_arch = "x86_64")]
-const OS_ARCH: &str = "macOS x64";
-#[cfg(target_os = "linux")]
-#[cfg(target_arch = "x86_64")]
-const OS_ARCH: &str = "Linux x64";
-
 /// - Festival name + version
 /// - shukusai name + version
 /// - OS + Arch
 /// - Git commit hash
 /// - Binary struct versions
 pub const FESTIVAL_SHUKUSAI_COMMIT: &str = {
-	use crate::constants::FESTIVAL_NAME_VER;
-
-	use shukusai::constants::{
-		COMMIT,
-		SHUKUSAI_NAME_VER,
-	};
-
 	formatcp!(
 r#"{FESTIVAL_NAME_VER}
 {SHUKUSAI_NAME_VER}

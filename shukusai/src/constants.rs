@@ -134,6 +134,23 @@ pub const COLLECTION_VERSION: u8 = 1;
 /// Current major version of the [`AudioState`]
 pub const AUDIO_VERSION: u8 = 0;
 
+#[cfg(target_os = "windows")]
+#[cfg(target_arch = "x86_64")]
+/// OS + Arch
+pub const OS_ARCH: &str = "Windows x64";
+#[cfg(target_os = "macos")]
+#[cfg(target_arch = "aarch64")]
+/// OS + Arch
+pub const OS_ARCH: &str = "macOS arm64";
+#[cfg(target_os = "macos")]
+#[cfg(target_arch = "x86_64")]
+/// OS + Arch
+pub const OS_ARCH: &str = "macOS x64";
+#[cfg(target_os = "linux")]
+#[cfg(target_arch = "x86_64")]
+/// OS + Arch
+pub const OS_ARCH: &str = "Linux x64";
+
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
 mod tests {
