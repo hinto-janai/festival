@@ -3,3 +3,9 @@ extend-ignore-identifiers-re = [
 	"seeked",
 	"Seeked",
 ]
+
+[files]
+extend-exclude = [
+	"daemon/src/cert.rs",
+	"external/",
+]
