@@ -16,6 +16,8 @@ use std::num::NonZeroUsize;
 use disk::{Bincode2, Json, Plain, Toml};
 use const_format::formatcp;
 use std::process::exit;
+use std::net::Ipv4Addr;
+use std::path::PathBuf;
 
 //---------------------------------------------------------------------------------------------------- CLI Parser (clap)
 #[cfg(windows)]
@@ -26,9 +28,13 @@ const BIN: &str = "festivald";
 const USAGE: &str = formatcp!(
 r#"{BIN} [OPTIONS] [COMMAND + OPTIONS] [ARGS...]
 
-    Example 1 | Print the PATH used by Festival    | {BIN} --path
-    Example 2 | Send play signal to local Festival | {BIN} signal --play
-    Example 3 | Set log level and send a signal    | {BIN} --log-level debug signal --index 1"#);
+    Example 1 | Start festivald on localhost (by default) | {BIN}
+    Example 2 | Print the PATH used by festivald          | {BIN} data --path
+    Example 3 | Send play signal to local festivald       | {BIN} signal --play
+    Example 4 | Set log level and send a signal           | {BIN} --log-level debug signal --index 1
+
+Arguments passed to `festivald` will always take
+priority over configuration options read from disk."#);
 
 #[derive(Parser)]
 // Clap puts a really ugly non-wrapping list
@@ -36,7 +42,7 @@ r#"{BIN} [OPTIONS] [COMMAND + OPTIONS] [ARGS...]
 #[command(override_usage = USAGE)]
 pub struct Cli {
 	#[command(subcommand)]
-	command: Option<Commands>,
+	command: Option<Command>,
 
 	#[arg(long, verbatim_doc_comment)]
 	/// The IPv4 address `festivald` will bind to [default: 127.0.0.1]
@@ -46,53 +52,54 @@ pub struct Cli {
 	/// The port `festivald` will bind to [default: 18425]
 	port: Option<u16>,
 
-	#[arg(long, verbatim_doc_comment)]
-	/// Threads used for JSON-RPC requests [default: all]
+	#[arg(long, verbatim_doc_comment, value_name = "NUMBER")]
+	/// Max amount of connections [default: unlimited]
 	///
-	/// `0` will spawn as many system threads you have.
-	threads_rpc: Option<usize>,
+	/// The max amount of connections `festivald`
+	/// will serve at any given moment.
+	/// `0` means unlimited.
+	max_connections: Option<usize>,
+
+	#[arg(long, verbatim_doc_comment, value_name = "IP")]
+	/// Only accept connections from these IPs
+	///
+	/// `festivald` will only serve connections coming
+	/// from these IPs. If there's no value given or
+	/// any of the values is "0.0.0.0", `festivald`
+	/// will serve all IP ranges.
+	///
+	/// To allow multiple IPs, use this flag per IP.
+	///
+	/// Example: `festivald --exclusive-ip 127.0.0.1 --exclusive-ip 192.168.2.1`
+	exclusive_ip: Option<Vec<Ipv4Addr>>,
+
+	#[arg(long, verbatim_doc_comment, requires = "certificate", requires = "key")]
+	/// Enable HTTPS
+	///
+	/// You must also provide a PEM-formatted X509 certificate
+	/// and key in the below options for this to work.
+	///
+	/// Example: `festivald --tls --certificate /path/to/cert.pem --key /path/to/key.pem`
+	tls: bool,
+
+	#[arg(long, verbatim_doc_comment, value_name = "FILE", requires = "key", requires = "tls")]
+	/// The PEM-formatted X509 certificate file used for TLS
+	certificate: Option<PathBuf>,
+
+	#[arg(long, verbatim_doc_comment, value_name = "FILE", requires = "certificate", requires = "tls")]
+	/// The PEM-formatted key file used for TLS
+	key: Option<PathBuf>,
 
 	#[arg(long, verbatim_doc_comment)]
-	/// Threads used for REST requests [default: all]
+	/// Enable direct downloads via the REST API for browsers
 	///
-	/// `0` will spawn as many system threads you have.
-	threads_rest: Option<usize>,
-
-	#[arg(long, verbatim_doc_comment)]
-	/// Password required for all requests [default: disabled]
+	/// By default, accessing the REST API via a browser
+	/// will open the resource in the browser (audio player,
+	/// image viewer, etc)
 	///
-	/// Only process `festivald` connections to
-	/// `festivald` that have this password.
-	/// Empty password disables this feature.
-	/// By default, this is sent in clear-text via HTTP.
-	/// Do not expect this to be anything more
-	/// than a small security measure.
-	password: Option<String>,
-
-	#[arg(long, verbatim_doc_comment)]
-	/// Print the PATHs used by Festival
-	///
-	/// All data saved by Festival is saved in these directories.
-	/// For more information, see:
-	/// https://github.com/hinto-janai/festival/tree/main/daemon#Disk
-	path: bool,
-
-	#[arg(long, verbatim_doc_comment)]
-	/// Print JSON metadata about the current `Collection` on disk
-	///
-	/// WARNING:
-	/// This output is not meant to be relied on (yet).
-	///
-	/// It it mostly for quick displaying and debugging
-	/// purposes and may be changed at any time.
-	///
-	/// This flag will attempt to parse the `Collection` that
-	/// is currently on disk and extract the metadata from it.
-	///
-	/// This also means the entire `Collection` will be read
-	/// and deserialized from disk, which may be very expensive
-	/// if you have a large `Collection`.
-	metadata: bool,
+	/// Using this flag will make browsers download
+	/// the file directly, without opening it.
+	direct_download: bool,
 
 	#[arg(long, verbatim_doc_comment, default_value_t = false)]
 	/// Disable watching the filesystem for signals
@@ -129,18 +136,6 @@ pub struct Cli {
 	disable_rest: bool,
 
 	#[arg(long, verbatim_doc_comment)]
-	/// Delete all Festival files that are currently on disk
-	///
-	/// This deletes all `daemon` Festival folder, which contains:
-	/// - The `Collection`
-	/// - `daemon` configuration (`festivald.toml`)
-	/// - Audio state (currently playing song, queue, etc)
-	/// - Cached images for the OS media controls
-	///
-	/// The PATH deleted will be printed on success.
-	delete: bool,
-
-	#[arg(long, verbatim_doc_comment)]
 	/// Only print logs for `festivald`
 	///
 	/// Logs that aren't directly from `festivald`, e.g
@@ -160,7 +155,11 @@ pub struct Cli {
 
 //---------------------------------------------------------------------------------------------------- Subcommands
 #[derive(Subcommand)]
-pub enum Commands {
+pub enum Command {
+	#[command(verbatim_doc_comment)]
+	/// Various utility commands relating to `festivald` data
+	Data(Data),
+
 	#[command(verbatim_doc_comment)]
 	/// Send a signal to a `festivald` running on the same machine
 	///
@@ -173,10 +172,54 @@ pub enum Commands {
 	Signal(Signal),
 }
 
-const USAGE_SIGNAL: &str = formatcp!("{BIN} signal OPTION [ARG]");
 
+//---------------------------------------------------------------------------------------------------- Subcommand - Data
 #[derive(Args)]
-#[command(override_usage = USAGE_SIGNAL)]
+#[command(arg_required_else_help(true))]
+#[command(override_usage = formatcp!("{BIN} data OPTION [ARG]"))]
+pub struct Data {
+	#[arg(long, verbatim_doc_comment)]
+	/// Print the PATHs used by Festival
+	///
+	/// All data saved by Festival is saved in these directories.
+	/// For more information, see:
+	/// https://github.com/hinto-janai/festival/tree/main/daemon#Disk
+	path: bool,
+
+	#[arg(long, verbatim_doc_comment)]
+	/// Print JSON metadata about the current `Collection` on disk
+	///
+	/// WARNING:
+	/// This output is not meant to be relied on (yet).
+	///
+	/// It it mostly for quick displaying and debugging
+	/// purposes and may be changed at any time.
+	///
+	/// This flag will attempt to parse the `Collection` that
+	/// is currently on disk and extract the metadata from it.
+	///
+	/// This also means the entire `Collection` will be read
+	/// and deserialized from disk, which may be very expensive
+	/// if you have a large `Collection`.
+	metadata: bool,
+
+	#[arg(long, verbatim_doc_comment)]
+	/// Delete all Festival files that are currently on disk
+	///
+	/// This deletes all `daemon` Festival folder, which contains:
+	/// - The `Collection`
+	/// - `daemon` configuration (`festivald.toml`)
+	/// - Audio state (currently playing song, queue, etc)
+	/// - Cached images for the OS media controls
+	///
+	/// The PATH deleted will be printed on success.
+	delete: bool,
+}
+
+//---------------------------------------------------------------------------------------------------- Subcommand - Signal
+#[derive(Args)]
+#[command(arg_required_else_help(true))]
+#[command(override_usage = formatcp!("{BIN} signal OPTION [ARG]"))]
 pub struct Signal {
 	#[arg(long)]
 	/// Start playback
@@ -223,24 +266,24 @@ pub struct Signal {
 	repeat_off: bool,
 
 	#[arg(long)]
-	#[arg(value_parser = clap::value_parser!(u8).range(0..=100))]
+	#[arg(value_parser = clap::value_parser!(u8).range(0..=100), value_name = "VOLUME")]
 	/// Set the volume to `VOLUME` (0-100)
 	volume: Option<u8>,
 
-	#[arg(long)]
-	/// Seek to the absolute `SEEK` second in the current song
+	#[arg(long, value_name = "SECOND")]
+	/// Seek to the absolute `SECOND` second in the current song
 	seek: Option<u64>,
 
-	#[arg(long)]
-	/// Seek `SEEK_FORWARD` seconds forwards in the current song
+	#[arg(long, value_name = "SECOND")]
+	/// Seek `SECOND` seconds forwards in the current song
 	seek_forward: Option<u64>,
 
-	#[arg(long)]
-	/// Seek `SEEK_BACKWARD` seconds backwards in the current song
+	#[arg(long, value_name = "SECOND")]
+	/// Seek `SECOND` seconds backwards in the current song
 	seek_backward: Option<u64>,
 
-	#[arg(long, verbatim_doc_comment)]
-	/// Set the current song to the index `INDEX` in the queue.
+	#[arg(long, verbatim_doc_comment, value_name = "NUMBER")]
+	/// Set the current song to the index `NUMBER` in the queue.
 	///
 	/// NOTE:
 	/// The queue index starts from 1 (first song is `--index 1`).
@@ -249,18 +292,18 @@ pub struct Signal {
 	/// will end the queue (even if repeat is turned on).
 	index: Option<NonZeroUsize>,
 
-	#[arg(long, verbatim_doc_comment)]
-	/// Skip `SKIP` amount of songs
+	#[arg(long, verbatim_doc_comment, value_name = "NUMBER")]
+	/// Skip `NUMBER` amount of songs
 	///
 	/// If the last song in the queue is skipped over,
 	/// and queue repeat is turned on, this will reset
 	/// the current song to the 1st in the queue.
 	skip: Option<usize>,
 
-	#[arg(long, verbatim_doc_comment)]
-	/// Go backwards in the queue by `BACK` amount of songs
+	#[arg(long, verbatim_doc_comment, value_name = "NUMBER")]
+	/// Go backwards in the queue by `NUMBER` amount of songs
 	///
-	/// If `BACK` is greater than the amount of songs we can
+	/// If `NUMBER` is greater than the amount of songs we can
 	/// skip backwards, this will reset the current song to
 	/// the 1st in the queue.
 	back: Option<usize>,
@@ -268,21 +311,38 @@ pub struct Signal {
 
 //---------------------------------------------------------------------------------------------------- CLI argument handling
 impl Cli {
-	#[inline(always)]
 	pub fn get() -> (bool, bool, log::LevelFilter) {
 		Self::parse().handle_args()
 	}
 
-	#[inline(always)]
-	pub fn handle_args(self) -> (bool, bool, log::LevelFilter) {
+	fn handle_args(self) -> (bool, bool, log::LevelFilter) {
 		// Version.
 		if self.version {
 			println!("{FESTIVALD_SHUKUSAI_COMMIT}\n{COPYRIGHT}");
 			exit(0);
 		}
 
+		self.handle_command();
+
+		// Return.
+		(self.disable_watch, self.disable_media_controls, self.log_level)
+	}
+
+	fn handle_command(&self) {
+		if let Some(c) = &self.command {
+			match c {
+				Command::Data(x)   => self.handle_data(x),
+				Command::Signal(x) => self.handle_signal(x),
+			}
+			exit(0);
+		} else {
+			return;
+		}
+	}
+
+	fn handle_data(&self, u: &Data) {
 		// Metadata.
-		if self.metadata {
+		if u.metadata {
 			match shukusai::collection::metadata() {
 				Ok(md) => { println!("{md}"); exit(0); },
 				Err(e) => { eprintln!("festival error: {e}"); exit(1); },
@@ -290,7 +350,7 @@ impl Cli {
 		}
 
 		// Path.
-		if self.path {
+		if u.path {
 			// SAFETY:
 			// If we can't get a PATH, `panic!()`'ing is fine.
 			let p = crate::config::Config::sub_dir_parent_path().unwrap();
@@ -313,12 +373,9 @@ impl Cli {
 //			}
 //		}
 //
-		// Return.
-		(self.disable_watch, self.disable_media_controls, self.log_level)
 	}
 
-	#[inline(always)]
-	pub fn handle_signal(s: Signal) -> ! {
+	pub fn handle_signal(&self, s: &Signal) -> ! {
 		fn handle<T>(result: Result<T, anyhow::Error>) {
 			if let Err(e) = result {
 				eprintln!("{BIN} error: {e}");

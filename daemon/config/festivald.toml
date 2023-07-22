@@ -19,36 +19,62 @@
 #
 # DEFAULT | "127.0.0.1"
 # EXAMPLE | "192.168.2.10", "0.0.0.0"
-# TYPE    | string
+# TYPE    | IPv4 string
 ip = "127.0.0.1"
 
 # The port `festivald` bind to.
 #
 # DEFAULT | 18425
-# EXAMPLE | 15000, 8080
+# EXAMPLE | 15000, 8080, 9999
 # TYPE    | 16-bit unsigned integer (0..65535)
 port = 18425
 
-#----------------------------------------------------------#
-#                         THREADS                          #
-#----------------------------------------------------------#
-# The amount of threads `festivald` will
-# use for handling JSON-RPC requests.
-# `0` will spawn as many system threads you have.
+# The max amount of connections `festivald`
+# will serve at any given moment.
+# `0` means unlimited.
 #
 # DEFAULT | 0
-# EXAMPLE | 2, 4, 5, 6, 7, 8, 16
+# EXAMPLE | 100, 1000, 10000, 100000
 # TYPE    | unsigned integer
-threads_rpc = 0
+max_connections = 0
 
-# The amount of threads `festivald` will
-# use for handling REST resource requests (audio, images).
-# `0` will spawn as many system threads you have.
+# `festivald` will only serve connections coming
+# from these IPs. An empty array `[]` or an array
+# containing "0.0.0.0" will serve all IP ranges.
 #
-# DEFAULT | 0
-# EXAMPLE | 2, 4, 5, 6, 7, 8, 16
-# TYPE    | unsigned integer
-threads_rest = 0
+# DEFAULT | []
+# EXAMPLE | ["127.0.0.1", "192.168.2.10", "13.248.169.48"]
+# TYPE    | array of IPv4 addresses
+exclusive_ips = []
+
+
+#----------------------------------------------------------#
+#                           TLS                            #
+#----------------------------------------------------------#
+# Enable/disable HTTPS.
+#
+# You must also provide a PEM-formatted X509 certificate and key
+# in the below options for this to work.
+#
+# DEFAULT | false
+# VALUES  | true, false
+# TYPE    | boolean
+tls = false
+
+# The PEM-formatted X509 certificate used for TLS.
+#
+# DEFAULT | ""
+# EXAMPLE | "/my/path/to/cert.pem"
+# TYPE    | PATH string
+certificate = ""
+
+# The PEM-formatted key for the above X509 certificate.
+#
+# DEFAULT | ""
+# EXAMPLE | "/my/path/to/key.pem"
+# TYPE    | PATH string
+key = ""
+
 
 #----------------------------------------------------------#
 #                           API                            #
@@ -65,6 +91,21 @@ threads_rest = 0
 # VALUES  | true, false
 # TYPE    | boolean
 rest = true
+
+# Enable/disable direct downloads via the REST API.
+#
+# By default, accessing the REST API via a browser
+# will open the resource in the browser (audio player,
+# image viewer, etc)
+#
+# Setting this to true will make browsers download
+# the file directly, without opening it.
+#
+# DEFAULT | false
+# VALUES  | true, false
+# TYPE    | boolean
+direct_download = false
+
 
 #----------------------------------------------------------#
 #                         LOGGING                          #
@@ -83,6 +124,7 @@ log_level = "info"
 # VALUES  | true, false
 # TYPE    | boolean
 log_daemon_only = false
+
 
 #----------------------------------------------------------#
 #                   FILESYSTEM WATCHING                    #
@@ -121,18 +163,3 @@ watch = true
 # VALUES  | true, false
 # TYPE    | boolean
 media_controls = true
-
-#----------------------------------------------------------#
-#                         PASSWORD                         #
-#----------------------------------------------------------#
-# Only process `festivald` connections to
-# `festivald` that have this password.
-# Empty password disables this feature.
-# By default, this is sent in clear-text via HTTP.
-# Do not expect this to be anything more
-# than a small security measure.
-#
-# DEFAULT | "" (disabled)
-# EXAMPLE | "my_password_123", "aoig2A%^$AWS^%",
-# TYPE    | string
-password = ""

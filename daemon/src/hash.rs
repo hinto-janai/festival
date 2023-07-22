@@ -8,8 +8,8 @@ use std::pin::Pin;
 const LEN: usize = 32;
 
 //---------------------------------------------------------------------------------------------------- Hash
-#[cfg_attr(debug_assertions, derive(Debug,PartialEq))]
-#[derive(Zeroize,ZeroizeOnDrop)]
+#[cfg_attr(debug_assertions, derive(Debug))]
+#[derive(Zeroize,ZeroizeOnDrop,PartialEq)]
 pub struct Hash {
 	// Contains hash output (with salt).
 	hash: PinBox,
@@ -44,8 +44,8 @@ impl Hash {
 	}
 }
 
-#[cfg_attr(debug_assertions, derive(Debug,PartialEq))]
-#[derive(Zeroize,ZeroizeOnDrop)]
+#[cfg_attr(debug_assertions, derive(Debug))]
+#[derive(Zeroize,ZeroizeOnDrop,PartialEq)]
 pub(super) struct PinBox(Pin<Box<[u8; LEN]>>);
 
 impl PinBox {

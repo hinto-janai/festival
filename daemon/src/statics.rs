@@ -15,7 +15,7 @@ use benri::{
 static CONNECTIONS: AtomicUsize = AtomicUsize::new(0);
 
 #[inline(always)]
-/// Get current connections count.
+/// Get connection count.
 pub fn connections() -> usize {
     atomic_load!(CONNECTIONS)
 }
