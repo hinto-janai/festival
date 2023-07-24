@@ -26,7 +26,6 @@ use std::collections::HashSet;
 use std::path::PathBuf;
 use crate::hash::Hash;
 use once_cell::sync::OnceCell;
-use std::process::exit;
 
 //---------------------------------------------------------------------------------------------------- Statics
 static CONFIG: OnceCell<Config> = OnceCell::new();
@@ -171,15 +170,13 @@ impl ConfigBuilder {
 
 		if let Some(ref cert) = c.certificate {
 			if !cert.exists() {
-				eprintln!("festivald error: TLS certificate [{}] does not exist", cert.display());
-				exit(1);
+				crate::exit!("TLS certificate [{}] does not exist", cert.display());
 			}
 		}
 
 		if let Some(ref key) = c.key {
 			if !key.exists() {
-				eprintln!("festivald error: TLS key [{}] does not exist", key.display());
-				exit(1);
+				crate::exit!("TLS key [{}] does not exist", key.display());
 			}
 		}
 
@@ -190,12 +187,10 @@ impl ConfigBuilder {
 				warn!("config [authorization] is empty, skipping");
 			// Look for `:` split.
 			} else if s.split_once(":").is_none() {
-				eprintln!("festivald error: [authorization] field is not in `USERNAME:PASSWORD` format");
-				exit(1);
+				crate::exit!("[authorization] field is not in `USERNAME:PASSWORD` format");
 			// Reject if TLS is not enabled.
 			} else if !c.tls || c.certificate.is_none() || c.key.is_none() {
-				eprintln!("festivald error: [authorization] field was provided but TLS is not enabled, exiting for safety");
-				exit(1);
+				crate::exit!("[authorization] field was provided but TLS is not enabled, exiting for safety");
 			} else {
 				// Base64 encode before hashing.
 				// This means we don't parse + decode every HTTP input,

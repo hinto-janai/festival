@@ -4,13 +4,15 @@ mod cli;
 mod config;
 mod constants;
 mod hash;
+mod macros;
 mod statics;
 mod rest;
+mod resp;
 mod rpc;
 mod router;
 mod tls;
 
-fn main() -> std::process::ExitCode {
+fn main() {
 	// Handle CLI arguments.
 	let (disable_watch, disable_media_controls, log) = {
 		if std::env::args_os().len() == 1 {
@@ -38,8 +40,5 @@ fn main() -> std::process::ExitCode {
 
 	// Start HTTP router.
 //	match crate::router::init(to_kernel, from_kernel, Default::default()) {
-	match crate::router::init(CONFIG) {
-		Ok(_)  => std::process::ExitCode::SUCCESS,
-		Err(e) => { eprintln!("festivald error: {e}"); std::process::ExitCode::FAILURE },
-	}
+	crate::router::init(CONFIG);
 }

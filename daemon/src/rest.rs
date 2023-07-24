@@ -13,35 +13,20 @@ use hyper::{
 	Response,
 	body::Body,
 };
-use http::{
-	request::Parts,
-	response::Builder,
-	StatusCode,
-};
 use mime::TEXT_PLAIN_UTF_8;
 use hyper::header::{
 	CONTENT_LENGTH,
 	CONTENT_TYPE,
 	CONTENT_DISPOSITION,
 };
+use crate::resp;
+use http::request::Parts;
 
 //---------------------------------------------------------------------------------------------------- Constants
 // Tells browsers to view files.
 const VIEW_IN_BROWSER:     &str = "inline";
 // Tells browsers to download files.
 const DOWNLOAD_IN_BROWSER: &str = "attachment";
-
-//---------------------------------------------------------------------------------------------------- Error
-// Generic response for unknown requests.
-fn resp(msg: &'static str) -> Response<Body> {
-	// SAFETY: This `.unwraps()` are safe. The content is static.
-	Builder::new()
-		.status(StatusCode::NOT_FOUND)
-		.header(CONTENT_TYPE, TEXT_PLAIN_UTF_8.essence_str())
-		.header(CONTENT_LENGTH, msg.len())
-		.body(Body::from(msg))
-		.unwrap()
-}
 
 //---------------------------------------------------------------------------------------------------- REST Handler
 pub async fn handle(
@@ -53,27 +38,27 @@ pub async fn handle(
 
 	let Some(ep1) = split.next() else {
 //		crate::router::sleep_on_fail_task(collection);
-		return Ok(resp("missing endpoint 1"));
+		return Ok(resp::not_found("missing endpoint 1"));
 	};
 
 	// `key` endpoint.
 	if ep1 == "key" {
 		let Some(ep2) = split.next() else {
-			return Ok(resp("missing endpoint: [artist/album/song]"));
+			return Ok(resp::not_found("missing endpoint: [artist/album/song]"));
 		};
 
 		let Some(ep3) = split.next() else {
-			return Ok(resp("missing endpoint: [key]"));
+			return Ok(resp::not_found("missing endpoint: [key]"));
 		};
 
 		// Return error if more than 3 endpoints.
 		if split.next().is_some() {
-			return Ok(resp("unknown endpoint"));
+			return Ok(resp::not_found("unknown endpoint"));
 		}
 
 		// Parse `usize` key.
 		let Ok(key) = ep3.parse::<usize>() else {
-			return Ok(resp("key parse failure"));
+			return Ok(resp::not_found("key parse failure"));
 		};
 
 		match ep2 {
@@ -81,23 +66,23 @@ pub async fn handle(
 			"album"  => key_album(key).await,
 			"song"   => key_song(key).await,
 			"art"    => key_art(key).await,
-			_        => Ok(resp("unknown endpoint")),
+			_        => Ok(resp::not_found("unknown endpoint")),
 		}
 	// `string` endpoint.
 	} else if ep1 == "string" {
 		let Some(ep2) = split.next() else {
-			return Ok(resp("missing endpoint: [artist]"));
+			return Ok(resp::not_found("missing endpoint: [artist]"));
 		};
 
 		let artist = match urlencoding::decode(ep2) {
 			Ok(a)  => a,
-			Err(e) => return Ok(resp("artist parse failure")),
+			Err(e) => return Ok(resp::not_found("artist parse failure")),
 		};
 
 		let album = if let Some(a) = split.next() {
 			match urlencoding::decode(a) {
 				Ok(a)  => Some(a),
-				Err(e) => return Ok(resp("album parse failure")),
+				Err(e) => return Ok(resp::not_found("album parse failure")),
 			}
 		} else {
 			None
@@ -106,7 +91,7 @@ pub async fn handle(
 		let song = if let Some(s) = split.next() {
 			match urlencoding::decode(s) {
 				Ok(a)  => Some(a),
-				Err(e) => return Ok(resp("song parse failure")),
+				Err(e) => return Ok(resp::not_found("song parse failure")),
 			}
 		} else {
 			None
@@ -114,7 +99,7 @@ pub async fn handle(
 
 		// Return error if more than 4 endpoints.
 		if split.next().is_some() {
-			return Ok(resp("unknown endpoint"));
+			return Ok(resp::not_found("unknown endpoint"));
 		}
 
 		match (album, song) {
@@ -125,29 +110,29 @@ pub async fn handle(
 	// `art` endpoint.
 	} else if ep1 == "art" {
 		let Some(artist) = split.next() else {
-			return Ok(resp("missing endpoint: [artist]"));
+			return Ok(resp::not_found("missing endpoint: [artist]"));
 		};
 
 		let Ok(artist) = urlencoding::decode(artist) else {
-			return Ok(resp("artist parse failure"));
+			return Ok(resp::not_found("artist parse failure"));
 		};
 
 		let Some(album) = split.next() else {
-			return Ok(resp("missing endpoint: [album]"));
+			return Ok(resp::not_found("missing endpoint: [album]"));
 		};
 
 		let Ok(album) = urlencoding::decode(album) else {
-			return Ok(resp("album parse failure"));
+			return Ok(resp::not_found("album parse failure"));
 		};
 
 		// Return error if more than 3 endpoints.
 		if split.next().is_some() {
-			return Ok(resp("unknown endpoint"));
+			return Ok(resp::not_found("unknown endpoint"));
 		}
 
 		art(artist.as_ref(), album.as_ref()).await
 	} else {
-		Ok(resp("unknown endpoint"))
+		Ok(resp::not_found("unknown endpoint"))
 	}
 }
 

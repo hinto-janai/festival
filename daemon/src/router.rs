@@ -58,6 +58,7 @@ use tokio::net::{
 	TcpListener,
 	TcpStream,
 };
+use crate::resp;
 
 //---------------------------------------------------------------------------------------------------- Router
 #[tokio::main]
@@ -65,9 +66,7 @@ pub async fn init(
 //	to_kernel:   Sender<FrontendToKernel>,
 //	from_kernel: Receiver<KernelToFrontend>,
 	config: &'static Config,
-)
-	-> Result<(), anyhow::Error>
-{
+) {
 	// These last forever.
 //	let TO_KERNEL:   &'static Sender<FrontendToKernel>   = Box::leak(Box::new(to_kernel));
 //	let FROM_KERNEL: &'static Receiver<KernelToFrontend> = Box::leak(Box::new(from_kernel));
@@ -76,7 +75,7 @@ pub async fn init(
 	let addr     = SocketAddrV4::new(config.ip, config.port);
 	let listener = match TcpListener::bind(addr).await {
 		Ok(l)  => l,
-		Err(e) => return Err(anyhow!("could not bind to [{addr}]: {e}")),
+		Err(e) => crate::exit!("could not bind to [{addr}]: {e}"),
 	};
 
 	// Wait until `Kernel` has given us `Arc<Collection>`.
@@ -144,6 +143,7 @@ pub async fn init(
 		}}
 	}
 
+	// Prints `protocol`, `ip`, and `port` in color.
 	macro_rules! listening {
 		() => {{
 			let protocol = if config.tls { "https" } else { "http" };
@@ -163,15 +163,18 @@ pub async fn init(
 		// Sanity-checks.
 		let path_cert = match &config.certificate {
 			Some(p) => p,
-			None    => return Err(anyhow!("TLS enabled but no certificate PATH provided")),
+			None    => crate::exit!("TLS enabled but no certificate PATH provided"),
 		};
 
 		let path_key = match &config.key {
 			Some(p) => p,
-			None    => return Err(anyhow!("TLS enabled but no key PATH provided")),
+			None    => crate::exit!("TLS enabled but no key PATH provided"),
 		};
 
-		let ACCEPTOR: &'static TlsAcceptor = crate::cert::get_tls_acceptor(&path_cert, &path_key)?;
+		let ACCEPTOR: &'static TlsAcceptor = match crate::cert::get_tls_acceptor(&path_cert, &path_key) {
+			Ok(a)  => a,
+			Err(e) => crate::exit!("failed to create TLS acceptor: {e}"),
+		};
 
 		listening!();
 
@@ -194,8 +197,6 @@ pub async fn init(
 			});
 		}
 	}
-
-	Ok(())
 }
 
 //---------------------------------------------------------------------------------------------------- Handle HTTP
@@ -251,8 +252,10 @@ async fn route(
 
 	if parts.uri == "/" && parts.method == hyper::Method::POST {
 		crate::rpc::handle(parts, body, addr).await
-	} else {
+	} else if parts.method == hyper::Method::GET {
 		crate::rest::handle(parts).await
+	} else {
+		Ok(resp::not_found("invalid request"))
 	}
 }
 
@@ -262,18 +265,6 @@ async fn auth(parts: &mut Parts) -> Option<Response<Body>> {
 	// If auth stuff isn't set in user's config, skip this.
 	let Some(hash) = AUTH.get() else { return None };
 
-	// Generic response for unauthorized requests.
-	fn resp(msg: &'static str) -> Response<Body> {
-		// SAFETY: This `.unwraps()` are safe. The content is static.
-		Builder::new()
-			.status(StatusCode::UNAUTHORIZED)
-			.header(CONTENT_TYPE, TEXT_PLAIN_UTF_8.essence_str())
-			.header(CONTENT_LENGTH, msg.len())
-			.header(WWW_AUTHENTICATE, r#"Basic realm="User Visible Realm", charset="UTF-8""#)
-			.body(Body::from(msg))
-			.unwrap()
-	}
-
 	match parts.headers.remove(AUTHORIZATION) {
 		// AUTH header exists.
 		Some(s) => {
@@ -282,21 +273,21 @@ async fn auth(parts: &mut Parts) -> Option<Response<Body>> {
 				Ok(s)  => s,
 				Err(e) => {
 					sleep_on_fail().await;
-					return Some(resp("authorization value is non-utf8"));
+					return Some(resp::unauthorized("authorization value is non-utf8"));
 				},
 			};
 
 			// Check if the hash matches our existing one.
 			if !hash.same(string) {
 				sleep_on_fail().await;
-				return Some(resp("authorization failed"));
+				return Some(resp::unauthorized("authorization failed"));
 			}
 		},
 
 		// AUTH header doesn't exist, reject this request.
 		None => {
 			sleep_on_fail().await;
-			return Some(resp("missing authorization"));
+			return Some(resp::unauthorized("missing authorization"));
 		},
 	}
 
