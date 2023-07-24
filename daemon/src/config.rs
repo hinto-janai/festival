@@ -169,13 +169,19 @@ impl ConfigBuilder {
 		}
 
 		if let Some(ref cert) = c.certificate {
-			if !cert.exists() {
+			if cert.as_os_str().is_empty() {
+				warn!("TLS certificate is empty PATH, ignoring");
+				c.certificate = None;
+			} else if !cert.exists() {
 				crate::exit!("TLS certificate [{}] does not exist", cert.display());
 			}
 		}
 
 		if let Some(ref key) = c.key {
-			if !key.exists() {
+			if key.as_os_str().is_empty() {
+				warn!("TLS key is empty PATH, ignoring");
+				c.key = None;
+			} else if !key.exists() {
 				crate::exit!("TLS key [{}] does not exist", key.display());
 			}
 		}

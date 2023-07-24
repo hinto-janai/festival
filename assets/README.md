@@ -8,3 +8,4 @@ Various images, audio, icons that `Festival` needs either directly or for testin
 | `images/`          | Images used throughout `Festival`
 | `festival/`        | Mimic of `~/.local/share/festival/${FRONTEND}` containing real `Frontend` data, for testing
 | `shukusai/`        | Mimic of `~/.local/share/festival` containing real `shukusai` data, for testing
+| `tls/`             | x509 TLS cert + key

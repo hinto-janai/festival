@@ -10,7 +10,6 @@ mod rest;
 mod resp;
 mod rpc;
 mod router;
-mod tls;
 
 fn main() {
 	// Handle CLI arguments.
