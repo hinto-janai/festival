@@ -65,6 +65,7 @@ strum        = { workspace = true }
 env_logger        = "0.10.0"
 fast_image_resize = "2.7.3"
 infer             = "0.13.0"
+jpeg-encoder      = { version = "0.5.1", features = ["simd"] }
 notify            = "6.0.0"
 memmap2           = "0.6.2"
 mime_guess        = "2.0.4"
@@ -72,10 +73,10 @@ rayon             = "1.7.0"
 souvlaki          = "0.6.1"
 symphonia         = { version = "0.5.2", path = "../external/Symphonia/symphonia", features = ["all"] }
 strsim            = "0.10.0"
+thread-priority   = "0.13.1"
 walkdir           = "2.3.3"
 zune-core         = "0.2.14"
 zune-jpeg         = "0.3.17"
-jpeg-encoder = { version = "0.5.1", features = ["simd"] }
 #zune-png          = "0.2.1"
 
 [target.'cfg(target_os = "linux")'.dependencies]
