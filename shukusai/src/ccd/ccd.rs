@@ -116,7 +116,7 @@ impl Ccd {
 
 				if Arc::strong_count(&old_collection) == 1 {
 					if let Some(c) = Arc::into_inner(old_collection) {
-//						let ctx = crate::frontend::egui::gui_context();
+//						let ctx = crate::frontend::gui::gui_context();
 //						crate::ccd::img::free_textures(&mut ctx.tex_manager().write());
 						drop(c);
 					} else {
@@ -476,7 +476,7 @@ mod tests {
 	fn convert_art() {
 		// Set-up inputs.
 		let (to_kernel, from_ccd) = crossbeam::channel::unbounded::<CcdToKernel>();
-		crate::frontend::egui::GUI_CONTEXT.set(egui::Context::default());
+		crate::frontend::gui::GUI_CONTEXT.set(egui::Context::default());
 
 		// Convert.
 		std::thread::spawn(move || {
@@ -508,7 +508,7 @@ mod tests {
 	fn new_collection() {
 		// Set-up inputs.
 		let (to_kernel, from_ccd) = crossbeam::channel::unbounded::<CcdToKernel>();
-		crate::frontend::egui::GUI_CONTEXT.set(egui::Context::default());
+		crate::frontend::gui::GUI_CONTEXT.set(egui::Context::default());
 		let old = Collection::new();
 		let old = Arc::new(old);
 		let paths = vec![PathBuf::from("../assets")];

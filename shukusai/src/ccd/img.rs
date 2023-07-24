@@ -20,8 +20,10 @@ use benri::{
 };
 use log::{warn, trace};
 use benri::log::fail;
-use crate::frontend::egui::gui_context;
 use std::path::{Path,PathBuf};
+
+#[cfg(feature = "gui")]
+use crate::frontend::gui::gui_context;
 
 //---------------------------------------------------------------------------------------------------- Album Art Constants.
 pub(crate) const ALBUM_ART_SIZE_NUM: NonZeroU32 = match NonZeroU32::new(ALBUM_ART_SIZE_U32) {
@@ -245,7 +247,7 @@ pub(super) fn alloc_textures(albums: &crate::collection::Albums) {
 	let ctx = gui_context();
 
 	// Wait until `GUI` has loaded at least 1 frame.
-	while !atomic_load!(crate::frontend::egui::GUI_UPDATING) {
+	while !atomic_load!(crate::frontend::gui::GUI_UPDATING) {
 		std::hint::spin_loop();
 	}
 

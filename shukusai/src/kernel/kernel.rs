@@ -41,7 +41,7 @@ use rayon::prelude::*;
 use std::time::Duration;
 
 #[cfg(feature = "gui")]
-use crate::frontend::egui::{
+use crate::frontend::gui::{
 	gui_context,
 	gui_request_update,
 };
@@ -127,7 +127,7 @@ impl Kernel {
 		{
 			let _ = Lazy::force(&UNKNOWN_ALBUM);
 
-			assert!(crate::frontend::egui::GUI_CONTEXT.get().is_some());
+			assert!(crate::frontend::gui::GUI_CONTEXT.get().is_some());
 
 			// INVARIANT:
 			// `GUI` must not allocate any textures before this.

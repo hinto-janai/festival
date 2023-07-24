@@ -1,6 +1,6 @@
-/// `egui`-specific
+/// `festival-gui`-specific
 #[cfg(feature = "gui")]
-pub mod egui;
+pub mod gui;
 
 /// `festivald`-specific
 #[cfg(feature = "daemon")]
