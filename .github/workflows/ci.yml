@@ -13,7 +13,7 @@ env:
   RUST_BACKTRACE: "full"
 
 jobs:
-  clippy:
+  ci:
     runs-on: ${{ matrix.os }}
 
     strategy:

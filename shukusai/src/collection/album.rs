@@ -69,11 +69,14 @@ pub struct Album {
 
 	/// The `Album`'s art.
 	///
-	/// `Frontend`'s don't need to access this field
+	/// `GUI` doesn't need to access this field
 	/// directly, instead, use `album.art_or()`.
-	pub art: Art, // Always initialized after `CCD`.
+	///
+	/// THIS TYPE IS DIFFERENT DEPENDING ON THE FRONTEND.
+	pub art: Art,
 }
 
+#[cfg(feature = "gui")]
 impl Album {
 	#[inline(always)]
 	/// Return the [`Album`] art.

@@ -76,7 +76,9 @@ impl Ccd {
 		old_collection: Arc<Collection>,
 		paths: Vec<PathBuf>,
 	) {
-		// `new_collection()` high-level overview:
+		// `new_collection()` high-level overview.
+		// This is for `GUI`, some steps may be
+		// added or skipped in other `Frontend`'s.
 		//
 		// 1. Destruct the old `Collection` and dealloc textures.
 		// 2. WalkDir given path(s), filtering for audio files.

@@ -13,3 +13,4 @@ license        = "MIT"
 description    = "Music player (daemon)"
 
 [dependencies]
+shukusai = { workspace = true, features = ["daemon", "panic"] }
