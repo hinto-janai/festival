@@ -2,10 +2,10 @@
 members = [
 	"shukusai",
 	"gui",
+	"daemon",
 ]
 exclude = [
 	"web",
-	"daemon",
 	"cli",
 	"tui",
 ]

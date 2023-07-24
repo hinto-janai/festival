@@ -44,7 +44,7 @@
 	missing_docs,
 	non_ascii_idents,
 	noop_method_call,
-	unreachable_pub,
+//	unreachable_pub,
 	single_use_lifetimes,
 	variant_size_differences,
 )]
@@ -62,6 +62,15 @@ compile_error!("shukusai is only compatible with 64-bit/32bit CPUs");
 	target_os = "linux",
 )))]
 compile_error!("shukusai is only tested on Window/macOS/Linux");
+
+#[cfg(any(
+    all(feature = "gui", any(feature = "daemon", feature = "cli", feature = "web", feature = "tui")),
+    all(feature = "daemon", any(feature = "gui", feature = "cli", feature = "web", feature = "tui")),
+))]
+compile_error!(
+r#"Multiple frontend feature flags enabled. Cargo doesn't allow non-additive features.
+
+Frontends must be built individually with `cargo build --package festival<FRONTEND_EXT>`"#);
 
 //---------------------------------------------------------------------------------------------------- Private `shukusai` internals.
 mod ccd;
