@@ -26,9 +26,11 @@ use std::collections::HashSet;
 use std::path::PathBuf;
 use crate::hash::Hash;
 use once_cell::sync::OnceCell;
+use shukusai::constants::DASH;
 
 //---------------------------------------------------------------------------------------------------- Statics
 static CONFIG: OnceCell<Config> = OnceCell::new();
+#[inline(always)]
 /// Acquire our runtime configuration.
 pub fn config() -> &'static Config {
 	// SAFETY: this should always get
@@ -227,6 +229,13 @@ impl ConfigBuilder {
 		} else {
 			warn!("missing config [authorization], skipping");
 		}
+
+		debug!("{DASH} Configuration");
+		for line in format!("{c:#?}").lines() {
+			debug!("{line}");
+		}
+		debug!("Authorization: {}", AUTH.get().is_some());
+		debug!("{DASH} Configuration");
 
 		// SAFETY: unwrap is okay, we only set `CONFIG` here.
 		CONFIG.set(c).unwrap();

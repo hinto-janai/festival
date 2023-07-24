@@ -120,7 +120,7 @@ pub async fn init(
 			// If we have an exclusive IP list, deny non-contained IP connections.
 			if let Some(ips) = &config.exclusive_ips {
 				if !ips.contains(ip) {
-					println!("ip not in exclusive list, skipping [{ip}]");
+					info!("ip not in exclusive list, skipping [{ip}]");
 					sleep_on_fail().await;
 					continue;
 				}
@@ -241,8 +241,6 @@ async fn route(
 	req:    Request<Body>,
 	addr:   SocketAddrV4,
 ) -> Result<Response<Body>, anyhow::Error> {
-//	println!("{:#?}", req);
-
 	let (mut parts, body) = req.into_parts();
 
 	// AUTHORIZATION.
@@ -253,7 +251,11 @@ async fn route(
 	if parts.uri == "/" && parts.method == hyper::Method::POST {
 		crate::rpc::handle(parts, body, addr).await
 	} else if parts.method == hyper::Method::GET {
-		crate::rest::handle(parts).await
+		if config().rest {
+			crate::rest::handle(parts).await
+		} else {
+			Ok(resp::not_found("rest is disabled"))
+		}
 	} else {
 		Ok(resp::not_found("invalid request"))
 	}
