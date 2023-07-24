@@ -38,6 +38,7 @@ use crossbeam::channel::{Sender,Receiver};
 use std::path::PathBuf;
 use once_cell::sync::Lazy;
 use rayon::prelude::*;
+use std::time::Duration;
 
 #[cfg(feature = "gui")]
 use crate::frontend::egui::{
@@ -385,16 +386,25 @@ impl Kernel {
 			collection,
 		};
 
+		// `Audio` scheduling.
+		// No `policy` API for Windows.
+		let audio_thread = thread_priority::ThreadBuilder::default()
+			.name("Audio".to_string())
+			.priority(thread_priority::ThreadPriority::Max);
+
+		#[cfg(target_os = "unix")]
+		let audio_thread = audio_thread
+			.policy(thread_priority::unix::ThreadSchedulePolicy::Realtime(thread_priority::unix::RealtimeThreadSchedulePolicy::Fifo));
+
 		// Spawn `Audio`.
 		let collection = Arc::clone(&kernel.collection);
-		match thread_priority::ThreadBuilder::default()
-			.name("Audio".to_string())
-			.priority(thread_priority::ThreadPriority::Max)
-			.spawn(move |result| {
-				debug!("Audio ... high priority spawn: {result:?}");
-				Audio::init(collection, audio, audio_send, audio_recv, media_controls);
-			})
-		{
+		match audio_thread.spawn(move |result| {
+			match result {
+				Ok(_) => debug!("Audio ... high priority spawn: OK"),
+				Err(e) => warn!("Audio ... high priority spawn error: {e:?}"),
+			}
+			Audio::init(collection, audio, audio_send, audio_recv, media_controls);
+		}) {
 			Ok(_)  => debug!("Kernel Init [10/12] ... spawned Audio"),
 			Err(e) => panic!("Kernel Init [10/12] ... failed to spawn Audio: {e}"),
 		}
