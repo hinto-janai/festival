@@ -387,9 +387,13 @@ impl Kernel {
 
 		// Spawn `Audio`.
 		let collection = Arc::clone(&kernel.collection);
-		match std::thread::Builder::new()
+		match thread_priority::ThreadBuilder::default()
 			.name("Audio".to_string())
-			.spawn(move || Audio::init(collection, audio, audio_send, audio_recv, media_controls))
+			.priority(thread_priority::ThreadPriority::Max)
+			.spawn(move |result| {
+				debug!("Audio ... high priority spawn: {result:?}");
+				Audio::init(collection, audio, audio_send, audio_recv, media_controls);
+			})
 		{
 			Ok(_)  => debug!("Kernel Init [10/12] ... spawned Audio"),
 			Err(e) => panic!("Kernel Init [10/12] ... failed to spawn Audio: {e}"),

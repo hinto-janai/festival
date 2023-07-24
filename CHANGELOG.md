@@ -19,6 +19,9 @@ Types of changes:
 ## Added
 * Drag-and-drop support for `Collection` folders ([#51](https://github.com/hinto-janai/festival/pull/51))
 
+## Fixed
+* Audio thread now has high priority, less cutouts during high CPU usage ([#50](https://github.com/hinto-janai/festival/issues/50))
+
 
 ---
 
