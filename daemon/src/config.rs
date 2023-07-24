@@ -24,8 +24,28 @@ use std::net::{
 };
 use std::collections::HashSet;
 use std::path::PathBuf;
+use crate::hash::Hash;
+use once_cell::sync::OnceCell;
+use std::process::exit;
+
+//---------------------------------------------------------------------------------------------------- Statics
+static CONFIG: OnceCell<Config> = OnceCell::new();
+/// Acquire our runtime configuration.
+pub fn config() -> &'static Config {
+	// SAFETY: this should always get
+	// initialized in the `.builder()` below.
+	unsafe { CONFIG.get_unchecked() }
+}
+
+// SAFETY: This does not get initialized if there's no `authorization` config.
+// This is okay because we will only ever use `.get()`.
+pub static AUTH: OnceCell<Hash> = OnceCell::new();
 
 //---------------------------------------------------------------------------------------------------- ConfigBuilder
+/// The `struct` that maps value directly from the disk.
+///
+/// We can't use this directly, but we can transform it into
+/// the `Config` we will be using for the rest of the program.
 disk::toml!(Config, disk::Dir::Config, FESTIVAL, FRONTEND_SUB_DIR, "festivald");
 #[derive(Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
 pub struct ConfigBuilder {
@@ -33,6 +53,7 @@ pub struct ConfigBuilder {
 	pub port:            Option<u16>,
 	pub max_connections: Option<usize>,
 	pub exclusive_ips:   Option<HashSet<Ipv4Addr>>,
+	pub sleep_on_fail:   Option<u64>,
 	pub tls:             Option<bool>,
 	pub certificate:     Option<PathBuf>,
 	pub key:             Option<PathBuf>,
@@ -42,6 +63,9 @@ pub struct ConfigBuilder {
 	pub log_daemon_only: Option<bool>,
 	pub watch:           Option<bool>,
 	pub media_controls:  Option<bool>,
+
+	// Statics.
+	pub authorization:	 Option<String>,
 }
 
 const DEFAULT_CONFIG_BUILDER: ConfigBuilder = ConfigBuilder {
@@ -49,15 +73,17 @@ const DEFAULT_CONFIG_BUILDER: ConfigBuilder = ConfigBuilder {
 	port:              Some(FESTIVALD_PORT),
 	max_connections:   None,
 	exclusive_ips:     None,
+	sleep_on_fail:     Some(3000),
 	tls:               Some(false),
 	certificate:       None,
 	key:               None,
 	rest:              Some(true),
-	direct_download:   Some(true),
+	direct_download:   Some(false),
 	log_level:         Some(log::LevelFilter::Info),
 	log_daemon_only:   Some(false),
 	watch:             Some(true),
 	media_controls:    Some(true),
+	authorization:     None,
 };
 
 impl ConfigBuilder {
@@ -65,12 +91,15 @@ impl ConfigBuilder {
 		DEFAULT_CONFIG_BUILDER
 	}
 
-	pub fn build(self) -> Config {
+	// INVARIANT: must be called once and only once.
+	// Sets `CONFIG`, and returns a ref.
+	pub fn build_and_set(self) -> &'static Config {
 		let ConfigBuilder {
 			ip,
 			port,
 			max_connections,
 			exclusive_ips,
+			sleep_on_fail,
 			tls,
 			certificate,
 			key,
@@ -80,6 +109,7 @@ impl ConfigBuilder {
 			log_daemon_only,
 			watch,
 			media_controls,
+			authorization,
 		} = self;
 
 		macro_rules! get {
@@ -111,6 +141,7 @@ impl ConfigBuilder {
 			port:              get!(port,              "port",              FESTIVALD_PORT),
 			max_connections:   sum!(max_connections,   "max_connections",   None::<usize>),
 			exclusive_ips:     sum!(exclusive_ips,     "exclusive_ips",     None::<HashSet<Ipv4Addr>>),
+			sleep_on_fail:     sum!(sleep_on_fail,     "sleep_on_fail",     Some(3000)),
 			tls:               get!(tls,               "tls",               false),
 			certificate:       sum!(certificate,       "certificate",       None::<PathBuf>),
 			key:               sum!(key,               "key",               None::<PathBuf>),
@@ -126,27 +157,63 @@ impl ConfigBuilder {
 			c.max_connections = None;
 		}
 
+		// FIXME TODO: testing tls.
+//		c.tls = true;
+//		c.certificate = Some(PathBuf::from("/tmp/cert.pem"));
+//		c.key = Some(PathBuf::from("/tmp/key.pem"));
+//		let authorization = Some("my_username:my_password".to_string());
+
 		if let Some(ref hs) = c.exclusive_ips {
-			if hs.is_empty() {
-				c.exclusive_ips = None;
-			} else if hs.contains(&Ipv4Addr::UNSPECIFIED) {
+			if hs.is_empty() ||  hs.contains(&Ipv4Addr::UNSPECIFIED) {
 				c.exclusive_ips = None;
 			}
 		}
 
 		if let Some(ref cert) = c.certificate {
 			if !cert.exists() {
-				c.certificate = None;
+				eprintln!("festivald error: TLS certificate [{}] does not exist", cert.display());
+				exit(1);
 			}
 		}
 
 		if let Some(ref key) = c.key {
 			if !key.exists() {
-				c.key = None;
+				eprintln!("festivald error: TLS key [{}] does not exist", key.display());
+				exit(1);
 			}
 		}
 
-		c
+		// AUTHORIZATION
+		if let Some(s) = authorization {
+			// Skip empty `username:password`.
+			if s.is_empty() {
+				warn!("config [authorization] is empty, skipping");
+			// Look for `:` split.
+			} else if s.split_once(":").is_none() {
+				eprintln!("festivald error: [authorization] field is not in `USERNAME:PASSWORD` format");
+				exit(1);
+			// Reject if TLS is not enabled.
+			} else if !c.tls || c.certificate.is_none() || c.key.is_none() {
+				eprintln!("festivald error: [authorization] field was provided but TLS is not enabled, exiting for safety");
+				exit(1);
+			} else {
+				// Base64 encode before hashing.
+				// This means we don't parse + decode every HTTP input,
+				// instead, we just hash it assuming it is in the correct
+				// `Basic <BASE64_ENCODED_USER_PASS>` format, then we
+				// can just directly compare with this.
+				let s = crate::base64::encode_with_authorization_basic_header(s);
+
+				// SAFETY: unwrap is okay, we only set `AUTH` here.
+				AUTH.set(Hash::new(s)).unwrap();
+			}
+		} else {
+			warn!("missing config [authorization], skipping");
+		}
+
+		// SAFETY: unwrap is okay, we only set `CONFIG` here.
+		CONFIG.set(c).unwrap();
+		config()
 	}
 }
 
@@ -157,12 +224,17 @@ impl Default for ConfigBuilder {
 }
 
 //---------------------------------------------------------------------------------------------------- Config
+/// The actual `struct` we will use for the whole program.
+///
+/// The global immutable copy the whole program will refer
+/// to is the static `CONFIG` in this module. Or, `config()`.
 #[derive(Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
 pub struct Config {
 	pub ip:                std::net::Ipv4Addr,
 	pub port:              u16,
 	pub max_connections:   Option<usize>,
 	pub exclusive_ips:     Option<HashSet<Ipv4Addr>>,
+	pub sleep_on_fail:     Option<u64>,
 	pub tls:               bool,
 	pub certificate:       Option<PathBuf>,
 	pub key:               Option<PathBuf>,
@@ -174,12 +246,6 @@ pub struct Config {
 	pub media_controls:    bool,
 }
 
-impl Default for Config {
-	fn default() -> Self {
-		ConfigBuilder::default().build()
-	}
-}
-
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
 mod tests {
@@ -189,9 +255,17 @@ mod tests {
 	#[test]
 	fn default() {
 		let t1: ConfigBuilder = toml_edit::de::from_str(&FESTIVALD_CONFIG).unwrap();
-		let t1 = t1.build();
-		let t2 = Config::default();
+		let t1 = t1.build_and_set();
+		let t2 = config();
 
 		assert_eq!(t1, t2);
+	}
+
+	#[test]
+	#[should_panic]
+	fn not_set() {
+		let c = config(); // UB, not initialized
+		println!("{c:#?}");
+		assert_eq!(config(), config());
 	}
 }

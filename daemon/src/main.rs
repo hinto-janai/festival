@@ -1,3 +1,4 @@
+mod base64;
 mod cert;
 mod cli;
 mod config;
@@ -31,9 +32,13 @@ fn main() -> std::process::ExitCode {
 //		Err(e)     => panic!("Kernel::spawn() failed: {e}"),
 //	};
 
+	// INVARIANT: Initialize `CONFIG`. This must be set, and once only.
+//	let CONFIG: &'static crate::config::Config = config_builder.build_and_set();
+	let CONFIG: &'static crate::config::Config = crate::config::ConfigBuilder::default().build_and_set();
+
 	// Start HTTP router.
 //	match crate::router::init(to_kernel, from_kernel, Default::default()) {
-	match crate::router::init(Default::default()) {
+	match crate::router::init(CONFIG) {
 		Ok(_)  => std::process::ExitCode::SUCCESS,
 		Err(e) => { eprintln!("festivald error: {e}"); std::process::ExitCode::FAILURE },
 	}

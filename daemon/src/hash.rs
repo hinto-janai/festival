@@ -18,6 +18,13 @@ pub struct Hash {
 	salt: PinBox,
 }
 
+#[cfg(not(debug_assertions))]
+impl std::fmt::Debug for Hash {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
+		write!(f, "crate::hash::Hash")
+	}
+}
+
 impl Hash {
 	/// Hash an input with a random salt.
 	pub fn new(input: String) -> Self {

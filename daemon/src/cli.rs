@@ -90,6 +90,50 @@ pub struct Cli {
 	/// The PEM-formatted key file used for TLS
 	key: Option<PathBuf>,
 
+	#[arg(long, verbatim_doc_comment, value_name = "USER:PASS", requires = "certificate", requires = "key", requires = "tls")]
+	/// Enforce a `username` and password for connections to `festivald`
+	///
+	/// Only process connections to `festivald` that have a
+	/// "authorization" HTTP header with this username and password.
+	///
+	/// TLS must be enabled for this feature to work
+	/// or `festivald` will refuse to start.
+	///
+	/// This value must be:
+	///   1. The "username"
+	///   2. Followed by a single colon ":"
+	///   3. Then the "password", e.g:
+	/// ```
+	/// curl -u my_user:my_password https://127.0.0.1:18425
+	/// ```
+	/// or the equivalent wget command:
+	/// ```
+	/// wget --user my_user --password my_password https://localhost:18425
+	/// ```
+	/// An example here would be: `festivald --authorization my_user:my_pass`
+	///
+	/// An empty string disables this feature.
+	authorization: Option<String>,
+
+	#[arg(long, verbatim_doc_comment, value_name = "MILLI")]
+	/// Sleep before responding to (potentially malicious) failed connections
+	///
+	/// Upon a failed, potentially malicious request, instead of
+	/// immediately responding, `festivald` will randomly sleep
+	/// up to this many milliseconds before responding to the connection.
+	///
+	/// This includes:
+	///   - Authentication failure
+	///   - IPs not in the `exclusive_ips` list
+	///   - IPv6 connections
+	///
+	/// If 0, `festivald` will immediately respond. This may
+	/// not be wanted to due potential DoS and timing attacks.
+	///
+	/// If you're hosting locally (127.0.0.1), you can set this
+	/// to 0 (unless you don't trust your local network?).
+	sleep_on_fail: Option<u64>,
+
 	#[arg(long, verbatim_doc_comment)]
 	/// Enable direct downloads via the REST API for browsers
 	///

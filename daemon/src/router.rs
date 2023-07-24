@@ -1,11 +1,10 @@
 //---------------------------------------------------------------------------------------------------- Use
+use zeroize::Zeroize;
 use bincode::{Encode,Decode};
 use serde::{Serialize,Deserialize};
 use anyhow::anyhow;
 use log::{error,info,warn,debug,trace};
 use disk::{Bincode2,Json};
-use crate::config::Config;
-use crate::hash::Hash;
 use std::sync::Arc;
 use std::net::{
 	Ipv4Addr,
@@ -15,20 +14,42 @@ use hyper::{
 	body::Body,
 	server::conn::Http,
 	service::service_fn,
+	http::{
+		Request,
+		Response,
+		StatusCode,
+	},
 };
-use hyper::http::{Request, Response, StatusCode};
-use std::convert::Infallible;
+use http::{
+	header::{
+		AUTHORIZATION,
+		CONTENT_TYPE,
+		CONTENT_LENGTH,
+		WWW_AUTHENTICATE,
+	},
+	response::Builder,
+	request::Parts,
+};
+use mime::{
+	TEXT_PLAIN_UTF_8,
+};
 use crossbeam::channel::{
 	Sender,Receiver,
 };
 use shukusai::{
+	collection::Collection,
 	kernel::{
 		FrontendToKernel,
 		KernelToFrontend,
 	},
 	constants::DASH,
 };
-use crate::statics::ConnectionToken;
+use crate::{
+	config::AUTH,
+	statics::ConnectionToken,
+	config::{config,Config,ConfigBuilder},
+	hash::Hash,
+};
 use tokio_native_tls::{
 	TlsAcceptor,
 	TlsStream,
@@ -43,10 +64,14 @@ use tokio::net::{
 pub async fn init(
 //	to_kernel:   Sender<FrontendToKernel>,
 //	from_kernel: Receiver<KernelToFrontend>,
-	config:      Config,
+	config: &'static Config,
 )
 	-> Result<(), anyhow::Error>
 {
+	// These last forever.
+//	let TO_KERNEL:   &'static Sender<FrontendToKernel>   = Box::leak(Box::new(to_kernel));
+//	let FROM_KERNEL: &'static Receiver<KernelToFrontend> = Box::leak(Box::new(from_kernel));
+
 	// Bind to address.
 	let addr     = SocketAddrV4::new(config.ip, config.port);
 	let listener = match TcpListener::bind(addr).await {
@@ -54,11 +79,21 @@ pub async fn init(
 		Err(e) => return Err(anyhow!("could not bind to [{addr}]: {e}")),
 	};
 
-	// These last forever.
-//	let TO_KERNEL:   &'static Sender<FrontendToKernel>   = Box::leak(Box::new(to_kernel));
-//	let FROM_KERNEL: &'static Receiver<KernelToFrontend> = Box::leak(Box::new(from_kernel));
-	let CONFIG:      &'static Config                     = Box::leak(Box::new(config));
+	// Wait until `Kernel` has given us `Arc<Collection>`.
+//	let collection = loop {
+//		match recv!(from_kernel) {
+//			KernelToFrontend::NewCollection(c) => break c,
+//			_ => (),
+//		}
+//	};
 
+	// Instead of branching everytime for HTTP/HTTPS or
+	// using dynamic dispatch or an enum and matching it,
+	// we'll just "implement" the main loop "twice".
+	//
+	// We branch below _once_ depending on HTTP/HTTPS, then
+	// we enter this loop. No matching every request, no
+	// dynamic dispatch :)
 	macro_rules! impl_loop {
 		() => {{
 			// Begin router loop.
@@ -70,23 +105,31 @@ pub async fn init(
 
 			// Only accept IPv4.
 			let addr = match addr {
-				std::net::SocketAddr::V4(addr) => { info!("new connection: [{}]", addr.ip()); addr },
-				std::net::SocketAddr::V6(addr) => { warn!("skipping ipv6 connection: [{}]", addr.ip()); continue; },
+				std::net::SocketAddr::V4(addr) => {
+					info!("new connection: [{}]", addr.ip());
+					addr
+				},
+				std::net::SocketAddr::V6(addr) => {
+					warn!("skipping ipv6 connection: [{}]", addr.ip());
+					sleep_on_fail().await;
+					continue;
+				},
 			};
 
 			let ip = addr.ip();
 
 			// If we have an exclusive IP list, deny non-contained IP connections.
-			if let Some(ips) = &CONFIG.exclusive_ips {
+			if let Some(ips) = &config.exclusive_ips {
 				if !ips.contains(ip) {
 					println!("ip not in exclusive list, skipping [{ip}]");
+					sleep_on_fail().await;
 					continue;
 				}
 			}
 
 			// If we are past the connection limit, wait until some
 			// tasks are done before serving new connections.
-			if let Some(max) = CONFIG.max_connections {
+			if let Some(max) = config.max_connections {
 				if crate::statics::connections() > max {
 					// Only log once.
 					warn!("past max connections [{max}], waiting before serving [{ip}]...");
@@ -103,7 +146,7 @@ pub async fn init(
 
 	macro_rules! listening {
 		() => {{
-			let protocol = if CONFIG.tls { "https" } else { "http" };
+			let protocol = if config.tls { "https" } else { "http" };
 
 			const PURPLE: &str = "\x1b[1;95m";
 			const YELLOW: &str = "\x1b[1;93m";
@@ -115,15 +158,15 @@ pub async fn init(
 		}}
 	}
 
-	// If `HTTPs`
-	if CONFIG.tls {
+	// If `HTTPS`, start main `HTTPS` loop.
+	if config.tls {
 		// Sanity-checks.
-		let path_cert = match &CONFIG.certificate {
+		let path_cert = match &config.certificate {
 			Some(p) => p,
 			None    => return Err(anyhow!("TLS enabled but no certificate PATH provided")),
 		};
 
-		let path_key = match &CONFIG.key {
+		let path_key = match &config.key {
 			Some(p) => p,
 			None    => return Err(anyhow!("TLS enabled but no key PATH provided")),
 		};
@@ -136,10 +179,10 @@ pub async fn init(
 			let (stream, addr) = impl_loop!();
 
 			tokio::task::spawn(async move {
-				https(ConnectionToken::new(), stream, addr, CONFIG, ACCEPTOR).await;
+				https(ConnectionToken::new(), stream, addr, ACCEPTOR).await;
 			});
 		}
-	// Else If `HTTP`
+	// Else If `HTTP`, start main `HTTP` loop (the exact same, but without TLS).
 	} else {
 		listening!();
 
@@ -147,7 +190,7 @@ pub async fn init(
 			let (stream, addr) = impl_loop!();
 
 			tokio::task::spawn(async move {
-				http(ConnectionToken::new(), stream, addr, CONFIG).await;
+				http(ConnectionToken::new(), stream, addr).await;
 			});
 		}
 	}
@@ -156,14 +199,14 @@ pub async fn init(
 }
 
 //---------------------------------------------------------------------------------------------------- Handle HTTP
+// Handle HTTP requests.
 async fn http(
 	_c:     ConnectionToken,
 	stream: TcpStream,
 	addr:   SocketAddrV4,
-	config: &'static Config,
 ) {
 	if let Err(e) = Http::new()
-		.serve_connection(stream, service_fn(|r| route(r, addr, config)))
+		.serve_connection(stream, service_fn(|r| route(r, addr)))
 		.await
 	{
 		error!("HTTP error for [{}]: {e}", addr.ip());
@@ -171,11 +214,11 @@ async fn http(
 }
 
 //---------------------------------------------------------------------------------------------------- Handle HTTPS
+// Handle HTTPS requests.
 async fn https(
 	_c:       ConnectionToken,
 	stream:   TcpStream,
 	addr:     SocketAddrV4,
-	config:   &'static Config,
 	acceptor: &'static TlsAcceptor,
 ) {
 	let stream = match acceptor.accept(stream).await {
@@ -184,7 +227,7 @@ async fn https(
 	};
 
 	if let Err(e) = Http::new()
-		.serve_connection(stream, service_fn(|r| route(r, addr, config)))
+		.serve_connection(stream, service_fn(|r| route(r, addr)))
 		.await
 	{
 		error!("HTTPS error for [{}]: {e}", addr.ip());
@@ -192,18 +235,95 @@ async fn https(
 }
 
 //---------------------------------------------------------------------------------------------------- Handle Routes
+// Route requests to other functions.
 async fn route(
 	req:    Request<Body>,
 	addr:   SocketAddrV4,
-	config: &'static Config,
 ) -> Result<Response<Body>, anyhow::Error> {
-	let (parts, body) = req.into_parts();
+//	println!("{:#?}", req);
+
+	let (mut parts, body) = req.into_parts();
+
+	// AUTHORIZATION.
+	if let Some(resp) = auth(&mut parts).await {
+		return Ok(resp);
+	}
 
 	if parts.uri == "/" && parts.method == hyper::Method::POST {
-		crate::rpc::handle(parts, body, addr, config).await
+		crate::rpc::handle(parts, body, addr).await
 	} else {
-		crate::rest::handle(parts, body, addr, config).await
+		crate::rest::handle(parts).await
 	}
+}
+
+//---------------------------------------------------------------------------------------------------- Auth
+// Verify authentication, ask for it, or ignore if none is set in our config.
+async fn auth(parts: &mut Parts) -> Option<Response<Body>> {
+	// If auth stuff isn't set in user's config, skip this.
+	let Some(hash) = AUTH.get() else { return None };
+
+	// Generic response for unauthorized requests.
+	fn resp(msg: &'static str) -> Response<Body> {
+		// SAFETY: This `.unwraps()` are safe. The content is static.
+		Builder::new()
+			.status(StatusCode::UNAUTHORIZED)
+			.header(CONTENT_TYPE, TEXT_PLAIN_UTF_8.essence_str())
+			.header(CONTENT_LENGTH, msg.len())
+			.header(WWW_AUTHENTICATE, r#"Basic realm="User Visible Realm", charset="UTF-8""#)
+			.body(Body::from(msg))
+			.unwrap()
+	}
+
+	match parts.headers.remove(AUTHORIZATION) {
+		// AUTH header exists.
+		Some(s) => {
+			// Attempt to turn into UTF-8 string.
+			let string = match String::from_utf8(s.as_bytes().into()) {
+				Ok(s)  => s,
+				Err(e) => {
+					sleep_on_fail().await;
+					return Some(resp("authorization value is non-utf8"));
+				},
+			};
+
+			// Check if the hash matches our existing one.
+			if !hash.same(string) {
+				sleep_on_fail().await;
+				return Some(resp("authorization failed"));
+			}
+		},
+
+		// AUTH header doesn't exist, reject this request.
+		None => {
+			sleep_on_fail().await;
+			return Some(resp("missing authorization"));
+		},
+	}
+
+	// If we're here, that means AUTH went OK.
+	None
+}
+
+//---------------------------------------------------------------------------------------------------- Sleep
+// Sleep for a random while.
+// Used for timing out requests, preventing timing attacks, etc.
+async fn sleep_on_fail() {
+	use rand::{Rng,thread_rng};
+
+	if let Some(end) = config().sleep_on_fail {
+		let millis = thread_rng().gen_range(0..end);
+		trace!("sleeping for {millis} millis");
+		tokio::time::sleep(std::time::Duration::from_millis(millis)).await;
+	}
+}
+
+// Same as above but used for spawned `task`.
+//
+// Since this function is used before a task exits,
+// we should drop the `Collection` as to not block any reset requests.
+async fn sleep_on_fail_task(c: Arc<Collection>) {
+	drop(c);
+	sleep_on_fail().await;
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

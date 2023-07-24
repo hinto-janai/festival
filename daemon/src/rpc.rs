@@ -20,7 +20,6 @@ pub async fn handle(
 	parts:  Parts,
 	body:   Body,
 	addr:   SocketAddrV4,
-	config: &'static Config,
 ) -> Result<Response<Body>, anyhow::Error> {
 	let body = hyper::body::to_bytes(body).await?;
 
