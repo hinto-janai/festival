@@ -188,6 +188,22 @@ impl ConfigBuilder {
 
 		// AUTHORIZATION
 		if let Some(s) = authorization {
+			// Check if it's a PATH or a String.
+			let path = PathBuf::from(&s);
+			let s = if path.is_absolute() && path.exists() {
+				match std::fs::read_to_string(path) {
+					Ok(s) => {
+						match s.lines().next() {
+							Some(s) => s.to_string(),
+							None    => crate::exit!("[authorization] PATH file is empty"),
+						}
+					},
+					Err(e) => crate::exit!("[authorization] PATH read error: {e}"),
+				}
+			} else {
+				s
+			};
+
 			// Skip empty `username:password`.
 			if s.is_empty() {
 				warn!("config [authorization] is empty, skipping");

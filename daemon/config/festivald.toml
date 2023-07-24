@@ -57,7 +57,7 @@ exclusive_ips = []
 #   - IPv6 connections
 #
 # If 0, `festivald` will immediately respond. This may
-# not be wanted to due potential DoS and timing attacks.
+# not be wanted due to potential DoS and timing attacks.
 #
 # If you're hosting locally (127.0.0.1), you can set this
 # to 0 (unless you don't trust your local network?).
@@ -200,16 +200,27 @@ media_controls = true
 #   2. Followed by a single colon ":"
 #   3. Then the "password", e.g:
 # ```
-# curl -u my_user:my_password https://127.0.0.1:18425
+# curl -u my_user:my_pass https://127.0.0.1:18425
 # ```
 # or the equivalent wget command:
 # ```
-# wget --user my_user --password my_password https://localhost:18425
+# wget --user my_user --password my_pass https://localhost:18425
 # ```
 #
 # An empty string disables this feature.
 #
+# Alternatively, you can input an absolute PATH to a file
+# `festivald` can access, containing the string, e.g:
+# ```
+# authorization = "/path/to/user_and_pass.txt"
+# ```
+# In this case, `festivald` will read the file and attempt
+# to parse it with the same syntax, i.e, the file should contain:
+# ```
+# my_user:my_pass
+# ```
+#
 # DEFAULT | "" (disabled)
-# EXAMPLE | "my_username:my_password", "my_username:aoig2A%^$AWS^%",
-# TYPE    | string
+# EXAMPLE | "my_username:my_password", "my_username:aoig2A%^$AWS^%", "/path/to/file"
+# TYPE    | string or PATH to file
 authorization = ""

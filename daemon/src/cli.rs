@@ -90,8 +90,8 @@ pub struct Cli {
 	/// The PEM-formatted key file used for TLS
 	key: Option<PathBuf>,
 
-	#[arg(long, verbatim_doc_comment, value_name = "USER:PASS", requires = "certificate", requires = "key", requires = "tls")]
-	/// Enforce a `username` and password for connections to `festivald`
+	#[arg(long, verbatim_doc_comment, value_name = "USER:PASS or FILE", requires = "certificate", requires = "key", requires = "tls")]
+	/// Enforce a `username` and `password` for connections to `festivald`
 	///
 	/// Only process connections to `festivald` that have a
 	/// "authorization" HTTP header with this username and password.
@@ -104,15 +104,20 @@ pub struct Cli {
 	///   2. Followed by a single colon ":"
 	///   3. Then the "password", e.g:
 	/// ```
-	/// curl -u my_user:my_password https://127.0.0.1:18425
+	/// festivald --authorization my_user:my_pass
 	/// ```
-	/// or the equivalent wget command:
-	/// ```
-	/// wget --user my_user --password my_password https://localhost:18425
-	/// ```
-	/// An example here would be: `festivald --authorization my_user:my_pass`
-	///
 	/// An empty string disables this feature.
+	///
+	/// Alternatively, you can input an absolute PATH to a file
+	/// `festivald` can access, containing the string, e.g:
+	/// ```
+	/// festivald --authorization "/path/to/user_and_pass.txt"
+	/// ```
+	/// In this case, `festivald` will read the file and attempt
+	/// to parse it with the same syntax, i.e, the file should contain:
+	/// ```
+	/// my_user:my_pass
+	/// ```
 	authorization: Option<String>,
 
 	#[arg(long, verbatim_doc_comment, value_name = "MILLI")]
