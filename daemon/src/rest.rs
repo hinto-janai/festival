@@ -24,7 +24,7 @@ use http::request::Parts;
 
 //---------------------------------------------------------------------------------------------------- Constants
 // Tells browsers to view files.
-const VIEW_IN_BROWSER:     &str = "inline";
+const VIEW_IN_BROWSER: &str = "inline";
 // Tells browsers to download files.
 const DOWNLOAD_IN_BROWSER: &str = "attachment";
 
@@ -41,7 +41,7 @@ pub async fn handle(
 		return Ok(resp::not_found("missing endpoint 1"));
 	};
 
-	// `key` endpoint.
+	//-------------------------------------------------- `key` endpoint.
 	if ep1 == "key" {
 		let Some(ep2) = split.next() else {
 			return Ok(resp::not_found("missing endpoint: [artist/album/song]"));
@@ -68,7 +68,7 @@ pub async fn handle(
 			"art"    => key_art(key).await,
 			_        => Ok(resp::not_found("unknown endpoint")),
 		}
-	// `string` endpoint.
+	//-------------------------------------------------- `string` endpoint.
 	} else if ep1 == "string" {
 		let Some(ep2) = split.next() else {
 			return Ok(resp::not_found("missing endpoint: [artist]"));
@@ -107,7 +107,7 @@ pub async fn handle(
 			(Some(a), Some(s)) => string_song(artist.as_ref(), a.as_ref(), s.as_ref()).await,
 			_                  => string_artist(artist.as_ref()).await,
 		}
-	// `art` endpoint.
+	//-------------------------------------------------- `art` endpoint.
 	} else if ep1 == "art" {
 		let Some(artist) = split.next() else {
 			return Ok(resp::not_found("missing endpoint: [artist]"));
@@ -131,6 +131,7 @@ pub async fn handle(
 		}
 
 		art(artist.as_ref(), album.as_ref()).await
+	//-------------------------------------------------- unknown endpoint.
 	} else {
 		Ok(resp::not_found("unknown endpoint"))
 	}

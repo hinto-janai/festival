@@ -14,8 +14,7 @@ description    = "Music player (daemon)"
 
 [dependencies]
 ### Personal Libraries.
-# FIXME: change `gui` to `daemon` once `shukusai` is no longer coupled
-shukusai = { workspace = true, features = ["gui", "panic"] }
+shukusai = { workspace = true, features = ["daemon", "panic"] }
 benri    = { workspace = true }
 disk     = { workspace = true }
 readable = { workspace = true }
