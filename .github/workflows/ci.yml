@@ -98,7 +98,6 @@ jobs:
         fi
 
     - name: Archive
-      if: matrix.build == 'release'
       uses: actions/upload-artifact@v3
       with:
         name: festival-${{ matrix.os }}

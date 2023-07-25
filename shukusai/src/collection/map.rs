@@ -13,8 +13,7 @@ use crate::collection::{
 use std::sync::Arc;
 
 //---------------------------------------------------------------------------------------------------- Map
-#[derive(Clone,Debug,Default,Serialize,Deserialize,PartialEq,Encode,Decode)]
-#[serde(transparent)]
+#[derive(Clone,Debug,Default,PartialEq,Encode,Decode)]
 /// A [`HashMap`] that knows all [`Artist`]'s, [`Album`]'s and [`Song`]'s.
 ///
 /// No public functions are implemented on this type directly,
@@ -63,13 +62,11 @@ impl Map {
 }
 
 //---------------------------------------------------------------------------------------------------- AlbumMap
-#[derive(Clone,Debug,Default,Serialize,Deserialize,PartialEq,Encode,Decode)]
-#[serde(transparent)]
+#[derive(Clone,Debug,Default,PartialEq,Encode,Decode)]
 pub(crate) struct AlbumMap(pub(crate) HashMap<Arc<str>, (AlbumKey, SongMap)>);
 
 //---------------------------------------------------------------------------------------------------- SongMap
-#[derive(Clone,Debug,Default,Serialize,Deserialize,PartialEq,Encode,Decode)]
-#[serde(transparent)]
+#[derive(Clone,Debug,Default,PartialEq,Encode,Decode)]
 pub(crate) struct SongMap(pub(crate) HashMap<Arc<str>, SongKey>);
 
 //---------------------------------------------------------------------------------------------------- TESTS

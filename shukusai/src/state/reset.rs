@@ -74,7 +74,7 @@ impl ResetStateLock {
 /// There is only a single, global copy of this struct that `Kernel` uses.
 ///
 /// To obtain a read-only lock, use `RESET_STATE.read()`.
-#[derive(Clone,Debug,PartialOrd,PartialEq,Serialize,Deserialize)]
+#[derive(Clone,Debug,PartialOrd,PartialEq)]
 pub struct ResetState {
 	/// [`bool`] representing: Are we currently resetting the [`Collection`]?
 	pub resetting: bool,

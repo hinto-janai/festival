@@ -1,4 +1,5 @@
 //---------------------------------------------------------------------------------------------------- Use
+use bincode::{Encode,Decode};
 use once_cell::sync::Lazy;
 use std::path::PathBuf;
 
@@ -9,10 +10,16 @@ pub const ALBUM_ART_SIZE: usize = 500;
 pub(crate) const UNKNOWN_ALBUM_BYTES: &[u8] = include_bytes!("../../../../assets/images/art/unknown.png");
 
 //---------------------------------------------------------------------------------------------------- Art
-#[derive(Default)]
+#[derive(Clone,Default,Debug,PartialEq,Eq,PartialOrd,Ord,Encode,Decode)]
 /// An `enum` that is _always_ an image.
 ///
 /// Some [`Album`]'s may not have art. In this case, we'd like to show a "unknown" image anyway.
+///
+/// This type is specifically for `festivald`, where the `Collection`
+/// doesn't hold bytes, but the full resolution images are saved in `image/`.
+///
+/// Just like how `Bytes` should never exist in `GUI` after `Collection` creation,
+/// `festivald` should _always_ either have a `Art::Known` or `Art::Unknown`.
 pub enum Art {
 	/// Art exists, and is stored at this PATH, not by the user, but by us.
 	///
@@ -20,41 +27,17 @@ pub enum Art {
 	///
 	/// This image is not resized at all, it is the
 	/// full resolution extracted from the [`Song`]
-	Known(PathBuf),
+	Known { path: PathBuf, mime: String, len: usize, },
+	/// This is raw image bytes that have not yet been transformed into [`Art::Known`].
+	///
+	/// This variant is never exposed to a `Frontend`, as `Kernel` turns all [`Art`]
+	/// into either [`Art::Known`] or [`Art::Unknown`].
+	Bytes(Vec<u8>),
 	#[default]
 	/// A gray background, white question-mark image representing an unknown image.
 	///
 	/// This image's width/height is guaranteed to be [`ALBUM_ART_SIZE`].
 	Unknown,
-}
-
-//---------------------------------------------------------------------------------------------------- Art `Ord`
-impl Ord for Art {
-	fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-		match (self, other) {
-			(Self::Unknown,  Self::Unknown)  => std::cmp::Ordering::Equal,
-			(Self::Known(_), Self::Known(_)) => std::cmp::Ordering::Equal,
-			(Self::Known(_), Self::Unknown)  => std::cmp::Ordering::Greater,
-			(Self::Unknown,  Self::Known(_)) => std::cmp::Ordering::Less,
-		}
-	}
-}
-impl PartialOrd for Art {
-	fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-		Some(self.cmp(other))
-	}
-}
-
-//---------------------------------------------------------------------------------------------------- Art `Eq`
-impl Eq for Art {}
-impl PartialEq for Art {
-	fn eq(&self, other: &Self) -> bool {
-		match (self, other) {
-			(Self::Unknown, Self::Unknown) => true,
-			(Self::Known(_), Self::Known(_)) => true,
-			_ => false,
-		}
-	}
 }
 
 //---------------------------------------------------------------------------------------------------- Art Impl
@@ -63,64 +46,6 @@ impl Art {
 	/// Returns [`Self::Unknown`].
 	pub(crate) const fn new() -> Self {
 		Self::Unknown
-	}
-}
-
-impl std::fmt::Debug for Art {
-	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		match self {
-			Self::Known(p) => write!(f, "Art::Known({:?})", p.display()),
-			Self::Unknown  => write!(f, "Art::Unknown"),
-		}
-	}
-}
-
-//---------------------------------------------------------------------------------------------------- Art Clone
-impl Clone for Art {
-	fn clone(&self) -> Self {
-		match self {
-			Self::Bytes(vec) => Self::Bytes(vec.clone()),
-			_ => Self::Unknown,
-		}
-	}
-}
-
-//---------------------------------------------------------------------------------------------------- Art Bincode
-impl bincode::Encode for Art {
-	fn encode<E: bincode::enc::Encoder>(&self, encoder: &mut E) -> std::result::Result<(), bincode::error::EncodeError> {
-		match self {
-			Self::Bytes(field_0) => {
-				<u32 as bincode::Encode>::encode(&(1u32), encoder)?;
-				bincode::Encode::encode(field_0, encoder)?;
-				Ok(())
-			},
-			_ => {
-				<u32 as bincode::Encode>::encode(&(2u32), encoder)?;
-				Ok(())
-			},
-		}
-	}
-}
-impl bincode::Decode for Art {
-	fn decode<D: bincode::de::Decoder>(decoder: &mut D) -> std::result::Result<Self, bincode::error::DecodeError> {
-		let variant_index = <u32 as bincode::Decode>::decode(decoder)?;
-		match variant_index {
-			1u32 => {
-				Ok(Self::Bytes(bincode::Decode::decode(decoder)?))
-			},
-			_ => Ok(Self::Unknown),
-		}
-	}
-}
-impl<'de> bincode::BorrowDecode<'de> for Art {
-	fn borrow_decode<D: bincode::de::BorrowDecoder<'de>>(decoder: &mut D) -> std::result::Result<Self, bincode::error::DecodeError> {
-		let variant_index = <u32 as bincode::Decode>::decode(decoder)?;
-		match variant_index {
-			1u32 => {
-				Ok(Self::Bytes(bincode::BorrowDecode::borrow_decode(decoder)?))
-			},
-			_ => Ok(Self::Unknown),
-		}
 	}
 }
 

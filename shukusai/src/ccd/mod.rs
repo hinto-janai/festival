@@ -12,8 +12,6 @@ mod ccd;
 pub(crate) use ccd::*;
 
 //----- CCD internal functions.
-mod convert;
-pub(super) use convert::*;
 mod the_loop;
 mod sort;
 mod walk;
@@ -21,3 +19,8 @@ mod walk;
 //----- Frontend specific.
 mod img;
 pub(crate) use img::*;
+
+#[cfg(feature = "gui")]
+mod convert;
+#[cfg(feature = "gui")]
+pub(super) use convert::*;
