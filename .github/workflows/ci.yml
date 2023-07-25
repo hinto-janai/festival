@@ -19,7 +19,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-2019, macos-11, ubuntu-20.04]
-        pkg: [festival-gui, festivald]
+        pkg: [festival-gui]
 
     steps:
     - name: Checkout
@@ -55,12 +55,11 @@ jobs:
       run: |
         # ARM builds.
         if [ "$RUNNER_OS" == "macOS" ]; then
-          cargo build --release --profile ${{ matrix.pkg }} --target aarch64-apple-darwin
+          cargo build --release --package ${{ matrix.pkg }} --target aarch64-apple-darwin
         fi
-        cargo build --release --profile ${{ matrix.pkg }}
+        cargo build --release --package ${{ matrix.pkg }}
 
     - name: Compress
-      if: matrix.build == 'release'
       shell: bash
       run: |
         mkdir OUTPUT
