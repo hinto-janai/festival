@@ -1,4 +1,5 @@
 //---------------------------------------------------------------------------------------------------- Use
+use serde::{Serialize,Serializer,Deserialize,Deserializer};
 use bincode::{Encode,Decode};
 use std::path::PathBuf;
 use readable::Runtime;
@@ -9,7 +10,7 @@ use crate::collection::{
 use std::sync::Arc;
 
 //----------------------------------------------------------------------------------------------------
-#[derive(Clone,Debug,Hash,PartialEq,PartialOrd,Encode,Decode)]
+#[derive(Clone,Debug,Hash,PartialEq,PartialOrd,Serialize,Encode,Decode)]
 /// Struct holding [`Song`] metadata, with a pointer to the [`Album`] it belongs to
 ///
 /// This struct holds all the metadata about a particular [`Song`].
@@ -23,6 +24,7 @@ pub struct Song {
 	pub title_lowercase: Arc<str>,
 	/// Key to the [`Album`].
 	pub album: AlbumKey,
+	#[serde(serialize_with = "crate::collection::serde::runtime")]
 	/// Total runtime of this [`Song`].
 	pub runtime: Runtime,
 	/// Sample rate of this [`Song`].
@@ -51,9 +53,25 @@ impl Default for Song {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//  #[test]
-//  fn _() {
-//  }
-//}
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	const EXPECTED: &str =
+r#"{
+  "title": "",
+  "title_lowercase": "",
+  "album": 0,
+  "runtime": 0,
+  "sample_rate": 0,
+  "track": null,
+  "disc": null,
+  "path": ""
+}"#;
+
+	#[test]
+	fn serde_json() {
+		let d: String = serde_json::to_string_pretty(&Song::default()).unwrap();
+		assert_eq!(EXPECTED, d);
+	}
+}

@@ -24,6 +24,9 @@ pub use metadata::metadata;
 #[cfg(not(feature = "daemon"))]
 pub(crate) mod v0;
 
+// Serde
+mod serde;
+
 // Pointer related code. To be used... eventually... maybe.
 //mod decode;
 //pub(crate) use decode::*;
