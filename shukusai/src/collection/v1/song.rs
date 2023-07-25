@@ -4,7 +4,6 @@ use std::path::PathBuf;
 use readable::Runtime;
 use std::marker::PhantomData;
 use crate::collection::{
-	SongKey,
 	AlbumKey,
 };
 use std::sync::Arc;
@@ -17,8 +16,7 @@ use std::sync::Arc;
 ///
 /// It contains a [`SongKey`] that is the index of the owning [`Album`], in the [`Collection`].
 pub struct Song {
-	/// This [`Song`]'s [`SongKey`].
-	pub key: SongKey,
+	// User-facing data.
 	/// Title of the [`Song`].
 	pub title: Arc<str>,
 	/// Title of the [`Song`] in "Unicode Derived Core Property" lowercase.
@@ -37,25 +35,31 @@ pub struct Song {
 	pub path: PathBuf,
 }
 
-impl Default for Song {
-	fn default() -> Self {
-		Self {
-			title: "".into(),
-			title_lowercase: "".into(),
-			album: Default::default(),
-			runtime: Default::default(),
-			sample_rate: Default::default(),
-			track: Default::default(),
-			disc: Default::default(),
-			path: Default::default(),
+impl Into<crate::collection::Song> for Song {
+	fn into(self) -> crate::collection::Song {
+		let Self {
+			// INVARIANT: must be set correctly in the broader `Collection::into()`
+			key: 0,
+
+			title,
+			title_lowercase,
+			album,
+			runtime,
+			sample_rate,
+			track,
+			disc,
+			path
+		} = self;
+
+		crate::collection::Song {
+			title,
+			title_lowercase,
+			album,
+			runtime,
+			sample_rate,
+			track,
+			disc,
+			path
 		}
 	}
 }
-
-//---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//  #[test]
-//  fn _() {
-//  }
-//}

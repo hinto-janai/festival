@@ -3,7 +3,6 @@ use bincode::{Encode,Decode};
 use std::marker::PhantomData;
 use crate::collection::key::{
 	ArtistKey,
-	AlbumKey,
 	SongKey,
 };
 use crate::collection::art::{
@@ -27,8 +26,7 @@ use std::sync::Arc;
 ///
 /// It also contains [`SongKey`]\(s\) that are the indices of [`Song`]\(s\) belonging to this [`Album`], in the [`Collection`].
 pub struct Album {
-	/// This [`Album`]'s [`AlbumKey`].
-	pub key: AlbumKey,
+	// User-facing data.
 	/// Title of the [`Album`].
 	pub title: Arc<str>,
 	/// Title of the [`Album`] in "Unicode Derived Core Property" lowercase.
@@ -78,52 +76,37 @@ pub struct Album {
 	pub art: Art,
 }
 
-#[cfg(feature = "gui")]
-impl Album {
-	#[inline(always)]
-	/// Return the [`Album`] art.
-	///
-	/// Some [`Album`]'s may not have art. In this case, we'd like to show a "unknown" image anyway.
-	///
-	/// This function will always return a valid [`egui_extras::RetainedImage`], either:
-	/// 1. The real [`Album`] art (if it exists)
-	/// 2. An "unknown" image
-	///
-	/// The returned "unknown" image is actually just a pointer to a single lazily evaluated image.
-	///
-	/// The "unknown" image is from `assets/images/art/unknown.png`.
-	pub fn art_or(&self) -> &egui_extras::RetainedImage {
-		self.art.art_or()
-	}
+impl Into<crate::collection::Album> for Album {
+	fn into(self) -> crate::collection::Album {
+		let Self {
+			// INVARIANT: must be set correctly in the broader `Collection::into()`
+			key: 0,
+			// We can't recover this info, assume user will rescan... eventually...
+			genre: None,
 
-	#[inline(always)]
-	/// Return the [`Album`] art wrapped in [`Option`].
-	///
-	/// Same as [`Album::art_or`] but with no "unknown" backup image.
-	pub fn art(&self) -> Option<&egui_extras::RetainedImage> {
-		self.art.get()
-	}
+			title,
+			title_lowercase,
+			artist,
+			release,
+			runtime,
+			song_count,
+			songs,
+			discs,
+			path,
+			art,
+		} = self;
 
-	#[inline]
-	/// Calls [`egui_extras::RetainedImage::texture_id`].
-	pub fn texture_id(&self, ctx: &egui::Context) -> egui::TextureId {
-		self.art.texture_id(ctx)
-	}
-}
-
-impl Default for Album {
-	fn default() -> Self {
-		Self {
-			title: "".into(),
-			title_lowercase: "".into(),
-			artist: Default::default(),
-			release: Default::default(),
-			runtime: Default::default(),
-			song_count: Default::default(),
-			songs: Vec::with_capacity(0),
-			discs: Default::default(),
-			path: Default::default(),
-			art: Default::default(),
+		crate::collection::Album {
+			title,
+			title_lowercase,
+			artist,
+			release,
+			runtime,
+			song_count,
+			songs,
+			discs,
+			path,
+			art,
 		}
 	}
 }
