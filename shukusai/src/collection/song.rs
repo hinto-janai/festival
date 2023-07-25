@@ -1,5 +1,5 @@
 //---------------------------------------------------------------------------------------------------- Use
-use serde::{Serialize,Serializer,Deserialize,Deserializer};
+use serde::Serialize;
 use bincode::{Encode,Decode};
 use std::path::PathBuf;
 use readable::Runtime;

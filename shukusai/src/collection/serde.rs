@@ -8,7 +8,7 @@
 // This is _not_ meant for actual lossless conversions between
 // `struct`'s and JSON, hence there is no `Deserialize` impl here.
 //
-// This is soley meant to represent these structures as JSON,
+// This is solely meant to represent these structures as JSON,
 // which are needed for `festivald`, `festival-cli`, etc.
 //
 // This serialization must be stable, as the output is directly

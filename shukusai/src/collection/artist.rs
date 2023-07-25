@@ -1,4 +1,5 @@
 //---------------------------------------------------------------------------------------------------- Use
+use serde::Serialize;
 use bincode::{Encode,Decode};
 use std::marker::PhantomData;
 use readable::Runtime;
@@ -9,7 +10,7 @@ use crate::collection::key::{
 use std::sync::Arc;
 
 //----------------------------------------------------------------------------------------------------
-#[derive(Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Encode,Decode)]
+#[derive(Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Encode,Decode)]
 /// Struct holding [`Artist`] metadata, with pointers to [`Album`]\(s\)
 ///
 /// This struct holds all the metadata about a particular [`Artist`].
@@ -20,6 +21,7 @@ pub struct Artist {
 	pub name: Arc<str>,
 	/// The [`Artist`]'s name in "Unicode Derived Core Property" lowercase.
 	pub name_lowercase: Arc<str>,
+	#[serde(serialize_with = "crate::collection::serde::runtime")]
 	/// Total runtime.
 	pub runtime: Runtime,
 	// SOMEDAY:
@@ -45,9 +47,22 @@ impl Default for Artist {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//  #[test]
-//  fn _() {
-//  }
-//}
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	const EXPECTED: &str =
+r#"{
+  "name": "",
+  "name_lowercase": "",
+  "runtime": 0,
+  "albums": [],
+  "songs": []
+}"#;
+
+	#[test]
+	fn serde_json() {
+		let d: String = serde_json::to_string_pretty(&Artist::default()).unwrap();
+		assert_eq!(EXPECTED, d);
+	}
+}
