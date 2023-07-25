@@ -1030,6 +1030,7 @@ impl std::fmt::Display for Collection {
 
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
+#[cfg(feature = "gui")]
 mod tests {
 	use super::*;
 	use disk::Bincode2;

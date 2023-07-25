@@ -7,8 +7,6 @@ use crate::constants::{
 use std::sync::{Arc};
 use crate::logger::INIT_INSTANT;
 use crate::collection::{
-	UNKNOWN_ALBUM,
-	UNKNOWN_ALBUM_ID,
 	SongKey,
 };
 use crate::state::{
@@ -41,9 +39,14 @@ use rayon::prelude::*;
 use std::time::Duration;
 
 #[cfg(feature = "gui")]
-use crate::frontend::egui::{
+use crate::frontend::gui::{
 	gui_context,
 	gui_request_update,
+};
+#[cfg(feature = "gui")]
+use crate::collection::{
+	UNKNOWN_ALBUM,
+	UNKNOWN_ALBUM_ID,
 };
 
 //---------------------------------------------------------------------------------------------------- Kernel
@@ -127,7 +130,7 @@ impl Kernel {
 		{
 			let _ = Lazy::force(&UNKNOWN_ALBUM);
 
-			assert!(crate::frontend::egui::GUI_CONTEXT.get().is_some());
+			assert!(crate::frontend::gui::GUI_CONTEXT.get().is_some());
 
 			// INVARIANT:
 			// `GUI` must not allocate any textures before this.
@@ -179,11 +182,20 @@ impl Kernel {
 		// Attempt to load `Collection` from file.
 		debug!("Kernel Init ... Reading Collection{COLLECTION_VERSION} from disk...");
 		let now = now!();
+
+		#[cfg(feature = "gui")]
 		let collection = Collection::from_versions(&[
 			// SAFETY: memmap is used.
 			(COLLECTION_VERSION, || unsafe { Collection::from_file_memmap() }),
 			(0, crate::collection::v0::Collection::disk_into),
 		]);
+
+		#[cfg(feature = "daemon")]
+		let collection = Collection::from_versions(&[
+			// SAFETY: memmap is used.
+			(COLLECTION_VERSION, || unsafe { Collection::from_file_memmap() }),
+		]);
+
 		match collection {
 			// If success, continue to `boot_loader` to convert
 			// bytes to actual usable `egui` images.
@@ -233,16 +245,20 @@ impl Kernel {
 			debug!("Kernel ... Collection{COLLECTION_VERSION} save, took {} seconds", secs_f32!(now));
 		}
 
-		// We successfully loaded `Collection`.
-		// Create `CCD` channel + thread and make it convert images.
-		debug!("Kernel Init [3/12] ... spawning CCD");
-		let (ccd_send, from_ccd) = crossbeam::channel::unbounded::<CcdToKernel>();
-		if let Err(e) = std::thread::Builder::new()
-			.name("CCD".to_string())
-			.spawn(move || Ccd::convert_art(ccd_send, collection))
-		{
-			panic!("Kernel Init [3/12] ... failed to spawn CCD: {e}");
-		}
+		#[cfg(feature = "gui")]
+		let from_ccd = {
+			// We successfully loaded `Collection`.
+			// Create `CCD` channel + thread and make it convert images.
+			debug!("Kernel Init [3/12] ... spawning CCD");
+			let (ccd_send, from_ccd) = crossbeam::channel::unbounded::<CcdToKernel>();
+			if let Err(e) = std::thread::Builder::new()
+				.name("CCD".to_string())
+				.spawn(move || Ccd::convert_art(ccd_send, collection))
+			{
+				panic!("Kernel Init [3/12] ... failed to spawn CCD: {e}");
+			}
+			from_ccd
+		};
 
 		// Before hanging on `CCD`, read `AudioState` file.
 		// Note: This is a `Result`.
@@ -257,9 +273,10 @@ impl Kernel {
 			lock.phase = Phase::Art;
 		}
 
-		// Wait for `Collection` to be returned by `CCD`.
-		debug!("Kernel Init [5/12] ... waiting on CCD");
+		#[cfg(feature = "gui")]
 		let collection = loop {
+			// Wait for `Collection` to be returned by `CCD`.
+			debug!("Kernel Init [5/12] ... waiting on CCD");
 			use CcdToKernel::*;
 			match recv!(from_ccd) {
 				// We received an incremental update.
@@ -271,30 +288,22 @@ impl Kernel {
 				UpdatePhase((percent, phase)) => RESET_STATE.write().new_phase(percent, phase),
 
 				// `CCD` was successful. We got the new `Collection`.
-				NewCollection(collection) => break Some(collection),
-
-				// `CCD` failed, tell `GUI` and give the
-				// old `Collection` pointer to everyone
-				// and return out of this function.
-				Failed(anyhow) => {
-					debug_panic!("{anyhow}");
-
-					error!("Kernel Init ... Collection{COLLECTION_VERSION} failed: {anyhow}");
-					break None;
-				},
+				NewCollection(collection) => break collection,
 			}
+		};
+
+		#[cfg(not(feature = "gui"))]
+		let collection = {
+			debug!("Kernel Init [3/12] ... skipping CCD");
+			debug!("Kernel Init [5/12] ... skipping CCD");
+			Arc::new(collection)
 		};
 
 		// We're done with `CCD`.
 		RESET_STATE.write().done();
 
-		// If everything went ok, continue to `kernel` to verify data.
-		if let Some(collection) = collection {
-			Self::kernel(collection, state, to_frontend, from_frontend, beginning, watch, media_controls);
-		// Else, skip to `init()`.
-		} else {
-			Self::init(None, None, to_frontend, from_frontend, beginning, watch, media_controls);
-		}
+		// Continue to `kernel` to verify data.
+		Self::kernel(collection, state, to_frontend, from_frontend, beginning, watch, media_controls);
 	}
 
 	//-------------------------------------------------- kernel()
@@ -708,7 +717,7 @@ impl Kernel {
 		}
 
 		// Listen to `CCD`.
-		let (error, collection) = loop {
+		let collection = loop {
 			use crate::ccd::CcdToKernel::*;
 
 			// What message did `CCD` send?
@@ -722,12 +731,7 @@ impl Kernel {
 				UpdatePhase((percent, phase)) => RESET_STATE.write().new_phase(percent, phase),
 
 				// `CCD` was successful. We got the new `Collection`.
-				NewCollection(collection) => break (None, collection),
-
-				// `CCD` failed, tell `GUI` and give the
-				// old `Collection` pointer to everyone
-				// and return out of this function.
-				Failed(anyhow) => break (Some(anyhow), Collection::dummy()),
+				NewCollection(collection) => break collection,
 			}
 		};
 
@@ -736,11 +740,7 @@ impl Kernel {
 		// Send new pointers to everyone.
 		send!(self.to_audio,    KernelToAudio::NewCollection(Arc::clone(&self.collection)));
 		send!(self.to_search,   KernelToSearch::NewCollection(Arc::clone(&self.collection)));
-		if let Some(e) = error {
-			send!(self.to_frontend, KernelToFrontend::Failed((Arc::clone(&self.collection), e.to_string())));
-		} else {
-			send!(self.to_frontend, KernelToFrontend::NewCollection(Arc::clone(&self.collection)));
-		}
+		send!(self.to_frontend, KernelToFrontend::NewCollection(Arc::clone(&self.collection)));
 
 		#[cfg(feature = "gui")]
 		gui_request_update();

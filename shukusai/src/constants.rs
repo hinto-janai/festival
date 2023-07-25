@@ -47,14 +47,14 @@ pub const FESTIVAL_DBUS: &str = "pm.festival.Festival";
 pub const FESTIVAL: &str = "Festival";
 /// The main sub-directory within the `festival`
 /// directory for each `Frontend`'s files.
-#[cfg(feature = "gui")]
-pub const FRONTEND_SUB_DIR: &str = "gui";
-#[cfg(feature = "daemon")]
-pub const FRONTEND_SUB_DIR: &str = "daemon";
-#[cfg(feature = "cli")]
-pub const FRONTEND_SUB_DIR: &str = "cli";
-#[cfg(feature = "web")]
-pub const FRONTEND_SUB_DIR: &str = "web";
+pub const FRONTEND_SUB_DIR: &str = {
+	if cfg!(feature = "gui")           { "gui"
+	} else if cfg!(feature = "daemon") { "daemon"
+	} else if cfg!(feature = "cli")    { "cli"
+	} else if cfg!(feature = "web")    { "web"
+	} else if cfg!(feature = "tui")    { "tui"
+	} else { panic!("missing frontend feature flag") }
+};
 
 /// The sub-directory where state is saved.
 ///

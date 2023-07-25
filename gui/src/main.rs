@@ -36,7 +36,7 @@ fn main() {
 		crate::data::Gui::options(),
 		Box::new(move |cc| {
 			// Set `Festival`'s `GUI_CONTEXT`.
-			shukusai::frontend::egui::GUI_CONTEXT
+			shukusai::frontend::gui::GUI_CONTEXT
 				.set(cc.egui_ctx.clone())
 				.expect("GUI_CONTEXT.set() failed");
 

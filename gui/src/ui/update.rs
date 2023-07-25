@@ -151,9 +151,9 @@ impl eframe::App for Gui {
 		// HACK:
 		// The real "update" function is surrounded by these timer
 		// sets for better read/write locking behavior with CCD.
-		atomic_store!(shukusai::frontend::egui::GUI_UPDATING, true);
+		atomic_store!(shukusai::frontend::gui::GUI_UPDATING, true);
 		self.update(ctx, frame);
-		atomic_store!(shukusai::frontend::egui::GUI_UPDATING, false);
+		atomic_store!(shukusai::frontend::gui::GUI_UPDATING, false);
 	}
 }
 

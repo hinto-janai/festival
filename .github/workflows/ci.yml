@@ -13,13 +13,13 @@ env:
   RUST_BACKTRACE: "full"
 
 jobs:
-  clippy:
+  ci:
     runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
         os: [windows-2019, macos-11, ubuntu-20.04]
-        build: [dev, release]
+        pkg: [festival-gui]
 
     steps:
     - name: Checkout
@@ -31,7 +31,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: target
-        key: ${{ matrix.os }}-${{ matrix.build }}-clippy
+        key: ${{ matrix.pkg }}-${ matrix.os }}-clippy
 
     - name: Install dependencies
       run: |
@@ -45,89 +45,21 @@ jobs:
       shell: bash
 
     - name: Clippy
-      run: cargo clippy --workspace --profile ${{ matrix.build }}
-
-#    - name: Doc
-#      run: cargo doc --workspace --no-deps --profile ${{ matrix.build }}
-#      env:
-#        RUSTFLAGS: -Awarnings
-
-  test:
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [windows-2019, macos-11, ubuntu-20.04]
-        build: [release]
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-      with:
-        submodules: recursive
-
-    - name: Cache
-      uses: actions/cache@v3
-      with:
-        path: target
-        key: ${{ matrix.os }}-${{ matrix.build }}-test
-
-    - name: Install dependencies
-      run: |
-        rustup update
-        if [ "$RUNNER_OS" == "Linux" ]; then
-          sudo apt update
-          sudo apt install -y libgtk-3-dev libasound2-dev libjack-dev libpulse-dev
-        elif [ "$RUNNER_OS" == "macOS" ]; then
-          rustup target add aarch64-apple-darwin
-        fi
-      shell: bash
+      run: cargo clippy --release --package ${{ matrix.pkg }}
 
     - name: Test
-      run: cargo test --package shukusai --package festival-gui --profile ${{ matrix.build }}
-
-  build:
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [windows-2019, macos-11, ubuntu-20.04]
-        build: [dev, release]
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-      with:
-        submodules: recursive
-
-    - name: Cache
-      uses: actions/cache@v3
-      with:
-        path: target
-        key: ${{ matrix.os }}-${{ matrix.build }}-build
-
-    - name: Install dependencies
-      run: |
-        rustup update
-        if [ "$RUNNER_OS" == "Linux" ]; then
-          sudo apt update
-          sudo apt install -y libgtk-3-dev libasound2-dev libjack-dev libpulse-dev
-        elif [ "$RUNNER_OS" == "macOS" ]; then
-          rustup target add aarch64-apple-darwin
-        fi
-      shell: bash
+      run: cargo test --release --package shukusai --package ${{ matrix.pkg }}
 
     - name: Build
       shell: bash
       run: |
         # ARM builds.
         if [ "$RUNNER_OS" == "macOS" ]; then
-          cargo build --workspace --profile ${{ matrix.build }} --target aarch64-apple-darwin
+          cargo build --release --package ${{ matrix.pkg }} --target aarch64-apple-darwin
         fi
-        cargo build --workspace --profile ${{ matrix.build }}
+        cargo build --release --package ${{ matrix.pkg }}
 
     - name: Compress
-      if: matrix.build == 'release'
       shell: bash
       run: |
         mkdir OUTPUT
@@ -165,7 +97,6 @@ jobs:
         fi
 
     - name: Archive
-      if: matrix.build == 'release'
       uses: actions/upload-artifact@v3
       with:
         name: festival-${{ matrix.os }}

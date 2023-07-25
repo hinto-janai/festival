@@ -45,7 +45,7 @@ use readable::Runtime;
 use std::sync::atomic::AtomicU32;
 
 #[cfg(feature = "gui")]
-use crate::frontend::egui::gui_request_update;
+use crate::frontend::gui::gui_request_update;
 
 //---------------------------------------------------------------------------------------------------- Constants
 // If the audio device is not connected, how many seconds

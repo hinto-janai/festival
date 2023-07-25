@@ -21,6 +21,7 @@ mod metadata;
 pub use metadata::metadata;
 
 // Previous Collection versions.
+#[cfg(not(feature = "daemon"))]
 pub(crate) mod v0;
 
 // Pointer related code. To be used... eventually... maybe.

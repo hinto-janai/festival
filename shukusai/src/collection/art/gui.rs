@@ -13,7 +13,7 @@ pub(crate) const ALBUM_ART_SIZE_U32: u32 = ALBUM_ART_SIZE as u32;
 pub(crate) const ALBUM_ART_SIZE_U16: u16 = ALBUM_ART_SIZE as u16;
 
 //---------------------------------------------------------------------------------------------------- Unknown Art (lazy) Constant
-pub(crate) const UNKNOWN_ALBUM_BYTES: &[u8] = include_bytes!("../../../assets/images/art/unknown.png");
+pub(crate) const UNKNOWN_ALBUM_BYTES: &[u8] = include_bytes!("../../../../assets/images/art/unknown.png");
 pub(crate) static UNKNOWN_ALBUM: Lazy<RetainedImage> = Lazy::new(|| RetainedImage::from_image_bytes("Unknown", UNKNOWN_ALBUM_BYTES).unwrap());
 
 // INVARIANT:

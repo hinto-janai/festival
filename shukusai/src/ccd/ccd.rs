@@ -30,17 +30,20 @@ use readable::{
 	Unsigned,
 };
 use crate::ccd::{
-	convert::ArtConvertType,
 	msg::CcdToKernel,
 };
 use crate::constants::COLLECTION_VERSION;
 use rayon::prelude::*;
+
+#[cfg(feature = "gui")]
+use crate::ccd::convert::ArtConvertType;
 
 //---------------------------------------------------------------------------------------------------- CCD
 pub(crate) struct Ccd;
 
 impl Ccd {
 	//-------------------------------------------------------------------------------- CCD `convert_art()`
+	#[cfg(feature = "gui")]
 	// Public facing "front-end" function for image conversion.
 	// Dynamically selects internal functions for single/multi-thread.
 	pub(crate) fn convert_art(
@@ -76,7 +79,9 @@ impl Ccd {
 		old_collection: Arc<Collection>,
 		paths: Vec<PathBuf>,
 	) {
-		// `new_collection()` high-level overview:
+		// `new_collection()` high-level overview.
+		// This is for `GUI`, some steps may be
+		// added or skipped in other `Frontend`'s.
 		//
 		// 1. Destruct the old `Collection` and dealloc textures.
 		// 2. WalkDir given path(s), filtering for audio files.
@@ -116,7 +121,7 @@ impl Ccd {
 
 				if Arc::strong_count(&old_collection) == 1 {
 					if let Some(c) = Arc::into_inner(old_collection) {
-//						let ctx = crate::frontend::egui::gui_context();
+//						let ctx = crate::frontend::gui::gui_context();
 //						crate::ccd::img::free_textures(&mut ctx.tex_manager().write());
 						drop(c);
 					} else {
@@ -303,75 +308,149 @@ impl Ccd {
 		let perf_prepare = secs_f32!(now);
 		trace!("CCD [7/13] ... Prepare: {perf_prepare}");
 
-		//-------------------------------------------------------------------------------- 8
-		let now = now!();
-		send!(to_kernel, CcdToKernel::UpdatePhase((60.00, Phase::Art)));
-		let increment    = 30.0 / collection.albums.len() as f64;
-		Self::priv_convert_art(&to_kernel, &mut collection, ArtConvertType::Resize, increment);
-		// Update should be <= 90% at this point.
-		let perf_resize = secs_f32!(now);
-		trace!("CCD [8/13] ... Resize: {perf_resize}");
+		#[cfg(feature = "gui")]
+		let (
+			perf_resize,
+			perf_clone,
+			perf_convert,
+			perf_textures,
+			collection_for_disk,
+		) = {
+			//-------------------------------------------------------------------------------- 8
+			let now = now!();
+			send!(to_kernel, CcdToKernel::UpdatePhase((60.00, Phase::Art)));
+			let increment    = 30.0 / collection.albums.len() as f64;
+			Self::priv_convert_art(&to_kernel, &mut collection, ArtConvertType::Resize, increment);
+			// Update should be <= 90% at this point.
+			let perf_resize = secs_f32!(now);
+			trace!("CCD [8/13] ... Resize: {perf_resize}");
 
-		//-------------------------------------------------------------------------------- 9
-		// FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
-		// We need to serialize `Collection` and save to disk while we
-		// have the art bytes as an actual `Vec<u8>`. `egui` does not
-		// make it easy to retrieve the original bytes after you turn
-		// it into a `RetainedImage`, specifically, you have to access:
-		//
-		// `Art` -> `RetainedImage` -> `TextureHandle` -> `TextureManager` ->
-		// `TextureDelta` -> `ImageDelta` -> `ImageData` -> `ColorImage` which
-		// can finally be serialized by serde.
-		//
-		// In this conversion, there are multiple locks, unwraps and some
-		// fields aren't public so I'd have to fork epaint and make things `pub`.
-		//
-		// Instead of doing this, we `.clone()` the `Collection` before
-		// converting the `Art`. `CCD` will save this copy to disk later on.
-		//
-		// This is terrible. We're using 2x the memory we should be using.
-		//
-		// Q. Why not save right now?
-		// A. We want to return to the user
-		//    as soon as possible, even if
-		//    it means being sneaky and saving
-		//    the `Collection` to disk in the
-		//    background while they are
-		//    accessing it in the `GUI`.
-		let now = now!();
-		send!(to_kernel, CcdToKernel::UpdatePhase((90.00, Phase::Clone)));
-		let collection_for_disk = collection.clone();
-		let perf_clone = secs_f32!(now);
-		trace!("CCD [9/13] ... Clone: {perf_clone}");
-		// FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
+			//-------------------------------------------------------------------------------- 9
+			// FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
+			// We need to serialize `Collection` and save to disk while we
+			// have the art bytes as an actual `Vec<u8>`. `egui` does not
+			// make it easy to retrieve the original bytes after you turn
+			// it into a `RetainedImage`, specifically, you have to access:
+			//
+			// `Art` -> `RetainedImage` -> `TextureHandle` -> `TextureManager` ->
+			// `TextureDelta` -> `ImageDelta` -> `ImageData` -> `ColorImage` which
+			// can finally be serialized by serde.
+			//
+			// In this conversion, there are multiple locks, unwraps and some
+			// fields aren't public so I'd have to fork epaint and make things `pub`.
+			//
+			// Instead of doing this, we `.clone()` the `Collection` before
+			// converting the `Art`. `CCD` will save this copy to disk later on.
+			//
+			// This is terrible. We're using 2x the memory we should be using.
+			//
+			// Q. Why not save right now?
+			// A. We want to return to the user
+			//    as soon as possible, even if
+			//    it means being sneaky and saving
+			//    the `Collection` to disk in the
+			//    background while they are
+			//    accessing it in the `GUI`.
+			let now = now!();
+			send!(to_kernel, CcdToKernel::UpdatePhase((90.00, Phase::Clone)));
+			let collection_for_disk = collection.clone();
+			let perf_clone = secs_f32!(now);
+			trace!("CCD [9/13] ... Clone: {perf_clone}");
+			// FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
-		//-------------------------------------------------------------------------------- 10
-		let now = now!();
-		send!(to_kernel, CcdToKernel::UpdatePhase((95.00, Phase::Convert)));
-		let increment = 4.0 / collection.albums.len() as f64;
-		// Convert `Collection` art.
-		Self::priv_convert_art(&to_kernel, &mut collection, ArtConvertType::ToKnown, increment);
-		// Update should be <= 99% at this point.
-		let perf_convert = secs_f32!(now);
-		trace!("CCD [10/13] ... Convert: {perf_convert}");
+			//-------------------------------------------------------------------------------- 10
+			let now = now!();
+			send!(to_kernel, CcdToKernel::UpdatePhase((95.00, Phase::Convert)));
+			let increment = 4.0 / collection.albums.len() as f64;
+			// Convert `Collection` art.
+			Self::priv_convert_art(&to_kernel, &mut collection, ArtConvertType::ToKnown, increment);
+			// Update should be <= 99% at this point.
+			let perf_convert = secs_f32!(now);
+			trace!("CCD [10/13] ... Convert: {perf_convert}");
 
-		//-------------------------------------------------------------------------------- 11
-		let now = now!();
-		send!(to_kernel, CcdToKernel::UpdatePhase((100.00, Phase::Finalize)));
-		// FIXME: See `img.rs`.
-		crate::ccd::img::alloc_textures(&collection.albums);
-		let perf_textures = secs_f32!(now);
-		trace!("CCD [11/13] ... Textures: {perf_textures}");
+			//-------------------------------------------------------------------------------- 11
+			let now = now!();
+			send!(to_kernel, CcdToKernel::UpdatePhase((100.00, Phase::Finalize)));
+			// FIXME: See `img.rs`.
+			crate::ccd::img::alloc_textures(&collection.albums);
+			let perf_textures = secs_f32!(now);
+			trace!("CCD [11/13] ... Textures: {perf_textures}");
+
+			(perf_resize, perf_clone, perf_convert, perf_textures, collection_for_disk)
+		};
+
+		#[cfg(feature = "daemon")]
+		let (
+			perf_resize,
+			perf_clone,
+			perf_convert,
+			perf_textures,
+		) = {
+			trace!("CCD [8/13] ... Resize: SKIP");
+			trace!("CCD [9/13] ... Clone: SKIP");
+
+			let now = now!();
+			send!(to_kernel, CcdToKernel::UpdatePhase((95.00, Phase::Convert)));
+			let increment = 4.0 / collection.albums.len() as f64;
+
+			atomic_store!(crate::state::SAVING, true);
+
+			// Delete old images.
+			let _ = Image::rm_base();
+			let (a, b) = (Image::base_path(), Image(collection.timestamp).save());
+			match (a, b) {
+				(Ok(path), Ok(_)) => {
+					// Convert `Collection` art.
+					collection.albums.0
+						.par_iter_mut()
+						.enumerate()
+						.for_each(|(i, a)| crate::ccd::img::save_image_and_convert(i, a, &path));
+				},
+				_ => {
+					fail!("CCD ... Error, Skipping Image");
+					collection.albums.0
+						.par_iter_mut()
+						.for_each(|a| a.art = Art::Unknown);
+				},
+			}
+
+			// Update should be <= 99% at this point.
+			let perf_convert = secs_f32!(now);
+			trace!("CCD [10/13] ... Convert: {perf_convert}");
+
+			trace!("CCD [11/13] ... Textures: SKIP");
+
+			(0.0, 0.0, perf_convert, 0.0)
+		};
+
+		// Get perf stats.
+		let objects_artists = collection.count_artist.usize();
+		let objects_albums  = collection.count_album.usize();
+		let objects_songs   = collection.count_song.usize();
+		let objects_art     = count_art;
+		let timestamp       = collection.timestamp;
+
+		#[cfg(feature = "gui")]
+		let collection = Arc::new(collection);
+
+		#[cfg(feature = "daemon")]
+		let (collection, collection_for_disk) = {
+			let collection = Arc::new(collection);
+			let disk       = Arc::clone(&collection);
+			(collection, disk)
+		};
 
 		//-------------------------------------------------------------------------------- 12
-		send!(to_kernel, CcdToKernel::NewCollection(Arc::new(collection)));
+		send!(to_kernel, CcdToKernel::NewCollection(collection));
 		let user_time = secs_f32!(beginning);
-		info!("CCD ... User time: {}", user_time);
+		info!("CCD [12/13] ... User time: {}", user_time);
 
 		//-------------------------------------------------------------------------------- 13
 		let now = now!();
+
 		// Set `saving` state.
 		atomic_store!(crate::state::SAVING, true);
+
 		// Attempt atomic save.
 		//
 		// SAFETY:
@@ -388,27 +467,22 @@ impl Ccd {
 			},
 		};
 
-		// Get perf stats.
-		let objects_artists = collection_for_disk.count_artist.usize();
-		let objects_albums  = collection_for_disk.count_album.usize();
-		let objects_songs   = collection_for_disk.count_song.usize();
-		let objects_art     = count_art;
-
-		let timestamp = collection_for_disk.timestamp;
-
-		// Delete old images.
-		let _ = Image::rm_base();
-		// This deconstructs `Collection`.
-		let albums = collection_for_disk.albums.0.into_vec();
-		let (a, b) = (Image::base_path(), Image(timestamp).save());
-		match (a, b) {
-			(Ok(path), Ok(_)) => {
-				albums
-					.into_par_iter()
-					.enumerate()
-					.for_each(|(a, i)| crate::ccd::img::save_image(a, i, &path));
-			},
-			_ => fail!("CCD ... Error, Skipping Image"),
+		#[cfg(feature = "gui")]
+		{
+			// Delete old images.
+			let _ = Image::rm_base();
+			let (a, b) = (Image::base_path(), Image(timestamp).save());
+			// This deconstructs `Collection`.
+			let albums = collection_for_disk.albums.0.into_vec();
+			match (a, b) {
+				(Ok(path), Ok(_)) => {
+					albums
+						.into_par_iter()
+						.enumerate()
+						.for_each(|(a, i)| crate::ccd::img::save_image(a, i, &path));
+				},
+				_ => fail!("CCD ... Error, Skipping Image"),
+			}
 		}
 
 		// Set `saving` state.
@@ -476,7 +550,7 @@ mod tests {
 	fn convert_art() {
 		// Set-up inputs.
 		let (to_kernel, from_ccd) = crossbeam::channel::unbounded::<CcdToKernel>();
-		crate::frontend::egui::GUI_CONTEXT.set(egui::Context::default());
+		crate::frontend::gui::GUI_CONTEXT.set(egui::Context::default());
 
 		// Convert.
 		std::thread::spawn(move || {
@@ -508,7 +582,7 @@ mod tests {
 	fn new_collection() {
 		// Set-up inputs.
 		let (to_kernel, from_ccd) = crossbeam::channel::unbounded::<CcdToKernel>();
-		crate::frontend::egui::GUI_CONTEXT.set(egui::Context::default());
+		crate::frontend::gui::GUI_CONTEXT.set(egui::Context::default());
 		let old = Collection::new();
 		let old = Arc::new(old);
 		let paths = vec![PathBuf::from("../assets")];
@@ -523,7 +597,6 @@ mod tests {
 		let c = loop {
 			match recv!(from_ccd) {
 				CcdToKernel::NewCollection(c) => break c,
-				CcdToKernel::Failed(e) => panic!("{e}"),
 				_ => (),
 			}
 		};

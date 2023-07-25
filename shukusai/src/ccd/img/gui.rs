@@ -20,8 +20,10 @@ use benri::{
 };
 use log::{warn, trace};
 use benri::log::fail;
-use crate::frontend::egui::gui_context;
 use std::path::{Path,PathBuf};
+
+#[cfg(feature = "gui")]
+use crate::frontend::gui::gui_context;
 
 //---------------------------------------------------------------------------------------------------- Album Art Constants.
 pub(crate) const ALBUM_ART_SIZE_NUM: NonZeroU32 = match NonZeroU32::new(ALBUM_ART_SIZE_U32) {
@@ -240,12 +242,12 @@ fn color_img_to_retained(img: egui::ColorImage) -> egui_extras::RetainedImage {
 // Switching `egui`'s internal lock to `std` instead of `parking_lot`
 // makes it _alot_ better. There is still a tiny freeze but it's fine
 // for now, we won't show the spinner near the end.
-pub(super) fn alloc_textures(albums: &crate::collection::Albums) {
+pub(crate) fn alloc_textures(albums: &crate::collection::Albums) {
 	// Get `Context`.
 	let ctx = gui_context();
 
 	// Wait until `GUI` has loaded at least 1 frame.
-	while !atomic_load!(crate::frontend::egui::GUI_UPDATING) {
+	while !atomic_load!(crate::frontend::gui::GUI_UPDATING) {
 		std::hint::spin_loop();
 	}
 
@@ -281,7 +283,7 @@ static mut NEXT_TEXTURE_ID: u64 = 2;
 // We must also _never_ free `0`, or `GUI` will turn into a black screen.
 //
 // We also internally use `1` for `UNKNOWN_IMAGE`.
-pub(super) fn free_textures(tex_manager: &mut epaint::TextureManager) {
+pub(crate) fn free_textures(tex_manager: &mut epaint::TextureManager) {
 	// Increment our local number.
 	let current_texture_count = tex_manager.num_allocated() as u64;
 
@@ -303,7 +305,7 @@ pub(super) fn free_textures(tex_manager: &mut epaint::TextureManager) {
 //---------------------------------------------------------------------------------------------------- Image()
 // These functions are for the images in `~/.local/share/festival/${FRONTEND}/image`.
 #[inline(always)]
-pub(super) fn save_image(key: usize, album: Album, base_path: &Path) {
+pub(crate) fn save_image(key: usize, album: Album, base_path: &Path) {
 	if let Art::Bytes(bytes) = album.art {
 		let mut path = PathBuf::from(base_path);
 		path.push(format!("{key}.jpg"));
