@@ -314,6 +314,7 @@ impl Ccd {
 			perf_clone,
 			perf_convert,
 			perf_textures,
+			collection_for_disk,
 		) = {
 			//-------------------------------------------------------------------------------- 8
 			let now = now!();
@@ -375,7 +376,7 @@ impl Ccd {
 			let perf_textures = secs_f32!(now);
 			trace!("CCD [11/13] ... Textures: {perf_textures}");
 
-			(perf_resize, perf_clone, perf_convert, perf_textures)
+			(perf_resize, perf_clone, perf_convert, perf_textures, collection_for_disk)
 		};
 
 		#[cfg(feature = "daemon")]

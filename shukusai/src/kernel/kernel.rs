@@ -246,7 +246,7 @@ impl Kernel {
 		}
 
 		#[cfg(feature = "gui")]
-		{
+		let from_ccd = {
 			// We successfully loaded `Collection`.
 			// Create `CCD` channel + thread and make it convert images.
 			debug!("Kernel Init [3/12] ... spawning CCD");
@@ -257,7 +257,8 @@ impl Kernel {
 			{
 				panic!("Kernel Init [3/12] ... failed to spawn CCD: {e}");
 			}
-		}
+			from_ccd
+		};
 
 		// Before hanging on `CCD`, read `AudioState` file.
 		// Note: This is a `Result`.
