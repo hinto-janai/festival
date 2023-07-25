@@ -546,6 +546,7 @@ mod tests {
 	use crate::constants::COLLECTION_VERSION;
 
 	#[test]
+	#[cfg(feature = "gui")]
 	// Converts the pre-saved `Collection`'s art.
 	fn convert_art() {
 		// Set-up inputs.
@@ -577,6 +578,7 @@ mod tests {
 	}
 
 	#[test]
+	#[cfg(feature = "gui")]
 	// Creates a new `Collection` from `assets/audio`.
 	// Metadata should be the same as the pre-saved `Collection`.
 	fn new_collection() {

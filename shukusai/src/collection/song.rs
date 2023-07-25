@@ -33,6 +33,7 @@ pub struct Song {
 	pub track: Option<u32>,
 	/// The disc number of this [`Song`].
 	pub disc: Option<u32>,
+	#[serde(skip)]
 	/// The [`PathBuf`] this [`Song`] is located at.
 	pub path: PathBuf,
 }
@@ -65,8 +66,7 @@ r#"{
   "runtime": 0,
   "sample_rate": 0,
   "track": null,
-  "disc": null,
-  "path": ""
+  "disc": null
 }"#;
 
 	#[test]

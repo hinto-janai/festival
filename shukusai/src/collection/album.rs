@@ -1,5 +1,5 @@
 //---------------------------------------------------------------------------------------------------- Use
-use serde::{Serialize,Serializer,Deserialize,Deserializer};
+use serde::Serialize;
 use bincode::{Encode,Decode};
 use std::marker::PhantomData;
 use crate::collection::key::{
@@ -18,7 +18,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 //---------------------------------------------------------------------------------------------------- Album
-#[derive(Clone,Debug,PartialEq,PartialOrd,Encode,Decode)]
+#[derive(Clone,Debug,PartialEq,PartialOrd,Serialize,Encode,Decode)]
 /// Struct holding [`Album`] metadata, with pointers to an [`Artist`] and [`Song`]\(s\)
 ///
 /// This struct holds all the metadata about a particular [`Album`].
@@ -34,10 +34,13 @@ pub struct Album {
 	pub title_lowercase: Arc<str>,
 	/// Key to the [`Artist`].
 	pub artist: ArtistKey,
+	#[serde(serialize_with = "crate::collection::serde::date")]
 	/// Human-readable release date of this [`Album`].
 	pub release: Date,
+	#[serde(serialize_with = "crate::collection::serde::runtime")]
 	/// Total runtime of this [`Album`].
 	pub runtime: Runtime,
+	#[serde(serialize_with = "crate::collection::serde::unsigned")]
 	/// [`Song`] count of this [`Album`].
 	pub song_count: Unsigned,
 	// This `Vec<SongKey>` is _always_ sorted based
@@ -61,6 +64,7 @@ pub struct Album {
 	/// (Most will only have 1).
 	pub discs: u32,
 
+	#[serde(skip)]
 	/// The parent `PATH` of this `Album`.
 	///
 	/// This is always taken from the 1st `Song` that is inserted
@@ -68,6 +72,7 @@ pub struct Album {
 	/// parent directories, this will not be fully accurate.
 	pub path: PathBuf,
 
+	#[serde(serialize_with = "crate::collection::serde::art")]
 	/// The `Album`'s art.
 	///
 	/// `GUI` doesn't need to access this field
@@ -128,9 +133,27 @@ impl Default for Album {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//  #[test]
-//  fn _() {
-//  }
-//}
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	const EXPECTED: &str =
+r#"{
+  "title": "",
+  "title_lowercase": "",
+  "artist": 0,
+  "release": "????-??-??",
+  "runtime": 0,
+  "song_count": 0,
+  "songs": [],
+  "discs": 0,
+  "art": null
+}"#;
+
+	#[test]
+	#[cfg(feature = "daemon")]
+	fn serde_json() {
+		let d: String = serde_json::to_string_pretty(&Album::default()).unwrap();
+		assert_eq!(EXPECTED, d);
+	}
+}

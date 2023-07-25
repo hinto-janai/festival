@@ -50,20 +50,7 @@ impl Art {
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-#[cfg(test)]
-mod tests {
-	use super::*;
-
-	#[test]
-	// Assert `UNKNOWN_ART` size is correct.
-	fn unknown() {
-		assert_eq!(UNKNOWN_ALBUM.size(), [ALBUM_ART_SIZE; 2]);
-	}
-
-	#[test]
-	// Assert the `ALBUM_SIZE` casts are lossless.
-	fn cast() {
-		assert_eq!(ALBUM_ART_SIZE_U32 as usize, ALBUM_ART_SIZE);
-		assert_eq!(ALBUM_ART_SIZE_U16 as usize, ALBUM_ART_SIZE);
-	}
-}
+//#[cfg(test)]
+//mod tests {
+//	use super::*;
+//}
