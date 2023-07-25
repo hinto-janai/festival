@@ -740,6 +740,7 @@ impl Kernel {
 		// Send new pointers to everyone.
 		send!(self.to_audio,    KernelToAudio::NewCollection(Arc::clone(&self.collection)));
 		send!(self.to_search,   KernelToSearch::NewCollection(Arc::clone(&self.collection)));
+		send!(self.to_frontend, KernelToFrontend::NewCollection(Arc::clone(&self.collection)));
 
 		#[cfg(feature = "gui")]
 		gui_request_update();
