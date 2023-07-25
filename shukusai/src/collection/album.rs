@@ -76,6 +76,9 @@ pub struct Album {
 	///
 	/// THIS TYPE IS DIFFERENT DEPENDING ON THE FRONTEND.
 	pub art: Art,
+
+	/// This [`Album`]'s genre.
+	pub genre: Option<String>,
 }
 
 #[cfg(feature = "gui")]
@@ -114,6 +117,7 @@ impl Album {
 impl Default for Album {
 	fn default() -> Self {
 		Self {
+			key: AlbumKey::zero(),
 			title: "".into(),
 			title_lowercase: "".into(),
 			artist: Default::default(),
@@ -124,6 +128,7 @@ impl Default for Album {
 			discs: Default::default(),
 			path: Default::default(),
 			art: Default::default(),
+			genre: Default::default(),
 		}
 	}
 }

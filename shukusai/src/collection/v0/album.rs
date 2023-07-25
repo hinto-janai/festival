@@ -3,6 +3,7 @@ use bincode::{Encode,Decode};
 use std::marker::PhantomData;
 use crate::collection::{
 	ArtistKey,
+	AlbumKey,
 	SongKey,
 	Art,
 };
@@ -84,6 +85,11 @@ impl Into<crate::collection::Album> for Album {
 		let title = title.into();
 
 		crate::collection::Album {
+			// INVARIANT: must be set correctly in the broader `Collection::into()`
+			key: AlbumKey::zero(),
+			// We can't recover this info, assume user will rescan... eventually...
+			genre: None,
+
 			title,
 			title_lowercase,
 			artist,

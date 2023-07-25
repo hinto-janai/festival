@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------------------------------- Use
 use bincode::{Encode,Decode};
-use crate::collection::v0::{
+use crate::collection::v1::{
 	Artist,Album,Song,
 };
 use crate::collection::{
@@ -30,7 +30,7 @@ macro_rules! impl_plural {
 		///```
 		#[doc = "[`Collection`] itself can also be directly index with [`" $key "`]."]
 		//-------------------------------------------------- Define plural `struct`.
-		pub(crate) struct $plural(pub(crate) Box<[$name]>);
+		pub struct $plural(pub(crate) Box<[$name]>);
 
 		//-------------------------------------------------- Implement `[]` indexing.
 		impl std::ops::Index<$key> for $plural {
@@ -64,6 +64,55 @@ macro_rules! impl_plural {
 			pub(crate) fn new() -> Self {
 				Self(Box::new([]))
 			}
+
+			#[inline(always)]
+			/// Calls [`slice::iter_mut`].
+			pub(crate) fn iter_mut(&mut self) -> std::slice::IterMut<'_, $name> {
+				self.0.iter_mut()
+			}
+
+			#[inline(always)]
+			/// Create self from a [`Vec`].
+			pub(crate) fn from_vec(vec: Vec<$name>) -> Self {
+				Self(vec.into_boxed_slice())
+			}
+
+			//-------------------------------------------------- Common `Vec` and related functions.
+			#[inline(always)]
+			/// Calls [`slice::iter`].
+			pub fn iter(&self) -> std::slice::Iter<'_, $name> {
+				self.0.iter()
+			}
+
+			#[inline(always)]
+			/// Calls [`slice::get`].
+			pub fn get(&self, key: $key) -> Option<&$name> {
+				self.0.get(key.inner())
+			}
+
+			#[inline(always)]
+			/// Calls [`slice::first`].
+			pub fn first(&self) -> Option<&$name> {
+				self.0.first()
+			}
+
+			#[inline(always)]
+			/// Calls [`slice::last`].
+			pub fn last(&self) -> Option<&$name> {
+				self.0.last()
+			}
+
+			#[inline(always)]
+			/// Calls [`slice::len`].
+			pub fn len(&self) -> usize {
+				self.0.len()
+			}
+
+			#[inline(always)]
+			/// Calls [`slice::is_empty`].
+			pub fn is_empty(&self) -> bool {
+				self.0.is_empty()
+			}
 		}
 
 		impl Into<crate::collection::$plural> for $plural {
@@ -88,3 +137,11 @@ macro_rules! impl_plural {
 impl_plural!(Artist, Artists, ArtistKey);
 impl_plural!(Album, Albums, AlbumKey);
 impl_plural!(Song, Songs, SongKey);
+
+//---------------------------------------------------------------------------------------------------- TESTS
+//#[cfg(test)]
+//mod tests {
+//  #[test]
+//  fn __TEST__() {
+//  }
+//}

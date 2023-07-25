@@ -5,6 +5,7 @@ use readable::Runtime;
 use std::marker::PhantomData;
 use crate::collection::{
 	AlbumKey,
+	SongKey,
 };
 use std::sync::Arc;
 
@@ -38,9 +39,6 @@ pub struct Song {
 impl Into<crate::collection::Song> for Song {
 	fn into(self) -> crate::collection::Song {
 		let Self {
-			// INVARIANT: must be set correctly in the broader `Collection::into()`
-			key: 0,
-
 			title,
 			title_lowercase,
 			album,
@@ -52,6 +50,9 @@ impl Into<crate::collection::Song> for Song {
 		} = self;
 
 		crate::collection::Song {
+			// INVARIANT: must be set correctly in the broader `Collection::into()`
+			key: SongKey::zero(),
+
 			title,
 			title_lowercase,
 			album,

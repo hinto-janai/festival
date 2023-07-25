@@ -3,6 +3,7 @@ use bincode::{Encode,Decode};
 use std::marker::PhantomData;
 use readable::Runtime;
 use crate::collection::key::{
+	ArtistKey,
 	AlbumKey,
 	SongKey,
 };
@@ -56,7 +57,7 @@ impl Into<crate::collection::Artist> for Artist {
 
 		crate::collection::Artist {
 			// INVARIANT: must be set correctly in the broader `Collection::into()`
-			key: 0,
+			key: ArtistKey::zero(),
 
 			name,
 			name_lowercase,

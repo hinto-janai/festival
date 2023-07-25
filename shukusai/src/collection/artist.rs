@@ -38,6 +38,7 @@ pub struct Artist {
 impl Default for Artist {
 	fn default() -> Self {
 		Self {
+			key: ArtistKey::zero(),
 			name: "".into(),
 			name_lowercase: "".into(),
 			runtime: Default::default(),

@@ -3,6 +3,7 @@ use bincode::{Encode,Decode};
 use std::marker::PhantomData;
 use crate::collection::key::{
 	ArtistKey,
+	AlbumKey,
 	SongKey,
 };
 use crate::collection::art::{
@@ -79,11 +80,6 @@ pub struct Album {
 impl Into<crate::collection::Album> for Album {
 	fn into(self) -> crate::collection::Album {
 		let Self {
-			// INVARIANT: must be set correctly in the broader `Collection::into()`
-			key: 0,
-			// We can't recover this info, assume user will rescan... eventually...
-			genre: None,
-
 			title,
 			title_lowercase,
 			artist,
@@ -97,6 +93,11 @@ impl Into<crate::collection::Album> for Album {
 		} = self;
 
 		crate::collection::Album {
+			// INVARIANT: must be set correctly in the broader `Collection::into()`
+			key: AlbumKey::zero(),
+			// We can't recover this info, assume user will rescan... eventually...
+			genre: None,
+
 			title,
 			title_lowercase,
 			artist,

@@ -39,7 +39,6 @@ use readable::{
 };
 use once_cell::sync::Lazy;
 use const_format::formatcp;
-use disk::Bincode2;
 
 //---------------------------------------------------------------------------------------------------- Collection
 disk::bincode2!(Collection, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{STATE_SUB_DIR}"), "collection", HEADER, 0);
@@ -295,6 +294,7 @@ impl Into<crate::collection::Collection> for Collection {
 impl Collection {
 	//-------------------------------------------------- Converts v0 from disk into current.
 	pub(crate) fn disk_into() -> Result<crate::collection::Collection, anyhow::Error> {
+		use disk::Bincode2;
 		// SAFETY: memmap is used.
 		unsafe { Self::from_file_memmap().map(Into::into) }
 	}

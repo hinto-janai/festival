@@ -40,6 +40,7 @@ pub struct Song {
 impl Default for Song {
 	fn default() -> Self {
 		Self {
+			key: SongKey::zero(),
 			title: "".into(),
 			title_lowercase: "".into(),
 			album: Default::default(),
