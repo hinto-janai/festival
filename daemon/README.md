@@ -5,15 +5,15 @@
 * [Disk](#Disk)
 * [REST](#REST)
 	- [/key](#key)
-		- [/artist/$ARTIST_KEY](#artistartist_key)
-		- [/album/$ALBUM_KEY](#albumalbum_key)
-		- [/song/$SONG_KEY](#songsong_key)
-		- [/art/$ALBUM_KEY](#artalbum_key)
+		- [/artist/${artist_key}](#artistartist_key)
+		- [/album/${album_key}](#albumalbum_key)
+		- [/song/${song_key}](#songsong_key)
+		- [/art/${album_key}](#artalbum_key)
 	- [/string](#string)
-		- [/$ARTIST_NAME](#artist_name)
-		- [/$ARTIST_NAME/$ALBUM_TITLE](#artist_namealbum_title)
-		- [/$ARTIST_NAME/$ALBUM_TITLE/$SONG_TITLE](#artist_namealbum_titlesong_title)
-	- [/art/$ARTIST_NAME/$ALBUM_TITLE](#artartist_namealbum_title)
+		- [/${artist_name}](#artist_name)
+		- [/${artist_name}/${album_title}](#artist_namealbum_title)
+		- [/${artist_name}/${album_title}/${song_title}](#artist_namealbum_titlesong_title)
+	- [/art/${artist_name}/${album_title}](#artartist_namealbum_title)
 * [JSON-RPC](#JSON-RPC)
 	- [State Retrieval](#State-Retrieval)
 		- [state_daemon](#state_daemon)
@@ -66,82 +66,150 @@
 ---
 
 # REST
-## /key
-Description.
+`festivald` (by default) exposes REST endpoints for `Collection`-related resources that can be accessed via GET HTTP requests.
 
-### /artist/$ARTIST_KEY
-Description.
+A simple way to access these files is via a browser, e.g, opening this link:
+```
+http://localhost:18425/art/my_artist/my_album
+```
+This will make the art of the album `my_album`, owned by the artist `my_artist` open directly in the browser (or make it download the image, if the `direct_download` configuration setting is enabled).
 
-| Input | Type |
-|-------|------|
+Opening something like:
+```
+http://localhost:18425/string/Artist Name/Album Title/Song Title
+```
+will directly open that song in the browser and show a simple player, if your browser supports it (all modern browsers do). Again, you can change the behavior so that browsers directly download these resources by changing the `direct_download` configuration option.
 
-| Output | Type |
-|--------|------|
-
-Example:
-```bash
-curl http://127.0.0.1:18425 -d '{"jsonrpc":"2.0","id":"0","method":"$METHOD_NAME","params":["$PARAMS"]'
+If a file is downloaded that is nested, the `filename_separator` config option will control what the separator will be. By default, this is ` - `, so the filename of an archive of an artist will look like:
+```
+Artist Name - Album Title.zip
 ```
 
-### /album/$ALBUM_KEY
-### /song/$SONG_KEY
-### /art/$ALBUM_KEY
+## /key
+Access audio files and/or art via a `key`.
+
+This endpoint expects 2 more endpoints:
+- `${object}`
+- `${key}`
+
+The `object` must be one of:
+- `artist`
+- `album`
+- `song`
+- `art`
+
+The `key` must be the key number associated with the object.
+
+This info can be found in multiple JSON-RPC methods, such as [`map_artist`](#map_artist). A `key` field will be included in the response. It is a number that represents that object.
+
+Keys are unique _per_ object group, meaning there is a `artist 0` AND `album 0`, and so forth.
+
+Note that keys can only be relied upon as long as the `Collection` has not been reset. When the `Collection` is reset, it is not guaranteed that the same key will map to the same object. Using the `/string` endpoint may be more convenient so that artist names, album and song titles can be used as inputs instead.
+
+The main reasons `/key` exists:
+- Accessing objects via `/key` is faster than with `/string`
+- As long as your `Collection` is stable, the `key`'s are stable
+
+## /artist/${artist_key}
+Download all the `Album`'s owned by this `Artist`, 1 directory per album (including art if found), wrapped in an archive format.
+
+| Input      | Type             | Example |
+|------------|------------------|---------|
+| artist key | unsigned integer | `http://localhost:18425/key/artist/123`
+
+| Output                                                  | Type   | Example |
+|---------------------------------------------------------|--------|---------|
+| Archive of all artist's albums (including art if found) | `.zip` | `Artist Name - Album Title.zip`
+
+## /album/${album_key}
+Download this `Album` (including art if found), wrapped in an archive format.
+
+| Input     | Type             | Example |
+|-----------|------------------|---------|
+| album key | unsigned integer | `http://localhost:18425/key/album/123`
+
+| Output                                    | Type   | Example |
+|-------------------------------------------|--------|---------|
+| Album in archive (including art if found) | `.zip` | `Album Title.zip`
+
+## /song/${song_key}
+Download this `Song` in the original format.
+
+| Input    | Type             | Example |
+|----------|------------------|---------|
+| song key | unsigned integer | `http://localhost:18425/key/song/123`
+
+| Output                  | Type       | Example |
+|-------------------------|------------|---------|
+| Song in original format | audio file | `Song Title.flac`
+
+## /art/${album_key}
+Download this `Album`'s art in the image's original format.
+
+| Input     | Type             | Example |
+|-----------|------------------|---------|
+| album key | unsigned integer | `http://localhost:18425/key/art/123`
+
+| Output                 | Type       | Example |
+|------------------------|------------|---------|
+| Art in original format | image file | `Album Title.jpg`
+
 
 ## /string
-### /$ARTIST_NAME
-### /$ARTIST_NAME/$ALBUM_TITLE
-### /$ARTIST_NAME/$ALBUM_TITLE/$SONG_TITLE
+## /${artist_name}
+## /${artist_name}/${album_title}
+## /${artist_name}${album_title}${song_title}
 
-## /art/$ARTIST_NAME/$ALBUM_TITLE
+## /art/${artist_name}/${album_title}
 
 ---
 
 # JSON-RPC
 ## State Retrieval
-### state_daemon
-### state_audio
-### state_reset
-### state_collection
+## state_daemon
+## state_audio
+## state_reset
+## state_collection
 
 ## Playback Control
-### toggle
-### play
-### pause
-### next
-### stop
-### repeat_off
-### repeat_song
-### repeat_queue
-### shuffle
-### previous
-### volume
-### add_queue_song
-### add_queue_album
-### add_queue_artist
-### clear
-### seek
-### skip
-### back
-### set_queue_index
-### remove_queue_range
+## toggle
+## play
+## pause
+## next
+## stop
+## repeat_off
+## repeat_song
+## repeat_queue
+## shuffle
+## previous
+## volume
+## add_queue_song
+## add_queue_album
+## add_queue_artist
+## clear
+## seek
+## skip
+## back
+## set_queue_index
+## remove_queue_range
 
 ## Key
-### key_artist
-### key_album
-### key_song
+## key_artist
+## key_album
+## key_song
 
 ## Map
-### map_artist
-### map_album
-### map_song
+## map_artist
+## map_album
+## map_song
 
 ## Search
-### search
-### search_artist
-### search_album
-### search_song
+## search
+## search_artist
+## search_album
+## search_song
 
 ## Collection
-### new_collection
+## new_collection
 
 ---
