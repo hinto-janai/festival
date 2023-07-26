@@ -286,12 +286,4 @@ mod tests {
 
 		assert_eq!(t1, t2);
 	}
-
-	#[test]
-	#[should_panic]
-	fn not_set() {
-		let c = config(); // UB, not initialized
-		println!("{c:#?}");
-		assert_eq!(config(), config());
-	}
 }

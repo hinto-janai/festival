@@ -37,7 +37,7 @@ use std::borrow::Cow;
 ///   - A struct representation of the expected response, found in [`resp`] with exact same name
 ///   - (Optionally) a struct representation of the associated parameters, found in [`crate::param`]
 pub enum Method {
-	// State retreival.
+	// State retrieval.
 	/// [`crate::resp::StateDaemon`]
 	StateDaemon,
 	/// [`crate::resp::StateAudio`]

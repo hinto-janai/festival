@@ -14,7 +14,7 @@ description    = "JSON-RPC 2.0 types for Festival"
 
 [dependencies]
 ### Personal Libraries.
-shukusai = { workspace = true, features = ["gui", "panic"] }
+shukusai = { workspace = true, features = ["daemon", "panic"] }
 benri    = { workspace = true }
 disk     = { workspace = true }
 readable = { workspace = true }

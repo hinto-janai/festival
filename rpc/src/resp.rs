@@ -30,7 +30,7 @@ use crate::{
 // Generic response.
 impl_struct!(Status, ok: bool);
 
-// State retreival.
+// State retrieval.
 impl_struct_lt!(StateDaemon, uptime: u64, rest: bool, direct_download: bool, authorization: bool, version: Cow<'a, str>, commit: Cow<'a, str>, os: Cow<'a, str>);
 impl_struct!(StateAudio, queue: Vec<SongKey>, queue_idx: Option<usize>, playing: bool, song: Option<SongKey>, elapsed: u32, runtime: u32, repeat: Repeat, volume: u8);
 impl_struct!(StateReset, resetting: bool, saving: bool);
