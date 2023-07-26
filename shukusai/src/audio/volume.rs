@@ -11,6 +11,7 @@ use bincode::{Encode,Decode};
 /// frontends can't just send random numbers that make no sense in the
 /// context of changing the volume level, like `253`.
 #[derive(Copy,Clone,Debug,Hash,Eq,Ord,PartialEq,PartialOrd,Serialize,Deserialize,Encode,Decode)]
+#[serde(transparent)]
 pub struct Volume(u8);
 
 impl Volume {

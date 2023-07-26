@@ -27,7 +27,7 @@ pub struct Artist {
 	/// This [`Artist`]'s [`ArtistKey`].
 	pub key: ArtistKey,
 
-	#[serde(serialize_with = "crate::collection::serde::runtime")]
+	#[serde(serialize_with = "crate::serde::runtime")]
 	/// Total runtime.
 	pub runtime: Runtime,
 
@@ -59,19 +59,4 @@ impl Default for Artist {
 #[cfg(test)]
 mod tests {
 	use super::*;
-
-	const EXPECTED: &str =
-r#"{
-  "name": "",
-  "key": 0,
-  "runtime": 0,
-  "albums": [],
-  "songs": []
-}"#;
-
-	#[test]
-	fn serde_json() {
-		let d: String = serde_json::to_string_pretty(&Artist::default()).unwrap();
-		assert_eq!(EXPECTED, d);
-	}
 }

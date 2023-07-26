@@ -33,64 +33,90 @@ use std::borrow::Cow;
 ///
 /// It is (de)serialized directly from/into a `lower_snake_case` string.
 ///
-/// If a method does not have any parameters, there will be no doc comment.
-///
-/// If a method _does_ have parameter(s), a doc comment will link to the struct representation of it, found in [`crate::param`].
+/// Each method is commented with:
+///   - A struct representation of the expected response, found in [`resp`] with exact same name
+///   - (Optionally) a struct representation of the associated parameters, found in [`crate::param`]
 pub enum Method {
-	Stats,
-	State,
+	// State retreival.
+	/// [`crate::resp::Info`]
+	Info,
+	/// [`crate::resp::StateAudio`]
 	StateAudio,
+	/// [`crate::resp::StateReset`]
+	StateReset,
+	/// [`crate::resp::StateCollection`]
 	StateCollection,
-	Uptime,
-	Version,
-	Toggle,
-	Play,
-	Pause,
-	Next,
-	Stop,
-	RepeatOff,
-	RepeatSong,
-	RepeatQueue,
-	Shuffle,
-	Exit,
 
-	/// [`crate::param::Previous`]
+	// Playback control.
+	/// [`crate::resp::Toggle`]
+	Toggle,
+	/// [`crate::resp::Status`]
+	Play,
+	/// [`crate::resp::Status`]
+	Pause,
+	/// [`crate::resp::Status`]
+	Next,
+	/// [`crate::resp::Status`]
+	Stop,
+	/// [`crate::resp::Status`]
+	RepeatOff,
+	/// [`crate::resp::Status`]
+	RepeatSong,
+	/// [`crate::resp::Status`]
+	RepeatQueue,
+	/// [`crate::resp::Status`]
+	Shuffle,
+	/// [`crate::resp::Status`] & [`crate::param::Previous`]
 	Previous,
-	/// [`crate::param::Volume`]
+	/// [`crate::resp::Status`] & [`crate::param::Volume`]
 	Volume,
-	/// [`crate::param::AddQueueSong`]
+	/// [`crate::resp::Status`] & [`crate::param::AddQueueSong`]
 	AddQueueSong,
-	/// [`crate::param::AddQueueAlbum`]
+	/// [`crate::resp::Status`] & [`crate::param::AddQueueAlbum`]
 	AddQueueAlbum,
-	/// [`crate::param::AddQueueArtist`]
+	/// [`crate::resp::Status`] & [`crate::param::AddQueueArtist`]
 	AddQueueArtist,
-	/// [`crate::param::Clear`]
+	/// [`crate::resp::Status`] & [`crate::param::Clear`]
 	Clear,
-	/// [`crate::param::Seek`]
+	/// [`crate::resp::Status`] & [`crate::param::Seek`]
 	Seek,
-	/// [`crate::param::Skip`]
+	/// [`crate::resp::Status`] & [`crate::param::Skip`]
 	Skip,
-	/// [`crate::param::Back`]
+	/// [`crate::resp::Status`] & [`crate::param::Back`]
 	Back,
-	/// [`crate::param::SetQueueIndex`]
+	/// [`crate::resp::Status`] & [`crate::param::SetQueueIndex`]
 	SetQueueIndex,
-	/// [`crate::param::RemoveQueueRange`]
+	/// [`crate::resp::Status`] & [`crate::param::RemoveQueueRange`]
 	RemoveQueueRange,
-	/// [`crate::param::Search`]
+
+	// Search (fuzzy keys)
+	/// [`crate::resp::Search`] & [`crate::param::Search`]
 	Search,
-	/// [`crate::param::SearchArtist`]
+	/// [`crate::resp::SearchArtist`] &  [`crate::param::SearchArtist`]
 	SearchArtist,
-	/// [`crate::param::SearchAlbum`]
+	/// [`crate::resp::SearchAlbum`] & [`crate::param::SearchAlbum`]
 	SearchAlbum,
-	/// [`crate::param::SearchSong`]
+	/// [`crate::resp::SearchSong`] & [`crate::param::SearchSong`]
 	SearchSong,
-	/// [`crate::param::MapArtist`]
+
+	// Map (exact hashmap)
+	/// [`crate::resp::MapArtist`] & [`crate::param::MapArtist`]
 	MapArtist,
-	/// [`crate::param::MapAlbum`]
+	/// [`crate::resp::MapAlbum`] & [`crate::param::MapAlbum`]
 	MapAlbum,
-	/// [`crate::param::MapSong`]
+	/// [`crate::resp::MapSong`] & [`crate::param::MapSong`]
 	MapSong,
-	/// [`crate::param::NewCollection`]
+
+	// Key (exact key)
+	/// [`crate::resp::Artist`] & [`crate::param::Artist`]
+	Artist,
+	/// [`crate::resp::Album`] & [`crate::param::Album`]
+	Album,
+	/// [`crate::resp::Song`] & [`crate::param::Song`]
+	Song,
+
+	// Collection
+	/// [`crate::resp::NewCollection`] & [`crate::param::NewCollection`]
 	NewCollection,
 }
 

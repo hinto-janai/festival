@@ -118,16 +118,16 @@ pub struct Collection {
 	pub empty: bool,
 	/// UNIX timestamp of the [`Collection`]'s creation date.
 	pub timestamp: u64,
-	#[serde(serialize_with = "crate::collection::serde::unsigned")]
+	#[serde(serialize_with = "crate::serde::unsigned")]
 	/// How many [`Artist`]'s in this [`Collection`]?
 	pub count_artist: Unsigned,
-	#[serde(serialize_with = "crate::collection::serde::unsigned")]
+	#[serde(serialize_with = "crate::serde::unsigned")]
 	/// How many [`Album`]'s in this [`Collection`]?
 	pub count_album: Unsigned,
-	#[serde(serialize_with = "crate::collection::serde::unsigned")]
+	#[serde(serialize_with = "crate::serde::unsigned")]
 	/// How many [`Song`]'s in this [`Collection`]?
 	pub count_song: Unsigned,
-	#[serde(serialize_with = "crate::collection::serde::unsigned")]
+	#[serde(serialize_with = "crate::serde::unsigned")]
 	/// How many unique [`Album`] covers are there in this [`Collection`]?
 	pub count_art: Unsigned,
 

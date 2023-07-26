@@ -86,10 +86,13 @@ pub struct AudioState {
 	pub playing: bool,
 	/// Which song are we playing right now?
 	pub song: Option<SongKey>,
+	#[serde(serialize_with = "crate::serde::runtime")]
 	/// How much time has passed in this song?
 	pub elapsed: Runtime,
+	#[serde(serialize_with = "crate::serde::runtime")]
 	/// What is the full runtime of the current song?
 	pub runtime: Runtime,
+
 	/// Repeat mode.
 	pub repeat: Repeat,
 
@@ -355,5 +358,23 @@ mod tests {
 		assert_eq!(A2.runtime,   Runtime::from(321_u16));
 		assert_eq!(A2.repeat,    Repeat::Queue);
 		assert!(A2.playing);
+	}
+
+	#[test]
+	#[cfg(feature = "daemon")]
+	fn serde_json() {
+		let expected =
+r#"{
+  "queue": [],
+  "queue_idx": null,
+  "playing": false,
+  "song": null,
+  "elapsed": 0,
+  "runtime": 0,
+  "repeat": "off",
+  "volume": 25
+}"#;
+
+		assert_eq!(expected, serde_json::to_string_pretty(&AudioState::default()).unwrap());
 	}
 }

@@ -16,6 +16,7 @@
 	nonstandard_style,
 	unused_unsafe,
 	unused_mut,
+	missing_docs,
 )]
 
 #![forbid(
@@ -41,7 +42,6 @@
 	unused_labels,
 	while_true,
 	keyword_idents,
-	missing_docs,
 	non_ascii_idents,
 	noop_method_call,
 //	unreachable_pub,
@@ -76,6 +76,7 @@ Frontends must be built individually with `cargo build --package festival<FRONTE
 mod ccd;
 mod watch;
 mod macros;
+mod serde;
 pub(crate) use macros::*;
 
 //---------------------------------------------------------------------------------------------------- Public Re-exports.

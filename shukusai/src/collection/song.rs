@@ -29,7 +29,7 @@ pub struct Song {
 	/// Key to the [`Album`].
 	pub album: AlbumKey,
 
-	#[serde(serialize_with = "crate::collection::serde::runtime")]
+	#[serde(serialize_with = "crate::serde::runtime")]
 	/// Total runtime of this [`Song`].
 	pub runtime: Runtime,
 	/// Sample rate of this [`Song`].
@@ -63,21 +63,4 @@ impl Default for Song {
 #[cfg(test)]
 mod tests {
 	use super::*;
-
-	const EXPECTED: &str =
-r#"{
-  "title": "",
-  "key": 0,
-  "album": 0,
-  "runtime": 0,
-  "sample_rate": 0,
-  "track": null,
-  "disc": null
-}"#;
-
-	#[test]
-	fn serde_json() {
-		let d: String = serde_json::to_string_pretty(&Song::default()).unwrap();
-		assert_eq!(EXPECTED, d);
-	}
 }

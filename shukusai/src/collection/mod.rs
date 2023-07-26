@@ -26,8 +26,8 @@ pub(crate) mod v0;
 #[cfg(feature = "gui")]
 pub(crate) mod v1;
 
-// Serde
-mod serde;
+/// `struct` representations for JSON output
+pub mod json;
 
 // Pointer related code. To be used... eventually... maybe.
 //mod decode;

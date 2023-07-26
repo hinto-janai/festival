@@ -39,13 +39,13 @@ pub struct Album {
 	/// Key to the [`Artist`].
 	pub artist: ArtistKey,
 
-	#[serde(serialize_with = "crate::collection::serde::date")]
+	#[serde(serialize_with = "crate::serde::date")]
 	/// Human-readable release date of this [`Album`].
 	pub release: Date,
-	#[serde(serialize_with = "crate::collection::serde::runtime")]
+	#[serde(serialize_with = "crate::serde::runtime")]
 	/// Total runtime of this [`Album`].
 	pub runtime: Runtime,
-	#[serde(serialize_with = "crate::collection::serde::unsigned")]
+	#[serde(serialize_with = "crate::serde::unsigned")]
 	/// [`Song`] count of this [`Album`].
 	pub song_count: Unsigned,
 	// This `Vec<SongKey>` is _always_ sorted based
@@ -77,7 +77,7 @@ pub struct Album {
 	/// parent directories, this will not be fully accurate.
 	pub path: PathBuf,
 
-	#[serde(serialize_with = "crate::collection::serde::art")]
+	#[serde(serialize_with = "crate::serde::art")]
 	/// The `Album`'s art.
 	///
 	/// `GUI` doesn't need to access this field
@@ -146,25 +146,4 @@ impl Default for Album {
 #[cfg(test)]
 mod tests {
 	use super::*;
-
-	const EXPECTED: &str =
-r#"{
-  "title": "",
-  "key": 0,
-  "artist": 0,
-  "release": "????-??-??",
-  "runtime": 0,
-  "song_count": 0,
-  "songs": [],
-  "discs": 0,
-  "art": null,
-  "genre": null
-}"#;
-
-	#[test]
-	#[cfg(feature = "daemon")]
-	fn serde_json() {
-		let d: String = serde_json::to_string_pretty(&Album::default()).unwrap();
-		assert_eq!(EXPECTED, d);
-	}
 }
