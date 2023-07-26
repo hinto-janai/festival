@@ -1,10 +1,12 @@
 //---------------------------------------------------------------------------------------------------- Use
 use bincode::{Encode,Decode};
 use std::marker::PhantomData;
-use crate::collection::{
+use crate::collection::key::{
 	ArtistKey,
 	AlbumKey,
 	SongKey,
+};
+use crate::collection::art::{
 	Art,
 };
 use readable::{
@@ -13,9 +15,10 @@ use readable::{
 	Date,
 };
 use std::path::PathBuf;
+use std::sync::Arc;
 
 //---------------------------------------------------------------------------------------------------- Album
-#[derive(Clone,Debug,Default,PartialEq,PartialOrd,Encode,Decode)]
+#[derive(Clone,Debug,PartialEq,PartialOrd,Encode,Decode)]
 /// Struct holding [`Album`] metadata, with pointers to an [`Artist`] and [`Song`]\(s\)
 ///
 /// This struct holds all the metadata about a particular [`Album`].
@@ -23,18 +26,20 @@ use std::path::PathBuf;
 /// It contains an [`ArtistKey`] that is the index of the owning [`Artist`], in the [`Collection`].
 ///
 /// It also contains [`SongKey`]\(s\) that are the indices of [`Song`]\(s\) belonging to this [`Album`], in the [`Collection`].
-pub(crate) struct Album {
+pub struct Album {
 	// User-facing data.
 	/// Title of the [`Album`].
-	pub(crate) title: String,
+	pub title: Arc<str>,
+	/// Title of the [`Album`] in "Unicode Derived Core Property" lowercase.
+	pub title_lowercase: Arc<str>,
 	/// Key to the [`Artist`].
-	pub(crate) artist: ArtistKey,
+	pub artist: ArtistKey,
 	/// Human-readable release date of this [`Album`].
-	pub(crate) release: Date,
+	pub release: Date,
 	/// Total runtime of this [`Album`].
-	pub(crate) runtime: Runtime,
+	pub runtime: Runtime,
 	/// [`Song`] count of this [`Album`].
-	pub(crate) song_count: Unsigned,
+	pub song_count: Unsigned,
 	// This `Vec<SongKey>` is _always_ sorted based
 	// off incrementing disc and track numbers, e.g:
 	//
@@ -47,30 +52,36 @@ pub(crate) struct Album {
 	//
 	// So, doing `my_album.songs.iter()` will always
 	// result in the correct `Song` order for `my_album`.
+	//
+	// SOMEDAY:
+	// This should be a Box<[AlbumKey]>.
 	/// Key\(s\) to the [`Song`]\(s\).
-	pub(crate) songs: Vec<SongKey>,
+	pub songs: Vec<SongKey>,
 	/// How many discs are in this `Album`?
 	/// (Most will only have 1).
-	pub(crate) discs: u32,
+	pub discs: u32,
 
 	/// The parent `PATH` of this `Album`.
 	///
 	/// This is always taken from the 1st `Song` that is inserted
 	/// into this `Album`, so if the other `Song`'s are in different
 	/// parent directories, this will not be fully accurate.
-	pub(crate) path: PathBuf,
+	pub path: PathBuf,
 
 	/// The `Album`'s art.
 	///
-	/// `Frontend`'s don't need to access this field
+	/// `GUI` doesn't need to access this field
 	/// directly, instead, use `album.art_or()`.
-	pub(crate) art: Art, // Always initialized after `CCD`.
+	///
+	/// THIS TYPE IS DIFFERENT DEPENDING ON THE FRONTEND.
+	pub art: Art,
 }
 
 impl Into<crate::collection::Album> for Album {
 	fn into(self) -> crate::collection::Album {
 		let Self {
 			title,
+			title_lowercase,
 			artist,
 			release,
 			runtime,
@@ -80,9 +91,6 @@ impl Into<crate::collection::Album> for Album {
 			path,
 			art,
 		} = self;
-
-		let title_lowercase = title.to_lowercase().into();
-		let title = title.into();
 
 		crate::collection::Album {
 			// INVARIANT: must be set correctly in the broader `Collection::into()`
@@ -103,3 +111,11 @@ impl Into<crate::collection::Album> for Album {
 		}
 	}
 }
+
+//---------------------------------------------------------------------------------------------------- TESTS
+//#[cfg(test)]
+//mod tests {
+//  #[test]
+//  fn _() {
+//  }
+//}

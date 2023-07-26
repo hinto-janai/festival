@@ -1037,9 +1037,9 @@ mod tests {
 	use readable::{Runtime, Date};
 
 	// Empty new `Collection`.
-	const C1: Lazy<Collection> = Lazy::new(|| Collection::from_path("../assets/shukusai/state/collection1_new.bin").unwrap());
+	const C1: Lazy<Collection> = Lazy::new(|| Collection::from_path("../assets/shukusai/state/collection2_new.bin").unwrap());
 	// Filled, user `Collection`.
-	const C2: Lazy<Collection> = Lazy::new(|| Collection::from_path("../assets/shukusai/state/collection1_real.bin").unwrap());
+	const C2: Lazy<Collection> = Lazy::new(|| Collection::from_path("../assets/shukusai/state/collection2_real.bin").unwrap());
 
 	#[test]
 	// Tests functions that depend on the correctness of the `Map`.
@@ -1188,11 +1188,11 @@ mod tests {
 		use crate::collection::{Art, Keychain};
 
 		#[cfg(target_os = "linux")]
-		const ALBUM_SIZE: usize = 328;
+		const ALBUM_SIZE: usize = 360;
 		#[cfg(target_os = "macos")]
-		const ALBUM_SIZE: usize = 344;
+		const ALBUM_SIZE: usize = 376;
 		#[cfg(target_os = "windows")]
-		const ALBUM_SIZE: usize = 352;
+		const ALBUM_SIZE: usize = 384;
 
 		#[cfg(target_os = "linux")]
 		const ART_SIZE: usize = 128;
@@ -1202,11 +1202,11 @@ mod tests {
 		const ART_SIZE: usize = 144;
 
 		#[cfg(target_os = "linux")]
-		const SONG_SIZE: usize = 112;
-		#[cfg(target_os = "macos")]
-		const SONG_SIZE: usize = 112;
-		#[cfg(target_os = "windows")]
 		const SONG_SIZE: usize = 120;
+		#[cfg(target_os = "macos")]
+		const SONG_SIZE: usize = 120;
+		#[cfg(target_os = "windows")]
+		const SONG_SIZE: usize = 128;
 
 		crate::assert_size_of! {
 			// Collection
@@ -1221,7 +1221,7 @@ mod tests {
 			Box<[SongKey]>   => 16,
 
 			// Artist
-			Artist           => 96,
+			Artist           => 104,
 			Runtime          => 24,
 			Vec<AlbumKey>    => 24,
 

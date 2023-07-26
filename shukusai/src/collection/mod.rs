@@ -21,8 +21,10 @@ mod metadata;
 pub use metadata::metadata;
 
 // Previous Collection versions.
-#[cfg(not(feature = "daemon"))]
+#[cfg(feature = "gui")]
 pub(crate) mod v0;
+#[cfg(feature = "gui")]
+pub(crate) mod v1;
 
 // Serde
 mod serde;

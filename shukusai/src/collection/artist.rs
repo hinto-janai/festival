@@ -4,6 +4,7 @@ use bincode::{Encode,Decode};
 use std::marker::PhantomData;
 use readable::Runtime;
 use crate::collection::key::{
+	ArtistKey,
 	AlbumKey,
 	SongKey,
 };
@@ -17,6 +18,8 @@ use std::sync::Arc;
 ///
 /// It contains an [`Vec`] of [`AlbumKey`]\(s\) that are the indices of the associated [`Album`]\(s\), in the [`Collection`].
 pub struct Artist {
+	/// This [`Artist`]'s [`ArtistKey`].
+	pub key: ArtistKey,
 	/// The [`Artist`]'s name.
 	pub name: Arc<str>,
 	/// The [`Artist`]'s name in "Unicode Derived Core Property" lowercase.
@@ -37,6 +40,7 @@ pub struct Artist {
 impl Default for Artist {
 	fn default() -> Self {
 		Self {
+			key: ArtistKey::zero(),
 			name: "".into(),
 			name_lowercase: "".into(),
 			runtime: Default::default(),

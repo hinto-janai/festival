@@ -4,6 +4,7 @@ use bincode::{Encode,Decode};
 use std::marker::PhantomData;
 use crate::collection::key::{
 	ArtistKey,
+	AlbumKey,
 	SongKey,
 };
 use crate::collection::art::{
@@ -27,7 +28,8 @@ use std::sync::Arc;
 ///
 /// It also contains [`SongKey`]\(s\) that are the indices of [`Song`]\(s\) belonging to this [`Album`], in the [`Collection`].
 pub struct Album {
-	// User-facing data.
+	/// This [`Album`]'s [`AlbumKey`].
+	pub key: AlbumKey,
 	/// Title of the [`Album`].
 	pub title: Arc<str>,
 	/// Title of the [`Album`] in "Unicode Derived Core Property" lowercase.
@@ -80,6 +82,9 @@ pub struct Album {
 	///
 	/// THIS TYPE IS DIFFERENT DEPENDING ON THE FRONTEND.
 	pub art: Art,
+
+	/// This [`Album`]'s genre.
+	pub genre: Option<String>,
 }
 
 #[cfg(feature = "gui")]
@@ -118,6 +123,7 @@ impl Album {
 impl Default for Album {
 	fn default() -> Self {
 		Self {
+			key: AlbumKey::zero(),
 			title: "".into(),
 			title_lowercase: "".into(),
 			artist: Default::default(),
@@ -128,6 +134,7 @@ impl Default for Album {
 			discs: Default::default(),
 			path: Default::default(),
 			art: Default::default(),
+			genre: Default::default(),
 		}
 	}
 }

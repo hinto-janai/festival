@@ -1,13 +1,13 @@
 //---------------------------------------------------------------------------------------------------- Use
 use bincode::{Encode,Decode};
-use crate::collection::v0::{
+use crate::collection::v1::{
 	album::Album,
 	artist::Artist,
 	song::Song,
 	plural::{Artists,Albums,Songs},
-	Map,
 };
 use crate::collection::{
+	Map,
 	Key,
 	ArtistKey,
 	AlbumKey,
@@ -40,128 +40,132 @@ use readable::{
 use once_cell::sync::Lazy;
 use const_format::formatcp;
 
+//---------------------------------------------------------------------------------------------------- Lazy
+// This is an empty, dummy `Collection`.
+pub(crate) static DUMMY_COLLECTION: Lazy<Arc<Collection>> = Lazy::new(|| Arc::new(Collection::new()));
+
 //---------------------------------------------------------------------------------------------------- Collection
-disk::bincode2!(Collection, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{STATE_SUB_DIR}"), "collection", HEADER, 0);
+disk::bincode2!(Collection, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{STATE_SUB_DIR}"), "collection", HEADER, 1);
 #[derive(Clone,Debug,PartialEq,Encode,Decode)]
-/// Version 0 of `Collection`.
-pub(crate) struct Collection {
+/// Version 1 of `Collection`.
+pub struct Collection {
 	// Metadata about the `Collection` itself.
 	/// Is this [`Collection`] empty?
 	///
 	/// Meaning, are there absolutely no [`Artist`]'s, [`Album`]'s and [`Song`]'s?
-	pub(crate) empty: bool,
+	pub empty: bool,
 	/// UNIX timestamp of the [`Collection`]'s creation date.
-	pub(crate) timestamp: u64,
+	pub timestamp: u64,
 	/// How many [`Artist`]'s in this [`Collection`]?
-	pub(crate) count_artist: Unsigned,
+	pub count_artist: Unsigned,
 	/// How many [`Album`]'s in this [`Collection`]?
-	pub(crate) count_album: Unsigned,
+	pub count_album: Unsigned,
 	/// How many [`Song`]'s in this [`Collection`]?
-	pub(crate) count_song: Unsigned,
+	pub count_song: Unsigned,
 	/// How many unique [`Album`] covers are there in this [`Collection`]?
-	pub(crate) count_art: Unsigned,
+	pub count_art: Unsigned,
 
 	// The "Map".
 	/// A [`HashMap`] that knows all [`Artist`]'s, [`Album`]'s and [`Song`]'s.
-	pub(crate) map: Map,
+	pub map: Map,
 
 	// The "3 arrays".
 	/// All the [`Artist`]'s in mostly random order.
-	pub(crate) artists: Artists,
+	pub artists: Artists,
 	/// All the [`Album`]'s in mostly random order.
-	pub(crate) albums: Albums,
+	pub albums: Albums,
 	/// All the [`Song`]'s in mostly random order.
-	pub(crate) songs: Songs,
+	pub songs: Songs,
 
 	// Sorted `Artist` keys.
 	/// [`Artist`] A-Z.
-	pub(crate) sort_artist_lexi: Box<[ArtistKey]>,
+	pub sort_artist_lexi: Box<[ArtistKey]>,
 	/// [`Artist`] Z-A.
-	pub(crate) sort_artist_lexi_rev: Box<[ArtistKey]>,
+	pub sort_artist_lexi_rev: Box<[ArtistKey]>,
 	/// [`Artist`] with most [`Album`]'s to least.
-	pub(crate) sort_artist_album_count: Box<[ArtistKey]>,
+	pub sort_artist_album_count: Box<[ArtistKey]>,
 	/// [`Artist`] with least [`Album`]'s to most.
-	pub(crate) sort_artist_album_count_rev: Box<[ArtistKey]>,
+	pub sort_artist_album_count_rev: Box<[ArtistKey]>,
 	/// [`Artist`] with most [`Song`]'s to least.
-	pub(crate) sort_artist_song_count: Box<[ArtistKey]>,
+	pub sort_artist_song_count: Box<[ArtistKey]>,
 	/// [`Artist`] with least [`Song`]'s to most.
-	pub(crate) sort_artist_song_count_rev: Box<[ArtistKey]>,
+	pub sort_artist_song_count_rev: Box<[ArtistKey]>,
 	/// [`Artist`] runtime least-most.
-	pub(crate) sort_artist_runtime: Box<[ArtistKey]>,
+	pub sort_artist_runtime: Box<[ArtistKey]>,
 	/// [`Artist`] runtime most-least.
-	pub(crate) sort_artist_runtime_rev: Box<[ArtistKey]>,
+	pub sort_artist_runtime_rev: Box<[ArtistKey]>,
 	/// [`Artist`] name shortest-longest.
-	pub(crate) sort_artist_name: Box<[ArtistKey]>,
+	pub sort_artist_name: Box<[ArtistKey]>,
 	/// [`Artist`] name longest-shortest
-	pub(crate) sort_artist_name_rev: Box<[ArtistKey]>,
+	pub sort_artist_name_rev: Box<[ArtistKey]>,
 
 	// Sorted `Album` keys.
 	/// [`Artist`] A-Z, [`Album`] oldest-latest.
-	pub(crate) sort_album_release_artist_lexi: Box<[AlbumKey]>,
+	pub sort_album_release_artist_lexi: Box<[AlbumKey]>,
 	/// [`Artist`] Z-A, [`Album`] oldest-latest.
-	pub(crate) sort_album_release_artist_lexi_rev: Box<[AlbumKey]>,
+	pub sort_album_release_artist_lexi_rev: Box<[AlbumKey]>,
 	/// [`Artist`] A-Z, [`Album`] latest-oldest.
-	pub(crate) sort_album_release_rev_artist_lexi: Box<[AlbumKey]>,
+	pub sort_album_release_rev_artist_lexi: Box<[AlbumKey]>,
 	/// [`Artist`] Z-A, [`Album`] latest-oldest.
-	pub(crate) sort_album_release_rev_artist_lexi_rev: Box<[AlbumKey]>,
+	pub sort_album_release_rev_artist_lexi_rev: Box<[AlbumKey]>,
 	/// [`Artist`] A-Z, [`Album`] A-Z.
-	pub(crate) sort_album_lexi_artist_lexi: Box<[AlbumKey]>,
+	pub sort_album_lexi_artist_lexi: Box<[AlbumKey]>,
 	/// [`Artist`] Z-A, [`Album`] A-Z.
-	pub(crate) sort_album_lexi_artist_lexi_rev: Box<[AlbumKey]>,
+	pub sort_album_lexi_artist_lexi_rev: Box<[AlbumKey]>,
 	/// [`Artist`] A-Z, [`Album`] Z-A.
-	pub(crate) sort_album_lexi_rev_artist_lexi: Box<[AlbumKey]>,
+	pub sort_album_lexi_rev_artist_lexi: Box<[AlbumKey]>,
 	/// [`Artist`] Z-A, [`Album`] Z-A.
-	pub(crate) sort_album_lexi_rev_artist_lexi_rev: Box<[AlbumKey]>,
+	pub sort_album_lexi_rev_artist_lexi_rev: Box<[AlbumKey]>,
 	/// [`Album`] A-Z.
-	pub(crate) sort_album_lexi: Box<[AlbumKey]>,
+	pub sort_album_lexi: Box<[AlbumKey]>,
 	/// [`Album`] Z-A.
-	pub(crate) sort_album_lexi_rev: Box<[AlbumKey]>,
+	pub sort_album_lexi_rev: Box<[AlbumKey]>,
 	/// [`Album`] oldest to latest.
-	pub(crate) sort_album_release: Box<[AlbumKey]>,
+	pub sort_album_release: Box<[AlbumKey]>,
 	/// [`Album`] latest to oldest.
-	pub(crate) sort_album_release_rev: Box<[AlbumKey]>,
+	pub sort_album_release_rev: Box<[AlbumKey]>,
 	/// [`Album`] shortest to longest.
-	pub(crate) sort_album_runtime: Box<[AlbumKey]>,
+	pub sort_album_runtime: Box<[AlbumKey]>,
 	/// [`Album`] longest to shortest.
-	pub(crate) sort_album_runtime_rev: Box<[AlbumKey]>,
+	pub sort_album_runtime_rev: Box<[AlbumKey]>,
 	/// [`Album`] title shortest to longest.
-	pub(crate) sort_album_title: Box<[AlbumKey]>,
+	pub sort_album_title: Box<[AlbumKey]>,
 	/// [`Album`] title longest to shortest.
-	pub(crate) sort_album_title_rev: Box<[AlbumKey]>,
+	pub sort_album_title_rev: Box<[AlbumKey]>,
 
 	// Sorted `Song` keys.
 	/// [`Artist`] A-Z, [`Album`] oldest-latest, [`Song`] track_number
-	pub(crate) sort_song_album_release_artist_lexi: Box<[SongKey]>,
+	pub sort_song_album_release_artist_lexi: Box<[SongKey]>,
 	/// [`Artist`] Z-A, [`Album`] oldest-latest, [`Song`] track_number
-	pub(crate) sort_song_album_release_artist_lexi_rev: Box<[SongKey]>,
+	pub sort_song_album_release_artist_lexi_rev: Box<[SongKey]>,
 	/// [`Artist`] A-Z, [`Album`] latest-oldest, [`Song`] track_number
-	pub(crate) sort_song_album_release_rev_artist_lexi: Box<[SongKey]>,
+	pub sort_song_album_release_rev_artist_lexi: Box<[SongKey]>,
 	/// [`Artist`] Z-A, [`Album`] latest-oldest, [`Song`] track_number
-	pub(crate) sort_song_album_release_rev_artist_lexi_rev: Box<[SongKey]>,
+	pub sort_song_album_release_rev_artist_lexi_rev: Box<[SongKey]>,
 	/// [`Artist`] A-Z, [`Album`] A-Z, [`Song`] track_number.
-	pub(crate) sort_song_album_lexi_artist_lexi: Box<[SongKey]>,
+	pub sort_song_album_lexi_artist_lexi: Box<[SongKey]>,
 	/// [`Artist`] Z-A, [`Album`] A-Z, [`Song`] track_number.
-	pub(crate) sort_song_album_lexi_artist_lexi_rev: Box<[SongKey]>,
+	pub sort_song_album_lexi_artist_lexi_rev: Box<[SongKey]>,
 	/// [`Artist`] A-Z, [`Album`] Z-A, [`Song`] track_number.
-	pub(crate) sort_song_album_lexi_rev_artist_lexi: Box<[SongKey]>,
+	pub sort_song_album_lexi_rev_artist_lexi: Box<[SongKey]>,
 	/// [`Artist`] Z-A, [`Album`] Z-A, [`Song`] track_number.
-	pub(crate) sort_song_album_lexi_rev_artist_lexi_rev: Box<[SongKey]>,
+	pub sort_song_album_lexi_rev_artist_lexi_rev: Box<[SongKey]>,
 	/// [`Song`] A-Z.
-	pub(crate) sort_song_lexi: Box<[SongKey]>,
+	pub sort_song_lexi: Box<[SongKey]>,
 	/// [`Song`] Z-A.
-	pub(crate) sort_song_lexi_rev: Box<[SongKey]>,
+	pub sort_song_lexi_rev: Box<[SongKey]>,
 	/// [`Song`] oldest to latest.
-	pub(crate) sort_song_release: Box<[SongKey]>,
+	pub sort_song_release: Box<[SongKey]>,
 	/// [`Song`] latest to oldest.
-	pub(crate) sort_song_release_rev: Box<[SongKey]>,
+	pub sort_song_release_rev: Box<[SongKey]>,
 	/// [`Song`] shortest to longest.
-	pub(crate) sort_song_runtime: Box<[SongKey]>,
+	pub sort_song_runtime: Box<[SongKey]>,
 	/// [`Song`] longest to shortest.
-	pub(crate) sort_song_runtime_rev: Box<[SongKey]>,
+	pub sort_song_runtime_rev: Box<[SongKey]>,
 	/// [`Song`] title shortest to longest.
-	pub(crate) sort_song_title: Box<[SongKey]>,
+	pub sort_song_title: Box<[SongKey]>,
 	/// [`Song`] title longest to shortest.
-	pub(crate) sort_song_title_rev: Box<[SongKey]>,
+	pub sort_song_title_rev: Box<[SongKey]>,
 }
 
 impl Into<crate::collection::Collection> for Collection {
@@ -226,9 +230,8 @@ impl Into<crate::collection::Collection> for Collection {
 		} = self;
 
 		let artists: crate::collection::Artists = artists.into();
-		let albums:  crate::collection::Albums  = albums.into();
-		let songs:   crate::collection::Songs   = songs.into();
-		let map = crate::collection::Map::from_3_vecs(&artists.0, &albums.0, &songs.0);
+		let albums: crate::collection::Albums = albums.into();
+		let songs: crate::collection::Songs = songs.into();
 
 		crate::collection::Collection {
 			empty,
@@ -292,7 +295,7 @@ impl Into<crate::collection::Collection> for Collection {
 }
 
 impl Collection {
-	//-------------------------------------------------- Converts v0 from disk into current.
+	//-------------------------------------------------- Converts v1 from disk into current.
 	pub(crate) fn disk_into() -> Result<crate::collection::Collection, anyhow::Error> {
 		use disk::Bincode2;
 		// SAFETY: memmap is used.
@@ -301,7 +304,7 @@ impl Collection {
 
 	//-------------------------------------------------- New.
 	/// Creates an empty [`Collection`].
-	pub(crate) fn new() -> Self {
+	pub fn new() -> Self {
 		Self {
 			empty: true,
 			timestamp: 0,
@@ -448,15 +451,16 @@ impl Collection {
 
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
+#[cfg(feature = "gui")]
 mod tests {
 	use super::*;
 	use disk::Bincode2;
 	use readable::{Runtime, Date};
 
 	// Empty new `Collection`.
-	const C1: Lazy<Collection> = Lazy::new(|| Collection::from_path("../assets/shukusai/state/collection0_new.bin").unwrap());
+	const C1: Lazy<Collection> = Lazy::new(|| Collection::from_path("../assets/shukusai/state/collection1_new.bin").unwrap());
 	// Filled, user `Collection`.
-	const C2: Lazy<Collection> = Lazy::new(|| Collection::from_path("../assets/shukusai/state/collection0_real.bin").unwrap());
+	const C2: Lazy<Collection> = Lazy::new(|| Collection::from_path("../assets/shukusai/state/collection1_real.bin").unwrap());
 
 	#[test]
 	// Tests functions that depend on the correctness of the `Map`.
@@ -507,183 +511,86 @@ mod tests {
 
 		// Artist 1/3
 		let k = ArtistKey::from(0_u8);
-		assert_eq!(C2.artists[k].name,         "artist_1");
+		assert_eq!(C2.artists[k].name,         "artist_1".into());
 		assert_eq!(C2.artists[k].runtime,      Runtime::from(4_u8));
 		assert_eq!(C2.artists[k].albums.len(), 2);
 		assert_eq!(C2.artists[k].songs.len(),  4);
 
 		// Artist 2/3
 		let k = ArtistKey::from(1_u8);
-		assert_eq!(C2.artists[k].name,         "artist_2");
+		assert_eq!(C2.artists[k].name,         "artist_2".into());
 		assert_eq!(C2.artists[k].runtime,      Runtime::from(2_u8));
 		assert_eq!(C2.artists[k].albums.len(), 1);
 		assert_eq!(C2.artists[k].songs.len(),  2);
 
 		// Artist 3/3
 		let k = ArtistKey::from(2_u8);
-		assert_eq!(C2.artists[k].name,         "artist_3");
+		assert_eq!(C2.artists[k].name,         "artist_3".into());
 		assert_eq!(C2.artists[k].runtime,      Runtime::from(1_u8));
 		assert_eq!(C2.artists[k].albums.len(), 1);
 		assert_eq!(C2.artists[k].songs.len(),  1);
 
 		// Albums 1/4
 		let k = AlbumKey::from(0_u8);
-		assert_eq!(C2.albums[k].title, "album_1");
+		assert_eq!(C2.albums[k].title, "album_1".into());
 		assert_eq!(C2.albums[k].release, Date::from_str("2018-04-25").unwrap());
 
 		// Albums 2/4
 		let k = AlbumKey::from(1_u8);
-		assert_eq!(C2.albums[k].title, "album_2");
+		assert_eq!(C2.albums[k].title, "album_2".into());
 		assert_eq!(C2.albums[k].release, Date::from_str("2018-04-25").unwrap());
 
 		// Albums 3/4
 		let k = AlbumKey::from(2_u8);
-		assert_eq!(C2.albums[k].title, "album_3");
+		assert_eq!(C2.albums[k].title, "album_3".into());
 		assert_eq!(C2.albums[k].release, Date::from_str("2018-04-25").unwrap());
 
 		// Albums 4/4
 		let k = AlbumKey::from(3_u8);
-		assert_eq!(C2.albums[k].title, "album_4");
+		assert_eq!(C2.albums[k].title, "album_4".into());
 		assert_eq!(C2.albums[k].release, Date::from_str("2018-04-25").unwrap());
 
 		// Song 1/7
 		let k = SongKey::from(0_u8);
-		assert_eq!(C2.songs[k].title, "mp3");
+		assert_eq!(C2.songs[k].title, "mp3".into());
 		assert_eq!(C2.songs[k].sample_rate, 48_000);
 		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_1.mp3");
 
 		// Song 2/7
 		let k = SongKey::from(1_u8);
-		assert_eq!(C2.songs[k].title, "mp3");
+		assert_eq!(C2.songs[k].title, "mp3".into());
 		assert_eq!(C2.songs[k].sample_rate, 48_000);
 		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_2.mp3");
 
 		// Song 3/7
 		let k = SongKey::from(2_u8);
-		assert_eq!(C2.songs[k].title, "mp3");
+		assert_eq!(C2.songs[k].title, "mp3".into());
 		assert_eq!(C2.songs[k].sample_rate, 48_000);
 		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_3.mp3");
 
 		// Song 4/7
 		let k = SongKey::from(3_u8);
-		assert_eq!(C2.songs[k].title, "flac");
+		assert_eq!(C2.songs[k].title, "flac".into());
 		assert_eq!(C2.songs[k].sample_rate, 48_000);
 		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_4.flac");
 
 		// Song 5/7
 		let k = SongKey::from(4_u8);
-		assert_eq!(C2.songs[k].title, "m4a");
+		assert_eq!(C2.songs[k].title, "m4a".into());
 		assert_eq!(C2.songs[k].sample_rate, 48_000);
 		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_5.m4a");
 
 		// Song 6/7
 		let k = SongKey::from(5_u8);
-		assert_eq!(C2.songs[k].title, "song_6");
+		assert_eq!(C2.songs[k].title, "song_6".into());
 		assert_eq!(C2.songs[k].sample_rate, 48_000);
 		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_6.ogg");
 
 		// Song 7/7
 		let k = SongKey::from(6_u8);
-		assert_eq!(C2.songs[k].title, "mp3");
+		assert_eq!(C2.songs[k].title, "mp3".into());
 		assert_eq!(C2.songs[k].sample_rate, 48_000);
 		assert_eq!(C2.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_7.mp3");
-	}
-
-	#[test]
-	// Asserts conversion works losslessly.
-	fn convert() {
-		let c: crate::collection::Collection = C2.clone().into();
-
-		// Assert metadata within the `Collection`.
-		assert!(!c.empty);
-		assert_eq!(c.count_artist, 3);
-		assert_eq!(c.count_album,  4);
-		assert_eq!(c.count_song,   7);
-		assert_eq!(c.count_art,    4);
-		assert_eq!(c.timestamp,    1688690421);
-
-		// Artist 1/3
-		let k = ArtistKey::from(0_u8);
-		assert_eq!(c.artists[k].name,         "artist_1".into());
-		assert_eq!(c.artists[k].runtime,      Runtime::from(4_u8));
-		assert_eq!(c.artists[k].albums.len(), 2);
-		assert_eq!(c.artists[k].songs.len(),  4);
-
-		// Artist 2/3
-		let k = ArtistKey::from(1_u8);
-		assert_eq!(c.artists[k].name,         "artist_2".into());
-		assert_eq!(c.artists[k].runtime,      Runtime::from(2_u8));
-		assert_eq!(c.artists[k].albums.len(), 1);
-		assert_eq!(c.artists[k].songs.len(),  2);
-
-		// Artist 3/3
-		let k = ArtistKey::from(2_u8);
-		assert_eq!(c.artists[k].name,         "artist_3".into());
-		assert_eq!(c.artists[k].runtime,      Runtime::from(1_u8));
-		assert_eq!(c.artists[k].albums.len(), 1);
-		assert_eq!(c.artists[k].songs.len(),  1);
-
-		// Albums 1/4
-		let k = AlbumKey::from(0_u8);
-		assert_eq!(c.albums[k].title, "album_1".into());
-		assert_eq!(c.albums[k].release, Date::from_str("2018-04-25").unwrap());
-
-		// Albums 2/4
-		let k = AlbumKey::from(1_u8);
-		assert_eq!(c.albums[k].title, "album_2".into());
-		assert_eq!(c.albums[k].release, Date::from_str("2018-04-25").unwrap());
-
-		// Albums 3/4
-		let k = AlbumKey::from(2_u8);
-		assert_eq!(c.albums[k].title, "album_3".into());
-		assert_eq!(c.albums[k].release, Date::from_str("2018-04-25").unwrap());
-
-		// Albums 4/4
-		let k = AlbumKey::from(3_u8);
-		assert_eq!(c.albums[k].title, "album_4".into());
-		assert_eq!(c.albums[k].release, Date::from_str("2018-04-25").unwrap());
-
-		// Song 1/7
-		let k = SongKey::from(0_u8);
-		assert_eq!(c.songs[k].title, "mp3".into());
-		assert_eq!(c.songs[k].sample_rate, 48_000);
-		assert_eq!(c.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_1.mp3");
-
-		// Song 2/7
-		let k = SongKey::from(1_u8);
-		assert_eq!(c.songs[k].title, "mp3".into());
-		assert_eq!(c.songs[k].sample_rate, 48_000);
-		assert_eq!(c.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_2.mp3");
-
-		// Song 3/7
-		let k = SongKey::from(2_u8);
-		assert_eq!(c.songs[k].title, "mp3".into());
-		assert_eq!(c.songs[k].sample_rate, 48_000);
-		assert_eq!(c.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_3.mp3");
-
-		// Song 4/7
-		let k = SongKey::from(3_u8);
-		assert_eq!(c.songs[k].title, "flac".into());
-		assert_eq!(c.songs[k].sample_rate, 48_000);
-		assert_eq!(c.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_4.flac");
-
-		// Song 5/7
-		let k = SongKey::from(4_u8);
-		assert_eq!(c.songs[k].title, "m4a".into());
-		assert_eq!(c.songs[k].sample_rate, 48_000);
-		assert_eq!(c.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_5.m4a");
-
-		// Song 6/7
-		let k = SongKey::from(5_u8);
-		assert_eq!(c.songs[k].title, "song_6".into());
-		assert_eq!(c.songs[k].sample_rate, 48_000);
-		assert_eq!(c.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_6.ogg");
-
-		// Song 7/7
-		let k = SongKey::from(6_u8);
-		assert_eq!(c.songs[k].title, "mp3".into());
-		assert_eq!(c.songs[k].sample_rate, 48_000);
-		assert_eq!(c.songs[k].path.as_os_str().to_str().unwrap(), "/home/main/git/festival/assets/audio/song_7.mp3");
 	}
 
 	#[test]
@@ -699,15 +606,14 @@ mod tests {
 	//
 	// All recursive structures within `Collection` are tested here.
 	fn layout() {
-		use crate::collection::v0::Art;
-		use crate::collection::Keychain;
+		use crate::collection::{Art, Keychain};
 
 		#[cfg(target_os = "linux")]
-		const ALBUM_SIZE: usize = 320;
+		const ALBUM_SIZE: usize = 328;
 		#[cfg(target_os = "macos")]
-		const ALBUM_SIZE: usize = 336;
-		#[cfg(target_os = "windows")]
 		const ALBUM_SIZE: usize = 344;
+		#[cfg(target_os = "windows")]
+		const ALBUM_SIZE: usize = 352;
 
 		#[cfg(target_os = "linux")]
 		const ART_SIZE: usize = 128;
@@ -717,11 +623,11 @@ mod tests {
 		const ART_SIZE: usize = 144;
 
 		#[cfg(target_os = "linux")]
-		const SONG_SIZE: usize = 104;
-		#[cfg(target_os = "macos")]
-		const SONG_SIZE: usize = 104;
-		#[cfg(target_os = "windows")]
 		const SONG_SIZE: usize = 112;
+		#[cfg(target_os = "macos")]
+		const SONG_SIZE: usize = 112;
+		#[cfg(target_os = "windows")]
+		const SONG_SIZE: usize = 120;
 
 		crate::assert_size_of! {
 			// Collection
@@ -736,7 +642,7 @@ mod tests {
 			Box<[SongKey]>   => 16,
 
 			// Artist
-			Artist           => 88,
+			Artist           => 96,
 			Runtime          => 24,
 			Vec<AlbumKey>    => 24,
 

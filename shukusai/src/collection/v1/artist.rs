@@ -2,43 +2,58 @@
 use bincode::{Encode,Decode};
 use std::marker::PhantomData;
 use readable::Runtime;
-use crate::collection::{
+use crate::collection::key::{
 	ArtistKey,
 	AlbumKey,
 	SongKey,
 };
+use std::sync::Arc;
 
 //----------------------------------------------------------------------------------------------------
-#[derive(Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Encode,Decode)]
+#[derive(Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Encode,Decode)]
 /// Struct holding [`Artist`] metadata, with pointers to [`Album`]\(s\)
 ///
 /// This struct holds all the metadata about a particular [`Artist`].
 ///
 /// It contains an [`Vec`] of [`AlbumKey`]\(s\) that are the indices of the associated [`Album`]\(s\), in the [`Collection`].
-pub(crate) struct Artist {
+pub struct Artist {
 	/// The [`Artist`]'s name.
-	pub(crate) name: String,
+	pub name: Arc<str>,
+	/// The [`Artist`]'s name in "Unicode Derived Core Property" lowercase.
+	pub name_lowercase: Arc<str>,
 	/// Total runtime.
-	pub(crate) runtime: Runtime,
+	pub runtime: Runtime,
+	// SOMEDAY:
+	// This should be a Box<[AlbumKey]>.
 	/// Keys to the associated [`Album`]\(s\).
-	pub(crate) albums: Vec<AlbumKey>,
+	pub albums: Vec<AlbumKey>,
 	/// Keys to every [`Song`] by this [`Artist`].
 	///
 	/// The order is [`Album`] release order, then [`Song`] track order.
-	pub(crate) songs: Box<[SongKey]>,
+	pub songs: Box<[SongKey]>,
+}
+
+impl Default for Artist {
+	fn default() -> Self {
+		Self {
+			name: "".into(),
+			name_lowercase: "".into(),
+			runtime: Default::default(),
+			albums: Vec::with_capacity(0),
+			songs: Box::new([]),
+		}
+	}
 }
 
 impl Into<crate::collection::Artist> for Artist {
 	fn into(self) -> crate::collection::Artist {
 		let Self {
 			name,
+			name_lowercase,
 			runtime,
 			albums,
 			songs,
 		} = self;
-
-		let name_lowercase = name.to_lowercase().into();
-		let name = name.into();
 
 		crate::collection::Artist {
 			// INVARIANT: must be set correctly in the broader `Collection::into()`
@@ -52,3 +67,11 @@ impl Into<crate::collection::Artist> for Artist {
 		}
 	}
 }
+
+//---------------------------------------------------------------------------------------------------- TESTS
+//#[cfg(test)]
+//mod tests {
+//  #[test]
+//  fn _() {
+//  }
+//}
