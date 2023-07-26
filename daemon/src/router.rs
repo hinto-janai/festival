@@ -243,6 +243,9 @@ async fn route(
 ) -> Result<Response<Body>, anyhow::Error> {
 	let (mut parts, body) = req.into_parts();
 
+//	println!("{parts:#?}");
+//	println!("{body:#?}");
+
 	// AUTHORIZATION.
 	if let Some(resp) = auth(&mut parts).await {
 		return Ok(resp);

@@ -145,7 +145,10 @@ pub async fn key_art(key: usize) -> Result<Response<Body>, anyhow::Error> { Ok(R
 
 pub async fn string_artist(artist: &str) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from(format!("string_artist: {artist}")))) }
 pub async fn string_album(artist: &str, album: &str) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from(format!("string_album: {artist}, {album}")))) }
-pub async fn string_song(artist: &str, album: &str, song: &str) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from(format!("string_song: {artist}, {album}, {song}")))) }
+pub async fn string_song(artist: &str, album: &str, song: &str) -> Result<Response<Body>, anyhow::Error> {
+//	println!("{artist}, {album}, {song}");
+	Ok(Response::new(Body::from(format!("string_song: {artist}, {album}, {song}"))))
+}
 
 pub async fn art(artist: &str, album: &str) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from(format!("art: {artist}, {album}")))) }
 

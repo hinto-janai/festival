@@ -100,9 +100,9 @@ The `object` must be one of:
 
 The `key` must be the key number associated with the object.
 
-This info can be found in multiple JSON-RPC methods, such as [`map_artist`](#map_artist). A `key` field will be included in the response. It is a number that represents that object.
+This info can be found in multiple JSON-RPC methods, such as `map_artist`, `search_artist`, etc. A `key` field will be included in the response. It is a number that represents that object.
 
-Keys are unique _per_ object group, meaning there is a `artist 0` AND `album 0`, and so forth.
+Keys are unique _per_ object group, meaning there is an `artist 0` AND `album 0`, and so forth.
 
 Note that keys can only be relied upon as long as the `Collection` has not been reset. When the `Collection` is reset, it is not guaranteed that the same key will map to the same object. Using the `/string` endpoint may be more convenient so that artist names, album and song titles can be used as inputs instead.
 
@@ -119,7 +119,7 @@ Download all the `Album`'s owned by this `Artist`, 1 directory per album (includ
 
 | Output                                                  | Type   | Example |
 |---------------------------------------------------------|--------|---------|
-| Archive of all artist's albums (including art if found) | `.zip` | `Artist Name - Album Title.zip`
+| Archive of all artist's albums (including art if found) | `.zip` | `Artist Name.zip`
 
 ## /album/${album_key}
 Download this `Album` (including art if found), wrapped in an archive format.
@@ -130,7 +130,7 @@ Download this `Album` (including art if found), wrapped in an archive format.
 
 | Output                                    | Type   | Example |
 |-------------------------------------------|--------|---------|
-| Album in archive (including art if found) | `.zip` | `Album Title.zip`
+| Album in archive (including art if found) | `.zip` | `Artist Name - Album Title.zip`
 
 ## /song/${song_key}
 Download this `Song` in the original format.
@@ -141,7 +141,7 @@ Download this `Song` in the original format.
 
 | Output                  | Type       | Example |
 |-------------------------|------------|---------|
-| Song in original format | audio file | `Song Title.flac`
+| Song in original format | audio file | `Artist Name - Album Title - Song Title.flac`
 
 ## /art/${album_key}
 Download this `Album`'s art in the image's original format.
@@ -152,15 +152,65 @@ Download this `Album`'s art in the image's original format.
 
 | Output                 | Type       | Example |
 |------------------------|------------|---------|
-| Art in original format | image file | `Album Title.jpg`
+| Art in original format | image file | `Artist Name - Album Title.jpg`
 
 
 ## /string
-## /${artist_name}
-## /${artist_name}/${album_title}
-## /${artist_name}${album_title}${song_title}
+This is the same as the `/key` endpoint, but instead of numbers, you can directly use:
+- Artist names
+- Album titles
+- Song titles
 
-## /art/${artist_name}/${album_title}
+So instead of:
+```
+http://localhost:18425/key/song/123
+```
+you can use:
+```
+http://localhost:18425/string/Artist Name/Artist Title/Song Title
+```
+Browsers will secretly percent-encode this URL, so it'll actually be:
+```
+http://localhost:18425/string/Artist%20Name/Artist%20Title/Song%20Title
+```
+This is fine, `festivald` will decode it, along with any other percent encoding, so you can use spaces or any other UTF-8 characters directly in the URL:
+```
+http://localhost:18425/string/артист/❤️/ヒント じゃない
+```
+
+## /${artist_name}
+Download all the `Album`'s owned by this `Artist`, 1 directory per album (including art if found), wrapped in an archive format.
+
+| Input       | Type         | Example |
+|-------------|--------------|---------|
+| artist name | UTF-8 string | `http://localhost:18425/string/Artist Name`
+
+| Output                                                  | Type   | Example |
+|---------------------------------------------------------|--------|---------|
+| Archive of all artist's albums (including art if found) | `.zip` | `Artist Name.zip`
+
+## /${artist_name/${album_title}
+Download this `Album` (including art if found), wrapped in an archive format.
+
+| Input                    | Type         | Example |
+|--------------------------|--------------|---------|
+| artist name, album title | UTF-8 string | `http://localhost:18425/string/Artist Name/Album Title`
+
+| Output                                    | Type   | Example |
+|-------------------------------------------|--------|---------|
+| Album in archive (including art if found) | `.zip` | `Artist Name - Album Title.zip`
+
+## /${artist_name/${album_title}/${song_title}
+Download this `Song` in the original format.
+
+| Input                                | Type         | Example |
+|--------------------------------------|--------------|---------|
+| artist name, album title, song title | UTF-8 string | `http://localhost:18425/string/Artist Name/Album Title/Song Title`
+
+| Output                  | Type       | Example |
+|-------------------------|------------|---------|
+| Song in original format | audio file | `Artist Name - Album Title - Song Title.flac`
+
 
 ---
 

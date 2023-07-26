@@ -70,30 +70,30 @@ pub struct ConfigBuilder {
 	pub authorization:	 Option<String>,
 }
 
-const DEFAULT_CONFIG_BUILDER: ConfigBuilder = ConfigBuilder {
-	ip:                 Some(Ipv4Addr::LOCALHOST),
-	port:               Some(FESTIVALD_PORT),
-	max_connections:    None,
-	exclusive_ips:      None,
-	sleep_on_fail:      Some(3000),
-	tls:                Some(false),
-	certificate:        None,
-	key:                None,
-	rest:               Some(true),
-	direct_download:    Some(false),
-	filename_separator: Some(" - "),
-	log_level:          Some(log::LevelFilter::Info),
-	log_daemon_only:    Some(false),
-	watch:              Some(true),
-	media_controls:     Some(true),
-	authorization:      None,
-};
+impl Default for ConfigBuilder {
+	fn default() -> Self {
+		Self {
+			ip:                 Some(Ipv4Addr::LOCALHOST),
+			port:               Some(FESTIVALD_PORT),
+			max_connections:    None,
+			exclusive_ips:      None,
+			sleep_on_fail:      Some(3000),
+			tls:                Some(false),
+			certificate:        None,
+			key:                None,
+			rest:               Some(true),
+			direct_download:    Some(false),
+			filename_separator: Some(" - ".to_string()),
+			log_level:          Some(log::LevelFilter::Info),
+			log_daemon_only:    Some(false),
+			watch:              Some(true),
+			media_controls:     Some(true),
+			authorization:      None,
+		}
+	}
+}
 
 impl ConfigBuilder {
-	pub const fn new() -> Self {
-		DEFAULT_CONFIG_BUILDER
-	}
-
 	// INVARIANT: must be called once and only once.
 	// Sets `CONFIG`, and returns a ref.
 	pub fn build_and_set(self) -> &'static Config {
@@ -151,7 +151,7 @@ impl ConfigBuilder {
 			key:                sum!(key,                "key",                None::<PathBuf>),
 			rest:               get!(rest,               "rest",               true),
 			direct_download:    get!(direct_download,    "direct_download",    false),
-			filename_separator: get!(filename_separator, "filename_separator", " - "),
+			filename_separator: get!(filename_separator, "filename_separator", " - ".to_string()),
 			log_level:          get!(log_level,          "log-level",          log::LevelFilter::Info),
 			log_daemon_only:    get!(log_daemon_only,    "log-daemon-only",    false),
 			watch:              get!(watch,              "watch",              true),
@@ -244,12 +244,6 @@ impl ConfigBuilder {
 		// SAFETY: unwrap is okay, we only set `CONFIG` here.
 		CONFIG.set(c).unwrap();
 		config()
-	}
-}
-
-impl Default for ConfigBuilder {
-	fn default() -> Self {
-		DEFAULT_CONFIG_BUILDER
 	}
 }
 
