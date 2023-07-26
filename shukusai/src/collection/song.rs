@@ -18,14 +18,17 @@ use std::sync::Arc;
 ///
 /// It contains a [`SongKey`] that is the index of the owning [`Album`], in the [`Collection`].
 pub struct Song {
-	/// This [`Song`]'s [`SongKey`].
-	pub key: SongKey,
 	/// Title of the [`Song`].
 	pub title: Arc<str>,
+	#[serde(skip)]
 	/// Title of the [`Song`] in "Unicode Derived Core Property" lowercase.
 	pub title_lowercase: Arc<str>,
+
+	/// This [`Song`]'s [`SongKey`].
+	pub key: SongKey,
 	/// Key to the [`Album`].
 	pub album: AlbumKey,
+
 	#[serde(serialize_with = "crate::collection::serde::runtime")]
 	/// Total runtime of this [`Song`].
 	pub runtime: Runtime,
@@ -64,7 +67,7 @@ mod tests {
 	const EXPECTED: &str =
 r#"{
   "title": "",
-  "title_lowercase": "",
+  "key": 0,
   "album": 0,
   "runtime": 0,
   "sample_rate": 0,

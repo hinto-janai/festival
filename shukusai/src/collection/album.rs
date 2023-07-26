@@ -28,14 +28,17 @@ use std::sync::Arc;
 ///
 /// It also contains [`SongKey`]\(s\) that are the indices of [`Song`]\(s\) belonging to this [`Album`], in the [`Collection`].
 pub struct Album {
-	/// This [`Album`]'s [`AlbumKey`].
-	pub key: AlbumKey,
 	/// Title of the [`Album`].
 	pub title: Arc<str>,
+	#[serde(skip)]
 	/// Title of the [`Album`] in "Unicode Derived Core Property" lowercase.
 	pub title_lowercase: Arc<str>,
+
+	/// This [`Album`]'s [`AlbumKey`].
+	pub key: AlbumKey,
 	/// Key to the [`Artist`].
 	pub artist: ArtistKey,
+
 	#[serde(serialize_with = "crate::collection::serde::date")]
 	/// Human-readable release date of this [`Album`].
 	pub release: Date,
@@ -147,14 +150,15 @@ mod tests {
 	const EXPECTED: &str =
 r#"{
   "title": "",
-  "title_lowercase": "",
+  "key": 0,
   "artist": 0,
   "release": "????-??-??",
   "runtime": 0,
   "song_count": 0,
   "songs": [],
   "discs": 0,
-  "art": null
+  "art": null,
+  "genre": null
 }"#;
 
 	#[test]

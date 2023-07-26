@@ -8,3 +8,7 @@ Things added in `v2` that need conversion from `v1`:
 	- `key: AlbumKey` in `Album`
 	- `key: SongKey` in `Song`
 	- `genre: Option<Arc<str>>` in `Album`
+
+`festivald` & `festival-cli` & `rpc/` all also started on `Collection2`.
+
+This means the public JSON API of those things are defined in `Collection2`.
