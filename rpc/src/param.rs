@@ -6,81 +6,49 @@ use log::{error,info,warn,debug,trace};
 use disk::{Bincode2,Json};
 use std::path::PathBuf;
 use std::borrow::Cow;
-
-//---------------------------------------------------------------------------------------------------- Impl macros
-// Implement a named map of JSON.
-macro_rules! impl_param {
-	($struct:ident, $($field:ident: $type:ty),*) => {
-		#[derive(Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
-		pub struct $struct {
-			$(
-				pub $field: $type,
-			)*
-		}
-	}
-}
-
-// Implement a named map of JSON with a lifetime: `'a`.
-macro_rules! impl_param_lt {
-	($struct:ident, $($field:ident: $type:ty),*) => {
-		#[derive(Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
-		pub struct $struct<'a> {
-			$(
-				pub $field: $type,
-			)*
-		}
-	}
-}
-
-// Implement a fixed size, anonymous JSON array.
-macro_rules! impl_param_array {
-	($struct:ident, $type:ty, $len:literal) => {
-		#[derive(Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
-		#[serde(transparent)]
-		#[repr(transparent)]
-		pub struct $struct(pub [$type; $len]);
-	}
-}
-
-// Implement a dynamically size, anonymous JSON array.
-macro_rules! impl_param_vec {
-	($struct:ident, $type:ty) => {
-		#[derive(Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
-		#[serde(transparent)]
-		#[repr(transparent)]
-		pub struct $struct(pub Vec<$type>);
-	}
-}
-
-//---------------------------------------------------------------------------------------------------- Param impl
 use shukusai::{
 	collection::{SongKey,AlbumKey,ArtistKey},
 	audio::Append,
 	search::SearchKind,
 };
 
-impl_param!(Previous, threshold: Option<u32>);
-impl_param!(Volume, volume: u8);
-impl_param!(Clear, playback: bool);
-impl_param!(Skip, skip: usize);
-impl_param!(Back, back: usize);
-impl_param!(SetQueueIndex, index: usize);
-impl_param!(RemoveQueueRange, start: usize, end: usize, skip: bool);
-impl_param!(AddQueueSong, key: SongKey, append: Append, clear: bool);
-impl_param!(AddQueueAlbum, key: AlbumKey, append: Append, clear: bool, offset: usize);
-impl_param!(AddQueueArtist, key: ArtistKey, append: Append, clear: bool, offset: usize);
-impl_param!(Seek, seek: shukusai::audio::Seek, second: u64);
-impl_param!(Artist, key: ArtistKey);
-impl_param!(Album, key: AlbumKey);
-impl_param!(Song, key: SongKey);
-impl_param_lt!(Search, input: Cow<'a, str>, kind: SearchKind);
-impl_param_lt!(SearchArtist, input: Cow<'a, str>, kind: SearchKind);
-impl_param_lt!(SearchAlbum, input: Cow<'a, str>, kind: SearchKind);
-impl_param_lt!(SearchSong, input: Cow<'a, str>, kind: SearchKind);
-impl_param_lt!(MapArtist, artist: Cow<'a, str>);
-impl_param_lt!(MapAlbum, artist: Cow<'a, str>, album: Cow<'a, str>);
-impl_param_lt!(MapSong, artist: Cow<'a, str>, album: Cow<'a, str>, song: Cow<'a, str>);
-impl_param_vec!(NewCollection, PathBuf);
+use crate::{
+	impl_struct,
+	impl_struct_lt,
+};
+
+//---------------------------------------------------------------------------------------------------- Param impl
+// Playback control.
+impl_struct!(Previous, threshold: Option<u32>);
+impl_struct!(Volume, volume: u8);
+impl_struct!(Clear, playback: bool);
+impl_struct!(Skip, skip: usize);
+impl_struct!(Back, back: usize);
+impl_struct!(SetQueueIndex, index: usize);
+impl_struct!(RemoveQueueRange, start: usize, end: usize, skip: bool);
+impl_struct!(AddQueueSong, key: SongKey, append: Append, clear: bool);
+impl_struct!(AddQueueAlbum, key: AlbumKey, append: Append, clear: bool, offset: usize);
+impl_struct!(AddQueueArtist, key: ArtistKey, append: Append, clear: bool, offset: usize);
+impl_struct!(Seek, seek: shukusai::audio::Seek, second: u64);
+
+// Key (exact key)
+impl_struct!(KeyArtist, key: ArtistKey);
+impl_struct!(KeyAlbum, key: AlbumKey);
+impl_struct!(KeySong, key: SongKey);
+
+// Map (exact hashmap)
+impl_struct_lt!(MapArtist, artist: Cow<'a, str>);
+impl_struct_lt!(MapAlbum, artist: Cow<'a, str>, album: Cow<'a, str>);
+impl_struct_lt!(MapSong, artist: Cow<'a, str>, album: Cow<'a, str>, song: Cow<'a, str>);
+
+// Search (fuzzy keys)
+impl_struct_lt!(Search, input: Cow<'a, str>, kind: SearchKind);
+impl_struct_lt!(SearchArtist, input: Cow<'a, str>, kind: SearchKind);
+impl_struct_lt!(SearchAlbum, input: Cow<'a, str>, kind: SearchKind);
+impl_struct_lt!(SearchSong, input: Cow<'a, str>, kind: SearchKind);
+
+// Collection
+impl_struct!(NewCollection, paths: Vec<PathBuf>);
 
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
@@ -217,6 +185,6 @@ mod tests {
 
 	#[test]
 	fn new_collection() {
-		t(&NewCollection(vec![PathBuf::from("/path_1"), PathBuf::from("/path_2")]), r#"["/path_1","/path_2"]"#);
+		t(&NewCollection { paths: vec![PathBuf::from("/path_1"), PathBuf::from("/path_2")] }, r#"{"paths":["/path_1","/path_2"]}"#);
 	}
 }

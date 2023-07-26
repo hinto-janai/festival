@@ -38,8 +38,8 @@ use std::borrow::Cow;
 ///   - (Optionally) a struct representation of the associated parameters, found in [`crate::param`]
 pub enum Method {
 	// State retreival.
-	/// [`crate::resp::Info`]
-	Info,
+	/// [`crate::resp::StateDaemon`]
+	StateDaemon,
 	/// [`crate::resp::StateAudio`]
 	StateAudio,
 	/// [`crate::resp::StateReset`]
@@ -89,15 +89,13 @@ pub enum Method {
 	/// [`crate::resp::Status`] & [`crate::param::RemoveQueueRange`]
 	RemoveQueueRange,
 
-	// Search (fuzzy keys)
-	/// [`crate::resp::Search`] & [`crate::param::Search`]
-	Search,
-	/// [`crate::resp::SearchArtist`] &  [`crate::param::SearchArtist`]
-	SearchArtist,
-	/// [`crate::resp::SearchAlbum`] & [`crate::param::SearchAlbum`]
-	SearchAlbum,
-	/// [`crate::resp::SearchSong`] & [`crate::param::SearchSong`]
-	SearchSong,
+	// Key (exact key)
+	/// [`crate::resp::KeyArtist`] & [`crate::param::KeyArtist`]
+	KeyArtist,
+	/// [`crate::resp::KeyAlbum`] & [`crate::param::KeyAlbum`]
+	KeyAlbum,
+	/// [`crate::resp::KeySong`] & [`crate::param::KeySong`]
+	KeySong,
 
 	// Map (exact hashmap)
 	/// [`crate::resp::MapArtist`] & [`crate::param::MapArtist`]
@@ -107,13 +105,15 @@ pub enum Method {
 	/// [`crate::resp::MapSong`] & [`crate::param::MapSong`]
 	MapSong,
 
-	// Key (exact key)
-	/// [`crate::resp::Artist`] & [`crate::param::Artist`]
-	Artist,
-	/// [`crate::resp::Album`] & [`crate::param::Album`]
-	Album,
-	/// [`crate::resp::Song`] & [`crate::param::Song`]
-	Song,
+	// Search (fuzzy keys)
+	/// [`crate::resp::Search`] & [`crate::param::Search`]
+	Search,
+	/// [`crate::resp::SearchArtist`] &  [`crate::param::SearchArtist`]
+	SearchArtist,
+	/// [`crate::resp::SearchAlbum`] & [`crate::param::SearchAlbum`]
+	SearchAlbum,
+	/// [`crate::resp::SearchSong`] & [`crate::param::SearchSong`]
+	SearchSong,
 
 	// Collection
 	/// [`crate::resp::NewCollection`] & [`crate::param::NewCollection`]

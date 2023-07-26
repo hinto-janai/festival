@@ -6,52 +6,6 @@ use log::{error,info,warn,debug,trace};
 use disk::{Bincode2,Json};
 use std::path::PathBuf;
 use std::borrow::Cow;
-use strum::{
-	AsRefStr,
-	Display,
-	EnumCount,
-	EnumIter,
-	EnumString,
-	EnumVariantNames,
-	IntoStaticStr,
-};
-
-//---------------------------------------------------------------------------------------------------- Impl macros
-// Implement a named map of JSON.
-macro_rules! impl_resp {
-	($struct:ident, $($field:ident: $type:ty),*) => {
-		#[derive(Clone,Debug,PartialEq,PartialOrd,Serialize,Deserialize)]
-		pub struct $struct {
-			$(
-				pub $field: $type,
-			)*
-		}
-	}
-}
-
-// Implement an anonymous map of JSON.
-macro_rules! impl_resp_anon {
-	($struct:ident, $type:ty) => {
-		#[derive(Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
-		#[serde(transparent)]
-		#[repr(transparent)]
-		pub struct $struct(pub $type);
-	}
-}
-
-// Implement a named map of JSON with a lifetime: `'a`.
-macro_rules! impl_resp_lt {
-	($struct:ident, $($field:ident: $type:ty),*) => {
-		#[derive(Clone,Debug,PartialEq,PartialOrd,Serialize,Deserialize)]
-		pub struct $struct<'a> {
-			$(
-				pub $field: $type,
-			)*
-		}
-	}
-}
-
-//---------------------------------------------------------------------------------------------------- Response impl
 use shukusai::{
 	collection::{
 		json::{
@@ -67,36 +21,39 @@ use shukusai::{
 	audio::Repeat,
 	search::SearchKind,
 };
+use crate::{
+	impl_struct,
+	impl_struct_lt,
+};
 
-impl_resp!(Status, ok: bool);
+//---------------------------------------------------------------------------------------------------- Response impl
+// Generic response.
+impl_struct!(Status, ok: bool);
 
 // State retreival.
-impl_resp_lt!(Info, uptime: u64, version: Cow<'a, str>, commit: Cow<'a, str>, os: Cow<'a, str>);
-impl_resp!(StateAudio, queue: Vec<SongKey>, queue_idx: Option<usize>, playing: bool, song: Option<SongKey>, elapsed: u32, runtime: u32, repeat: Repeat, volume: u8);
-impl_resp!(StateReset, resetting: bool, saving: bool);
-impl_resp_anon!(StateCollection, CollectionJson);
-
-// Playback control.
-impl_resp!(Toggle, playing: bool);
-impl_resp!(Search, artists: Box<[ArtistKey]>, albums: Box<[AlbumKey]>, songs: Box<[SongKey]>);
-
-// Search (fuzzy keys)
-impl_resp!(SearchArtist, artists: Box<[ArtistKey]>);
-impl_resp!(SearchAlbum, albums: Box<[AlbumKey]>);
-impl_resp!(SearchSong, songs: Box<[SongKey]>);
-
-// Map (exact hashmap)
-impl_resp_anon!(MapArtist, ArtistJson);
-impl_resp_anon!(MapAlbum, AlbumJson);
-impl_resp_anon!(MapSong, SongJson);
+impl_struct_lt!(StateDaemon, uptime: u64, rest: bool, direct_download: bool, authorization: bool, version: Cow<'a, str>, commit: Cow<'a, str>, os: Cow<'a, str>);
+impl_struct!(StateAudio, queue: Vec<SongKey>, queue_idx: Option<usize>, playing: bool, song: Option<SongKey>, elapsed: u32, runtime: u32, repeat: Repeat, volume: u8);
+impl_struct!(StateReset, resetting: bool, saving: bool);
+impl_struct!(StateCollection, collection: CollectionJson);
 
 // Key (exact key)
-impl_resp_anon!(KeyArtist, ArtistJson);
-impl_resp_anon!(KeyAlbum, AlbumJson);
-impl_resp_anon!(KeySong, SongJson);
+impl_struct!(Artist, artist: ArtistJson);
+impl_struct!(Album, album: AlbumJson);
+impl_struct!(Song, song: SongJson);
+
+// Map (exact hashmap)
+impl_struct!(MapArtist, artist: ArtistJson);
+impl_struct!(MapAlbum, album: AlbumJson);
+impl_struct!(MapSong, song: SongJson);
+
+// Search (fuzzy keys)
+impl_struct!(Search, artists: Box<[ArtistJson]>, albums: Box<[AlbumJson]>, songs: Box<[SongJson]>);
+impl_struct!(SearchArtist, artists: Box<[ArtistJson]>);
+impl_struct!(SearchAlbum, albums: Box<[AlbumJson]>);
+impl_struct!(SearchSong, songs: Box<[SongJson]>);
 
 // Collection
-impl_resp!(NewCollection, time: f64);
+impl_struct!(NewCollection, time: f64);
 
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
