@@ -150,6 +150,23 @@ pub struct Cli {
 	/// the file directly, without opening it.
 	direct_download: bool,
 
+	#[arg(long, verbatim_doc_comment)]
+	/// When files are downloaded via the REST API, and the
+	/// file is a nested object referencing multiple things
+	/// (e.g, an _album_ owned by an _artist_), we must include
+	/// that information, but what string should separate them?
+	///
+	/// The default separator is " - ", e.g:
+	/// ```
+	/// Artist Name - Album Title.zip
+	/// ```
+	/// it can be changed to any string, like "/":
+	/// ```
+	/// Artist Name/Album Title.zip
+	/// ```
+	/// or left empty "" for no separator at all.
+	filename_separator: Option<String>,
+
 	#[arg(long, verbatim_doc_comment, default_value_t = false)]
 	/// Disable watching the filesystem for signals
 	///

@@ -127,6 +127,27 @@ rest = true
 direct_download = false
 
 
+# When files are downloaded via the REST API, and the
+# file is a nested object referencing multiple things
+# (e.g, an _album_ owned by an _artist_), we must include
+# that information, but what string should separate them?
+#
+# The default separator is " - ", e.g:
+# ```
+# Artist Name - Album Title.zip
+# ```
+# it can be changed to any string, like "/":
+# ```
+# Artist Name/Album Title.zip
+# ```
+# or left empty "" for no separator at all.
+#
+# DEFAULT | " - "
+# EXAMPLE | "/", " --- ", "_", ""
+# TYPE    | string
+filename_separator = " - "
+
+
 #----------------------------------------------------------#
 #                         LOGGING                          #
 #----------------------------------------------------------#
