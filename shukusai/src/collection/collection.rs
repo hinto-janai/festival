@@ -1,4 +1,5 @@
 //---------------------------------------------------------------------------------------------------- Use
+use serde::Serialize;
 use bincode::{Encode,Decode};
 use crate::collection::{
 	album::Album,
@@ -44,7 +45,7 @@ pub(crate) static DUMMY_COLLECTION: Lazy<Arc<Collection>> = Lazy::new(|| Arc::ne
 
 //---------------------------------------------------------------------------------------------------- Collection
 disk::bincode2!(Collection, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{STATE_SUB_DIR}"), "collection", HEADER, COLLECTION_VERSION);
-#[derive(Clone,Debug,PartialEq,Encode,Decode)]
+#[derive(Clone,Debug,PartialEq,Encode,Decode,Serialize)]
 /// The main music `Collection`
 ///
 /// This is the `struct` that holds all the (meta)data about the user's music.
@@ -117,15 +118,20 @@ pub struct Collection {
 	pub empty: bool,
 	/// UNIX timestamp of the [`Collection`]'s creation date.
 	pub timestamp: u64,
+	#[serde(serialize_with = "crate::collection::serde::unsigned")]
 	/// How many [`Artist`]'s in this [`Collection`]?
 	pub count_artist: Unsigned,
+	#[serde(serialize_with = "crate::collection::serde::unsigned")]
 	/// How many [`Album`]'s in this [`Collection`]?
 	pub count_album: Unsigned,
+	#[serde(serialize_with = "crate::collection::serde::unsigned")]
 	/// How many [`Song`]'s in this [`Collection`]?
 	pub count_song: Unsigned,
+	#[serde(serialize_with = "crate::collection::serde::unsigned")]
 	/// How many unique [`Album`] covers are there in this [`Collection`]?
 	pub count_art: Unsigned,
 
+	#[serde(skip)]
 	// The "Map".
 	/// A [`HashMap`] that knows all [`Artist`]'s, [`Album`]'s and [`Song`]'s.
 	pub map: Map,
