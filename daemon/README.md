@@ -1,8 +1,33 @@
 # `festivald`
 `Festival` daemon.
 
-* [Command Line](#Command-Line)
+`festivald` is a music server that plays on the device it is running on, while allowing remote control via clients.
+
+The 2 APIs `festivald` exposes:
+- [`JSON-RPC 2.0`](https://jsonrpc.org) for state retrieval & signal control
+- [`REST`](https://en.wikipedia.org/wiki/Representational_state_transfer) endpoints for serving large resources (audio, art, etc)
+
+The transport used is `HTTP(s)`.
+
+To interact with `festivald`, you need a client. The reference client can be found at [`festival-cli`](https://github.com/hinto-janai/festival/tree/main/cli).
+
+For the `JSON-RPC` API, anything that can transmit `JSON-RPC` over `HTTP(s)` can be a client, like `curl`:
+```bash
+# Toggle playback.
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":"0","method":"toggle"}'
+```
+
+For the `REST` API, you could use a browser:
+```bash
+# Opening this link in a browser will show a small player for this song.
+http://localhost:18425/string/Artist Name/Artist Title/Song Title
+```
+
+* [IP & Port](#IP-Port)
+* [Configuration](#Configuration)
+* [Authorization](#Authorization)
 * [Disk](#Disk)
+* [Command Line](#Command-Line)
 * [REST](#REST)
 	- [/key](#key)
 		- [/artist/${artist_key}](#artistartist_key)
@@ -57,13 +82,15 @@
 	- [Collection](#Collection)
 		- [new_collection](#new_collection)
 
-# Command Line
+# IP & Port
 
----
+# Configuration
+
+# Authorization
 
 # Disk
 
----
+# Command Line
 
 # REST
 `festivald` (by default) exposes REST endpoints for `Collection`-related resources that can be accessed via GET HTTP requests.
@@ -189,7 +216,7 @@ Download all the `Album`'s owned by this `Artist`, 1 directory per album (includ
 |---------------------------------------------------------|--------|---------|
 | Archive of all artist's albums (including art if found) | `.zip` | `Artist Name.zip`
 
-## /${artist_name/${album_title}
+## /${artist_name}/${album_title}
 Download this `Album` (including art if found), wrapped in an archive format.
 
 | Input                    | Type         | Example |
@@ -200,7 +227,7 @@ Download this `Album` (including art if found), wrapped in an archive format.
 |-------------------------------------------|--------|---------|
 | Album in archive (including art if found) | `.zip` | `Artist Name - Album Title.zip`
 
-## /${artist_name/${album_title}/${song_title}
+## /${artist_name}/${album_title}/${song_title}
 Download this `Song` in the original format.
 
 | Input                                | Type         | Example |
@@ -211,8 +238,6 @@ Download this `Song` in the original format.
 |-------------------------|------------|---------|
 | Song in original format | audio file | `Artist Name - Album Title - Song Title.flac`
 
-
----
 
 # JSON-RPC
 ## State Retrieval
@@ -261,5 +286,3 @@ Download this `Song` in the original format.
 
 ## Collection
 ## new_collection
-
----
