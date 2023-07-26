@@ -72,7 +72,12 @@ macro_rules! impl_plural {
 
 				crate::collection::$plural(vec
 					.into_iter()
-					.map(|i| i.into())
+					.enumerate()
+					.map(|(k, v)| {
+						let mut v: crate::collection::$name = v.into();
+						v.key = $key::from(k);
+						v
+					})
 					.collect()
 				)
 			}

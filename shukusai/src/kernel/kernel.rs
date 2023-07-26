@@ -187,6 +187,7 @@ impl Kernel {
 		let collection = Collection::from_versions(&[
 			// SAFETY: memmap is used.
 			(COLLECTION_VERSION, || unsafe { Collection::from_file_memmap() }),
+			(1, crate::collection::v1::Collection::disk_into),
 			(0, crate::collection::v0::Collection::disk_into),
 		]);
 
@@ -274,21 +275,24 @@ impl Kernel {
 		}
 
 		#[cfg(feature = "gui")]
-		let collection = loop {
+		let collection = {
 			// Wait for `Collection` to be returned by `CCD`.
 			debug!("Kernel Init [5/12] ... waiting on CCD");
-			use CcdToKernel::*;
-			match recv!(from_ccd) {
-				// We received an incremental update.
-				// Update the current `ResetState` values to match.
-				UpdateIncrement((increment, specific)) => RESET_STATE.write().new_increment(increment, specific),
 
-				// We're onto the next phase in `Collection` creation process.
-				// Update the current `ResetState` values to match.
-				UpdatePhase((percent, phase)) => RESET_STATE.write().new_phase(percent, phase),
+			loop {
+				use CcdToKernel::*;
+				match recv!(from_ccd) {
+					// We received an incremental update.
+					// Update the current `ResetState` values to match.
+					UpdateIncrement((increment, specific)) => RESET_STATE.write().new_increment(increment, specific),
 
-				// `CCD` was successful. We got the new `Collection`.
-				NewCollection(collection) => break collection,
+					// We're onto the next phase in `Collection` creation process.
+					// Update the current `ResetState` values to match.
+					UpdatePhase((percent, phase)) => RESET_STATE.write().new_phase(percent, phase),
+
+					// `CCD` was successful. We got the new `Collection`.
+					NewCollection(collection) => break collection,
+				}
 			}
 		};
 

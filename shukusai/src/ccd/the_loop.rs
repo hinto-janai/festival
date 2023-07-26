@@ -46,6 +46,7 @@ struct TagMetadata {
 	disc: Option<u32>,
 	art: Option<Box<[u8]>>,
 	release: Option<String>,
+	genre: Option<String>,
 }
 
 //---------------------------------------------------------------------------------------------------- Metadata functions.
@@ -183,6 +184,7 @@ impl crate::ccd::Ccd {
 			disc,
 			art,
 			release,
+			genre,
 		} = metadata;
 
 		// Convert `String`'s to `Arc<str>`.
@@ -204,8 +206,13 @@ impl crate::ccd::Ccd {
 
 			//------------------------------------------------------------- If `Album` exists.
 			if let Some(album_idx) = album_map.get(&*album) {
+				// Lock.
+				let mut vec_album = lock!(vec_album);
+				let mut vec_song  = lock!(vec_song);
+
 				// Create `Song`.
 				let song = Song {
+					key: SongKey::from(vec_song.len()),
 					title,
 					title_lowercase,
 					album: AlbumKey::from(*album_idx),
@@ -215,10 +222,6 @@ impl crate::ccd::Ccd {
 					disc,
 					path,
 				};
-
-				// Lock.
-				let mut vec_album = lock!(vec_album);
-				let mut vec_song  = lock!(vec_song);
 
 				// Push to `Vec<Song>`
 				vec_song.push(song);
@@ -267,6 +270,7 @@ impl crate::ccd::Ccd {
 
 			// Create `Song`.
 			let song = Song {
+				key: SongKey::from(vec_song.len()),
 				title,
 				title_lowercase,
 				runtime,
@@ -279,6 +283,7 @@ impl crate::ccd::Ccd {
 
 			// Create `Album`.
 			let album_struct = Album {
+				key: AlbumKey::from(vec_album.len()),
 				title: album_title,
 				title_lowercase: album_lowercase,
 				release,
@@ -286,6 +291,7 @@ impl crate::ccd::Ccd {
 				artist: ArtistKey::from(*artist_idx),
 				songs: vec![SongKey::from(vec_song.len())],
 				path: path_parent,
+				genre,
 
 				// Needs to be updated later.
 				runtime: runtime_album,
@@ -354,6 +360,7 @@ impl crate::ccd::Ccd {
 
 		// Create `Song`.
 		let song = Song {
+			key: SongKey::from(vec_song.len()),
 			title,
 			title_lowercase,
 			runtime,
@@ -366,6 +373,7 @@ impl crate::ccd::Ccd {
 
 		// Create `Album`.
 		let album_struct = Album {
+			key: AlbumKey::from(vec_album.len()),
 			title: album_title,
 			title_lowercase: album_lowercase,
 			release,
@@ -373,6 +381,7 @@ impl crate::ccd::Ccd {
 			artist: ArtistKey::from(vec_artist.len()),
 			songs: vec![SongKey::from(vec_song.len())],
 			path: path_parent,
+			genre,
 
 			// Needs to be updated later.
 			runtime: runtime_album,
@@ -385,6 +394,7 @@ impl crate::ccd::Ccd {
 		let count_artist = vec_artist.len();
 		let count_album  = vec_album.len();
 		let artist_struct = Artist {
+			key: ArtistKey::from(vec_artist.len()),
 			name,
 			name_lowercase: artist_lowercase,
 
@@ -666,6 +676,16 @@ impl crate::ccd::Ccd {
 	}
 
 	#[inline(always)]
+	// Attempt to get the genre
+	fn tag_genre(tag: &mut [Tag]) -> Option<String> {
+		if let Some(t) = tag.iter_mut().find(|i| i.std_key == Some(StandardTagKey::Genre)) {
+			Self::value(t)
+		} else {
+			None
+		}
+	}
+
+	#[inline(always)]
 	fn art(mut visuals: Vec<Visual>) -> Option<Box<[u8]>> {
 		if !visuals.is_empty() {
 			Some(visuals.swap_remove(0).data)
@@ -828,6 +848,7 @@ impl crate::ccd::Ccd {
 		let track   = Self::tag_track(&mut tags);
 		let disc    = Self::tag_disc(&mut tags);
 		let release = Self::tag_release(&mut tags);
+		let genre   = Self::tag_genre(&mut tags);
 
 		Ok(TagMetadata {
 			artist,
@@ -840,6 +861,7 @@ impl crate::ccd::Ccd {
 			disc,
 			art,
 			release,
+			genre,
 		})
 	}
 }

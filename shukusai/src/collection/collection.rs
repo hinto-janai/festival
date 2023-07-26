@@ -1,4 +1,5 @@
 //---------------------------------------------------------------------------------------------------- Use
+use serde::Serialize;
 use bincode::{Encode,Decode};
 use crate::collection::{
 	album::Album,
@@ -44,7 +45,7 @@ pub(crate) static DUMMY_COLLECTION: Lazy<Arc<Collection>> = Lazy::new(|| Arc::ne
 
 //---------------------------------------------------------------------------------------------------- Collection
 disk::bincode2!(Collection, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{STATE_SUB_DIR}"), "collection", HEADER, COLLECTION_VERSION);
-#[derive(Clone,Debug,PartialEq,Encode,Decode)]
+#[derive(Clone,Debug,PartialEq,Encode,Decode,Serialize)]
 /// The main music `Collection`
 ///
 /// This is the `struct` that holds all the (meta)data about the user's music.
@@ -117,15 +118,20 @@ pub struct Collection {
 	pub empty: bool,
 	/// UNIX timestamp of the [`Collection`]'s creation date.
 	pub timestamp: u64,
+	#[serde(serialize_with = "crate::collection::serde::unsigned")]
 	/// How many [`Artist`]'s in this [`Collection`]?
 	pub count_artist: Unsigned,
+	#[serde(serialize_with = "crate::collection::serde::unsigned")]
 	/// How many [`Album`]'s in this [`Collection`]?
 	pub count_album: Unsigned,
+	#[serde(serialize_with = "crate::collection::serde::unsigned")]
 	/// How many [`Song`]'s in this [`Collection`]?
 	pub count_song: Unsigned,
+	#[serde(serialize_with = "crate::collection::serde::unsigned")]
 	/// How many unique [`Album`] covers are there in this [`Collection`]?
 	pub count_art: Unsigned,
 
+	#[serde(skip)]
 	// The "Map".
 	/// A [`HashMap`] that knows all [`Artist`]'s, [`Album`]'s and [`Song`]'s.
 	pub map: Map,
@@ -1037,9 +1043,9 @@ mod tests {
 	use readable::{Runtime, Date};
 
 	// Empty new `Collection`.
-	const C1: Lazy<Collection> = Lazy::new(|| Collection::from_path("../assets/shukusai/state/collection1_new.bin").unwrap());
+	const C1: Lazy<Collection> = Lazy::new(|| Collection::from_path("../assets/shukusai/state/collection2_new.bin").unwrap());
 	// Filled, user `Collection`.
-	const C2: Lazy<Collection> = Lazy::new(|| Collection::from_path("../assets/shukusai/state/collection1_real.bin").unwrap());
+	const C2: Lazy<Collection> = Lazy::new(|| Collection::from_path("../assets/shukusai/state/collection2_real.bin").unwrap());
 
 	#[test]
 	// Tests functions that depend on the correctness of the `Map`.
@@ -1188,11 +1194,11 @@ mod tests {
 		use crate::collection::{Art, Keychain};
 
 		#[cfg(target_os = "linux")]
-		const ALBUM_SIZE: usize = 328;
+		const ALBUM_SIZE: usize = 360;
 		#[cfg(target_os = "macos")]
-		const ALBUM_SIZE: usize = 344;
+		const ALBUM_SIZE: usize = 376;
 		#[cfg(target_os = "windows")]
-		const ALBUM_SIZE: usize = 352;
+		const ALBUM_SIZE: usize = 384;
 
 		#[cfg(target_os = "linux")]
 		const ART_SIZE: usize = 128;
@@ -1202,11 +1208,11 @@ mod tests {
 		const ART_SIZE: usize = 144;
 
 		#[cfg(target_os = "linux")]
-		const SONG_SIZE: usize = 112;
-		#[cfg(target_os = "macos")]
-		const SONG_SIZE: usize = 112;
-		#[cfg(target_os = "windows")]
 		const SONG_SIZE: usize = 120;
+		#[cfg(target_os = "macos")]
+		const SONG_SIZE: usize = 120;
+		#[cfg(target_os = "windows")]
+		const SONG_SIZE: usize = 128;
 
 		crate::assert_size_of! {
 			// Collection
@@ -1221,7 +1227,7 @@ mod tests {
 			Box<[SongKey]>   => 16,
 
 			// Artist
-			Artist           => 96,
+			Artist           => 104,
 			Runtime          => 24,
 			Vec<AlbumKey>    => 24,
 

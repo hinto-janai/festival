@@ -5,6 +5,7 @@ use readable::Runtime;
 use std::marker::PhantomData;
 use crate::collection::{
 	AlbumKey,
+	SongKey,
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -48,6 +49,9 @@ impl Into<crate::collection::Song> for Song {
 		let title = title.into();
 
 		crate::collection::Song {
+			// INVARIANT: must be set correctly in the broader `Collection::into()`
+			key: SongKey::zero(),
+
 			title,
 			title_lowercase,
 			album,

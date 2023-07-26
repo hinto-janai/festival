@@ -1,15 +1,16 @@
 //---------------------------------------------------------------------------------------------------- Use
-use serde::Serialize;
 use bincode::{Encode,Decode};
-use crate::collection::{
+use crate::collection::v1::{
 	Artist,Album,Song,
+};
+use crate::collection::{
 	ArtistKey,AlbumKey,SongKey,
 };
 
 //---------------------------------------------------------------------------------------------------- Plural newtypes around `Vec<T>`.
 macro_rules! impl_plural {
 	($name:ident, $plural:ident, $key:ident) => { paste::paste! {
-		#[derive(Clone,Debug,PartialEq,PartialOrd,Encode,Decode,Serialize)]
+		#[derive(Clone,Debug,PartialEq,PartialOrd,Encode,Decode)]
 		/// Type-safe wrapper around a [`Box`]'ed [`slice`].
 		///
 		#[doc = "This struct's inner value is just `Box<[" $name "]>`"]
@@ -111,6 +112,23 @@ macro_rules! impl_plural {
 			/// Calls [`slice::is_empty`].
 			pub fn is_empty(&self) -> bool {
 				self.0.is_empty()
+			}
+		}
+
+		impl Into<crate::collection::$plural> for $plural {
+			fn into(self) -> crate::collection::$plural {
+				let vec = Vec::from(self.0);
+
+				crate::collection::$plural(vec
+					.into_iter()
+					.enumerate()
+					.map(|(k, v)| {
+						let mut v: crate::collection::$name = v.into();
+						v.key = $key::from(k);
+						v
+					})
+					.collect()
+				)
 			}
 		}
 	}}

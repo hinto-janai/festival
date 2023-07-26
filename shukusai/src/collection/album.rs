@@ -1,8 +1,10 @@
 //---------------------------------------------------------------------------------------------------- Use
+use serde::Serialize;
 use bincode::{Encode,Decode};
 use std::marker::PhantomData;
 use crate::collection::key::{
 	ArtistKey,
+	AlbumKey,
 	SongKey,
 };
 use crate::collection::art::{
@@ -17,7 +19,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 //---------------------------------------------------------------------------------------------------- Album
-#[derive(Clone,Debug,PartialEq,PartialOrd,Encode,Decode)]
+#[derive(Clone,Debug,PartialEq,PartialOrd,Serialize,Encode,Decode)]
 /// Struct holding [`Album`] metadata, with pointers to an [`Artist`] and [`Song`]\(s\)
 ///
 /// This struct holds all the metadata about a particular [`Album`].
@@ -26,17 +28,24 @@ use std::sync::Arc;
 ///
 /// It also contains [`SongKey`]\(s\) that are the indices of [`Song`]\(s\) belonging to this [`Album`], in the [`Collection`].
 pub struct Album {
-	// User-facing data.
 	/// Title of the [`Album`].
 	pub title: Arc<str>,
+	#[serde(skip)]
 	/// Title of the [`Album`] in "Unicode Derived Core Property" lowercase.
 	pub title_lowercase: Arc<str>,
+
+	/// This [`Album`]'s [`AlbumKey`].
+	pub key: AlbumKey,
 	/// Key to the [`Artist`].
 	pub artist: ArtistKey,
+
+	#[serde(serialize_with = "crate::collection::serde::date")]
 	/// Human-readable release date of this [`Album`].
 	pub release: Date,
+	#[serde(serialize_with = "crate::collection::serde::runtime")]
 	/// Total runtime of this [`Album`].
 	pub runtime: Runtime,
+	#[serde(serialize_with = "crate::collection::serde::unsigned")]
 	/// [`Song`] count of this [`Album`].
 	pub song_count: Unsigned,
 	// This `Vec<SongKey>` is _always_ sorted based
@@ -60,6 +69,7 @@ pub struct Album {
 	/// (Most will only have 1).
 	pub discs: u32,
 
+	#[serde(skip)]
 	/// The parent `PATH` of this `Album`.
 	///
 	/// This is always taken from the 1st `Song` that is inserted
@@ -67,6 +77,7 @@ pub struct Album {
 	/// parent directories, this will not be fully accurate.
 	pub path: PathBuf,
 
+	#[serde(serialize_with = "crate::collection::serde::art")]
 	/// The `Album`'s art.
 	///
 	/// `GUI` doesn't need to access this field
@@ -74,6 +85,9 @@ pub struct Album {
 	///
 	/// THIS TYPE IS DIFFERENT DEPENDING ON THE FRONTEND.
 	pub art: Art,
+
+	/// This [`Album`]'s genre.
+	pub genre: Option<String>,
 }
 
 #[cfg(feature = "gui")]
@@ -112,6 +126,7 @@ impl Album {
 impl Default for Album {
 	fn default() -> Self {
 		Self {
+			key: AlbumKey::zero(),
 			title: "".into(),
 			title_lowercase: "".into(),
 			artist: Default::default(),
@@ -122,14 +137,34 @@ impl Default for Album {
 			discs: Default::default(),
 			path: Default::default(),
 			art: Default::default(),
+			genre: Default::default(),
 		}
 	}
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
-//#[cfg(test)]
-//mod tests {
-//  #[test]
-//  fn _() {
-//  }
-//}
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	const EXPECTED: &str =
+r#"{
+  "title": "",
+  "key": 0,
+  "artist": 0,
+  "release": "????-??-??",
+  "runtime": 0,
+  "song_count": 0,
+  "songs": [],
+  "discs": 0,
+  "art": null,
+  "genre": null
+}"#;
+
+	#[test]
+	#[cfg(feature = "daemon")]
+	fn serde_json() {
+		let d: String = serde_json::to_string_pretty(&Album::default()).unwrap();
+		assert_eq!(EXPECTED, d);
+	}
+}

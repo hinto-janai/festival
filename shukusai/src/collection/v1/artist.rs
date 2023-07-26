@@ -1,5 +1,4 @@
 //---------------------------------------------------------------------------------------------------- Use
-use serde::Serialize;
 use bincode::{Encode,Decode};
 use std::marker::PhantomData;
 use readable::Runtime;
@@ -11,7 +10,7 @@ use crate::collection::key::{
 use std::sync::Arc;
 
 //----------------------------------------------------------------------------------------------------
-#[derive(Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Encode,Decode)]
+#[derive(Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Encode,Decode)]
 /// Struct holding [`Artist`] metadata, with pointers to [`Album`]\(s\)
 ///
 /// This struct holds all the metadata about a particular [`Artist`].
@@ -20,22 +19,14 @@ use std::sync::Arc;
 pub struct Artist {
 	/// The [`Artist`]'s name.
 	pub name: Arc<str>,
-	#[serde(skip)]
 	/// The [`Artist`]'s name in "Unicode Derived Core Property" lowercase.
 	pub name_lowercase: Arc<str>,
-
-	/// This [`Artist`]'s [`ArtistKey`].
-	pub key: ArtistKey,
-
-	#[serde(serialize_with = "crate::collection::serde::runtime")]
 	/// Total runtime.
 	pub runtime: Runtime,
-
 	// SOMEDAY:
 	// This should be a Box<[AlbumKey]>.
 	/// Keys to the associated [`Album`]\(s\).
 	pub albums: Vec<AlbumKey>,
-
 	/// Keys to every [`Song`] by this [`Artist`].
 	///
 	/// The order is [`Album`] release order, then [`Song`] track order.
@@ -47,7 +38,6 @@ impl Default for Artist {
 		Self {
 			name: "".into(),
 			name_lowercase: "".into(),
-			key: ArtistKey::zero(),
 			runtime: Default::default(),
 			albums: Vec::with_capacity(0),
 			songs: Box::new([]),
@@ -55,23 +45,33 @@ impl Default for Artist {
 	}
 }
 
-//---------------------------------------------------------------------------------------------------- TESTS
-#[cfg(test)]
-mod tests {
-	use super::*;
+impl Into<crate::collection::Artist> for Artist {
+	fn into(self) -> crate::collection::Artist {
+		let Self {
+			name,
+			name_lowercase,
+			runtime,
+			albums,
+			songs,
+		} = self;
 
-	const EXPECTED: &str =
-r#"{
-  "name": "",
-  "key": 0,
-  "runtime": 0,
-  "albums": [],
-  "songs": []
-}"#;
+		crate::collection::Artist {
+			// INVARIANT: must be set correctly in the broader `Collection::into()`
+			key: ArtistKey::zero(),
 
-	#[test]
-	fn serde_json() {
-		let d: String = serde_json::to_string_pretty(&Artist::default()).unwrap();
-		assert_eq!(EXPECTED, d);
+			name,
+			name_lowercase,
+			runtime,
+			albums,
+			songs,
+		}
 	}
 }
+
+//---------------------------------------------------------------------------------------------------- TESTS
+//#[cfg(test)]
+//mod tests {
+//  #[test]
+//  fn _() {
+//  }
+//}
