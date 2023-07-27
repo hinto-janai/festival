@@ -1,4 +1,6 @@
 //---------------------------------------------------------------------------------------------------- Use
+use anyhow::anyhow;
+use std::sync::Arc;
 use serde::{Serialize,Deserialize};
 use crate::collection::{
 	Collection,
@@ -7,12 +9,13 @@ use crate::collection::{
 	AlbumKey,
 	SongKey,
 };
+use std::borrow::Cow;
 
 //---------------------------------------------------------------------------------------------------- Collection
 #[allow(missing_docs)]
 #[derive(Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
 /// A struct representation of `Collection`'s JSON serialization output.
-pub struct CollectionJson {
+pub struct CollectionJson<'a> {
 	pub empty: bool,
 	pub timestamp: u64,
 	pub count_artist: u64,
@@ -20,88 +23,141 @@ pub struct CollectionJson {
 	pub count_song: u64,
 	pub count_art: u64,
 
-	pub artists: Box<[ArtistJson]>,
-	pub albums: Box<[AlbumJson]>,
-	pub songs: Box<[SongJson]>,
+	#[serde(borrow)]
+	pub artists: Cow<'a, [ArtistJson<'a>]>,
+	#[serde(borrow)]
+	pub albums: Cow<'a, [AlbumJson<'a>]>,
+	#[serde(borrow)]
+	pub songs: Cow<'a, [SongJson<'a>]>,
 
-	pub sort_artist_lexi: Box<[ArtistKey]>,
-	pub sort_artist_lexi_rev: Box<[ArtistKey]>,
-	pub sort_artist_album_count: Box<[ArtistKey]>,
-	pub sort_artist_album_count_rev: Box<[ArtistKey]>,
-	pub sort_artist_song_count: Box<[ArtistKey]>,
-	pub sort_artist_song_count_rev: Box<[ArtistKey]>,
-	pub sort_artist_runtime: Box<[ArtistKey]>,
-	pub sort_artist_runtime_rev: Box<[ArtistKey]>,
-	pub sort_artist_name: Box<[ArtistKey]>,
-	pub sort_artist_name_rev: Box<[ArtistKey]>,
+	#[serde(borrow)]
+	pub sort_artist_lexi: Cow<'a, [ArtistKey]>,
+	#[serde(borrow)]
+	pub sort_artist_lexi_rev: Cow<'a, [ArtistKey]>,
+	#[serde(borrow)]
+	pub sort_artist_album_count: Cow<'a, [ArtistKey]>,
+	#[serde(borrow)]
+	pub sort_artist_album_count_rev: Cow<'a, [ArtistKey]>,
+	#[serde(borrow)]
+	pub sort_artist_song_count: Cow<'a, [ArtistKey]>,
+	#[serde(borrow)]
+	pub sort_artist_song_count_rev: Cow<'a, [ArtistKey]>,
+	#[serde(borrow)]
+	pub sort_artist_runtime: Cow<'a, [ArtistKey]>,
+	#[serde(borrow)]
+	pub sort_artist_runtime_rev: Cow<'a, [ArtistKey]>,
+	#[serde(borrow)]
+	pub sort_artist_name: Cow<'a, [ArtistKey]>,
+	#[serde(borrow)]
+	pub sort_artist_name_rev: Cow<'a, [ArtistKey]>,
 
-	pub sort_album_release_artist_lexi: Box<[AlbumKey]>,
-	pub sort_album_release_artist_lexi_rev: Box<[AlbumKey]>,
-	pub sort_album_release_rev_artist_lexi: Box<[AlbumKey]>,
-	pub sort_album_release_rev_artist_lexi_rev: Box<[AlbumKey]>,
-	pub sort_album_lexi_artist_lexi: Box<[AlbumKey]>,
-	pub sort_album_lexi_artist_lexi_rev: Box<[AlbumKey]>,
-	pub sort_album_lexi_rev_artist_lexi: Box<[AlbumKey]>,
-	pub sort_album_lexi_rev_artist_lexi_rev: Box<[AlbumKey]>,
-	pub sort_album_lexi: Box<[AlbumKey]>,
-	pub sort_album_lexi_rev: Box<[AlbumKey]>,
-	pub sort_album_release: Box<[AlbumKey]>,
-	pub sort_album_release_rev: Box<[AlbumKey]>,
-	pub sort_album_runtime: Box<[AlbumKey]>,
-	pub sort_album_runtime_rev: Box<[AlbumKey]>,
-	pub sort_album_title: Box<[AlbumKey]>,
-	pub sort_album_title_rev: Box<[AlbumKey]>,
+	#[serde(borrow)]
+	pub sort_album_release_artist_lexi: Cow<'a, [AlbumKey]>,
+	#[serde(borrow)]
+	pub sort_album_release_artist_lexi_rev: Cow<'a, [AlbumKey]>,
+	#[serde(borrow)]
+	pub sort_album_release_rev_artist_lexi: Cow<'a, [AlbumKey]>,
+	#[serde(borrow)]
+	pub sort_album_release_rev_artist_lexi_rev: Cow<'a, [AlbumKey]>,
+	#[serde(borrow)]
+	pub sort_album_lexi_artist_lexi: Cow<'a, [AlbumKey]>,
+	#[serde(borrow)]
+	pub sort_album_lexi_artist_lexi_rev: Cow<'a, [AlbumKey]>,
+	#[serde(borrow)]
+	pub sort_album_lexi_rev_artist_lexi: Cow<'a, [AlbumKey]>,
+	#[serde(borrow)]
+	pub sort_album_lexi_rev_artist_lexi_rev: Cow<'a, [AlbumKey]>,
+	#[serde(borrow)]
+	pub sort_album_lexi: Cow<'a, [AlbumKey]>,
+	#[serde(borrow)]
+	pub sort_album_lexi_rev: Cow<'a, [AlbumKey]>,
+	#[serde(borrow)]
+	pub sort_album_release: Cow<'a, [AlbumKey]>,
+	#[serde(borrow)]
+	pub sort_album_release_rev: Cow<'a, [AlbumKey]>,
+	#[serde(borrow)]
+	pub sort_album_runtime: Cow<'a, [AlbumKey]>,
+	#[serde(borrow)]
+	pub sort_album_runtime_rev: Cow<'a, [AlbumKey]>,
+	#[serde(borrow)]
+	pub sort_album_title: Cow<'a, [AlbumKey]>,
+	#[serde(borrow)]
+	pub sort_album_title_rev: Cow<'a, [AlbumKey]>,
 
-	pub sort_song_album_release_artist_lexi: Box<[SongKey]>,
-	pub sort_song_album_release_artist_lexi_rev: Box<[SongKey]>,
-	pub sort_song_album_release_rev_artist_lexi: Box<[SongKey]>,
-	pub sort_song_album_release_rev_artist_lexi_rev: Box<[SongKey]>,
-	pub sort_song_album_lexi_artist_lexi: Box<[SongKey]>,
-	pub sort_song_album_lexi_artist_lexi_rev: Box<[SongKey]>,
-	pub sort_song_album_lexi_rev_artist_lexi: Box<[SongKey]>,
-	pub sort_song_album_lexi_rev_artist_lexi_rev: Box<[SongKey]>,
-	pub sort_song_lexi: Box<[SongKey]>,
-	pub sort_song_lexi_rev: Box<[SongKey]>,
-	pub sort_song_release: Box<[SongKey]>,
-	pub sort_song_release_rev: Box<[SongKey]>,
-	pub sort_song_runtime: Box<[SongKey]>,
-	pub sort_song_runtime_rev: Box<[SongKey]>,
-	pub sort_song_title: Box<[SongKey]>,
-	pub sort_song_title_rev: Box<[SongKey]>,
+	#[serde(borrow)]
+	pub sort_song_album_release_artist_lexi: Cow<'a, [SongKey]>,
+	#[serde(borrow)]
+	pub sort_song_album_release_artist_lexi_rev: Cow<'a, [SongKey]>,
+	#[serde(borrow)]
+	pub sort_song_album_release_rev_artist_lexi: Cow<'a, [SongKey]>,
+	#[serde(borrow)]
+	pub sort_song_album_release_rev_artist_lexi_rev: Cow<'a, [SongKey]>,
+	#[serde(borrow)]
+	pub sort_song_album_lexi_artist_lexi: Cow<'a, [SongKey]>,
+	#[serde(borrow)]
+	pub sort_song_album_lexi_artist_lexi_rev: Cow<'a, [SongKey]>,
+	#[serde(borrow)]
+	pub sort_song_album_lexi_rev_artist_lexi: Cow<'a, [SongKey]>,
+	#[serde(borrow)]
+	pub sort_song_album_lexi_rev_artist_lexi_rev: Cow<'a, [SongKey]>,
+	#[serde(borrow)]
+	pub sort_song_lexi: Cow<'a, [SongKey]>,
+	#[serde(borrow)]
+	pub sort_song_lexi_rev: Cow<'a, [SongKey]>,
+	#[serde(borrow)]
+	pub sort_song_release: Cow<'a, [SongKey]>,
+	#[serde(borrow)]
+	pub sort_song_release_rev: Cow<'a, [SongKey]>,
+	#[serde(borrow)]
+	pub sort_song_runtime: Cow<'a, [SongKey]>,
+	#[serde(borrow)]
+	pub sort_song_runtime_rev: Cow<'a, [SongKey]>,
+	#[serde(borrow)]
+	pub sort_song_title: Cow<'a, [SongKey]>,
+	#[serde(borrow)]
+	pub sort_song_title_rev: Cow<'a, [SongKey]>,
 }
 
 #[allow(missing_docs)]
 #[derive(Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
 /// A struct representation of `Artist`'s JSON serialization output.
-pub struct ArtistJson {
-	pub name: String,
+pub struct ArtistJson<'a> {
+	#[serde(borrow)]
+	pub name: Cow<'a, str>,
 	pub key: ArtistKey,
 	pub runtime: u32,
-	pub albums: Box<[AlbumKey]>,
-	pub songs: Box<[SongKey]>,
+	#[serde(borrow)]
+	pub albums: Cow<'a, [AlbumKey]>,
+	#[serde(borrow)]
+	pub songs: Cow<'a, [SongKey]>,
 }
 
 #[allow(missing_docs)]
 #[derive(Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
 /// A struct representation of `Album`'s JSON serialization output.
-pub struct AlbumJson {
-	pub title: String,
+pub struct AlbumJson<'a> {
+	#[serde(borrow)]
+	pub title: Cow<'a, str>,
 	pub key: AlbumKey,
 	pub artist: ArtistKey,
-	pub release: String,
+	#[serde(borrow)]
+	pub release: Cow<'a, str>,
 	pub runtime: u32,
 	pub song_count: usize,
-	pub songs: Box<[SongKey]>,
+	#[serde(borrow)]
+	pub songs: Cow<'a, [SongKey]>,
 	pub discs: u32,
-	pub art: Option<String>,
-	pub genre: Option<String>,
+	pub art: Option<u64>,
+	#[serde(borrow)]
+	pub genre: Option<Cow<'a, str>>,
 }
 
 #[allow(missing_docs)]
 #[derive(Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
 /// A struct representation of `Song`'s JSON serialization output.
-pub struct SongJson {
-	pub title: String,
+pub struct SongJson<'a> {
+	#[serde(borrow)]
+	pub title: Cow<'a, str>,
 	pub key: SongKey,
 	pub album: AlbumKey,
 	pub runtime: u32,

@@ -15,7 +15,30 @@ use serde_json::value::{
 	RawValue,Value,
 };
 use crate::resp;
-use shukusai::collection::Collection;
+use crate::constants::{
+	FESTIVALD_NAME_VER,
+};
+use shukusai::{
+	state::AUDIO_STATE,
+	collection::{
+		Collection,
+		json::{
+			CollectionJson,
+			ArtistJson,
+			AlbumJson,
+			SongJson,
+		},
+	},
+	constants::{
+		OS_ARCH,
+		COMMIT,
+	},
+};
+use crate::config::{
+	AUTH,config,
+};
+use std::borrow::Cow;
+use benri::lock;
 
 //---------------------------------------------------------------------------------------------------- Parse, call func, or return macro.
 // Parse
@@ -72,21 +95,21 @@ pub async fn handle(
 	use rpc::Method::*;
 	match method {
 		// State retrieval.
-		StateDaemon     => state_daemon().await,
-		StateAudio      => state_audio().await,
-		StateReset      => state_reset().await,
-		StateCollection => state_collection().await,
+		StateDaemon     => state_daemon(request.id).await,
+		StateAudio      => state_audio(request.id).await,
+		StateReset      => state_reset(request.id).await,
+		StateCollection => state_collection(request.id, collection).await,
 
 		// Playback control.
-		Toggle      => toggle().await,
-		Play        => play().await,
-		Pause       => pause().await,
-		Next        => next().await,
-		Stop        => stop().await,
-		RepeatOff   => repeat_off().await,
-		RepeatSong  => repeat_song().await,
-		RepeatQueue => repeat_queue().await,
-		Shuffle     => shuffle().await,
+		Toggle      => toggle(request.id).await,
+		Play        => play(request.id).await,
+		Pause       => pause(request.id).await,
+		Next        => next(request.id).await,
+		Stop        => stop(request.id).await,
+		RepeatOff   => repeat_off(request.id).await,
+		RepeatSong  => repeat_song(request.id).await,
+		RepeatQueue => repeat_queue(request.id).await,
+		Shuffle     => shuffle(request.id).await,
 
 		Previous         => ppacor!(request, previous, rpc::param::Previous).await,
 		Volume           => ppacor!(request, volume, rpc::param::Volume).await,
@@ -122,19 +145,80 @@ pub async fn handle(
 }
 
 //---------------------------------------------------------------------------------------------------- No-Param methods.
-async fn state_daemon() -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("state_daemon"))) }
-async fn state_audio() -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("state_audio"))) }
-async fn state_reset() -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("state_reset"))) }
-async fn state_collection() -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("state_collection"))) }
-async fn toggle() -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("toggle"))) }
-async fn play() -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("play"))) }
-async fn pause() -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("pause"))) }
-async fn next() -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("next"))) }
-async fn stop() -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("stop"))) }
-async fn repeat_off() -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("repeat_off"))) }
-async fn repeat_song() -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("repeat_song"))) }
-async fn repeat_queue() -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("repeat_queue"))) }
-async fn shuffle() -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("shuffle"))) }
+async fn state_daemon<'a>(id: Option<json_rpc::Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	let resp = rpc::resp::StateDaemon {
+		uptime:          shukusai::logger::uptime(),
+		rest:            config().rest,
+		direct_download: config().direct_download,
+		authorization:   AUTH.get().is_some(),
+		version:         Cow::Borrowed(FESTIVALD_NAME_VER),
+		commit:          Cow::Borrowed(COMMIT),
+		os:              Cow::Borrowed(OS_ARCH),
+	};
+
+	Ok(resp::result(resp, id))
+}
+
+async fn state_audio<'a>(id: Option<json_rpc::Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	let shukusai::state::AudioState {
+		queue,
+		queue_idx,
+		playing,
+		song,
+		elapsed,
+		runtime,
+		repeat,
+		volume,
+	} = AUDIO_STATE.read().clone();
+
+	let resp = rpc::resp::StateAudio {
+		queue: Cow::Owned(queue.into()),
+		queue_idx,
+		playing,
+		song,
+		elapsed: elapsed.inner(),
+		runtime: runtime.inner(),
+		repeat,
+		volume: volume.inner(),
+	};
+
+	Ok(resp::result(resp, id))
+}
+
+async fn state_reset<'a>(id: Option<json_rpc::Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	let resp = rpc::resp::StateReset {
+		resetting: shukusai::state::resetting(),
+		saving: shukusai::state::saving(),
+	};
+
+	Ok(resp::result(resp, id))
+}
+
+async fn state_collection<'a>(id: Option<json_rpc::Id<'a>>, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+	// Instead of checking if the `Collection` -> `JSON String`
+	// output is correct for every response, only check in debug builds.
+	//
+	// No need to do `Collection` -> `String` -> `CollectionJson` -> `String`
+	// when all that is needed is `Collection` -> `String`
+	#[cfg(debug_assertions)]
+	{
+		let string = serde_json::to_string(&collection).unwrap();
+		let c: CollectionJson = serde_json::from_str(&string).unwrap();
+		assert_eq!(serde_json::to_string(&c).unwrap(), string);
+	}
+
+	Ok(resp::result(collection, id))
+}
+
+async fn toggle<'a>(id: Option<json_rpc::Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("toggle"))) }
+async fn play<'a>(id: Option<json_rpc::Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("play"))) }
+async fn pause<'a>(id: Option<json_rpc::Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("pause"))) }
+async fn next<'a>(id: Option<json_rpc::Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("next"))) }
+async fn stop<'a>(id: Option<json_rpc::Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("stop"))) }
+async fn repeat_off<'a>(id: Option<json_rpc::Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("repeat_off"))) }
+async fn repeat_song<'a>(id: Option<json_rpc::Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("repeat_song"))) }
+async fn repeat_queue<'a>(id: Option<json_rpc::Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("repeat_queue"))) }
+async fn shuffle<'a>(id: Option<json_rpc::Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("shuffle"))) }
 
 //---------------------------------------------------------------------------------------------------- Param methods.
 async fn previous(params: rpc::param::Previous) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("previous"))) }

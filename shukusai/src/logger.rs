@@ -15,6 +15,11 @@ use once_cell::sync::Lazy;
 /// (which ever one came first)
 pub static INIT_INSTANT: Lazy<Instant> = Lazy::new(Instant::now);
 
+/// Returns the seconds since [`INIT_INSTANT`].
+pub fn uptime() -> u64 {
+	benri::secs!(INIT_INSTANT)
+}
+
 //---------------------------------------------------------------------------------------------------- Logger init function
 #[inline(always)]
 /// Initializes the logger.

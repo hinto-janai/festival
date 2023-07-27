@@ -79,9 +79,6 @@ mod macros;
 mod serde;
 pub(crate) use macros::*;
 
-//---------------------------------------------------------------------------------------------------- Public Re-exports.
-pub use readable;
-
 //---------------------------------------------------------------------------------------------------- Hidden Re-exports.
 #[doc(hidden)]
 pub use const_format::assertcp as const_assert;

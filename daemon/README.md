@@ -24,7 +24,7 @@ http://localhost:18425/string/Artist Name/Artist Title/Song Title
 ```
 
 # Contents
-* [IP & Port](#IP-Port)
+* [Quick Start](#Quick-Start)
 * [Configuration](#Configuration)
 * [Authorization](#Authorization)
 * [Disk](#Disk)
@@ -83,7 +83,7 @@ http://localhost:18425/string/Artist Name/Artist Title/Song Title
 	- [Collection](#Collection)
 		- [new_collection](#new_collection)
 
-# IP & Port
+# Quick Start
 
 # Configuration
 
@@ -182,7 +182,6 @@ Download this `Album`'s art in the image's original format.
 |------------------------|------------|---------|
 | Art in original format | image file | `Artist Name - Album Title.jpg`
 
-
 # /string
 This is the same as the `/key` endpoint, but instead of numbers, you can directly use:
 - Artist names
@@ -256,6 +255,20 @@ Download this `Song` in the original format.
 |-------------------------|------------|---------|
 | Song in original format | audio file | `Artist Name - Album Title - Song Title.flac`
 
+## /art/${artist_name}/${album_title}
+This single `/art` endpoint exists to allow downloading an `Album`'s art individually via a `string` key.
+
+Download this `Album`'s art in the original format.
+
+If no art was found, the response will be a 404 error.
+
+| Input                    | Type         | Example |
+|--------------------------|--------------|---------|
+| artist name, album title | UTF-8 string | `http://localhost:18425/art/Artist Name/Album Title`
+
+| Output                 | Type       | Example |
+|------------------------|------------|---------|
+| Art in original format | image file | `Artist Name - Album Title.jpg`
 
 # JSON-RPC
 # State Retrieval

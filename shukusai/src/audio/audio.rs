@@ -918,6 +918,9 @@ impl Audio {
 	fn volume(&mut self, volume: Volume) {
 		trace!("Audio - {volume:?}");
 		atomic_store!(VOLUME, volume.inner());
+
+		AUDIO_STATE.write().volume = volume;
+
 		#[cfg(feature = "gui")]
 		gui_request_update();
 	}

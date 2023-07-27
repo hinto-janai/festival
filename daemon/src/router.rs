@@ -159,6 +159,11 @@ pub async fn init(
 		}
 	};
 
+	// TODO: for testing, cleanup later.
+//	send!(TO_KERNEL, FrontendToKernel::AddQueueArtist((64_u8.into(), Default::default(), false, 0)));
+//	send!(TO_KERNEL, FrontendToKernel::Play);
+//	send!(TO_KERNEL, FrontendToKernel::Volume(shukusai::audio::Volume::new(1)));
+
 	// If `HTTPS`, start main `HTTPS` loop.
 	if CONFIG.tls {
 		// Sanity-checks.

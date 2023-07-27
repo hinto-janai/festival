@@ -24,36 +24,116 @@ use shukusai::{
 use crate::{
 	impl_struct,
 	impl_struct_lt,
+	impl_struct_anon,
+	impl_struct_anon_lt,
 };
+use std::collections::VecDeque;
 
 //---------------------------------------------------------------------------------------------------- Response impl
 // Generic response.
 impl_struct!(Status, ok: bool);
 
 // State retrieval.
-impl_struct_lt!(StateDaemon, uptime: u64, rest: bool, direct_download: bool, authorization: bool, version: Cow<'a, str>, commit: Cow<'a, str>, os: Cow<'a, str>);
-impl_struct!(StateAudio, queue: Vec<SongKey>, queue_idx: Option<usize>, playing: bool, song: Option<SongKey>, elapsed: u32, runtime: u32, repeat: Repeat, volume: u8);
-impl_struct!(StateReset, resetting: bool, saving: bool);
-impl_struct!(StateCollection, collection: CollectionJson);
+impl_struct_lt! {
+	StateDaemon,
+	uptime: u64,
+	rest: bool,
+	direct_download: bool,
+	authorization: bool,
+	#[serde(borrow)]
+	version: Cow<'a, str>,
+	#[serde(borrow)]
+	commit: Cow<'a, str>,
+	#[serde(borrow)]
+	os: Cow<'a, str>
+}
+impl_struct_lt! {
+	StateAudio,
+	#[serde(borrow)]
+	queue:     Cow<'a, [SongKey]>,
+	queue_idx: Option<usize>,
+	playing:   bool,
+	song:      Option<SongKey>,
+	elapsed:   u32,
+	runtime:   u32,
+	repeat:    Repeat,
+	volume:    u8
+}
+impl_struct! {
+	StateReset,
+	resetting: bool,
+	saving:    bool
+}
+impl_struct_anon_lt! {
+	StateCollection,
+	CollectionJson<'a>
+}
 
 // Key (exact key)
-impl_struct!(Artist, artist: ArtistJson);
-impl_struct!(Album, album: AlbumJson);
-impl_struct!(Song, song: SongJson);
+impl_struct_lt! {
+	Artist,
+	#[serde(borrow)]
+	artist: ArtistJson<'a>
+}
+impl_struct_lt! {
+	Album,
+	#[serde(borrow)]
+	album: AlbumJson<'a>
+}
+impl_struct_lt! {
+	Song,
+	#[serde(borrow)]
+	song: SongJson<'a>
+}
 
 // Map (exact hashmap)
-impl_struct!(MapArtist, artist: ArtistJson);
-impl_struct!(MapAlbum, album: AlbumJson);
-impl_struct!(MapSong, song: SongJson);
+impl_struct_lt! {
+	MapArtist,
+	#[serde(borrow)]
+	artist: ArtistJson<'a>
+}
+impl_struct_lt! {
+	MapAlbum,
+	#[serde(borrow)]
+	album: AlbumJson<'a>
+}
+impl_struct_lt! {
+	MapSong,
+	#[serde(borrow)]
+	song: SongJson<'a>
+}
 
 // Search (fuzzy keys)
-impl_struct!(Search, artists: Box<[ArtistJson]>, albums: Box<[AlbumJson]>, songs: Box<[SongJson]>);
-impl_struct!(SearchArtist, artists: Box<[ArtistJson]>);
-impl_struct!(SearchAlbum, albums: Box<[AlbumJson]>);
-impl_struct!(SearchSong, songs: Box<[SongJson]>);
+impl_struct_lt! {
+	Search,
+	#[serde(borrow)]
+	artists: Cow<'a, [ArtistJson<'a>]>,
+	#[serde(borrow)]
+	albums: Cow<'a, [AlbumJson<'a>]>,
+	#[serde(borrow)]
+	songs: Cow<'a, [SongJson<'a>]>
+}
+impl_struct_lt! {
+	SearchArtist,
+	#[serde(borrow)]
+	artists: Cow<'a, [ArtistJson<'a>]>
+}
+impl_struct_lt! {
+	SearchAlbum,
+	#[serde(borrow)]
+	albums: Cow<'a, [AlbumJson<'a>]>
+}
+impl_struct_lt! {
+	SearchSong,
+	#[serde(borrow)]
+	songs: Cow<'a, [SongJson<'a>]>
+}
 
 // Collection
-impl_struct!(NewCollection, time: f64);
+impl_struct! {
+	NewCollection,
+	time: f64
+}
 
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
