@@ -25,11 +25,11 @@ Currently, the most full frontend implementation is [`festival-gui`](https://git
 | [`festival-tui`](https://github.com/hinto-janai/festival/tree/main/tui) | Standalone TUI                                                  | 🔴            |
 
 ## Documentation
-For a user guide on Festival, see [`gui/`](https://github.com/hinto-janai/festival/tree/main/gui).
+For a user guide on Festival, see [`gui/`](https://github.com/hinto-janai/festival/tree/main/gui/README.md).
 
 For a broad overview of the internals, see [`shukusai/`](https://github.com/hinto-janai/festival/tree/main/shukusai).
 
-For a comparison between Festival and other music players, see [`comparison/`](https://github.com/hinto-janai/festival/tree/main/comparison).
+For a comparison between Festival and other music players, see [`comparison/`](https://github.com/hinto-janai/festival/tree/main/comparison/README.md).
 
 ## Build
 <details>
@@ -44,13 +44,26 @@ You also need to clone the `submodules` that include patched libraries found in 
 git clone --recursive https://github.com/hinto-janai/festival
 ```
 
-The repo is a workspace, with `shukusai` and the `Frontend`'s all having a top-level directory, e.g:
-- [`shukusai/`](https://github.com/hinto-janai/festival/tree/main/shukusai)
-- [`gui/`](https://github.com/hinto-janai/festival/tree/main/gui)
+Built binaries are found in `target/release/${FRONTEND_BINARY_NAME}` by default.
 
-Building at the root will build all binaries.
+The repo is a workspace, with some packages shared between all `Frontend`'s, including the internals: [`shukusai`](https://github.com/hinto-janai/festival/tree/main/shukusai).
 
-Currently, the only packages in the workspace are `shukusai` and `festival-gui`, which gets built as `festival[.exe]`.
+To build one of the `Frontend`'s, you must pass the `--package <FRONTEND>` option.
+
+For example, to build `festival-gui`:
+```bash
+cargo build --release --package festival-gui
+```
+Due to some limitations, the build will error if you try to compile multiple frontends at the same time, i.e:
+```bash
+cargo build --release --package festival-gui --package festivald
+```
+will not work because `festival-gui` & `festivald` rely on mutually exclusive features within `shukusai` to work, but `cargo` only supports _additive_ features, which means things will collide. To build all `Frontends`'s, build them one at a time:
+```bash
+cargo build --release --package festival-gui
+cargo build --release --package festivald
+[ ... etc ... ]
+```
 
 ---
 
@@ -66,19 +79,10 @@ The pre-compiled Linux binaries are built on Ubuntu 20.04, you'll need these pac
 sudo apt install libgtk-3-dev libasound2-dev libjack-dev libpulse-dev
 ```
 
-To build:
+To build `festival-gui`:
 ```
-cargo build --release
+cargo build --release --package festival-gui
 ```
-
-Optionally, to create an `AppImage` after building, at the repo root, run:
-```bash
-cd utils/
-./mk_appimage.sh
-```
-This will create `Festival-v${VERSION}-x86_64.AppImage`.
-
-This requires `appimagetool`. If not detected, it will `wget` the latest release to `/tmp` and use that instead.
 
 ---
 
@@ -89,22 +93,10 @@ This requires `appimagetool`. If not detected, it will `wget` the latest release
 
 ---
 
-To build:
+To build `festival-gui`:
 ```
-cargo build --release
+cargo build --release --package festival-gui
 ```
-Optionally, to create a `Festival.app` after building, at the repo root, run:
-```bash
-cd utils/
-./mk_app.sh
-```
-This will create `Festival.app`.
-
-Optionally, to create a `.dmg` after that, run:
-```bash
-./mk_dmg.sh
-```
-This will create `Festival-v${VERSION}-macos-(x64|arm64).dmg`, `x64` or `arm64` depending on your `cargo` target.
 
 ---
 
@@ -115,9 +107,9 @@ This will create `Festival-v${VERSION}-macos-(x64|arm64).dmg`, `x64` or `arm64` 
 
 ---
 
-To build:
+To build `festival-gui`:
 ```
-cargo build --release
+cargo build --release --package festival-gui
 ```
 
 There is a [`build.rs`](https://github.com/hinto-janai/festival/blob/main/gui/build.rs) file in `gui/` solely for Windows-specific things:
