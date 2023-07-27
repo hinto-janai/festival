@@ -16,7 +16,7 @@ use serde_json::value::{
 };
 use crate::resp;
 use crate::constants::{
-	FESTIVALD_NAME_VER,
+	FESTIVALD_VERSION,
 };
 use shukusai::{
 	state::AUDIO_STATE,
@@ -95,10 +95,11 @@ pub async fn handle(
 	use rpc::Method::*;
 	match method {
 		// State retrieval.
-		StateDaemon     => state_daemon(request.id).await,
-		StateAudio      => state_audio(request.id).await,
-		StateReset      => state_reset(request.id).await,
-		StateCollection => state_collection(request.id, collection).await,
+		StateDaemon         => state_daemon(request.id).await,
+		StateAudio          => state_audio(request.id).await,
+		StateReset          => state_reset(request.id).await,
+		StateCollection     => state_collection(request.id, collection).await,
+		StateCollectionFull => state_collection_full(request.id, collection).await,
 
 		// Playback control.
 		Toggle      => toggle(request.id).await,
@@ -151,7 +152,7 @@ async fn state_daemon<'a>(id: Option<json_rpc::Id<'a>>) -> Result<Response<Body>
 		rest:            config().rest,
 		direct_download: config().direct_download,
 		authorization:   AUTH.get().is_some(),
-		version:         Cow::Borrowed(FESTIVALD_NAME_VER),
+		version:         Cow::Borrowed(FESTIVALD_VERSION),
 		commit:          Cow::Borrowed(COMMIT),
 		os:              Cow::Borrowed(OS_ARCH),
 	};
@@ -195,6 +196,19 @@ async fn state_reset<'a>(id: Option<json_rpc::Id<'a>>) -> Result<Response<Body>,
 }
 
 async fn state_collection<'a>(id: Option<json_rpc::Id<'a>>, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+	let resp = rpc::resp::StateCollection {
+		empty: collection.empty,
+		timestamp: collection.timestamp,
+		count_artist: collection.count_artist.inner(),
+		count_album: collection.count_album.inner(),
+		count_song: collection.count_song.inner(),
+		count_art: collection.count_art.inner(),
+	};
+
+	Ok(resp::result(resp, id))
+}
+
+async fn state_collection_full<'a>(id: Option<json_rpc::Id<'a>>, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
 	// Instead of checking if the `Collection` -> `JSON String`
 	// output is correct for every response, only check in debug builds.
 	//

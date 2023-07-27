@@ -64,8 +64,17 @@ impl_struct! {
 	resetting: bool,
 	saving:    bool
 }
-impl_struct_anon_lt! {
+impl_struct! {
 	StateCollection,
+	empty: bool,
+	timestamp: u64,
+	count_artist: u64,
+	count_album: u64,
+	count_song: u64,
+	count_art: u64
+}
+impl_struct_anon_lt! {
+	StateCollectionFull,
 	CollectionJson<'a>
 }
 

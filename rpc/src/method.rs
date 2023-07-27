@@ -46,6 +46,8 @@ pub enum Method {
 	StateReset,
 	/// [`crate::resp::StateCollection`]
 	StateCollection,
+	/// [`crate::resp::StateCollectionFull`]
+	StateCollectionFull,
 
 	// Playback control.
 	/// [`crate::resp::Toggle`]

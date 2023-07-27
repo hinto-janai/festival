@@ -158,8 +158,16 @@ pub async fn init(
 			_ => debug_panic!("wrong kernel msg"),
 		}
 	};
-
-	// TODO: for testing, cleanup later.
+//	drop(collection);
+//
+//	// TODO: for testing, cleanup later.
+//	send!(TO_KERNEL, FrontendToKernel::NewCollection(vec![PathBuf::from("/home/main/git/festival/assets/audio")]));
+//	let collection = loop {
+//		match recv!(FROM_KERNEL) {
+//			KernelToFrontend::NewCollection(c) => break c,
+//			_ => debug_panic!("wrong kernel msg"),
+//		}
+//	};
 //	send!(TO_KERNEL, FrontendToKernel::AddQueueArtist((64_u8.into(), Default::default(), false, 0)));
 //	send!(TO_KERNEL, FrontendToKernel::Play);
 //	send!(TO_KERNEL, FrontendToKernel::Volume(shukusai::audio::Volume::new(1)));
