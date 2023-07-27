@@ -271,8 +271,111 @@ If no art was found, the response will be a 404 error.
 | Art in original format | image file | `Artist Name - Album Title.jpg`
 
 # JSON-RPC
+`festivald` exposes a [`JSON-RPC 2.0`](https://jsonrpc.org) API for general state retrieval & signal control.
+
+It can be accessed by sending a POST HTTP request containing a `JSON-RPC 2.0` request in the body, to the root endpoint, `/`.
+
+A quick recap of a `JSON-RPC 2.0` _request_:
+```json
+{
+  "jsonrpc": "2.0",   // JSON-RPC version. MUST be exactly "2.0"
+  "method": "METHOD", // A string of the method name
+  "param": [],        // Optional parameters needed by the method
+  "id": 0,            // An ID, MUST be a String, Number, or NULL value if included
+}
+```
+An example:
+```bash
+IP=localhost             # ip of festivald
+PORT=18425               # port of festivald
+METHOD='previous'        # the method to call
+PARAMS='{"threshold":3}' # the parameters of the method
+ID=0                     # the ID of this request
+
+# Send JSON-RPC request to goto the previous song
+# (or reset the current, if more than 3 seconds has passed).
+curl \
+    http://$IP:$PORT \
+    -d '{"jsonrpc":"2.0","id":$ID,"method":"'$METHOD'","params":'$PARAMS'}'
+```
+
+A quick recap of a SUCCESSFUL `JSON-RPC 2.0` _response_:
+```json
+{
+  "jsonrpc": "2.0", // JSON-RPC version. Will always be exactly "2.0"
+  "result": {       // The field containing the result of the SUCCESSFUL response
+    // This can contain fields that
+    // are nested arbitrarily deep.
+    // Although, most times they
+    // will be simple "key": value
+    // pairs.
+  },
+  "id": 0, // The ID associated with the client
+}
+```
+A quick recap of a FAILED `JSON-RPC 2.0` _response_:
+```json
+{
+  "jsonrpc": "2.0", // JSON-RPC version. Will always be exactly "2.0"
+  "error": {        // The field containing the result of the FAILED response
+    "code": -32601, // A number that indicates the error type that occurred
+    "message": "",  // A string providing a short description of the error
+    "data": null,   // An OPTIONAL field containing extra data about the error
+  },
+  "id": 0,          // The ID associated with the client
+}
+```
+
+For methods without parameters, the field can be omitted:
+```bash
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"toggle"}'
+```
+
+Each method below will document what inputs it needs, what output to expect, and examples.
+
+The title of the section itself is the method name, for example below, `state_daemon` _is_ the method name.
+
 # State Retrieval
+These methods are for retrieving state, and do not mutate any part of the system.
+
 ## state_daemon
+Retrieve state about the status of `festivald` itself.
+
+| Inputs |
+|--------|
+| None   |
+
+| Outputs         | Type             | Description |
+|-----------------|------------------|-------------|
+| uptime          | unsigned integer | Uptime of `festivald` in seconds
+| rest            | boolean          | If this `festivald`'s `REST` API is enabled
+| direct_download | boolean          | If this `festivald`'s `REST` API has `direct_download` enabled
+| authorization   | boolean          | If this `festivald` has authorization enabled
+| version         | string           | Semantic version of this `festivald`
+| commit          | string           | Git commit of this `festivald`
+| os              | string           | The OS this `festivald` was built for
+
+Example Request:
+```bash
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"state_daemon"}'
+```
+Example Response:
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "uptime": 15,
+    "rest": true,
+    "direct_download": false,
+    "authorization": false,
+    "version": "festivald v0.0.0",
+    "commit": "5e54b8ecd6fd505ff8c9ef1a5fbbef26e7f1bd86",
+    "os": "Linux x64"
+  },
+  "id": 0
+}
+```
+
 ## state_audio
 ## state_reset
 ## state_collection
