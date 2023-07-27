@@ -28,16 +28,17 @@ fn main() {
 	disk::umask(0o027);
 
 	// Setup `Kernel` <-> `Frontend` channels.
-//	let (to_kernel, from_kernel) = match shukusai::kernel::Kernel::spawn(!disable_watch, !disable_media_controls) {
-//		Ok((t, f)) => (t, f),
-//		Err(e)     => panic!("Kernel::spawn() failed: {e}"),
-//	};
+	let (to_kernel, from_kernel) = match shukusai::kernel::Kernel::spawn(!disable_watch, !disable_media_controls) {
+		Ok((t, f)) => (t, f),
+		Err(e)     => panic!("Kernel::spawn() failed: {e}"),
+	};
 
+	// These last forever.
 	// INVARIANT: Initialize `CONFIG`. This must be set, and once only.
-//	let CONFIG: &'static crate::config::Config = config_builder.build_and_set();
-	let CONFIG: &'static crate::config::Config = crate::config::ConfigBuilder::default().build_and_set();
+	let CONFIG:      &'static crate::config::Config = crate::config::ConfigBuilder::default().build_and_set();
+	let TO_KERNEL:   &'static crossbeam::channel::Sender<shukusai::kernel::FrontendToKernel>   = Box::leak(Box::new(to_kernel));
+	let FROM_KERNEL: &'static crossbeam::channel::Receiver<shukusai::kernel::KernelToFrontend> = Box::leak(Box::new(from_kernel));
 
 	// Start HTTP router.
-//	match crate::router::init(to_kernel, from_kernel, Default::default()) {
-	crate::router::init(CONFIG);
+	crate::router::init(CONFIG, TO_KERNEL, FROM_KERNEL);
 }

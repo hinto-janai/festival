@@ -14,15 +14,16 @@ To interact with `festivald`, you need a client. The reference client can be fou
 For the `JSON-RPC` API, anything that can transmit `JSON-RPC` over `HTTP(s)` can be a client, like `curl`:
 ```bash
 # Toggle playback.
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":"0","method":"toggle"}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"toggle"}'
 ```
 
-For the `REST` API, you could use a browser:
+For the `REST` API, you could use anything that can handle `HTTP(s)`, like a browser:
 ```bash
 # Opening this link in a browser will show a small player for this song.
 http://localhost:18425/string/Artist Name/Artist Title/Song Title
 ```
 
+# Contents
 * [IP & Port](#IP-Port)
 * [Configuration](#Configuration)
 * [Authorization](#Authorization)
@@ -112,7 +113,7 @@ If a file is downloaded that is nested, the `filename_separator` config option w
 Artist Name - Album Title.zip
 ```
 
-## /key
+# /key
 Access audio files and/or art via a `key`.
 
 This endpoint expects 2 more endpoints:
@@ -182,7 +183,7 @@ Download this `Album`'s art in the image's original format.
 | Art in original format | image file | `Artist Name - Album Title.jpg`
 
 
-## /string
+# /string
 This is the same as the `/key` endpoint, but instead of numbers, you can directly use:
 - Artist names
 - Album titles
@@ -240,13 +241,13 @@ Download this `Song` in the original format.
 
 
 # JSON-RPC
-## State Retrieval
+# State Retrieval
 ## state_daemon
 ## state_audio
 ## state_reset
 ## state_collection
 
-## Playback Control
+# Playback Control
 ## toggle
 ## play
 ## pause
@@ -268,21 +269,21 @@ Download this `Song` in the original format.
 ## set_queue_index
 ## remove_queue_range
 
-## Key
+# Key
 ## key_artist
 ## key_album
 ## key_song
 
-## Map
+# Map
 ## map_artist
 ## map_album
 ## map_song
 
-## Search
+# Search
 ## search
 ## search_artist
 ## search_album
 ## search_song
 
-## Collection
+# Collection
 ## new_collection

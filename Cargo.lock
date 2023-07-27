@@ -1925,6 +1925,7 @@ dependencies = [
  "once_cell",
  "rand",
  "readable",
+ "rpc",
  "serde",
  "serde_json",
  "sha2",
@@ -2796,8 +2797,8 @@ dependencies = [
 
 [[package]]
 name = "json-rpc"
-version = "0.1.0"
-source = "git+https://github.com/hinto-janai/json-rpc#40eef514eb1fd0395b7ce42c6b43498be0eac9f0"
+version = "0.1.1"
+source = "git+https://github.com/hinto-janai/json-rpc#bead2044484fd5c750ad607882fbde550a7cb37b"
 dependencies = [
  "serde",
  "serde_json",

@@ -19,6 +19,7 @@ benri    = { workspace = true }
 disk     = { workspace = true }
 readable = { workspace = true }
 json-rpc = { workspace = true }
+rpc      = { workspace = true }
 
 ### Shared.
 anyhow       = { workspace = true }

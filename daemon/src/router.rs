@@ -6,6 +6,7 @@ use anyhow::anyhow;
 use log::{error,info,warn,debug,trace};
 use disk::{Bincode2,Json};
 use std::sync::Arc;
+use std::path::PathBuf;
 use std::net::{
 	Ipv4Addr,
 	SocketAddrV4,
@@ -59,32 +60,24 @@ use tokio::net::{
 	TcpStream,
 };
 use crate::resp;
+use benri::{
+	recv,send,
+	debug_panic,
+};
 
 //---------------------------------------------------------------------------------------------------- Router
 #[tokio::main]
 pub async fn init(
-//	to_kernel:   Sender<FrontendToKernel>,
-//	from_kernel: Receiver<KernelToFrontend>,
-	config: &'static Config,
+	CONFIG:      &'static Config,
+	TO_KERNEL:   &'static Sender<FrontendToKernel>,
+	FROM_KERNEL: &'static Receiver<KernelToFrontend>,
 ) {
-	// These last forever.
-//	let TO_KERNEL:   &'static Sender<FrontendToKernel>   = Box::leak(Box::new(to_kernel));
-//	let FROM_KERNEL: &'static Receiver<KernelToFrontend> = Box::leak(Box::new(from_kernel));
-
 	// Bind to address.
-	let addr     = SocketAddrV4::new(config.ip, config.port);
+	let addr     = SocketAddrV4::new(CONFIG.ip, CONFIG.port);
 	let listener = match TcpListener::bind(addr).await {
 		Ok(l)  => l,
 		Err(e) => crate::exit!("could not bind to [{addr}]: {e}"),
 	};
-
-	// Wait until `Kernel` has given us `Arc<Collection>`.
-//	let collection = loop {
-//		match recv!(from_kernel) {
-//			KernelToFrontend::NewCollection(c) => break c,
-//			_ => (),
-//		}
-//	};
 
 	// Instead of branching everytime for HTTP/HTTPS or
 	// using dynamic dispatch or an enum and matching it,
@@ -118,7 +111,7 @@ pub async fn init(
 			let ip = addr.ip();
 
 			// If we have an exclusive IP list, deny non-contained IP connections.
-			if let Some(ips) = &config.exclusive_ips {
+			if let Some(ips) = &CONFIG.exclusive_ips {
 				if !ips.contains(ip) {
 					info!("ip not in exclusive list, skipping [{ip}]");
 					sleep_on_fail().await;
@@ -128,7 +121,7 @@ pub async fn init(
 
 			// If we are past the connection limit, wait until some
 			// tasks are done before serving new connections.
-			if let Some(max) = config.max_connections {
+			if let Some(max) = CONFIG.max_connections {
 				if crate::statics::connections() > max {
 					// Only log once.
 					warn!("past max connections [{max}], waiting before serving [{ip}]...");
@@ -146,7 +139,7 @@ pub async fn init(
 	// Prints `protocol`, `ip`, and `port` in color.
 	macro_rules! listening {
 		() => {{
-			let protocol = if config.tls { "https" } else { "http" };
+			let protocol = if CONFIG.tls { "https" } else { "http" };
 
 			const PURPLE: &str = "\x1b[1;95m";
 			const YELLOW: &str = "\x1b[1;93m";
@@ -158,15 +151,23 @@ pub async fn init(
 		}}
 	}
 
+	// Wait until `Kernel` has given us `Arc<Collection>`.
+	let collection = loop {
+		match recv!(FROM_KERNEL) {
+			KernelToFrontend::NewCollection(c) => break c,
+			_ => debug_panic!("wrong kernel msg"),
+		}
+	};
+
 	// If `HTTPS`, start main `HTTPS` loop.
-	if config.tls {
+	if CONFIG.tls {
 		// Sanity-checks.
-		let path_cert = match &config.certificate {
+		let path_cert = match &CONFIG.certificate {
 			Some(p) => p,
 			None    => crate::exit!("TLS enabled but no certificate PATH provided"),
 		};
 
-		let path_key = match &config.key {
+		let path_key = match &CONFIG.key {
 			Some(p) => p,
 			None    => crate::exit!("TLS enabled but no key PATH provided"),
 		};
