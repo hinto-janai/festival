@@ -23,7 +23,7 @@ impl super::Ccd {
 
 		// Test PATHs, collect valid ones.
 		// Sort, remove duplicates.
-		paths.retain(|p| p.exists());
+		paths.retain(|p| p.exists() && p.is_absolute());
 		paths.par_sort();
 		paths.dedup();
 

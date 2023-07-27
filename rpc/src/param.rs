@@ -48,7 +48,7 @@ impl_struct_lt!(SearchAlbum, input: Cow<'a, str>, kind: SearchKind);
 impl_struct_lt!(SearchSong, input: Cow<'a, str>, kind: SearchKind);
 
 // Collection
-impl_struct!(NewCollection, paths: Vec<PathBuf>);
+impl_struct!(NewCollection, paths: Option<Vec<PathBuf>>);
 
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]

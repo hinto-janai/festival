@@ -19,9 +19,16 @@ use crate::constants::{
 	FESTIVALD_VERSION,
 };
 use shukusai::{
+	kernel::{
+		FrontendToKernel,
+		KernelToFrontend,
+	},
 	state::AUDIO_STATE,
 	collection::{
 		Collection,
+		Artist,
+		Album,
+		Song,
 		json::{
 			CollectionJson,
 			ArtistJson,
@@ -33,12 +40,23 @@ use shukusai::{
 		OS_ARCH,
 		COMMIT,
 	},
+	search::SearchKind,
 };
 use crate::config::{
 	AUTH,config,
 };
 use std::borrow::Cow;
-use benri::lock;
+use std::time::Duration;
+use benri::{
+	debug_panic,
+	lock,send,recv,
+};
+use crossbeam::channel::{
+	Sender,Receiver,
+};
+use json_rpc::{
+	Id,
+};
 
 //---------------------------------------------------------------------------------------------------- Parse, call func, or return macro.
 // Parse
@@ -54,6 +72,17 @@ use benri::lock;
 //
 // This must be `.await`'ed.
 macro_rules! ppacor {
+	($request:expr, $call:expr, $param:ty, $($extra_arg:ident),*) => {{
+		let Some(value) = $request.params else {
+			return Ok(crate::resp::invalid_params($request.id));
+		};
+
+		let Ok(param) = serde_json::from_str::<$param>(value.get()) else {
+			return Ok(crate::resp::invalid_params($request.id));
+		};
+
+		$call(param, $request.id, $($extra_arg),*)
+	}};
 	($request:expr, $call:expr, $param:ty) => {{
 		let Some(value) = $request.params else {
 			return Ok(crate::resp::invalid_params($request.id));
@@ -63,16 +92,18 @@ macro_rules! ppacor {
 			return Ok(crate::resp::invalid_params($request.id));
 		};
 
-		$call(param)
-	}}
+		$call(param, $request.id)
+	}};
 }
 
 //---------------------------------------------------------------------------------------------------- JSON-RPC Handler
 pub async fn handle(
-	parts:      Parts,
-	body:       Body,
-	addr:       SocketAddrV4,
-	collection: Arc<Collection>,
+	parts:       Parts,
+	body:        Body,
+	addr:        SocketAddrV4,
+	collection:  Arc<Collection>,
+	TO_KERNEL:   &'static Sender<FrontendToKernel>,
+	FROM_KERNEL: &'static Receiver<KernelToFrontend>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	// Body to bytes.
 	let body = hyper::body::to_bytes(body).await?;
@@ -135,10 +166,10 @@ pub async fn handle(
 		MapSong   => ppacor!(request, map_song, rpc::param::MapSong).await,
 
 		// Search (fuzzy keys).await,
-		Search       => ppacor!(request, search, rpc::param::Search).await,
-		SearchArtist => ppacor!(request, search_artist, rpc::param::SearchArtist).await,
-		SearchAlbum  => ppacor!(request, search_album, rpc::param::SearchAlbum).await,
-		SearchSong   => ppacor!(request, search_song, rpc::param::SearchSong).await,
+		Search       => ppacor!(request, search, rpc::param::Search, collection, TO_KERNEL, FROM_KERNEL).await,
+		SearchArtist => ppacor!(request, search_artist, rpc::param::SearchArtist, collection, TO_KERNEL, FROM_KERNEL).await,
+		SearchAlbum  => ppacor!(request, search_album, rpc::param::SearchAlbum, collection, TO_KERNEL, FROM_KERNEL).await,
+		SearchSong   => ppacor!(request, search_song, rpc::param::SearchSong, collection, TO_KERNEL, FROM_KERNEL).await,
 
 		// Collection
 		NewCollection => ppacor!(request, new_collection, rpc::param::NewCollection).await,
@@ -146,7 +177,7 @@ pub async fn handle(
 }
 
 //---------------------------------------------------------------------------------------------------- No-Param methods.
-async fn state_daemon<'a>(id: Option<json_rpc::Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+async fn state_daemon<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
 	let resp = rpc::resp::StateDaemon {
 		uptime:          shukusai::logger::uptime(),
 		rest:            config().rest,
@@ -160,7 +191,7 @@ async fn state_daemon<'a>(id: Option<json_rpc::Id<'a>>) -> Result<Response<Body>
 	Ok(resp::result(resp, id))
 }
 
-async fn state_audio<'a>(id: Option<json_rpc::Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+async fn state_audio<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
 	let shukusai::state::AudioState {
 		queue,
 		queue_idx,
@@ -186,7 +217,7 @@ async fn state_audio<'a>(id: Option<json_rpc::Id<'a>>) -> Result<Response<Body>,
 	Ok(resp::result(resp, id))
 }
 
-async fn state_reset<'a>(id: Option<json_rpc::Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+async fn state_reset<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
 	let resp = rpc::resp::StateReset {
 		resetting: shukusai::state::resetting(),
 		saving: shukusai::state::saving(),
@@ -195,7 +226,7 @@ async fn state_reset<'a>(id: Option<json_rpc::Id<'a>>) -> Result<Response<Body>,
 	Ok(resp::result(resp, id))
 }
 
-async fn state_collection<'a>(id: Option<json_rpc::Id<'a>>, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+async fn state_collection<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
 	let resp = rpc::resp::StateCollection {
 		empty: collection.empty,
 		timestamp: collection.timestamp,
@@ -208,7 +239,7 @@ async fn state_collection<'a>(id: Option<json_rpc::Id<'a>>, collection: Arc<Coll
 	Ok(resp::result(resp, id))
 }
 
-async fn state_collection_full<'a>(id: Option<json_rpc::Id<'a>>, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+async fn state_collection_full<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
 	// Instead of checking if the `Collection` -> `JSON String`
 	// output is correct for every response, only check in debug builds.
 	//
@@ -224,39 +255,143 @@ async fn state_collection_full<'a>(id: Option<json_rpc::Id<'a>>, collection: Arc
 	Ok(resp::result(collection, id))
 }
 
-async fn toggle<'a>(id: Option<json_rpc::Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("toggle"))) }
-async fn play<'a>(id: Option<json_rpc::Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("play"))) }
-async fn pause<'a>(id: Option<json_rpc::Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("pause"))) }
-async fn next<'a>(id: Option<json_rpc::Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("next"))) }
-async fn stop<'a>(id: Option<json_rpc::Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("stop"))) }
-async fn repeat_off<'a>(id: Option<json_rpc::Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("repeat_off"))) }
-async fn repeat_song<'a>(id: Option<json_rpc::Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("repeat_song"))) }
-async fn repeat_queue<'a>(id: Option<json_rpc::Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("repeat_queue"))) }
-async fn shuffle<'a>(id: Option<json_rpc::Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("shuffle"))) }
+async fn toggle<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("toggle"))) }
+async fn play<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("play"))) }
+async fn pause<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("pause"))) }
+async fn next<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("next"))) }
+async fn stop<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("stop"))) }
+async fn repeat_off<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("repeat_off"))) }
+async fn repeat_song<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("repeat_song"))) }
+async fn repeat_queue<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("repeat_queue"))) }
+async fn shuffle<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("shuffle"))) }
 
 //---------------------------------------------------------------------------------------------------- Param methods.
-async fn previous(params: rpc::param::Previous) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("previous"))) }
-async fn volume(params: rpc::param::Volume) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("volume"))) }
-async fn add_queue_song(params: rpc::param::AddQueueSong) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("add_queue_song"))) }
-async fn add_queue_album(params: rpc::param::AddQueueAlbum) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("add_queue_album"))) }
-async fn add_queue_artist(params: rpc::param::AddQueueArtist) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("add_queue_artist"))) }
-async fn clear(params: rpc::param::Clear) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("clear"))) }
-async fn seek(params: rpc::param::Seek) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("seek"))) }
-async fn skip(params: rpc::param::Skip) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("skip"))) }
-async fn back(params: rpc::param::Back) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("back"))) }
-async fn set_queue_index(params: rpc::param::SetQueueIndex) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("set_queue_index"))) }
-async fn remove_queue_range(params: rpc::param::RemoveQueueRange) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("remove_queue_range"))) }
-async fn key_artist(params: rpc::param::KeyArtist) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("key_artist"))) }
-async fn key_album(params: rpc::param::KeyAlbum) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("key_album"))) }
-async fn key_song(params: rpc::param::KeySong) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("key_song"))) }
-async fn map_artist<'a>(params: rpc::param::MapArtist<'a>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("map_artist"))) }
-async fn map_album<'a>(params: rpc::param::MapAlbum<'a>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("map_album"))) }
-async fn map_song<'a>(params: rpc::param::MapSong<'a>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("map_song"))) }
-async fn search<'a>(params: rpc::param::Search<'a>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("search"))) }
-async fn search_artist<'a>(params: rpc::param::SearchArtist<'a>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("search_artist"))) }
-async fn search_album<'a>(params: rpc::param::SearchAlbum<'a>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("search_album"))) }
-async fn search_song<'a>(params: rpc::param::SearchSong<'a>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("search_song"))) }
-async fn new_collection(params: rpc::param::NewCollection) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("new_collection"))) }
+async fn previous<'a>(params: rpc::param::Previous, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("previous"))) }
+async fn volume<'a>(params: rpc::param::Volume, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("volume"))) }
+async fn add_queue_song<'a>(params: rpc::param::AddQueueSong, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("add_queue_song"))) }
+async fn add_queue_album<'a>(params: rpc::param::AddQueueAlbum, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("add_queue_album"))) }
+async fn add_queue_artist<'a>(params: rpc::param::AddQueueArtist, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("add_queue_artist"))) }
+async fn clear<'a>(params: rpc::param::Clear, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("clear"))) }
+async fn seek<'a>(params: rpc::param::Seek, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("seek"))) }
+async fn skip<'a>(params: rpc::param::Skip, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("skip"))) }
+async fn back<'a>(params: rpc::param::Back, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("back"))) }
+async fn set_queue_index<'a>(params: rpc::param::SetQueueIndex, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("set_queue_index"))) }
+async fn remove_queue_range<'a>(params: rpc::param::RemoveQueueRange, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("remove_queue_range"))) }
+async fn key_artist<'a>(params: rpc::param::KeyArtist, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("key_artist"))) }
+async fn key_album<'a>(params: rpc::param::KeyAlbum, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("key_album"))) }
+async fn key_song<'a>(params: rpc::param::KeySong, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("key_song"))) }
+async fn map_artist<'a>(params: rpc::param::MapArtist<'a>, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("map_artist"))) }
+async fn map_album<'a>(params: rpc::param::MapAlbum<'a>, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("map_album"))) }
+async fn map_song<'a>(params: rpc::param::MapSong<'a>, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("map_song"))) }
+
+// Implement the generic part of `search`.
+// Acquires and holds onto a `kernel_lock` for the entire time,
+// returns the search `Keychain`.
+macro_rules! impl_search {
+	($params:expr, $id:expr, $to_kernel:expr, $from_kernel:expr) => {{
+		// Acquire `Kernel` lock.
+		let kernel_lock = loop {
+			match crate::statics::KERNEL_LOCK.try_lock() {
+				Ok(lock) => break lock,
+				_ => tokio::time::sleep(Duration::from_millis(1)).await,
+			}
+		};
+
+		// Send `Search` signal to `Kernel`.
+		send!($to_kernel, FrontendToKernel::Search(($params.input.into(), $params.kind)));
+
+		// Receive from `Kernel`.
+		let msg = loop {
+			match $from_kernel.try_recv() {
+				Ok(msg) => break msg,
+				_ => tokio::time::sleep(Duration::from_millis(1)).await,
+			}
+		};
+
+		// INVARIANT: This _must_ be `SearchResp` or our `KERNEL_LOCK` workaround isn't working.
+		let KernelToFrontend::SearchResp(keychain) = msg else {
+			debug_panic!("search method but not search resp");
+			return Ok(resp::internal_error($id));
+		};
+
+		keychain
+	}}
+}
+
+async fn search<'a>(
+	params:      rpc::param::Search<'a>,
+	id:          Option<Id<'a>>,
+	collection:  Arc<Collection>,
+	TO_KERNEL:   &'static Sender<FrontendToKernel>,
+	FROM_KERNEL: &'static Receiver<KernelToFrontend>,
+) -> Result<Response<Body>, anyhow::Error> {
+	let keychain = impl_search!(params, id, TO_KERNEL, FROM_KERNEL);
+
+	// Collect objects.
+	// FIXME: Maybe we can serialize directly off iter instead of boxing?
+	let artists: Box<[&Artist]> = keychain.artists.iter().map(|k| &collection.artists[k]).collect();
+	let albums:  Box<[&Album]>  = keychain.albums.iter().map(|k| &collection.albums[k]).collect();
+	let songs:   Box<[&Song]>   = keychain.songs.iter().map(|k| &collection.songs[k]).collect();
+
+	// Turn in response.
+	let resp = serde_json::json!({
+		"artists": artists,
+		"albums": albums,
+		"songs": songs,
+	});
+
+	Ok(resp::result(resp, id))
+}
+
+async fn search_artist<'a>(
+	params:      rpc::param::SearchArtist<'a>,
+	id:          Option<Id<'a>>,
+	collection:  Arc<Collection>,
+	TO_KERNEL:   &'static Sender<FrontendToKernel>,
+	FROM_KERNEL: &'static Receiver<KernelToFrontend>,
+) -> Result<Response<Body>, anyhow::Error> {
+	let keychain = impl_search!(params, id, TO_KERNEL, FROM_KERNEL);
+
+	let slice: Box<[&Artist]> = keychain.artists.iter().map(|k| &collection.artists[k]).collect();
+
+	let resp = serde_json::json!({"artists": slice});
+
+	Ok(resp::result(resp, id))
+}
+
+async fn search_album<'a>(
+	params:      rpc::param::SearchAlbum<'a>,
+	id:          Option<Id<'a>>,
+	collection:  Arc<Collection>,
+	TO_KERNEL:   &'static Sender<FrontendToKernel>,
+	FROM_KERNEL: &'static Receiver<KernelToFrontend>,
+) -> Result<Response<Body>, anyhow::Error> {
+	let keychain = impl_search!(params, id, TO_KERNEL, FROM_KERNEL);
+
+	let slice: Box<[&Album]> = keychain.albums.iter().map(|k| &collection.albums[k]).collect();
+
+	let resp = serde_json::json!({"albums": slice});
+
+	Ok(resp::result(resp, id))
+}
+
+async fn search_song<'a>(
+	params:      rpc::param::SearchSong<'a>,
+	id:          Option<Id<'a>>,
+	collection:  Arc<Collection>,
+	TO_KERNEL:   &'static Sender<FrontendToKernel>,
+	FROM_KERNEL: &'static Receiver<KernelToFrontend>,
+) -> Result<Response<Body>, anyhow::Error> {
+	let keychain = impl_search!(params, id, TO_KERNEL, FROM_KERNEL);
+
+	let slice: Box<[&Song]> = keychain.songs.iter().map(|k| &collection.songs[k]).collect();
+
+	let resp = serde_json::json!({"songs": slice});
+
+	Ok(resp::result(resp, id))
+}
+
+async fn new_collection<'a>(params: rpc::param::NewCollection, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("new_collection"))) }
 
 //---------------------------------------------------------------------------------------------------- TESTS
 //#[cfg(test)]

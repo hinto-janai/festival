@@ -37,6 +37,7 @@ clap         = { workspace = true }
 const_format = { workspace = true }
 compact_str  = { workspace = true }
 crossbeam    = { workspace = true }
+dirs         = { workspace = true }
 image        = { workspace = true }
 log          = { workspace = true }
 serde        = { workspace = true }
@@ -45,7 +46,6 @@ once_cell    = { workspace = true }
 
 ### Regular libraries.
 rfd  = "0.11.4"
-dirs = "5.0.1"
 open = "4.1.0"
 
 # For Windows build (icon)

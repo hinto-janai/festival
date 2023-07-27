@@ -4310,6 +4310,7 @@ version = "1.0.103"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d03b412469450d4404fe8499a268edd7f8b79fecb074b0d812ad64ca21f4031b"
 dependencies = [
+ "indexmap 2.0.0",
  "itoa",
  "ryu",
  "serde",
@@ -4384,6 +4385,7 @@ dependencies = [
  "const_format",
  "cpal",
  "crossbeam",
+ "dirs",
  "disk",
  "egui",
  "egui_extras",

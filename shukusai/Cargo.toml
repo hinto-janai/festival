@@ -50,6 +50,7 @@ bincode      = { workspace = true }
 crossbeam    = { workspace = true }
 const_format = { workspace = true }
 compact_str  = { workspace = true }
+dirs         = { workspace = true }
 image        = { workspace = true }
 log          = { workspace = true }
 once_cell    = { workspace = true }

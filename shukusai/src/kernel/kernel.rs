@@ -711,6 +711,18 @@ impl Kernel {
 		// Set `ResetState` to `Start` phase.
 		RESET_STATE.write().start();
 
+		// If the provided PATHs is empty,
+		// scan the default Music directory.
+		let paths = match paths.is_empty() {
+			false => paths,
+			true  => {
+				match dirs::audio_dir() {
+					Some(p) => vec![p],
+					None    => vec![],
+				}
+			},
+		};
+
 		// Spawn `CCD`.
 		if let Err(e) = std::thread::Builder::new()
 			.name("CCD".to_string())

@@ -158,6 +158,7 @@ pub async fn init(
 			_ => debug_panic!("wrong kernel msg"),
 		}
 	};
+
 //	drop(collection);
 //
 //	// TODO: for testing, cleanup later.
@@ -197,7 +198,7 @@ pub async fn init(
 
 			let collection = Arc::clone(&collection);
 			tokio::task::spawn(async move {
-				https(ConnectionToken::new(), stream, addr, ACCEPTOR, collection).await;
+				https(ConnectionToken::new(), stream, addr, ACCEPTOR, collection, TO_KERNEL, FROM_KERNEL).await;
 			});
 		}
 	// Else If `HTTP`, start main `HTTP` loop (the exact same, but without TLS).
@@ -207,9 +208,9 @@ pub async fn init(
 		loop {
 			let (stream, addr) = impl_loop!();
 
-			let collection = Arc::clone(&collection);
+			let collection  = Arc::clone(&collection);
 			tokio::task::spawn(async move {
-				http(ConnectionToken::new(), stream, addr, collection).await;
+				http(ConnectionToken::new(), stream, addr, collection, TO_KERNEL, FROM_KERNEL).await;
 			});
 		}
 	}
@@ -222,9 +223,11 @@ async fn http(
 	stream:     TcpStream,
 	addr:       SocketAddrV4,
 	collection: Arc<Collection>,
+	TO_KERNEL:   &'static Sender<FrontendToKernel>,
+	FROM_KERNEL: &'static Receiver<KernelToFrontend>,
 ) {
 	if let Err(e) = Http::new()
-		.serve_connection(stream, service_fn(|r| route(r, addr, Arc::clone(&collection))))
+		.serve_connection(stream, service_fn(|r| route(r, addr, Arc::clone(&collection), TO_KERNEL, FROM_KERNEL)))
 		.await
 	{
 		error!("HTTP error for [{}]: {e}", addr.ip());
@@ -239,6 +242,8 @@ async fn https(
 	addr:       SocketAddrV4,
 	acceptor:   &'static TlsAcceptor,
 	collection: Arc<Collection>,
+	TO_KERNEL:   &'static Sender<FrontendToKernel>,
+	FROM_KERNEL: &'static Receiver<KernelToFrontend>,
 ) {
 	let stream = match acceptor.accept(stream).await {
 		Ok(s)  => s,
@@ -246,7 +251,7 @@ async fn https(
 	};
 
 	if let Err(e) = Http::new()
-		.serve_connection(stream, service_fn(|r| route(r, addr, Arc::clone(&collection))))
+		.serve_connection(stream, service_fn(|r| route(r, addr, Arc::clone(&collection), TO_KERNEL, FROM_KERNEL)))
 		.await
 	{
 		error!("HTTPS error for [{}]: {e}", addr.ip());
@@ -259,6 +264,8 @@ async fn route(
 	req:        Request<Body>,
 	addr:       SocketAddrV4,
 	collection: Arc<Collection>,
+	TO_KERNEL:   &'static Sender<FrontendToKernel>,
+	FROM_KERNEL: &'static Receiver<KernelToFrontend>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	let (mut parts, body) = req.into_parts();
 
@@ -271,7 +278,7 @@ async fn route(
 	}
 
 	if parts.uri == "/" && parts.method == hyper::Method::POST {
-		crate::rpc::handle(parts, body, addr, collection).await
+		crate::rpc::handle(parts, body, addr, collection, TO_KERNEL, FROM_KERNEL).await
 	} else if parts.method == hyper::Method::GET {
 		if config().rest {
 			crate::rest::handle(parts, collection).await

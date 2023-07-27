@@ -29,18 +29,11 @@ http://localhost:18425/string/Artist Name/Artist Title/Song Title
 * [Authorization](#Authorization)
 * [Disk](#Disk)
 * [Command Line](#Command-Line)
-* [REST](#REST)
-	- [/key](#key)
-		- [/artist/${artist_key}](#artistartist_key)
-		- [/album/${album_key}](#albumalbum_key)
-		- [/song/${song_key}](#songsong_key)
-		- [/art/${album_key}](#artalbum_key)
-	- [/string](#string)
-		- [/${artist_name}](#artist_name)
-		- [/${artist_name}/${album_title}](#artist_namealbum_title)
-		- [/${artist_name}/${album_title}/${song_title}](#artist_namealbum_titlesong_title)
-	- [/art/${artist_name}/${album_title}](#artartist_namealbum_title)
 * [JSON-RPC](#JSON-RPC)
+	- [Common Objects](#Common-Objects)
+		- [Artist](#Artist)
+		- [Album](#Album)
+		- [Song](#Song)
 	- [State Retrieval](#State-Retrieval)
 		- [state_daemon](#state_daemon)
 		- [state_audio](#state_audio)
@@ -82,6 +75,17 @@ http://localhost:18425/string/Artist Name/Artist Title/Song Title
 		- [search_song](#search_song)
 	- [Collection](#Collection)
 		- [new_collection](#new_collection)
+* [REST](#REST)
+	- [/key](#key)
+		- [/artist/${artist_key}](#artistartist_key)
+		- [/album/${album_key}](#albumalbum_key)
+		- [/song/${song_key}](#songsong_key)
+		- [/art/${album_key}](#artalbum_key)
+	- [/string](#string)
+		- [/${artist_name}](#artist_name)
+		- [/${artist_name}/${album_title}](#artist_namealbum_title)
+		- [/${artist_name}/${album_title}/${song_title}](#artist_namealbum_titlesong_title)
+	- [/art/${artist_name}/${album_title}](#artartist_namealbum_title)
 
 # Quick Start
 
@@ -92,183 +96,6 @@ http://localhost:18425/string/Artist Name/Artist Title/Song Title
 # Disk
 
 # Command Line
-
-# REST
-`festivald` (by default) exposes REST endpoints for `Collection`-related resources that can be accessed via GET HTTP requests.
-
-A simple way to access these files is via a browser, e.g, opening this link:
-```
-http://localhost:18425/art/my_artist/my_album
-```
-This will make the art of the album `my_album`, owned by the artist `my_artist` open directly in the browser (or make it download the image, if the `direct_download` configuration setting is enabled).
-
-Opening something like:
-```
-http://localhost:18425/string/Artist Name/Album Title/Song Title
-```
-will directly open that song in the browser and show a simple player, if your browser supports it (all modern browsers do). Again, you can change the behavior so that browsers directly download these resources by changing the `direct_download` configuration option.
-
-If a file is downloaded that is nested, the `filename_separator` config option will control what the separator will be. By default, this is ` - `, so the filename of an archive of an artist will look like:
-```
-Artist Name - Album Title.zip
-```
-
-# /key
-Access audio files and/or art via a `key`.
-
-This endpoint expects 2 more endpoints:
-- `${object}`
-- `${key}`
-
-The `object` must be one of:
-- `artist`
-- `album`
-- `song`
-- `art`
-
-The `key` must be the key number associated with the object.
-
-This info can be found in multiple JSON-RPC methods, such as `map_artist`, `search_artist`, etc. A `key` field will be included in the response. It is a number that represents that object.
-
-Keys are unique _per_ object group, meaning there is an `artist 0` AND `album 0`, and so forth.
-
-Note that keys can only be relied upon as long as the `Collection` has not been reset. When the `Collection` is reset, it is not guaranteed that the same key will map to the same object. Using the `/string` endpoint may be more convenient so that artist names, album and song titles can be used as inputs instead.
-
-The main reasons `/key` exists:
-- Accessing objects via `/key` is faster than with `/string`
-- As long as your `Collection` is stable, the `key`'s are stable
-
-## /artist/${artist_key}
-Download all the `Album`'s owned by this `Artist`, 1 directory per album (including art if found), wrapped in an archive format.
-
-| Input      | Type             | Example |
-|------------|------------------|---------|
-| artist key | unsigned integer | `http://localhost:18425/key/artist/123`
-
-| Output                                                  | Type   | Example |
-|---------------------------------------------------------|--------|---------|
-| Archive of all artist's albums (including art if found) | `.zip` | `Artist Name.zip`
-
-## /album/${album_key}
-Download this `Album` (including art if found), wrapped in an archive format.
-
-| Input     | Type             | Example |
-|-----------|------------------|---------|
-| album key | unsigned integer | `http://localhost:18425/key/album/123`
-
-| Output                                    | Type   | Example |
-|-------------------------------------------|--------|---------|
-| Album in archive (including art if found) | `.zip` | `Artist Name - Album Title.zip`
-
-## /song/${song_key}
-Download this `Song` in the original format.
-
-| Input    | Type             | Example |
-|----------|------------------|---------|
-| song key | unsigned integer | `http://localhost:18425/key/song/123`
-
-| Output                  | Type       | Example |
-|-------------------------|------------|---------|
-| Song in original format | audio file | `Artist Name - Album Title - Song Title.flac`
-
-## /art/${album_key}
-Download this `Album`'s art in the image's original format.
-
-| Input     | Type             | Example |
-|-----------|------------------|---------|
-| album key | unsigned integer | `http://localhost:18425/key/art/123`
-
-| Output                 | Type       | Example |
-|------------------------|------------|---------|
-| Art in original format | image file | `Artist Name - Album Title.jpg`
-
-# /string
-This is the same as the `/key` endpoint, but instead of numbers, you can directly use:
-- Artist names
-- Album titles
-- Song titles
-
-So instead of:
-```
-http://localhost:18425/key/song/123
-```
-you can use:
-```
-http://localhost:18425/string/Artist Name/Artist Title/Song Title
-```
-Browsers will secretly percent-encode this URL, so it'll actually be:
-```
-http://localhost:18425/string/Artist%20Name/Artist%20Title/Song%20Title
-```
-This is fine, `festivald` will decode it, along with any other percent encoding, so you can use spaces or any other UTF-8 characters directly in the URL:
-```
-http://localhost:18425/string/артист/❤️/ヒント じゃない
-```
-
-The reason `Artist` names and `Album` titles have to be specified is to prevent collisions.
-
-If there's 2 songs in your `Collection` called: `Hello World`, which one should `festivald` return?
-
-Since `Artist` names are unique, and `Album` titles within `Artist`'s are unique, they serve as an identifier.
-
-Also note: words are case-sensitive and must be exact.
-
-If you have an `Album` called `Hello World`, none of these inputs will work:
-- `Hello world`
-- `hello World`
-- `HELlo World`
-- `HelloWorld`
-- `H3ll0 W0rld`
-
-The input must _exactly_ be `Hello World`.
-
-## /${artist_name}
-Download all the `Album`'s owned by this `Artist`, 1 directory per album (including art if found), wrapped in an archive format.
-
-| Input       | Type         | Example |
-|-------------|--------------|---------|
-| artist name | UTF-8 string | `http://localhost:18425/string/Artist Name`
-
-| Output                                                  | Type   | Example |
-|---------------------------------------------------------|--------|---------|
-| Archive of all artist's albums (including art if found) | `.zip` | `Artist Name.zip`
-
-## /${artist_name}/${album_title}
-Download this `Album` (including art if found), wrapped in an archive format.
-
-| Input                    | Type         | Example |
-|--------------------------|--------------|---------|
-| artist name, album title | UTF-8 string | `http://localhost:18425/string/Artist Name/Album Title`
-
-| Output                                    | Type   | Example |
-|-------------------------------------------|--------|---------|
-| Album in archive (including art if found) | `.zip` | `Artist Name - Album Title.zip`
-
-## /${artist_name}/${album_title}/${song_title}
-Download this `Song` in the original format.
-
-| Input                                | Type         | Example |
-|--------------------------------------|--------------|---------|
-| artist name, album title, song title | UTF-8 string | `http://localhost:18425/string/Artist Name/Album Title/Song Title`
-
-| Output                  | Type       | Example |
-|-------------------------|------------|---------|
-| Song in original format | audio file | `Artist Name - Album Title - Song Title.flac`
-
-## /art/${artist_name}/${album_title}
-This single `/art` endpoint exists to allow downloading an `Album`'s art individually via a `string` key.
-
-Download this `Album`'s art in the original format.
-
-If no art was found, the response will be a 404 error.
-
-| Input                    | Type         | Example |
-|--------------------------|--------------|---------|
-| artist name, album title | UTF-8 string | `http://localhost:18425/art/Artist Name/Album Title`
-
-| Output                 | Type       | Example |
-|------------------------|------------|---------|
-| Art in original format | image file | `Artist Name - Album Title.jpg`
 
 # JSON-RPC
 `festivald` exposes a [`JSON-RPC 2.0`](https://jsonrpc.org) API for general state retrieval & signal control.
@@ -335,7 +162,104 @@ Each method below will document what inputs it needs, what output to expect, and
 
 All method names and field names are in `lower_case_snake_case`.
 
-The title of the section itself is the method name, for example below, `state_daemon` _is_ the method name.
+The title of the section itself is the method name, for example, `state_daemon` _is_ the method name.
+
+# Common Objects
+These are 3 common "objects" that have a set structure, and appear in many JSON-RPC calls:
+- `Artist`
+- `Album`
+- `Song`
+
+The definitions of these object's key/value pairs will be here, instead of everywhere they appear in the documentation.
+
+## Artist
+`Artist` object:
+| Field   | Type                                      | Description |
+|---------|-------------------------------------------|-------------|
+| name    | string                                    | The `Artist`'s name
+| key     | `Artist` key (unsigned integer)           | The `Artist` key associated with this `Artist`
+| runtime | unsigned integer                          | The total runtime of all songs owned by this `Artist`
+| albums  | array of `Album` keys (unsigned integers) | Keys to all `Album`'s owned by this `Artist`, in release order
+| songs   | array of `Song` keys (unsigned integers)  | Keys to all `Songs`'s owned by this `Artist`, in `Album` release order, then `Song` track order
+
+Example:
+```json
+{
+  "name": "Artist Name",
+  "key": 65,
+  "runtime": 7583,
+  "albums": [
+    255,
+    263
+  ],
+  "songs": [
+    2829,
+    2832,
+    2835,
+    2841
+  ]
+}
+```
+
+## Album
+`Album` object:
+| Field      | Type                                      | Description |
+|------------|-------------------------------------------|-------------|
+| title      | string                                    | The title of this `Album`
+| key        | `Album` key (unsigned integer)            | The `Album` key associated with this `Album`
+| artist     | `Artist` key (unsigned integer)           | The `Artist` key of the `Artist` that owns this `Album`
+| release    | string                                    | Release date of this `Album` in `YYYY-MM-DD`/`YYYY-MM`/`YYYY` format, `????-??-??` if unknown
+| runtime    | unsigned integer                          | The total runtime of this `Album`
+| song_count | unsigned integer                          | How many `Song`'s are in this `Album`
+| songs      | array of `Song` keys (unsigned integers)  | Keys to all of the `Song`'s in this `Album`, in track order
+| discs      | unsigned integer                          | Count of how many "discs" are in this `Album`, most will be `0`
+| art        | Optional (maybe-null) unsigned integer    | Size of this `Album`'s art in bytes, `null` if not found
+| genre      | Optional (maybe-null) string              | Genre of this `Album`, `null` if not found
+
+Example:
+```json
+{
+  "title": "Album Title",
+  "key": 100,
+  "artist": 16,
+  "release": "2011-07-13",
+  "runtime": 2942,
+  "song_count": 3,
+  "songs": [
+    972,
+    1024,
+    1051,
+  ],
+  "discs": 0,
+  "art": 306410,
+  "genre": null
+}
+```
+
+## Song
+`Song` object:
+| Field       | Type                                   | Description |
+|-------------|----------------------------------------|-------------|
+| title       | string                                 | The title of this `Song`
+| key         | `Song` key (unsigned integer)          | The `Song` key associated with this `Song`
+| album       | `Album` key (unsigned integer)         | The `Album` key of the `Album` this `Song` is from
+| runtime     | unsigned integer                       | The total runtime of this `Song`
+| sample_rate | unsigned integer                       | The sample rate of this `Song` in hertz, e.g: `44100`
+| track       | Optional (maybe-null) unsigned integer | Track number of this `Song`, `null` if not found
+| disc        | Optional (maybe-null) unsigned integer | Disc number this `Song` belongs to, `null` if not found
+
+Example:
+```json
+{
+  "title": "Song Title",
+  "key": 401,
+  "album": 42,
+  "runtime": 132,
+  "sample_rate": 44100,
+  "track": 5,
+  "disc": null
+}
+```
 
 # State Retrieval
 These methods are for retrieving state, and do not mutate any part of the system.
@@ -435,9 +359,9 @@ This method is much heavier superset of `state_collection`.
 | count_album                                 | unsigned integer                           | How many unique `Album`'s there are in this `Collection`
 | count_song                                  | unsigned integer                           | How many unique `Song`'s there are in this `Collection`
 | count_art                                   | unsigned integer                           | How much unique `Album` art there are in this `Collection`
-| artists                                     | array of `Artist` object (see below)       | An array of `Artist` objects
-| albums                                      | array of `Album` object (see below)        | An array of `Album` objects
-| songs                                       | array of `Song` object (see below)         | An array of `Song` objects
+| artists                                     | array of `Artist` objects (see above)      | An array of `Artist` objects
+| albums                                      | array of `Album` objects (see above)       | An array of `Album` objects
+| songs                                       | array of `Song` objects (see above)        | An array of `Song` objects
 | sort_artist_lexi                            | array of `Artist` keys (unsigned integers) | `Artists A-Z`
 | sort_artist_lexi_rev                        | array of `Artist` keys (unsigned integers) | `Artists Z-A`
 | sort_artist_album_count                     | array of `Artist` keys (unsigned integers) | `Artists per album count (least to most)`
@@ -485,40 +409,7 @@ The output of this method contains 3 more nested objects:
 - `Artist`
 - `Album`
 - `Song`
-
-`Artist` object:
-| Outputs | Type                                      | Description |
-|---------|-------------------------------------------|-------------|
-| name    | string                                    | The `Artist`'s name
-| key     | `Artist` key (unsigned integer)           | The `Artist` key associated with this `Artist`
-| runtime | unsigned integer                          | The total runtime of all songs owned by this `Artist`
-| albums  | array of `Album` keys (unsigned integers) | Keys to all `Album`'s owned by this `Artist`, in release order
-| songs   | array of `Song` keys (unsigned integers)  | Keys to all `Songs`'s owned by this `Artist`, in `Album` release order, then `Song` track order
-
-`Album` object:
-| Outputs    | Type                                      | Description |
-|------------|-------------------------------------------|-------------|
-| title      | string                                    | The title of this `Album`
-| key        | `Album` key (unsigned integer)            | The `Album` key associated with this `Album`
-| artist     | `Artist` key (unsigned integer)           | The `Artist` key of the `Artist` that owns this `Album`
-| release    | string                                    | Release date of this `Album` in `YYYY-MM-DD`/`YYYY-MM`/`YYYY` format, `????-??-??` if unknown
-| runtime    | unsigned integer                          | The total runtime of this `Album`
-| song_count | unsigned integer                          | How many `Song`'s are in this `Album`
-| songs      | array of `Song` keys (unsigned integers)  | Keys to all of the `Song`'s in this `Album`, in track order
-| discs      | unsigned integer                          | Count of how many "discs" are in this `Album`, most will be `0`
-| art        | Optional (maybe-null) unsigned integer    | Size of this `Album`'s art in bytes, `null` if not found
-| genre      | Optional (maybe-null) string              | Genre of this `Album`, `null` if not found
-
-`Song` object:
-| Outputs     | Type                                   | Description |
-|-------------|----------------------------------------|-------------|
-| title       | string                                 | The title of this `Song`
-| key         | `Song` key (unsigned integer)          | The `Song` key associated with this `Song`
-| album       | `Album` key (unsigned integer)         | The `Album` key of the `Album` this `Song` is from
-| runtime     | unsigned integer                       | The total runtime of this `Song`
-| sample_rate | unsigned integer                       | The sample rate of this `Song` in hertz, e.g: `44100`
-| track       | Optional (maybe-null) unsigned integer | Track number of this `Song`, `null` if not found
-| disc        | Optional (maybe-null) unsigned integer | Disc number this `Song` belongs to, `null` if not found
+See the [`Objects`](#objects) section for more information about their key/values.
 
 The `sort_*` fields are a bunch of keys that represent an ordering.
 
@@ -1035,10 +926,407 @@ Example Response:
 ## map_song
 
 # Search
+Fuzzy similarity searches on the `Collection`.
+
+In general: input a string, receive some `Artist`/`Album`/`Song`'s that are similar to the input.
+
 ## search
+Input a `string`, retrieve arrays of `Artist`, `Album`, and `Song` objects, sorted by how similar their names/titles are to the input.
+
+| Inputs | Type                                   | Description |
+|--------|----------------------------------------|-------------|
+| input  | string                                 | The string to match against, to use as input
+| kind   | string, one of `all`, `sim70`, `top25` | This dictates how many objects back you will receive. `all` means ALL objects in the `Collection` will be returned. `sim70` means only objects that are `70%` similar will be returned. `top25` means only the top 25 results will be returned (per object group, so total 75).
+
+| Outputs | Type                      | Description |
+|---------|---------------------------|-------------|
+| artists | array of `Artist` objects | An array of `Artist` objects, sorted by most similar name first
+| albums  | array of `Album` objects  | An array of `Album` objects, sorted by most similar title first
+| songs   | array of `Song` objects   | An array of `Song` objects, sorted by most similar title first
+
+Example Request:
+```bash
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"search","params":{"input":"twice","kind":"sim70"}}'
+```
+Example Response:
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "artists": [
+      {
+        "name": "TWICE",
+        "key": 106,
+        "runtime": 343,
+        "albums": [
+          598
+        ],
+        "songs": [
+          5411
+        ]
+      },
+    ],
+    "albums": [
+      {
+        "title": "TIME",
+        "key": 271,
+        "artist": 42,
+        "release": "2014-01-21",
+        "runtime": 2904,
+        "song_count": 3,
+        "songs": [
+          3058,
+          3095,
+          3121
+        ],
+        "discs": 0,
+        "art": 1264656,
+        "genre": null
+      }
+    ],
+    "songs": [
+      {
+        "title": "TIME",
+        "key": 5560,
+        "album": 538,
+        "runtime": 249,
+        "sample_rate": 44100,
+        "track": 5,
+        "disc": 1
+      }
+    ]
+  },
+  "id": 0
+}
+```
+
 ## search_artist
+Input a `string`, retrieve an array of `Artist` objects, sorted by how similar their names are to the input.
+
+| Inputs | Type                                   | Description |
+|--------|----------------------------------------|-------------|
+| input  | string                                 | The string to match against, to use as input
+| kind   | string, one of `all`, `sim70`, `top25` | This dictates how many objects back you will receive. `all` means ALL `Artist`'s will be returned. `sim70` means only `Artist`'s that are `70%` similar will be returned. `top25` means only the top 25 results will be returned.
+
+| Outputs | Type                      | Description |
+|---------|---------------------------|-------------|
+| artists | array of `Artist` objects | An array of `Artist` objects, sorted by most similar name first
+
+Example Request:
+```bash
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"search_artist","params":{"input":"twice","kind":"sim70"}}'
+```
+Example Response:
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "artists": [
+      {
+        "name": "TWICE",
+        "key": 106,
+        "runtime": 343,
+        "albums": [
+          598
+        ],
+        "songs": [
+          5411
+        ]
+      }
+    ]
+  },
+  "id": 0
+}
+```
+
 ## search_album
+Input a `string`, retrieve an array of `Album` objects, sorted by how similar their titles are to the input.
+
+| Inputs | Type                                   | Description |
+|--------|----------------------------------------|-------------|
+| input  | string                                 | The string to match against, to use as input
+| kind   | string, one of `all`, `sim70`, `top25` | This dictates how many objects back you will receive. `all` means ALL `Album`'s will be returned. `sim70` means only `Album`'s that are `70%` similar will be returned. `top25` means only the top 25 results will be returned.
+
+| Outputs | Type                     | Description |
+|---------|--------------------------|-------------|
+| albums  | array of `Album` objects | An array of `Album` objects, sorted by most similar title first
+
+Example Request:
+```bash
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"search_album","params":{"input":"time","kind":"sim70"}}'
+```
+Example Response:
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "albums": [
+      {
+        "title": "TIME",
+        "key": 271,
+        "artist": 42,
+        "release": "2014-01-21",
+        "runtime": 2904,
+        "song_count": 3,
+        "songs": [
+          3058,
+          3095,
+          3121
+        ],
+        "discs": 0,
+        "art": 1264656,
+        "genre": null
+      }
+    ]
+  },
+  "id": 0
+}
+```
+
 ## search_song
+Input a `string`, retrieve an array of `Song` objects, sorted by how similar their titles are to the input.
+
+| Inputs | Type                                   | Description |
+|--------|----------------------------------------|-------------|
+| input  | string                                 | The string to match against, to use as input
+| kind   | string, one of `all`, `sim70`, `top25` | This dictates how many objects back you will receive. `all` means ALL `Song`'s will be returned. `sim70` means only `Song`'s that are `70%` similar will be returned. `top25` means only the top 25 results will be returned.
+
+| Outputs | Type                    | Description |
+|---------|-------------------------|-------------|
+| albums  | array of `Song` objects | An array of `Song` objects, sorted by most similar title first
+
+Example Request:
+```bash
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"search_song","params":{"input":"time","kind":"sim70"}}'
+```
+Example Response:
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "songs": [
+      {
+        "title": "TIME",
+        "key": 5560,
+        "album": 538,
+        "runtime": 249,
+        "sample_rate": 44100,
+        "track": 5,
+        "disc": 1
+      }
+    ]
+  },
+  "id": 0
+}
+```
 
 # Collection
+Methods related to the `Collection`.
+
 ## new_collection
+Reset the current `Collection`.
+
+| Inputs | Type                                 | Description |
+|--------|--------------------------------------|-------------|
+| paths  | Optional (maybe-null) array of PATHs | An array of filesystem PATHs to scan for the new `Collection`. These must be absolute PATHs **on the system `festivald` is running on**, not PATHs on the client. If `null` is provided, the default `Music` directory will be used.
+
+| Outputs | Type    | Description |
+|---------|---------|-------------|
+| ok      | boolean | `true` if the request was successfully received, parsed, and started, `false` otherwise
+
+Example Request:
+```bash
+# Use default Music PATH.
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"new_collection","params":{"paths":null}}'
+# Use the PATH `/home/user/Music/collection` on `festivald`'s filesystem.
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"new_collection","params":{"paths":["/home/user/Music/collection"]}}'
+# Windows PATH works too if `\` is escaped (and if `festivald` is running on Windows).
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"new_collection","params":{"paths":["C:\\Users\\User\\Music\\collection"]}}'
+```
+Example Response:
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "ok": true
+  },
+  "id": 0
+}
+```
+
+# REST
+`festivald` (by default) exposes REST endpoints for `Collection`-related resources that can be accessed via GET HTTP requests.
+
+A simple way to access these files is via a browser, e.g, opening this link:
+```
+http://localhost:18425/art/my_artist/my_album
+```
+This will make the art of the album `my_album`, owned by the artist `my_artist` open directly in the browser (or make it download the image, if the `direct_download` configuration setting is enabled).
+
+Opening something like:
+```
+http://localhost:18425/string/Artist Name/Album Title/Song Title
+```
+will directly open that song in the browser and show a simple player, if your browser supports it (all modern browsers do). Again, you can change the behavior so that browsers directly download these resources by changing the `direct_download` configuration option.
+
+If a file is downloaded that is nested, the `filename_separator` config option will control what the separator will be. By default, this is ` - `, so the filename of an archive of an artist will look like:
+```
+Artist Name - Album Title.zip
+```
+
+# /key
+Access audio files and/or art via a `key`.
+
+This endpoint expects 2 more endpoints:
+- `${object}`
+- `${key}`
+
+The `object` must be one of:
+- `artist`
+- `album`
+- `song`
+- `art`
+
+The `key` must be the key number associated with the object.
+
+This info can be found in multiple JSON-RPC methods, such as `map_artist`, `search_artist`, etc. A `key` field will be included in the response. It is a number that represents that object.
+
+Keys are unique _per_ object group, meaning there is an `artist 0` AND `album 0`, and so forth.
+
+Note that keys can only be relied upon as long as the `Collection` has not been reset. When the `Collection` is reset, it is not guaranteed that the same key will map to the same object. Using the `/string` endpoint may be more convenient so that artist names, album and song titles can be used as inputs instead.
+
+The main reasons `/key` exists:
+- Accessing objects via `/key` is faster than with `/string`
+- As long as your `Collection` is stable, the `key`'s are stable
+
+## /artist/${artist_key}
+Download all the `Album`'s owned by this `Artist`, 1 directory per album (including art if found), wrapped in an archive format.
+
+| Input      | Type             | Example |
+|------------|------------------|---------|
+| artist key | unsigned integer | `http://localhost:18425/key/artist/123`
+
+| Output                                                  | Type   | Example |
+|---------------------------------------------------------|--------|---------|
+| Archive of all artist's albums (including art if found) | `.zip` | `Artist Name.zip`
+
+## /album/${album_key}
+Download this `Album` (including art if found), wrapped in an archive format.
+
+| Input     | Type             | Example |
+|-----------|------------------|---------|
+| album key | unsigned integer | `http://localhost:18425/key/album/123`
+
+| Output                                    | Type   | Example |
+|-------------------------------------------|--------|---------|
+| Album in archive (including art if found) | `.zip` | `Artist Name - Album Title.zip`
+
+## /song/${song_key}
+Download this `Song` in the original format.
+
+| Input    | Type             | Example |
+|----------|------------------|---------|
+| song key | unsigned integer | `http://localhost:18425/key/song/123`
+
+| Output                  | Type       | Example |
+|-------------------------|------------|---------|
+| Song in original format | audio file | `Artist Name - Album Title - Song Title.flac`
+
+## /art/${album_key}
+Download this `Album`'s art in the image's original format.
+
+| Input     | Type             | Example |
+|-----------|------------------|---------|
+| album key | unsigned integer | `http://localhost:18425/key/art/123`
+
+| Output                 | Type       | Example |
+|------------------------|------------|---------|
+| Art in original format | image file | `Artist Name - Album Title.jpg`
+
+# /string
+This is the same as the `/key` endpoint, but instead of numbers, you can directly use:
+- Artist names
+- Album titles
+- Song titles
+
+So instead of:
+```
+http://localhost:18425/key/song/123
+```
+you can use:
+```
+http://localhost:18425/string/Artist Name/Artist Title/Song Title
+```
+Browsers will secretly percent-encode this URL, so it'll actually be:
+```
+http://localhost:18425/string/Artist%20Name/Artist%20Title/Song%20Title
+```
+This is fine, `festivald` will decode it, along with any other percent encoding, so you can use spaces or any other UTF-8 characters directly in the URL:
+```
+http://localhost:18425/string/артист/❤️/ヒント じゃない
+```
+
+The reason `Artist` names and `Album` titles have to be specified is to prevent collisions.
+
+If there's 2 songs in your `Collection` called: `Hello World`, which one should `festivald` return?
+
+Since `Artist` names are unique, and `Album` titles within `Artist`'s are unique, they serve as an identifier.
+
+Also note: words are case-sensitive and must be exact.
+
+If you have an `Album` called `Hello World`, none of these inputs will work:
+- `Hello world`
+- `hello World`
+- `HELlo World`
+- `HelloWorld`
+- `H3ll0 W0rld`
+
+The input must _exactly_ be `Hello World`.
+
+## /${artist_name}
+Download all the `Album`'s owned by this `Artist`, 1 directory per album (including art if found), wrapped in an archive format.
+
+| Input       | Type         | Example |
+|-------------|--------------|---------|
+| artist name | UTF-8 string | `http://localhost:18425/string/Artist Name`
+
+| Output                                                  | Type   | Example |
+|---------------------------------------------------------|--------|---------|
+| Archive of all artist's albums (including art if found) | `.zip` | `Artist Name.zip`
+
+## /${artist_name}/${album_title}
+Download this `Album` (including art if found), wrapped in an archive format.
+
+| Input                    | Type         | Example |
+|--------------------------|--------------|---------|
+| artist name, album title | UTF-8 string | `http://localhost:18425/string/Artist Name/Album Title`
+
+| Output                                    | Type   | Example |
+|-------------------------------------------|--------|---------|
+| Album in archive (including art if found) | `.zip` | `Artist Name - Album Title.zip`
+
+## /${artist_name}/${album_title}/${song_title}
+Download this `Song` in the original format.
+
+| Input                                | Type         | Example |
+|--------------------------------------|--------------|---------|
+| artist name, album title, song title | UTF-8 string | `http://localhost:18425/string/Artist Name/Album Title/Song Title`
+
+| Output                  | Type       | Example |
+|-------------------------|------------|---------|
+| Song in original format | audio file | `Artist Name - Album Title - Song Title.flac`
+
+## /art/${artist_name}/${album_title}
+This single `/art` endpoint exists to allow downloading an `Album`'s art individually via a `string` key.
+
+Download this `Album`'s art in the original format.
+
+If no art was found, the response will be a 404 error.
+
+| Input                    | Type         | Example |
+|--------------------------|--------------|---------|
+| artist name, album title | UTF-8 string | `http://localhost:18425/art/Artist Name/Album Title`
+
+| Output                 | Type       | Example |
+|------------------------|------------|---------|
+| Art in original format | image file | `Artist Name - Album Title.jpg`
