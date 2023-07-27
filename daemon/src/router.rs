@@ -182,8 +182,9 @@ pub async fn init(
 		loop {
 			let (stream, addr) = impl_loop!();
 
+			let collection = Arc::clone(&collection);
 			tokio::task::spawn(async move {
-				https(ConnectionToken::new(), stream, addr, ACCEPTOR).await;
+				https(ConnectionToken::new(), stream, addr, ACCEPTOR, collection).await;
 			});
 		}
 	// Else If `HTTP`, start main `HTTP` loop (the exact same, but without TLS).
@@ -193,8 +194,9 @@ pub async fn init(
 		loop {
 			let (stream, addr) = impl_loop!();
 
+			let collection = Arc::clone(&collection);
 			tokio::task::spawn(async move {
-				http(ConnectionToken::new(), stream, addr).await;
+				http(ConnectionToken::new(), stream, addr, collection).await;
 			});
 		}
 	}
@@ -203,12 +205,13 @@ pub async fn init(
 //---------------------------------------------------------------------------------------------------- Handle HTTP
 // Handle HTTP requests.
 async fn http(
-	_c:     ConnectionToken,
-	stream: TcpStream,
-	addr:   SocketAddrV4,
+	_c:         ConnectionToken,
+	stream:     TcpStream,
+	addr:       SocketAddrV4,
+	collection: Arc<Collection>,
 ) {
 	if let Err(e) = Http::new()
-		.serve_connection(stream, service_fn(|r| route(r, addr)))
+		.serve_connection(stream, service_fn(|r| route(r, addr, Arc::clone(&collection))))
 		.await
 	{
 		error!("HTTP error for [{}]: {e}", addr.ip());
@@ -218,10 +221,11 @@ async fn http(
 //---------------------------------------------------------------------------------------------------- Handle HTTPS
 // Handle HTTPS requests.
 async fn https(
-	_c:       ConnectionToken,
-	stream:   TcpStream,
-	addr:     SocketAddrV4,
-	acceptor: &'static TlsAcceptor,
+	_c:         ConnectionToken,
+	stream:     TcpStream,
+	addr:       SocketAddrV4,
+	acceptor:   &'static TlsAcceptor,
+	collection: Arc<Collection>,
 ) {
 	let stream = match acceptor.accept(stream).await {
 		Ok(s)  => s,
@@ -229,7 +233,7 @@ async fn https(
 	};
 
 	if let Err(e) = Http::new()
-		.serve_connection(stream, service_fn(|r| route(r, addr)))
+		.serve_connection(stream, service_fn(|r| route(r, addr, Arc::clone(&collection))))
 		.await
 	{
 		error!("HTTPS error for [{}]: {e}", addr.ip());
@@ -239,8 +243,9 @@ async fn https(
 //---------------------------------------------------------------------------------------------------- Handle Routes
 // Route requests to other functions.
 async fn route(
-	req:    Request<Body>,
-	addr:   SocketAddrV4,
+	req:        Request<Body>,
+	addr:       SocketAddrV4,
+	collection: Arc<Collection>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	let (mut parts, body) = req.into_parts();
 
@@ -253,10 +258,10 @@ async fn route(
 	}
 
 	if parts.uri == "/" && parts.method == hyper::Method::POST {
-		crate::rpc::handle(parts, body, addr).await
+		crate::rpc::handle(parts, body, addr, collection).await
 	} else if parts.method == hyper::Method::GET {
 		if config().rest {
-			crate::rest::handle(parts).await
+			crate::rest::handle(parts, collection).await
 		} else {
 			Ok(resp::not_found("rest is disabled"))
 		}

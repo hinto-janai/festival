@@ -206,6 +206,23 @@ This is fine, `festivald` will decode it, along with any other percent encoding,
 http://localhost:18425/string/артист/❤️/ヒント じゃない
 ```
 
+The reason `Artist` names and `Album` titles have to be specified is to prevent collisions.
+
+If there's 2 songs in your `Collection` called: `Hello World`, which one should `festivald` return?
+
+Since `Artist` names are unique, and `Album` titles within `Artist`'s are unique, they serve as an identifier.
+
+Also note: words are case-sensitive and must be exact.
+
+If you have an `Album` called `Hello World`, none of these inputs will work:
+- `Hello world`
+- `hello World`
+- `HELlo World`
+- `HelloWorld`
+- `H3ll0 W0rld`
+
+The input must _exactly_ be `Hello World`.
+
 ## /${artist_name}
 Download all the `Album`'s owned by this `Artist`, 1 directory per album (including art if found), wrapped in an archive format.
 

@@ -11,4 +11,4 @@ pub use gui::*;
 mod daemon;
 #[cfg(not(feature = "gui"))]
 #[cfg(feature = "daemon")]
-pub(crate) use daemon::*;
+pub use daemon::*;

@@ -1,9 +1,6 @@
 //---------------------------------------------------------------------------------------------------- Use
-use bincode::{Encode,Decode};
-use serde::{Serialize,Deserialize};
 use anyhow::anyhow;
 use log::{error,info,warn,debug,trace};
-use disk::{Bincode2,Json};
 use crate::hash::Hash;
 use std::sync::Arc;
 use std::net::SocketAddrV4;
@@ -18,6 +15,7 @@ use serde_json::value::{
 	RawValue,Value,
 };
 use crate::resp;
+use shukusai::collection::Collection;
 
 //---------------------------------------------------------------------------------------------------- Parse, call func, or return macro.
 // Parse
@@ -48,9 +46,10 @@ macro_rules! ppacor {
 
 //---------------------------------------------------------------------------------------------------- JSON-RPC Handler
 pub async fn handle(
-	parts:  Parts,
-	body:   Body,
-	addr:   SocketAddrV4,
+	parts:      Parts,
+	body:       Body,
+	addr:       SocketAddrV4,
+	collection: Arc<Collection>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	// Body to bytes.
 	let body = hyper::body::to_bytes(body).await?;

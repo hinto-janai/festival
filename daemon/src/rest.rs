@@ -1,9 +1,6 @@
 //---------------------------------------------------------------------------------------------------- Use
-use bincode::{Encode,Decode};
-use serde::{Serialize,Deserialize};
 use anyhow::anyhow;
 use log::{error,info,warn,debug,trace};
-use disk::{Bincode2,Json};
 use crate::hash::Hash;
 use std::sync::Arc;
 use std::net::SocketAddrV4;
@@ -21,6 +18,7 @@ use hyper::header::{
 };
 use crate::resp;
 use http::request::Parts;
+use shukusai::collection::Collection;
 
 //---------------------------------------------------------------------------------------------------- Constants
 // Tells browsers to view files.
@@ -30,7 +28,8 @@ const DOWNLOAD_IN_BROWSER: &str = "attachment";
 
 //---------------------------------------------------------------------------------------------------- REST Handler
 pub async fn handle(
-	parts:  Parts,
+	parts:      Parts,
+	collection: Arc<Collection>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	let mut split = parts.uri.path().split('/');
 

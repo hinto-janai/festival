@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------------------------------- Use
 use bincode::{Encode,Decode};
 use once_cell::sync::Lazy;
-use std::path::PathBuf;
+use std::path::{Path,PathBuf};
 
 //---------------------------------------------------------------------------------------------------- Unknown Art (lazy) Constant
 /// The unknown [`Album`] art size in pixels: 500x500 pixels.
@@ -27,7 +27,14 @@ pub enum Art {
 	///
 	/// This image is not resized at all, it is the
 	/// full resolution extracted from the [`Song`]
-	Known { path: PathBuf, mime: String, len: usize, },
+	Known {
+		/// Path to image
+		path: PathBuf,
+		/// Mime type
+		mime: String,
+		/// Byte length of image
+		len: usize,
+	},
 	/// This is raw image bytes that have not yet been transformed into [`Art::Known`].
 	///
 	/// This variant is never exposed to a `Frontend`, as `Kernel` turns all [`Art`]
