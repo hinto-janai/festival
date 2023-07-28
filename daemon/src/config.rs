@@ -62,7 +62,6 @@ pub struct ConfigBuilder {
 	pub direct_download:    Option<bool>,
 	pub filename_separator: Option<String>,
 	pub log_level:          Option<log::LevelFilter>,
-	pub log_daemon_only:    Option<bool>,
 	pub watch:              Option<bool>,
 	pub media_controls:     Option<bool>,
 
@@ -85,7 +84,6 @@ impl Default for ConfigBuilder {
 			direct_download:    Some(false),
 			filename_separator: Some(" - ".to_string()),
 			log_level:          Some(log::LevelFilter::Info),
-			log_daemon_only:    Some(false),
 			watch:              Some(true),
 			media_controls:     Some(true),
 			authorization:      None,
@@ -110,7 +108,6 @@ impl ConfigBuilder {
 			direct_download,
 			filename_separator,
 			log_level,
-			log_daemon_only,
 			watch,
 			media_controls,
 			authorization,
@@ -152,8 +149,7 @@ impl ConfigBuilder {
 			rest:               get!(rest,               "rest",               true),
 			direct_download:    get!(direct_download,    "direct_download",    false),
 			filename_separator: get!(filename_separator, "filename_separator", " - ".to_string()),
-			log_level:          get!(log_level,          "log-level",          log::LevelFilter::Info),
-			log_daemon_only:    get!(log_daemon_only,    "log-daemon-only",    false),
+			log_level:          get!(log_level,          "log_level",          log::LevelFilter::Info),
 			watch:              get!(watch,              "watch",              true),
 			media_controls:     get!(media_controls,     "media_controls",     true),
 		};
@@ -266,7 +262,6 @@ pub struct Config {
 	pub direct_download:    bool,
 	pub filename_separator: String,
 	pub log_level:          log::LevelFilter,
-	pub log_daemon_only:    bool,
 	pub watch:              bool,
 	pub media_controls:     bool,
 }

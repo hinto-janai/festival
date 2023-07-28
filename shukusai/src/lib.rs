@@ -46,7 +46,7 @@
 	noop_method_call,
 //	unreachable_pub,
 	single_use_lifetimes,
-	variant_size_differences,
+//	variant_size_differences,
 )]
 
 // There are some `as` casts but they are:

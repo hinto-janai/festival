@@ -4,7 +4,7 @@
 `festivald` is a music server that plays on the device it is running on, while allowing remote control via clients.
 
 The 2 APIs `festivald` exposes:
-- [`JSON-RPC 2.0`](https://jsonrpc.org) for state retrieval & signal control
+- [`JSON-RPC 2.0`](https://www.jsonrpc.org/specification) for state retrieval & signal control
 - [`REST`](https://en.wikipedia.org/wiki/Representational_state_transfer) endpoints for serving large resources (audio, art, etc)
 
 The transport used is `HTTP(s)`.
@@ -25,11 +25,11 @@ http://localhost:18425/map/Artist Name/Artist Title/Song Title
 
 # Contents
 * [Quick Start](#Quick-Start)
-* [API Stability](#API-Stability)
-* [Configuration](#Configuration)
-* [Authorization](#Authorization)
+* [Config](#Config)
 * [Disk](#Disk)
+* [Authorization](#Authorization)
 * [Command Line](#Command-Line)
+* [API Stability](#API-Stability)
 * [JSON-RPC](#JSON-RPC)
 	- [Common Objects](#Common-Objects)
 		- [Artist](#Artist)
@@ -93,6 +93,14 @@ http://localhost:18425/map/Artist Name/Artist Title/Song Title
 
 # Quick Start
 
+# Config
+
+# Disk
+
+# Command Line
+
+# Authorization
+
 # API Stability
 `festivald`'s JSON output and REST endpoint changes will only be _additional_ until a breaking `v2.0.0` release.
 
@@ -118,16 +126,8 @@ Example `v2.0.0` JSON:
 }
 ```
 
-# Configuration
-
-# Authorization
-
-# Disk
-
-# Command Line
-
 # JSON-RPC
-`festivald` exposes a [`JSON-RPC 2.0`](https://jsonrpc.org) API for general state retrieval & signal control.
+`festivald` exposes a [`JSON-RPC 2.0`](https://www.jsonrpc.org/specification) API for general state retrieval & signal control.
 
 It can be accessed by sending a POST HTTP request containing a `JSON-RPC 2.0` request in the body, to the root endpoint, `/`.
 
@@ -1236,15 +1236,25 @@ Example Response:
 Methods related to the `Collection`.
 
 ## new_collection
-Reset the current `Collection`.
+Create a new `Collection` (and replace the current one).
+
+`festivald` will respond with some stats when the `Collection` reset has finished.
+
+The output is a superset of the `state_collection` method.
 
 | Inputs | Type                                 | Description |
 |--------|--------------------------------------|-------------|
 | paths  | optional (maybe null) array of PATHs | An array of filesystem PATHs to scan for the new `Collection`. These must be absolute PATHs **on the system `festivald` is running on**, not PATHs on the client. If `null` is provided, the default `Music` directory will be used.
 
-| Outputs | Type    | Description |
-|---------|---------|-------------|
-| ok      | boolean | `true` if the request was successfully received, parsed, and started, `false` otherwise
+| Outputs      | Type             | Description |
+|--------------|------------------|-------------|
+| time         | float            | How many seconds the reset took
+| empty        | boolean          | If the `Collection` does NOT have any `Artist`'s, `Album`'s, or `Song`'s
+| timestamp    | unsigned integer | The UNIX timestamp of when this `Collection` was created
+| count_artist | unsigned integer | How many unique `Artist`'s there are in this `Collection`
+| count_album  | unsigned integer | How many unique `Album`'s there are in this `Collection`
+| count_song   | unsigned integer | How many unique `Song`'s there are in this `Collection`
+| count_art    | unsigned integer | How much unique `Album` art there are in this `Collection`
 
 Example Request:
 ```bash
@@ -1260,7 +1270,13 @@ Example Response:
 {
   "jsonrpc": "2.0",
   "result": {
-    "ok": true
+    "time": 0.462621988,
+    "empty": false,
+    "timestamp": 1690579397,
+    "count_artist": 195,
+    "count_album": 825,
+    "count_song": 8543,
+    "count_art": 824
   },
   "id": 0
 }

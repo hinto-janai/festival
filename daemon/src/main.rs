@@ -5,6 +5,7 @@ mod config;
 mod constants;
 mod hash;
 mod macros;
+mod ptr;
 mod statics;
 mod rest;
 mod resp;

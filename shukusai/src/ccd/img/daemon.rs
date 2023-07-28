@@ -26,7 +26,7 @@ pub(crate) fn save_image_and_convert(
 		match std::fs::write(&path, &bytes) {
 			Ok(_) => {
 				ok_trace!("CCD ... Image: {}", &path.display());
-				album.art = Art::Known { path, mime: infer.mime_type().into(), len: bytes.len() };
+				album.art = Art::Known { path, mime: infer.mime_type().into(), extension: infer.extension().into(), len: bytes.len() };
 			},
 			Err(e) => { warn!("CCD ... Image {e}: {}", path.display()); album.art = Art::Unknown; },
 		}

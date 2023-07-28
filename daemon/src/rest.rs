@@ -67,10 +67,10 @@ pub async fn handle(
 		};
 
 		match ep2 {
-			"artist" => key_artist(key).await,
-			"album"  => key_album(key).await,
+			"artist" => key_artist(key, collection).await,
+			"album"  => key_album(key, collection).await,
 			"song"   => key_song(key, collection).await,
-			"art"    => key_art(key).await,
+			"art"    => key_art(key, collection).await,
 			_        => Ok(resp::not_found("Unknown endpoint")),
 		}
 	//-------------------------------------------------- `map` endpoint.
@@ -108,9 +108,9 @@ pub async fn handle(
 		}
 
 		match (album, song) {
-			(Some(a), None)    => map_album(artist.as_ref(), a.as_ref()).await,
-			(Some(a), Some(s)) => map_song(artist.as_ref(), a.as_ref(), s.as_ref()).await,
-			_                  => map_artist(artist.as_ref()).await,
+			(Some(a), None)    => map_album(artist.as_ref(), a.as_ref(), collection).await,
+			(Some(a), Some(s)) => map_song(artist.as_ref(), a.as_ref(), s.as_ref(), collection).await,
+			_                  => map_artist(artist.as_ref(), collection).await,
 		}
 	//-------------------------------------------------- `art` endpoint.
 	} else if ep1 == "art" {
@@ -135,7 +135,7 @@ pub async fn handle(
 			return Ok(resp::not_found("Unknown endpoint"));
 		}
 
-		art(artist.as_ref(), album.as_ref()).await
+		art(artist.as_ref(), album.as_ref(), collection).await
 	//-------------------------------------------------- unknown endpoint.
 	} else {
 		Ok(resp::not_found("Unknown endpoint"))
@@ -143,11 +143,11 @@ pub async fn handle(
 }
 
 //---------------------------------------------------------------------------------------------------- `/key`
-pub async fn key_artist(key: usize) -> Result<Response<Body>, anyhow::Error> {
+pub async fn key_artist(key: usize, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
 	todo!()
 }
 
-pub async fn key_album(key: usize) -> Result<Response<Body>, anyhow::Error> {
+pub async fn key_album(key: usize, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
 	todo!()
 }
 
@@ -190,25 +190,58 @@ pub async fn key_song(key: usize, collection: Arc<Collection>) -> Result<Respons
 	}
 }
 
-pub async fn key_art(key: usize) -> Result<Response<Body>, anyhow::Error> {
-	todo!()
+pub async fn key_art(key: usize, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+	let key = AlbumKey::from(key);
+
+	// If key exists...
+	if let Some(album) = collection.albums.get(key) {
+		// If art exists...
+		let shukusai::collection::Art::Known { path, mime, len, extension } = &album.art  else {
+			return Ok(resp::not_found("No album art available"));
+		};
+
+		// Open the file.
+		let Ok(mut file) = tokio::fs::File::open(&path).await else {
+			return Ok(resp::not_found("Album art not found on filesystem"));
+		};
+
+		// Copy the bytes into owned buffer.
+		let mut dst: Vec<u8> = Vec::with_capacity(*len);
+		if file.read_to_end(&mut dst).await.is_err() {
+			return Ok(resp::server_err("Failed to copy album art bytes"));
+		};
+
+		// Format the file name.
+		let artist = &collection.artists[album.artist];
+		let name = format!(
+			"{}{}{}.{}",
+			artist.name,
+			config().filename_separator,
+			album.title,
+			extension,
+		);
+
+		Ok(resp::rest_ok(dst, &name, mime))
+	} else {
+		Ok(resp::not_found("Album key is invalid"))
+	}
 }
 
 //---------------------------------------------------------------------------------------------------- `/map`
-pub async fn map_artist(artist: &str) -> Result<Response<Body>, anyhow::Error> {
+pub async fn map_artist(artist: &str, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
 	todo!()
 }
 
-pub async fn map_album(artist: &str, album: &str) -> Result<Response<Body>, anyhow::Error> {
+pub async fn map_album(artist: &str, album: &str, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
 	todo!()
 }
 
-pub async fn map_song(artist: &str, album: &str, song: &str) -> Result<Response<Body>, anyhow::Error> {
+pub async fn map_song(artist: &str, album: &str, song: &str, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
 	todo!()
 }
 
 //---------------------------------------------------------------------------------------------------- `/art`
-pub async fn art(artist: &str, album: &str) -> Result<Response<Body>, anyhow::Error> {
+pub async fn art(artist: &str, album: &str, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
 	todo!()
 }
 

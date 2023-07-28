@@ -62,7 +62,7 @@ pub fn init_logger(filter: log::LevelFilter) {
 		};
 		writeln!(
 			buf,
-			// Longest PATH in the repo: `shukusai/src/collection/collection.rs` - `37` characters
+			// Longest PATH in the repo: `shukusai/src/collection/collection.rs` - `40` characters
 			// Longest file in the repo: `shukusai/src/audio/audio.rs`           - `4` digits
 			//
 			// Use `utils/longest.sh` to find this.

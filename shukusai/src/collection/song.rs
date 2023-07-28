@@ -41,7 +41,7 @@ pub struct Song {
 
 	/// The `MIME` type of this [`Song`].
 	pub mime: Arc<str>,
-	/// The file extention of this [`Song`].
+	/// The file extension of this [`Song`].
 	pub extension: Arc<str>,
 
 	#[serde(skip)]

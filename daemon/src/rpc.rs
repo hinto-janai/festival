@@ -112,13 +112,13 @@ macro_rules! ppacor {
 
 //---------------------------------------------------------------------------------------------------- JSON-RPC Handler
 pub async fn handle(
-	parts:        Parts,
-	body:         Body,
-	addr:         SocketAddrV4,
-	collection:   Arc<Collection>,
-	TO_KERNEL:    &'static Sender<FrontendToKernel>,
-	FROM_KERNEL:  &'static Receiver<KernelToFrontend>,
-	TO_ROUTER:    &'static tokio::sync::mpsc::Sender::<Arc<Collection>>,
+	parts:       Parts,
+	body:        Body,
+	addr:        SocketAddrV4,
+	collection:  Arc<Collection>,
+	TO_KERNEL:   &'static Sender<FrontendToKernel>,
+	FROM_KERNEL: &'static Receiver<KernelToFrontend>,
+	TO_ROUTER:   &'static tokio::sync::mpsc::Sender::<Arc<Collection>>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	// Body to bytes.
 	let body = hyper::body::to_bytes(body).await?;
@@ -278,12 +278,12 @@ async fn state_collection_full<'a>(id: Option<Id<'a>>, collection: Arc<Collectio
 	// when all that is needed is `Collection` -> `String`
 	#[cfg(debug_assertions)]
 	{
-		let string = serde_json::to_string(&collection).unwrap();
+		let string = serde_json::to_string(&*collection).unwrap();
 		let c: CollectionJson = serde_json::from_str(&string).unwrap();
 		assert_eq!(serde_json::to_string(&c).unwrap(), string);
 	}
 
-	Ok(resp::result(collection, id))
+	Ok(resp::result(&*collection, id))
 }
 
 //---------------------------------------------------------------------------------------------------- Playback control, no params.
@@ -591,12 +591,12 @@ async fn search_song<'a>(
 
 //---------------------------------------------------------------------------------------------------- Collection
 async fn new_collection<'a>(
-	params:       rpc::param::NewCollection,
-	id:           Option<Id<'a>>,
-	collection:   Arc<Collection>,
-	TO_KERNEL:    &'static Sender<FrontendToKernel>,
-	FROM_KERNEL:  &'static Receiver<KernelToFrontend>,
-	TO_ROUTER:    &'static tokio::sync::mpsc::Sender::<Arc<Collection>>,
+	params:      rpc::param::NewCollection,
+	id:          Option<Id<'a>>,
+	collection:  Arc<Collection>,
+	TO_KERNEL:   &'static Sender<FrontendToKernel>,
+	FROM_KERNEL: &'static Receiver<KernelToFrontend>,
+	TO_ROUTER:   &'static tokio::sync::mpsc::Sender::<Arc<Collection>>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	tokio::task::block_in_place(move || async move {
 		let now = now!();
@@ -626,27 +626,44 @@ async fn new_collection<'a>(
 		// `CCD` doesn't deconstruct for `festivald` anyway.
 		//
 		// `Kernel` + `Audio` + `Search` + `task` + `task` == 5
-		while Arc::strong_count(&collection) <= 5 {
-			debug!("Task - Waiting until Arc::strong_count(&collection) <= 5...");
-			tokio::time::sleep(Duration::from_millis(10)).await;
+		loop {
+			let strong_count = Arc::strong_count(&collection);
+
+			if strong_count > 5 {
+				debug!("Task - Collection Arc strong count == {strong_count}...");
+				tokio::time::sleep(Duration::from_millis(10)).await;
+			} else {
+				break;
+			}
 		}
 
 		send!(TO_KERNEL, FrontendToKernel::NewCollection(params.paths.unwrap_or_else(|| vec![])));
 
 		// Wait until `Kernel` has given us `Arc<Collection>`.
-		let collection = loop {
+		let mut collection = loop {
 			match recv!(FROM_KERNEL) {
 				KernelToFrontend::NewCollection(c) => break c,
 				_ => debug_panic!("wrong kernel msg"),
 			}
 		};
 
-		// SAFETY: should never panic since the `Receiver` lives forever.
-		TO_ROUTER.send(collection).await.unwrap();
+		// We're done resetting.
+		atomic_store!(RESETTING, false);
 
+		// Respond to user.
 		let r = rpc::resp::NewCollection {
 			time: secs_f64!(now),
+			empty: collection.empty,
+			timestamp: collection.timestamp,
+			count_artist: collection.count_artist.inner(),
+			count_album: collection.count_album.inner(),
+			count_song: collection.count_song.inner(),
+			count_art: collection.count_art.inner(),
 		};
+
+		// Send to `Router`.
+		// SAFETY: should never panic since the `Receiver` lives forever.
+		TO_ROUTER.send(collection).await.unwrap();
 
 		Ok(resp::result(r, id))
 	}).await

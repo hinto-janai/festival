@@ -158,14 +158,6 @@ filename_separator = " - "
 # TYPE    | string, one of the above
 log_level = "info"
 
-# Only show logs for `festivald` and don't show
-# anything related to the internals, `shukusai`.
-#
-# DEFAULT | false
-# VALUES  | true, false
-# TYPE    | boolean
-log_daemon_only = false
-
 
 #----------------------------------------------------------#
 #                   FILESYSTEM WATCHING                    #

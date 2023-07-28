@@ -142,7 +142,13 @@ impl_struct_lt! {
 // Collection
 impl_struct! {
 	NewCollection,
-	time: f64
+	time: f64,
+	empty: bool,
+	timestamp: u64,
+	count_artist: u64,
+	count_album: u64,
+	count_song: u64,
+	count_art: u64
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

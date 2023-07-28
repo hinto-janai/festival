@@ -50,6 +50,7 @@ use crate::{
 	statics::{ConnectionToken,RESETTING},
 	config::{config,Config,ConfigBuilder},
 	hash::Hash,
+	ptr::CollectionPtr,
 };
 use tokio_native_tls::{
 	TlsAcceptor,
@@ -64,6 +65,10 @@ use benri::{
 	atomic_store,
 	recv,send,
 	debug_panic,
+};
+use std::sync::atomic::{
+	AtomicPtr,
+	Ordering,
 };
 
 //---------------------------------------------------------------------------------------------------- Router
@@ -107,6 +112,13 @@ pub async fn init(
 		}
 	};
 
+	// Create the 1 and only "global" `CollectionPtr`.
+	// See `ptr.rs` for why this exists.
+	let ptr = std::ptr::addr_of_mut!(collection);
+	let ptr = AtomicPtr::new(ptr);
+	let ptr = CollectionPtr(ptr);
+	let mut COLLECTION_PTR: &'static CollectionPtr = Box::leak(Box::new(ptr));
+
 	// Instead of branching everytime for HTTP/HTTPS or
 	// using dynamic dispatch or an enum and matching it,
 	// we'll just "implement" the main loop "twice".
@@ -131,12 +143,25 @@ pub async fn init(
 							Err(e)     => error!("Router - TCP stream error: {e}"),
 						}
 					},
+
 					// We received a new `Collection` from a `task`.
 					c = FROM_TASK.recv() => {
-						if let Some(c) = c {
+						if let Some(mut c) = c {
 							info!("Router - New Collection received");
-							collection = c;
-							atomic_store!(RESETTING, false);
+
+							// Set the atomic pointer to a dummy.
+							let mut dummy = Collection::dummy();
+							let ptr = std::ptr::addr_of_mut!(dummy);
+							COLLECTION_PTR.0.store(ptr, Ordering::SeqCst); //-------> newly spawned tasks
+                                                                                   // will be `.arc()`'ing
+							                                                       // and receiving the
+							// Overwrite the "real" `Arc<Collection>`              // dummy collection
+							collection = c;                                        // until...
+							                                                       //
+                                                                                   //
+							// Ok, we're safe, atomically update the pointer back. //
+							let ptr = std::ptr::addr_of_mut!(collection);          //
+							COLLECTION_PTR.0.store(ptr, Ordering::SeqCst); // <------
 						} else {
 							debug_panic!("Router - New Collection message but it was None");
 						}
@@ -200,20 +225,6 @@ pub async fn init(
 		}}
 	}
 
-//	drop(collection);
-//
-//	// TODO: for testing, cleanup later.
-//	send!(TO_KERNEL, FrontendToKernel::NewCollection(vec![PathBuf::from("/home/main/git/festival/assets/audio")]));
-//	let collection = loop {
-//		match recv!(FROM_KERNEL) {
-//			KernelToFrontend::NewCollection(c) => break c,
-//			_ => debug_panic!("wrong kernel msg"),
-//		}
-//	};
-//	send!(TO_KERNEL, FrontendToKernel::AddQueueArtist((64_u8.into(), Default::default(), false, 0)));
-//	send!(TO_KERNEL, FrontendToKernel::Play);
-//	send!(TO_KERNEL, FrontendToKernel::Volume(shukusai::audio::Volume::new(1)));
-
 	// If `HTTPS`, start main `HTTPS` loop.
 	if CONFIG.tls {
 		// Sanity-checks.
@@ -237,14 +248,13 @@ pub async fn init(
 		loop {
 			let (stream, addr) = impl_loop!();
 
-			let collection = Arc::clone(&collection);
 			tokio::task::spawn(async move {
 				https(
 					ConnectionToken::new(),
 					stream,
 					addr,
 					ACCEPTOR,
-					collection,
+					COLLECTION_PTR,
 					TO_KERNEL,
 					FROM_KERNEL,
 					TO_ROUTER,
@@ -258,13 +268,12 @@ pub async fn init(
 		loop {
 			let (stream, addr) = impl_loop!();
 
-			let collection  = Arc::clone(&collection);
 			tokio::task::spawn(async move {
 				http(
 					ConnectionToken::new(),
 					stream,
 					addr,
-					collection,
+					COLLECTION_PTR,
 					TO_KERNEL,
 					FROM_KERNEL,
 					TO_ROUTER,
@@ -277,16 +286,18 @@ pub async fn init(
 //---------------------------------------------------------------------------------------------------- Handle HTTP
 // Handle HTTP requests.
 async fn http(
-	_c:           ConnectionToken,
-	stream:       TcpStream,
-	addr:         SocketAddrV4,
-	collection:   Arc<Collection>,
-	TO_KERNEL:    &'static Sender<FrontendToKernel>,
-	FROM_KERNEL:  &'static Receiver<KernelToFrontend>,
-	TO_ROUTER:    &'static tokio::sync::mpsc::Sender::<Arc<Collection>>,
+	_c:             ConnectionToken,
+	stream:         TcpStream,
+	addr:           SocketAddrV4,
+	COLLECTION_PTR: &'static CollectionPtr,
+	TO_KERNEL:      &'static Sender<FrontendToKernel>,
+	FROM_KERNEL:    &'static Receiver<KernelToFrontend>,
+	TO_ROUTER:      &'static tokio::sync::mpsc::Sender::<Arc<Collection>>,
 ) {
+	// For why this is `CollectionPtr` instead
+	// of `Arc<Collection>`, see `ptr.rs`.
 	if let Err(e) = Http::new()
-		.serve_connection(stream, service_fn(|r| route(r, addr, Arc::clone(&collection), TO_KERNEL, FROM_KERNEL, TO_ROUTER)))
+		.serve_connection(stream, service_fn(|r| route(r, addr, COLLECTION_PTR.arc(), TO_KERNEL, FROM_KERNEL, TO_ROUTER)))
 		.await
 	{
 		error!("Task - HTTP error for [{}]: {e}", addr.ip());
@@ -296,22 +307,24 @@ async fn http(
 //---------------------------------------------------------------------------------------------------- Handle HTTPS
 // Handle HTTPS requests.
 async fn https(
-	_c:           ConnectionToken,
-	stream:       TcpStream,
-	addr:         SocketAddrV4,
-	acceptor:     &'static TlsAcceptor,
-	collection:   Arc<Collection>,
-	TO_KERNEL:    &'static Sender<FrontendToKernel>,
-	FROM_KERNEL:  &'static Receiver<KernelToFrontend>,
-	TO_ROUTER:    &'static tokio::sync::mpsc::Sender::<Arc<Collection>>,
+	_c:             ConnectionToken,
+	stream:         TcpStream,
+	addr:           SocketAddrV4,
+	acceptor:       &'static TlsAcceptor,
+	COLLECTION_PTR: &'static CollectionPtr,
+	TO_KERNEL:      &'static Sender<FrontendToKernel>,
+	FROM_KERNEL:    &'static Receiver<KernelToFrontend>,
+	TO_ROUTER:      &'static tokio::sync::mpsc::Sender::<Arc<Collection>>,
 ) {
 	let stream = match acceptor.accept(stream).await {
 		Ok(s)  => s,
 		Err(e) => { error!("TLS error for [{}]: {e}", addr.ip()); return; },
 	};
 
+	// For why this is `CollectionPtr` instead
+	// of `Arc<Collection>`, see `ptr.rs`.
 	if let Err(e) = Http::new()
-		.serve_connection(stream, service_fn(|r| route(r, addr, Arc::clone(&collection), TO_KERNEL, FROM_KERNEL, TO_ROUTER)))
+		.serve_connection(stream, service_fn(|r| route(r, addr, COLLECTION_PTR.arc(), TO_KERNEL, FROM_KERNEL, TO_ROUTER)))
 		.await
 	{
 		error!("Task - HTTPS error for [{}]: {e}", addr.ip());
@@ -321,12 +334,12 @@ async fn https(
 //---------------------------------------------------------------------------------------------------- Handle Routes
 // Route requests to other functions.
 async fn route(
-	req:        Request<Body>,
-	addr:       SocketAddrV4,
-	collection: Arc<Collection>,
+	req:         Request<Body>,
+	addr:        SocketAddrV4,
+	collection:  Arc<Collection>,
 	TO_KERNEL:   &'static Sender<FrontendToKernel>,
 	FROM_KERNEL: &'static Receiver<KernelToFrontend>,
-	TO_ROUTER:    &'static tokio::sync::mpsc::Sender::<Arc<Collection>>,
+	TO_ROUTER:   &'static tokio::sync::mpsc::Sender::<Arc<Collection>>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	let (mut parts, body) = req.into_parts();
 

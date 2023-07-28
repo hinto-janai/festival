@@ -32,6 +32,8 @@ pub enum Art {
 		path: PathBuf,
 		/// Mime type
 		mime: String,
+		/// File extension
+		extension: String,
 		/// Byte length of image
 		len: usize,
 	},
