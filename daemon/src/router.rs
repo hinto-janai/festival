@@ -47,7 +47,7 @@ use shukusai::{
 };
 use crate::{
 	config::AUTH,
-	statics::ConnectionToken,
+	statics::{ConnectionToken,RESETTING},
 	config::{config,Config,ConfigBuilder},
 	hash::Hash,
 };
@@ -61,6 +61,7 @@ use tokio::net::{
 };
 use crate::resp;
 use benri::{
+	atomic_store,
 	recv,send,
 	debug_panic,
 };
@@ -79,6 +80,33 @@ pub async fn init(
 		Err(e) => crate::exit!("could not bind to [{addr}]: {e}"),
 	};
 
+	// Create `task` <-> `router` back channel
+	// for `Collection` reset results.
+	let (to_router, mut from_task) = tokio::sync::mpsc::channel::<Arc<Collection>>(1);
+
+	// These last forever.
+	let (
+		LISTENER,
+		TO_ROUTER,
+		FROM_TASK,
+	): (
+		&'static TcpListener,
+		&'static tokio::sync::mpsc::Sender::<Arc<Collection>>,
+		&'static mut tokio::sync::mpsc::Receiver::<Arc<Collection>>,
+	) = (
+		Box::leak(Box::new(listener)),
+		Box::leak(Box::new(to_router)),
+		Box::leak(Box::new(from_task)),
+	);
+
+	// Wait until `Kernel` has given us `Arc<Collection>`.
+	let mut collection = loop {
+		match recv!(FROM_KERNEL) {
+			KernelToFrontend::NewCollection(c) => break c,
+			_ => debug_panic!("wrong kernel msg"),
+		}
+	};
+
 	// Instead of branching everytime for HTTP/HTTPS or
 	// using dynamic dispatch or an enum and matching it,
 	// we'll just "implement" the main loop "twice".
@@ -89,20 +117,41 @@ pub async fn init(
 	macro_rules! impl_loop {
 		() => {{
 			// Begin router loop.
-			// Accept TCP stream, and get peer's IP.
-			let (stream, addr) = match listener.accept().await {
-				Ok(ok) => ok,
-				Err(e) => { error!("tcp stream error: {e}"); continue; },
+			// Hang until `TCP` connection or
+			// we received an `Arc<Collection>`
+			// from one of the `tasks` we spawned.
+			let (stream, addr) = loop {
+				tokio::select! {
+					biased; // Top-to-bottom.
+
+					// Accept TCP stream, and get peer's IP.
+					l = LISTENER.accept() => {
+						match l {
+							Ok((s, a)) => break (s, a),
+							Err(e)     => error!("Router - TCP stream error: {e}"),
+						}
+					},
+					// We received a new `Collection` from a `task`.
+					c = FROM_TASK.recv() => {
+						if let Some(c) = c {
+							info!("Router - New Collection received");
+							collection = c;
+							atomic_store!(RESETTING, false);
+						} else {
+							debug_panic!("Router - New Collection message but it was None");
+						}
+					},
+				}
 			};
 
 			// Only accept IPv4.
 			let addr = match addr {
 				std::net::SocketAddr::V4(addr) => {
-					info!("new connection: [{}]", addr.ip());
+					info!("Router - New IPv4 connection: [{}]", addr.ip());
 					addr
 				},
 				std::net::SocketAddr::V6(addr) => {
-					warn!("skipping ipv6 connection: [{}]", addr.ip());
+					warn!("Router - Skipping IPv6 connection: [{}]", addr.ip());
 					sleep_on_fail().await;
 					continue;
 				},
@@ -113,7 +162,7 @@ pub async fn init(
 			// If we have an exclusive IP list, deny non-contained IP connections.
 			if let Some(ips) = &CONFIG.exclusive_ips {
 				if !ips.contains(ip) {
-					info!("ip not in exclusive list, skipping [{ip}]");
+					info!("Router - IP not in exclusive list, skipping [{ip}]");
 					sleep_on_fail().await;
 					continue;
 				}
@@ -124,7 +173,7 @@ pub async fn init(
 			if let Some(max) = CONFIG.max_connections {
 				if crate::statics::connections() > max {
 					// Only log once.
-					warn!("past max connections [{max}], waiting before serving [{ip}]...");
+					warn!("Router - Past max connections [{max}], waiting before serving [{ip}]...");
 
 					while crate::statics::connections() > max {
 						tokio::time::sleep(std::time::Duration::from_millis(10)).await;
@@ -150,14 +199,6 @@ pub async fn init(
 			println!("{WHITE}{0}{OFF}\n{listening}\n{WHITE}{0}{OFF}", "=".repeat(listening.len() - 33));
 		}}
 	}
-
-	// Wait until `Kernel` has given us `Arc<Collection>`.
-	let collection = loop {
-		match recv!(FROM_KERNEL) {
-			KernelToFrontend::NewCollection(c) => break c,
-			_ => debug_panic!("wrong kernel msg"),
-		}
-	};
 
 //	drop(collection);
 //
@@ -198,7 +239,16 @@ pub async fn init(
 
 			let collection = Arc::clone(&collection);
 			tokio::task::spawn(async move {
-				https(ConnectionToken::new(), stream, addr, ACCEPTOR, collection, TO_KERNEL, FROM_KERNEL).await;
+				https(
+					ConnectionToken::new(),
+					stream,
+					addr,
+					ACCEPTOR,
+					collection,
+					TO_KERNEL,
+					FROM_KERNEL,
+					TO_ROUTER,
+				).await;
 			});
 		}
 	// Else If `HTTP`, start main `HTTP` loop (the exact same, but without TLS).
@@ -210,7 +260,15 @@ pub async fn init(
 
 			let collection  = Arc::clone(&collection);
 			tokio::task::spawn(async move {
-				http(ConnectionToken::new(), stream, addr, collection, TO_KERNEL, FROM_KERNEL).await;
+				http(
+					ConnectionToken::new(),
+					stream,
+					addr,
+					collection,
+					TO_KERNEL,
+					FROM_KERNEL,
+					TO_ROUTER,
+				).await;
 			});
 		}
 	}
@@ -219,31 +277,33 @@ pub async fn init(
 //---------------------------------------------------------------------------------------------------- Handle HTTP
 // Handle HTTP requests.
 async fn http(
-	_c:         ConnectionToken,
-	stream:     TcpStream,
-	addr:       SocketAddrV4,
-	collection: Arc<Collection>,
-	TO_KERNEL:   &'static Sender<FrontendToKernel>,
-	FROM_KERNEL: &'static Receiver<KernelToFrontend>,
+	_c:           ConnectionToken,
+	stream:       TcpStream,
+	addr:         SocketAddrV4,
+	collection:   Arc<Collection>,
+	TO_KERNEL:    &'static Sender<FrontendToKernel>,
+	FROM_KERNEL:  &'static Receiver<KernelToFrontend>,
+	TO_ROUTER:    &'static tokio::sync::mpsc::Sender::<Arc<Collection>>,
 ) {
 	if let Err(e) = Http::new()
-		.serve_connection(stream, service_fn(|r| route(r, addr, Arc::clone(&collection), TO_KERNEL, FROM_KERNEL)))
+		.serve_connection(stream, service_fn(|r| route(r, addr, Arc::clone(&collection), TO_KERNEL, FROM_KERNEL, TO_ROUTER)))
 		.await
 	{
-		error!("HTTP error for [{}]: {e}", addr.ip());
+		error!("Task - HTTP error for [{}]: {e}", addr.ip());
 	}
 }
 
 //---------------------------------------------------------------------------------------------------- Handle HTTPS
 // Handle HTTPS requests.
 async fn https(
-	_c:         ConnectionToken,
-	stream:     TcpStream,
-	addr:       SocketAddrV4,
-	acceptor:   &'static TlsAcceptor,
-	collection: Arc<Collection>,
-	TO_KERNEL:   &'static Sender<FrontendToKernel>,
-	FROM_KERNEL: &'static Receiver<KernelToFrontend>,
+	_c:           ConnectionToken,
+	stream:       TcpStream,
+	addr:         SocketAddrV4,
+	acceptor:     &'static TlsAcceptor,
+	collection:   Arc<Collection>,
+	TO_KERNEL:    &'static Sender<FrontendToKernel>,
+	FROM_KERNEL:  &'static Receiver<KernelToFrontend>,
+	TO_ROUTER:    &'static tokio::sync::mpsc::Sender::<Arc<Collection>>,
 ) {
 	let stream = match acceptor.accept(stream).await {
 		Ok(s)  => s,
@@ -251,10 +311,10 @@ async fn https(
 	};
 
 	if let Err(e) = Http::new()
-		.serve_connection(stream, service_fn(|r| route(r, addr, Arc::clone(&collection), TO_KERNEL, FROM_KERNEL)))
+		.serve_connection(stream, service_fn(|r| route(r, addr, Arc::clone(&collection), TO_KERNEL, FROM_KERNEL, TO_ROUTER)))
 		.await
 	{
-		error!("HTTPS error for [{}]: {e}", addr.ip());
+		error!("Task - HTTPS error for [{}]: {e}", addr.ip());
 	}
 }
 
@@ -266,6 +326,7 @@ async fn route(
 	collection: Arc<Collection>,
 	TO_KERNEL:   &'static Sender<FrontendToKernel>,
 	FROM_KERNEL: &'static Receiver<KernelToFrontend>,
+	TO_ROUTER:    &'static tokio::sync::mpsc::Sender::<Arc<Collection>>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	let (mut parts, body) = req.into_parts();
 
@@ -278,15 +339,15 @@ async fn route(
 	}
 
 	if parts.uri == "/" && parts.method == hyper::Method::POST {
-		crate::rpc::handle(parts, body, addr, collection, TO_KERNEL, FROM_KERNEL).await
+		crate::rpc::handle(parts, body, addr, collection, TO_KERNEL, FROM_KERNEL, TO_ROUTER).await
 	} else if parts.method == hyper::Method::GET {
 		if config().rest {
 			crate::rest::handle(parts, collection).await
 		} else {
-			Ok(resp::not_found("rest is disabled"))
+			Ok(resp::not_found("REST is disabled"))
 		}
 	} else {
-		Ok(resp::not_found("invalid request"))
+		Ok(resp::not_found("Invalid request"))
 	}
 }
 
@@ -304,21 +365,21 @@ async fn auth(parts: &mut Parts) -> Option<Response<Body>> {
 				Ok(s)  => s,
 				Err(e) => {
 					sleep_on_fail().await;
-					return Some(resp::unauthorized("authorization value is non-utf8"));
+					return Some(resp::unauthorized("Authorization value is non-utf8"));
 				},
 			};
 
 			// Check if the hash matches our existing one.
 			if !hash.same(string) {
 				sleep_on_fail().await;
-				return Some(resp::unauthorized("authorization failed"));
+				return Some(resp::unauthorized("Authorization failed"));
 			}
 		},
 
 		// AUTH header doesn't exist, reject this request.
 		None => {
 			sleep_on_fail().await;
-			return Some(resp::unauthorized("missing authorization"));
+			return Some(resp::unauthorized("Missing authorization"));
 		},
 	}
 
@@ -334,7 +395,7 @@ async fn sleep_on_fail() {
 
 	if let Some(end) = config().sleep_on_fail {
 		let millis = thread_rng().gen_range(0..end);
-		trace!("sleeping for {millis} millis");
+		trace!("Task - Sleeping for {millis} millis");
 		tokio::time::sleep(std::time::Duration::from_millis(millis)).await;
 	}
 }

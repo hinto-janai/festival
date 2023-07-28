@@ -42,14 +42,18 @@ use shukusai::{
 	},
 	search::SearchKind,
 };
-use crate::config::{
-	AUTH,config,
+use crate::{
+	config::{AUTH,config},
+	statics::RESETTING,
 };
 use std::borrow::Cow;
 use std::time::Duration;
 use benri::{
+	atomic_load,
+	atomic_store,
 	debug_panic,
 	lock,send,recv,
+	secs_f64,now,
 };
 use crossbeam::channel::{
 	Sender,Receiver,
@@ -57,6 +61,16 @@ use crossbeam::channel::{
 use json_rpc::{
 	Id,
 };
+
+//---------------------------------------------------------------------------------------------------- Custom Method Error Codes/Messages
+const ERR_VOLUME:     (i32, &str) = (-32011, "Volume must be in between 0..100");
+const ERR_KEY_ARTIST: (i32, &str) = (-32012, "Artist key is invalid");
+const ERR_KEY_ALBUM:  (i32, &str) = (-32013, "Album key is invalid");
+const ERR_KEY_SONG:   (i32, &str) = (-32014, "Song key is invalid");
+const ERR_MAP_ARTIST: (i32, &str) = (-32015, "Artist does not exist");
+const ERR_MAP_ALBUM:  (i32, &str) = (-32016, "Album does not exist");
+const ERR_MAP_SONG:   (i32, &str) = (-32017, "Song does not exist");
+const ERR_RESETTING:  (i32, &str) = (-32018, "Currently resetting the Collection");
 
 //---------------------------------------------------------------------------------------------------- Parse, call func, or return macro.
 // Parse
@@ -98,12 +112,13 @@ macro_rules! ppacor {
 
 //---------------------------------------------------------------------------------------------------- JSON-RPC Handler
 pub async fn handle(
-	parts:       Parts,
-	body:        Body,
-	addr:        SocketAddrV4,
-	collection:  Arc<Collection>,
-	TO_KERNEL:   &'static Sender<FrontendToKernel>,
-	FROM_KERNEL: &'static Receiver<KernelToFrontend>,
+	parts:        Parts,
+	body:         Body,
+	addr:         SocketAddrV4,
+	collection:   Arc<Collection>,
+	TO_KERNEL:    &'static Sender<FrontendToKernel>,
+	FROM_KERNEL:  &'static Receiver<KernelToFrontend>,
+	TO_ROUTER:    &'static tokio::sync::mpsc::Sender::<Arc<Collection>>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	// Body to bytes.
 	let body = hyper::body::to_bytes(body).await?;
@@ -118,6 +133,11 @@ pub async fn handle(
 		return Ok(resp::invalid_request(None));
 	};
 
+	// If we're in the middle of a `Collection` reset, respond with "busy".
+	if crate::statics::resetting() {
+		return Ok(resp::resetting(ERR_RESETTING.0, ERR_RESETTING.1, request.id));
+	}
+
 	// Parse method.
 	let Ok(method) = serde_json::from_str::<rpc::Method>(request.method.get()) else {
 		return Ok(resp::method_not_found(request.id));
@@ -127,52 +147,55 @@ pub async fn handle(
 	match method {
 		// State retrieval.
 		StateDaemon         => state_daemon(request.id).await,
-		StateAudio          => state_audio(request.id).await,
+		StateAudio          => state_audio(request.id, collection).await,
 		StateReset          => state_reset(request.id).await,
 		StateCollection     => state_collection(request.id, collection).await,
 		StateCollectionFull => state_collection_full(request.id, collection).await,
 
-		// Playback control.
-		Toggle      => toggle(request.id).await,
-		Play        => play(request.id).await,
-		Pause       => pause(request.id).await,
-		Next        => next(request.id).await,
-		Stop        => stop(request.id).await,
-		RepeatOff   => repeat_off(request.id).await,
-		RepeatSong  => repeat_song(request.id).await,
-		RepeatQueue => repeat_queue(request.id).await,
-		Shuffle     => shuffle(request.id).await,
+		// Playback control, no params.
+		Toggle      => toggle(request.id, TO_KERNEL).await,
+		Play        => play(request.id, TO_KERNEL).await,
+		Pause       => pause(request.id, TO_KERNEL).await,
+		Next        => next(request.id, TO_KERNEL).await,
+		Stop        => stop(request.id, TO_KERNEL).await,
+		RepeatOff   => repeat_off(request.id, TO_KERNEL).await,
+		RepeatSong  => repeat_song(request.id, TO_KERNEL).await,
+		RepeatQueue => repeat_queue(request.id, TO_KERNEL).await,
+		Shuffle     => shuffle(request.id, TO_KERNEL).await,
+		// Playback control with params.
+		Previous          => ppacor!(request, previous, rpc::param::Previous).await,
+		Volume            => ppacor!(request, volume, rpc::param::Volume).await,
+		Clear             => ppacor!(request, clear, rpc::param::Clear).await,
+		Seek              => ppacor!(request, seek, rpc::param::Seek).await,
+		Skip              => ppacor!(request, skip, rpc::param::Skip).await,
+		Back              => ppacor!(request, back, rpc::param::Back).await,
+		AddQueueKeyArtist => ppacor!(request, add_queue_key_artist, rpc::param::AddQueueKeyArtist, collection, TO_KERNEL).await,
+		AddQueueKeyAlbum  => ppacor!(request, add_queue_key_album, rpc::param::AddQueueKeyAlbum, collection, TO_KERNEL).await,
+		AddQueueKeySong   => ppacor!(request, add_queue_key_song, rpc::param::AddQueueKeySong, collection, TO_KERNEL).await,
+		AddQueueMapArtist => ppacor!(request, add_queue_map_artist, rpc::param::AddQueueMapArtist, collection, TO_KERNEL).await,
+		AddQueueMapAlbum  => ppacor!(request, add_queue_map_album, rpc::param::AddQueueMapAlbum, collection, TO_KERNEL).await,
+		AddQueueMapSong   => ppacor!(request, add_queue_map_song, rpc::param::AddQueueMapSong, collection, TO_KERNEL).await,
+		SetQueueIndex     => ppacor!(request, set_queue_index, rpc::param::SetQueueIndex).await,
+		RemoveQueueRange  => ppacor!(request, remove_queue_range, rpc::param::RemoveQueueRange).await,
 
-		Previous         => ppacor!(request, previous, rpc::param::Previous).await,
-		Volume           => ppacor!(request, volume, rpc::param::Volume).await,
-		AddQueueSong     => ppacor!(request, add_queue_song, rpc::param::AddQueueSong).await,
-		AddQueueAlbum    => ppacor!(request, add_queue_album, rpc::param::AddQueueAlbum).await,
-		AddQueueArtist   => ppacor!(request, add_queue_artist, rpc::param::AddQueueArtist).await,
-		Clear            => ppacor!(request, clear, rpc::param::Clear).await,
-		Seek             => ppacor!(request, seek, rpc::param::Seek).await,
-		Skip             => ppacor!(request, skip, rpc::param::Skip).await,
-		Back             => ppacor!(request, back, rpc::param::Back).await,
-		SetQueueIndex    => ppacor!(request, set_queue_index, rpc::param::SetQueueIndex).await,
-		RemoveQueueRange => ppacor!(request, remove_queue_range, rpc::param::RemoveQueueRange).await,
+		// Key (exact key)
+		KeyArtist => ppacor!(request, key_artist, rpc::param::KeyArtist, collection).await,
+		KeyAlbum  => ppacor!(request, key_album, rpc::param::KeyAlbum, collection).await,
+		KeySong   => ppacor!(request, key_song, rpc::param::KeySong, collection).await,
 
-		// Key (exact key).await,
-		KeyArtist => ppacor!(request, key_artist, rpc::param::KeyArtist).await,
-		KeyAlbum  => ppacor!(request, key_album, rpc::param::KeyAlbum).await,
-		KeySong   => ppacor!(request, key_song, rpc::param::KeySong).await,
-
-		// Map (exact hashmap).await,
+		// Map (exact hashmap)
 		MapArtist => ppacor!(request, map_artist, rpc::param::MapArtist).await,
 		MapAlbum  => ppacor!(request, map_album, rpc::param::MapAlbum).await,
 		MapSong   => ppacor!(request, map_song, rpc::param::MapSong).await,
 
-		// Search (fuzzy keys).await,
+		// Search (fuzzy string)
 		Search       => ppacor!(request, search, rpc::param::Search, collection, TO_KERNEL, FROM_KERNEL).await,
 		SearchArtist => ppacor!(request, search_artist, rpc::param::SearchArtist, collection, TO_KERNEL, FROM_KERNEL).await,
 		SearchAlbum  => ppacor!(request, search_album, rpc::param::SearchAlbum, collection, TO_KERNEL, FROM_KERNEL).await,
 		SearchSong   => ppacor!(request, search_song, rpc::param::SearchSong, collection, TO_KERNEL, FROM_KERNEL).await,
 
 		// Collection
-		NewCollection => ppacor!(request, new_collection, rpc::param::NewCollection).await,
+		NewCollection => ppacor!(request, new_collection, rpc::param::NewCollection, collection, TO_KERNEL, FROM_KERNEL, TO_ROUTER).await,
 	}
 }
 
@@ -191,7 +214,7 @@ async fn state_daemon<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::
 	Ok(resp::result(resp, id))
 }
 
-async fn state_audio<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+async fn state_audio<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
 	let shukusai::state::AudioState {
 		queue,
 		queue_idx,
@@ -203,23 +226,31 @@ async fn state_audio<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::E
 		volume,
 	} = AUDIO_STATE.read().clone();
 
-	let resp = rpc::resp::StateAudio {
-		queue: Cow::Owned(queue.into()),
-		queue_idx,
-		playing,
-		song,
-		elapsed: elapsed.inner(),
-		runtime: runtime.inner(),
-		repeat,
-		volume: volume.inner(),
+	let song_key = song;
+	let song = if let Some(key) = song_key {
+		Some(&collection.songs[key])
+	} else {
+		None
 	};
+
+	let resp = serde_json::json!({
+		"queue": queue,
+		"queue_idx": queue_idx,
+		"playing": playing,
+		"song_key": song_key,
+		"elapsed": elapsed.inner(),
+		"runtime": runtime.inner(),
+		"repeat": repeat,
+		"volume": volume.inner(),
+		"song": song,
+	});
 
 	Ok(resp::result(resp, id))
 }
 
 async fn state_reset<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
 	let resp = rpc::resp::StateReset {
-		resetting: shukusai::state::resetting(),
+		resetting: crate::statics::resetting(),
 		saving: shukusai::state::saving(),
 	};
 
@@ -255,31 +286,164 @@ async fn state_collection_full<'a>(id: Option<Id<'a>>, collection: Arc<Collectio
 	Ok(resp::result(collection, id))
 }
 
-async fn toggle<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("toggle"))) }
-async fn play<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("play"))) }
-async fn pause<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("pause"))) }
-async fn next<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("next"))) }
-async fn stop<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("stop"))) }
-async fn repeat_off<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("repeat_off"))) }
-async fn repeat_song<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("repeat_song"))) }
-async fn repeat_queue<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("repeat_queue"))) }
-async fn shuffle<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("shuffle"))) }
+// Implement the function <-> `FrontendToKernel` signal mappings with no params.
+macro_rules! impl_signal {
+	($($func:ident, $signal:expr),*) => {
+		$(
+			async fn $func<'a>(
+				id: Option<Id<'a>>,
+				TO_KERNEL: &Sender<FrontendToKernel>
+			) -> Result<Response<Body>, anyhow::Error> {
+				send!(TO_KERNEL, $signal);
+				Ok(resp::result_ok(id))
+			}
+		)*
+	}
+}
+
+impl_signal! {
+	toggle,       FrontendToKernel::Toggle,
+	play,         FrontendToKernel::Play,
+	pause,        FrontendToKernel::Pause,
+	next,         FrontendToKernel::Next,
+	stop,         FrontendToKernel::Stop,
+	shuffle,      FrontendToKernel::Shuffle,
+	repeat_off,   FrontendToKernel::Repeat(shukusai::audio::Repeat::Off),
+	repeat_song,  FrontendToKernel::Repeat(shukusai::audio::Repeat::Song),
+	repeat_queue, FrontendToKernel::Repeat(shukusai::audio::Repeat::Queue)
+}
 
 //---------------------------------------------------------------------------------------------------- Param methods.
 async fn previous<'a>(params: rpc::param::Previous, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("previous"))) }
 async fn volume<'a>(params: rpc::param::Volume, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("volume"))) }
-async fn add_queue_song<'a>(params: rpc::param::AddQueueSong, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("add_queue_song"))) }
-async fn add_queue_album<'a>(params: rpc::param::AddQueueAlbum, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("add_queue_album"))) }
-async fn add_queue_artist<'a>(params: rpc::param::AddQueueArtist, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("add_queue_artist"))) }
 async fn clear<'a>(params: rpc::param::Clear, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("clear"))) }
 async fn seek<'a>(params: rpc::param::Seek, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("seek"))) }
 async fn skip<'a>(params: rpc::param::Skip, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("skip"))) }
 async fn back<'a>(params: rpc::param::Back, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("back"))) }
+
+async fn add_queue_key_artist<'a>(
+	params:     rpc::param::AddQueueKeyArtist,
+	id:         Option<Id<'a>>,
+	collection: Arc<Collection>,
+	TO_KERNEL:  &Sender<FrontendToKernel>
+) -> Result<Response<Body>, anyhow::Error> {
+	if let Some(x) = collection.artists.get(params.key) {
+		send!(TO_KERNEL, FrontendToKernel::AddQueueArtist((params.key, params.append, params.clear, params.offset)));
+		Ok(resp::result_ok(id))
+	} else {
+		Ok(resp::error(ERR_KEY_ARTIST.0, ERR_KEY_ARTIST.1, id))
+	}
+}
+
+async fn add_queue_key_album<'a>(
+	params:     rpc::param::AddQueueKeyAlbum,
+	id:         Option<Id<'a>>,
+	collection: Arc<Collection>,
+	TO_KERNEL:  &Sender<FrontendToKernel>
+) -> Result<Response<Body>, anyhow::Error> {
+	if let Some(x) = collection.albums.get(params.key) {
+		send!(TO_KERNEL, FrontendToKernel::AddQueueAlbum((params.key, params.append, params.clear, params.offset)));
+		Ok(resp::result_ok(id))
+	} else {
+		Ok(resp::error(ERR_KEY_ALBUM.0, ERR_KEY_ALBUM.1, id))
+	}
+}
+
+async fn add_queue_key_song<'a>(
+	params:     rpc::param::AddQueueKeySong,
+	id:         Option<Id<'a>>,
+	collection: Arc<Collection>,
+	TO_KERNEL:  &Sender<FrontendToKernel>
+) -> Result<Response<Body>, anyhow::Error> {
+	if let Some(x) = collection.songs.get(params.key) {
+		send!(TO_KERNEL, FrontendToKernel::AddQueueSong((params.key, params.append, params.clear)));
+		Ok(resp::result_ok(id))
+	} else {
+		Ok(resp::error(ERR_KEY_SONG.0, ERR_KEY_SONG.1, id))
+	}
+}
+
+async fn add_queue_map_artist<'a>(
+	params:     rpc::param::AddQueueMapArtist<'a>,
+	id:         Option<Id<'a>>,
+	collection: Arc<Collection>,
+	TO_KERNEL:  &Sender<FrontendToKernel>
+) -> Result<Response<Body>, anyhow::Error> {
+	if let Some((_, key)) = collection.artist(params.artist) {
+		send!(TO_KERNEL, FrontendToKernel::AddQueueArtist((key, params.append, params.clear, params.offset)));
+		Ok(resp::result_ok(id))
+	} else {
+		Ok(resp::error(ERR_MAP_ARTIST.0, ERR_MAP_ARTIST.1, id))
+	}
+}
+
+async fn add_queue_map_album<'a>(
+	params:     rpc::param::AddQueueMapAlbum<'a>,
+	id:         Option<Id<'a>>,
+	collection: Arc<Collection>,
+	TO_KERNEL:  &Sender<FrontendToKernel>
+) -> Result<Response<Body>, anyhow::Error> {
+	if let Some((_, key)) = collection.album(params.artist, params.album) {
+		send!(TO_KERNEL, FrontendToKernel::AddQueueAlbum((key, params.append, params.clear, params.offset)));
+		Ok(resp::result_ok(id))
+	} else {
+		Ok(resp::error(ERR_MAP_ALBUM.0, ERR_MAP_ALBUM.1, id))
+	}
+}
+
+async fn add_queue_map_song<'a>(
+	params: rpc::param::AddQueueMapSong<'a>,
+	id: Option<Id<'a>>,
+	collection: Arc<Collection>,
+	TO_KERNEL:  &Sender<FrontendToKernel>
+) -> Result<Response<Body>, anyhow::Error> {
+	if let Some((_, key)) = collection.song(params.artist, params.album, params.song) {
+		send!(TO_KERNEL, FrontendToKernel::AddQueueSong((key, params.append, params.clear)));
+		Ok(resp::result_ok(id))
+	} else {
+		Ok(resp::error(ERR_MAP_SONG.0, ERR_MAP_SONG.1, id))
+	}
+}
+
 async fn set_queue_index<'a>(params: rpc::param::SetQueueIndex, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("set_queue_index"))) }
 async fn remove_queue_range<'a>(params: rpc::param::RemoveQueueRange, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("remove_queue_range"))) }
-async fn key_artist<'a>(params: rpc::param::KeyArtist, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("key_artist"))) }
-async fn key_album<'a>(params: rpc::param::KeyAlbum, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("key_album"))) }
-async fn key_song<'a>(params: rpc::param::KeySong, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("key_song"))) }
+
+async fn key_artist<'a>(
+	params:     rpc::param::KeyArtist,
+	id:         Option<Id<'a>>,
+	collection: Arc<Collection>,
+) -> Result<Response<Body>, anyhow::Error> {
+	if let Some(r) = collection.artists.get(params.key) {
+		Ok(resp::result(r, id))
+	} else {
+		Ok(resp::error(ERR_KEY_ARTIST.0, ERR_KEY_ARTIST.1, id))
+	}
+}
+
+async fn key_album<'a>(
+	params:     rpc::param::KeyAlbum,
+	id:         Option<Id<'a>>,
+	collection: Arc<Collection>,
+) -> Result<Response<Body>, anyhow::Error> {
+	if let Some(r) = collection.albums.get(params.key) {
+		Ok(resp::result(r, id))
+	} else {
+		return Ok(resp::error(ERR_KEY_ALBUM.0, ERR_KEY_ALBUM.1, id))
+	}
+}
+
+async fn key_song<'a>(
+	params:     rpc::param::KeySong,
+	id:         Option<Id<'a>>,
+	collection: Arc<Collection>,
+) -> Result<Response<Body>, anyhow::Error> {
+	if let Some(r) = collection.songs.get(params.key) {
+		Ok(resp::result(r, id))
+	} else {
+		return Ok(resp::error(ERR_KEY_SONG.0, ERR_KEY_SONG.1, id))
+	}
+}
+
 async fn map_artist<'a>(params: rpc::param::MapArtist<'a>, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("map_artist"))) }
 async fn map_album<'a>(params: rpc::param::MapAlbum<'a>, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("map_album"))) }
 async fn map_song<'a>(params: rpc::param::MapSong<'a>, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("map_song"))) }
@@ -391,7 +555,67 @@ async fn search_song<'a>(
 	Ok(resp::result(resp, id))
 }
 
-async fn new_collection<'a>(params: rpc::param::NewCollection, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("new_collection"))) }
+async fn new_collection<'a>(
+	params:       rpc::param::NewCollection,
+	id:           Option<Id<'a>>,
+	collection:   Arc<Collection>,
+	TO_KERNEL:    &'static Sender<FrontendToKernel>,
+	FROM_KERNEL:  &'static Receiver<KernelToFrontend>,
+	TO_ROUTER:    &'static tokio::sync::mpsc::Sender::<Arc<Collection>>,
+) -> Result<Response<Body>, anyhow::Error> {
+	tokio::task::block_in_place(move || async move {
+		let now = now!();
+
+		// Compare and set `RESETTING`.
+		// If it was `true` already, there might be another `task`
+		// attempting a `Collection` reset, if so, exit out.
+		use std::sync::atomic::Ordering;
+		if RESETTING.compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst) != Ok(false) {
+			return Ok(resp::resetting(ERR_RESETTING.0, ERR_RESETTING.1, id));
+		}
+
+		// `RESETTING` should be `true` from this point onward.
+		debug_assert_eq!(atomic_load!(RESETTING), true);
+
+		// Wait until we are the last `task`
+		// with this current `Arc<Collection>`
+		//
+		// Due to some `hyper` closure move stuff,
+		// a `task` will have 2 `Arc<Collection>`.
+		// Something about `service_fn` maybe being
+		// called multiple times, so you can't "move"
+		// things into it (even though it's 1 connection
+		// per service, so it should only called once? idk).
+		//
+		// Regardless, wait until we're close enough.
+		// `CCD` doesn't deconstruct for `festivald` anyway.
+		//
+		// `Kernel` + `Audio` + `Search` + `task` + `task` == 5
+		while Arc::strong_count(&collection) <= 5 {
+			debug!("Task - Waiting until Arc::strong_count(&collection) <= 5...");
+			tokio::time::sleep(Duration::from_millis(10)).await;
+		}
+
+		send!(TO_KERNEL, FrontendToKernel::NewCollection(params.paths.unwrap_or_else(|| vec![])));
+
+		// Wait until `Kernel` has given us `Arc<Collection>`.
+		let collection = loop {
+			match recv!(FROM_KERNEL) {
+				KernelToFrontend::NewCollection(c) => break c,
+				_ => debug_panic!("wrong kernel msg"),
+			}
+		};
+
+		// SAFETY: should never panic since the `Receiver` lives forever.
+		TO_ROUTER.send(collection).await.unwrap();
+
+		let r = rpc::resp::NewCollection {
+			time: secs_f64!(now),
+		};
+
+		Ok(resp::result(r, id))
+	}).await
+}
 
 //---------------------------------------------------------------------------------------------------- TESTS
 //#[cfg(test)]

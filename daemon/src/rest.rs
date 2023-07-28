@@ -18,70 +18,76 @@ use hyper::header::{
 };
 use crate::resp;
 use http::request::Parts;
-use shukusai::collection::Collection;
-
-//---------------------------------------------------------------------------------------------------- Constants
-// Tells browsers to view files.
-const VIEW_IN_BROWSER: &str = "inline";
-// Tells browsers to download files.
-const DOWNLOAD_IN_BROWSER: &str = "attachment";
+use shukusai::collection::{
+	Collection,
+	ArtistKey,
+	AlbumKey,
+	SongKey,
+};
+use crate::config::config;
+use tokio::io::AsyncReadExt;
 
 //---------------------------------------------------------------------------------------------------- REST Handler
 pub async fn handle(
 	parts:      Parts,
 	collection: Arc<Collection>,
 ) -> Result<Response<Body>, anyhow::Error> {
+	// If we're in the middle of a `Collection` reset, respond with "busy".
+	if crate::statics::resetting() {
+		return Ok(resp::resetting_rest());
+	}
+
 	let mut split = parts.uri.path().split('/');
 
 	split.next();
 
 	let Some(ep1) = split.next() else {
 //		crate::router::sleep_on_fail_task(collection);
-		return Ok(resp::not_found("missing endpoint 1"));
+		return Ok(resp::not_found("Missing endpoint 1"));
 	};
 
 	//-------------------------------------------------- `key` endpoint.
 	if ep1 == "key" {
 		let Some(ep2) = split.next() else {
-			return Ok(resp::not_found("missing endpoint: [artist/album/song]"));
+			return Ok(resp::not_found("Missing endpoint: [artist/album/song]"));
 		};
 
 		let Some(ep3) = split.next() else {
-			return Ok(resp::not_found("missing endpoint: [key]"));
+			return Ok(resp::not_found("Missing endpoint: [key]"));
 		};
 
 		// Return error if more than 3 endpoints.
 		if split.next().is_some() {
-			return Ok(resp::not_found("unknown endpoint"));
+			return Ok(resp::not_found("Unknown endpoint"));
 		}
 
 		// Parse `usize` key.
 		let Ok(key) = ep3.parse::<usize>() else {
-			return Ok(resp::not_found("key parse failure"));
+			return Ok(resp::not_found("Key parse failure"));
 		};
 
 		match ep2 {
 			"artist" => key_artist(key).await,
 			"album"  => key_album(key).await,
-			"song"   => key_song(key).await,
+			"song"   => key_song(key, collection).await,
 			"art"    => key_art(key).await,
-			_        => Ok(resp::not_found("unknown endpoint")),
+			_        => Ok(resp::not_found("Unknown endpoint")),
 		}
-	//-------------------------------------------------- `string` endpoint.
-	} else if ep1 == "string" {
+	//-------------------------------------------------- `map` endpoint.
+	} else if ep1 == "map" {
 		let Some(ep2) = split.next() else {
-			return Ok(resp::not_found("missing endpoint: [artist]"));
+			return Ok(resp::not_found("Missing endpoint: [artist]"));
 		};
 
 		let artist = match urlencoding::decode(ep2) {
 			Ok(a)  => a,
-			Err(e) => return Ok(resp::not_found("artist parse failure")),
+			Err(e) => return Ok(resp::not_found("Artist parse failure")),
 		};
 
 		let album = if let Some(a) = split.next() {
 			match urlencoding::decode(a) {
 				Ok(a)  => Some(a),
-				Err(e) => return Ok(resp::not_found("album parse failure")),
+				Err(e) => return Ok(resp::not_found("Album parse failure")),
 			}
 		} else {
 			None
@@ -90,7 +96,7 @@ pub async fn handle(
 		let song = if let Some(s) = split.next() {
 			match urlencoding::decode(s) {
 				Ok(a)  => Some(a),
-				Err(e) => return Ok(resp::not_found("song parse failure")),
+				Err(e) => return Ok(resp::not_found("Song parse failure")),
 			}
 		} else {
 			None
@@ -98,53 +104,89 @@ pub async fn handle(
 
 		// Return error if more than 4 endpoints.
 		if split.next().is_some() {
-			return Ok(resp::not_found("unknown endpoint"));
+			return Ok(resp::not_found("Unknown endpoint"));
 		}
 
 		match (album, song) {
-			(Some(a), None)    => string_album(artist.as_ref(), a.as_ref()).await,
-			(Some(a), Some(s)) => string_song(artist.as_ref(), a.as_ref(), s.as_ref()).await,
-			_                  => string_artist(artist.as_ref()).await,
+			(Some(a), None)    => map_album(artist.as_ref(), a.as_ref()).await,
+			(Some(a), Some(s)) => map_song(artist.as_ref(), a.as_ref(), s.as_ref()).await,
+			_                  => map_artist(artist.as_ref()).await,
 		}
 	//-------------------------------------------------- `art` endpoint.
 	} else if ep1 == "art" {
 		let Some(artist) = split.next() else {
-			return Ok(resp::not_found("missing endpoint: [artist]"));
+			return Ok(resp::not_found("Missing endpoint: [artist]"));
 		};
 
 		let Ok(artist) = urlencoding::decode(artist) else {
-			return Ok(resp::not_found("artist parse failure"));
+			return Ok(resp::not_found("Artist parse failure"));
 		};
 
 		let Some(album) = split.next() else {
-			return Ok(resp::not_found("missing endpoint: [album]"));
+			return Ok(resp::not_found("Missing endpoint: [album]"));
 		};
 
 		let Ok(album) = urlencoding::decode(album) else {
-			return Ok(resp::not_found("album parse failure"));
+			return Ok(resp::not_found("Album parse failure"));
 		};
 
 		// Return error if more than 3 endpoints.
 		if split.next().is_some() {
-			return Ok(resp::not_found("unknown endpoint"));
+			return Ok(resp::not_found("Unknown endpoint"));
 		}
 
 		art(artist.as_ref(), album.as_ref()).await
 	//-------------------------------------------------- unknown endpoint.
 	} else {
-		Ok(resp::not_found("unknown endpoint"))
+		Ok(resp::not_found("Unknown endpoint"))
 	}
 }
 
 //---------------------------------------------------------------------------------------------------- Artist
 pub async fn key_artist(key: usize) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from(format!("key_artist: {key}")))) }
 pub async fn key_album(key: usize) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from(format!("key_album: {key}")))) }
-pub async fn key_song(key: usize) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from(format!("key_song: {key}")))) }
+pub async fn key_song(key: usize, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+	let key = SongKey::from(key);
+
+	// If key exists...
+	if let Some(song) = collection.songs.get(key) {
+		// Open the file.
+		let Ok(mut file) = tokio::fs::File::open(&song.path).await else {
+			return Ok(resp::not_found("Song not found"));
+		};
+
+		let cap = match file.metadata().await {
+			Ok(m) => m.len() as usize,
+			_ => 1_000_000 // 1 megabyte,
+		};
+
+		// Copy the bytes into owned buffer.
+		let mut dst: Vec<u8> = Vec::with_capacity(cap);
+		if file.read_to_end(&mut dst).await.is_err() {
+			return Ok(resp::server_err("Failed to copy song bytes"));
+		};
+
+		// Format the file name.
+		let (artist, album, _) = collection.walk(key);
+		let name = format!(
+			"{}{}{}{}{}",
+			artist.name,
+			config().filename_separator,
+			album.title,
+			config().filename_separator,
+			song.title,
+		);
+
+		Ok(resp::rest_ok(dst, &name, mime::AUDIO.as_str()))
+	} else {
+		Ok(resp::not_found("Song key is invalid"))
+	}
+}
 pub async fn key_art(key: usize) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from(format!("key_art: {key}")))) }
 
-pub async fn string_artist(artist: &str) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from(format!("string_artist: {artist}")))) }
-pub async fn string_album(artist: &str, album: &str) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from(format!("string_album: {artist}, {album}")))) }
-pub async fn string_song(artist: &str, album: &str, song: &str) -> Result<Response<Body>, anyhow::Error> {
+pub async fn map_artist(artist: &str) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from(format!("string_artist: {artist}")))) }
+pub async fn map_album(artist: &str, album: &str) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from(format!("string_album: {artist}, {album}")))) }
+pub async fn map_song(artist: &str, album: &str, song: &str) -> Result<Response<Body>, anyhow::Error> {
 //	println!("{artist}, {album}, {song}");
 	Ok(Response::new(Body::from(format!("string_song: {artist}, {album}, {song}"))))
 }

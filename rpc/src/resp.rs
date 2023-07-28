@@ -53,11 +53,12 @@ impl_struct_lt! {
 	queue:     Cow<'a, [SongKey]>,
 	queue_idx: Option<usize>,
 	playing:   bool,
-	song:      Option<SongKey>,
+	song_key:  Option<SongKey>,
 	elapsed:   u32,
 	runtime:   u32,
 	repeat:    Repeat,
-	volume:    u8
+	volume:    u8,
+	song:      Option<SongJson<'a>>
 }
 impl_struct! {
 	StateReset,

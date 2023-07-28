@@ -53,6 +53,7 @@ compact_str  = { workspace = true }
 dirs         = { workspace = true }
 image        = { workspace = true }
 log          = { workspace = true }
+memmap2      = { workspace = true }
 once_cell    = { workspace = true }
 paste        = { workspace = true }
 rand         = { workspace = true }
@@ -68,7 +69,6 @@ fast_image_resize = "2.7.3"
 infer             = "0.13.0"
 jpeg-encoder      = { version = "0.5.1", features = ["simd"] }
 notify            = "6.0.0"
-memmap2           = "0.6.2"
 mime_guess        = "2.0.4"
 rayon             = "1.7.0"
 souvlaki          = "0.6.1"

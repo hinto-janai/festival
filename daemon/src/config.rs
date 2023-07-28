@@ -162,7 +162,7 @@ impl ConfigBuilder {
 			c.max_connections = None;
 		}
 
-		// FIXME TODO: testing tls.
+		// FIXME TODO: testing.
 //		c.tls = true;
 //		c.certificate = Some(PathBuf::from("/tmp/cert.pem"));
 //		c.key = Some(PathBuf::from("/tmp/key.pem"));

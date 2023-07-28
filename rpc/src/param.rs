@@ -26,9 +26,12 @@ impl_struct!(Skip, skip: usize);
 impl_struct!(Back, back: usize);
 impl_struct!(SetQueueIndex, index: usize);
 impl_struct!(RemoveQueueRange, start: usize, end: usize, skip: bool);
-impl_struct!(AddQueueSong, key: SongKey, append: Append, clear: bool);
-impl_struct!(AddQueueAlbum, key: AlbumKey, append: Append, clear: bool, offset: usize);
-impl_struct!(AddQueueArtist, key: ArtistKey, append: Append, clear: bool, offset: usize);
+impl_struct!(AddQueueKeyArtist, key: ArtistKey, append: Append, clear: bool, offset: usize);
+impl_struct!(AddQueueKeyAlbum, key: AlbumKey, append: Append, clear: bool, offset: usize);
+impl_struct!(AddQueueKeySong, key: SongKey, append: Append, clear: bool);
+impl_struct_lt!(AddQueueMapArtist, artist: Cow<'a, str>, append: Append, clear: bool, offset: usize);
+impl_struct_lt!(AddQueueMapAlbum, artist: Cow<'a, str>, album: Cow<'a, str>, append: Append, clear: bool, offset: usize);
+impl_struct_lt!(AddQueueMapSong, artist: Cow<'a, str>, album: Cow<'a, str>, song: Cow<'a, str>, append: Append, clear: bool);
 impl_struct!(Seek, seek: shukusai::audio::Seek, second: u64);
 
 // Key (exact key)

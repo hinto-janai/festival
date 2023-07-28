@@ -375,12 +375,12 @@ impl Collection {
 		artist_name: S,
 		album_title: S,
 		song_title: S,
-	) -> Option<(&Song, Key)> {
+	) -> Option<(&Song, SongKey)> {
 		if let Some((artist_key, albums)) = self.map.0.get(artist_name.as_ref()) {
 			if let Some((album_key, songs)) = albums.0.get(album_title.as_ref()) {
 				if let Some(song_key) = songs.0.get(song_title.as_ref()) {
 					let key = Key::from_keys(*artist_key, *album_key, *song_key);
-					return Some((&self.songs[song_key], key))
+					return Some((&self.songs[song_key], *song_key))
 				}
 			}
 		}

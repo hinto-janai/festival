@@ -1921,6 +1921,7 @@ dependencies = [
  "image",
  "json-rpc",
  "log",
+ "memmap2 0.6.2",
  "mime",
  "once_cell",
  "rand",

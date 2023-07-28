@@ -20,11 +20,12 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"toggle"}'
 For the `REST` API, you could use anything that can handle `HTTP(s)`, like a browser:
 ```bash
 # Opening this link in a browser will show a small player for this song.
-http://localhost:18425/string/Artist Name/Artist Title/Song Title
+http://localhost:18425/map/Artist Name/Artist Title/Song Title
 ```
 
 # Contents
 * [Quick Start](#Quick-Start)
+* [API Stability](#API-Stability)
 * [Configuration](#Configuration)
 * [Authorization](#Authorization)
 * [Disk](#Disk)
@@ -45,19 +46,22 @@ http://localhost:18425/string/Artist Name/Artist Title/Song Title
 		- [pause](#pause)
 		- [next](#next)
 		- [stop](#stop)
+		- [shuffle](#shuffle)
 		- [repeat_off](#repeat_off)
 		- [repeat_song](#repeat_song)
 		- [repeat_queue](#repeat_queue)
-		- [shuffle](#shuffle)
 		- [previous](#previous)
 		- [volume](#volume)
-		- [add_queue_song](#add_queue_song)
-		- [add_queue_album](#add_queue_album)
-		- [add_queue_artist](#add_queue_artist)
 		- [clear](#clear)
 		- [seek](#seek)
 		- [skip](#skip)
 		- [back](#back)
+		- [add_queue_key_artist](#add_queue_key_artist)
+		- [add_queue_key_album](#add_queue_key_album)
+		- [add_queue_key_song](#add_queue_key_song)
+		- [add_queue_map_artist](#add_queue_map_artist)
+		- [add_queue_map_album](#add_queue_map_album)
+		- [add_queue_map_song](#add_queue_map_song)
 		- [set_queue_index](#set_queue_index)
 		- [remove_queue_range](#remove_queue_range)
 	- [Key](#Key)
@@ -81,13 +85,38 @@ http://localhost:18425/string/Artist Name/Artist Title/Song Title
 		- [/album/${album_key}](#albumalbum_key)
 		- [/song/${song_key}](#songsong_key)
 		- [/art/${album_key}](#artalbum_key)
-	- [/string](#string)
+	- [/map](#map)
 		- [/${artist_name}](#artist_name)
 		- [/${artist_name}/${album_title}](#artist_namealbum_title)
 		- [/${artist_name}/${album_title}/${song_title}](#artist_namealbum_titlesong_title)
 	- [/art/${artist_name}/${album_title}](#artartist_namealbum_title)
 
 # Quick Start
+
+# API Stability
+`festivald`'s JSON output and REST endpoint changes will only be _additional_ until a breaking `v2.0.0` release.
+
+More fields could be added to the JSON output and/or more REST endpoints could be added in the future, however previous fields and endpoints will remain.
+
+Example old `v1.0.0` JSON:
+```json
+{
+  "old_field": "This is a field introduced in v1.0.0"
+}
+```
+Example `v1.x.x`+ JSON:
+```json
+{
+  "old_field": "I'm still here, with the same expected output",
+  "new_field": "I'm here too, introduced in a future v1.x.x release"
+}
+```
+Example `v2.0.0` JSON:
+```json
+{
+  "new_new_field": "The entire output is different"
+}
+```
 
 # Configuration
 
@@ -165,7 +194,7 @@ All method names and field names are in `lower_case_snake_case`.
 The title of the section itself is the method name, for example, `state_daemon` _is_ the method name.
 
 # Common Objects
-These are 3 common "objects" that have a set structure, and appear in many JSON-RPC calls:
+These are the 3 common "objects" that have a set structure, and appear in many JSON-RPC calls:
 - `Artist`
 - `Album`
 - `Song`
@@ -178,7 +207,7 @@ The definitions of these object's key/value pairs will be here, instead of every
 |---------|-------------------------------------------|-------------|
 | name    | string                                    | The `Artist`'s name
 | key     | `Artist` key (unsigned integer)           | The `Artist` key associated with this `Artist`
-| runtime | unsigned integer                          | The total runtime of all songs owned by this `Artist`
+| runtime | unsigned integer                          | The total runtime of all songs owned by this `Artist` in seconds
 | albums  | array of `Album` keys (unsigned integers) | Keys to all `Album`'s owned by this `Artist`, in release order
 | songs   | array of `Song` keys (unsigned integers)  | Keys to all `Songs`'s owned by this `Artist`, in `Album` release order, then `Song` track order
 
@@ -209,12 +238,12 @@ Example:
 | key        | `Album` key (unsigned integer)            | The `Album` key associated with this `Album`
 | artist     | `Artist` key (unsigned integer)           | The `Artist` key of the `Artist` that owns this `Album`
 | release    | string                                    | Release date of this `Album` in `YYYY-MM-DD`/`YYYY-MM`/`YYYY` format, `????-??-??` if unknown
-| runtime    | unsigned integer                          | The total runtime of this `Album`
+| runtime    | unsigned integer                          | The total runtime of this `Album` in seconds
 | song_count | unsigned integer                          | How many `Song`'s are in this `Album`
 | songs      | array of `Song` keys (unsigned integers)  | Keys to all of the `Song`'s in this `Album`, in track order
 | discs      | unsigned integer                          | Count of how many "discs" are in this `Album`, most will be `0`
-| art        | Optional (maybe-null) unsigned integer    | Size of this `Album`'s art in bytes, `null` if not found
-| genre      | Optional (maybe-null) string              | Genre of this `Album`, `null` if not found
+| art        | optional (maybe null) unsigned integer    | Size of this `Album`'s art in bytes, `null` if not found
+| genre      | optional (maybe null) string              | Genre of this `Album`, `null` if not found
 
 Example:
 ```json
@@ -243,10 +272,10 @@ Example:
 | title       | string                                 | The title of this `Song`
 | key         | `Song` key (unsigned integer)          | The `Song` key associated with this `Song`
 | album       | `Album` key (unsigned integer)         | The `Album` key of the `Album` this `Song` is from
-| runtime     | unsigned integer                       | The total runtime of this `Song`
+| runtime     | unsigned integer                       | The total runtime of this `Song` in seconds
 | sample_rate | unsigned integer                       | The sample rate of this `Song` in hertz, e.g: `44100`
-| track       | Optional (maybe-null) unsigned integer | Track number of this `Song`, `null` if not found
-| disc        | Optional (maybe-null) unsigned integer | Disc number this `Song` belongs to, `null` if not found
+| track       | optional (maybe null) unsigned integer | Track number of this `Song`, `null` if not found
+| disc        | optional (maybe null) unsigned integer | Disc number this `Song` belongs to, `null` if not found
 
 Example:
 ```json
@@ -303,7 +332,87 @@ Example Response:
 ```
 
 ## state_audio
+Retrieve audio state.
+
+| Inputs |
+|--------|
+| None   |
+
+| Outputs   | Type                                                | Description |
+|-----------|-----------------------------------------------------|-------------|
+| queue     | array of `Song` keys (unsigned integers)            | Array of `Song` keys that are in the queue, in order of what will be played next
+| queue_idx | optional (maybe null) unsigned integer              | The queue index `festivald` is currently on, `null` if no `Song` is set
+| playing   | boolean                                             | If `festivald` is currently playing
+| song_key  | optional (maybe null) `Song` key (unsigned integer) | The key of current `Song`, `null` if no `Song` is set
+| elapsed   | unsigned integer                                    | Elapsed runtime of current `Song` in seconds
+| runtime   | unsigned integer                                    | Total runtime of current `Song` in seconds
+| repeat    | string, one of `song`, `queue`, or `off`            | Audio repeat behavior. `song` means the `Song` will repeat after ending, `queue` means the whole queue will repeat after ending, `off` means the queue will be cleared and playback will stop when ending
+| volume    | unsigned integer in between `0..100`                | The current volume level
+| song      | optional (maybe null) `Song` object                 | The current `Song` as an object, `null` if no `Song` is set
+
+
+Example Request:
+```bash
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"state_audio"}'
+```
+Example Response:
+```
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "queue": [
+      1286,
+      1340,
+      12248
+    ],
+    "queue_idx": 0,
+    "playing": true,
+    "song_key": 1286,
+    "elapsed": 9,
+    "runtime": 349,
+    "repeat": "off",
+    "volume": 25,
+    "song": {
+      "title": "いつか",
+      "key": 1286,
+      "album": 146,
+      "runtime": 349,
+      "sample_rate": 44100,
+      "track": 1,
+      "disc": 1
+    }
+  },
+  "id": 0
+}
+```
+
 ## state_reset
+Retrieve the current state of a `Collection` reset.
+| Inputs |
+|--------|
+| None   |
+
+| Outputs   | Type    | Description |
+|-----------|---------|-------------|
+| resetting | boolean | Whether `festivald` is currently in the process of resetting the `Collection`
+| saving    | boolean | Whether `festivald` is currently saving a newly created `Collection` to disk
+
+Example Request:
+```bash
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"state_reset"}'
+```
+Example Response:
+```
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "resetting": false,
+    "saving": true
+  },
+  "id": 0
+}
+```
+
 ## state_collection
 Retrieve some brief metadata about the current `Collection`.
 
@@ -899,19 +1008,22 @@ Example Response:
 ## pause
 ## next
 ## stop
+## shuffle
 ## repeat_off
 ## repeat_song
 ## repeat_queue
-## shuffle
 ## previous
 ## volume
-## add_queue_song
-## add_queue_album
-## add_queue_artist
 ## clear
 ## seek
 ## skip
 ## back
+## add_queue_key_artist
+## add_queue_key_album
+## add_queue_key_song
+## add_queue_map_artist
+## add_queue_map_album
+## add_queue_map_song
 ## set_queue_index
 ## remove_queue_range
 
@@ -1128,7 +1240,7 @@ Reset the current `Collection`.
 
 | Inputs | Type                                 | Description |
 |--------|--------------------------------------|-------------|
-| paths  | Optional (maybe-null) array of PATHs | An array of filesystem PATHs to scan for the new `Collection`. These must be absolute PATHs **on the system `festivald` is running on**, not PATHs on the client. If `null` is provided, the default `Music` directory will be used.
+| paths  | optional (maybe null) array of PATHs | An array of filesystem PATHs to scan for the new `Collection`. These must be absolute PATHs **on the system `festivald` is running on**, not PATHs on the client. If `null` is provided, the default `Music` directory will be used.
 
 | Outputs | Type    | Description |
 |---------|---------|-------------|
@@ -1165,7 +1277,7 @@ This will make the art of the album `my_album`, owned by the artist `my_artist` 
 
 Opening something like:
 ```
-http://localhost:18425/string/Artist Name/Album Title/Song Title
+http://localhost:18425/map/Artist Name/Album Title/Song Title
 ```
 will directly open that song in the browser and show a simple player, if your browser supports it (all modern browsers do). Again, you can change the behavior so that browsers directly download these resources by changing the `direct_download` configuration option.
 
@@ -1193,10 +1305,10 @@ This info can be found in multiple JSON-RPC methods, such as `map_artist`, `sear
 
 Keys are unique _per_ object group, meaning there is an `artist 0` AND `album 0`, and so forth.
 
-Note that keys can only be relied upon as long as the `Collection` has not been reset. When the `Collection` is reset, it is not guaranteed that the same key will map to the same object. Using the `/string` endpoint may be more convenient so that artist names, album and song titles can be used as inputs instead.
+Note that keys can only be relied upon as long as the `Collection` has not been reset. When the `Collection` is reset, it is not guaranteed that the same key will map to the same object. Using the `/map` endpoint may be more convenient so that artist names, album and song titles can be used as inputs instead.
 
 The main reasons `/key` exists:
-- Accessing objects via `/key` is faster than with `/string`
+- Accessing objects via `/key` is faster than with `/map`
 - As long as your `Collection` is stable, the `key`'s are stable
 
 ## /artist/${artist_key}
@@ -1204,7 +1316,7 @@ Download all the `Album`'s owned by this `Artist`, 1 directory per album (includ
 
 | Input      | Type             | Example |
 |------------|------------------|---------|
-| artist key | unsigned integer | `http://localhost:18425/key/artist/123`
+| Artist key | unsigned integer | `http://localhost:18425/key/artist/123`
 
 | Output                                                  | Type   | Example |
 |---------------------------------------------------------|--------|---------|
@@ -1215,7 +1327,7 @@ Download this `Album` (including art if found), wrapped in an archive format.
 
 | Input     | Type             | Example |
 |-----------|------------------|---------|
-| album key | unsigned integer | `http://localhost:18425/key/album/123`
+| Album key | unsigned integer | `http://localhost:18425/key/album/123`
 
 | Output                                    | Type   | Example |
 |-------------------------------------------|--------|---------|
@@ -1226,7 +1338,7 @@ Download this `Song` in the original format.
 
 | Input    | Type             | Example |
 |----------|------------------|---------|
-| song key | unsigned integer | `http://localhost:18425/key/song/123`
+| Song key | unsigned integer | `http://localhost:18425/key/song/123`
 
 | Output                  | Type       | Example |
 |-------------------------|------------|---------|
@@ -1237,13 +1349,13 @@ Download this `Album`'s art in the image's original format.
 
 | Input     | Type             | Example |
 |-----------|------------------|---------|
-| album key | unsigned integer | `http://localhost:18425/key/art/123`
+| Album key | unsigned integer | `http://localhost:18425/key/art/123`
 
 | Output                 | Type       | Example |
 |------------------------|------------|---------|
 | Art in original format | image file | `Artist Name - Album Title.jpg`
 
-# /string
+# /map
 This is the same as the `/key` endpoint, but instead of numbers, you can directly use:
 - Artist names
 - Album titles
@@ -1255,15 +1367,15 @@ http://localhost:18425/key/song/123
 ```
 you can use:
 ```
-http://localhost:18425/string/Artist Name/Artist Title/Song Title
+http://localhost:18425/map/Artist Name/Artist Title/Song Title
 ```
 Browsers will secretly percent-encode this URL, so it'll actually be:
 ```
-http://localhost:18425/string/Artist%20Name/Artist%20Title/Song%20Title
+http://localhost:18425/map/Artist%20Name/Artist%20Title/Song%20Title
 ```
 This is fine, `festivald` will decode it, along with any other percent encoding, so you can use spaces or any other UTF-8 characters directly in the URL:
 ```
-http://localhost:18425/string/артист/❤️/ヒント じゃない
+http://localhost:18425/map/артист/❤️/ヒント じゃない
 ```
 
 The reason `Artist` names and `Album` titles have to be specified is to prevent collisions.
@@ -1286,9 +1398,9 @@ The input must _exactly_ be `Hello World`.
 ## /${artist_name}
 Download all the `Album`'s owned by this `Artist`, 1 directory per album (including art if found), wrapped in an archive format.
 
-| Input       | Type         | Example |
-|-------------|--------------|---------|
-| artist name | UTF-8 string | `http://localhost:18425/string/Artist Name`
+| Input       | Type   | Example |
+|-------------|--------|---------|
+| Artist name | string | `http://localhost:18425/map/Artist Name`
 
 | Output                                                  | Type   | Example |
 |---------------------------------------------------------|--------|---------|
@@ -1297,9 +1409,9 @@ Download all the `Album`'s owned by this `Artist`, 1 directory per album (includ
 ## /${artist_name}/${album_title}
 Download this `Album` (including art if found), wrapped in an archive format.
 
-| Input                    | Type         | Example |
-|--------------------------|--------------|---------|
-| artist name, album title | UTF-8 string | `http://localhost:18425/string/Artist Name/Album Title`
+| Input                    | Type   | Example |
+|--------------------------|--------|---------|
+| Artist name, Album title | string | `http://localhost:18425/map/Artist Name/Album Title`
 
 | Output                                    | Type   | Example |
 |-------------------------------------------|--------|---------|
@@ -1308,9 +1420,9 @@ Download this `Album` (including art if found), wrapped in an archive format.
 ## /${artist_name}/${album_title}/${song_title}
 Download this `Song` in the original format.
 
-| Input                                | Type         | Example |
-|--------------------------------------|--------------|---------|
-| artist name, album title, song title | UTF-8 string | `http://localhost:18425/string/Artist Name/Album Title/Song Title`
+| Input                                | Type   | Example |
+|--------------------------------------|--------|---------|
+| Artist name, Album title, Song title | string | `http://localhost:18425/map/Artist Name/Album Title/Song Title`
 
 | Output                  | Type       | Example |
 |-------------------------|------------|---------|
@@ -1323,9 +1435,9 @@ Download this `Album`'s art in the original format.
 
 If no art was found, the response will be a 404 error.
 
-| Input                    | Type         | Example |
-|--------------------------|--------------|---------|
-| artist name, album title | UTF-8 string | `http://localhost:18425/art/Artist Name/Album Title`
+| Input                    | Type   | Example |
+|--------------------------|--------|---------|
+| Artist name, Album title | string | `http://localhost:18425/art/Artist Name/Album Title`
 
 | Output                 | Type       | Example |
 |------------------------|------------|---------|

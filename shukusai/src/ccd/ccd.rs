@@ -114,10 +114,12 @@ impl Ccd {
 		// If `CCD` fails, `Kernel` just sends a `Collection::dummy()` back to everyone.
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((0.00, Phase::Deconstruct)));
-		{
+
+		#[cfg(not(feature = "daemon"))]
+		let perf_deconstruct = {
 			let mut i = 1;
 			loop {
-				trace!("CCD [1/13] Deconstruct attempt {i}");
+				trace!("CCD [1/13] Deconstruct attempt {i}, strong_count: {}", Arc::strong_count(&old_collection));
 
 				if Arc::strong_count(&old_collection) == 1 {
 					if let Some(c) = Arc::into_inner(old_collection) {
@@ -133,9 +135,20 @@ impl Ccd {
 				i += 1;
 				sleep_millis!(1);
 			}
-		}
-		let perf_deconstruct = secs_f32!(now);
-		trace!("CCD [1/13] ... Deconstruct: {perf_deconstruct}");
+
+			let perf_deconstruct = secs_f32!(now);
+			trace!("CCD [1/13] ... Deconstruct: {perf_deconstruct}");
+			perf_deconstruct
+		};
+
+		// `CCD` doesn't deconstruct the `Collection` for `festivald` because:
+		//   1. Images aren't stored in `festivald`'s `Collection`, so it's maybe a few MB tops
+		//   2. `hyper` makes it painful to make sure there's only 1 Arc, so deconstruct will never work anyway
+		#[cfg(feature = "daemon")]
+		let perf_deconstruct = {
+			trace!("CCD [1/13] ... Deconstruct: SKIP");
+			0.0
+		};
 
 		//-------------------------------------------------------------------------------- 2
 		let now = now!();

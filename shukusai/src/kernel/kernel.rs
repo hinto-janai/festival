@@ -693,8 +693,21 @@ impl Kernel {
 
 		// Give the last ownership of the
 		// old `Collection` pointer to `CCD`.
-		let old_collection = Arc::clone(&self.collection);
-		self.collection    = Collection::dummy();
+		//
+		// Since other parts of the system use
+		// `collection = Collection::dummy()` to "drop"
+		// the `Collection`, giving the dummy as the "old"
+		// `Collection` to `CCD` won't work, it'll hang forever.
+		// So, if our "old" `Collection` is still the dummy,
+		// create a new private one here.
+		let dummy = Collection::dummy();
+		let old_collection = if self.collection == dummy {
+			debug!("Kernel - Old Collection is dummy, creating new private one...");
+			Arc::new(Collection::new())
+		} else {
+			Arc::clone(&self.collection)
+		};
+		self.collection = Collection::dummy();
 
 		// If there is another `CCD` still alive
 		// saving, wait for it to finish.
