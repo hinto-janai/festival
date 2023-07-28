@@ -17,9 +17,11 @@ use rayon::prelude::*;
 impl super::Ccd {
 	// `WalkDir` given PATHs and filter for audio files.
 	// Ignore non-existing PATHs in the array.
+	//
+	// (PATH, MIME, file_extension)
 	pub(crate) fn walkdir_audio(
 		mut paths: Vec<PathBuf>,
-	) -> Vec<PathBuf> {
+	) -> Vec<(PathBuf, &'static str, &'static str)> {
 
 		// Test PATHs, collect valid ones.
 		// Sort, remove duplicates.
@@ -32,7 +34,7 @@ impl super::Ccd {
 		//
 		// Feeds `PathBuf`'s into that closure, flattening
 		// all the iterators, and only collecting valid paths.
-		let mut entries: Vec<PathBuf> = paths
+		let mut entries: Vec<(PathBuf, &'static str, &'static str)> = paths
 			.into_par_iter()
 			.flat_map_iter(|p| WalkDir::new(p).follow_links(true))
 			.filter_map(Result::ok)
@@ -128,27 +130,18 @@ impl super::Ccd {
 	}
 
 	#[inline(always)]
-	fn path_is_audio(path: PathBuf) -> Option<PathBuf> {
+	fn path_is_audio(path: PathBuf) -> Option<(PathBuf, &'static str, &'static str)> {
 		trace!("CCD - Walking PATH: {}", path.display());
 
 		// Attempt MIME via file magic bytes first.
-		if Self::path_infer_audio(&path) {
-			return Some(path)
+		if let Ok(Some(mime)) = infer::get_from_path(&path) {
+			if SUPPORTED_AUDIO_MIME_TYPES.contains(&mime.mime_type()) {
+				return Some((path, mime.mime_type(), mime.extension()));
+			}
 		}
 
 		trace!("CCD - Skipping non-audio PATH: {}", path.display());
 		None
-	}
-
-	#[inline(always)]
-	pub(crate) fn path_infer_audio(path: &Path) -> bool {
-		if let Ok(Some(mime)) = infer::get_from_path(path) {
-			SUPPORTED_AUDIO_MIME_TYPES.contains(&mime.mime_type())
-		} else if let Some(mime) = mime_guess::MimeGuess::from_path(path).first_raw() {
-			SUPPORTED_AUDIO_MIME_TYPES.contains(&mime)
-		} else {
-			false
-		}
 	}
 }
 

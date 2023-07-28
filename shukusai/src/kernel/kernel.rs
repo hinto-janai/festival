@@ -654,7 +654,7 @@ impl Kernel {
 				}
 
 				trace!("CachePath - {path:?}");
-				Ccd::path_infer_audio(&path);
+				infer::get_from_path(&path);
 			}
 
 			debug!("CachePath - took {} seconds, bye!", secs_f32!(now));

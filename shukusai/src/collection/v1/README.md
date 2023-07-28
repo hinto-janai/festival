@@ -8,6 +8,8 @@ Things added in `v2` that need conversion from `v1`:
 	- `key: AlbumKey` in `Album`
 	- `key: SongKey` in `Song`
 	- `genre: Option<Arc<str>>` in `Album`
+	- `mime: Arc<str>` in `Song`
+	- `extension: Arc<str>` in `Song`
 
 `festivald` & `festival-cli` & `rpc/` all also started on `Collection2`.
 

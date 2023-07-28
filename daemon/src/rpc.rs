@@ -199,7 +199,7 @@ pub async fn handle(
 	}
 }
 
-//---------------------------------------------------------------------------------------------------- No-Param methods.
+//---------------------------------------------------------------------------------------------------- State retrieval.
 async fn state_daemon<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
 	let resp = rpc::resp::StateDaemon {
 		uptime:          shukusai::logger::uptime(),
@@ -286,6 +286,7 @@ async fn state_collection_full<'a>(id: Option<Id<'a>>, collection: Arc<Collectio
 	Ok(resp::result(collection, id))
 }
 
+//---------------------------------------------------------------------------------------------------- Playback control, no params.
 // Implement the function <-> `FrontendToKernel` signal mappings with no params.
 macro_rules! impl_signal {
 	($($func:ident, $signal:expr),*) => {
@@ -313,13 +314,30 @@ impl_signal! {
 	repeat_queue, FrontendToKernel::Repeat(shukusai::audio::Repeat::Queue)
 }
 
-//---------------------------------------------------------------------------------------------------- Param methods.
-async fn previous<'a>(params: rpc::param::Previous, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("previous"))) }
-async fn volume<'a>(params: rpc::param::Volume, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("volume"))) }
-async fn clear<'a>(params: rpc::param::Clear, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("clear"))) }
-async fn seek<'a>(params: rpc::param::Seek, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("seek"))) }
-async fn skip<'a>(params: rpc::param::Skip, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("skip"))) }
-async fn back<'a>(params: rpc::param::Back, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("back"))) }
+//---------------------------------------------------------------------------------------------------- Playback control with params.
+async fn previous<'a>(params: rpc::param::Previous, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	todo!()
+}
+
+async fn volume<'a>(params: rpc::param::Volume, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	todo!()
+}
+
+async fn clear<'a>(params: rpc::param::Clear, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	todo!()
+}
+
+async fn seek<'a>(params: rpc::param::Seek, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	todo!()
+}
+
+async fn skip<'a>(params: rpc::param::Skip, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	todo!()
+}
+
+async fn back<'a>(params: rpc::param::Back, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	todo!()
+}
 
 async fn add_queue_key_artist<'a>(
 	params:     rpc::param::AddQueueKeyArtist,
@@ -405,9 +423,15 @@ async fn add_queue_map_song<'a>(
 	}
 }
 
-async fn set_queue_index<'a>(params: rpc::param::SetQueueIndex, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("set_queue_index"))) }
-async fn remove_queue_range<'a>(params: rpc::param::RemoveQueueRange, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("remove_queue_range"))) }
+async fn set_queue_index<'a>(params: rpc::param::SetQueueIndex, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	todo!()
+}
 
+async fn remove_queue_range<'a>(params: rpc::param::RemoveQueueRange, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	todo!()
+}
+
+//---------------------------------------------------------------------------------------------------- Key (exact key)
 async fn key_artist<'a>(
 	params:     rpc::param::KeyArtist,
 	id:         Option<Id<'a>>,
@@ -444,10 +468,20 @@ async fn key_song<'a>(
 	}
 }
 
-async fn map_artist<'a>(params: rpc::param::MapArtist<'a>, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("map_artist"))) }
-async fn map_album<'a>(params: rpc::param::MapAlbum<'a>, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("map_album"))) }
-async fn map_song<'a>(params: rpc::param::MapSong<'a>, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from("map_song"))) }
+//---------------------------------------------------------------------------------------------------- Map (exact hashmap)
+async fn map_artist<'a>(params: rpc::param::MapArtist<'a>, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	todo!()
+}
 
+async fn map_album<'a>(params: rpc::param::MapAlbum<'a>, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	todo!()
+}
+
+async fn map_song<'a>(params: rpc::param::MapSong<'a>, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	todo!()
+}
+
+//---------------------------------------------------------------------------------------------------- Search (fuzzy string)
 // Implement the generic part of `search`.
 // Acquires and holds onto a `kernel_lock` for the entire time,
 // returns the search `Keychain`.
@@ -555,6 +589,7 @@ async fn search_song<'a>(
 	Ok(resp::result(resp, id))
 }
 
+//---------------------------------------------------------------------------------------------------- Collection
 async fn new_collection<'a>(
 	params:       rpc::param::NewCollection,
 	id:           Option<Id<'a>>,

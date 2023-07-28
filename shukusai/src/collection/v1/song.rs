@@ -53,6 +53,11 @@ impl Into<crate::collection::Song> for Song {
 			// INVARIANT: must be set correctly in the broader `Collection::into()`
 			key: SongKey::zero(),
 
+			// Could chase PATHs and recover this
+			// but that's slow and this info isn't crucial.
+			mime: "".into(),
+			extension: "".into(),
+
 			title,
 			title_lowercase,
 			album,

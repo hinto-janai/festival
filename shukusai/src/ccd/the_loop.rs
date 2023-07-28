@@ -74,7 +74,7 @@ impl crate::ccd::Ccd {
 	// only `25%~` of the user's available threads are used.
 	pub(super) fn the_loop(
 		to_kernel: &Sender<CcdToKernel>,
-		vec_paths: Vec<PathBuf>
+		vec_paths: Vec<(PathBuf, &'static str, &'static str)>
 	) -> (Vec<Artist>, Vec<Album>, Vec<Song>, usize) {
 		// ResetUpdate.
 		//
@@ -144,7 +144,7 @@ impl crate::ccd::Ccd {
 		std::thread::scope(|scope| {             // Enter thread scope.
 		for paths in vec_paths.chunks(chunks) {  // Chunk the total paths for each thread.
 		scope.spawn(|| {                         // Spawn a thread.
-		for path in paths.iter() {               // Make thread work over the chunked paths.
+		for (path, mime, extension) in paths.iter() {  // Make thread work over the chunked paths.
 
 		// FIXME:
 		// Figure out how to take ownership of this instead of cloning.
@@ -189,11 +189,13 @@ impl crate::ccd::Ccd {
 
 		// Convert `String`'s to `Arc<str>`.
 		let artist_lowercase: Arc<str> = artist.to_lowercase().into();
-		let album_lowercase: Arc<str>  = album.to_lowercase().into();
-		let title_lowercase: Arc<str>  = title.to_lowercase().into();
-		let artist: Arc<str> = artist.into();
-		let album: Arc<str>  = album.into();
-		let title: Arc<str>  = title.into();
+		let album_lowercase:  Arc<str> = album.to_lowercase().into();
+		let title_lowercase:  Arc<str> = title.to_lowercase().into();
+		let artist:           Arc<str> = artist.into();
+		let album:            Arc<str> = album.into();
+		let title:            Arc<str> = title.into();
+		let mime:             Arc<str> = Arc::from(*mime);
+		let extension:        Arc<str> = Arc::from(*extension);
 
 		// Send update to `Kernel`.
 		send!(to_kernel, CcdToKernel::UpdateIncrement((increment, Arc::clone(&title))));
@@ -220,6 +222,8 @@ impl crate::ccd::Ccd {
 					sample_rate,
 					track,
 					disc,
+					mime,
+					extension,
 					path,
 				};
 
@@ -277,6 +281,8 @@ impl crate::ccd::Ccd {
 				sample_rate,
 				track,
 				disc,
+				mime,
+				extension,
 				path,
 				album: AlbumKey::from(vec_album.len()),
 			};
@@ -367,6 +373,8 @@ impl crate::ccd::Ccd {
 			sample_rate,
 			track,
 			disc,
+			mime,
+			extension,
 			path,
 			album: AlbumKey::from(vec_album.len()),
 		};

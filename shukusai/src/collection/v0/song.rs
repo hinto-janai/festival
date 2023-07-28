@@ -7,6 +7,7 @@ use crate::collection::{
 	AlbumKey,
 	SongKey,
 };
+use std::sync::Arc;
 
 //----------------------------------------------------------------------------------------------------
 #[derive(Clone,Debug,Default,Hash,PartialEq,PartialOrd,Encode,Decode)]
@@ -51,6 +52,11 @@ impl Into<crate::collection::Song> for Song {
 		crate::collection::Song {
 			// INVARIANT: must be set correctly in the broader `Collection::into()`
 			key: SongKey::zero(),
+
+			// Could chase PATHs and recover this
+			// but that's slow and this info isn't crucial.
+			mime: "".into(),
+			extension: "".into(),
 
 			title,
 			title_lowercase,

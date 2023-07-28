@@ -142,9 +142,15 @@ pub async fn handle(
 	}
 }
 
-//---------------------------------------------------------------------------------------------------- Artist
-pub async fn key_artist(key: usize) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from(format!("key_artist: {key}")))) }
-pub async fn key_album(key: usize) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from(format!("key_album: {key}")))) }
+//---------------------------------------------------------------------------------------------------- `/key`
+pub async fn key_artist(key: usize) -> Result<Response<Body>, anyhow::Error> {
+	todo!()
+}
+
+pub async fn key_album(key: usize) -> Result<Response<Body>, anyhow::Error> {
+	todo!()
+}
+
 pub async fn key_song(key: usize, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
 	let key = SongKey::from(key);
 
@@ -169,29 +175,42 @@ pub async fn key_song(key: usize, collection: Arc<Collection>) -> Result<Respons
 		// Format the file name.
 		let (artist, album, _) = collection.walk(key);
 		let name = format!(
-			"{}{}{}{}{}",
+			"{}{}{}{}{}.{}",
 			artist.name,
 			config().filename_separator,
 			album.title,
 			config().filename_separator,
 			song.title,
+			song.extension,
 		);
 
-		Ok(resp::rest_ok(dst, &name, mime::AUDIO.as_str()))
+		Ok(resp::rest_ok(dst, &name, &song.mime))
 	} else {
 		Ok(resp::not_found("Song key is invalid"))
 	}
 }
-pub async fn key_art(key: usize) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from(format!("key_art: {key}")))) }
 
-pub async fn map_artist(artist: &str) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from(format!("string_artist: {artist}")))) }
-pub async fn map_album(artist: &str, album: &str) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from(format!("string_album: {artist}, {album}")))) }
-pub async fn map_song(artist: &str, album: &str, song: &str) -> Result<Response<Body>, anyhow::Error> {
-//	println!("{artist}, {album}, {song}");
-	Ok(Response::new(Body::from(format!("string_song: {artist}, {album}, {song}"))))
+pub async fn key_art(key: usize) -> Result<Response<Body>, anyhow::Error> {
+	todo!()
 }
 
-pub async fn art(artist: &str, album: &str) -> Result<Response<Body>, anyhow::Error> { Ok(Response::new(Body::from(format!("art: {artist}, {album}")))) }
+//---------------------------------------------------------------------------------------------------- `/map`
+pub async fn map_artist(artist: &str) -> Result<Response<Body>, anyhow::Error> {
+	todo!()
+}
+
+pub async fn map_album(artist: &str, album: &str) -> Result<Response<Body>, anyhow::Error> {
+	todo!()
+}
+
+pub async fn map_song(artist: &str, album: &str, song: &str) -> Result<Response<Body>, anyhow::Error> {
+	todo!()
+}
+
+//---------------------------------------------------------------------------------------------------- `/art`
+pub async fn art(artist: &str, album: &str) -> Result<Response<Body>, anyhow::Error> {
+	todo!()
+}
 
 //---------------------------------------------------------------------------------------------------- TESTS
 //#[cfg(test)]

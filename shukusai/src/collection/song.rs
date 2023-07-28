@@ -38,6 +38,12 @@ pub struct Song {
 	pub track: Option<u32>,
 	/// The disc number of this [`Song`].
 	pub disc: Option<u32>,
+
+	/// The `MIME` type of this [`Song`].
+	pub mime: Arc<str>,
+	/// The file extention of this [`Song`].
+	pub extension: Arc<str>,
+
 	#[serde(skip)]
 	/// The [`PathBuf`] this [`Song`] is located at.
 	pub path: PathBuf,
@@ -54,6 +60,8 @@ impl Default for Song {
 			sample_rate: Default::default(),
 			track: Default::default(),
 			disc: Default::default(),
+			mime: "".into(),
+			extension: "".into(),
 			path: Default::default(),
 		}
 	}

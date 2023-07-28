@@ -1060,7 +1060,7 @@ mod tests {
 
 		// Song
 		let k = SongKey::from(1_u8);
-		assert_eq!(C2.song("artist_1", "album_1", "mp3"), Some((&C2.songs[k], Key::from_raw(0, 0, 1))));
+		assert_eq!(C2.song("artist_1", "album_1", "mp3"), Some((&C2.songs[k], k)));
 	}
 
 	#[test]
