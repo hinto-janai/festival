@@ -113,6 +113,14 @@ pub enum Method {
 	/// [`crate::resp::MapSong`] & [`crate::param::MapSong`]
 	MapSong,
 
+	// Current (audio state)
+	/// [`crate::resp::CurrentArtist`]
+	CurrentArtist,
+	/// [`crate::resp::CurrentAlbum`]
+	CurrentAlbum,
+	/// [`crate::resp::CurrentSong`]
+	CurrentSong,
+
 	// Search (fuzzy keys)
 	/// [`crate::resp::Search`] & [`crate::param::Search`]
 	Search,

@@ -190,6 +190,11 @@ pub async fn handle(
 		MapAlbum  => ppacor!(request, map_album, rpc::param::MapAlbum, collection.arc()).await,
 		MapSong   => ppacor!(request, map_song, rpc::param::MapSong, collection.arc()).await,
 
+		// Current (audio state)
+		CurrentArtist => current_artist(request.id, collection.arc()).await,
+		CurrentAlbum  => current_album(request.id, collection.arc()).await,
+		CurrentSong   => current_song(request.id, collection.arc()).await,
+
 		// Search (fuzzy string)
 		Search       => ppacor!(request, search, rpc::param::Search, collection.arc(), TO_KERNEL, FROM_KERNEL).await,
 		SearchArtist => ppacor!(request, search_artist, rpc::param::SearchArtist, collection.arc(), TO_KERNEL, FROM_KERNEL).await,
@@ -552,6 +557,49 @@ async fn map_song<'a>(
 		Ok(resp::result(r, id))
 	} else {
 		return Ok(resp::error(ERR_MAP_SONG.0, ERR_MAP_SONG.1, id))
+	}
+}
+
+//---------------------------------------------------------------------------------------------------- Current (audio state)
+async fn current_artist<'a>(
+	id:         Option<Id<'a>>,
+	collection: Arc<Collection>,
+) -> Result<Response<Body>, anyhow::Error> {
+	let song = shukusai::state::AUDIO_STATE.read().song.clone();
+
+	if let Some(key) = song {
+		let (r, _) = collection.artist_from_song(key);
+		Ok(resp::result(r, id))
+	} else {
+		Ok(resp::result(rpc::resp::CurrentArtist { artist: None }, id))
+	}
+}
+
+async fn current_album<'a>(
+	id:         Option<Id<'a>>,
+	collection: Arc<Collection>,
+) -> Result<Response<Body>, anyhow::Error> {
+	let song = shukusai::state::AUDIO_STATE.read().song.clone();
+
+	if let Some(key) = song {
+		let (r, _) = collection.album_from_song(key);
+		Ok(resp::result(r, id))
+	} else {
+		Ok(resp::result(rpc::resp::CurrentAlbum { album: None }, id))
+	}
+}
+
+async fn current_song<'a>(
+	id:         Option<Id<'a>>,
+	collection: Arc<Collection>,
+) -> Result<Response<Body>, anyhow::Error> {
+	let song = shukusai::state::AUDIO_STATE.read().song.clone();
+
+	if let Some(key) = song {
+		let r = &collection.songs[key];
+		Ok(resp::result(r, id))
+	} else {
+		Ok(resp::result(rpc::resp::CurrentSong { song: None }, id))
 	}
 }
 

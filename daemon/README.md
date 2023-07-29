@@ -72,6 +72,10 @@ http://localhost:18425/map/Artist Name/Artist Title/Song Title
 		- [map_artist](#map_artist)
 		- [map_album](#map_album)
 		- [map_song](#map_song)
+	- [Current](#Current)
+		- [current_artist](#current_artist)
+		- [current_album](#current_album)
+		- [current_song](#current_song)
 	- [Search](#Search)
 		- [search](#search)
 		- [search_artist](#search_artist)
@@ -1047,6 +1051,11 @@ Example Response:
 ## map_artist
 ## map_album
 ## map_song
+
+# Current
+## current_artist
+## current_album
+## current_song
 
 # Search
 Fuzzy similarity searches on the `Collection`.

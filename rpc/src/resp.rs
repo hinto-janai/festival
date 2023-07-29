@@ -116,6 +116,23 @@ impl_struct_lt! {
 	song: SongJson<'a>
 }
 
+// Current (audio state)
+impl_struct_lt! {
+	CurrentArtist,
+	#[serde(borrow)]
+	artist: Option<ArtistJson<'a>>
+}
+impl_struct_lt! {
+	CurrentAlbum,
+	#[serde(borrow)]
+	album: Option<AlbumJson<'a>>
+}
+impl_struct_lt! {
+	CurrentSong,
+	#[serde(borrow)]
+	song: Option<SongJson<'a>>
+}
+
 // Search (fuzzy keys)
 impl_struct_lt! {
 	Search,
