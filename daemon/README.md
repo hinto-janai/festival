@@ -89,6 +89,11 @@ http://localhost:18425/map/Artist Name/Artist Title/Song Title
 		- [/${artist_name}](#artist_name)
 		- [/${artist_name}/${album_title}](#artist_namealbum_title)
 		- [/${artist_name}/${album_title}/${song_title}](#artist_namealbum_titlesong_title)
+	- [current](#current)
+		- [/artist](#artist)
+		- [/album](#album)
+		- [/song](#song)
+		- [/art](#art)
 	- [/art/${artist_name}/${album_title}](#artartist_namealbum_title)
 
 # Quick Start
@@ -1450,7 +1455,56 @@ Download this `Song` in the original format.
 |-------------------------|------------|---------|
 | Song in original format | audio file | `Artist Name - Album Title - Song Title.flac`
 
-## /art/${artist_name}/${album_title}
+# /current
+Direct link to the currently set `Song`, and it's related `Art`, `Album`, and `Artist`.
+
+## /artist
+Download all the `Album`'s owned by the `Artist` of the currently set `Song`, 1 directory per album (including art if found), wrapped in an archive format.
+
+| Input | Example |
+|-------|---------|
+| None  | `http://localhost:18425/current/artist`
+
+| Output                                                  | Type   | Example |
+|---------------------------------------------------------|--------|---------|
+| Archive of all artist's albums (including art if found) | `.zip` | `Artist Name.zip`
+
+## /album
+Download the `Album` of the currently set `Song` (including art if found), wrapped in an archive format.
+
+| Input | Example |
+|-------|---------|
+| None  | `http://localhost:18425/current/album`
+
+| Output                                    | Type   | Example |
+|-------------------------------------------|--------|---------|
+| Album in archive (including art if found) | `.zip` | `Artist Name - Album Title.zip`
+
+## /song
+Download the currently set `Song` in the original format.
+
+| Input | Example |
+|-------|---------|
+| None  | `http://localhost:18425/current/song`
+
+| Output                  | Type       | Example |
+|-------------------------|------------|---------|
+| Song in original format | audio file | `Artist Name - Album Title - Song Title.flac`
+
+## /art
+Download the `Album` art of the currently set `Song`, in the original format.
+
+If no art was found, the response will be a 404 error.
+
+| Input | Example |
+|-------|---------|
+| None  | `http://localhost:18425/current/art`
+
+| Output                 | Type       | Example |
+|------------------------|------------|---------|
+| Art in original format | image file | `Artist Name - Album Title.jpg`
+
+# /art/${artist_name}/${album_title}
 This single `/art` endpoint exists to allow downloading an `Album`'s art individually via a `string` key.
 
 Download this `Album`'s art in the original format.

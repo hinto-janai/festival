@@ -69,7 +69,7 @@ pub async fn handle(
 	//-------------------------------------------------- `/key` endpoint.
 	if ep1 == "key" {
 		let Some(ep2) = split.next() else {
-			return Ok(resp::not_found("Missing endpoint: [artist/album/song]"));
+			return Ok(resp::not_found("Missing endpoint: [artist/album/song/art]"));
 		};
 
 		let Some(ep3) = split.next() else {
@@ -128,6 +128,24 @@ pub async fn handle(
 		}
 
 		art(artist.as_ref(), album.as_ref(), collection.arc()).await
+	//-------------------------------------------------- `/current` endpoint.
+	} else if ep1 == "current" {
+		let Some(ep2) = split.next() else {
+			return Ok(resp::not_found("Missing endpoint: [artist/album/song/art]"));
+		};
+
+		// Return error if more than 2 endpoints.
+		if split.next().is_some() {
+			return Ok(resp::not_found(ERR_END));
+		}
+
+		match ep2 {
+			"artist" => current_artist(collection.arc()).await,
+			"album"  => current_album(collection.arc()).await,
+			"song"   => current_song(collection.arc()).await,
+			"art"    => current_art(collection.arc()).await,
+			_        => Ok(resp::not_found(ERR_END)),
+		}
 	//-------------------------------------------------- unknown endpoint.
 	} else {
 		Ok(resp::not_found(ERR_END))
@@ -158,7 +176,7 @@ async fn read_file(path: &Path) -> Result<Vec<u8>, Response<Body>> {
 	Ok(dst)
 }
 
-//---------------------------------------------------------------------------------------------------- The inner "impl", re-used in `/key`, `/map`, `/art`.
+//---------------------------------------------------------------------------------------------------- The inner "impl", re-used in all other endpoints.
 const MIME_ZIP: &str = "application/zip";
 const ERR_ZIP:  &str = "Failed to create zip file";
 const ERR_SONG: &str = "Song file not found";
@@ -408,6 +426,51 @@ pub async fn map_song(artist: &str, album: &str, song: &str, collection: Arc<Col
 		impl_song(key, song, &collection).await
 	} else {
 		Ok(resp::not_found("Artist/Album/Song not found"))
+	}
+}
+
+//---------------------------------------------------------------------------------------------------- `/current`
+pub async fn current_artist(collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+	let song = shukusai::state::AUDIO_STATE.read().song.clone();
+
+	if let Some(key) = song {
+		let (artist, key) = collection.artist_from_song(key);
+		impl_artist(key, artist, &collection).await
+	} else {
+		Ok(resp::not_found("No current song"))
+	}
+}
+
+pub async fn current_album(collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+	let song = shukusai::state::AUDIO_STATE.read().song.clone();
+
+	if let Some(key) = song {
+		let (album, key) = collection.album_from_song(key);
+		impl_album(key, album, &collection).await
+	} else {
+		Ok(resp::not_found("No current song"))
+	}
+}
+
+pub async fn current_song(collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+	let song = shukusai::state::AUDIO_STATE.read().song.clone();
+
+	if let Some(key) = song {
+		let song = &collection.songs[key];
+		impl_song(key, song, &collection).await
+	} else {
+		Ok(resp::not_found("No current song"))
+	}
+}
+
+pub async fn current_art(collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+	let song = shukusai::state::AUDIO_STATE.read().song.clone();
+
+	if let Some(key) = song {
+		let (album, key) = collection.album_from_song(key);
+		impl_art(key, album, &collection).await
+	} else {
+		Ok(resp::not_found("No current song"))
 	}
 }
 
