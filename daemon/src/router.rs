@@ -198,6 +198,8 @@ pub async fn init(
 				}
 			}
 
+			let connection_token = ConnectionToken::new();
+
 			// If we are past the connection limit, wait until some
 			// tasks are done before serving new connections.
 			if let Some(max) = CONFIG.max_connections {
@@ -211,7 +213,7 @@ pub async fn init(
 				}
 			}
 
-			(stream, addr)
+			(stream, addr, connection_token)
 		}}
 	}
 
@@ -251,11 +253,11 @@ pub async fn init(
 		listening!();
 
 		loop {
-			let (stream, addr) = impl_loop!();
+			let (stream, addr, connection_token) = impl_loop!();
 
 			tokio::task::spawn(async move {
 				https(
-					ConnectionToken::new(),
+					connection_token,
 					stream,
 					addr,
 					ACCEPTOR,
@@ -271,11 +273,11 @@ pub async fn init(
 		listening!();
 
 		loop {
-			let (stream, addr) = impl_loop!();
+			let (stream, addr, connection_token) = impl_loop!();
 
 			tokio::task::spawn(async move {
 				http(
-					ConnectionToken::new(),
+					connection_token,
 					stream,
 					addr,
 					COLLECTION_PTR,
