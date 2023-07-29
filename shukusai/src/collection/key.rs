@@ -1,6 +1,11 @@
 //---------------------------------------------------------------------------------------------------- Use
 use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
+use std::sync::atomic::{
+	AtomicUsize,
+	Ordering,
+};
+use benri::atomic_load;
 
 //---------------------------------------------------------------------------------------------------- Macros to implement common traits.
 macro_rules! impl_common {
@@ -322,6 +327,135 @@ impl Keychain {
 		self.artists.is_empty() && self.albums.is_empty() && self.songs.is_empty()
 	}
 }
+
+//---------------------------------------------------------------------------------------------------- Atomic Keys.
+// TODO: use these SOMEDAY.
+macro_rules! impl_atomic {
+	($type:ident, $key:ty) => {
+		#[derive(Debug,Serialize,Deserialize,Encode,Decode)]
+		#[repr(transparent)]
+		#[serde(transparent)]
+		/// Atomic versions of keys.
+		pub struct $type(AtomicUsize);
+
+		impl Clone for $type {
+			fn clone(&self) -> Self {
+				Self(self.inner())
+			}
+		}
+
+		impl $type {
+			#[inline(always)]
+			/// Returns `Self(0)`.
+			pub const fn new() -> Self {
+				Self::zero()
+			}
+			#[inline(always)]
+			/// Returns `Self(0)`.
+			pub const fn zero() -> Self {
+				Self(AtomicUsize::new(0))
+			}
+			#[inline(always)]
+			/// Returns the inner atomic by consuming `self`.
+			pub const fn into_inner(self) -> AtomicUsize {
+				self.0
+			}
+			#[inline(always)]
+			/// Returns the inner atomic by cloning.
+			pub fn inner(&self) -> AtomicUsize {
+				AtomicUsize::new(self.usize())
+			}
+			#[inline(always)]
+			/// Returns as a key.
+			pub fn key(&self) -> $type {
+				$type::from(self.0.load(Ordering::Relaxed))
+			}
+			#[inline(always)]
+			/// Returns the inner `usize`.
+			pub fn usize(&self) -> usize {
+				self.0.load(Ordering::Relaxed)
+			}
+		}
+		impl From<u8> for $type {
+			#[inline(always)]
+			fn from(index: u8) -> Self {
+				Self(AtomicUsize::new(index as usize))
+			}
+		}
+		impl From<u16> for $type {
+			#[inline(always)]
+			fn from(index: u16) -> Self {
+				Self(AtomicUsize::new(index as usize))
+			}
+		}
+		impl From<u32> for $type {
+			#[inline(always)]
+			fn from(index: u32) -> Self {
+				Self(AtomicUsize::new(index as usize))
+			}
+		}
+		#[cfg(target_pointer_width = "64")]
+		impl From<u64> for $type {
+			#[inline(always)]
+			fn from(index: u64) -> Self {
+				Self(AtomicUsize::new(index as usize))
+			}
+		}
+		impl From<usize> for $type {
+			#[inline(always)]
+			fn from(index: usize) -> Self {
+				Self(AtomicUsize::new(index))
+			}
+		}
+		impl From<&$type> for $type {
+			#[inline(always)]
+			fn from(key: &$type) -> Self {
+				key.clone()
+			}
+		}
+		impl std::default::Default for $type {
+			#[inline(always)]
+			fn default() -> Self {
+				Self::new()
+			}
+		}
+		impl std::fmt::Display for $type {
+			#[inline(always)]
+			fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+				write!(f, "{}", self.usize())
+			}
+		}
+		impl PartialEq<$type> for usize {
+			fn eq(&self, other: &$type) -> bool {
+				*self == other.usize()
+			}
+		}
+		impl PartialEq<usize> for $type {
+			fn eq(&self, other: &usize) -> bool {
+				self.usize() == *other
+			}
+		}
+		impl PartialEq<$type> for $type {
+			fn eq(&self, other: &$type) -> bool {
+				self.usize() == other.usize()
+			}
+		}
+		impl PartialEq<$type> for &$type {
+			fn eq(&self, other: &$type) -> bool {
+				self.usize() == other.usize()
+			}
+		}
+		impl PartialEq<&$type> for $type {
+			fn eq(&self, other: &&$type) -> bool {
+				self.usize() == other.usize()
+			}
+		}
+	}
+}
+
+impl_atomic!(AtomicArtistKey, ArtistKey);
+impl_atomic!(AtomicAlbumKey, AlbumKey);
+impl_atomic!(AtomicSongKey, SongKey);
 
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]

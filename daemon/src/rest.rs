@@ -430,8 +430,21 @@ pub async fn map_song(artist: &str, album: &str, song: &str, collection: Arc<Col
 }
 
 //---------------------------------------------------------------------------------------------------- `/current`
+// These RPC calls aren't important enough
+// to block `Audio`, so just wait until
+// the lock is uncontended.
+async fn impl_current_song() -> Option<SongKey> {
+	loop {
+		if let Ok(a) = shukusai::state::AUDIO_STATE.try_read() {
+			return a.song.clone();
+		}
+
+		tokio::time::sleep(std::time::Duration::from_millis(5)).await;
+	}
+}
+
 pub async fn current_artist(collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
-	let song = shukusai::state::AUDIO_STATE.read().song.clone();
+	let song = impl_current_song().await;
 
 	if let Some(key) = song {
 		let (artist, key) = collection.artist_from_song(key);
@@ -442,7 +455,7 @@ pub async fn current_artist(collection: Arc<Collection>) -> Result<Response<Body
 }
 
 pub async fn current_album(collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
-	let song = shukusai::state::AUDIO_STATE.read().song.clone();
+	let song = impl_current_song().await;
 
 	if let Some(key) = song {
 		let (album, key) = collection.album_from_song(key);
@@ -453,7 +466,7 @@ pub async fn current_album(collection: Arc<Collection>) -> Result<Response<Body>
 }
 
 pub async fn current_song(collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
-	let song = shukusai::state::AUDIO_STATE.read().song.clone();
+	let song = impl_current_song().await;
 
 	if let Some(key) = song {
 		let song = &collection.songs[key];
@@ -464,7 +477,7 @@ pub async fn current_song(collection: Arc<Collection>) -> Result<Response<Body>,
 }
 
 pub async fn current_art(collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
-	let song = shukusai::state::AUDIO_STATE.read().song.clone();
+	let song = impl_current_song().await;
 
 	if let Some(key) = song {
 		let (album, key) = collection.album_from_song(key);

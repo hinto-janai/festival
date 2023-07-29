@@ -5,6 +5,7 @@ use std::sync::atomic::{
 };
 use crate::audio::Volume;
 use benri::atomic_load;
+use crate::collection::AtomicSongKey;
 
 //---------------------------------------------------------------------------------------------------- Saving.
 pub(crate) static SAVING: AtomicBool = AtomicBool::new(false);
