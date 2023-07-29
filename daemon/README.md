@@ -1513,6 +1513,59 @@ If no art was found, the response will be a 404 error.
 |------------------------|------------|---------|
 | Art in original format | image file | `Artist Name - Album Title.jpg`
 
+# /rand
+Direct link to a random `Artist`, `Album`, `Song` or `Art`.
+
+This will return a 404 error if none were found.
+
+Repeating is allowed, so you may encounter the same object multiple times in a row.
+
+## /artist
+Download all the `Album`'s by a random `Artist`, 1 directory per album (including art if found), wrapped in an archive format.
+
+| Input | Example |
+|-------|---------|
+| None  | `http://localhost:18425/rand/artist`
+
+| Output                                                  | Type   | Example |
+|---------------------------------------------------------|--------|---------|
+| Archive of all artist's albums (including art if found) | `.zip` | `Artist Name.zip`
+
+## /album
+Download a random `Album` (including art if found), wrapped in an archive format.
+
+| Input | Example |
+|-------|---------|
+| None  | `http://localhost:18425/rand/album`
+
+| Output                                    | Type   | Example |
+|-------------------------------------------|--------|---------|
+| Album in archive (including art if found) | `.zip` | `Artist Name - Album Title.zip`
+
+## /song
+Download a random `Song` in the original format.
+
+| Input | Example |
+|-------|---------|
+| None  | `http://localhost:18425/rand/song`
+
+| Output                  | Type       | Example |
+|-------------------------|------------|---------|
+| Song in original format | audio file | `Artist Name - Album Title - Song Title.flac`
+
+## /art
+Download a random `Album` art, in the original format.
+
+If no art was found, the response will be a 404 error.
+
+| Input | Example |
+|-------|---------|
+| None  | `http://localhost:18425/rand/art`
+
+| Output                 | Type       | Example |
+|------------------------|------------|---------|
+| Art in original format | image file | `Artist Name - Album Title.jpg`
+
 # /art/${artist_name}/${album_title}
 This single `/art` endpoint exists to allow downloading an `Album`'s art individually via a `string` key.
 

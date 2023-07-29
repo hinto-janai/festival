@@ -146,6 +146,24 @@ pub async fn handle(
 			"art"    => current_art(collection.arc()).await,
 			_        => Ok(resp::not_found(ERR_END)),
 		}
+	//-------------------------------------------------- `/rand` endpoint.
+	} else if ep1 == "rand" {
+		let Some(ep2) = split.next() else {
+			return Ok(resp::not_found("Missing endpoint: [artist/album/song/art]"));
+		};
+
+		// Return error if more than 2 endpoints.
+		if split.next().is_some() {
+			return Ok(resp::not_found(ERR_END));
+		}
+
+		match ep2 {
+			"artist" => rand_artist(collection.arc()).await,
+			"album"  => rand_album(collection.arc()).await,
+			"song"   => rand_song(collection.arc()).await,
+			"art"    => rand_art(collection.arc()).await,
+			_        => Ok(resp::not_found(ERR_END)),
+		}
 	//-------------------------------------------------- unknown endpoint.
 	} else {
 		Ok(resp::not_found(ERR_END))
@@ -485,6 +503,39 @@ pub async fn current_art(collection: Arc<Collection>) -> Result<Response<Body>, 
 	} else {
 		Ok(resp::not_found("No current song"))
 	}
+}
+
+//---------------------------------------------------------------------------------------------------- `/rand`
+pub async fn rand_artist(collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+	let Some(key) = collection.rand_artist(None) else {
+		return Ok(resp::not_found("No artists"));
+	};
+
+	impl_artist(key, &collection.artists[key], &collection).await
+}
+
+pub async fn rand_album(collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+	let Some(key) = collection.rand_album(None) else {
+		return Ok(resp::not_found("No albums"));
+	};
+
+	impl_album(key, &collection.albums[key], &collection).await
+}
+
+pub async fn rand_song(collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+	let Some(key) = collection.rand_song(None) else {
+		return Ok(resp::not_found("No songs"));
+	};
+
+	impl_song(key, &collection.songs[key], &collection).await
+}
+
+pub async fn rand_art(collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+	let Some(key) = collection.rand_album(None) else {
+		return Ok(resp::not_found("No art"));
+	};
+
+	impl_art(key, &collection.albums[key], &collection).await
 }
 
 //---------------------------------------------------------------------------------------------------- `/art`
