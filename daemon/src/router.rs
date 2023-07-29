@@ -297,7 +297,7 @@ async fn http(
 	// For why this is `CollectionPtr` instead
 	// of `Arc<Collection>`, see `ptr.rs`.
 	if let Err(e) = Http::new()
-		.serve_connection(stream, service_fn(|r| route(r, addr, COLLECTION_PTR.arc(), TO_KERNEL, FROM_KERNEL, TO_ROUTER)))
+		.serve_connection(stream, service_fn(|r| route(r, addr, COLLECTION_PTR, TO_KERNEL, FROM_KERNEL, TO_ROUTER)))
 		.await
 	{
 		error!("Task - HTTP error for [{}]: {e}", addr.ip());
@@ -324,7 +324,7 @@ async fn https(
 	// For why this is `CollectionPtr` instead
 	// of `Arc<Collection>`, see `ptr.rs`.
 	if let Err(e) = Http::new()
-		.serve_connection(stream, service_fn(|r| route(r, addr, COLLECTION_PTR.arc(), TO_KERNEL, FROM_KERNEL, TO_ROUTER)))
+		.serve_connection(stream, service_fn(|r| route(r, addr, COLLECTION_PTR, TO_KERNEL, FROM_KERNEL, TO_ROUTER)))
 		.await
 	{
 		error!("Task - HTTPS error for [{}]: {e}", addr.ip());
@@ -334,12 +334,12 @@ async fn https(
 //---------------------------------------------------------------------------------------------------- Handle Routes
 // Route requests to other functions.
 async fn route(
-	req:         Request<Body>,
-	addr:        SocketAddrV4,
-	collection:  Arc<Collection>,
-	TO_KERNEL:   &'static Sender<FrontendToKernel>,
-	FROM_KERNEL: &'static Receiver<KernelToFrontend>,
-	TO_ROUTER:   &'static tokio::sync::mpsc::Sender::<Arc<Collection>>,
+	req:            Request<Body>,
+	addr:           SocketAddrV4,
+	COLLECTION_PTR: &'static CollectionPtr,
+	TO_KERNEL:      &'static Sender<FrontendToKernel>,
+	FROM_KERNEL:    &'static Receiver<KernelToFrontend>,
+	TO_ROUTER:      &'static tokio::sync::mpsc::Sender::<Arc<Collection>>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	let (mut parts, body) = req.into_parts();
 
@@ -352,10 +352,10 @@ async fn route(
 	}
 
 	if parts.uri == "/" && parts.method == hyper::Method::POST {
-		crate::rpc::handle(parts, body, addr, collection, TO_KERNEL, FROM_KERNEL, TO_ROUTER).await
+		crate::rpc::handle(parts, body, addr, COLLECTION_PTR, TO_KERNEL, FROM_KERNEL, TO_ROUTER).await
 	} else if parts.method == hyper::Method::GET {
 		if config().rest {
-			crate::rest::handle(parts, collection).await
+			crate::rest::handle(parts, COLLECTION_PTR).await
 		} else {
 			Ok(resp::not_found("REST is disabled"))
 		}

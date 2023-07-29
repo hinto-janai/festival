@@ -1,10 +1,8 @@
 //---------------------------------------------------------------------------------------------------- Use
 use anyhow::anyhow;
 use log::{error,info,warn,debug,trace};
-use crate::hash::Hash;
 use std::sync::Arc;
 use std::net::SocketAddrV4;
-use crate::config::Config;
 use hyper::{
 	Request,
 	Response,
@@ -28,7 +26,11 @@ use shukusai::collection::{
 	Album,
 	Song,
 };
-use crate::config::config;
+use crate::{
+	hash::Hash,
+	config::{Config,config},
+	ptr::CollectionPtr,
+};
 use tokio::io::AsyncReadExt;
 use std::path::Path;
 use std::io::Write;
@@ -39,7 +41,7 @@ const ERR_END: &str =  "Unknown endpoint";
 //---------------------------------------------------------------------------------------------------- REST Handler
 pub async fn handle(
 	parts:      Parts,
-	collection: Arc<Collection>,
+	collection: &'static CollectionPtr,
 ) -> Result<Response<Body>, anyhow::Error> {
 	// If we're in the middle of a `Collection` reset, respond with "busy".
 	if crate::statics::resetting() {
@@ -85,10 +87,10 @@ pub async fn handle(
 		};
 
 		match ep2 {
-			"artist" => key_artist(key, collection).await,
-			"album"  => key_album(key, collection).await,
-			"song"   => key_song(key, collection).await,
-			"art"    => key_art(key, collection).await,
+			"artist" => key_artist(key, collection.arc()).await,
+			"album"  => key_album(key, collection.arc()).await,
+			"song"   => key_song(key, collection.arc()).await,
+			"art"    => key_art(key, collection.arc()).await,
 			_        => Ok(resp::not_found(ERR_END)),
 		}
 	//-------------------------------------------------- `/map` endpoint.
@@ -106,9 +108,9 @@ pub async fn handle(
 		}
 
 		match (album, song) {
-			(Some(a), None)    => map_album(artist.as_ref(), a.as_ref(), collection).await,
-			(Some(a), Some(s)) => map_song(artist.as_ref(), a.as_ref(), s.as_ref(), collection).await,
-			_                  => map_artist(artist.as_ref(), collection).await,
+			(Some(a), None)    => map_album(artist.as_ref(), a.as_ref(), collection.arc()).await,
+			(Some(a), Some(s)) => map_song(artist.as_ref(), a.as_ref(), s.as_ref(), collection.arc()).await,
+			_                  => map_artist(artist.as_ref(), collection.arc()).await,
 		}
 	//-------------------------------------------------- `/art` endpoint.
 	} else if ep1 == "art" {
@@ -125,7 +127,7 @@ pub async fn handle(
 			return Ok(resp::not_found(ERR_END));
 		}
 
-		art(artist.as_ref(), album.as_ref(), collection).await
+		art(artist.as_ref(), album.as_ref(), collection.arc()).await
 	//-------------------------------------------------- unknown endpoint.
 	} else {
 		Ok(resp::not_found(ERR_END))

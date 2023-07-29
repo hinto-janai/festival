@@ -1,10 +1,8 @@
 //---------------------------------------------------------------------------------------------------- Use
 use anyhow::anyhow;
 use log::{error,info,warn,debug,trace};
-use crate::hash::Hash;
 use std::sync::Arc;
 use std::net::SocketAddrV4;
-use crate::config::Config;
 use hyper::{
 	Request,
 	Response,
@@ -13,10 +11,6 @@ use hyper::{
 use http::request::Parts;
 use serde_json::value::{
 	RawValue,Value,
-};
-use crate::resp;
-use crate::constants::{
-	FESTIVALD_VERSION,
 };
 use shukusai::{
 	kernel::{
@@ -43,8 +37,12 @@ use shukusai::{
 	search::SearchKind,
 };
 use crate::{
-	config::{AUTH,config},
+	hash::Hash,
+	resp,
+	constants::FESTIVALD_VERSION,
+	config::{AUTH,Config,config},
 	statics::RESETTING,
+	ptr::CollectionPtr,
 };
 use std::borrow::Cow;
 use std::time::Duration;
@@ -86,7 +84,7 @@ const ERR_RESETTING:  (i32, &str) = (-32018, "Currently resetting the Collection
 //
 // This must be `.await`'ed.
 macro_rules! ppacor {
-	($request:expr, $call:expr, $param:ty, $($extra_arg:ident),*) => {{
+	($request:expr, $call:expr, $param:ty, $($extra_arg:expr),*) => {{
 		let Some(value) = $request.params else {
 			return Ok(crate::resp::invalid_params($request.id));
 		};
@@ -115,7 +113,7 @@ pub async fn handle(
 	parts:       Parts,
 	body:        Body,
 	addr:        SocketAddrV4,
-	collection:  Arc<Collection>,
+	collection:  &'static CollectionPtr,
 	TO_KERNEL:   &'static Sender<FrontendToKernel>,
 	FROM_KERNEL: &'static Receiver<KernelToFrontend>,
 	TO_ROUTER:   &'static tokio::sync::mpsc::Sender::<Arc<Collection>>,
@@ -147,10 +145,10 @@ pub async fn handle(
 	match method {
 		// State retrieval.
 		StateDaemon         => state_daemon(request.id).await,
-		StateAudio          => state_audio(request.id, collection).await,
+		StateAudio          => state_audio(request.id, collection.arc()).await,
 		StateReset          => state_reset(request.id).await,
-		StateCollection     => state_collection(request.id, collection).await,
-		StateCollectionFull => state_collection_full(request.id, collection).await,
+		StateCollection     => state_collection(request.id, collection.arc()).await,
+		StateCollectionFull => state_collection_full(request.id, collection.arc()).await,
 
 		// Playback control, no params.
 		Toggle      => toggle(request.id, TO_KERNEL).await,
@@ -169,19 +167,19 @@ pub async fn handle(
 		Seek              => ppacor!(request, seek, rpc::param::Seek).await,
 		Skip              => ppacor!(request, skip, rpc::param::Skip).await,
 		Back              => ppacor!(request, back, rpc::param::Back).await,
-		AddQueueKeyArtist => ppacor!(request, add_queue_key_artist, rpc::param::AddQueueKeyArtist, collection, TO_KERNEL).await,
-		AddQueueKeyAlbum  => ppacor!(request, add_queue_key_album, rpc::param::AddQueueKeyAlbum, collection, TO_KERNEL).await,
-		AddQueueKeySong   => ppacor!(request, add_queue_key_song, rpc::param::AddQueueKeySong, collection, TO_KERNEL).await,
-		AddQueueMapArtist => ppacor!(request, add_queue_map_artist, rpc::param::AddQueueMapArtist, collection, TO_KERNEL).await,
-		AddQueueMapAlbum  => ppacor!(request, add_queue_map_album, rpc::param::AddQueueMapAlbum, collection, TO_KERNEL).await,
-		AddQueueMapSong   => ppacor!(request, add_queue_map_song, rpc::param::AddQueueMapSong, collection, TO_KERNEL).await,
+		AddQueueKeyArtist => ppacor!(request, add_queue_key_artist, rpc::param::AddQueueKeyArtist, collection.arc(), TO_KERNEL).await,
+		AddQueueKeyAlbum  => ppacor!(request, add_queue_key_album, rpc::param::AddQueueKeyAlbum, collection.arc(), TO_KERNEL).await,
+		AddQueueKeySong   => ppacor!(request, add_queue_key_song, rpc::param::AddQueueKeySong, collection.arc(), TO_KERNEL).await,
+		AddQueueMapArtist => ppacor!(request, add_queue_map_artist, rpc::param::AddQueueMapArtist, collection.arc(), TO_KERNEL).await,
+		AddQueueMapAlbum  => ppacor!(request, add_queue_map_album, rpc::param::AddQueueMapAlbum, collection.arc(), TO_KERNEL).await,
+		AddQueueMapSong   => ppacor!(request, add_queue_map_song, rpc::param::AddQueueMapSong, collection.arc(), TO_KERNEL).await,
 		SetQueueIndex     => ppacor!(request, set_queue_index, rpc::param::SetQueueIndex).await,
 		RemoveQueueRange  => ppacor!(request, remove_queue_range, rpc::param::RemoveQueueRange).await,
 
 		// Key (exact key)
-		KeyArtist => ppacor!(request, key_artist, rpc::param::KeyArtist, collection).await,
-		KeyAlbum  => ppacor!(request, key_album, rpc::param::KeyAlbum, collection).await,
-		KeySong   => ppacor!(request, key_song, rpc::param::KeySong, collection).await,
+		KeyArtist => ppacor!(request, key_artist, rpc::param::KeyArtist, collection.arc()).await,
+		KeyAlbum  => ppacor!(request, key_album, rpc::param::KeyAlbum, collection.arc()).await,
+		KeySong   => ppacor!(request, key_song, rpc::param::KeySong, collection.arc()).await,
 
 		// Map (exact hashmap)
 		MapArtist => ppacor!(request, map_artist, rpc::param::MapArtist).await,
@@ -189,13 +187,13 @@ pub async fn handle(
 		MapSong   => ppacor!(request, map_song, rpc::param::MapSong).await,
 
 		// Search (fuzzy string)
-		Search       => ppacor!(request, search, rpc::param::Search, collection, TO_KERNEL, FROM_KERNEL).await,
-		SearchArtist => ppacor!(request, search_artist, rpc::param::SearchArtist, collection, TO_KERNEL, FROM_KERNEL).await,
-		SearchAlbum  => ppacor!(request, search_album, rpc::param::SearchAlbum, collection, TO_KERNEL, FROM_KERNEL).await,
-		SearchSong   => ppacor!(request, search_song, rpc::param::SearchSong, collection, TO_KERNEL, FROM_KERNEL).await,
+		Search       => ppacor!(request, search, rpc::param::Search, collection.arc(), TO_KERNEL, FROM_KERNEL).await,
+		SearchArtist => ppacor!(request, search_artist, rpc::param::SearchArtist, collection.arc(), TO_KERNEL, FROM_KERNEL).await,
+		SearchAlbum  => ppacor!(request, search_album, rpc::param::SearchAlbum, collection.arc(), TO_KERNEL, FROM_KERNEL).await,
+		SearchSong   => ppacor!(request, search_song, rpc::param::SearchSong, collection.arc(), TO_KERNEL, FROM_KERNEL).await,
 
 		// Collection
-		NewCollection => ppacor!(request, new_collection, rpc::param::NewCollection, collection, TO_KERNEL, FROM_KERNEL, TO_ROUTER).await,
+		NewCollection => ppacor!(request, new_collection, rpc::param::NewCollection, collection.arc(), TO_KERNEL, FROM_KERNEL, TO_ROUTER).await,
 	}
 }
 
@@ -627,10 +625,10 @@ async fn new_collection<'a>(
 		//
 		// `Kernel` + `Audio` + `Search` + `task` + `task` == 5
 		loop {
-			let c = crate::statics::connections();
+			let sc = Arc::strong_count(&collection);
 
-			if c > 1 {
-				debug!("Task - new_collection(): connection count == {c}, waiting...");
+			if sc > 5 {
+				debug!("Task - new_collection(): strong count == {sc}, waiting...");
 				tokio::time::sleep(Duration::from_millis(10)).await;
 			} else {
 				break;
