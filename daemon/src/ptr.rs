@@ -24,7 +24,7 @@ use std::sync::{
 ///
 /// Hooking up back-channels between `Router` <-> and all the `task`'s
 /// is a pain, so instead this atomic pointer acts as a sort of
-/// generator, AKA, `deref` this and receive the lastest `Arc<Collection>`.
+/// generator, AKA, `deref` this and receive the latest `Arc<Collection>`.
 ///
 /// Now, `task`'s are handed this pointer, which they will deref per
 /// HTTP request, getting the latest `Collection` each HTTP call.

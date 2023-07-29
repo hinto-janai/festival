@@ -165,20 +165,20 @@ pub async fn handle(
 		RepeatQueue => repeat_queue(request.id, TO_KERNEL).await,
 		Shuffle     => shuffle(request.id, TO_KERNEL).await,
 		// Playback control with params.
-		Previous          => ppacor!(request, previous, rpc::param::Previous).await,
-		Volume            => ppacor!(request, volume, rpc::param::Volume).await,
-		Clear             => ppacor!(request, clear, rpc::param::Clear).await,
-		Seek              => ppacor!(request, seek, rpc::param::Seek).await,
-		Skip              => ppacor!(request, skip, rpc::param::Skip).await,
-		Back              => ppacor!(request, back, rpc::param::Back).await,
+		Previous          => ppacor!(request, previous, rpc::param::Previous, TO_KERNEL).await,
+		Volume            => ppacor!(request, volume, rpc::param::Volume, TO_KERNEL).await,
+		Clear             => ppacor!(request, clear, rpc::param::Clear, TO_KERNEL).await,
+		Seek              => ppacor!(request, seek, rpc::param::Seek, TO_KERNEL).await,
+		Skip              => ppacor!(request, skip, rpc::param::Skip, TO_KERNEL).await,
+		Back              => ppacor!(request, back, rpc::param::Back, TO_KERNEL).await,
 		AddQueueKeyArtist => ppacor!(request, add_queue_key_artist, rpc::param::AddQueueKeyArtist, collection.arc(), TO_KERNEL).await,
 		AddQueueKeyAlbum  => ppacor!(request, add_queue_key_album, rpc::param::AddQueueKeyAlbum, collection.arc(), TO_KERNEL).await,
 		AddQueueKeySong   => ppacor!(request, add_queue_key_song, rpc::param::AddQueueKeySong, collection.arc(), TO_KERNEL).await,
 		AddQueueMapArtist => ppacor!(request, add_queue_map_artist, rpc::param::AddQueueMapArtist, collection.arc(), TO_KERNEL).await,
 		AddQueueMapAlbum  => ppacor!(request, add_queue_map_album, rpc::param::AddQueueMapAlbum, collection.arc(), TO_KERNEL).await,
 		AddQueueMapSong   => ppacor!(request, add_queue_map_song, rpc::param::AddQueueMapSong, collection.arc(), TO_KERNEL).await,
-		SetQueueIndex     => ppacor!(request, set_queue_index, rpc::param::SetQueueIndex).await,
-		RemoveQueueRange  => ppacor!(request, remove_queue_range, rpc::param::RemoveQueueRange).await,
+		SetQueueIndex     => ppacor!(request, set_queue_index, rpc::param::SetQueueIndex, TO_KERNEL).await,
+		RemoveQueueRange  => ppacor!(request, remove_queue_range, rpc::param::RemoveQueueRange, TO_KERNEL).await,
 
 		// Key (exact key)
 		KeyArtist => ppacor!(request, key_artist, rpc::param::KeyArtist, collection.arc()).await,
@@ -186,9 +186,9 @@ pub async fn handle(
 		KeySong   => ppacor!(request, key_song, rpc::param::KeySong, collection.arc()).await,
 
 		// Map (exact hashmap)
-		MapArtist => ppacor!(request, map_artist, rpc::param::MapArtist).await,
-		MapAlbum  => ppacor!(request, map_album, rpc::param::MapAlbum).await,
-		MapSong   => ppacor!(request, map_song, rpc::param::MapSong).await,
+		MapArtist => ppacor!(request, map_artist, rpc::param::MapArtist, collection.arc()).await,
+		MapAlbum  => ppacor!(request, map_album, rpc::param::MapAlbum, collection.arc()).await,
+		MapSong   => ppacor!(request, map_song, rpc::param::MapSong, collection.arc()).await,
 
 		// Search (fuzzy string)
 		Search       => ppacor!(request, search, rpc::param::Search, collection.arc(), TO_KERNEL, FROM_KERNEL).await,
@@ -288,8 +288,6 @@ async fn state_collection_full<'a>(id: Option<Id<'a>>, collection: Arc<Collectio
 		assert_eq!(serde_json::to_string(&c).unwrap(), string);
 	}
 
-	let x = crate::zip::TmpZip::new();
-
 	Ok(resp::result(&*collection, id))
 }
 
@@ -322,28 +320,63 @@ impl_signal! {
 }
 
 //---------------------------------------------------------------------------------------------------- Playback control with params.
-async fn previous<'a>(params: rpc::param::Previous, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
-	todo!()
+async fn previous<'a>(
+	params:    rpc::param::Previous,
+	id:        Option<Id<'a>>,
+	TO_KERNEL: &Sender<FrontendToKernel>,
+) -> Result<Response<Body>, anyhow::Error> {
+	send!(TO_KERNEL, FrontendToKernel::Previous(params.threshold));
+	Ok(resp::result_ok(id))
 }
 
-async fn volume<'a>(params: rpc::param::Volume, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
-	todo!()
+async fn volume<'a>(
+	params:    rpc::param::Volume,
+	id:        Option<Id<'a>>,
+	TO_KERNEL: &Sender<FrontendToKernel>,
+) -> Result<Response<Body>, anyhow::Error> {
+	if params.volume > 100 {
+		Ok(resp::error(ERR_VOLUME.0, ERR_VOLUME.1, id))
+	} else {
+		let v = shukusai::audio::Volume::new(params.volume);
+		send!(TO_KERNEL, FrontendToKernel::Volume(v));
+		Ok(resp::result_ok(id))
+	}
 }
 
-async fn clear<'a>(params: rpc::param::Clear, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
-	todo!()
+async fn clear<'a>(
+	params:    rpc::param::Clear,
+	id:        Option<Id<'a>>,
+	TO_KERNEL: &Sender<FrontendToKernel>,
+) -> Result<Response<Body>, anyhow::Error> {
+	send!(TO_KERNEL, FrontendToKernel::Clear(params.playback));
+	Ok(resp::result_ok(id))
 }
 
-async fn seek<'a>(params: rpc::param::Seek, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
-	todo!()
+async fn seek<'a>(
+	params:    rpc::param::Seek,
+	id:        Option<Id<'a>>,
+	TO_KERNEL: &Sender<FrontendToKernel>,
+) -> Result<Response<Body>, anyhow::Error> {
+	send!(TO_KERNEL, FrontendToKernel::Seek((params.seek, params.second)));
+	Ok(resp::result_ok(id))
 }
 
-async fn skip<'a>(params: rpc::param::Skip, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
-	todo!()
+async fn skip<'a>(
+	params:   rpc::param::Skip,
+	id:        Option<Id<'a>>,
+	TO_KERNEL: &Sender<FrontendToKernel>,
+) -> Result<Response<Body>, anyhow::Error> {
+	send!(TO_KERNEL, FrontendToKernel::Skip(params.skip));
+	Ok(resp::result_ok(id))
 }
 
-async fn back<'a>(params: rpc::param::Back, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
-	todo!()
+async fn back<'a>(
+	params:    rpc::param::Back,
+	id:        Option<Id<'a>>,
+	TO_KERNEL: &Sender<FrontendToKernel>,
+) -> Result<Response<Body>, anyhow::Error> {
+	send!(TO_KERNEL, FrontendToKernel::Back(params.back));
+	Ok(resp::result_ok(id))
 }
 
 async fn add_queue_key_artist<'a>(
@@ -430,12 +463,22 @@ async fn add_queue_map_song<'a>(
 	}
 }
 
-async fn set_queue_index<'a>(params: rpc::param::SetQueueIndex, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
-	todo!()
+async fn set_queue_index<'a>(
+	params:    rpc::param::SetQueueIndex,
+	id:        Option<Id<'a>>,
+	TO_KERNEL: &Sender<FrontendToKernel>,
+) -> Result<Response<Body>, anyhow::Error> {
+	send!(TO_KERNEL, FrontendToKernel::SetQueueIndex(params.index));
+	Ok(resp::result_ok(id))
 }
 
-async fn remove_queue_range<'a>(params: rpc::param::RemoveQueueRange, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
-	todo!()
+async fn remove_queue_range<'a>(
+	params:    rpc::param::RemoveQueueRange,
+	id:        Option<Id<'a>>,
+	TO_KERNEL: &Sender<FrontendToKernel>,
+) -> Result<Response<Body>, anyhow::Error> {
+	send!(TO_KERNEL, FrontendToKernel::RemoveQueueRange((params.start..params.end, params.skip)));
+	Ok(resp::result_ok(id))
 }
 
 //---------------------------------------------------------------------------------------------------- Key (exact key)
@@ -476,16 +519,40 @@ async fn key_song<'a>(
 }
 
 //---------------------------------------------------------------------------------------------------- Map (exact hashmap)
-async fn map_artist<'a>(params: rpc::param::MapArtist<'a>, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
-	todo!()
+async fn map_artist<'a>(
+	params:     rpc::param::MapArtist<'a>,
+	id:         Option<Id<'a>>,
+	collection: Arc<Collection>,
+) -> Result<Response<Body>, anyhow::Error> {
+	if let Some((r, _)) = collection.artist(params.artist) {
+		Ok(resp::result(r, id))
+	} else {
+		return Ok(resp::error(ERR_MAP_ARTIST.0, ERR_MAP_ARTIST.1, id))
+	}
 }
 
-async fn map_album<'a>(params: rpc::param::MapAlbum<'a>, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
-	todo!()
+async fn map_album<'a>(
+	params:     rpc::param::MapAlbum<'a>,
+	id:         Option<Id<'a>>,
+	collection: Arc<Collection>,
+) -> Result<Response<Body>, anyhow::Error> {
+	if let Some((r, _)) = collection.album(params.artist, params.album) {
+		Ok(resp::result(r, id))
+	} else {
+		return Ok(resp::error(ERR_MAP_ALBUM.0, ERR_MAP_ALBUM.1, id))
+	}
 }
 
-async fn map_song<'a>(params: rpc::param::MapSong<'a>, id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
-	todo!()
+async fn map_song<'a>(
+	params:     rpc::param::MapSong<'a>,
+	id:         Option<Id<'a>>,
+	collection: Arc<Collection>,
+) -> Result<Response<Body>, anyhow::Error> {
+	if let Some((r, _)) = collection.song(params.artist, params.album, params.song) {
+		Ok(resp::result(r, id))
+	} else {
+		return Ok(resp::error(ERR_MAP_SONG.0, ERR_MAP_SONG.1, id))
+	}
 }
 
 //---------------------------------------------------------------------------------------------------- Search (fuzzy string)
