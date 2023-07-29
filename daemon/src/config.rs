@@ -52,7 +52,7 @@ disk::toml!(Config, disk::Dir::Config, FESTIVAL, FRONTEND_SUB_DIR, "festivald");
 pub struct ConfigBuilder {
 	pub ip:                 Option<Ipv4Addr>,
 	pub port:               Option<u16>,
-	pub max_connections:    Option<usize>,
+	pub max_connections:    Option<u64>,
 	pub exclusive_ips:      Option<HashSet<Ipv4Addr>>,
 	pub sleep_on_fail:      Option<u64>,
 	pub tls:                Option<bool>,
@@ -140,7 +140,7 @@ impl ConfigBuilder {
 		let mut c = Config {
 			ip:                 get!(ip,                 "ip",                 Ipv4Addr::LOCALHOST),
 			port:               get!(port,               "port",               FESTIVALD_PORT),
-			max_connections:    sum!(max_connections,    "max_connections",    None::<usize>),
+			max_connections:    sum!(max_connections,    "max_connections",    Some(4)),
 			exclusive_ips:      sum!(exclusive_ips,      "exclusive_ips",      None::<HashSet<Ipv4Addr>>),
 			sleep_on_fail:      sum!(sleep_on_fail,      "sleep_on_fail",      Some(3000)),
 			tls:                get!(tls,                "tls",                false),
@@ -252,7 +252,7 @@ impl ConfigBuilder {
 pub struct Config {
 	pub ip:                 std::net::Ipv4Addr,
 	pub port:               u16,
-	pub max_connections:    Option<usize>,
+	pub max_connections:    Option<u64>,
 	pub exclusive_ips:      Option<HashSet<Ipv4Addr>>,
 	pub sleep_on_fail:      Option<u64>,
 	pub tls:                bool,

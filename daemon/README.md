@@ -300,15 +300,18 @@ Retrieve state about the status of `festivald` itself.
 |--------|
 | None   |
 
-| Outputs         | Type             | Description |
-|-----------------|------------------|-------------|
-| uptime          | unsigned integer | Uptime of `festivald` in seconds
-| rest            | boolean          | If this `festivald`'s `REST` API is enabled
-| direct_download | boolean          | If this `festivald`'s `REST` API has `direct_download` enabled
-| authorization   | boolean          | If this `festivald` has authorization enabled
-| version         | string           | Semantic version of this `festivald`
-| commit          | string           | Git commit of this `festivald`
-| os              | string           | The OS this `festivald` was built for
+| Outputs             | Type             | Description |
+|---------------------|------------------|-------------|
+| uptime              | unsigned integer | Uptime of `festivald` in seconds
+| total_requests      | unsigned integer | Total amount of requests this `festivald` has received since starting
+| total_connections   | unsigned integer | Total amount of connections `festivald` has gotten since started
+| current_connections | unsigned integer | Amount of open connections `festivald` currently has
+| rest                | boolean          | If this `festivald`'s `REST` API is enabled
+| direct_download     | boolean          | If this `festivald`'s `REST` API has `direct_download` enabled
+| authorization       | boolean          | If this `festivald` has authorization enabled
+| version             | string           | Semantic version of this `festivald`
+| commit              | string           | Git commit of this `festivald`
+| os                  | string           | The OS this `festivald` was built for
 
 Example Request:
 ```bash
@@ -319,12 +322,15 @@ Example Response:
 {
   "jsonrpc": "2.0",
   "result": {
-    "uptime": 15,
+    "uptime": 43,
+    "total_requests": 1447,
+    "total_connections": 297,
+    "current_connections": 3,
     "rest": true,
     "direct_download": false,
     "authorization": false,
-    "version": "v0.0.0",
-    "commit": "5e54b8ecd6fd505ff8c9ef1a5fbbef26e7f1bd86",
+    "version": "v1.0.0",
+    "commit": "ae086becca9a603b53ded80de870794858c272d0",
     "os": "Linux x64"
   },
   "id": 0

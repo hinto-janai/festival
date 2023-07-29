@@ -13,15 +13,21 @@ use std::sync::{
 		AtomicUsize,
 		AtomicBool,
 		AtomicPtr,
+		AtomicU64,
 	},
 };
 
+//---------------------------------------------------------------------------------------------------- Total Stats
+// Used in `state_daemon` RPC call.
+pub static TOTAL_REQUESTS:    AtomicU64 = AtomicU64::new(0);
+pub static TOTAL_CONNECTIONS: AtomicU64 = AtomicU64::new(0);
+
 //---------------------------------------------------------------------------------------------------- Connections
-static CONNECTIONS: AtomicUsize = AtomicUsize::new(0);
+static CONNECTIONS: AtomicU64 = AtomicU64::new(0);
 
 #[inline(always)]
 /// Get connection count.
-pub fn connections() -> usize {
+pub fn connections() -> u64 {
     atomic_load!(CONNECTIONS)
 }
 

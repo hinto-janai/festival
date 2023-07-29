@@ -46,9 +46,13 @@ use shukusai::{
 	constants::DASH,
 };
 use crate::{
-	config::AUTH,
-	statics::{ConnectionToken,RESETTING},
-	config::{config,Config,ConfigBuilder},
+	config::{AUTH,config,Config,ConfigBuilder},
+	statics::{
+		ConnectionToken,
+		RESETTING,
+		TOTAL_CONNECTIONS,
+		TOTAL_REQUESTS,
+	},
 	hash::Hash,
 	ptr::CollectionPtr,
 };
@@ -62,6 +66,7 @@ use tokio::net::{
 };
 use crate::resp;
 use benri::{
+	atomic_add,
 	atomic_store,
 	recv,send,
 	debug_panic,
@@ -139,7 +144,7 @@ pub async fn init(
 					// Accept TCP stream, and get peer's IP.
 					l = LISTENER.accept() => {
 						match l {
-							Ok((s, a)) => break (s, a),
+							Ok((s, a)) => { atomic_add!(TOTAL_CONNECTIONS, 1); break (s, a) },
 							Err(e)     => error!("Router - TCP stream error: {e}"),
 						}
 					},
@@ -172,7 +177,7 @@ pub async fn init(
 			// Only accept IPv4.
 			let addr = match addr {
 				std::net::SocketAddr::V4(addr) => {
-					info!("Router - New IPv4 connection: [{}]", addr.ip());
+					info!("Router - New connection: [{}]", addr.ip());
 					addr
 				},
 				std::net::SocketAddr::V6(addr) => {
@@ -318,7 +323,10 @@ async fn https(
 ) {
 	let stream = match acceptor.accept(stream).await {
 		Ok(s)  => s,
-		Err(e) => { error!("TLS error for [{}]: {e}", addr.ip()); return; },
+		Err(e) => {
+			error!("TLS error for [{}]: {e}", addr.ip());
+			return;
+		},
 	};
 
 	// For why this is `CollectionPtr` instead
@@ -341,6 +349,8 @@ async fn route(
 	FROM_KERNEL:    &'static Receiver<KernelToFrontend>,
 	TO_ROUTER:      &'static tokio::sync::mpsc::Sender::<Arc<Collection>>,
 ) -> Result<Response<Body>, anyhow::Error> {
+	atomic_add!(TOTAL_REQUESTS, 1);
+
 	let (mut parts, body) = req.into_parts();
 
 //	println!("{parts:#?}");
@@ -411,15 +421,6 @@ async fn sleep_on_fail() {
 		trace!("Task - Sleeping for {millis} millis");
 		tokio::time::sleep(std::time::Duration::from_millis(millis)).await;
 	}
-}
-
-// Same as above but used for spawned `task`.
-//
-// Since this function is used before a task exits,
-// we should drop the `Collection` as to not block any reset requests.
-async fn sleep_on_fail_task(c: Arc<Collection>) {
-	drop(c);
-	sleep_on_fail().await;
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

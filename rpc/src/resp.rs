@@ -36,10 +36,13 @@ impl_struct!(Status, ok: bool);
 // State retrieval.
 impl_struct_lt! {
 	StateDaemon,
-	uptime: u64,
-	rest: bool,
-	direct_download: bool,
-	authorization: bool,
+	uptime:              u64,
+	total_requests:      u64,
+	total_connections:   u64,
+	current_connections: u64,
+	rest:                bool,
+	direct_download:     bool,
+	authorization:       bool,
 	#[serde(borrow)]
 	version: Cow<'a, str>,
 	#[serde(borrow)]

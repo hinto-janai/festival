@@ -41,7 +41,11 @@ use crate::{
 	resp,
 	constants::FESTIVALD_VERSION,
 	config::{AUTH,Config,config},
-	statics::RESETTING,
+	statics::{
+		RESETTING,
+		TOTAL_CONNECTIONS,
+		TOTAL_REQUESTS,
+	},
 	ptr::CollectionPtr,
 };
 use std::borrow::Cow;
@@ -200,13 +204,16 @@ pub async fn handle(
 //---------------------------------------------------------------------------------------------------- State retrieval.
 async fn state_daemon<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
 	let resp = rpc::resp::StateDaemon {
-		uptime:          shukusai::logger::uptime(),
-		rest:            config().rest,
-		direct_download: config().direct_download,
-		authorization:   AUTH.get().is_some(),
-		version:         Cow::Borrowed(FESTIVALD_VERSION),
-		commit:          Cow::Borrowed(COMMIT),
-		os:              Cow::Borrowed(OS_ARCH),
+		uptime:              shukusai::logger::uptime(),
+		total_requests:      atomic_load!(TOTAL_REQUESTS),
+		total_connections:   atomic_load!(TOTAL_CONNECTIONS),
+		current_connections: crate::statics::connections(),
+		rest:                config().rest,
+		direct_download:     config().direct_download,
+		authorization:       AUTH.get().is_some(),
+		version:             Cow::Borrowed(FESTIVALD_VERSION),
+		commit:              Cow::Borrowed(COMMIT),
+		os:                  Cow::Borrowed(OS_ARCH),
 	};
 
 	Ok(resp::result(resp, id))
