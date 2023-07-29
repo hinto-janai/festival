@@ -1,6 +1,7 @@
 //---------------------------------------------------------------------------------------------------- Use
 use serde::{Serialize,Serializer,Deserialize};
 use anyhow::anyhow;
+use benri::ok;
 use log::{error,info,warn,debug,trace};
 use disk::Toml;
 use shukusai::constants::{
@@ -8,6 +9,7 @@ use shukusai::constants::{
 };
 use crate::constants::{
 	FESTIVALD_PORT,
+	FESTIVALD_CONFIG,
 };
 use strum::{
 	AsRefStr,
@@ -47,7 +49,7 @@ pub static AUTH: OnceCell<Hash> = OnceCell::new();
 ///
 /// We can't use this directly, but we can transform it into
 /// the `Config` we will be using for the rest of the program.
-disk::toml!(Config, disk::Dir::Config, FESTIVAL, FRONTEND_SUB_DIR, "festivald");
+disk::toml!(ConfigBuilder, disk::Dir::Config, FESTIVAL, FRONTEND_SUB_DIR, "festivald");
 #[derive(Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
 pub struct ConfigBuilder {
 	pub ip:                 Option<Ipv4Addr>,
@@ -241,6 +243,24 @@ impl ConfigBuilder {
 		CONFIG.set(c).unwrap();
 		config()
 	}
+
+	// Read from disk, or create a default.
+	pub fn file_or() -> Self {
+		use disk::Toml;
+		match Self::from_file() {
+			Ok(c)  => { ok!("festivald.conf ... from disk"); c },
+			Err(e) => {
+				warn!("festivald.conf ... failed from disk: {e}, returning default");
+
+				if let Ok(p) = Config::absolute_path() {
+					let _ = Config::mkdir();
+					let _ = std::fs::write(&p, FESTIVALD_CONFIG);
+				}
+
+				Self::default()
+			},
+		}
+	}
 }
 
 //---------------------------------------------------------------------------------------------------- Config
@@ -248,6 +268,7 @@ impl ConfigBuilder {
 ///
 /// The global immutable copy the whole program will refer
 /// to is the static `CONFIG` in this module. Or, `config()`.
+disk::toml!(Config, disk::Dir::Config, FESTIVAL, FRONTEND_SUB_DIR, "festivald");
 #[derive(Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
 pub struct Config {
 	pub ip:                 std::net::Ipv4Addr,

@@ -37,7 +37,7 @@ fn main() {
 
 	// These last forever.
 	// INVARIANT: Initialize `CONFIG`. This must be set, and once only.
-	let CONFIG:      &'static crate::config::Config = crate::config::ConfigBuilder::default().build_and_set();
+	let CONFIG:      &'static crate::config::Config = crate::config::ConfigBuilder::file_or().build_and_set();
 	let TO_KERNEL:   &'static crossbeam::channel::Sender<shukusai::kernel::FrontendToKernel>   = Box::leak(Box::new(to_kernel));
 	let FROM_KERNEL: &'static crossbeam::channel::Receiver<shukusai::kernel::KernelToFrontend> = Box::leak(Box::new(from_kernel));
 
