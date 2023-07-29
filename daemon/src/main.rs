@@ -11,6 +11,7 @@ mod rest;
 mod resp;
 mod rpc;
 mod router;
+mod zip;
 
 fn main() {
 	// Handle CLI arguments.

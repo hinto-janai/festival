@@ -288,6 +288,8 @@ async fn state_collection_full<'a>(id: Option<Id<'a>>, collection: Arc<Collectio
 		assert_eq!(serde_json::to_string(&c).unwrap(), string);
 	}
 
+	let x = crate::zip::TmpZip::new();
+
 	Ok(resp::result(&*collection, id))
 }
 
