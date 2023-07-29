@@ -164,6 +164,8 @@ pub struct SongJson<'a> {
 	pub sample_rate: u32,
 	pub track: Option<u32>,
 	pub disc: Option<u32>,
+	pub mime: Cow<'a, str>,
+	pub extension: Cow<'a, str>,
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
@@ -258,7 +260,9 @@ r#"{
   "runtime": 0,
   "sample_rate": 0,
   "track": null,
-  "disc": null
+  "disc": null,
+  "mime": "audio/flac",
+  "extension": "audio/flac"
 }"#;
 
 	fn serde_json_collection() {
