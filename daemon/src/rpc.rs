@@ -627,10 +627,10 @@ async fn new_collection<'a>(
 		//
 		// `Kernel` + `Audio` + `Search` + `task` + `task` == 5
 		loop {
-			let strong_count = Arc::strong_count(&collection);
+			let c = crate::statics::connections();
 
-			if strong_count > 5 {
-				debug!("Task - Collection Arc strong count == {strong_count}...");
+			if c > 1 {
+				debug!("Task - new_collection(): connection count == {c}, waiting...");
 				tokio::time::sleep(Duration::from_millis(10)).await;
 			} else {
 				break;

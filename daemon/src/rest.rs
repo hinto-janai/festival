@@ -19,13 +19,22 @@ use hyper::header::{
 use crate::resp;
 use http::request::Parts;
 use shukusai::collection::{
+	Art,
 	Collection,
 	ArtistKey,
 	AlbumKey,
 	SongKey,
+	Artist,
+	Album,
+	Song,
 };
 use crate::config::config;
 use tokio::io::AsyncReadExt;
+use std::path::Path;
+use std::io::Write;
+
+//---------------------------------------------------------------------------------------------------- Const
+const ERR_END: &str =  "Unknown endpoint";
 
 //---------------------------------------------------------------------------------------------------- REST Handler
 pub async fn handle(
@@ -37,7 +46,16 @@ pub async fn handle(
 		return Ok(resp::resetting_rest());
 	}
 
-	let mut split = parts.uri.path().split('/');
+	let Ok(uri) = urlencoding::decode(parts.uri.path()) else {
+		return Ok(resp::server_err("URI parse failure"));
+	};
+
+	trace!("Task - REST URI Full: {uri}");
+	for (i, s) in uri.split('/').enumerate() {
+		trace!("Task - REST URI Split [{i}]: {s}");
+	}
+
+	let mut split = uri.split('/');
 
 	split.next();
 
@@ -46,7 +64,7 @@ pub async fn handle(
 		return Ok(resp::not_found("Missing endpoint 1"));
 	};
 
-	//-------------------------------------------------- `key` endpoint.
+	//-------------------------------------------------- `/key` endpoint.
 	if ep1 == "key" {
 		let Some(ep2) = split.next() else {
 			return Ok(resp::not_found("Missing endpoint: [artist/album/song]"));
@@ -58,7 +76,7 @@ pub async fn handle(
 
 		// Return error if more than 3 endpoints.
 		if split.next().is_some() {
-			return Ok(resp::not_found("Unknown endpoint"));
+			return Ok(resp::not_found(ERR_END));
 		}
 
 		// Parse `usize` key.
@@ -71,40 +89,20 @@ pub async fn handle(
 			"album"  => key_album(key, collection).await,
 			"song"   => key_song(key, collection).await,
 			"art"    => key_art(key, collection).await,
-			_        => Ok(resp::not_found("Unknown endpoint")),
+			_        => Ok(resp::not_found(ERR_END)),
 		}
-	//-------------------------------------------------- `map` endpoint.
+	//-------------------------------------------------- `/map` endpoint.
 	} else if ep1 == "map" {
-		let Some(ep2) = split.next() else {
+		let Some(artist) = split.next() else {
 			return Ok(resp::not_found("Missing endpoint: [artist]"));
 		};
 
-		let artist = match urlencoding::decode(ep2) {
-			Ok(a)  => a,
-			Err(e) => return Ok(resp::not_found("Artist parse failure")),
-		};
-
-		let album = if let Some(a) = split.next() {
-			match urlencoding::decode(a) {
-				Ok(a)  => Some(a),
-				Err(e) => return Ok(resp::not_found("Album parse failure")),
-			}
-		} else {
-			None
-		};
-
-		let song = if let Some(s) = split.next() {
-			match urlencoding::decode(s) {
-				Ok(a)  => Some(a),
-				Err(e) => return Ok(resp::not_found("Song parse failure")),
-			}
-		} else {
-			None
-		};
+		let album = split.next();
+		let song = split.next();
 
 		// Return error if more than 4 endpoints.
 		if split.next().is_some() {
-			return Ok(resp::not_found("Unknown endpoint"));
+			return Ok(resp::not_found(ERR_END));
 		}
 
 		match (album, song) {
@@ -112,79 +110,264 @@ pub async fn handle(
 			(Some(a), Some(s)) => map_song(artist.as_ref(), a.as_ref(), s.as_ref(), collection).await,
 			_                  => map_artist(artist.as_ref(), collection).await,
 		}
-	//-------------------------------------------------- `art` endpoint.
+	//-------------------------------------------------- `/art` endpoint.
 	} else if ep1 == "art" {
 		let Some(artist) = split.next() else {
 			return Ok(resp::not_found("Missing endpoint: [artist]"));
-		};
-
-		let Ok(artist) = urlencoding::decode(artist) else {
-			return Ok(resp::not_found("Artist parse failure"));
 		};
 
 		let Some(album) = split.next() else {
 			return Ok(resp::not_found("Missing endpoint: [album]"));
 		};
 
-		let Ok(album) = urlencoding::decode(album) else {
-			return Ok(resp::not_found("Album parse failure"));
-		};
-
 		// Return error if more than 3 endpoints.
 		if split.next().is_some() {
-			return Ok(resp::not_found("Unknown endpoint"));
+			return Ok(resp::not_found(ERR_END));
 		}
 
 		art(artist.as_ref(), album.as_ref(), collection).await
 	//-------------------------------------------------- unknown endpoint.
 	} else {
-		Ok(resp::not_found("Unknown endpoint"))
+		Ok(resp::not_found(ERR_END))
 	}
+}
+
+//---------------------------------------------------------------------------------------------------- Open a `File` and read, async
+const ERR_FILE: &str = "File not found";
+const ERR_BYTE: &str = "Failed to read file bytes";
+
+async fn read_file(path: &Path) -> Result<Vec<u8>, Response<Body>> {
+	// Open the file.
+	let Ok(mut file) = tokio::fs::File::open(&path).await else {
+		return Err(resp::not_found(ERR_FILE));
+	};
+
+	let cap = match file.metadata().await {
+		Ok(m) => m.len() as usize,
+		_ => 1_000_000 // 1 megabyte,
+	};
+
+	// Copy the bytes into owned buffer.
+	let mut dst: Vec<u8> = Vec::with_capacity(cap);
+	if file.read_to_end(&mut dst).await.is_err() {
+		return Err(resp::server_err(ERR_BYTE));
+	};
+
+	Ok(dst)
+}
+
+//---------------------------------------------------------------------------------------------------- The inner "impl", re-used in `/key`, `/map`, `/art`.
+const MIME_ZIP: &str = "application/zip";
+const ERR_ZIP:  &str = "Failed to create zip file";
+const ERR_SONG: &str = "Song file not found";
+
+// Takes in an already existing `ZipWriter`, and writes an album to it.
+// This exists to de-dup code between `impl_artist()` and `impl_album()`.
+async fn impl_album_inner(
+	zip:        &mut zip::ZipWriter<std::io::Cursor<Vec<u8>>>,
+	options:    &zip::write::FileOptions,
+	album:      &Album,
+	collection: &Arc<Collection>,
+	folder:     Option<&str>,
+) -> Option<Response<Body>> {
+	let folder = match folder {
+		Some(f) => format!("{f}/"),
+		None    => "".to_string(),
+	};
+
+	// Write each `Song` into the `zip`.
+	for song_key in &album.songs {
+		let song = &collection.songs[song_key];
+
+		let bytes = match read_file(&song.path).await {
+			Ok(b)  => b,
+			Err(r) => return Some(r),
+		};
+
+		let file_path = format!("{folder}{}.{}", song.title, song.extension);
+
+		trace!("Task - impl_album_inner() song: {file_path}");
+
+		if zip.start_file(&file_path, *options).is_err() {
+			return Some(resp::server_err(ERR_SONG));
+		}
+
+		if zip.write(&bytes).is_err() {
+			return Some(resp::server_err(ERR_ZIP));
+		}
+	}
+
+	let artist = &collection.artists[album.artist];
+
+	// Write `Art` if it exists.
+	if let Art::Known { path, mime, len, extension } = &album.art {
+		let bytes = match read_file(&path).await {
+			Ok(b)  => b,
+			Err(r) => return Some(r),
+		};
+
+		let file_path = format!("{folder}{}{}{}.{}", artist.name, config().filename_separator, album.title, extension);
+
+		trace!("Task - impl_album_inner() art: {file_path}");
+
+		if zip.start_file(&file_path, *options).is_err() {
+			return Some(resp::server_err(ERR_ZIP));
+		}
+
+		if zip.write(&bytes).is_err() {
+			return Some(resp::server_err(ERR_ZIP));
+		}
+	}
+
+	None
+}
+
+async fn impl_artist(key: ArtistKey, artist: &Artist, collection: &Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+	tokio::task::block_in_place(move || async move {
+		trace!("Task - impl_artist(): {}", artist.name);
+
+		let mut buf = vec![];
+		let mut zip = zip::ZipWriter::new(std::io::Cursor::new(buf));
+		let options = zip::write::FileOptions::default().compression_method(zip::CompressionMethod::Stored);
+
+		for album_key in &artist.albums {
+			let album = &collection.albums[album_key];
+
+			trace!("Task - impl_artist() album: {}", album.title);
+
+			if zip.add_directory(&*album.title, options).is_err() {
+				return Ok(resp::server_err(ERR_ZIP));
+			}
+
+			if let Some(r) = impl_album_inner(&mut zip, &options, album, collection, Some(&*album.title)).await {
+				return Ok(r);
+			}
+		}
+
+		// Zip name.
+		let name = format!("{}.zip", artist.name);
+
+		let buf = zip.finish()?.into_inner();
+
+		Ok(resp::rest_ok(buf, &name, MIME_ZIP))
+	}).await
+}
+
+async fn impl_album(key: AlbumKey, album: &Album, collection: &Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+	tokio::task::block_in_place(move || async move {
+		trace!("Task - impl_album(): {}", album.title);
+
+		let mut buf = vec![];
+		let mut zip = zip::ZipWriter::new(std::io::Cursor::new(buf));
+		let options = zip::write::FileOptions::default().compression_method(zip::CompressionMethod::Stored);
+
+		if let Some(r) = impl_album_inner(&mut zip, &options, album, collection, None).await {
+			return Ok(r);
+		}
+
+		let artist = &collection.artists[album.artist];
+
+		// Zip name.
+		let name = format!("{}{}{}.zip", artist.name, config().filename_separator, album.title);
+
+		let Ok(buf) = zip.finish() else {
+			return Ok(resp::server_err(ERR_ZIP));
+		};
+
+		Ok(resp::rest_ok(buf.into_inner(), &name, MIME_ZIP))
+	}).await
+}
+
+async fn impl_song(key: SongKey, song: &Song, collection: &Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+	trace!("Task - impl_song(): {}", song.title);
+
+	// Open the file.
+	let Ok(mut file) = tokio::fs::File::open(&song.path).await else {
+		return Ok(resp::not_found(ERR_SONG));
+	};
+
+	let cap = match file.metadata().await {
+		Ok(m) => m.len() as usize,
+		_ => 1_000_000 // 1 megabyte,
+	};
+
+	// Copy the bytes into owned buffer.
+	let mut dst: Vec<u8> = Vec::with_capacity(cap);
+	if file.read_to_end(&mut dst).await.is_err() {
+		return Ok(resp::server_err(ERR_BYTE));
+	};
+
+	// Format the file name.
+	let (artist, album, _) = collection.walk(key);
+	let name = format!(
+		"{}{}{}{}{}.{}",
+		artist.name,
+		config().filename_separator,
+		album.title,
+		config().filename_separator,
+		song.title,
+		song.extension,
+	);
+
+	Ok(resp::rest_ok(dst, &name, &song.mime))
+}
+
+async fn impl_art(key: AlbumKey, album: &Album, collection: &Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+	// If art exists...
+	let Art::Known { path, mime, len, extension } = &album.art  else {
+		return Ok(resp::not_found("No album art available"));
+	};
+
+	// Open the file.
+	let Ok(mut file) = tokio::fs::File::open(&path).await else {
+		return Ok(resp::not_found("Album art not found on filesystem"));
+	};
+
+	// Copy the bytes into owned buffer.
+	let mut dst: Vec<u8> = Vec::with_capacity(*len);
+	if file.read_to_end(&mut dst).await.is_err() {
+		return Ok(resp::server_err("Failed to copy album art bytes"));
+	};
+
+	// Format the file name.
+	let artist = &collection.artists[album.artist];
+	let name = format!(
+		"{}{}{}.{}",
+		artist.name,
+		config().filename_separator,
+		album.title,
+		extension,
+	);
+
+	Ok(resp::rest_ok(dst, &name, mime))
 }
 
 //---------------------------------------------------------------------------------------------------- `/key`
 pub async fn key_artist(key: usize, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
-	todo!()
+	let key = ArtistKey::from(key);
+
+	if let Some(artist) = collection.artists.get(key) {
+		impl_artist(key, artist, &collection).await
+	} else {
+		Ok(resp::not_found("Artist key is invalid"))
+	}
 }
 
 pub async fn key_album(key: usize, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
-	todo!()
+	let key = AlbumKey::from(key);
+
+	if let Some(album) = collection.albums.get(key) {
+		impl_album(key, album, &collection).await
+	} else {
+		Ok(resp::not_found("Album key is invalid"))
+	}
 }
 
 pub async fn key_song(key: usize, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
 	let key = SongKey::from(key);
 
-	// If key exists...
 	if let Some(song) = collection.songs.get(key) {
-		// Open the file.
-		let Ok(mut file) = tokio::fs::File::open(&song.path).await else {
-			return Ok(resp::not_found("Song not found"));
-		};
-
-		let cap = match file.metadata().await {
-			Ok(m) => m.len() as usize,
-			_ => 1_000_000 // 1 megabyte,
-		};
-
-		// Copy the bytes into owned buffer.
-		let mut dst: Vec<u8> = Vec::with_capacity(cap);
-		if file.read_to_end(&mut dst).await.is_err() {
-			return Ok(resp::server_err("Failed to copy song bytes"));
-		};
-
-		// Format the file name.
-		let (artist, album, _) = collection.walk(key);
-		let name = format!(
-			"{}{}{}{}{}.{}",
-			artist.name,
-			config().filename_separator,
-			album.title,
-			config().filename_separator,
-			song.title,
-			song.extension,
-		);
-
-		Ok(resp::rest_ok(dst, &name, &song.mime))
+		impl_song(key, song, &collection).await
 	} else {
 		Ok(resp::not_found("Song key is invalid"))
 	}
@@ -195,33 +378,7 @@ pub async fn key_art(key: usize, collection: Arc<Collection>) -> Result<Response
 
 	// If key exists...
 	if let Some(album) = collection.albums.get(key) {
-		// If art exists...
-		let shukusai::collection::Art::Known { path, mime, len, extension } = &album.art  else {
-			return Ok(resp::not_found("No album art available"));
-		};
-
-		// Open the file.
-		let Ok(mut file) = tokio::fs::File::open(&path).await else {
-			return Ok(resp::not_found("Album art not found on filesystem"));
-		};
-
-		// Copy the bytes into owned buffer.
-		let mut dst: Vec<u8> = Vec::with_capacity(*len);
-		if file.read_to_end(&mut dst).await.is_err() {
-			return Ok(resp::server_err("Failed to copy album art bytes"));
-		};
-
-		// Format the file name.
-		let artist = &collection.artists[album.artist];
-		let name = format!(
-			"{}{}{}.{}",
-			artist.name,
-			config().filename_separator,
-			album.title,
-			extension,
-		);
-
-		Ok(resp::rest_ok(dst, &name, mime))
+		impl_art(key, album, &collection).await
 	} else {
 		Ok(resp::not_found("Album key is invalid"))
 	}
@@ -229,20 +386,37 @@ pub async fn key_art(key: usize, collection: Arc<Collection>) -> Result<Response
 
 //---------------------------------------------------------------------------------------------------- `/map`
 pub async fn map_artist(artist: &str, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
-	todo!()
+	if let Some((artist, key)) = collection.artist(artist) {
+		impl_artist(key, artist, &collection).await
+	} else {
+		Ok(resp::not_found("Artist not found"))
+	}
 }
 
 pub async fn map_album(artist: &str, album: &str, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
-	todo!()
+	if let Some((album, key)) = collection.album(artist, album) {
+		impl_album(key, album, &collection).await
+	} else {
+		Ok(resp::not_found("Artist/Album not found"))
+	}
 }
 
 pub async fn map_song(artist: &str, album: &str, song: &str, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
-	todo!()
+	if let Some((song, key)) = collection.song(artist, album, song) {
+		impl_song(key, song, &collection).await
+	} else {
+		Ok(resp::not_found("Artist/Album/Song not found"))
+	}
 }
 
 //---------------------------------------------------------------------------------------------------- `/art`
 pub async fn art(artist: &str, album: &str, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
-	todo!()
+	// If album exists...
+	if let Some((album, key)) = collection.album(artist, album) {
+		impl_art(key, album, &collection).await
+	} else {
+		Ok(resp::not_found("Album was not found"))
+	}
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
