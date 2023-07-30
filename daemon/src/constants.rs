@@ -41,6 +41,38 @@ Audio v{AUDIO_VERSION}
 "#)
 };
 
+///// Message shown upon `GET /` request.
+//pub const ROOT_ENDPOINT: &str = formatcp!(
+//r#"{FESTIVALD_NAME_VER} REST API.
+//
+//View the full documentation here:
+//<https://github.com/hinto-janai/festival/blob/main/daemon/README.md>
+//
+//Key endpoints:
+//  /key/artist/$ARTIST_KEY
+//  /key/album/$ALBUM_KEY
+//  /key/song/$SONG_KEY
+//  /key/art/$ART_KEY
+//
+//Text endpoints:
+//  /map/artist/$ARTIST_NAME/
+//  /map/album/$ARTIST_NAME/$ALBUM_TITLE
+//  /map/song/$ARTIST_NAME/$ALBUM_TITLE/$SONG_TITLE
+//  /map/art/$ARTIST_NAME/$ALBUM_TITLE
+//
+//Current endpoints:
+//  /current/artist
+//  /current/album
+//  /current/song
+//  /current/art
+//
+//Random endpoints:
+//  /rand/artist
+//  /rand/album
+//  /rand/song
+//  /rand/art"#,
+//);
+
 //---------------------------------------------------------------------------------------------------- Network
 //「祝祭」was released on 2018/04/25.
 pub const FESTIVALD_PORT: u16 = 18425;

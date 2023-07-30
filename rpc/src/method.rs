@@ -80,19 +80,19 @@ pub enum Method {
 	Skip,
 	/// [`crate::resp::Status`] & [`crate::param::Back`]
 	Back,
-	/// [`crate::resp::Status`] & [`crate::param::AddQueueKeyArtist`]
+	/// [`crate::resp::AddQueueKeyArtist`] & [`crate::param::AddQueueKeyArtist`]
 	AddQueueKeyArtist,
-	/// [`crate::resp::Status`] & [`crate::param::AddQueueKeyAlbum`]
+	/// [`crate::resp::AddQueueKeyAlbum`] & [`crate::param::AddQueueKeyAlbum`]
 	AddQueueKeyAlbum,
-	/// [`crate::resp::Status`] & [`crate::param::AddQueueKeySong`]
+	/// [`crate::resp::AddQueueKeySong`] & [`crate::param::AddQueueKeySong`]
 	AddQueueKeySong,
-	/// [`crate::resp::Status`] & [`crate::param::AddQueueMapArtist`]
+	/// [`crate::resp::AddQueueMapArtist`] & [`crate::param::AddQueueMapArtist`]
 	AddQueueMapArtist,
-	/// [`crate::resp::Status`] & [`crate::param::AddQueueMapAlbum`]
+	/// [`crate::resp::AddQueueMapAlbum`] & [`crate::param::AddQueueMapAlbum`]
 	AddQueueMapAlbum,
-	/// [`crate::resp::Status`] & [`crate::param::AddQueueMapSong`]
+	/// [`crate::resp::AddQueueMapSong`] & [`crate::param::AddQueueMapSong`]
 	AddQueueMapSong,
-	/// [`crate::resp::Status`] & [`crate::param::SetQueueIndex`]
+	/// [`crate::resp::SetQueueIndex`] & [`crate::param::SetQueueIndex`]
 	SetQueueIndex,
 	/// [`crate::resp::Status`] & [`crate::param::RemoveQueueRange`]
 	RemoveQueueRange,
@@ -120,6 +120,14 @@ pub enum Method {
 	CurrentAlbum,
 	/// [`crate::resp::CurrentSong`]
 	CurrentSong,
+
+	// Rand (audio state)
+	/// [`crate::resp::RandArtist`]
+	RandArtist,
+	/// [`crate::resp::RandAlbum`]
+	RandAlbum,
+	/// [`crate::resp::RandSong`]
+	RandSong,
 
 	// Search (fuzzy keys)
 	/// [`crate::resp::Search`] & [`crate::param::Search`]

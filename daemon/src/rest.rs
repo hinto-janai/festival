@@ -36,7 +36,15 @@ use std::path::Path;
 use std::io::Write;
 
 //---------------------------------------------------------------------------------------------------- Const
-const ERR_END: &str =  "Unknown endpoint";
+pub const REST_ENDPOINTS: [&'static str; 5] = [
+	"key",
+	"map",
+	"art",
+	"current",
+	"rand",
+];
+
+pub const ERR_END: &str = "Unknown endpoint";
 
 //---------------------------------------------------------------------------------------------------- REST Handler
 pub async fn handle(
@@ -118,16 +126,18 @@ pub async fn handle(
 			return Ok(resp::not_found("Missing endpoint: [artist]"));
 		};
 
-		let Some(album) = split.next() else {
-			return Ok(resp::not_found("Missing endpoint: [album]"));
-		};
+		let album = split.next();
 
 		// Return error if more than 3 endpoints.
 		if split.next().is_some() {
 			return Ok(resp::not_found(ERR_END));
 		}
 
-		art(artist.as_ref(), album.as_ref(), collection.arc()).await
+		if let Some(album) = album {
+			art_album(artist.as_ref(), album.as_ref(), collection.arc()).await
+		} else {
+			art_artist(artist.as_ref(), collection.arc()).await
+		}
 	//-------------------------------------------------- `/current` endpoint.
 	} else if ep1 == "current" {
 		let Some(ep2) = split.next() else {
@@ -539,7 +549,17 @@ pub async fn rand_art(collection: Arc<Collection>) -> Result<Response<Body>, any
 }
 
 //---------------------------------------------------------------------------------------------------- `/art`
-pub async fn art(artist: &str, album: &str, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+pub async fn art_artist(artist: &str, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+//	// If artist exists...
+//	if let Some((artist, key)) = collection.artist(artist) {
+//		impl_art(key, album, &collection).await
+//	} else {
+//		Ok(resp::not_found("Album was not found"))
+//	}
+	todo!()
+}
+
+pub async fn art_album(artist: &str, album: &str, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
 	// If album exists...
 	if let Some((album, key)) = collection.album(artist, album) {
 		impl_art(key, album, &collection).await

@@ -1980,12 +1980,14 @@ dependencies = [
  "disk",
  "http",
  "hyper",
+ "hyper-staticfile",
  "image",
  "json-rpc",
  "log",
  "memmap2 0.6.2",
  "mime",
  "once_cell",
+ "open",
  "rand",
  "readable",
  "rpc",
@@ -2119,6 +2121,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "futures-macro"
+version = "0.3.28"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "89ca545a94061b6365f2c7355b4b32bd20df3ff95f02da9329b34ccc3bd6ee72"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.27",
+]
+
+[[package]]
 name = "futures-sink"
 version = "0.3.28"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2138,6 +2151,7 @@ checksum = "26b01e40b772d54cf6c6d721c1d1abd0647a0106a12ecaa1c186273392a69533"
 dependencies = [
  "futures-core",
  "futures-io",
+ "futures-macro",
  "futures-sink",
  "futures-task",
  "memchr",
@@ -2563,6 +2577,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "http-range"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "21dec9db110f5f872ed9699c3ecf50cf16f423502706ba5c72462e28d3157573"
+
+[[package]]
 name = "httparse"
 version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2602,6 +2622,25 @@ dependencies = [
  "tower-service",
  "tracing",
  "want",
+]
+
+[[package]]
+name = "hyper-staticfile"
+version = "0.9.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "318ca89e4827e7fe4ddd2824f52337239796ae8ecc761a663324407dc3d8d7e7"
+dependencies = [
+ "futures-util",
+ "http",
+ "http-range",
+ "httpdate",
+ "hyper",
+ "mime_guess",
+ "percent-encoding",
+ "rand",
+ "tokio",
+ "url",
+ "winapi",
 ]
 
 [[package]]

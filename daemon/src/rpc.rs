@@ -72,7 +72,9 @@ const ERR_KEY_SONG:   (i32, &str) = (-32014, "Song key is invalid");
 const ERR_MAP_ARTIST: (i32, &str) = (-32015, "Artist does not exist");
 const ERR_MAP_ALBUM:  (i32, &str) = (-32016, "Album does not exist");
 const ERR_MAP_SONG:   (i32, &str) = (-32017, "Song does not exist");
-const ERR_RESETTING:  (i32, &str) = (-32018, "Currently resetting the Collection");
+const ERR_CURRENT:    (i32, &str) = (-32018, "No song is currently set");
+const ERR_RAND:       (i32, &str) = (-32019, "The Collection is empty");
+const ERR_RESETTING:  (i32, &str) = (-32020, "Currently resetting the Collection");
 
 //---------------------------------------------------------------------------------------------------- Parse, call func, or return macro.
 // Parse
@@ -195,6 +197,11 @@ pub async fn handle(
 		CurrentAlbum  => current_album(request.id, collection.arc()).await,
 		CurrentSong   => current_song(request.id, collection.arc()).await,
 
+		// Rand (rng)
+		RandArtist => rand_artist(request.id, collection.arc()).await,
+		RandAlbum  => rand_album(request.id, collection.arc()).await,
+		RandSong   => rand_song(request.id, collection.arc()).await,
+
 		// Search (fuzzy string)
 		Search       => ppacor!(request, search, rpc::param::Search, collection.arc(), TO_KERNEL, FROM_KERNEL).await,
 		SearchArtist => ppacor!(request, search_artist, rpc::param::SearchArtist, collection.arc(), TO_KERNEL, FROM_KERNEL).await,
@@ -214,6 +221,7 @@ async fn state_daemon<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::
 		total_connections:   atomic_load!(TOTAL_CONNECTIONS),
 		current_connections: crate::statics::connections(),
 		rest:                config().rest,
+		docs:                config().docs,
 		direct_download:     config().direct_download,
 		authorization:       AUTH.get().is_some(),
 		version:             Cow::Borrowed(FESTIVALD_VERSION),
@@ -245,6 +253,7 @@ async fn state_audio<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Res
 
 	let resp = serde_json::json!({
 		"queue": queue,
+		"queue_len": queue.len(),
 		"queue_idx": queue_idx,
 		"playing": playing,
 		"song_key": song_key,
@@ -392,7 +401,12 @@ async fn add_queue_key_artist<'a>(
 ) -> Result<Response<Body>, anyhow::Error> {
 	if let Some(x) = collection.artists.get(params.key) {
 		send!(TO_KERNEL, FrontendToKernel::AddQueueArtist((params.key, params.append, params.clear, params.offset)));
-		Ok(resp::result_ok(id))
+
+		if params.offset != 0 && params.offset >= x.songs.len() {
+			Ok(resp::result(rpc::resp::AddQueueKeyArtist { out_of_bounds: true }, id))
+		} else {
+			Ok(resp::result(rpc::resp::AddQueueKeyArtist { out_of_bounds: false }, id))
+		}
 	} else {
 		Ok(resp::error(ERR_KEY_ARTIST.0, ERR_KEY_ARTIST.1, id))
 	}
@@ -406,7 +420,12 @@ async fn add_queue_key_album<'a>(
 ) -> Result<Response<Body>, anyhow::Error> {
 	if let Some(x) = collection.albums.get(params.key) {
 		send!(TO_KERNEL, FrontendToKernel::AddQueueAlbum((params.key, params.append, params.clear, params.offset)));
-		Ok(resp::result_ok(id))
+
+		if params.offset != 0 && params.offset >= x.songs.len() {
+			Ok(resp::result(rpc::resp::AddQueueKeyAlbum { out_of_bounds: true }, id))
+		} else {
+			Ok(resp::result(rpc::resp::AddQueueKeyAlbum { out_of_bounds: false }, id))
+		}
 	} else {
 		Ok(resp::error(ERR_KEY_ALBUM.0, ERR_KEY_ALBUM.1, id))
 	}
@@ -432,9 +451,14 @@ async fn add_queue_map_artist<'a>(
 	collection: Arc<Collection>,
 	TO_KERNEL:  &Sender<FrontendToKernel>
 ) -> Result<Response<Body>, anyhow::Error> {
-	if let Some((_, key)) = collection.artist(params.artist) {
+	if let Some((x, key)) = collection.artist(params.artist) {
 		send!(TO_KERNEL, FrontendToKernel::AddQueueArtist((key, params.append, params.clear, params.offset)));
-		Ok(resp::result_ok(id))
+
+		if params.offset != 0 && params.offset >= x.songs.len() {
+			Ok(resp::result(rpc::resp::AddQueueKeyArtist { out_of_bounds: true }, id))
+		} else {
+			Ok(resp::result(rpc::resp::AddQueueKeyArtist { out_of_bounds: false }, id))
+		}
 	} else {
 		Ok(resp::error(ERR_MAP_ARTIST.0, ERR_MAP_ARTIST.1, id))
 	}
@@ -446,9 +470,14 @@ async fn add_queue_map_album<'a>(
 	collection: Arc<Collection>,
 	TO_KERNEL:  &Sender<FrontendToKernel>
 ) -> Result<Response<Body>, anyhow::Error> {
-	if let Some((_, key)) = collection.album(params.artist, params.album) {
+	if let Some((x, key)) = collection.album(params.artist, params.album) {
 		send!(TO_KERNEL, FrontendToKernel::AddQueueAlbum((key, params.append, params.clear, params.offset)));
-		Ok(resp::result_ok(id))
+
+		if params.offset != 0 && params.offset >= x.songs.len() {
+			Ok(resp::result(rpc::resp::AddQueueKeyAlbum { out_of_bounds: true }, id))
+		} else {
+			Ok(resp::result(rpc::resp::AddQueueKeyAlbum { out_of_bounds: false }, id))
+		}
 	} else {
 		Ok(resp::error(ERR_MAP_ALBUM.0, ERR_MAP_ALBUM.1, id))
 	}
@@ -474,7 +503,12 @@ async fn set_queue_index<'a>(
 	TO_KERNEL: &Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	send!(TO_KERNEL, FrontendToKernel::SetQueueIndex(params.index));
-	Ok(resp::result_ok(id))
+
+	if params.index >= shukusai::state::AUDIO_STATE.read().queue.len() {
+		Ok(resp::result(rpc::resp::SetQueueIndex { out_of_bounds: true }, id))
+	} else {
+		Ok(resp::result(rpc::resp::SetQueueIndex { out_of_bounds: false }, id))
+	}
 }
 
 async fn remove_queue_range<'a>(
@@ -482,8 +516,14 @@ async fn remove_queue_range<'a>(
 	id:        Option<Id<'a>>,
 	TO_KERNEL: &Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
+	let len = shukusai::state::AUDIO_STATE.read().queue.len();
 	send!(TO_KERNEL, FrontendToKernel::RemoveQueueRange((params.start..params.end, params.skip)));
-	Ok(resp::result_ok(id))
+
+	if params.start > params.end ||  params.start >= len || params.end > len {
+		Ok(resp::result(rpc::resp::RemoveQueueRange { out_of_bounds: true }, id))
+	} else {
+		Ok(resp::result(rpc::resp::RemoveQueueRange { out_of_bounds: false }, id))
+	}
 }
 
 //---------------------------------------------------------------------------------------------------- Key (exact key)
@@ -493,7 +533,7 @@ async fn key_artist<'a>(
 	collection: Arc<Collection>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	if let Some(r) = collection.artists.get(params.key) {
-		Ok(resp::result(r, id))
+		Ok(resp::result(serde_json::json!({ "artist": r }), id))
 	} else {
 		Ok(resp::error(ERR_KEY_ARTIST.0, ERR_KEY_ARTIST.1, id))
 	}
@@ -505,9 +545,9 @@ async fn key_album<'a>(
 	collection: Arc<Collection>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	if let Some(r) = collection.albums.get(params.key) {
-		Ok(resp::result(r, id))
+		Ok(resp::result(serde_json::json!({ "album": r }), id))
 	} else {
-		return Ok(resp::error(ERR_KEY_ALBUM.0, ERR_KEY_ALBUM.1, id))
+		Ok(resp::error(ERR_KEY_ALBUM.0, ERR_KEY_ALBUM.1, id))
 	}
 }
 
@@ -517,9 +557,9 @@ async fn key_song<'a>(
 	collection: Arc<Collection>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	if let Some(r) = collection.songs.get(params.key) {
-		Ok(resp::result(r, id))
+		Ok(resp::result(serde_json::json!({ "song": r }), id))
 	} else {
-		return Ok(resp::error(ERR_KEY_SONG.0, ERR_KEY_SONG.1, id))
+		Ok(resp::error(ERR_KEY_SONG.0, ERR_KEY_SONG.1, id))
 	}
 }
 
@@ -530,9 +570,9 @@ async fn map_artist<'a>(
 	collection: Arc<Collection>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	if let Some((r, _)) = collection.artist(params.artist) {
-		Ok(resp::result(r, id))
+		Ok(resp::result(serde_json::json!({ "artist": r }), id))
 	} else {
-		return Ok(resp::error(ERR_MAP_ARTIST.0, ERR_MAP_ARTIST.1, id))
+		Ok(resp::error(ERR_MAP_ARTIST.0, ERR_MAP_ARTIST.1, id))
 	}
 }
 
@@ -542,9 +582,9 @@ async fn map_album<'a>(
 	collection: Arc<Collection>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	if let Some((r, _)) = collection.album(params.artist, params.album) {
-		Ok(resp::result(r, id))
+		Ok(resp::result(serde_json::json!({ "album": r }), id))
 	} else {
-		return Ok(resp::error(ERR_MAP_ALBUM.0, ERR_MAP_ALBUM.1, id))
+		Ok(resp::error(ERR_MAP_ALBUM.0, ERR_MAP_ALBUM.1, id))
 	}
 }
 
@@ -554,9 +594,9 @@ async fn map_song<'a>(
 	collection: Arc<Collection>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	if let Some((r, _)) = collection.song(params.artist, params.album, params.song) {
-		Ok(resp::result(r, id))
+		Ok(resp::result(serde_json::json!({ "song": r }), id))
 	} else {
-		return Ok(resp::error(ERR_MAP_SONG.0, ERR_MAP_SONG.1, id))
+		Ok(resp::error(ERR_MAP_SONG.0, ERR_MAP_SONG.1, id))
 	}
 }
 
@@ -569,9 +609,9 @@ async fn current_artist<'a>(
 
 	if let Some(key) = song {
 		let (r, _) = collection.artist_from_song(key);
-		Ok(resp::result(r, id))
+		Ok(resp::result(serde_json::json!({ "artist": r }), id))
 	} else {
-		Ok(resp::result(rpc::resp::CurrentArtist { artist: None }, id))
+		Ok(resp::error(ERR_CURRENT.0, ERR_CURRENT.1, id))
 	}
 }
 
@@ -583,9 +623,9 @@ async fn current_album<'a>(
 
 	if let Some(key) = song {
 		let (r, _) = collection.album_from_song(key);
-		Ok(resp::result(r, id))
+		Ok(resp::result(serde_json::json!({ "album": r }), id))
 	} else {
-		Ok(resp::result(rpc::resp::CurrentAlbum { album: None }, id))
+		Ok(resp::error(ERR_CURRENT.0, ERR_CURRENT.1, id))
 	}
 }
 
@@ -597,9 +637,46 @@ async fn current_song<'a>(
 
 	if let Some(key) = song {
 		let r = &collection.songs[key];
-		Ok(resp::result(r, id))
+		Ok(resp::result(serde_json::json!({ "song": r }), id))
 	} else {
-		Ok(resp::result(rpc::resp::CurrentSong { song: None }, id))
+		Ok(resp::error(ERR_CURRENT.0, ERR_CURRENT.1, id))
+	}
+}
+
+//---------------------------------------------------------------------------------------------------- Rand (rng)
+async fn rand_artist<'a>(
+	id:         Option<Id<'a>>,
+	collection: Arc<Collection>,
+) -> Result<Response<Body>, anyhow::Error> {
+	if let Some(key) = collection.rand_artist(None) {
+		let r = &collection.artists[key];
+		Ok(resp::result(serde_json::json!({ "artist": r }), id))
+	} else {
+		Ok(resp::error(ERR_RAND.0, ERR_RAND.1, id))
+	}
+}
+
+async fn rand_album<'a>(
+	id:         Option<Id<'a>>,
+	collection: Arc<Collection>,
+) -> Result<Response<Body>, anyhow::Error> {
+	if let Some(key) = collection.rand_album(None) {
+		let r = &collection.albums[key];
+		Ok(resp::result(serde_json::json!({ "album": r }), id))
+	} else {
+		Ok(resp::error(ERR_RAND.0, ERR_RAND.1, id))
+	}
+}
+
+async fn rand_song<'a>(
+	id:         Option<Id<'a>>,
+	collection: Arc<Collection>,
+) -> Result<Response<Body>, anyhow::Error> {
+	if let Some(key) = collection.rand_song(None) {
+		let r = &collection.songs[key];
+		Ok(resp::result(serde_json::json!({ "song": r }), id))
+	} else {
+		Ok(resp::error(ERR_RAND.0, ERR_RAND.1, id))
 	}
 }
 

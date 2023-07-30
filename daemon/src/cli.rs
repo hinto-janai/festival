@@ -58,6 +58,11 @@ pub struct Cli {
 	/// The max amount of connections `festivald`
 	/// will serve at any given moment.
 	/// `0` means unlimited.
+	///
+	/// Note that 1 client doesn't necessarily mean
+	/// 1 connection. A single web browser client for
+	/// example can make many multiple connections
+	/// to `festivald`.
 	max_connections: Option<usize>,
 
 	#[arg(long, verbatim_doc_comment, value_name = "IP")]
@@ -196,10 +201,22 @@ pub struct Cli {
 	/// This is responsible for the `/rest` API that
 	/// serves image, audio, and other heavy resource data.
 	///
-	/// Setting this to `false` will disable this part
-	/// of the system, and will only leave the JSON-RPC
-	/// API available.
+	/// `--disable-rest` will disable this part of the system,
+	/// and will only leave the JSON-RPC API available.
 	disable_rest: bool,
+
+	#[arg(long, verbatim_doc_comment)]
+	/// Enable/disable serving documentation
+	///
+	/// By default, `festivald` serves a markdown book
+	/// of it's own documentation, accessible at the
+	/// root `/` endpoint, e.g:
+	/// ```
+	/// http://localhost:18425/
+	/// ```
+	///
+	/// `--disable-docs` will disable that.
+	disable_docs: bool,
 
 	#[arg(long, verbatim_doc_comment)]
 	/// Only print logs for `festivald`
@@ -244,6 +261,13 @@ pub enum Command {
 #[command(arg_required_else_help(true))]
 #[command(override_usage = formatcp!("{BIN} data OPTION [ARG]"))]
 pub struct Data {
+	#[arg(long, verbatim_doc_comment)]
+	/// Open documentation locally in browser
+	///
+	/// This opens `festivald'`s documentation in a web
+	/// browser, and does not start `festivald` itself.
+	docs: bool,
+
 	#[arg(long, verbatim_doc_comment)]
 	/// Print the PATHs used by Festival
 	///
@@ -425,6 +449,23 @@ impl Cli {
 			let p = shukusai::collection::Collection::sub_dir_parent_path().unwrap();
 			println!("{}", p.display());
 
+			exit(0);
+		}
+
+		// Docs.
+		if u.docs {
+			// Create documentation.
+			match crate::docs::Docs::create() {
+				Ok(mut path) => {
+					path.push("index.html");
+
+					match open::that_detached(path) {
+						Ok(_)  => exit(0),
+						Err(e) => { eprintln!("festivald: Could not open docs: {e}"); exit(1); },
+					}
+				},
+				Err(e) => { eprintln!("festivald: Could not create docs: {e}"); exit(1); },
+			}
 			exit(0);
 		}
 

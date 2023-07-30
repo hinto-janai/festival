@@ -24,14 +24,14 @@ impl_struct!(Volume, volume: u8);
 impl_struct!(Clear, playback: bool);
 impl_struct!(Skip, skip: usize);
 impl_struct!(Back, back: usize);
-impl_struct!(SetQueueIndex, index: usize);
-impl_struct!(RemoveQueueRange, start: usize, end: usize, skip: bool);
 impl_struct!(AddQueueKeyArtist, key: ArtistKey, append: Append, clear: bool, offset: usize);
 impl_struct!(AddQueueKeyAlbum, key: AlbumKey, append: Append, clear: bool, offset: usize);
 impl_struct!(AddQueueKeySong, key: SongKey, append: Append, clear: bool);
 impl_struct_lt!(AddQueueMapArtist, artist: Cow<'a, str>, append: Append, clear: bool, offset: usize);
 impl_struct_lt!(AddQueueMapAlbum, artist: Cow<'a, str>, album: Cow<'a, str>, append: Append, clear: bool, offset: usize);
 impl_struct_lt!(AddQueueMapSong, artist: Cow<'a, str>, album: Cow<'a, str>, song: Cow<'a, str>, append: Append, clear: bool);
+impl_struct!(SetQueueIndex, index: usize);
+impl_struct!(RemoveQueueRange, start: usize, end: usize, skip: bool);
 impl_struct!(Seek, seek: shukusai::audio::Seek, second: u64);
 
 // Key (exact key)
@@ -148,6 +148,7 @@ mod tests {
 		t(&Search { input: "hello1".into(), kind: shukusai::search::SearchKind::All }, r#"{"input":"hello1","kind":"all"}"#);
 		t(&Search { input: "hello2".into(), kind: shukusai::search::SearchKind::Sim70 }, r#"{"input":"hello2","kind":"sim70"}"#);
 		t(&Search { input: "hello3".into(), kind: shukusai::search::SearchKind::Top25 }, r#"{"input":"hello3","kind":"top25"}"#);
+		t(&Search { input: "hello4".into(), kind: shukusai::search::SearchKind::Top1 }, r#"{"input":"hello4","kind":"top1"}"#);
 	}
 
 	#[test]
@@ -155,6 +156,7 @@ mod tests {
 		t(&SearchArtist { input: "hello1".into(), kind: shukusai::search::SearchKind::All }, r#"{"input":"hello1","kind":"all"}"#);
 		t(&SearchArtist { input: "hello2".into(), kind: shukusai::search::SearchKind::Sim70 }, r#"{"input":"hello2","kind":"sim70"}"#);
 		t(&SearchArtist { input: "hello3".into(), kind: shukusai::search::SearchKind::Top25 }, r#"{"input":"hello3","kind":"top25"}"#);
+		t(&SearchArtist { input: "hello4".into(), kind: shukusai::search::SearchKind::Top1 }, r#"{"input":"hello4","kind":"top1"}"#);
 	}
 
 	#[test]
@@ -162,6 +164,7 @@ mod tests {
 		t(&SearchAlbum { input: "hello1".into(), kind: shukusai::search::SearchKind::All }, r#"{"input":"hello1","kind":"all"}"#);
 		t(&SearchAlbum { input: "hello2".into(), kind: shukusai::search::SearchKind::Sim70 }, r#"{"input":"hello2","kind":"sim70"}"#);
 		t(&SearchAlbum { input: "hello3".into(), kind: shukusai::search::SearchKind::Top25 }, r#"{"input":"hello3","kind":"top25"}"#);
+		t(&SearchAlbum { input: "hello4".into(), kind: shukusai::search::SearchKind::Top1 }, r#"{"input":"hello4","kind":"top1"}"#);
 	}
 
 	#[test]
@@ -169,6 +172,7 @@ mod tests {
 		t(&SearchSong { input: "hello1".into(), kind: shukusai::search::SearchKind::All }, r#"{"input":"hello1","kind":"all"}"#);
 		t(&SearchSong { input: "hello2".into(), kind: shukusai::search::SearchKind::Sim70 }, r#"{"input":"hello2","kind":"sim70"}"#);
 		t(&SearchSong { input: "hello3".into(), kind: shukusai::search::SearchKind::Top25 }, r#"{"input":"hello3","kind":"top25"}"#);
+		t(&SearchSong { input: "hello4".into(), kind: shukusai::search::SearchKind::Top1 }, r#"{"input":"hello4","kind":"top1"}"#);
 	}
 
 	#[test]

@@ -19,7 +19,7 @@ macro_rules! impl_struct_anon {
 		#[derive(Clone,Debug,PartialEq,Serialize,Deserialize)]
 		#[serde(transparent)]
 		#[repr(transparent)]
-		pub struct $struct($type);
+		pub struct $struct(pub $type);
 	}
 }
 

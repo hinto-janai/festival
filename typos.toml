@@ -7,5 +7,6 @@ extend-ignore-identifiers-re = [
 [files]
 extend-exclude = [
 	"daemon/src/cert.rs",
+	"daemon/docs/docs/",
 	"external/",
 ]

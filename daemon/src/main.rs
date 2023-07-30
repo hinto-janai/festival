@@ -3,6 +3,7 @@ mod cert;
 mod cli;
 mod config;
 mod constants;
+mod docs;
 mod hash;
 mod macros;
 mod ptr;

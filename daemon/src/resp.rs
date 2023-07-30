@@ -59,6 +59,18 @@ pub fn rest_zip(body: hyper::body::Body, name: &str) -> Response<Body> {
 	}
 }
 
+pub fn rest_ok_msg(msg: &'static str) -> Response<Body> {
+	// SAFETY: This `.unwraps()` are safe. The content is static.
+	Builder::new()
+		.status(StatusCode::OK)
+//		.header(CONTENT_TYPE, TEXT_PLAIN_UTF_8.essence_str())
+		.header(CONTENT_TYPE, "text/html; charset=UTF-8")
+		.header(CONTENT_LENGTH, msg.len())
+		.header(CONTENT_DISPOSITION, VIEW_IN_BROWSER)
+		.body(Body::from(msg))
+		.unwrap()
+}
+
 //---------------------------------------------------------------------------------------------------- REST Error Responses
 // Unknown requests (404)
 pub fn not_found(msg: &'static str) -> Response<Body> {
@@ -71,7 +83,6 @@ pub fn not_found(msg: &'static str) -> Response<Body> {
 		.unwrap()
 }
 
-
 // Unauthorized request (401)
 pub fn unauthorized(msg: &'static str) -> Response<Body> {
 	// SAFETY: This `.unwraps()` are safe. The content is static.
@@ -80,6 +91,28 @@ pub fn unauthorized(msg: &'static str) -> Response<Body> {
 		.header(CONTENT_TYPE, TEXT_PLAIN_UTF_8.essence_str())
 		.header(CONTENT_LENGTH, msg.len())
 		.header(WWW_AUTHENTICATE, r#"Basic realm="User Visible Realm", charset="UTF-8""#)
+		.body(Body::from(msg))
+		.unwrap()
+}
+
+// Forbidden request (403)
+pub fn forbidden(msg: &'static str) -> Response<Body> {
+	// SAFETY: This `.unwraps()` are safe. The content is static.
+	Builder::new()
+		.status(StatusCode::FORBIDDEN)
+		.header(CONTENT_TYPE, TEXT_PLAIN_UTF_8.essence_str())
+		.header(CONTENT_LENGTH, msg.len())
+		.body(Body::from(msg))
+		.unwrap()
+}
+
+// Method now allowed (405)
+pub fn method_not_allowed(msg: &'static str) -> Response<Body> {
+	// SAFETY: This `.unwraps()` are safe. The content is static.
+	Builder::new()
+		.status(StatusCode::METHOD_NOT_ALLOWED)
+		.header(CONTENT_TYPE, TEXT_PLAIN_UTF_8.essence_str())
+		.header(CONTENT_LENGTH, msg.len())
 		.body(Body::from(msg))
 		.unwrap()
 }
@@ -109,7 +142,7 @@ pub fn resetting_rest() -> Response<Body> {
 
 //---------------------------------------------------------------------------------------------------- JSON-RPC Responses
 pub fn result_ok<'a>(id: Option<json_rpc::Id<'a>>) -> Response<Body> {
-	let r = json_rpc::Response::result(Cow::<rpc::resp::Status>::Owned(rpc::resp::Status { ok: true }), id.clone());
+	let r = json_rpc::Response::result(Cow::<rpc::resp::Status>::Owned(rpc::resp::Status(())), id.clone());
 	let r = match serde_json::to_string_pretty(&r) {
 		Ok(r)  => r,
 		Err(e) => return internal_error(id),

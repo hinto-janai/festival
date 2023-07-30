@@ -33,10 +33,15 @@ port = 18425
 # will serve at any given moment.
 # `0` means unlimited.
 #
-# DEFAULT | 4
-# EXAMPLE | 16, 32, 64, 1000, 99999
+# Note that 1 client doesn't necessarily mean
+# 1 connection. A single web browser client for
+# example can make many multiple connections
+# to `festivald`.
+#
+# DEFAULT | 0
+# EXAMPLE | 2, 4, 8, 16, 32, 64, 1000, 99999
 # TYPE    | unsigned integer
-max_connections = 4
+max_connections = 0
 
 # `festivald` will only serve connections coming
 # from these IPs. An empty array `[]` or an array
@@ -111,6 +116,22 @@ key = ""
 # VALUES  | true, false
 # TYPE    | boolean
 rest = true
+
+# Enable/disable serving documentation.
+#
+# By default, `festivald` serves a markdown book
+# of it's own documentation, accessible at the
+# root `/` endpoint, e.g:
+# ```
+# http://localhost:18425/
+# ```
+#
+# Setting this to `false` will disable that.
+#
+# DEFAULT | true
+# VALUES  | true, false
+# TYPE    | boolean
+docs = true
 
 # Enable/disable direct downloads via the REST API.
 #

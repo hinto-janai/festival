@@ -31,7 +31,19 @@ use std::collections::VecDeque;
 
 //---------------------------------------------------------------------------------------------------- Response impl
 // Generic response.
-impl_struct!(Status, ok: bool);
+impl_struct_anon!(Status, ());
+
+// Collection
+impl_struct! {
+	NewCollection,
+	time: f64,
+	empty: bool,
+	timestamp: u64,
+	count_artist: u64,
+	count_album: u64,
+	count_song: u64,
+	count_art: u64
+}
 
 // State retrieval.
 impl_struct_lt! {
@@ -41,6 +53,7 @@ impl_struct_lt! {
 	total_connections:   u64,
 	current_connections: u64,
 	rest:                bool,
+	docs:                bool,
 	direct_download:     bool,
 	authorization:       bool,
 	#[serde(borrow)]
@@ -54,6 +67,7 @@ impl_struct_lt! {
 	StateAudio,
 	#[serde(borrow)]
 	queue:     Cow<'a, [SongKey]>,
+	queue_len: usize,
 	queue_idx: Option<usize>,
 	playing:   bool,
 	song_key:  Option<SongKey>,
@@ -120,17 +134,34 @@ impl_struct_lt! {
 impl_struct_lt! {
 	CurrentArtist,
 	#[serde(borrow)]
-	artist: Option<ArtistJson<'a>>
+	artist: ArtistJson<'a>
 }
 impl_struct_lt! {
 	CurrentAlbum,
 	#[serde(borrow)]
-	album: Option<AlbumJson<'a>>
+	album: AlbumJson<'a>
 }
 impl_struct_lt! {
 	CurrentSong,
 	#[serde(borrow)]
-	song: Option<SongJson<'a>>
+	song: SongJson<'a>
+}
+
+// Rand (rng)
+impl_struct_lt! {
+	RandArtist,
+	#[serde(borrow)]
+	artist: ArtistJson<'a>
+}
+impl_struct_lt! {
+	RandAlbum,
+	#[serde(borrow)]
+	album: AlbumJson<'a>
+}
+impl_struct_lt! {
+	RandSong,
+	#[serde(borrow)]
+	song: SongJson<'a>
 }
 
 // Search (fuzzy keys)
@@ -159,16 +190,38 @@ impl_struct_lt! {
 	songs: Cow<'a, [SongJson<'a>]>
 }
 
-// Collection
+// Queue
 impl_struct! {
-	NewCollection,
-	time: f64,
-	empty: bool,
-	timestamp: u64,
-	count_artist: u64,
-	count_album: u64,
-	count_song: u64,
-	count_art: u64
+	AddQueueKeyArtist,
+	out_of_bounds: bool
+}
+impl_struct! {
+	AddQueueKeyAlbum,
+	out_of_bounds: bool
+}
+impl_struct! {
+	AddQueueKeySong,
+	out_of_bounds: bool
+}
+impl_struct! {
+	AddQueueMapArtist,
+	out_of_bounds: bool
+}
+impl_struct! {
+	AddQueueMapAlbum,
+	out_of_bounds: bool
+}
+impl_struct! {
+	AddQueueMapSong,
+	out_of_bounds: bool
+}
+impl_struct! {
+	SetQueueIndex,
+	out_of_bounds: bool
+}
+impl_struct! {
+	RemoveQueueRange,
+	out_of_bounds: bool
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

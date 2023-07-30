@@ -14,7 +14,7 @@ use rand::{
 	distributions::{DistString,Alphanumeric},
 };
 
-//---------------------------------------------------------------------------------------------------- __NAME__
+//---------------------------------------------------------------------------------------------------- TmpZip
 // Handle to a randomized `PathBuf` where
 // temporary zip files can be written.
 //

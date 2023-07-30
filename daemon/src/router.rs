@@ -66,11 +66,13 @@ use tokio::net::{
 };
 use crate::resp;
 use benri::{
+	ok,
 	atomic_add,
 	atomic_store,
 	recv,send,
 	debug_panic,
 };
+use std::net::SocketAddr;
 use std::sync::atomic::{
 	AtomicPtr,
 	Ordering,
@@ -108,6 +110,20 @@ pub async fn init(
 		Box::leak(Box::new(to_router)),
 		Box::leak(Box::new(from_task)),
 	);
+
+	// Create documentation.
+	if CONFIG.docs {
+		match crate::docs::Docs::create() {
+			Ok(path)  => {
+				// SAFETY: we only set this `OnceCell` here.
+				crate::docs::DOCS_PATH.set(path).unwrap();
+				ok!("festivald - Docs");
+			}
+			Err(e) => warn!("festivald - Could not create docs: {e}"),
+		}
+	} else {
+		info!("festivald - Skipping docs...");
+	}
 
 	// Wait until `Kernel` has given us `Arc<Collection>`.
 	let mut collection = loop {
@@ -174,30 +190,6 @@ pub async fn init(
 				}
 			};
 
-			// Only accept IPv4.
-			let addr = match addr {
-				std::net::SocketAddr::V4(addr) => {
-					info!("Router - New connection: [{}]", addr.ip());
-					addr
-				},
-				std::net::SocketAddr::V6(addr) => {
-					warn!("Router - Skipping IPv6 connection: [{}]", addr.ip());
-					sleep_on_fail().await;
-					continue;
-				},
-			};
-
-			let ip = addr.ip();
-
-			// If we have an exclusive IP list, deny non-contained IP connections.
-			if let Some(ips) = &CONFIG.exclusive_ips {
-				if !ips.contains(ip) {
-					info!("Router - IP not in exclusive list, skipping [{ip}]");
-					sleep_on_fail().await;
-					continue;
-				}
-			}
-
 			let connection_token = ConnectionToken::new();
 
 			// If we are past the connection limit, wait until some
@@ -205,7 +197,7 @@ pub async fn init(
 			if let Some(max) = CONFIG.max_connections {
 				if crate::statics::connections() > max {
 					// Only log once.
-					warn!("Router - Past max connections [{max}], waiting before serving [{ip}]...");
+					warn!("Router - Past max connections [{max}], waiting before serving [{}]...", addr.ip());
 
 					while crate::statics::connections() > max {
 						tokio::time::sleep(std::time::Duration::from_millis(10)).await;
@@ -295,7 +287,7 @@ pub async fn init(
 async fn http(
 	_c:             ConnectionToken,
 	stream:         TcpStream,
-	addr:           SocketAddrV4,
+	addr:           SocketAddr,
 	COLLECTION_PTR: &'static CollectionPtr,
 	TO_KERNEL:      &'static Sender<FrontendToKernel>,
 	FROM_KERNEL:    &'static Receiver<KernelToFrontend>,
@@ -316,7 +308,7 @@ async fn http(
 async fn https(
 	_c:             ConnectionToken,
 	stream:         TcpStream,
-	addr:           SocketAddrV4,
+	addr:           SocketAddr,
 	acceptor:       &'static TlsAcceptor,
 	COLLECTION_PTR: &'static CollectionPtr,
 	TO_KERNEL:      &'static Sender<FrontendToKernel>,
@@ -345,7 +337,7 @@ async fn https(
 // Route requests to other functions.
 async fn route(
 	req:            Request<Body>,
-	addr:           SocketAddrV4,
+	addr:           SocketAddr,
 	COLLECTION_PTR: &'static CollectionPtr,
 	TO_KERNEL:      &'static Sender<FrontendToKernel>,
 	FROM_KERNEL:    &'static Receiver<KernelToFrontend>,
@@ -353,26 +345,82 @@ async fn route(
 ) -> Result<Response<Body>, anyhow::Error> {
 	atomic_add!(TOTAL_REQUESTS, 1);
 
+	//-------------------------------------------------- Only accept IPv4
+	let addr = match addr {
+		std::net::SocketAddr::V4(addr) => {
+			debug!("Task - New connection: [{}]", addr.ip());
+			addr
+		},
+		std::net::SocketAddr::V6(addr) => {
+			warn!("Task - Skipping IPv6 connection: [{}]", addr.ip());
+			sleep_on_fail().await;
+			return Ok(resp::server_err("IPv4 not supported"));
+		},
+	};
+
+
+	//-------------------------------------------------- Exclusive IP list
+	let ip = addr.ip();
+	if let Some(ips) = &config().exclusive_ips {
+		if !ips.contains(ip) {
+			info!("Task - IP not in exclusive list, skipping [{ip}]");
+			sleep_on_fail().await;
+			return Ok(resp::forbidden("IP not in exclusive list"));
+		}
+	}
+
+	//-------------------------------------------------- Authorization
 	let (mut parts, body) = req.into_parts();
 
-//	println!("{parts:#?}");
-//	println!("{body:#?}");
-
-	// AUTHORIZATION.
 	if let Some(resp) = auth(&mut parts).await {
 		return Ok(resp);
 	}
 
-	if parts.uri == "/" && parts.method == hyper::Method::POST {
+//	println!("{parts:#?}");
+//	println!("{body:#?}");
+
+	//-------------------------------------------------- JSON-RPC
+	if parts.method == hyper::Method::POST {
 		crate::rpc::handle(parts, body, addr, COLLECTION_PTR, TO_KERNEL, FROM_KERNEL, TO_ROUTER).await
-	} else if parts.method == hyper::Method::GET {
+	//-------------------------------------------------- REST
+	} else if crate::rest::REST_ENDPOINTS.contains({
+		let mut uri = parts.uri.path().split("/");
+		uri.next();
+		&uri.next().unwrap_or_else(|| "")
+	}) {
 		if config().rest {
 			crate::rest::handle(parts, COLLECTION_PTR).await
 		} else {
-			Ok(resp::not_found("REST is disabled"))
+			Ok(resp::forbidden("REST is disabled"))
 		}
+	//-------------------------------------------------- Documentation
+	} else if config().docs {
+		let Some(path) = crate::docs::DOCS_PATH.get() else {
+			return Ok(resp::server_err("Documentation failed to build"));
+		};
+
+		let sta = hyper_staticfile::Static::new(&path);
+		let req = Request::from_parts(parts, body);
+
+		let Ok(resolve) = hyper_staticfile::resolve(&path, &req).await else {
+			return Ok(resp::not_found(crate::rest::ERR_END));
+		};
+
+		match resolve {
+			hyper_staticfile::ResolveResult::Found { .. } => (),
+			_ => return Ok(resp::not_found(crate::rest::ERR_END)),
+		}
+
+		match hyper_staticfile::ResponseBuilder::new()
+			.request(&req)
+			.build(resolve)
+		{
+			Ok(r) => Ok(r),
+			_     => Ok(resp::not_found(crate::rest::ERR_END)),
+		}
+	//-------------------------------------------------- Unknown endpoint.
 	} else {
-		Ok(resp::not_found("Invalid request"))
+		Ok(resp::not_found(crate::rest::ERR_END))
 	}
 }
 
