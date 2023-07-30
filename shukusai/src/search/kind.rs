@@ -18,6 +18,8 @@ pub const ALL:    &str = "View all the results, sorted from most similar to leas
 pub const SIM_70: &str = "View only the results that are at least 70% similar";
 /// [`SearchKind::Top25`]
 pub const TOP_25: &str = "View only the top 25 similar results";
+/// [`SearchKind::Top1`]
+pub const TOP_1: &str = "View only the top 1 similar results";
 
 //---------------------------------------------------------------------------------------------------- SearchKind
 #[derive(Copy,Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
@@ -34,6 +36,8 @@ pub enum SearchKind {
 	Sim70,
 	/// [`Self::All`], but only returns the top 25 results
 	Top25,
+	/// [`Self::All`], but only returns the top 1 results
+	Top1,
 }
 
 impl SearchKind {
@@ -43,6 +47,7 @@ impl SearchKind {
 		match self {
 			Self::Sim70 => SIM_70,
 			Self::Top25 => TOP_25,
+			Self::Top1  => TOP_1,
 			Self::All   => ALL,
 		}
 	}
@@ -54,7 +59,8 @@ impl SearchKind {
 		match self {
 			Self::All   => Self::Sim70,
 			Self::Sim70 => Self::Top25,
-			Self::Top25 => Self::All,
+			Self::Top25 => Self::Top1,
+			Self::Top1  => Self::All,
 		}
 	}
 
@@ -63,9 +69,10 @@ impl SearchKind {
 	/// This returns the _last_ if at the _first_.
 	pub fn previous(&self) -> Self {
 		match self {
-			Self::All   => Self::Top25,
+			Self::All   => Self::Top1,
 			Self::Sim70 => Self::All,
 			Self::Top25 => Self::Sim70,
+			Self::Top1  => Self::Top25,
 		}
 	}
 }
