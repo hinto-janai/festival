@@ -954,11 +954,11 @@ impl Audio {
 				self.set(key, &mut state);
 			},
 			Append::Index(i) => {
-				state.queue.insert(i, key);
 				if i == 0 {
 					state.queue_idx = Some(0);
 					self.set(key, &mut state);
 				}
+				state.queue.insert(i, key);
 			}
 		}
 	}
@@ -1006,11 +1006,12 @@ impl Audio {
 				self.set(self.collection.albums[key].songs[offset], &mut state);
 			},
 			Append::Index(mut i) => {
+				let og_i = i;
 				keys.for_each(|k| {
 					state.queue.insert(i, *k);
 					i += 1;
 				});
-				if i == 0 {
+				if og_i == 0 {
 					state.queue_idx = Some(0);
 					self.set(self.collection.albums[key].songs[offset], &mut state);
 				}
@@ -1061,14 +1062,14 @@ impl Audio {
 				self.set(keys[offset], &mut state);
 			},
 			Append::Index(mut i) => {
-				iter.for_each(|k| {
-					state.queue.insert(i, *k);
-					i += 1;
-				});
 				if i == 0 {
 					state.queue_idx = Some(0);
 					self.set(keys[offset], &mut state);
 				}
+				iter.for_each(|k| {
+					state.queue.insert(i, *k);
+					i += 1;
+				});
 			}
 		}
 	}
