@@ -16,19 +16,15 @@ All the frontends are built on top of the internals, [`shukusai`](https://github
 
 Currently, the most full frontend implementation is [`festival-gui`](https://github.com/hinto-janai/festival/tree/main/gui) (or just called `Festival`).
 
-| Frontend                    | Description | Released |
-|-----------------------------|-------------|----------|
-| [`festival-gui`](https://github.com/hinto-janai/festival/tree/main/gui) | GUI ([`egui`](https://github.com/emilk/egui))                   | 🟢 2023-06-28 |
-| [`festivald`](https://github.com/hinto-janai/festival/tree/main/daemon) | Daemon ([`mpd`](https://github.com/MusicPlayerDaemon/MPD)-like) | 🔴            |
-| [`festival-cli`](https://github.com/hinto-janai/festival/tree/main/cli) | CLI client                                                      | 🔴            |
-| [`festival-web`](https://github.com/hinto-janai/festival/tree/main/web) | WASM client                                                     | 🔴            |
-| [`festival-tui`](https://github.com/hinto-janai/festival/tree/main/tui) | Standalone TUI                                                  | 🔴            |
+| Frontend                    | Description | Released | Documentation |
+|-----------------------------|-------------|----------|---------------|
+| [`festival-gui`](https://github.com/hinto-janai/festival/tree/main/gui) | GUI            | 🟢 2023-06-28 | https://docs.festival.pm/gui
+| [`festivald`](https://github.com/hinto-janai/festival/tree/main/daemon) | Daemon         | 🔴            | https://docs.festival.pm/daemon
+| [`festival-cli`](https://github.com/hinto-janai/festival/tree/main/cli) | CLI client     | 🔴            | https://docs.festival.pm/cli
+| [`festival-tui`](https://github.com/hinto-janai/festival/tree/main/tui) | Standalone TUI | 🔴            | https://docs.festival.pm/tui
+| [`festival-web`](https://github.com/hinto-janai/festival/tree/main/web) | Web server     | 🔴            | https://docs.festival.pm/web
 
-## Documentation
-For a user guide on Festival, see [`gui/`](https://github.com/hinto-janai/festival/tree/main/gui/README.md).
-
-For a broad overview of the internals, see [`shukusai/`](https://github.com/hinto-janai/festival/tree/main/shukusai).
-
+## Comparison
 For a comparison between Festival and other music players, see [`comparison/`](https://github.com/hinto-janai/festival/tree/main/comparison/README.md).
 
 ## Build
