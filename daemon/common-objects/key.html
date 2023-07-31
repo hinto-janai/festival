@@ -1,0 +1,339 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js navy">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Key - festivald v0.0.0</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "navy";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('navy')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var html = document.querySelector('html');
+            var sidebar = null;
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../intro.html">Intro</a></li><li class="chapter-item expanded "><a href="../quick-start.html"><strong aria-hidden="true">1.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="../config.html"><strong aria-hidden="true">2.</strong> Config</a></li><li class="chapter-item expanded "><a href="../disk.html"><strong aria-hidden="true">3.</strong> Disk</a></li><li class="chapter-item expanded "><a href="../authorization.html"><strong aria-hidden="true">4.</strong> Authorization</a></li><li class="chapter-item expanded "><a href="../command-line.html"><strong aria-hidden="true">5.</strong> Command Line</a></li><li class="chapter-item expanded "><a href="../api-stability.html"><strong aria-hidden="true">6.</strong> API Stability</a></li><li class="chapter-item expanded "><a href="../common-objects/common-objects.html"><strong aria-hidden="true">7.</strong> Common Objects</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../common-objects/collection.html"><strong aria-hidden="true">7.1.</strong> Collection</a></li><li class="chapter-item expanded "><a href="../common-objects/key.html" class="active"><strong aria-hidden="true">7.2.</strong> Key</a></li><li class="chapter-item expanded "><a href="../common-objects/artist.html"><strong aria-hidden="true">7.3.</strong> Artist</a></li><li class="chapter-item expanded "><a href="../common-objects/album.html"><strong aria-hidden="true">7.4.</strong> Album</a></li><li class="chapter-item expanded "><a href="../common-objects/song.html"><strong aria-hidden="true">7.5.</strong> Song</a></li></ol></li><li class="chapter-item expanded "><a href="../json-rpc.html"><strong aria-hidden="true">8.</strong> JSON-RPC</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../json-rpc/quick-start.html"><strong aria-hidden="true">8.1.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="../json-rpc/collection/collection.html"><strong aria-hidden="true">8.2.</strong> Collection</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../json-rpc/collection/new_collection.html"><strong aria-hidden="true">8.2.1.</strong> new_collection</a></li></ol></li><li class="chapter-item expanded "><a href="../json-rpc/state-retrieval/state-retrieval.html"><strong aria-hidden="true">8.3.</strong> State Retrieval</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../json-rpc/state-retrieval/state_daemon.html"><strong aria-hidden="true">8.3.1.</strong> state_daemon</a></li><li class="chapter-item expanded "><a href="../json-rpc/state-retrieval/state_audio.html"><strong aria-hidden="true">8.3.2.</strong> state_audio</a></li><li class="chapter-item expanded "><a href="../json-rpc/state-retrieval/state_reset.html"><strong aria-hidden="true">8.3.3.</strong> state_reset</a></li><li class="chapter-item expanded "><a href="../json-rpc/state-retrieval/state_collection.html"><strong aria-hidden="true">8.3.4.</strong> state_collection</a></li><li class="chapter-item expanded "><a href="../json-rpc/state-retrieval/state_collection_full.html"><strong aria-hidden="true">8.3.5.</strong> state_collection_full</a></li></ol></li><li class="chapter-item expanded "><a href="../json-rpc/key/key.html"><strong aria-hidden="true">8.4.</strong> Key</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../json-rpc/key/key_artist.html"><strong aria-hidden="true">8.4.1.</strong> key_artist</a></li><li class="chapter-item expanded "><a href="../json-rpc/key/key_album.html"><strong aria-hidden="true">8.4.2.</strong> key_album</a></li><li class="chapter-item expanded "><a href="../json-rpc/key/key_song.html"><strong aria-hidden="true">8.4.3.</strong> key_song</a></li></ol></li><li class="chapter-item expanded "><a href="../json-rpc/map/map.html"><strong aria-hidden="true">8.5.</strong> Map</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../json-rpc/map/map_artist.html"><strong aria-hidden="true">8.5.1.</strong> map_artist</a></li><li class="chapter-item expanded "><a href="../json-rpc/map/map_album.html"><strong aria-hidden="true">8.5.2.</strong> map_album</a></li><li class="chapter-item expanded "><a href="../json-rpc/map/map_song.html"><strong aria-hidden="true">8.5.3.</strong> map_song</a></li></ol></li><li class="chapter-item expanded "><a href="../json-rpc/current/current.html"><strong aria-hidden="true">8.6.</strong> Current</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../json-rpc/current/current_artist.html"><strong aria-hidden="true">8.6.1.</strong> current_artist</a></li><li class="chapter-item expanded "><a href="../json-rpc/current/current_album.html"><strong aria-hidden="true">8.6.2.</strong> current_album</a></li><li class="chapter-item expanded "><a href="../json-rpc/current/current_song.html"><strong aria-hidden="true">8.6.3.</strong> current_song</a></li></ol></li><li class="chapter-item expanded "><a href="../json-rpc/rand/rand.html"><strong aria-hidden="true">8.7.</strong> Rand</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../json-rpc/rand/rand_artist.html"><strong aria-hidden="true">8.7.1.</strong> rand_artist</a></li><li class="chapter-item expanded "><a href="../json-rpc/rand/rand_album.html"><strong aria-hidden="true">8.7.2.</strong> rand_album</a></li><li class="chapter-item expanded "><a href="../json-rpc/rand/rand_song.html"><strong aria-hidden="true">8.7.3.</strong> rand_song</a></li></ol></li><li class="chapter-item expanded "><a href="../json-rpc/search/index.html"><strong aria-hidden="true">8.8.</strong> Search</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../json-rpc/search/search.html"><strong aria-hidden="true">8.8.1.</strong> search</a></li><li class="chapter-item expanded "><a href="../json-rpc/search/search_artist.html"><strong aria-hidden="true">8.8.2.</strong> search_artist</a></li><li class="chapter-item expanded "><a href="../json-rpc/search/search_album.html"><strong aria-hidden="true">8.8.3.</strong> search_album</a></li><li class="chapter-item expanded "><a href="../json-rpc/search/search_song.html"><strong aria-hidden="true">8.8.4.</strong> search_song</a></li></ol></li><li class="chapter-item expanded "><a href="../json-rpc/playback-control/playback-control.html"><strong aria-hidden="true">8.9.</strong> Playback Control</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../json-rpc/playback-control/toggle.html"><strong aria-hidden="true">8.9.1.</strong> toggle</a></li><li class="chapter-item expanded "><a href="../json-rpc/playback-control/play.html"><strong aria-hidden="true">8.9.2.</strong> play</a></li><li class="chapter-item expanded "><a href="../json-rpc/playback-control/pause.html"><strong aria-hidden="true">8.9.3.</strong> pause</a></li><li class="chapter-item expanded "><a href="../json-rpc/playback-control/next.html"><strong aria-hidden="true">8.9.4.</strong> next</a></li><li class="chapter-item expanded "><a href="../json-rpc/playback-control/stop.html"><strong aria-hidden="true">8.9.5.</strong> stop</a></li><li class="chapter-item expanded "><a href="../json-rpc/playback-control/shuffle.html"><strong aria-hidden="true">8.9.6.</strong> shuffle</a></li><li class="chapter-item expanded "><a href="../json-rpc/playback-control/repeat_off.html"><strong aria-hidden="true">8.9.7.</strong> repeat_off</a></li><li class="chapter-item expanded "><a href="../json-rpc/playback-control/repeat_song.html"><strong aria-hidden="true">8.9.8.</strong> repeat_song</a></li><li class="chapter-item expanded "><a href="../json-rpc/playback-control/repeat_queue.html"><strong aria-hidden="true">8.9.9.</strong> repeat_queue</a></li><li class="chapter-item expanded "><a href="../json-rpc/playback-control/previous.html"><strong aria-hidden="true">8.9.10.</strong> previous</a></li><li class="chapter-item expanded "><a href="../json-rpc/playback-control/volume.html"><strong aria-hidden="true">8.9.11.</strong> volume</a></li><li class="chapter-item expanded "><a href="../json-rpc/playback-control/clear.html"><strong aria-hidden="true">8.9.12.</strong> clear</a></li><li class="chapter-item expanded "><a href="../json-rpc/playback-control/seek.html"><strong aria-hidden="true">8.9.13.</strong> seek</a></li><li class="chapter-item expanded "><a href="../json-rpc/playback-control/skip.html"><strong aria-hidden="true">8.9.14.</strong> skip</a></li><li class="chapter-item expanded "><a href="../json-rpc/playback-control/back.html"><strong aria-hidden="true">8.9.15.</strong> back</a></li><li class="chapter-item expanded "><a href="../json-rpc/playback-control/add_queue_key_artist.html"><strong aria-hidden="true">8.9.16.</strong> add_queue_key_artist</a></li><li class="chapter-item expanded "><a href="../json-rpc/playback-control/add_queue_key_album.html"><strong aria-hidden="true">8.9.17.</strong> add_queue_key_album</a></li><li class="chapter-item expanded "><a href="../json-rpc/playback-control/add_queue_key_song.html"><strong aria-hidden="true">8.9.18.</strong> add_queue_key_song</a></li><li class="chapter-item expanded "><a href="../json-rpc/playback-control/add_queue_map_artist.html"><strong aria-hidden="true">8.9.19.</strong> add_queue_map_artist</a></li><li class="chapter-item expanded "><a href="../json-rpc/playback-control/add_queue_map_album.html"><strong aria-hidden="true">8.9.20.</strong> add_queue_map_album</a></li><li class="chapter-item expanded "><a href="../json-rpc/playback-control/add_queue_map_song.html"><strong aria-hidden="true">8.9.21.</strong> add_queue_map_song</a></li><li class="chapter-item expanded "><a href="../json-rpc/playback-control/set_queue_index.html"><strong aria-hidden="true">8.9.22.</strong> set_queue_index</a></li><li class="chapter-item expanded "><a href="../json-rpc/playback-control/remove_queue_range.html"><strong aria-hidden="true">8.9.23.</strong> remove_queue_range</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="../rest.html"><strong aria-hidden="true">9.</strong> REST</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../rest/quick-start.html"><strong aria-hidden="true">9.1.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="../rest/key/key.html"><strong aria-hidden="true">9.2.</strong> /key</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../rest/key/artist.html"><strong aria-hidden="true">9.2.1.</strong> /key/artist/$ARTIST_KEY</a></li><li class="chapter-item expanded "><a href="../rest/key/album.html"><strong aria-hidden="true">9.2.2.</strong> /key/album/$ALBUM_KEY</a></li><li class="chapter-item expanded "><a href="../rest/key/song.html"><strong aria-hidden="true">9.2.3.</strong> /key/song/$SONG_KEY</a></li><li class="chapter-item expanded "><a href="../rest/key/art.html"><strong aria-hidden="true">9.2.4.</strong> /key/art/$ALBUM_KEY</a></li></ol></li><li class="chapter-item expanded "><a href="../rest/map/map.html"><strong aria-hidden="true">9.3.</strong> /map</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../rest/map/artist.html"><strong aria-hidden="true">9.3.1.</strong> /map/$ARTIST_NAME</a></li><li class="chapter-item expanded "><a href="../rest/map/album.html"><strong aria-hidden="true">9.3.2.</strong> /map/$ARTIST_NAME/$ALBUM_TITLE</a></li><li class="chapter-item expanded "><a href="../rest/map/song.html"><strong aria-hidden="true">9.3.3.</strong> /map/$ARTIST_NAME/$ALBUM_TITLE/$SONG_TITLE</a></li></ol></li><li class="chapter-item expanded "><a href="../rest/current/current.html"><strong aria-hidden="true">9.4.</strong> /current</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../rest/current/artist.html"><strong aria-hidden="true">9.4.1.</strong> /current/artist</a></li><li class="chapter-item expanded "><a href="../rest/current/album.html"><strong aria-hidden="true">9.4.2.</strong> /current/album</a></li><li class="chapter-item expanded "><a href="../rest/current/song.html"><strong aria-hidden="true">9.4.3.</strong> /current/song</a></li><li class="chapter-item expanded "><a href="../rest/current/art.html"><strong aria-hidden="true">9.4.4.</strong> /current/art</a></li></ol></li><li class="chapter-item expanded "><a href="../rest/rand/rand.html"><strong aria-hidden="true">9.5.</strong> /rand</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../rest/rand/artist.html"><strong aria-hidden="true">9.5.1.</strong> /rand/artist</a></li><li class="chapter-item expanded "><a href="../rest/rand/album.html"><strong aria-hidden="true">9.5.2.</strong> /rand/album</a></li><li class="chapter-item expanded "><a href="../rest/rand/song.html"><strong aria-hidden="true">9.5.3.</strong> /rand/song</a></li><li class="chapter-item expanded "><a href="../rest/rand/art.html"><strong aria-hidden="true">9.5.4.</strong> /rand/art</a></li></ol></li><li class="chapter-item expanded "><a href="../rest/art/art.html"><strong aria-hidden="true">9.6.</strong> /art</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../rest/art/artist.html"><strong aria-hidden="true">9.6.1.</strong> /art/$ARTIST_NAME</a></li><li class="chapter-item expanded "><a href="../rest/art/album.html"><strong aria-hidden="true">9.6.2.</strong> /art/$ARTIST_NAME/$ALBUM_TITLE</a></li></ol></li><li class="chapter-item expanded "><a href="../rest/collection.html"><strong aria-hidden="true">9.7.</strong> /collection</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">festivald v0.0.0</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/hinto-janai/festival" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="key"><a class="header" href="#key">Key</a></h1>
+<p><a href="common-objects.html"><code>Common Objects</code></a> all have an unsigned integer associated with them:</p>
+<ul>
+<li><a href="artist.html"><code>Artist</code></a></li>
+<li><a href="album.html"><code>Album</code></a></li>
+<li><a href="song.html"><code>Song</code></a></li>
+</ul>
+<p>These keys directly map to a given object, and can be used to retrieve them.</p>
+<p>In the case of <code>Album</code> art, the <code>Album</code> key doubles as the key (since art belongs to an album), so to access the art of <code>Album</code> 123 in the <code>REST</code> API, you would use:</p>
+<pre><code class="language-http">http://localhost:18425/key/art/123
+</code></pre>
+<h2 id="where"><a class="header" href="#where">Where</a></h2>
+<p><code>Key</code>'s can be found in multiple <code>JSON-RPC</code> methods, such as <a href="../json-rpc/map/map_artist.html"><code>map_artist</code></a>, <a href="../json-rpc/search/search_album.html"><code>search_album</code></a>, etc.</p>
+<p>Each object contains its own key within itself as well, and there are links in-between them:</p>
+<pre><code class="language-plaintext">                 Artist_1                       Artist_2
+              ______|______                  ______|_________________
+             /             \                /             \          \
+          Album_1        Album_5         Album_34        Album_4    Album_8
+          __|__           __|__           __|__          __|__         \___        
+         /     \         /     \         /     \        /     \            \
+[Song_1, Song_6, ...] [Song_3, ...]  [Song_76, ...] [Song_45, ...]   [Song_41, ...]
+</code></pre>
+<ol>
+<li>An <code>Artist</code> contains keys leading to <code>Album</code>'s</li>
+<li><code>Album</code>'s have a key pointing back to the owning <code>Artist</code>, and keys leading to <code>Song</code>'s</li>
+<li><code>Song</code>'s have a key pointing back to the owning <code>Album</code></li>
+</ol>
+<p>For convenience, all <code>Artist</code>'s also have an array of all their <code>Song</code>'s.</p>
+<p><code>Key</code>' are unique <em>per</em> object group, meaning there is an <code>Artist</code> 0 key AND <code>Album</code> 0 key AND <code>Song</code> 0 key.</p>
+<p>The actual number value of <code>Key</code>'s aren't significant, and should be treated as random. A <code>Song</code> key array within an <code>Album</code> won't necessarily be incrementing by 1, e.g, <code>[0, 1, 2, ...]</code>. It could be <code>[0, 6, 112, 3, ...]</code>. Same with <code>Album</code> keys within <code>Artist</code>'s.</p>
+<h2 id="why"><a class="header" href="#why">Why</a></h2>
+<p><code>Key</code>'s are a number that represent direct access to a unique <code>Artist</code>/<code>Album</code>/<code>Song</code>.</p>
+<p>Think of it as an index into an array (that's what they really are, implemented).</p>
+<p>The <code>key_*</code> variants of <code>JSON-RPC</code> methods and <code>REST</code> endpoints are usually faster than the <code>string</code> variants as well, since there is no lookup, we directly index with the <code>Key</code>.</p>
+<h2 id="why-not"><a class="header" href="#why-not">Why NOT</a></h2>
+<p><code>Key</code>'s can only be relied upon as long as the <code>Collection</code> has not been reset.</p>
+<p>When the <code>Collection</code> is reset, it is not guaranteed that the same key will map to the same object. Using <code>map_*</code> and <code>search_*</code> methods as the main way to retrieve information may be more convenient so that <code>Artist</code> names, <code>Album</code> and <code>Song</code> titles can be used as inputs instead.</p>
+<p>The main reasons key's exists:</p>
+<ul>
+<li>Accessing objects via a key is faster than with <code>string</code> inputs</li>
+<li>Storing/sending/parsing integers is faster than <code>string</code>'s</li>
+<li>As long as your <code>Collection</code> is stable, the key's are stable</li>
+</ul>
+<h2 id="example"><a class="header" href="#example">Example</a></h2>
+<p>Let's search for a song that has a title similar to: &quot;hello&quot;</p>
+<pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;search_song&quot;,&quot;params&quot;:{&quot;input&quot;:&quot;hello&quot;,&quot;kind&quot;:&quot;top1&quot;}}'
+</code></pre>
+<p>The output gives us back a <code>Song</code> object, which contains some keys:</p>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;result&quot;: {
+    &quot;songs&quot;: [
+      {
+        &quot;title&quot;: &quot;HELLO&quot;,
+        &quot;key&quot;: 15850,   // &lt;--- This is the `Song`'s key
+        &quot;album&quot;: 737,   // &lt;--- This is the key of the `Album` this `Song` belongs too
+        &quot;runtime&quot;: 243,
+        &quot;sample_rate&quot;: 44100,
+        &quot;track&quot;: 8,
+        &quot;disc&quot;: 1,
+        &quot;mime&quot;: &quot;audio/x-flac&quot;,
+        &quot;extension&quot;: &quot;flac&quot;
+      }
+    ]
+  },
+  &quot;id&quot;: 0
+}
+</code></pre>
+<p>We can now use that <code>Album</code> key to get the <code>Album</code>:</p>
+<pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;key_album&quot;,&quot;params&quot;:{&quot;key&quot;:&quot;737&quot;}}'
+</code></pre>
+<p>And we get the <code>Album</code> object back:</p>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;result&quot;: {
+    &quot;title&quot;: &quot;Hero&quot;,
+    &quot;key&quot;: 737,    // &lt;--- This is the `Album`'s key
+    &quot;artist&quot;: 196, // &lt;--- This is the key of the `Artist` this `Album` belongs too
+    &quot;release&quot;: &quot;2001-12-29&quot;,
+    &quot;runtime&quot;: 4676,
+    &quot;song_count&quot;: 3,
+    &quot;songs&quot;: [
+      15850, // &lt;--- Hey look, it's the original `Song` key
+      9771,
+      15853
+    ],
+    &quot;discs&quot;: 0,
+    &quot;art&quot;: 8348685,
+    &quot;genre&quot;: null
+  },
+  &quot;id&quot;: 0
+}
+</code></pre>
+<p>We can now use that <code>Artist</code> key to get the <code>Artist</code>:</p>
+<pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;key_artist&quot;,&quot;params&quot;:{&quot;key&quot;:&quot;196&quot;}}'
+</code></pre>
+<p>And we get the <code>Artist</code> object back:</p>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;result&quot;: {
+    &quot;name&quot;: &quot;Tac&quot;,
+    &quot;key&quot;: 196, // &lt;--- This is the `Artist`' key
+    &quot;runtime&quot;: 15636,
+    &quot;albums&quot;: [
+      737, // &lt;--- Hey look, it's the original `Album` key
+    ],
+    &quot;songs&quot;: [
+      15850, // &lt;--- Hey look, it's the original `Song` key
+      9771,
+      15853
+    ]
+  },
+  &quot;id&quot;: 0
+}
+</code></pre>
+<p>With these keys, you traverse up and down the relational graph.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../common-objects/collection.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next" href="../common-objects/artist.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../common-objects/collection.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next" href="../common-objects/artist.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
