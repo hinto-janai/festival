@@ -105,7 +105,15 @@ pub(crate) static RESETTING: AtomicBool = AtomicBool::new(false);
 /// This [`bool`] represents if we are currently in
 /// the process of resetting the [`Collection`].
 pub fn resetting() -> bool {
-    atomic_load!(RESETTING)
+    RESETTING.load(Ordering::Relaxed)
+}
+
+//---------------------------------------------------------------------------------------------------- SHUTTING_DOWN
+/// Only set if shutdown signal is received.
+pub(crate) static SHUTTING_DOWN: AtomicBool = AtomicBool::new(false);
+#[inline(always)]
+pub fn shutting_down() -> bool {
+	SHUTTING_DOWN.load(Ordering::Relaxed)
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

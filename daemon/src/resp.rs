@@ -38,7 +38,6 @@ pub fn rest_ok(bytes: Vec<u8>, name: &str, mime: &str) -> Response<Body> {
 		.status(StatusCode::OK)
 		.header(CONTENT_TYPE, mime)
 		.header(CONTENT_LENGTH, bytes.len())
-		.header(CONTENT_LENGTH, bytes.len())
 		.header(CONTENT_DISPOSITION, if config().direct_download { format!(r#"{DOWNLOAD_IN_BROWSER}; filename="{name}""#) } else { format!(r#"{VIEW_IN_BROWSER}; filename="{name}""#) })
 		.body(Body::from(bytes))
 	{
@@ -48,12 +47,19 @@ pub fn rest_ok(bytes: Vec<u8>, name: &str, mime: &str) -> Response<Body> {
 }
 
 // Streaming body for zip.
-pub fn rest_zip(body: hyper::body::Body, name: &str) -> Response<Body> {
-	match Builder::new()
+pub fn rest_zip(body: hyper::body::Body, name: &str, len: Option<u64>) -> Response<Body> {
+	let mut b = Builder::new()
 		.status(StatusCode::OK)
 		.header(CONTENT_TYPE, MIME_ZIP)
-		.body(body)
-	{
+		.header(CONTENT_DISPOSITION, format!(r#"{DOWNLOAD_IN_BROWSER}; filename="{name}""#));
+
+	let mut b = if let Some(len) = len {
+		b.header(CONTENT_LENGTH, len)
+	} else {
+		b
+	};
+
+	match b.body(body) {
 		Ok(r)  => r,
 		Err(e) => server_err("Internal server error"),
 	}

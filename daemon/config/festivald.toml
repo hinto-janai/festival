@@ -174,14 +174,14 @@ filename_separator = " - "
 #----------------------------------------------------------#
 # The logging level `festivald` will use.
 #
-# DEFAULT | "info"
+# DEFAULT | "off"
 # VALUES  | "off", "error", "warn", "info", "debug", "trace"
 # TYPE    | string, one of the above
-log_level = "info"
+log_level = "off"
 
 
 #----------------------------------------------------------#
-#                   FILESYSTEM WATCHING                    #
+#                       FILESYSTEM                         #
 #----------------------------------------------------------#
 # Enable/disable watching the filesystem for signals
 #
@@ -202,6 +202,23 @@ log_level = "info"
 # VALUES  | true, false
 # TYPE    | boolean
 watch = true
+
+
+# When serving `ZIP` files via the REST API, `festivald`
+# will first write them to disk, then serve those files
+# instead of directly storing everything in memory,
+# as to not get OOM-killed on more than a few requests.
+#
+# This option sets the time limit on how many seconds
+# `festivald` will hold onto this cache for.
+#
+# Once the time limit is up, `festivald` will remove the
+# file. This cache is also reset on startup and shutdown.
+#
+# DEFAULT | 3600 (1 hour)
+# EXAMPLE | 60 (1 minute), 600 (10 minutes), 1800 (30 minutes), 14400 (4 hours)
+# TYPE    | unsigned integer
+cache_time = 3600
 
 
 #----------------------------------------------------------#

@@ -15,40 +15,85 @@ use rand::{
 };
 
 //---------------------------------------------------------------------------------------------------- TmpZip
-// Handle to a randomized `PathBuf` where
-// temporary zip files can be written.
-//
-// File is deleted on `drop()`, async.
-disk::empty!(TmpZip, disk::Dir::Cache, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/zip"), "tmp_");
-#[derive(Debug,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
-pub struct TmpZip(PathBuf);
+pub fn clean_cache() -> Result<(), anyhow::Error> {
+	let dir = ArtistZip::sub_dir_parent_path()?;
 
-impl TmpZip {
-	pub fn new() -> Self {
-		let rng = Alphanumeric
-			.sample_string(&mut rand::thread_rng(), 28);
-
-		// SAFETY: if we can't access the user path
-		// something is really wrong, and we can't
-		// do much without the FS anyway, so panic is ok.
-		let mut path = Self::absolute_path().unwrap();
-		path.push(rng);
-		Self(path)
+	if !dir.exists() {
+		return Ok(());
 	}
 
-	pub fn path(&self) -> &Path {
-		&self.0
+	match std::fs::remove_dir(&dir) {
+		Ok(_)  => Ok(()),
+		Err(e) => Err(e.into()),
 	}
 }
 
-impl Drop for TmpZip {
-	fn drop(&mut self) {
-		let path = std::mem::take(&mut self.0);
-		tokio::task::spawn(async move {
-			tokio::fs::remove_file(path).await
-		});
+macro_rules! impl_zip {
+	($type:ident, $sub_dir:literal) => {
+		disk::empty!($type, disk::Dir::Cache, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{}", $sub_dir), "tmp");
+		#[derive(Debug)]
+		pub struct $type {
+			pub real: PathBuf,
+			pub tmp: PathBuf,
+		}
+
+		impl $type {
+			pub fn new(input: &str) -> Result<Self, anyhow::Error> {
+				let mut real = Self::mkdir()?;
+
+				let mut tmp = Self::absolute_path()?;
+				std::fs::create_dir_all(&tmp);
+				tmp.push(Alphanumeric.sample_string(&mut rand::thread_rng(), 16));
+
+				real.push(input);
+
+				Ok(Self { real, tmp })
+			}
+
+			pub fn exists(&self) -> bool {
+				self.real.exists()
+			}
+
+			pub fn tmp_to_real(&self) -> std::io::Result<()> {
+				std::fs::rename(&self.tmp, &self.real)
+			}
+		}
+
+		impl Drop for $type {
+			fn drop(&mut self) {
+				let real = std::mem::take(&mut self.real);
+				let tmp  = std::mem::take(&mut self.tmp);
+
+				// Removes the temporary ZIPs.
+				tokio::task::spawn(async move {
+					if tmp.exists() {
+						match tokio::fs::remove_file(&tmp).await {
+							Ok(_)  => debug!("Task - Removed tmp: {}", tmp.display()),
+							Err(e) => warn!("Task - Failed to remove tmp: {e} ... {}", tmp.display()),
+						}
+					}
+				});
+
+				// Removes the created cached ZIPs `x` seconds _after_ creation.
+				tokio::task::spawn(async move {
+					tokio::time::sleep(std::time::Duration::from_secs(crate::config::config().cache_time)).await;
+
+					if real.exists() {
+						match tokio::fs::remove_file(&real).await {
+							Ok(_)  => debug!("Task - Removed cache: {}", real.display()),
+							Err(e) => warn!("Task - Failed to remove cache: {e} ... {}", real.display()),
+						}
+					}
+				});
+			}
+		}
 	}
 }
+
+impl_zip!(CollectionZip, "collection_zip");
+impl_zip!(ArtistZip,     "artist_zip");
+impl_zip!(AlbumZip,      "album_zip");
+impl_zip!(ArtZip,        "art_zip");
 
 //---------------------------------------------------------------------------------------------------- TESTS
 //#[cfg(test)]

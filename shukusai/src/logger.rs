@@ -79,10 +79,6 @@ pub fn init_logger(filter: log::LevelFilter) {
 		)
 	}).write_style(env_logger::WriteStyle::Always).parse_default_env().init();
 
-	// This has to be updated with the longest PATH/file too.
-//	println!("| LEVEL |       TIME |                                   WHERE | MESSAGE |");
-//	println!("|-------|------------|-----------------------------------------|---------|");
-
 	if env.is_empty() {
 		info!("Log Level (Flag) ... {}", filter);
 	} else {

@@ -66,6 +66,7 @@ pub struct ConfigBuilder {
 	pub filename_separator: Option<String>,
 	pub log_level:          Option<log::LevelFilter>,
 	pub watch:              Option<bool>,
+	pub cache_time:         Option<u64>,
 	pub media_controls:     Option<bool>,
 
 	// Statics.
@@ -87,8 +88,9 @@ impl Default for ConfigBuilder {
 			docs:               Some(true),
 			direct_download:    Some(false),
 			filename_separator: Some(" - ".to_string()),
-			log_level:          Some(log::LevelFilter::Info),
+			log_level:          Some(log::LevelFilter::Off),
 			watch:              Some(true),
+			cache_time:         Some(3600),
 			media_controls:     Some(true),
 			authorization:      None,
 		}
@@ -114,6 +116,7 @@ impl ConfigBuilder {
 			filename_separator,
 			log_level,
 			watch,
+			cache_time,
 			media_controls,
 			authorization,
 		} = self;
@@ -155,8 +158,9 @@ impl ConfigBuilder {
 			docs:               get!(docs,               "docs",               true),
 			direct_download:    get!(direct_download,    "direct_download",    false),
 			filename_separator: get!(filename_separator, "filename_separator", " - ".to_string()),
-			log_level:          get!(log_level,          "log_level",          log::LevelFilter::Info),
+			log_level:          get!(log_level,          "log_level",          log::LevelFilter::Off),
 			watch:              get!(watch,              "watch",              true),
+			cache_time:         get!(cache_time,         "cache_time",         3600),
 			media_controls:     get!(media_controls,     "media_controls",     true),
 		};
 
@@ -289,6 +293,7 @@ pub struct Config {
 	pub filename_separator: String,
 	pub log_level:          log::LevelFilter,
 	pub watch:              bool,
+	pub cache_time:         u64,
 	pub media_controls:     bool,
 }
 

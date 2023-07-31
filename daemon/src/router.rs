@@ -111,20 +111,6 @@ pub async fn init(
 		Box::leak(Box::new(from_task)),
 	);
 
-	// Create documentation.
-	if CONFIG.docs {
-		match crate::docs::Docs::create() {
-			Ok(path)  => {
-				// SAFETY: we only set this `OnceCell` here.
-				crate::docs::DOCS_PATH.set(path).unwrap();
-				ok!("festivald - Docs");
-			}
-			Err(e) => warn!("festivald - Could not create docs: {e}"),
-		}
-	} else {
-		info!("festivald - Skipping docs...");
-	}
-
 	// Wait until `Kernel` has given us `Arc<Collection>`.
 	let mut collection = loop {
 		match recv!(FROM_KERNEL) {
@@ -187,8 +173,19 @@ pub async fn init(
 							debug_panic!("Router - New Collection message but it was None");
 						}
 					},
+
+					// We got `CTRL+C` in terminal.
+					_ = tokio::signal::ctrl_c() => {
+						tokio::task::spawn(async move {
+							crate::shutdown::shutdown(TO_KERNEL, FROM_KERNEL).await;
+						});
+					},
 				}
 			};
+
+			if crate::statics::shutting_down() {
+				continue;
+			}
 
 			let connection_token = ConnectionToken::new();
 
@@ -219,7 +216,7 @@ pub async fn init(
 			const BLUE:   &str = "\x1b[1;94m";
 			const WHITE:  &str = "\x1b[1;97m";
 			const OFF:    &str = "\x1b[0m";
-			let listening = format!("festivald listening on {PURPLE}{protocol}{OFF}://{YELLOW}{}{OFF}:{BLUE}{}{OFF}", addr.ip(), addr.port());
+			let listening = format!("| festivald listening on {PURPLE}{protocol}{OFF}://{YELLOW}{}{OFF}:{BLUE}{}{OFF} |", addr.ip(), addr.port());
 			println!("{WHITE}{0}{OFF}\n{listening}\n{WHITE}{0}{OFF}", "=".repeat(listening.len() - 33));
 		}}
 	}

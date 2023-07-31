@@ -172,6 +172,22 @@ pub struct Cli {
 	/// or left empty "" for no separator at all.
 	filename_separator: Option<String>,
 
+	/// Set the `REST` API cache time limit
+	///
+	/// When serving `ZIP` files via the REST API, `festivald`
+	/// will first write them to disk, then serve those files
+	/// instead of directly storing everything in memory,
+	/// as to not get OOM-killed on more than a few requests.
+	///
+	/// This option sets the time limit on how many seconds
+	/// `festivald` will hold onto this cache for.
+	///
+	/// Once the time limit is up, `festivald` will remove the
+	/// file. This cache is also reset on startup and shutdown.
+	///
+	/// Default is 3600 seconds (1 hour).
+	cache_time: Option<u64>,
+
 	#[arg(long, verbatim_doc_comment, default_value_t = false)]
 	/// Disable watching the filesystem for signals
 	///
@@ -227,7 +243,7 @@ pub struct Cli {
 	log_daemon_only: bool,
 
 	#[arg(long, value_name = "OFF|ERROR|INFO|WARN|DEBUG|TRACE")]
-	#[arg(default_value_t = log::LevelFilter::Info)]
+	#[arg(default_value_t = log::LevelFilter::Off)]
 	/// Set filter level for console logs
 	log_level: log::LevelFilter,
 

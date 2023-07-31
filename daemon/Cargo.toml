@@ -49,6 +49,8 @@ zeroize          = { version = "1.6.0", features = ["std", "zeroize_derive"] }
 base64           = { version = "0.21.2" }
 mime             = { version = "0.3.17" }
 urlencoding      = { version = "2.1.3" }
-arc-swap = "1.6.0"
+hyper-staticfile = { version = "0.9.5" }
+tokio-util       = { version = "0.7.8", features = ["full"] }
+async_zip        = { version = "0.0.15", features = ["tokio", "tokio-fs"] }
 zip = "0.6.6"
-hyper-staticfile = "0.9.5"
+hex = "0.4.3"

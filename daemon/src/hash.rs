@@ -51,6 +51,14 @@ impl Hash {
 	}
 }
 
+// Regular hash function.
+// Used for `ZIP` names.
+pub fn sha256(input: &str) -> String {
+	let mut hasher = Sha256::new();
+	hasher.update(input);
+	hex::encode(hasher.finalize())
+}
+
 #[cfg_attr(debug_assertions, derive(Debug))]
 #[derive(Zeroize,ZeroizeOnDrop,PartialEq)]
 pub(super) struct PinBox(Pin<Box<[u8; LEN]>>);

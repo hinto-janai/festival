@@ -32,16 +32,17 @@ use crate::{
 	ptr::CollectionPtr,
 };
 use tokio::io::AsyncReadExt;
-use std::path::Path;
+use std::path::{Path,PathBuf};
 use std::io::Write;
 
 //---------------------------------------------------------------------------------------------------- Const
-pub const REST_ENDPOINTS: [&'static str; 5] = [
+pub const REST_ENDPOINTS: [&'static str; 6] = [
 	"key",
 	"map",
 	"art",
 	"current",
 	"rand",
+	"collection",
 ];
 
 pub const ERR_END: &str = "Unknown endpoint";
@@ -85,8 +86,9 @@ pub async fn handle(
 		};
 
 		// Return error if more than 3 endpoints.
-		if split.next().is_some() {
-			return Ok(resp::not_found(ERR_END));
+		match split.next() {
+			Some(s) if !s.is_empty() => return Ok(resp::not_found(ERR_END)),
+			_ => (),
 		}
 
 		// Parse `usize` key.
@@ -110,14 +112,15 @@ pub async fn handle(
 		let album = split.next();
 		let song = split.next();
 
-		// Return error if more than 4 endpoints.
-		if split.next().is_some() {
-			return Ok(resp::not_found(ERR_END));
+		// Return error if more than 3 endpoints.
+		match split.next() {
+			Some(s) if !s.is_empty() => return Ok(resp::not_found(ERR_END)),
+			_ => (),
 		}
 
 		match (album, song) {
-			(Some(a), None)    => map_album(artist.as_ref(), a.as_ref(), collection.arc()).await,
-			(Some(a), Some(s)) => map_song(artist.as_ref(), a.as_ref(), s.as_ref(), collection.arc()).await,
+			(Some(a), None) if !a.is_empty() => map_album(artist.as_ref(), a.as_ref(), collection.arc()).await,
+			(Some(a), Some(s)) if !a.is_empty() && !s.is_empty() => map_song(artist.as_ref(), a.as_ref(), s.as_ref(), collection.arc()).await,
 			_                  => map_artist(artist.as_ref(), collection.arc()).await,
 		}
 	//-------------------------------------------------- `/art` endpoint.
@@ -129,8 +132,9 @@ pub async fn handle(
 		let album = split.next();
 
 		// Return error if more than 3 endpoints.
-		if split.next().is_some() {
-			return Ok(resp::not_found(ERR_END));
+		match split.next() {
+			Some(s) if !s.is_empty() => return Ok(resp::not_found(ERR_END)),
+			_ => (),
 		}
 
 		if let Some(album) = album {
@@ -145,8 +149,9 @@ pub async fn handle(
 		};
 
 		// Return error if more than 2 endpoints.
-		if split.next().is_some() {
-			return Ok(resp::not_found(ERR_END));
+		match split.next() {
+			Some(s) if !s.is_empty() => return Ok(resp::not_found(ERR_END)),
+			_ => (),
 		}
 
 		match ep2 {
@@ -163,8 +168,9 @@ pub async fn handle(
 		};
 
 		// Return error if more than 2 endpoints.
-		if split.next().is_some() {
-			return Ok(resp::not_found(ERR_END));
+		match split.next() {
+			Some(s) if !s.is_empty() => return Ok(resp::not_found(ERR_END)),
+			_ => (),
 		}
 
 		match ep2 {
@@ -174,6 +180,14 @@ pub async fn handle(
 			"art"    => rand_art(collection.arc()).await,
 			_        => Ok(resp::not_found(ERR_END)),
 		}
+	//-------------------------------------------------- `/collection` endpoint.
+	} else if ep1 == "collection" {
+		match split.next() {
+			Some(s) if !s.is_empty() => return Ok(resp::not_found(ERR_END)),
+			_ => (),
+		}
+
+		collection_fn(collection.arc()).await
 	//-------------------------------------------------- unknown endpoint.
 	} else {
 		Ok(resp::not_found(ERR_END))
@@ -209,39 +223,79 @@ const MIME_ZIP: &str = "application/zip";
 const ERR_ZIP:  &str = "Failed to create zip file";
 const ERR_SONG: &str = "Song file not found";
 
+use tokio_util::codec::{BytesCodec, FramedRead};
+use crate::zip::{
+	CollectionZip,
+	ArtistZip,
+	AlbumZip,
+	ArtZip,
+};
+
+// Attempts to get file size.
+async fn file_len(file: &tokio::fs::File) -> Option<u64> {
+	if let Ok(md) = file.metadata().await {
+		Some(md.len())
+	} else {
+		None
+	}
+}
+
+// Takes in an already existing `ZipWriter`, and writes an artist to it.
+// This exists to de-dup code between `impl_artist()` and `collection()`.
+async fn impl_artist_inner(
+	zip:        &mut zip::ZipWriter<std::fs::File>,
+	options:    zip::write::FileOptions,
+	artist:     &Artist,
+	collection: &Arc<Collection>,
+	folder:     &str,
+) -> Option<Response<Body>> {
+	for album_key in &artist.albums {
+		let album = &collection.albums[album_key];
+
+		if let Some(r) = impl_album_inner(zip, options, album, &collection, &format!("{folder}/{}/{}", artist.name, album.title)).await {
+			return Some(r);
+		}
+	}
+
+	None
+}
+
 // Takes in an already existing `ZipWriter`, and writes an album to it.
 // This exists to de-dup code between `impl_artist()` and `impl_album()`.
 async fn impl_album_inner(
-	zip:        &mut zip::ZipWriter<std::io::Cursor<Vec<u8>>>,
-	options:    &zip::write::FileOptions,
+	zip:        &mut zip::ZipWriter<std::fs::File>,
+	options:    zip::write::FileOptions,
 	album:      &Album,
 	collection: &Arc<Collection>,
-	folder:     Option<&str>,
+	folder:     &str,
 ) -> Option<Response<Body>> {
-	let folder = match folder {
-		Some(f) => format!("{f}/"),
-		None    => "".to_string(),
-	};
-
 	// Write each `Song` into the `zip`.
 	for song_key in &album.songs {
 		let song = &collection.songs[song_key];
+
+		trace!("Task - impl_album_inner() song: {}", song.path.display());
 
 		let bytes = match read_file(&song.path).await {
 			Ok(b)  => b,
 			Err(r) => return Some(r),
 		};
 
-		let file_path = format!("{folder}{}.{}", song.title, song.extension);
+		let file_path = format!("{folder}/{}.{}", song.title, song.extension);
 
-		trace!("Task - impl_album_inner() song: {file_path}");
+		let r = tokio::task::block_in_place(|| {
+			if zip.start_file_from_path(&PathBuf::from(file_path), options).is_err() {
+				return Some(resp::server_err(ERR_SONG));
+			}
 
-		if zip.start_file(&file_path, *options).is_err() {
-			return Some(resp::server_err(ERR_SONG));
-		}
+			if zip.write(&bytes).is_err() {
+				return Some(resp::server_err(ERR_SONG));
+			}
 
-		if zip.write(&bytes).is_err() {
-			return Some(resp::server_err(ERR_ZIP));
+			None
+		});
+
+		if r.is_some() {
+			return r;
 		}
 	}
 
@@ -249,21 +303,21 @@ async fn impl_album_inner(
 
 	// Write `Art` if it exists.
 	if let Art::Known { path, mime, len, extension } = &album.art {
+		trace!("Task - impl_album_inner() art: {}", path.display());
+
 		let bytes = match read_file(&path).await {
 			Ok(b)  => b,
 			Err(r) => return Some(r),
 		};
 
-		let file_path = format!("{folder}{}{}{}.{}", artist.name, config().filename_separator, album.title, extension);
+		let file_path = format!("{folder}/{}{}{}.{}", artist.name, config().filename_separator, album.title, extension);
 
-		trace!("Task - impl_album_inner() art: {file_path}");
-
-		if zip.start_file(&file_path, *options).is_err() {
-			return Some(resp::server_err(ERR_ZIP));
+		if zip.start_file_from_path(&PathBuf::from(file_path), options).is_err() {
+			return Some(resp::server_err(ERR_SONG));
 		}
 
 		if zip.write(&bytes).is_err() {
-			return Some(resp::server_err(ERR_ZIP));
+			return Some(resp::server_err(ERR_SONG));
 		}
 	}
 
@@ -271,59 +325,115 @@ async fn impl_album_inner(
 }
 
 async fn impl_artist(key: ArtistKey, artist: &Artist, collection: &Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
-	tokio::task::block_in_place(move || async move {
-		trace!("Task - impl_artist(): {}", artist.name);
+	trace!("Task - impl_artist(): {}", artist.name);
 
-		let mut buf = vec![];
-		let mut zip = zip::ZipWriter::new(std::io::Cursor::new(buf));
-		let options = zip::write::FileOptions::default().compression_method(zip::CompressionMethod::Stored);
+	// Zip name.
+	let zip_name = format!("{}.zip", artist.name);
 
-		for album_key in &artist.albums {
-			let album = &collection.albums[album_key];
+	// Create temporary `PATH` for a `ZIP`.
+	let Ok(cache) = ArtistZip::new(&zip_name) else {
+		return Ok(resp::server_err(ERR_ZIP));
+	};
 
-			trace!("Task - impl_artist() album: {}", album.title);
-
-			if zip.add_directory(&*album.title, options).is_err() {
-				return Ok(resp::server_err(ERR_ZIP));
-			}
-
-			if let Some(r) = impl_album_inner(&mut zip, &options, album, collection, Some(&*album.title)).await {
-				return Ok(r);
-			}
+	// If the file exists already, serve it.
+	if cache.exists() {
+		if let Ok(file) = tokio::fs::File::open(&cache.real).await {
+			trace!("Task - ArtistZip Cache hit: {zip_name}");
+			let len    = file_len(&file).await;
+			let stream = FramedRead::new(file, BytesCodec::new());
+			let body   = Body::wrap_stream(stream);
+			return Ok(resp::rest_zip(body, &zip_name, len));
 		}
+	}
 
-		// Zip name.
-		let name = format!("{}.zip", artist.name);
+	// Else, create file.
+	let Ok(file) = std::fs::File::create(&cache.tmp) else {
+		return Ok(resp::server_err(ERR_ZIP));
+	};
 
-		let buf = zip.finish()?.into_inner();
+	// Create `ZIP`.
+	let mut zip = zip::ZipWriter::new(file);
+	let options = zip::write::FileOptions::default().compression_method(zip::CompressionMethod::Stored);
 
-		Ok(resp::rest_ok(buf, &name, MIME_ZIP))
-	}).await
+	if let Some(r) = impl_artist_inner(&mut zip, options, artist, collection, &artist.name).await {
+		return Ok(r);
+	}
+
+	if zip.finish().is_err() {
+		return Ok(resp::server_err(ERR_ZIP));
+	}
+
+	if cache.tmp_to_real().is_err() {
+		return Ok(resp::server_err(ERR_ZIP));
+	};
+
+	// Re-open as `async`.
+	let Ok(file) = tokio::fs::File::open(&cache.real).await else {
+		return Ok(resp::server_err(ERR_ZIP));
+	};
+
+	let len    = file_len(&file).await;
+	let stream = FramedRead::new(file, BytesCodec::new());
+	let body   = Body::wrap_stream(stream);
+
+	Ok(resp::rest_zip(body, &zip_name, len))
 }
 
 async fn impl_album(key: AlbumKey, album: &Album, collection: &Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
-	tokio::task::block_in_place(move || async move {
-		trace!("Task - impl_album(): {}", album.title);
+	trace!("Task - impl_album(): {}", album.title);
 
-		let mut buf = vec![];
-		let mut zip = zip::ZipWriter::new(std::io::Cursor::new(buf));
-		let options = zip::write::FileOptions::default().compression_method(zip::CompressionMethod::Stored);
+	let artist = &collection.artists[album.artist];
 
-		if let Some(r) = impl_album_inner(&mut zip, &options, album, collection, None).await {
-			return Ok(r);
+	// Zip name.
+	let zip_name = format!("{}{}{}.zip", artist.name, config().filename_separator, album.title);
+
+	// Create temporary `PATH` for a `ZIP`.
+	let Ok(cache) = AlbumZip::new(&zip_name) else {
+		return Ok(resp::server_err(ERR_ZIP));
+	};
+
+	// If the file exists already, serve it.
+	if cache.exists() {
+		if let Ok(file) = tokio::fs::File::open(&cache.real).await {
+			trace!("Task - AlbumZip Cache hit: {zip_name}");
+			let len    = file_len(&file).await;
+			let stream = FramedRead::new(file, BytesCodec::new());
+			let body   = Body::wrap_stream(stream);
+			return Ok(resp::rest_zip(body, &zip_name, len));
 		}
+	}
 
-		let artist = &collection.artists[album.artist];
+	// Else, create file.
+	let Ok(file) = std::fs::File::create(&cache.tmp) else {
+		return Ok(resp::server_err(ERR_ZIP));
+	};
 
-		// Zip name.
-		let name = format!("{}{}{}.zip", artist.name, config().filename_separator, album.title);
+	// Create `ZIP`.
+	let mut zip = zip::ZipWriter::new(file);
+	let options = zip::write::FileOptions::default().compression_method(zip::CompressionMethod::Stored);
 
-		let Ok(buf) = zip.finish() else {
-			return Ok(resp::server_err(ERR_ZIP));
-		};
+	if let Some(r) = impl_album_inner(&mut zip, options, album, collection, &album.title).await {
+		return Ok(r);
+	}
 
-		Ok(resp::rest_ok(buf.into_inner(), &name, MIME_ZIP))
-	}).await
+	if zip.finish().is_err() {
+		return Ok(resp::server_err(ERR_ZIP));
+	}
+
+	if cache.tmp_to_real().is_err() {
+		return Ok(resp::server_err(ERR_ZIP));
+	};
+
+	// Re-open.
+	let Ok(file) = tokio::fs::File::open(&cache.real).await else {
+		return Ok(resp::server_err(ERR_ZIP));
+	};
+
+	let len    = file_len(&file).await;
+	let stream = FramedRead::new(file, BytesCodec::new());
+	let body   = Body::wrap_stream(stream);
+
+	Ok(resp::rest_zip(body, &zip_name, len))
 }
 
 async fn impl_song(key: SongKey, song: &Song, collection: &Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
@@ -550,13 +660,88 @@ pub async fn rand_art(collection: Arc<Collection>) -> Result<Response<Body>, any
 
 //---------------------------------------------------------------------------------------------------- `/art`
 pub async fn art_artist(artist: &str, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
-//	// If artist exists...
-//	if let Some((artist, key)) = collection.artist(artist) {
-//		impl_art(key, album, &collection).await
-//	} else {
-//		Ok(resp::not_found("Album was not found"))
-//	}
-	todo!()
+	let Some((artist, key)) = collection.artist(artist) else {
+		return Ok(resp::not_found("Artist was not found"));
+	};
+
+	// Zip name.
+	let zip_name = format!("Art{}{}.zip", config().filename_separator, artist.name);
+
+	// Create temporary `PATH` for a `ZIP`.
+	let Ok(cache) = ArtZip::new(&zip_name) else {
+		return Ok(resp::server_err(ERR_ZIP));
+	};
+
+	// If the file exists already, serve it.
+	if cache.exists() {
+		if let Ok(file) = tokio::fs::File::open(&cache.real).await {
+			trace!("Task - ArtZip Cache hit: {zip_name}");
+			let len    = file_len(&file).await;
+			let stream = FramedRead::new(file, BytesCodec::new());
+			let body   = Body::wrap_stream(stream);
+			return Ok(resp::rest_zip(body, &zip_name, len));
+		}
+	}
+
+	// Else, create file.
+	let Ok(file) = std::fs::File::create(&cache.tmp) else {
+		return Ok(resp::server_err(ERR_ZIP));
+	};
+
+	// Create `ZIP`.
+	let mut zip = zip::ZipWriter::new(file);
+	let options = zip::write::FileOptions::default().compression_method(zip::CompressionMethod::Stored);
+
+	for album_key in artist.albums.iter() {
+		let album = &collection.albums[album_key];
+
+		// Write `Art` if it exists.
+		if let Art::Known { path, mime, len, extension } = &album.art {
+			trace!("Task - art_artist() art: {}", path.display());
+
+			let bytes = match read_file(&path).await {
+				Ok(b)  => b,
+				Err(r) => return Ok(resp::not_found("Album art was not found")),
+			};
+
+			let file_path = format!("{}.{}", album.title, extension);
+
+			let r = tokio::task::block_in_place(|| {
+				if zip.start_file_from_path(&PathBuf::from(file_path), options).is_err() {
+					return Some(resp::server_err(ERR_SONG));
+				}
+
+				if zip.write(&bytes).is_err() {
+					return Some(resp::server_err(ERR_SONG));
+				}
+
+				None
+			});
+
+			if let Some(r) = r {
+				return Ok(r);
+			}
+		}
+	}
+
+	if zip.finish().is_err() {
+		return Ok(resp::server_err(ERR_ZIP));
+	}
+
+	if cache.tmp_to_real().is_err() {
+		return Ok(resp::server_err(ERR_ZIP));
+	};
+
+	// Re-open.
+	let Ok(file) = tokio::fs::File::open(&cache.real).await else {
+		return Ok(resp::server_err(ERR_ZIP));
+	};
+
+	let len    = file_len(&file).await;
+	let stream = FramedRead::new(file, BytesCodec::new());
+	let body   = Body::wrap_stream(stream);
+
+	Ok(resp::rest_zip(body, &zip_name, len))
 }
 
 pub async fn art_album(artist: &str, album: &str, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
@@ -566,6 +751,75 @@ pub async fn art_album(artist: &str, album: &str, collection: Arc<Collection>) -
 	} else {
 		Ok(resp::not_found("Album was not found"))
 	}
+}
+
+//---------------------------------------------------------------------------------------------------- `/collection`
+pub async fn collection_fn(collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+	// Zip name.
+	let file_path = format!("Collection{}{}", config().filename_separator, collection.timestamp);
+	let zip_name  = format!("{file_path}.zip");
+
+	// Create temporary `PATH` for a `ZIP`.
+	let Ok(cache) = CollectionZip::new(&zip_name) else {
+		return Ok(resp::server_err(ERR_ZIP));
+	};
+
+	// If the file exists already, serve it.
+	if cache.exists() {
+		if let Ok(file) = tokio::fs::File::open(&cache.real).await {
+			trace!("Task - CollectionZip Cache hit: {zip_name}");
+			let len    = file_len(&file).await;
+			let stream = FramedRead::new(file, BytesCodec::new());
+			let body   = Body::wrap_stream(stream);
+			return Ok(resp::rest_zip(body, &zip_name, len));
+		}
+	}
+
+	// Else, create file.
+	let Ok(file) = std::fs::File::create(&cache.tmp) else {
+		return Ok(resp::server_err(ERR_ZIP));
+	};
+
+	// Create `ZIP`.
+	let mut zip = zip::ZipWriter::new(file);
+	let options = zip::write::FileOptions::default().compression_method(zip::CompressionMethod::Stored);
+
+	for artist in collection.artists.iter() {
+		if let Some(r) = impl_artist_inner(&mut zip, options, artist, &collection, &file_path).await {
+			return Ok(r);
+		}
+	}
+
+	let Ok(state_collection_full) = serde_json::to_vec_pretty(&collection) else {
+		return Ok(resp::server_err(ERR_ZIP));
+	};
+
+	if zip.start_file_from_path(&PathBuf::from(format!("{file_path}/state_collection_full.json")), options).is_err() {
+		return Ok(resp::server_err(ERR_ZIP));
+	}
+
+	if zip.write(&state_collection_full).is_err() {
+		return Ok(resp::server_err(ERR_ZIP));
+	}
+
+	if zip.finish().is_err() {
+		return Ok(resp::server_err(ERR_ZIP));
+	}
+
+	if cache.tmp_to_real().is_err() {
+		return Ok(resp::server_err(ERR_ZIP));
+	};
+
+	// Re-open.
+	let Ok(file) = tokio::fs::File::open(&cache.real).await else {
+		return Ok(resp::server_err(ERR_ZIP));
+	};
+
+	let len    = file_len(&file).await;
+	let stream = FramedRead::new(file, BytesCodec::new());
+	let body   = Body::wrap_stream(stream);
+
+	Ok(resp::rest_zip(body, &zip_name, len))
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
