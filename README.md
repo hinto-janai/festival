@@ -1,8 +1,8 @@
 # Docs
 Dedicated branch for serving `Festival` documentation.
 
-| Frontend       | Documentation URL |
-|----------------|-------------------|
+| Frontend       | URL |
+|----------------|-----|
 | Festival GUI   | https://docs.festival.pm/gui
 | `festivald`    | https://docs.festival.pm/daemon
 | `festival-cli` | https://docs.festival.pm/cli
