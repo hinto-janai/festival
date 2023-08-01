@@ -31,13 +31,13 @@ This scans the default `Music` directory on `festivald`'s filesystem and creates
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"new_collection","params":{"paths":null}}'
 ```
 
-## Download a random `Artist` with the `REST` endpoint [`/rand/artist`](json-rpc/rest/rand/artist.md)
+## Download a random `Artist` with the `REST` endpoint [`/rand/artist`](/rest/rand/artist.md)
 Opening this link in a web browser will cause `festivald` to collect, organize, and archive all the `Album`'s of a random `Artist`, and send it over.
 ```http
 http://localhost:18425/rand/artist
 ```
 
-## View metadata about an `Album` with the `JSON-RPC` method [`map_artist`](json-rpc/map/artist.md)
+## View metadata about an `Album` with the `JSON-RPC` method [`map_artist`](json-rpc/map/map_artist.md)
 This will lookup the `Album` "Cigarette & Alcohol" by the `Artist` "LUCKY TAPES".
 ```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"map_album","params":{"artist":"LUCKY TAPES","album":"Cigarette & Alcohol"}}'
@@ -73,7 +73,7 @@ The response looks like:
 }
 ```
 
-## Search for an `Artist` with the `JSON-RPC` method [`search_artist`](json-rpc/search/artist.md)
+## Search for an `Artist` with the `JSON-RPC` method [`search_artist`](json-rpc/search/search_artist.md)
 This will look up _all_ `Artist`'s in the `Collection`, and return the one that is the most similar (lexicographically) to the input "lUcKee TaPeZ":
 ```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"search_artist","params":{"input":"lUcKee TaPeZ","kind":"top1"}}'

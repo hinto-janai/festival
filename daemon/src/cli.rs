@@ -155,7 +155,7 @@ pub struct Cli {
 	/// the file directly, without opening it.
 	direct_download: bool,
 
-	#[arg(long, verbatim_doc_comment)]
+	#[arg(long, verbatim_doc_comment, value_name = "SEPARATOR")]
 	/// When files are downloaded via the REST API, and the
 	/// file is a nested object referencing multiple things
 	/// (e.g, an _album_ owned by an _artist_), we must include
@@ -172,6 +172,7 @@ pub struct Cli {
 	/// or left empty "" for no separator at all.
 	filename_separator: Option<String>,
 
+	#[arg(long, verbatim_doc_comment, value_name = "SECONDS")]
 	/// Set the `REST` API cache time limit
 	///
 	/// When serving `ZIP` files via the REST API, `festivald`
@@ -256,7 +257,7 @@ pub struct Cli {
 #[derive(Subcommand)]
 pub enum Command {
 	#[command(verbatim_doc_comment)]
-	/// Various utility commands relating to `festivald` data
+	/// Various utility flags related to `festivald` data
 	Data(Data),
 
 	#[command(verbatim_doc_comment)]
@@ -288,26 +289,14 @@ pub struct Data {
 	/// Print the PATHs used by Festival
 	///
 	/// All data saved by Festival is saved in these directories.
-	/// For more information, see:
-	/// https://github.com/hinto-janai/festival/tree/main/daemon#Disk
+	/// For more information, see: <https://docs.festival.pm/daemon/disk.html>
 	path: bool,
 
 	#[arg(long, verbatim_doc_comment)]
 	/// Print JSON metadata about the current `Collection` on disk
 	///
-	/// WARNING:
-	/// This output is not meant to be relied on (yet).
-	///
-	/// It it mostly for quick displaying and debugging
-	/// purposes and may be changed at any time.
-	///
-	/// This flag will attempt to parse the `Collection` that
-	/// is currently on disk and extract the metadata from it.
-	///
-	/// This also means the entire `Collection` will be read
-	/// and deserialized from disk, which may be very expensive
-	/// if you have a large `Collection`.
-	metadata: bool,
+	/// This output is the exact same as the `state_collection_full` JSON-RPC call.
+	state_collection_full: bool,
 
 	#[arg(long, verbatim_doc_comment)]
 	/// Delete all Festival files that are currently on disk
@@ -447,9 +436,9 @@ impl Cli {
 	}
 
 	fn handle_data(&self, u: &Data) {
-		// Metadata.
-		if u.metadata {
-			match shukusai::collection::metadata() {
+		// `state_collection_full`
+		if u.state_collection_full {
+			match shukusai::collection::rpc::state_collection_full() {
 				Ok(md) => { println!("{md}"); exit(0); },
 				Err(e) => { eprintln!("festival error: {e}"); exit(1); },
 			}
@@ -457,11 +446,15 @@ impl Cli {
 
 		// Path.
 		if u.path {
-			// SAFETY:
-			// If we can't get a PATH, `panic!()`'ing is fine.
+			// Cache.
+			let p = crate::zip::CollectionZip::sub_dir_parent_path().unwrap();
+			println!("{}", p.display());
+
+			// Config.
 			let p = crate::config::Config::sub_dir_parent_path().unwrap();
 			println!("{}", p.display());
 
+			// `.local/share`
 			let p = shukusai::collection::Collection::sub_dir_parent_path().unwrap();
 			println!("{}", p.display());
 

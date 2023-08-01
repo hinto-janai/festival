@@ -28,6 +28,8 @@ pub(crate) mod v1;
 
 /// `struct` representations for JSON output
 pub mod json;
+/// 1:1 copies of JSON-RPC calls
+pub mod rpc;
 
 // Pointer related code. To be used... eventually... maybe.
 //mod decode;

@@ -1,5 +1,5 @@
 # /collection
-Download _the entire_ [`Collection`](../../common-objects/collection.md).
+Download _the entire_ [`Collection`](../common-objects/collection.md).
 
 ## Warning
 This is by-far the heaviest `REST` endpoint (it's basically a superset of _all_ endpoints) and will cause `festivald` to use at least the same amount of disk space your `Collection`'s `Song` files take up.
@@ -16,10 +16,10 @@ For example, if all your `Song`'s combined are `100GB` in size, `festivald` will
 #### Output
 
 Archive including:
-- A copy of [`state_collection_full`](../../json-rpc/state-retrieval/state_collection_full.md) output in `JSON`
-- All [`Artist`](../../common-objects/artist.md)'s
-- All [`Album`](../../common-objects/album.md)'s (including art if found)
-- All [`Song`](../../common-objects/song.md)'s
+- A copy of [`state_collection_full`](../json-rpc/state-retrieval/state_collection_full.md) output in `JSON`
+- All [`Artist`](../common-objects/artist.md)'s
+- All [`Album`](../common-objects/album.md)'s (including art if found)
+- All [`Song`](../common-objects/song.md)'s
 
 #### Example Input
 ```http

@@ -20,7 +20,7 @@ disk::empty!(Docs, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/docs
 #[derive(Debug,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
 pub struct Docs;
 
-const DOCS_ZIP: &[u8] = include_bytes!("../docs/docs.zip");
+const DOCS_ZIP: &[u8] = include_bytes!("../mdbook/docs.zip");
 pub static DOCS_PATH: OnceCell<PathBuf> = OnceCell::new();
 
 impl Docs {

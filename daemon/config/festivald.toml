@@ -1,15 +1,16 @@
 #================#
 # festivald.toml #
-#=============================================================================#
-# This is `festivald`'s config file.                                          #
-# It is in the TOML (https://en.wikipedia.org/wiki/TOML) format.              #
-#                                                                             #
-# Values will be loaded from this file on startup.                            #
-# If overlapping `--command-flags` are provided, they will be used instead.   #
-#                                                                             #
-# For full documentation on config options, see:                              #
-# <https://github.com/hinto-janai/festival/tree/main/daemon/README.md#Config> #
-#=============================================================================#
+#================================================================#
+# This is `festivald`'s config file.                             #
+# It is in the TOML (https://en.wikipedia.org/wiki/TOML) format. #
+#                                                                #
+# Values will be loaded from this file on startup.               #
+# If overlapping `--command-flags` are provided,                 #
+# they will be used instead.                                     #
+#                                                                #
+# For full documentation on config options, see:                 #
+# <https://docs.festival.pm/daemon/config.html>                  #
+#================================================================#
 
 
 #----------------------------------------------------------#
@@ -147,7 +148,6 @@ docs = true
 # TYPE    | boolean
 direct_download = false
 
-
 # When files are downloaded via the REST API, and the
 # file is a nested object referencing multiple things
 # (e.g, an _album_ owned by an _artist_), we must include
@@ -202,7 +202,6 @@ log_level = "off"
 # VALUES  | true, false
 # TYPE    | boolean
 watch = true
-
 
 # When serving `ZIP` files via the REST API, `festivald`
 # will first write them to disk, then serve those files

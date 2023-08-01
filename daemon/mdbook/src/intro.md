@@ -6,7 +6,7 @@
 The 3 APIs `festivald` exposes:
 - [`JSON-RPC 2.0`](https://www.jsonrpc.org/specification) for state retrieval & signal control
 - [`REST`](https://en.wikipedia.org/wiki/Representational_state_transfer) endpoints for serving large resources (audio, art, etc)
-- [`Documentation`](intro.md): `festivald` serves the very docs you are reading
+- [`Documentation`](https://docs.festival.pm/daemon): `festivald` serves the very docs you are reading
 
 The transport used is `HTTP(s)`.
 
@@ -20,7 +20,7 @@ To interact with `festivald`, you need a client. The reference client is [`festi
 The documentation will use `curl` on the default `http://localhost:18425` for examples.
 
 To see documentation for the more user-friendly `festival-cli`, see here:  
-[https://github.com/hinto-janai/festival/blob/main/cli/README.md](https://github.com/hinto-janai/festival/blob/main/cli/README.md).
+[https://docs.festival.pm/cli](https://docs.festival.pm/cli).
 
 ### JSON-RPC
 For the `JSON-RPC` API, anything that can transmit `JSON-RPC` over `HTTP(s)` can be a client, like `curl`:
@@ -65,7 +65,7 @@ festival-cli rest map --artist "Artist Name" --album "Album Title" --song "Song 
 
 For a quick start on the `REST` API, see [here](rest/quick-start.md).
 
-To disable the `REST` API, set the [config](config.md) option `rest` to `false` OR pass `--disable-rest` via [command line](command-line.md) on start up.
+To disable the `REST` API, set the [config](config.md) option `rest` to `false` OR pass `--disable-rest` via [command line](command-line/command-line.md) on start up.
 
 ### Documentation
 `festivald` will also serve _this_ documentation.
@@ -76,7 +76,7 @@ http://localhost:18425
 ```
 Or you can open the files locally with:
 ```bash
-./festivald data --docs
+festivald data --docs
 ```
 
-To disable serving documentation, set the [config](config.md) option `docs` to `false` OR pass `--disable-docs` via [command line](command-line.md) on start up.
+To disable serving documentation, set the [config](config.md) option `docs` to `false` OR pass `--disable-docs` via [command line](command-line/command-line.md) on start up.

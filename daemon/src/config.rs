@@ -170,8 +170,8 @@ impl ConfigBuilder {
 
 		// FIXME TODO: testing.
 //		c.tls = true;
-//		c.certificate = Some(PathBuf::from("/tmp/cert.pem"));
-//		c.key = Some(PathBuf::from("/tmp/key.pem"));
+//		c.certificate = Some(PathBuf::from("../../assets/tls/cert.pem"));
+//		c.key = Some(PathBuf::from("../../assets/tls/key.pem"));
 //		let authorization = Some("my_username:my_password".to_string());
 
 		if let Some(ref hs) = c.exclusive_ips {

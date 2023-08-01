@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="en" class="sidebar-visible no-js navy">
+<html lang="en" class="sidebar-visible no-js dark">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
@@ -36,7 +36,7 @@
         <!-- Provide site root to javascript -->
         <script>
             var path_to_root = "";
-            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "navy";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "ayu" : "dark";
         </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
@@ -62,7 +62,7 @@
             if (theme === null || theme === undefined) { theme = default_theme; }
             var html = document.querySelector('html');
             html.classList.remove('no-js')
-            html.classList.remove('navy')
+            html.classList.remove('dark')
             html.classList.add(theme);
             html.classList.add('js');
         </script>
@@ -83,7 +83,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="intro.html">Intro</a></li><li class="chapter-item expanded "><a href="quick-start.html"><strong aria-hidden="true">1.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="config.html" class="active"><strong aria-hidden="true">2.</strong> Config</a></li><li class="chapter-item expanded "><a href="disk.html"><strong aria-hidden="true">3.</strong> Disk</a></li><li class="chapter-item expanded "><a href="authorization.html"><strong aria-hidden="true">4.</strong> Authorization</a></li><li class="chapter-item expanded "><a href="command-line.html"><strong aria-hidden="true">5.</strong> Command Line</a></li><li class="chapter-item expanded "><a href="api-stability.html"><strong aria-hidden="true">6.</strong> API Stability</a></li><li class="chapter-item expanded "><a href="common-objects/common-objects.html"><strong aria-hidden="true">7.</strong> Common Objects</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="common-objects/collection.html"><strong aria-hidden="true">7.1.</strong> Collection</a></li><li class="chapter-item expanded "><a href="common-objects/key.html"><strong aria-hidden="true">7.2.</strong> Key</a></li><li class="chapter-item expanded "><a href="common-objects/artist.html"><strong aria-hidden="true">7.3.</strong> Artist</a></li><li class="chapter-item expanded "><a href="common-objects/album.html"><strong aria-hidden="true">7.4.</strong> Album</a></li><li class="chapter-item expanded "><a href="common-objects/song.html"><strong aria-hidden="true">7.5.</strong> Song</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc.html"><strong aria-hidden="true">8.</strong> JSON-RPC</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/quick-start.html"><strong aria-hidden="true">8.1.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="json-rpc/collection/collection.html"><strong aria-hidden="true">8.2.</strong> Collection</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/collection/new_collection.html"><strong aria-hidden="true">8.2.1.</strong> new_collection</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc/state-retrieval/state-retrieval.html"><strong aria-hidden="true">8.3.</strong> State Retrieval</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/state-retrieval/state_daemon.html"><strong aria-hidden="true">8.3.1.</strong> state_daemon</a></li><li class="chapter-item expanded "><a href="json-rpc/state-retrieval/state_audio.html"><strong aria-hidden="true">8.3.2.</strong> state_audio</a></li><li class="chapter-item expanded "><a href="json-rpc/state-retrieval/state_reset.html"><strong aria-hidden="true">8.3.3.</strong> state_reset</a></li><li class="chapter-item expanded "><a href="json-rpc/state-retrieval/state_collection.html"><strong aria-hidden="true">8.3.4.</strong> state_collection</a></li><li class="chapter-item expanded "><a href="json-rpc/state-retrieval/state_collection_full.html"><strong aria-hidden="true">8.3.5.</strong> state_collection_full</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc/key/key.html"><strong aria-hidden="true">8.4.</strong> Key</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/key/key_artist.html"><strong aria-hidden="true">8.4.1.</strong> key_artist</a></li><li class="chapter-item expanded "><a href="json-rpc/key/key_album.html"><strong aria-hidden="true">8.4.2.</strong> key_album</a></li><li class="chapter-item expanded "><a href="json-rpc/key/key_song.html"><strong aria-hidden="true">8.4.3.</strong> key_song</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc/map/map.html"><strong aria-hidden="true">8.5.</strong> Map</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/map/map_artist.html"><strong aria-hidden="true">8.5.1.</strong> map_artist</a></li><li class="chapter-item expanded "><a href="json-rpc/map/map_album.html"><strong aria-hidden="true">8.5.2.</strong> map_album</a></li><li class="chapter-item expanded "><a href="json-rpc/map/map_song.html"><strong aria-hidden="true">8.5.3.</strong> map_song</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc/current/current.html"><strong aria-hidden="true">8.6.</strong> Current</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/current/current_artist.html"><strong aria-hidden="true">8.6.1.</strong> current_artist</a></li><li class="chapter-item expanded "><a href="json-rpc/current/current_album.html"><strong aria-hidden="true">8.6.2.</strong> current_album</a></li><li class="chapter-item expanded "><a href="json-rpc/current/current_song.html"><strong aria-hidden="true">8.6.3.</strong> current_song</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc/rand/rand.html"><strong aria-hidden="true">8.7.</strong> Rand</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/rand/rand_artist.html"><strong aria-hidden="true">8.7.1.</strong> rand_artist</a></li><li class="chapter-item expanded "><a href="json-rpc/rand/rand_album.html"><strong aria-hidden="true">8.7.2.</strong> rand_album</a></li><li class="chapter-item expanded "><a href="json-rpc/rand/rand_song.html"><strong aria-hidden="true">8.7.3.</strong> rand_song</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc/search/index.html"><strong aria-hidden="true">8.8.</strong> Search</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/search/search.html"><strong aria-hidden="true">8.8.1.</strong> search</a></li><li class="chapter-item expanded "><a href="json-rpc/search/search_artist.html"><strong aria-hidden="true">8.8.2.</strong> search_artist</a></li><li class="chapter-item expanded "><a href="json-rpc/search/search_album.html"><strong aria-hidden="true">8.8.3.</strong> search_album</a></li><li class="chapter-item expanded "><a href="json-rpc/search/search_song.html"><strong aria-hidden="true">8.8.4.</strong> search_song</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/playback-control.html"><strong aria-hidden="true">8.9.</strong> Playback Control</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/playback-control/toggle.html"><strong aria-hidden="true">8.9.1.</strong> toggle</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/play.html"><strong aria-hidden="true">8.9.2.</strong> play</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/pause.html"><strong aria-hidden="true">8.9.3.</strong> pause</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/next.html"><strong aria-hidden="true">8.9.4.</strong> next</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/stop.html"><strong aria-hidden="true">8.9.5.</strong> stop</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/shuffle.html"><strong aria-hidden="true">8.9.6.</strong> shuffle</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/repeat_off.html"><strong aria-hidden="true">8.9.7.</strong> repeat_off</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/repeat_song.html"><strong aria-hidden="true">8.9.8.</strong> repeat_song</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/repeat_queue.html"><strong aria-hidden="true">8.9.9.</strong> repeat_queue</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/previous.html"><strong aria-hidden="true">8.9.10.</strong> previous</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/volume.html"><strong aria-hidden="true">8.9.11.</strong> volume</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/clear.html"><strong aria-hidden="true">8.9.12.</strong> clear</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/seek.html"><strong aria-hidden="true">8.9.13.</strong> seek</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/skip.html"><strong aria-hidden="true">8.9.14.</strong> skip</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/back.html"><strong aria-hidden="true">8.9.15.</strong> back</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/add_queue_key_artist.html"><strong aria-hidden="true">8.9.16.</strong> add_queue_key_artist</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/add_queue_key_album.html"><strong aria-hidden="true">8.9.17.</strong> add_queue_key_album</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/add_queue_key_song.html"><strong aria-hidden="true">8.9.18.</strong> add_queue_key_song</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/add_queue_map_artist.html"><strong aria-hidden="true">8.9.19.</strong> add_queue_map_artist</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/add_queue_map_album.html"><strong aria-hidden="true">8.9.20.</strong> add_queue_map_album</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/add_queue_map_song.html"><strong aria-hidden="true">8.9.21.</strong> add_queue_map_song</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/set_queue_index.html"><strong aria-hidden="true">8.9.22.</strong> set_queue_index</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/remove_queue_range.html"><strong aria-hidden="true">8.9.23.</strong> remove_queue_range</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="rest.html"><strong aria-hidden="true">9.</strong> REST</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="rest/quick-start.html"><strong aria-hidden="true">9.1.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="rest/key/key.html"><strong aria-hidden="true">9.2.</strong> /key</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="rest/key/artist.html"><strong aria-hidden="true">9.2.1.</strong> /key/artist/$ARTIST_KEY</a></li><li class="chapter-item expanded "><a href="rest/key/album.html"><strong aria-hidden="true">9.2.2.</strong> /key/album/$ALBUM_KEY</a></li><li class="chapter-item expanded "><a href="rest/key/song.html"><strong aria-hidden="true">9.2.3.</strong> /key/song/$SONG_KEY</a></li><li class="chapter-item expanded "><a href="rest/key/art.html"><strong aria-hidden="true">9.2.4.</strong> /key/art/$ALBUM_KEY</a></li></ol></li><li class="chapter-item expanded "><a href="rest/map/map.html"><strong aria-hidden="true">9.3.</strong> /map</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="rest/map/artist.html"><strong aria-hidden="true">9.3.1.</strong> /map/$ARTIST_NAME</a></li><li class="chapter-item expanded "><a href="rest/map/album.html"><strong aria-hidden="true">9.3.2.</strong> /map/$ARTIST_NAME/$ALBUM_TITLE</a></li><li class="chapter-item expanded "><a href="rest/map/song.html"><strong aria-hidden="true">9.3.3.</strong> /map/$ARTIST_NAME/$ALBUM_TITLE/$SONG_TITLE</a></li></ol></li><li class="chapter-item expanded "><a href="rest/current/current.html"><strong aria-hidden="true">9.4.</strong> /current</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="rest/current/artist.html"><strong aria-hidden="true">9.4.1.</strong> /current/artist</a></li><li class="chapter-item expanded "><a href="rest/current/album.html"><strong aria-hidden="true">9.4.2.</strong> /current/album</a></li><li class="chapter-item expanded "><a href="rest/current/song.html"><strong aria-hidden="true">9.4.3.</strong> /current/song</a></li><li class="chapter-item expanded "><a href="rest/current/art.html"><strong aria-hidden="true">9.4.4.</strong> /current/art</a></li></ol></li><li class="chapter-item expanded "><a href="rest/rand/rand.html"><strong aria-hidden="true">9.5.</strong> /rand</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="rest/rand/artist.html"><strong aria-hidden="true">9.5.1.</strong> /rand/artist</a></li><li class="chapter-item expanded "><a href="rest/rand/album.html"><strong aria-hidden="true">9.5.2.</strong> /rand/album</a></li><li class="chapter-item expanded "><a href="rest/rand/song.html"><strong aria-hidden="true">9.5.3.</strong> /rand/song</a></li><li class="chapter-item expanded "><a href="rest/rand/art.html"><strong aria-hidden="true">9.5.4.</strong> /rand/art</a></li></ol></li><li class="chapter-item expanded "><a href="rest/art/art.html"><strong aria-hidden="true">9.6.</strong> /art</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="rest/art/artist.html"><strong aria-hidden="true">9.6.1.</strong> /art/$ARTIST_NAME</a></li><li class="chapter-item expanded "><a href="rest/art/album.html"><strong aria-hidden="true">9.6.2.</strong> /art/$ARTIST_NAME/$ALBUM_TITLE</a></li></ol></li><li class="chapter-item expanded "><a href="rest/collection.html"><strong aria-hidden="true">9.7.</strong> /collection</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="intro.html">Intro</a></li><li class="chapter-item expanded "><a href="quick-start.html"><strong aria-hidden="true">1.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="config.html" class="active"><strong aria-hidden="true">2.</strong> Config</a></li><li class="chapter-item expanded "><a href="disk.html"><strong aria-hidden="true">3.</strong> Disk</a></li><li class="chapter-item expanded "><a href="authorization.html"><strong aria-hidden="true">4.</strong> Authorization</a></li><li class="chapter-item expanded "><a href="api-stability.html"><strong aria-hidden="true">5.</strong> API Stability</a></li><li class="chapter-item expanded "><a href="command-line/command-line.html"><strong aria-hidden="true">6.</strong> Command Line</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="command-line/flags.html"><strong aria-hidden="true">6.1.</strong> Top-level flags</a></li><li class="chapter-item expanded "><a href="command-line/data.html"><strong aria-hidden="true">6.2.</strong> Sub-command: data</a></li><li class="chapter-item expanded "><a href="command-line/signal.html"><strong aria-hidden="true">6.3.</strong> Sub-command: signal</a></li></ol></li><li class="chapter-item expanded "><a href="common-objects/common-objects.html"><strong aria-hidden="true">7.</strong> Common Objects</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="common-objects/collection.html"><strong aria-hidden="true">7.1.</strong> Collection</a></li><li class="chapter-item expanded "><a href="common-objects/key.html"><strong aria-hidden="true">7.2.</strong> Key</a></li><li class="chapter-item expanded "><a href="common-objects/artist.html"><strong aria-hidden="true">7.3.</strong> Artist</a></li><li class="chapter-item expanded "><a href="common-objects/album.html"><strong aria-hidden="true">7.4.</strong> Album</a></li><li class="chapter-item expanded "><a href="common-objects/song.html"><strong aria-hidden="true">7.5.</strong> Song</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc.html"><strong aria-hidden="true">8.</strong> JSON-RPC</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/quick-start.html"><strong aria-hidden="true">8.1.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="json-rpc/collection/collection.html"><strong aria-hidden="true">8.2.</strong> Collection</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/collection/new_collection.html"><strong aria-hidden="true">8.2.1.</strong> new_collection</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc/state-retrieval/state-retrieval.html"><strong aria-hidden="true">8.3.</strong> State Retrieval</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/state-retrieval/state_daemon.html"><strong aria-hidden="true">8.3.1.</strong> state_daemon</a></li><li class="chapter-item expanded "><a href="json-rpc/state-retrieval/state_audio.html"><strong aria-hidden="true">8.3.2.</strong> state_audio</a></li><li class="chapter-item expanded "><a href="json-rpc/state-retrieval/state_reset.html"><strong aria-hidden="true">8.3.3.</strong> state_reset</a></li><li class="chapter-item expanded "><a href="json-rpc/state-retrieval/state_collection.html"><strong aria-hidden="true">8.3.4.</strong> state_collection</a></li><li class="chapter-item expanded "><a href="json-rpc/state-retrieval/state_collection_full.html"><strong aria-hidden="true">8.3.5.</strong> state_collection_full</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc/key/key.html"><strong aria-hidden="true">8.4.</strong> Key</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/key/key_artist.html"><strong aria-hidden="true">8.4.1.</strong> key_artist</a></li><li class="chapter-item expanded "><a href="json-rpc/key/key_album.html"><strong aria-hidden="true">8.4.2.</strong> key_album</a></li><li class="chapter-item expanded "><a href="json-rpc/key/key_song.html"><strong aria-hidden="true">8.4.3.</strong> key_song</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc/map/map.html"><strong aria-hidden="true">8.5.</strong> Map</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/map/map_artist.html"><strong aria-hidden="true">8.5.1.</strong> map_artist</a></li><li class="chapter-item expanded "><a href="json-rpc/map/map_album.html"><strong aria-hidden="true">8.5.2.</strong> map_album</a></li><li class="chapter-item expanded "><a href="json-rpc/map/map_song.html"><strong aria-hidden="true">8.5.3.</strong> map_song</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc/current/current.html"><strong aria-hidden="true">8.6.</strong> Current</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/current/current_artist.html"><strong aria-hidden="true">8.6.1.</strong> current_artist</a></li><li class="chapter-item expanded "><a href="json-rpc/current/current_album.html"><strong aria-hidden="true">8.6.2.</strong> current_album</a></li><li class="chapter-item expanded "><a href="json-rpc/current/current_song.html"><strong aria-hidden="true">8.6.3.</strong> current_song</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc/rand/rand.html"><strong aria-hidden="true">8.7.</strong> Rand</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/rand/rand_artist.html"><strong aria-hidden="true">8.7.1.</strong> rand_artist</a></li><li class="chapter-item expanded "><a href="json-rpc/rand/rand_album.html"><strong aria-hidden="true">8.7.2.</strong> rand_album</a></li><li class="chapter-item expanded "><a href="json-rpc/rand/rand_song.html"><strong aria-hidden="true">8.7.3.</strong> rand_song</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc/search/index.html"><strong aria-hidden="true">8.8.</strong> Search</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/search/search.html"><strong aria-hidden="true">8.8.1.</strong> search</a></li><li class="chapter-item expanded "><a href="json-rpc/search/search_artist.html"><strong aria-hidden="true">8.8.2.</strong> search_artist</a></li><li class="chapter-item expanded "><a href="json-rpc/search/search_album.html"><strong aria-hidden="true">8.8.3.</strong> search_album</a></li><li class="chapter-item expanded "><a href="json-rpc/search/search_song.html"><strong aria-hidden="true">8.8.4.</strong> search_song</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/playback-control.html"><strong aria-hidden="true">8.9.</strong> Playback Control</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/playback-control/toggle.html"><strong aria-hidden="true">8.9.1.</strong> toggle</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/play.html"><strong aria-hidden="true">8.9.2.</strong> play</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/pause.html"><strong aria-hidden="true">8.9.3.</strong> pause</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/next.html"><strong aria-hidden="true">8.9.4.</strong> next</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/stop.html"><strong aria-hidden="true">8.9.5.</strong> stop</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/shuffle.html"><strong aria-hidden="true">8.9.6.</strong> shuffle</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/repeat_off.html"><strong aria-hidden="true">8.9.7.</strong> repeat_off</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/repeat_song.html"><strong aria-hidden="true">8.9.8.</strong> repeat_song</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/repeat_queue.html"><strong aria-hidden="true">8.9.9.</strong> repeat_queue</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/previous.html"><strong aria-hidden="true">8.9.10.</strong> previous</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/volume.html"><strong aria-hidden="true">8.9.11.</strong> volume</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/clear.html"><strong aria-hidden="true">8.9.12.</strong> clear</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/seek.html"><strong aria-hidden="true">8.9.13.</strong> seek</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/skip.html"><strong aria-hidden="true">8.9.14.</strong> skip</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/back.html"><strong aria-hidden="true">8.9.15.</strong> back</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/add_queue_key_artist.html"><strong aria-hidden="true">8.9.16.</strong> add_queue_key_artist</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/add_queue_key_album.html"><strong aria-hidden="true">8.9.17.</strong> add_queue_key_album</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/add_queue_key_song.html"><strong aria-hidden="true">8.9.18.</strong> add_queue_key_song</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/add_queue_map_artist.html"><strong aria-hidden="true">8.9.19.</strong> add_queue_map_artist</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/add_queue_map_album.html"><strong aria-hidden="true">8.9.20.</strong> add_queue_map_album</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/add_queue_map_song.html"><strong aria-hidden="true">8.9.21.</strong> add_queue_map_song</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/set_queue_index.html"><strong aria-hidden="true">8.9.22.</strong> set_queue_index</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/remove_queue_range.html"><strong aria-hidden="true">8.9.23.</strong> remove_queue_range</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="rest.html"><strong aria-hidden="true">9.</strong> REST</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="rest/quick-start.html"><strong aria-hidden="true">9.1.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="rest/key/key.html"><strong aria-hidden="true">9.2.</strong> /key</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="rest/key/artist.html"><strong aria-hidden="true">9.2.1.</strong> /key/artist/$ARTIST_KEY</a></li><li class="chapter-item expanded "><a href="rest/key/album.html"><strong aria-hidden="true">9.2.2.</strong> /key/album/$ALBUM_KEY</a></li><li class="chapter-item expanded "><a href="rest/key/song.html"><strong aria-hidden="true">9.2.3.</strong> /key/song/$SONG_KEY</a></li><li class="chapter-item expanded "><a href="rest/key/art.html"><strong aria-hidden="true">9.2.4.</strong> /key/art/$ALBUM_KEY</a></li></ol></li><li class="chapter-item expanded "><a href="rest/map/map.html"><strong aria-hidden="true">9.3.</strong> /map</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="rest/map/artist.html"><strong aria-hidden="true">9.3.1.</strong> /map/$ARTIST_NAME</a></li><li class="chapter-item expanded "><a href="rest/map/album.html"><strong aria-hidden="true">9.3.2.</strong> /map/$ARTIST_NAME/$ALBUM_TITLE</a></li><li class="chapter-item expanded "><a href="rest/map/song.html"><strong aria-hidden="true">9.3.3.</strong> /map/$ARTIST_NAME/$ALBUM_TITLE/$SONG_TITLE</a></li></ol></li><li class="chapter-item expanded "><a href="rest/current/current.html"><strong aria-hidden="true">9.4.</strong> /current</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="rest/current/artist.html"><strong aria-hidden="true">9.4.1.</strong> /current/artist</a></li><li class="chapter-item expanded "><a href="rest/current/album.html"><strong aria-hidden="true">9.4.2.</strong> /current/album</a></li><li class="chapter-item expanded "><a href="rest/current/song.html"><strong aria-hidden="true">9.4.3.</strong> /current/song</a></li><li class="chapter-item expanded "><a href="rest/current/art.html"><strong aria-hidden="true">9.4.4.</strong> /current/art</a></li></ol></li><li class="chapter-item expanded "><a href="rest/rand/rand.html"><strong aria-hidden="true">9.5.</strong> /rand</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="rest/rand/artist.html"><strong aria-hidden="true">9.5.1.</strong> /rand/artist</a></li><li class="chapter-item expanded "><a href="rest/rand/album.html"><strong aria-hidden="true">9.5.2.</strong> /rand/album</a></li><li class="chapter-item expanded "><a href="rest/rand/song.html"><strong aria-hidden="true">9.5.3.</strong> /rand/song</a></li><li class="chapter-item expanded "><a href="rest/rand/art.html"><strong aria-hidden="true">9.5.4.</strong> /rand/art</a></li></ol></li><li class="chapter-item expanded "><a href="rest/art/art.html"><strong aria-hidden="true">9.6.</strong> /art</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="rest/art/artist.html"><strong aria-hidden="true">9.6.1.</strong> /art/$ARTIST_NAME</a></li><li class="chapter-item expanded "><a href="rest/art/album.html"><strong aria-hidden="true">9.6.2.</strong> /art/$ARTIST_NAME/$ALBUM_TITLE</a></li></ol></li><li class="chapter-item expanded "><a href="rest/collection.html"><strong aria-hidden="true">9.7.</strong> /collection</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -170,6 +170,292 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="config"><a class="header" href="#config">Config</a></h1>
+<p><code>festivald</code> reads and loads its configuration file, <code>festivald.toml</code>, on startup. It controls various behaviors of <code>festivald</code>.</p>
+<p>Exactly where this file is depends on the OS, more details in the <a href="disk.html"><code>Disk</code></a> section.</p>
+<p><a href="command-line/command-line.html"><code>Command Line</code></a> flags will override any overlapping config values.</p>
+<h2 id="festivaldtoml"><a class="header" href="#festivaldtoml"><code>festivald.toml</code></a></h2>
+<p>This is the default configuration file <code>festivald</code> creates and uses.</p>
+<p>If <code>festivald</code> is started with no <code>--flags</code>, e.g:</p>
+<pre><code class="language-bash">./festivald
+</code></pre>
+<p>Then it will be equivalent to this config file.</p>
+<pre><code class="language-toml">#================#
+# festivald.toml #
+#================================================================#
+# This is `festivald`'s config file.                             #
+# It is in the TOML (https://en.wikipedia.org/wiki/TOML) format. #
+#                                                                #
+# Values will be loaded from this file on startup.               #
+# If overlapping `--command-flags` are provided,                 #
+# they will be used instead.                                     #
+#                                                                #
+# For full documentation on config options, see:                 #
+# &lt;https://docs.festival.pm/daemon/config.html&gt;                  #
+#================================================================#
+
+
+#----------------------------------------------------------#
+#                         NETWORK                          #
+#----------------------------------------------------------#
+# The IPv4 address `festivald` will bind to.
+#
+# DEFAULT | &quot;127.0.0.1&quot;
+# EXAMPLE | &quot;192.168.2.10&quot;, &quot;0.0.0.0&quot;
+# TYPE    | IPv4 string
+ip = &quot;127.0.0.1&quot;
+
+# The port `festivald` bind to.
+#
+# DEFAULT | 18425
+# EXAMPLE | 15000, 8080, 9999
+# TYPE    | 16-bit unsigned integer (0..65535)
+port = 18425
+
+# The max amount of connections `festivald`
+# will serve at any given moment.
+# `0` means unlimited.
+#
+# Note that 1 client doesn't necessarily mean
+# 1 connection. A single web browser client for
+# example can make many multiple connections
+# to `festivald`.
+#
+# DEFAULT | 0
+# EXAMPLE | 2, 4, 8, 16, 32, 64, 1000, 99999
+# TYPE    | unsigned integer
+max_connections = 0
+
+# `festivald` will only serve connections coming
+# from these IPs. An empty array `[]` or an array
+# containing &quot;0.0.0.0&quot; will serve all IP ranges.
+#
+# DEFAULT | []
+# EXAMPLE | [&quot;127.0.0.1&quot;, &quot;192.168.2.10&quot;, &quot;13.248.169.48&quot;]
+# TYPE    | array of IPv4 addresses
+exclusive_ips = []
+
+# Upon a failed, potentially malicious request, instead of
+# immediately responding, `festivald` will randomly sleep
+# up to this many milliseconds before responding to the connection.
+#
+# This includes:
+#   - Authentication failure
+#   - IPs not in the `exclusive_ips` list
+#   - IPv6 connections
+#
+# If 0, `festivald` will immediately respond. This may
+# not be wanted due to potential DoS and timing attacks.
+#
+# If you're hosting locally (127.0.0.1), you can set this
+# to 0 (unless you don't trust your local network?).
+#
+# DEFAULT | 3000
+# EXAMPLE | 0, 1000, 3000, 10000, 300000
+# TYPE    | unsigned integer
+sleep_on_fail = 3000
+
+
+#----------------------------------------------------------#
+#                           TLS                            #
+#----------------------------------------------------------#
+# Enable/disable HTTPS.
+#
+# You must also provide a PEM-formatted X509 certificate and key
+# in the below options for this to work.
+#
+# DEFAULT | false
+# VALUES  | true, false
+# TYPE    | boolean
+tls = false
+
+# The PEM-formatted X509 certificate used for TLS.
+#
+# DEFAULT | &quot;&quot;
+# EXAMPLE | &quot;/my/path/to/cert.pem&quot;
+# TYPE    | PATH string
+certificate = &quot;&quot;
+
+# The PEM-formatted key for the above X509 certificate.
+#
+# DEFAULT | &quot;&quot;
+# EXAMPLE | &quot;/my/path/to/key.pem&quot;
+# TYPE    | PATH string
+key = &quot;&quot;
+
+
+#----------------------------------------------------------#
+#                           API                            #
+#----------------------------------------------------------#
+# Enable/disable the REST API.
+# This is responsible for the `/rest` API that
+# serves image, audio, and other heavy resource data.
+#
+# Setting this to `false` will disable this part
+# of the system, and will only leave the JSON-RPC
+# API available.
+#
+# DEFAULT | true
+# VALUES  | true, false
+# TYPE    | boolean
+rest = true
+
+# Enable/disable serving documentation.
+#
+# By default, `festivald` serves a markdown book
+# of it's own documentation, accessible at the
+# root `/` endpoint, e.g:
+# ```
+# http://localhost:18425/
+# ```
+#
+# Setting this to `false` will disable that.
+#
+# DEFAULT | true
+# VALUES  | true, false
+# TYPE    | boolean
+docs = true
+
+# Enable/disable direct downloads via the REST API.
+#
+# By default, accessing the REST API via a browser
+# will open the resource in the browser (audio player,
+# image viewer, etc)
+#
+# Setting this to true will make browsers download
+# the file directly, without opening it.
+#
+# DEFAULT | false
+# VALUES  | true, false
+# TYPE    | boolean
+direct_download = false
+
+# When files are downloaded via the REST API, and the
+# file is a nested object referencing multiple things
+# (e.g, an _album_ owned by an _artist_), we must include
+# that information, but what string should separate them?
+#
+# The default separator is &quot; - &quot;, e.g:
+# ```
+# Artist Name - Album Title.zip
+# ```
+# it can be changed to any string, like &quot;/&quot;:
+# ```
+# Artist Name/Album Title.zip
+# ```
+# or left empty &quot;&quot; for no separator at all.
+#
+# DEFAULT | &quot; - &quot;
+# EXAMPLE | &quot;/&quot;, &quot; --- &quot;, &quot;_&quot;, &quot;&quot;
+# TYPE    | string
+filename_separator = &quot; - &quot;
+
+
+#----------------------------------------------------------#
+#                         LOGGING                          #
+#----------------------------------------------------------#
+# The logging level `festivald` will use.
+#
+# DEFAULT | &quot;off&quot;
+# VALUES  | &quot;off&quot;, &quot;error&quot;, &quot;warn&quot;, &quot;info&quot;, &quot;debug&quot;, &quot;trace&quot;
+# TYPE    | string, one of the above
+log_level = &quot;off&quot;
+
+
+#----------------------------------------------------------#
+#                       FILESYSTEM                         #
+#----------------------------------------------------------#
+# Enable/disable watching the filesystem for signals
+#
+# Other than RPC calls, `festivald` can send signals
+# to another local `festivald`, e.g:
+# `./festivald --play`
+#
+# The way this is done is by creating a file
+# in Festival's `signal` directory.
+#
+# `./festivald --FLAG` just creates a file in that directory,
+# which an existing Festival will notice and do the appropriate task.
+#
+# Setting this to `false` will disable that part of the system so that
+# filesystem signals won't work, e.g, `./festivald --play` will not work.
+#
+# DEFAULT | true
+# VALUES  | true, false
+# TYPE    | boolean
+watch = true
+
+# When serving `ZIP` files via the REST API, `festivald`
+# will first write them to disk, then serve those files
+# instead of directly storing everything in memory,
+# as to not get OOM-killed on more than a few requests.
+#
+# This option sets the time limit on how many seconds
+# `festivald` will hold onto this cache for.
+#
+# Once the time limit is up, `festivald` will remove the
+# file. This cache is also reset on startup and shutdown.
+#
+# DEFAULT | 3600 (1 hour)
+# EXAMPLE | 60 (1 minute), 600 (10 minutes), 1800 (30 minutes), 14400 (4 hours)
+# TYPE    | unsigned integer
+cache_time = 3600
+
+
+#----------------------------------------------------------#
+#                      MEDIA CONTROLS                      #
+#----------------------------------------------------------#
+# Enable/disable OS media controls
+#
+# `festivald` plugs into the native OS's media controls so that signals
+# like `play/pause/stop` and/or keyboard controls can be processed.
+#
+# Setting this to `false` will disable media controls.
+#
+# DEFAULT | true
+# VALUES  | true, false
+# TYPE    | boolean
+media_controls = true
+
+
+#----------------------------------------------------------#
+#                      AUTHORIZATION                       #
+#----------------------------------------------------------#
+# Only process connections to `festivald` that have a
+# &quot;authorization&quot; HTTP header with this username and password.
+#
+# TLS must be enabled for this feature to work
+# or `festivald` will refuse to start.
+#
+# This value must be:
+#   1. The &quot;username&quot;
+#   2. Followed by a single colon &quot;:&quot;
+#   3. Then the &quot;password&quot;, e.g:
+# ```
+# curl -u my_user:my_pass https://127.0.0.1:18425
+# ```
+# or the equivalent wget command:
+# ```
+# wget --user my_user --password my_pass https://localhost:18425
+# ```
+#
+# An empty string disables this feature.
+#
+# Alternatively, you can input an absolute PATH to a file
+# `festivald` can access, containing the string, e.g:
+# ```
+# authorization = &quot;/path/to/user_and_pass.txt&quot;
+# ```
+# In this case, `festivald` will read the file and attempt
+# to parse it with the same syntax, i.e, the file should contain:
+# ```
+# my_user:my_pass
+# ```
+#
+# DEFAULT | &quot;&quot; (disabled)
+# EXAMPLE | &quot;my_username:my_password&quot;, &quot;my_username:aoig2A%^$AWS^%&quot;, &quot;/path/to/file&quot;
+# TYPE    | string or PATH to file
+authorization = &quot;&quot;
+</code></pre>
 
                     </main>
 

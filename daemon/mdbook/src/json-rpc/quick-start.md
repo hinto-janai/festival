@@ -19,7 +19,7 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"play"}'
 ```
 
 
-## View state of current audio playback with [`state_audio`](state/state_audio.md)
+## View state of current audio playback with [`state_audio`](state-retrieval/state_audio.md)
 ```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"state_audio"}'
 ```
