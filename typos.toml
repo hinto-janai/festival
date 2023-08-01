@@ -6,7 +6,10 @@ extend-ignore-identifiers-re = [
 
 [files]
 extend-exclude = [
+	# Doc output.
+	"daemon/mdbook/docs/",
+	"gui/mdbook/docs/",
+
 	"daemon/src/cert.rs",
-	"daemon/docs/docs/",
 	"external/",
 ]
