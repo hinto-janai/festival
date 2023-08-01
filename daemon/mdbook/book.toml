@@ -9,7 +9,7 @@ title        = "festivald v0.0.0"
 build-dir = "docs"
 
 [output.html]
-default-theme = "dark"
+default-theme = "ayu"
 preferred-dark-theme = "ayu"
 git-repository-url = "https://github.com/hinto-janai/festival"
 site-url = "/daemon/"
