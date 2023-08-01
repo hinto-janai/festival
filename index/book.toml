@@ -6,5 +6,6 @@ src = "src"
 title = "Festival"
 
 [output.html]
-default-theme = "navy"
+default-theme = "ayu"
+preferred-dark-theme = "ayu"
 git-repository-url = "https://github.com/hinto-janai/festival"
