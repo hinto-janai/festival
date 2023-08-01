@@ -3,3 +3,13 @@ extend-ignore-identifiers-re = [
 	"seeked",
 	"Seeked",
 ]
+
+[files]
+extend-exclude = [
+	# Doc output.
+	"daemon/mdbook/docs/",
+	"gui/mdbook/docs/",
+
+	"daemon/src/cert.rs",
+	"external/",
+]
