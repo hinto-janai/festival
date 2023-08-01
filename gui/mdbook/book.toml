@@ -9,6 +9,7 @@ title        = "Festival GUI v1.1.0"
 build-dir = "docs"
 
 [output.html]
-default-theme = "navy"
+default-theme = "ayu"
+preferred-dark-theme = "ayu"
 git-repository-url = "https://github.com/hinto-janai/festival"
-site-url = "/gui/"
+site-url = "/daemon/"
