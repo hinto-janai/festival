@@ -244,7 +244,7 @@ pub struct Cli {
 	log_daemon_only: bool,
 
 	#[arg(long, value_name = "OFF|ERROR|INFO|WARN|DEBUG|TRACE")]
-	#[arg(default_value_t = log::LevelFilter::Off)]
+	#[arg(default_value_t = log::LevelFilter::Error)]
 	/// Set filter level for console logs
 	log_level: log::LevelFilter,
 

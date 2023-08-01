@@ -27,8 +27,10 @@ The output is a superset of the [`state_collection`](../state-retrieval/state_co
 ```bash
 # Use default Music PATH.
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"new_collection","params":{"paths":null}}'
+
 # Use the PATH `/home/user/Music/collection` on `festivald`'s filesystem.
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"new_collection","params":{"paths":["/home/user/Music/collection"]}}'
+
 # Windows PATH works too if `\` is escaped (and if `festivald` is running on Windows).
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"new_collection","params":{"paths":["C:\\Users\\User\\Music\\collection"]}}'
 ```

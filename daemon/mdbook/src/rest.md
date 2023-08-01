@@ -22,3 +22,21 @@ If a file is downloaded that is nested, the `filename_separator` [config](config
 ```plaintext
 Artist Name - Album Title.zip
 ```
+
+## Missing resource
+If the underlying file for a resource is missing from the filesystem, `festivald` will respond to `REST` requests with an error.
+
+For example, if an `Artist` is requested:
+```http
+http://localhost:18425/map/Artist
+```
+And _any_ underlying PATH is missing/moved/renamed from when the `Collection` was created:
+```bash
+mv "Artist/Album/Song Title" "Artist/Album/Song_Title"
+```
+`festivald` will now have a reference to a non-existent PATH and will not be able to find the file(s), so it will respond with:
+```plaintext
+File not found
+```
+
+You can re-create the `Collection` with [`new_collection`](json-rpc/collection/new_collection.md) to re-link these PATHs.

@@ -4579,6 +4579,7 @@ dependencies = [
  "strum",
  "symphonia",
  "thread-priority",
+ "tokio",
  "walkdir",
  "windows 0.48.0",
  "winres",

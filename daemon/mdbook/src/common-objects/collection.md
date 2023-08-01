@@ -3,6 +3,8 @@ This is the main music "library" or "database" that `festivald` creates and uses
 
 It is _the_ central component, and almost all other methods/endpoints use it in some way.
 
+It does not contain actual audio/image data, but rather metadata and links to where those resources can be found.
+
 The `Collection` contains many nested objects, including the common 3:
 - [`Artist`](artist.md)
 - [`Album`](album.md)

@@ -1,5 +1,5 @@
 //---------------------------------------------------------------------------------------------------- Use
-use anyhow::{anyhow,bail};
+use anyhow::anyhow;
 use log::{error,warn,debug,trace};
 use benri::{
 	sleep,
@@ -556,7 +556,7 @@ impl Audio {
 		let file = match File::open(path) {
 			Ok(f)  => f,
 			Err(e) => {
-				fail!("Audio - path error: {e}");
+				fail!("Audio - PATH error: {e} ... {}", path.display());
 				send!(self.to_kernel, AudioToKernel::PathError((key, anyhow!(e))));
 				return None;
 			},
@@ -567,7 +567,7 @@ impl Audio {
 		match symphonia::default::get_probe().format(&hint, mss, &format_opts, &metadata_opts) {
 			Ok(o)  => Some(o.format),
 			Err(e) => {
-				fail!("Audio - probe error: {e}");
+				fail!("Audio - Probe error: {e} ... {}", path.display());
 				send!(self.to_kernel, AudioToKernel::PathError((key, anyhow!(e))));
 				None
 			},
@@ -587,14 +587,14 @@ impl Audio {
 			.find(|t| t.codec_params.codec != symphonia::core::codecs::CODEC_TYPE_NULL)
 		{
 			Some(t) => t,
-			None => bail!("could not find track codec"),
+			None => return Err(anyhow!("Could not find track codec")),
 		};
 
 		// Create a decoder for the track.
 		let decoder_opts = DecoderOptions { verify: false };
 		let decoder = match symphonia::default::get_codecs().make(&track.codec_params, &decoder_opts) {
 			Ok(d) => d,
-			Err(e) => bail!(e),
+			Err(e) => return Err(anyhow!(e)),
 		};
 
 		self.current = Some(AudioReader {

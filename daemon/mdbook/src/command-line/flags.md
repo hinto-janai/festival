@@ -1,5 +1,5 @@
 # Top-level flags
-Top-level command flags and sub-commands.
+Top-level command flags.
 
 ```plaintext
 Usage: festivald [OPTIONS] [COMMAND + OPTIONS] [ARGS...]

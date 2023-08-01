@@ -30,7 +30,7 @@ pub fn clean_cache() -> Result<(), anyhow::Error> {
 
 macro_rules! impl_zip {
 	($type:ident, $sub_dir:literal) => {
-		disk::empty!($type, disk::Dir::Cache, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{}", $sub_dir), "tmp");
+		disk::empty!($type, disk::Dir::Cache, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/zip/{}", $sub_dir), "tmp");
 		#[derive(Debug)]
 		pub struct $type {
 			pub real: PathBuf,
@@ -90,10 +90,10 @@ macro_rules! impl_zip {
 	}
 }
 
-impl_zip!(CollectionZip, "collection_zip");
-impl_zip!(ArtistZip,     "artist_zip");
-impl_zip!(AlbumZip,      "album_zip");
-impl_zip!(ArtZip,        "art_zip");
+impl_zip!(CollectionZip, "collection");
+impl_zip!(ArtistZip,     "artist");
+impl_zip!(AlbumZip,      "album");
+impl_zip!(ArtZip,        "art");
 
 //---------------------------------------------------------------------------------------------------- TESTS
 //#[cfg(test)]

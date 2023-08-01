@@ -174,10 +174,14 @@ filename_separator = " - "
 #----------------------------------------------------------#
 # The logging level `festivald` will use.
 #
-# DEFAULT | "off"
+# "error" will only show critical error messages,
+# "warn" will in addition show warnings,
+# "info" will in addition show info, etc, etc.
+#
+# DEFAULT | "error"
 # VALUES  | "off", "error", "warn", "info", "debug", "trace"
 # TYPE    | string, one of the above
-log_level = "off"
+log_level = "error"
 
 
 #----------------------------------------------------------#

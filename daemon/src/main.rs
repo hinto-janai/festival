@@ -19,7 +19,7 @@ fn main() {
 	// Handle CLI arguments.
 	let (disable_watch, disable_media_controls, log) = {
 		if std::env::args_os().len() == 1 {
-			(false, false, log::LevelFilter::Off)
+			(false, false, log::LevelFilter::Error)
 		} else {
 			crate::cli::Cli::get()
 		}

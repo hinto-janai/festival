@@ -698,17 +698,18 @@ macro_rules! impl_search {
 		send!($to_kernel, FrontendToKernel::Search(($params.input.into(), $params.kind)));
 
 		// Receive from `Kernel`.
-		let msg = loop {
-			match $from_kernel.try_recv() {
-				Ok(msg) => break msg,
-				_ => tokio::time::sleep(Duration::from_millis(1)).await,
-			}
-		};
+		let keychain = 'outer: loop {
+			let msg = 'inner: loop {
+				match $from_kernel.try_recv() {
+					Ok(msg) => break 'inner msg,
+					_ => tokio::time::sleep(Duration::from_millis(1)).await,
+				}
+			};
 
-		// INVARIANT: This _must_ be `SearchResp` or our `KERNEL_LOCK` workaround isn't working.
-		let KernelToFrontend::SearchResp(keychain) = msg else {
-			debug_panic!("search method but not search resp");
-			return Ok(resp::internal_error($id));
+			// INVARIANT: This _must_ be `SearchResp` or our `KERNEL_LOCK` workaround isn't working.
+			if let KernelToFrontend::SearchResp(keychain) = msg {
+				break 'outer keychain;
+			};
 		};
 
 		keychain
@@ -842,7 +843,7 @@ async fn new_collection<'a>(
 		let mut collection = loop {
 			match recv!(FROM_KERNEL) {
 				KernelToFrontend::NewCollection(c) => break c,
-				_ => debug_panic!("wrong kernel msg"),
+				_ => (),
 			}
 		};
 

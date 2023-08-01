@@ -5,6 +5,21 @@ It can be accessed by sending a POST HTTP request containing a `JSON-RPC 2.0` re
 
 For a quick start on using it, see the next section: [Quick Start](json-rpc/quick-start.md).
 
+### Missing resource
+If a `JSON-RPC` method is interacting with an underlying resource and that resource is missing from the filesystem, `festivald` will _not_ respond to the client with an error, however, it will log an error message on the machine it is running on.
+
+For example, if a `add_queue_key_song` is sent, and _that_ `Song`'s underlying PATH is missing/moved/renamed from when the `Collection` was created:
+```bash
+mv "Artist/Album/Song Title" "Artist/Album/Song_Title"
+```
+
+`festivald` will now have a reference to a non-existent PATH and will not be able to find the file(s), so it will log an error that looks something like:
+```plaintext
+Audio - PATH error: No such file or directory (os error 2) ... /path/to/unknown/song.mp3
+```
+
+You can re-create the `Collection` with [`new_collection`](json-rpc/collection/new_collection.md) to re-link these PATHs.
+
 ### Example `JSON-RPC 2.0` _request_:
 ```json
 {

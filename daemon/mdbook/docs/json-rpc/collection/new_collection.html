@@ -192,8 +192,10 @@
 <h4 id="example-request"><a class="header" href="#example-request">Example Request</a></h4>
 <pre><code class="language-bash"># Use default Music PATH.
 curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;new_collection&quot;,&quot;params&quot;:{&quot;paths&quot;:null}}'
+
 # Use the PATH `/home/user/Music/collection` on `festivald`'s filesystem.
 curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;new_collection&quot;,&quot;params&quot;:{&quot;paths&quot;:[&quot;/home/user/Music/collection&quot;]}}'
+
 # Windows PATH works too if `\` is escaped (and if `festivald` is running on Windows).
 curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;new_collection&quot;,&quot;params&quot;:{&quot;paths&quot;:[&quot;C:\\Users\\User\\Music\\collection&quot;]}}'
 </code></pre>

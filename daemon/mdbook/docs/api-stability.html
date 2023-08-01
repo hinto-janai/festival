@@ -170,24 +170,121 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="api-stability"><a class="header" href="#api-stability">API Stability</a></h1>
-<p><code>festivald</code>'s JSON output and REST endpoint changes will only be <em>additional</em> until a breaking <code>v2.0.0</code> release.</p>
-<p>More JSON fields and/or more REST endpoints could be added in the future, however previous fields and endpoints will remain.</p>
-<p>Example old <code>v1.0.0</code> JSON:</p>
-<pre><code class="language-json">{
-  &quot;old_field&quot;: &quot;This is a field introduced in v1.0.0&quot;,
+<p>Some notes on what parts of <code>festivald</code>'s API can/cannot be relied upon.</p>
+<p>In general, things may be added, but never removed from the public API.</p>
+<p>These rules will apply until a potential <code>v2.0.0</code> breaking release.</p>
+<h2 id="config"><a class="header" href="#config">Config</a></h2>
+<ul>
+<li><a href="config.html"><code>config</code></a> names are stable (<code>max_connections</code> will always be named <code>max_connections</code>)</li>
+<li>Their expected inputs are stable (<code>max_connections</code> will always want an unsigned integer)</li>
+<li>Their expected behavior is stable (<code>max_connections</code> will always control the max amount of connections)</li>
+<li>Default config values <em>may</em> be changed (default <code>port</code> value may not always be <code>18425</code>)</li>
+</ul>
+<h2 id="command-line"><a class="header" href="#command-line">Command Line</a></h2>
+<ul>
+<li><a href="command-line/command-line.html"><code>--flags</code></a> and sub-command names are stable (<code>festivald data --path</code> will always be <code>festivald data --path</code>)</li>
+<li>Their expected inputs/outputs are stable</li>
+</ul>
+<h2 id="disk"><a class="header" href="#disk">Disk</a></h2>
+<p>All locations and filenames of all files written to disk by <code>festivald</code> are stable.</p>
+<div class="table-wrapper"><table><thead><tr><th>Type</th><th>Example</th></tr></thead><tbody>
+<tr><td><a href="disk.html#cache"><code>Cache</code></a></td><td><code>Artist</code> ZIP cache is always at <code>~/.cache/festival/daemon/zip/artist</code></td></tr>
+<tr><td><a href="disk.html#config"><code>Config</code></a></td><td><code>Config</code> file is always at <code>~/.config/festival/daemon/festivald.toml</code></td></tr>
+<tr><td><a href="disk.html#data"><code>Data</code></a></td><td><code>Collection</code> file is always at <code>~/.local/share/festival/daemon/state/collection.bin</code></td></tr>
+</tbody></table>
+</div>
+<h2 id="json-rpc"><a class="header" href="#json-rpc">JSON-RPC</a></h2>
+<ul>
+<li>Method names (<a href="json-rpc/collection/new_collection.html"><code>new_collection</code></a>) and their input types are stable</li>
+<li>Parameter names (<a href="json-rpc/playback-control/volume.html"><code>volume</code></a>) are stable</li>
+<li>More fields <em>may</em> be added in the future, previous fields will remain</li>
+<li>Although old fields will remain, the <em>ordering</em> of fields should <em>NOT</em> be relied upon</li>
+<li>These rules also apply to the <a href="common-objects/common-objects.html"><code>Common Objects</code></a></li>
+</ul>
+<p>Old <code>v1.0.0</code> JSON-RPC example:</p>
+<pre><code class="language-json">// Request
+{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;method&quot;: &quot;Introduced in v1.0.0&quot;,
+  &quot;param&quot;: {
+    &quot;param_field&quot;: &quot;Introduced in v1.0.0&quot;,
+    &quot;param_field2&quot;: &quot;Introduced in v1.0.0&quot;
+  },
+  &quot;id&quot;: 0,
+}
+
+// Response
+{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;result&quot;: {
+    &quot;result_field&quot;: &quot;Introduced in v1.0.0&quot;,
+    &quot;result_field2&quot;: &quot;Introduced in v1.0.0&quot;
+  },
+  &quot;id&quot;: 0,
 }
 </code></pre>
-<p>Example <code>v1.x.x</code>+ JSON:</p>
-<pre><code class="language-json">{
-  &quot;old_field&quot;: &quot;This is a field introduced in v1.0.0&quot;,
-  &quot;new_field&quot;: &quot;I'm new, introduced in a future v1.x.x release&quot;
+<p>New <code>v1.x.x</code>+ JSON-RPC example:</p>
+<pre><code class="language-json">// Request
+{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;method&quot;: &quot;Introduced in v1.0.0&quot;,
+  &quot;param&quot;: {
+    &quot;param_field3&quot;: &quot;Introduced in v1.x.x&quot;,
+    &quot;param_field2&quot;: &quot;Introduced in v1.0.0&quot;,
+    &quot;param_field&quot;: &quot;Introduced in v1.0.0&quot;
+  },
+  &quot;id&quot;: 0,
+}
+
+// Response
+{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;result&quot;: {
+    &quot;result_field&quot;: &quot;Introduced in v1.0.0&quot;,
+    &quot;result_field3&quot;: &quot;Introduced in v1.x.x&quot;,
+    &quot;result_field2&quot;: &quot;Introduced in v1.0.0&quot;
+  },
+  &quot;id&quot;: 0,
 }
 </code></pre>
-<p>Example <code>v2.0.0</code> JSON:</p>
-<pre><code class="language-json">{
-  &quot;new_new_field&quot;: &quot;The entire output is different&quot;,
-}
+<h2 id="rest"><a class="header" href="#rest">REST</a></h2>
+<ul>
+<li>Endpoint names (<a href="rest/key/artist.html"><code>/key_artist</code></a>) and their input types are stable</li>
+<li>Endpoint outputs are stable (the above endpoint will <em>always</em> output a ZIP file)</li>
+<li>More endpoints could be added in the future, previous endpoints will remain</li>
+<li>Output filenames are stable (<code>/key_artist</code> will always output a ZIP file with the name <code>${ARTIST_NAME}.zip</code>)</li>
+<li>The file hierarchy within ZIPs are stable</li>
+</ul>
+<p>This below example will be the same for the rest of <code>festivald v1.x.x</code>:</p>
+<pre><code class="language-plaintext"># Input
+https://localhost:18425/map/My Artist
+
+# Output
+My Artist.zip
+
+# Extracted
+My Artist/
+    ├─ Album Name 1/
+    │    ├─ Album Name 1.jpg
+    │    ├─ Song Name 1.mp3
+    │
+    │─ Album Name 2/
+    │    ├─ Album Name 2.png
+    │    ├─ Song Name 2.mp3
 </code></pre>
+<h2 id="logs"><a class="header" href="#logs">Logs</a></h2>
+<p>Do not rely on the log output of <code>festivald</code>.</p>
+<h2 id="documentation"><a class="header" href="#documentation">Documentation</a></h2>
+<p>Do not rely on the exact name or position of something within this documentation.</p>
+<p>For example, this section <a href="./api-stability.html"><code>API Stability</code></a> may be renamed to <code>API Reliability</code> and/or moved to a different chapter.</p>
+<p>Documentation may change at any given moment to provide the most accurate information.</p>
+<h2 id="protocol"><a class="header" href="#protocol">Protocol</a></h2>
+<ul>
+<li>HTTP(s) will always be the transport</li>
+<li>Version <a href="https://jsonrpc.org/specification"><code>2.0</code></a> of <code>JSON-RPC</code> will always be used</li>
+<li><code>JSON-RPC</code> will always require <code>POST HTTP</code> requests</li>
+<li><code>REST</code> and documentation will always require <code>GET HTTP</code> requests</li>
+</ul>
 
                     </main>
 

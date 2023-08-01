@@ -182,6 +182,18 @@
 <p>If a file is downloaded that is nested, the <code>filename_separator</code> <a href="config.html">config</a> option will control what the separator will be. By default, this is <code>-</code>, so the filename of an archive of an artist will look like:</p>
 <pre><code class="language-plaintext">Artist Name - Album Title.zip
 </code></pre>
+<h2 id="missing-resource"><a class="header" href="#missing-resource">Missing resource</a></h2>
+<p>If the underlying file for a resource is missing from the filesystem, <code>festivald</code> will respond to <code>REST</code> requests with an error.</p>
+<p>For example, if an <code>Artist</code> is requested:</p>
+<pre><code class="language-http">http://localhost:18425/map/Artist
+</code></pre>
+<p>And <em>any</em> underlying PATH is missing/moved/renamed from when the <code>Collection</code> was created:</p>
+<pre><code class="language-bash">mv &quot;Artist/Album/Song Title&quot; &quot;Artist/Album/Song_Title&quot;
+</code></pre>
+<p><code>festivald</code> will now have a reference to a non-existent PATH and will not be able to find the file(s), so it will respond with:</p>
+<pre><code class="language-plaintext">File not found
+</code></pre>
+<p>You can re-create the <code>Collection</code> with <a href="json-rpc/collection/new_collection.html"><code>new_collection</code></a> to re-link these PATHs.</p>
 
                     </main>
 

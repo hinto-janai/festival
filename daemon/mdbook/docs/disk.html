@@ -194,13 +194,23 @@
 <p>The <code>Cache</code> sub-directories/files, and their purpose:</p>
 <pre><code class="language-plaintext">├─ daemon/
    │
-   ├─ collection_zip/ # Cached `Collection` ZIPs, created by the `/collection` REST endpoint
-   │
-   ├─ artist_zip/ # Cached `Artist` ZIPs, created by the `*_artist` REST endpoints
-   │
-   ├─ album_zip/ # # Cached `Artist` ZIPs, created by the `*_album` REST endpoints
-   │
-   ├─ art_zip/ # # Cached `Artist` ZIPs, created by the `art_*` REST endpoints
+   ├─ zip/ # Cached ZIP files
+      │
+      ├─ collection/ # Cached `Collection` ZIPs, created by the `/collection` REST endpoint
+      │  │
+      │  ├─ tmp/ # Temporary, un-finished ZIP files
+      │
+      ├─ artist/ # Cached `Artist` ZIPs, created by the `*_artist` REST endpoints
+      │  │
+      │  ├─ tmp/ # Temporary, un-finished ZIP files
+      │
+      ├─ album/ # # Cached `Artist` ZIPs, created by the `*_album` REST endpoints
+      │  │
+      │  ├─ tmp/ # Temporary, un-finished ZIP files
+      │
+      ├─ art/ # # Cached `Artist` ZIPs, created by the `art_*` REST endpoints
+      │  │
+      │  ├─ tmp/ # Temporary, un-finished ZIP files
 </code></pre>
 <h2 id="config"><a class="header" href="#config">Config</a></h2>
 <p>Where <code>festivald</code>'s configuration files are saved.</p>
