@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="en" class="sidebar-visible no-js navy">
+<html lang="en" class="sidebar-visible no-js dark">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
@@ -37,7 +37,7 @@
         <!-- Provide site root to javascript -->
         <script>
             var path_to_root = "";
-            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "navy";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "ayu" : "dark";
         </script>
 
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
@@ -63,7 +63,7 @@
             if (theme === null || theme === undefined) { theme = default_theme; }
             var html = document.querySelector('html');
             html.classList.remove('no-js')
-            html.classList.remove('navy')
+            html.classList.remove('dark')
             html.classList.add(theme);
             html.classList.add('js');
         </script>
@@ -84,7 +84,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="intro.html">Intro</a></li><li class="chapter-item expanded "><a href="quick-start.html"><strong aria-hidden="true">1.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="config.html"><strong aria-hidden="true">2.</strong> Config</a></li><li class="chapter-item expanded "><a href="disk.html"><strong aria-hidden="true">3.</strong> Disk</a></li><li class="chapter-item expanded "><a href="authorization.html"><strong aria-hidden="true">4.</strong> Authorization</a></li><li class="chapter-item expanded "><a href="command-line.html"><strong aria-hidden="true">5.</strong> Command Line</a></li><li class="chapter-item expanded "><a href="api-stability.html"><strong aria-hidden="true">6.</strong> API Stability</a></li><li class="chapter-item expanded "><a href="common-objects/common-objects.html"><strong aria-hidden="true">7.</strong> Common Objects</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="common-objects/collection.html"><strong aria-hidden="true">7.1.</strong> Collection</a></li><li class="chapter-item expanded "><a href="common-objects/key.html"><strong aria-hidden="true">7.2.</strong> Key</a></li><li class="chapter-item expanded "><a href="common-objects/artist.html"><strong aria-hidden="true">7.3.</strong> Artist</a></li><li class="chapter-item expanded "><a href="common-objects/album.html"><strong aria-hidden="true">7.4.</strong> Album</a></li><li class="chapter-item expanded "><a href="common-objects/song.html"><strong aria-hidden="true">7.5.</strong> Song</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc.html"><strong aria-hidden="true">8.</strong> JSON-RPC</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/quick-start.html"><strong aria-hidden="true">8.1.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="json-rpc/collection/collection.html"><strong aria-hidden="true">8.2.</strong> Collection</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/collection/new_collection.html"><strong aria-hidden="true">8.2.1.</strong> new_collection</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc/state-retrieval/state-retrieval.html"><strong aria-hidden="true">8.3.</strong> State Retrieval</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/state-retrieval/state_daemon.html"><strong aria-hidden="true">8.3.1.</strong> state_daemon</a></li><li class="chapter-item expanded "><a href="json-rpc/state-retrieval/state_audio.html"><strong aria-hidden="true">8.3.2.</strong> state_audio</a></li><li class="chapter-item expanded "><a href="json-rpc/state-retrieval/state_reset.html"><strong aria-hidden="true">8.3.3.</strong> state_reset</a></li><li class="chapter-item expanded "><a href="json-rpc/state-retrieval/state_collection.html"><strong aria-hidden="true">8.3.4.</strong> state_collection</a></li><li class="chapter-item expanded "><a href="json-rpc/state-retrieval/state_collection_full.html"><strong aria-hidden="true">8.3.5.</strong> state_collection_full</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc/key/key.html"><strong aria-hidden="true">8.4.</strong> Key</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/key/key_artist.html"><strong aria-hidden="true">8.4.1.</strong> key_artist</a></li><li class="chapter-item expanded "><a href="json-rpc/key/key_album.html"><strong aria-hidden="true">8.4.2.</strong> key_album</a></li><li class="chapter-item expanded "><a href="json-rpc/key/key_song.html"><strong aria-hidden="true">8.4.3.</strong> key_song</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc/map/map.html"><strong aria-hidden="true">8.5.</strong> Map</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/map/map_artist.html"><strong aria-hidden="true">8.5.1.</strong> map_artist</a></li><li class="chapter-item expanded "><a href="json-rpc/map/map_album.html"><strong aria-hidden="true">8.5.2.</strong> map_album</a></li><li class="chapter-item expanded "><a href="json-rpc/map/map_song.html"><strong aria-hidden="true">8.5.3.</strong> map_song</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc/current/current.html"><strong aria-hidden="true">8.6.</strong> Current</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/current/current_artist.html"><strong aria-hidden="true">8.6.1.</strong> current_artist</a></li><li class="chapter-item expanded "><a href="json-rpc/current/current_album.html"><strong aria-hidden="true">8.6.2.</strong> current_album</a></li><li class="chapter-item expanded "><a href="json-rpc/current/current_song.html"><strong aria-hidden="true">8.6.3.</strong> current_song</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc/rand/rand.html"><strong aria-hidden="true">8.7.</strong> Rand</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/rand/rand_artist.html"><strong aria-hidden="true">8.7.1.</strong> rand_artist</a></li><li class="chapter-item expanded "><a href="json-rpc/rand/rand_album.html"><strong aria-hidden="true">8.7.2.</strong> rand_album</a></li><li class="chapter-item expanded "><a href="json-rpc/rand/rand_song.html"><strong aria-hidden="true">8.7.3.</strong> rand_song</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc/search/index.html"><strong aria-hidden="true">8.8.</strong> Search</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/search/search.html"><strong aria-hidden="true">8.8.1.</strong> search</a></li><li class="chapter-item expanded "><a href="json-rpc/search/search_artist.html"><strong aria-hidden="true">8.8.2.</strong> search_artist</a></li><li class="chapter-item expanded "><a href="json-rpc/search/search_album.html"><strong aria-hidden="true">8.8.3.</strong> search_album</a></li><li class="chapter-item expanded "><a href="json-rpc/search/search_song.html"><strong aria-hidden="true">8.8.4.</strong> search_song</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/playback-control.html"><strong aria-hidden="true">8.9.</strong> Playback Control</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/playback-control/toggle.html"><strong aria-hidden="true">8.9.1.</strong> toggle</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/play.html"><strong aria-hidden="true">8.9.2.</strong> play</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/pause.html"><strong aria-hidden="true">8.9.3.</strong> pause</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/next.html"><strong aria-hidden="true">8.9.4.</strong> next</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/stop.html"><strong aria-hidden="true">8.9.5.</strong> stop</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/shuffle.html"><strong aria-hidden="true">8.9.6.</strong> shuffle</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/repeat_off.html"><strong aria-hidden="true">8.9.7.</strong> repeat_off</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/repeat_song.html"><strong aria-hidden="true">8.9.8.</strong> repeat_song</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/repeat_queue.html"><strong aria-hidden="true">8.9.9.</strong> repeat_queue</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/previous.html"><strong aria-hidden="true">8.9.10.</strong> previous</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/volume.html"><strong aria-hidden="true">8.9.11.</strong> volume</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/clear.html"><strong aria-hidden="true">8.9.12.</strong> clear</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/seek.html"><strong aria-hidden="true">8.9.13.</strong> seek</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/skip.html"><strong aria-hidden="true">8.9.14.</strong> skip</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/back.html"><strong aria-hidden="true">8.9.15.</strong> back</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/add_queue_key_artist.html"><strong aria-hidden="true">8.9.16.</strong> add_queue_key_artist</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/add_queue_key_album.html"><strong aria-hidden="true">8.9.17.</strong> add_queue_key_album</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/add_queue_key_song.html"><strong aria-hidden="true">8.9.18.</strong> add_queue_key_song</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/add_queue_map_artist.html"><strong aria-hidden="true">8.9.19.</strong> add_queue_map_artist</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/add_queue_map_album.html"><strong aria-hidden="true">8.9.20.</strong> add_queue_map_album</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/add_queue_map_song.html"><strong aria-hidden="true">8.9.21.</strong> add_queue_map_song</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/set_queue_index.html"><strong aria-hidden="true">8.9.22.</strong> set_queue_index</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/remove_queue_range.html"><strong aria-hidden="true">8.9.23.</strong> remove_queue_range</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="rest.html"><strong aria-hidden="true">9.</strong> REST</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="rest/quick-start.html"><strong aria-hidden="true">9.1.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="rest/key/key.html"><strong aria-hidden="true">9.2.</strong> /key</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="rest/key/artist.html"><strong aria-hidden="true">9.2.1.</strong> /key/artist/$ARTIST_KEY</a></li><li class="chapter-item expanded "><a href="rest/key/album.html"><strong aria-hidden="true">9.2.2.</strong> /key/album/$ALBUM_KEY</a></li><li class="chapter-item expanded "><a href="rest/key/song.html"><strong aria-hidden="true">9.2.3.</strong> /key/song/$SONG_KEY</a></li><li class="chapter-item expanded "><a href="rest/key/art.html"><strong aria-hidden="true">9.2.4.</strong> /key/art/$ALBUM_KEY</a></li></ol></li><li class="chapter-item expanded "><a href="rest/map/map.html"><strong aria-hidden="true">9.3.</strong> /map</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="rest/map/artist.html"><strong aria-hidden="true">9.3.1.</strong> /map/$ARTIST_NAME</a></li><li class="chapter-item expanded "><a href="rest/map/album.html"><strong aria-hidden="true">9.3.2.</strong> /map/$ARTIST_NAME/$ALBUM_TITLE</a></li><li class="chapter-item expanded "><a href="rest/map/song.html"><strong aria-hidden="true">9.3.3.</strong> /map/$ARTIST_NAME/$ALBUM_TITLE/$SONG_TITLE</a></li></ol></li><li class="chapter-item expanded "><a href="rest/current/current.html"><strong aria-hidden="true">9.4.</strong> /current</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="rest/current/artist.html"><strong aria-hidden="true">9.4.1.</strong> /current/artist</a></li><li class="chapter-item expanded "><a href="rest/current/album.html"><strong aria-hidden="true">9.4.2.</strong> /current/album</a></li><li class="chapter-item expanded "><a href="rest/current/song.html"><strong aria-hidden="true">9.4.3.</strong> /current/song</a></li><li class="chapter-item expanded "><a href="rest/current/art.html"><strong aria-hidden="true">9.4.4.</strong> /current/art</a></li></ol></li><li class="chapter-item expanded "><a href="rest/rand/rand.html"><strong aria-hidden="true">9.5.</strong> /rand</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="rest/rand/artist.html"><strong aria-hidden="true">9.5.1.</strong> /rand/artist</a></li><li class="chapter-item expanded "><a href="rest/rand/album.html"><strong aria-hidden="true">9.5.2.</strong> /rand/album</a></li><li class="chapter-item expanded "><a href="rest/rand/song.html"><strong aria-hidden="true">9.5.3.</strong> /rand/song</a></li><li class="chapter-item expanded "><a href="rest/rand/art.html"><strong aria-hidden="true">9.5.4.</strong> /rand/art</a></li></ol></li><li class="chapter-item expanded "><a href="rest/art/art.html"><strong aria-hidden="true">9.6.</strong> /art</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="rest/art/artist.html"><strong aria-hidden="true">9.6.1.</strong> /art/$ARTIST_NAME</a></li><li class="chapter-item expanded "><a href="rest/art/album.html"><strong aria-hidden="true">9.6.2.</strong> /art/$ARTIST_NAME/$ALBUM_TITLE</a></li></ol></li><li class="chapter-item expanded "><a href="rest/collection.html"><strong aria-hidden="true">9.7.</strong> /collection</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="intro.html">Intro</a></li><li class="chapter-item expanded "><a href="quick-start.html"><strong aria-hidden="true">1.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="config.html"><strong aria-hidden="true">2.</strong> Config</a></li><li class="chapter-item expanded "><a href="disk.html"><strong aria-hidden="true">3.</strong> Disk</a></li><li class="chapter-item expanded "><a href="authorization.html"><strong aria-hidden="true">4.</strong> Authorization</a></li><li class="chapter-item expanded "><a href="api-stability.html"><strong aria-hidden="true">5.</strong> API Stability</a></li><li class="chapter-item expanded "><a href="command-line/command-line.html"><strong aria-hidden="true">6.</strong> Command Line</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="command-line/flags.html"><strong aria-hidden="true">6.1.</strong> Top-level flags</a></li><li class="chapter-item expanded "><a href="command-line/data.html"><strong aria-hidden="true">6.2.</strong> Sub-command: data</a></li><li class="chapter-item expanded "><a href="command-line/signal.html"><strong aria-hidden="true">6.3.</strong> Sub-command: signal</a></li></ol></li><li class="chapter-item expanded "><a href="common-objects/common-objects.html"><strong aria-hidden="true">7.</strong> Common Objects</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="common-objects/collection.html"><strong aria-hidden="true">7.1.</strong> Collection</a></li><li class="chapter-item expanded "><a href="common-objects/key.html"><strong aria-hidden="true">7.2.</strong> Key</a></li><li class="chapter-item expanded "><a href="common-objects/artist.html"><strong aria-hidden="true">7.3.</strong> Artist</a></li><li class="chapter-item expanded "><a href="common-objects/album.html"><strong aria-hidden="true">7.4.</strong> Album</a></li><li class="chapter-item expanded "><a href="common-objects/song.html"><strong aria-hidden="true">7.5.</strong> Song</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc.html"><strong aria-hidden="true">8.</strong> JSON-RPC</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/quick-start.html"><strong aria-hidden="true">8.1.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="json-rpc/collection/collection.html"><strong aria-hidden="true">8.2.</strong> Collection</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/collection/new_collection.html"><strong aria-hidden="true">8.2.1.</strong> new_collection</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc/state-retrieval/state-retrieval.html"><strong aria-hidden="true">8.3.</strong> State Retrieval</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/state-retrieval/state_daemon.html"><strong aria-hidden="true">8.3.1.</strong> state_daemon</a></li><li class="chapter-item expanded "><a href="json-rpc/state-retrieval/state_audio.html"><strong aria-hidden="true">8.3.2.</strong> state_audio</a></li><li class="chapter-item expanded "><a href="json-rpc/state-retrieval/state_reset.html"><strong aria-hidden="true">8.3.3.</strong> state_reset</a></li><li class="chapter-item expanded "><a href="json-rpc/state-retrieval/state_collection.html"><strong aria-hidden="true">8.3.4.</strong> state_collection</a></li><li class="chapter-item expanded "><a href="json-rpc/state-retrieval/state_collection_full.html"><strong aria-hidden="true">8.3.5.</strong> state_collection_full</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc/key/key.html"><strong aria-hidden="true">8.4.</strong> Key</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/key/key_artist.html"><strong aria-hidden="true">8.4.1.</strong> key_artist</a></li><li class="chapter-item expanded "><a href="json-rpc/key/key_album.html"><strong aria-hidden="true">8.4.2.</strong> key_album</a></li><li class="chapter-item expanded "><a href="json-rpc/key/key_song.html"><strong aria-hidden="true">8.4.3.</strong> key_song</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc/map/map.html"><strong aria-hidden="true">8.5.</strong> Map</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/map/map_artist.html"><strong aria-hidden="true">8.5.1.</strong> map_artist</a></li><li class="chapter-item expanded "><a href="json-rpc/map/map_album.html"><strong aria-hidden="true">8.5.2.</strong> map_album</a></li><li class="chapter-item expanded "><a href="json-rpc/map/map_song.html"><strong aria-hidden="true">8.5.3.</strong> map_song</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc/current/current.html"><strong aria-hidden="true">8.6.</strong> Current</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/current/current_artist.html"><strong aria-hidden="true">8.6.1.</strong> current_artist</a></li><li class="chapter-item expanded "><a href="json-rpc/current/current_album.html"><strong aria-hidden="true">8.6.2.</strong> current_album</a></li><li class="chapter-item expanded "><a href="json-rpc/current/current_song.html"><strong aria-hidden="true">8.6.3.</strong> current_song</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc/rand/rand.html"><strong aria-hidden="true">8.7.</strong> Rand</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/rand/rand_artist.html"><strong aria-hidden="true">8.7.1.</strong> rand_artist</a></li><li class="chapter-item expanded "><a href="json-rpc/rand/rand_album.html"><strong aria-hidden="true">8.7.2.</strong> rand_album</a></li><li class="chapter-item expanded "><a href="json-rpc/rand/rand_song.html"><strong aria-hidden="true">8.7.3.</strong> rand_song</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc/search/index.html"><strong aria-hidden="true">8.8.</strong> Search</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/search/search.html"><strong aria-hidden="true">8.8.1.</strong> search</a></li><li class="chapter-item expanded "><a href="json-rpc/search/search_artist.html"><strong aria-hidden="true">8.8.2.</strong> search_artist</a></li><li class="chapter-item expanded "><a href="json-rpc/search/search_album.html"><strong aria-hidden="true">8.8.3.</strong> search_album</a></li><li class="chapter-item expanded "><a href="json-rpc/search/search_song.html"><strong aria-hidden="true">8.8.4.</strong> search_song</a></li></ol></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/playback-control.html"><strong aria-hidden="true">8.9.</strong> Playback Control</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="json-rpc/playback-control/toggle.html"><strong aria-hidden="true">8.9.1.</strong> toggle</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/play.html"><strong aria-hidden="true">8.9.2.</strong> play</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/pause.html"><strong aria-hidden="true">8.9.3.</strong> pause</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/next.html"><strong aria-hidden="true">8.9.4.</strong> next</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/stop.html"><strong aria-hidden="true">8.9.5.</strong> stop</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/shuffle.html"><strong aria-hidden="true">8.9.6.</strong> shuffle</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/repeat_off.html"><strong aria-hidden="true">8.9.7.</strong> repeat_off</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/repeat_song.html"><strong aria-hidden="true">8.9.8.</strong> repeat_song</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/repeat_queue.html"><strong aria-hidden="true">8.9.9.</strong> repeat_queue</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/previous.html"><strong aria-hidden="true">8.9.10.</strong> previous</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/volume.html"><strong aria-hidden="true">8.9.11.</strong> volume</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/clear.html"><strong aria-hidden="true">8.9.12.</strong> clear</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/seek.html"><strong aria-hidden="true">8.9.13.</strong> seek</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/skip.html"><strong aria-hidden="true">8.9.14.</strong> skip</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/back.html"><strong aria-hidden="true">8.9.15.</strong> back</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/add_queue_key_artist.html"><strong aria-hidden="true">8.9.16.</strong> add_queue_key_artist</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/add_queue_key_album.html"><strong aria-hidden="true">8.9.17.</strong> add_queue_key_album</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/add_queue_key_song.html"><strong aria-hidden="true">8.9.18.</strong> add_queue_key_song</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/add_queue_map_artist.html"><strong aria-hidden="true">8.9.19.</strong> add_queue_map_artist</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/add_queue_map_album.html"><strong aria-hidden="true">8.9.20.</strong> add_queue_map_album</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/add_queue_map_song.html"><strong aria-hidden="true">8.9.21.</strong> add_queue_map_song</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/set_queue_index.html"><strong aria-hidden="true">8.9.22.</strong> set_queue_index</a></li><li class="chapter-item expanded "><a href="json-rpc/playback-control/remove_queue_range.html"><strong aria-hidden="true">8.9.23.</strong> remove_queue_range</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="rest.html"><strong aria-hidden="true">9.</strong> REST</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="rest/quick-start.html"><strong aria-hidden="true">9.1.</strong> Quick Start</a></li><li class="chapter-item expanded "><a href="rest/key/key.html"><strong aria-hidden="true">9.2.</strong> /key</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="rest/key/artist.html"><strong aria-hidden="true">9.2.1.</strong> /key/artist/$ARTIST_KEY</a></li><li class="chapter-item expanded "><a href="rest/key/album.html"><strong aria-hidden="true">9.2.2.</strong> /key/album/$ALBUM_KEY</a></li><li class="chapter-item expanded "><a href="rest/key/song.html"><strong aria-hidden="true">9.2.3.</strong> /key/song/$SONG_KEY</a></li><li class="chapter-item expanded "><a href="rest/key/art.html"><strong aria-hidden="true">9.2.4.</strong> /key/art/$ALBUM_KEY</a></li></ol></li><li class="chapter-item expanded "><a href="rest/map/map.html"><strong aria-hidden="true">9.3.</strong> /map</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="rest/map/artist.html"><strong aria-hidden="true">9.3.1.</strong> /map/$ARTIST_NAME</a></li><li class="chapter-item expanded "><a href="rest/map/album.html"><strong aria-hidden="true">9.3.2.</strong> /map/$ARTIST_NAME/$ALBUM_TITLE</a></li><li class="chapter-item expanded "><a href="rest/map/song.html"><strong aria-hidden="true">9.3.3.</strong> /map/$ARTIST_NAME/$ALBUM_TITLE/$SONG_TITLE</a></li></ol></li><li class="chapter-item expanded "><a href="rest/current/current.html"><strong aria-hidden="true">9.4.</strong> /current</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="rest/current/artist.html"><strong aria-hidden="true">9.4.1.</strong> /current/artist</a></li><li class="chapter-item expanded "><a href="rest/current/album.html"><strong aria-hidden="true">9.4.2.</strong> /current/album</a></li><li class="chapter-item expanded "><a href="rest/current/song.html"><strong aria-hidden="true">9.4.3.</strong> /current/song</a></li><li class="chapter-item expanded "><a href="rest/current/art.html"><strong aria-hidden="true">9.4.4.</strong> /current/art</a></li></ol></li><li class="chapter-item expanded "><a href="rest/rand/rand.html"><strong aria-hidden="true">9.5.</strong> /rand</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="rest/rand/artist.html"><strong aria-hidden="true">9.5.1.</strong> /rand/artist</a></li><li class="chapter-item expanded "><a href="rest/rand/album.html"><strong aria-hidden="true">9.5.2.</strong> /rand/album</a></li><li class="chapter-item expanded "><a href="rest/rand/song.html"><strong aria-hidden="true">9.5.3.</strong> /rand/song</a></li><li class="chapter-item expanded "><a href="rest/rand/art.html"><strong aria-hidden="true">9.5.4.</strong> /rand/art</a></li></ol></li><li class="chapter-item expanded "><a href="rest/art/art.html"><strong aria-hidden="true">9.6.</strong> /art</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="rest/art/artist.html"><strong aria-hidden="true">9.6.1.</strong> /art/$ARTIST_NAME</a></li><li class="chapter-item expanded "><a href="rest/art/album.html"><strong aria-hidden="true">9.6.2.</strong> /art/$ARTIST_NAME/$ALBUM_TITLE</a></li></ol></li><li class="chapter-item expanded "><a href="rest/collection.html"><strong aria-hidden="true">9.7.</strong> /collection</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -177,7 +177,7 @@
 <ul>
 <li><a href="https://www.jsonrpc.org/specification"><code>JSON-RPC 2.0</code></a> for state retrieval &amp; signal control</li>
 <li><a href="https://en.wikipedia.org/wiki/Representational_state_transfer"><code>REST</code></a> endpoints for serving large resources (audio, art, etc)</li>
-<li><a href="intro.html"><code>Documentation</code></a>: <code>festivald</code> serves the very docs you are reading</li>
+<li><a href="https://docs.festival.pm/daemon"><code>Documentation</code></a>: <code>festivald</code> serves the very docs you are reading</li>
 </ul>
 <p>The transport used is <code>HTTP(s)</code>.</p>
 <p>For a general quick start, see the next section: <a href="quick-start.html">Quick Start</a>.</p>
@@ -186,7 +186,7 @@
 <p><code>HTTP</code> clients like <code>curl</code>, <code>wget</code> or a web browser will also do.</p>
 <p>The documentation will use <code>curl</code> on the default <code>http://localhost:18425</code> for examples.</p>
 <p>To see documentation for the more user-friendly <code>festival-cli</code>, see here:<br />
-<a href="https://github.com/hinto-janai/festival/blob/main/cli/README.md">https://github.com/hinto-janai/festival/blob/main/cli/README.md</a>.</p>
+<a href="https://docs.festival.pm/cli">https://docs.festival.pm/cli</a>.</p>
 <h3 id="json-rpc"><a class="header" href="#json-rpc">JSON-RPC</a></h3>
 <p>For the <code>JSON-RPC</code> API, anything that can transmit <code>JSON-RPC</code> over <code>HTTP(s)</code> can be a client, like <code>curl</code>:</p>
 <pre><code class="language-bash"># Toggle playback.
@@ -214,16 +214,16 @@ http://localhost:18425/map/Artist Name/Artist Title/Song Title
 <pre><code class="language-bash">festival-cli rest map --artist &quot;Artist Name&quot; --album &quot;Album Title&quot; --song &quot;Song Title&quot;
 </code></pre>
 <p>For a quick start on the <code>REST</code> API, see <a href="rest/quick-start.html">here</a>.</p>
-<p>To disable the <code>REST</code> API, set the <a href="config.html">config</a> option <code>rest</code> to <code>false</code> OR pass <code>--disable-rest</code> via <a href="command-line.html">command line</a> on start up.</p>
+<p>To disable the <code>REST</code> API, set the <a href="config.html">config</a> option <code>rest</code> to <code>false</code> OR pass <code>--disable-rest</code> via <a href="command-line/command-line.html">command line</a> on start up.</p>
 <h3 id="documentation"><a class="header" href="#documentation">Documentation</a></h3>
 <p><code>festivald</code> will also serve <em>this</em> documentation.</p>
 <p>To access it, start <code>festivald</code> and open the root link in a web browser:</p>
 <pre><code class="language-http">http://localhost:18425
 </code></pre>
 <p>Or you can open the files locally with:</p>
-<pre><code class="language-bash">./festivald data --docs
+<pre><code class="language-bash">festivald data --docs
 </code></pre>
-<p>To disable serving documentation, set the <a href="config.html">config</a> option <code>docs</code> to <code>false</code> OR pass <code>--disable-docs</code> via <a href="command-line.html">command line</a> on start up.</p>
+<p>To disable serving documentation, set the <a href="config.html">config</a> option <code>docs</code> to <code>false</code> OR pass <code>--disable-docs</code> via <a href="command-line/command-line.html">command line</a> on start up.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="quick-start"><a class="header" href="#quick-start">Quick Start</a></h1>
 <p>A quick start to using <code>festivald</code> and its <code>JSON-RPC 2.0</code> &amp; <code>REST</code> APIs.</p>
 <p>More JSON-RPC specific examples <a href="json-rpc/quick-start.html">here</a>, and more REST specific examples <a href="rest/quick-start.html">here</a>.</p>
@@ -249,11 +249,11 @@ http://localhost:18425/map/Artist Name/Artist Title/Song Title
 <p>This scans the default <code>Music</code> directory on <code>festivald</code>'s filesystem and creates a <code>Collection</code> from it.</p>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;new_collection&quot;,&quot;params&quot;:{&quot;paths&quot;:null}}'
 </code></pre>
-<h2 id="download-a-random-artist-with-the-rest-endpoint-randartist"><a class="header" href="#download-a-random-artist-with-the-rest-endpoint-randartist">Download a random <code>Artist</code> with the <code>REST</code> endpoint <a href="json-rpc/rest/rand/artist.html"><code>/rand/artist</code></a></a></h2>
+<h2 id="download-a-random-artist-with-the-rest-endpoint-randartist"><a class="header" href="#download-a-random-artist-with-the-rest-endpoint-randartist">Download a random <code>Artist</code> with the <code>REST</code> endpoint <a href="/rest/rand/artist.html"><code>/rand/artist</code></a></a></h2>
 <p>Opening this link in a web browser will cause <code>festivald</code> to collect, organize, and archive all the <code>Album</code>'s of a random <code>Artist</code>, and send it over.</p>
 <pre><code class="language-http">http://localhost:18425/rand/artist
 </code></pre>
-<h2 id="view-metadata-about-an-album-with-the-json-rpc-method-map_artist"><a class="header" href="#view-metadata-about-an-album-with-the-json-rpc-method-map_artist">View metadata about an <code>Album</code> with the <code>JSON-RPC</code> method <a href="json-rpc/map/artist.html"><code>map_artist</code></a></a></h2>
+<h2 id="view-metadata-about-an-album-with-the-json-rpc-method-map_artist"><a class="header" href="#view-metadata-about-an-album-with-the-json-rpc-method-map_artist">View metadata about an <code>Album</code> with the <code>JSON-RPC</code> method <a href="json-rpc/map/map_artist.html"><code>map_artist</code></a></a></h2>
 <p>This will lookup the <code>Album</code> &quot;Cigarette &amp; Alcohol&quot; by the <code>Artist</code> &quot;LUCKY TAPES&quot;.</p>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;map_album&quot;,&quot;params&quot;:{&quot;artist&quot;:&quot;LUCKY TAPES&quot;,&quot;album&quot;:&quot;Cigarette &amp; Alcohol&quot;}}'
 </code></pre>
@@ -286,7 +286,7 @@ http://localhost:18425/map/Artist Name/Artist Title/Song Title
   &quot;id&quot;: 0
 }
 </code></pre>
-<h2 id="search-for-an-artist-with-the-json-rpc-method-search_artist"><a class="header" href="#search-for-an-artist-with-the-json-rpc-method-search_artist">Search for an <code>Artist</code> with the <code>JSON-RPC</code> method <a href="json-rpc/search/artist.html"><code>search_artist</code></a></a></h2>
+<h2 id="search-for-an-artist-with-the-json-rpc-method-search_artist"><a class="header" href="#search-for-an-artist-with-the-json-rpc-method-search_artist">Search for an <code>Artist</code> with the <code>JSON-RPC</code> method <a href="json-rpc/search/search_artist.html"><code>search_artist</code></a></a></h2>
 <p>This will look up <em>all</em> <code>Artist</code>'s in the <code>Collection</code>, and return the one that is the most similar (lexicographically) to the input &quot;lUcKee TaPeZ&quot;:</p>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;search_artist&quot;,&quot;params&quot;:{&quot;input&quot;:&quot;lUcKee TaPeZ&quot;,&quot;kind&quot;:&quot;top1&quot;}}'
 </code></pre>
@@ -321,9 +321,397 @@ http://localhost:18425/map/Artist Name/Artist Title/Song Title
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="config"><a class="header" href="#config">Config</a></h1>
+<p><code>festivald</code> reads and loads its configuration file, <code>festivald.toml</code>, on startup. It controls various behaviors of <code>festivald</code>.</p>
+<p>Exactly where this file is depends on the OS, more details in the <a href="disk.html"><code>Disk</code></a> section.</p>
+<p><a href="command-line/command-line.html"><code>Command Line</code></a> flags will override any overlapping config values.</p>
+<h2 id="festivaldtoml"><a class="header" href="#festivaldtoml"><code>festivald.toml</code></a></h2>
+<p>This is the default configuration file <code>festivald</code> creates and uses.</p>
+<p>If <code>festivald</code> is started with no <code>--flags</code>, e.g:</p>
+<pre><code class="language-bash">./festivald
+</code></pre>
+<p>Then it will be equivalent to this config file.</p>
+<pre><code class="language-toml">#================#
+# festivald.toml #
+#================================================================#
+# This is `festivald`'s config file.                             #
+# It is in the TOML (https://en.wikipedia.org/wiki/TOML) format. #
+#                                                                #
+# Values will be loaded from this file on startup.               #
+# If overlapping `--command-flags` are provided,                 #
+# they will be used instead.                                     #
+#                                                                #
+# For full documentation on config options, see:                 #
+# &lt;https://docs.festival.pm/daemon/config.html&gt;                  #
+#================================================================#
+
+
+#----------------------------------------------------------#
+#                         NETWORK                          #
+#----------------------------------------------------------#
+# The IPv4 address `festivald` will bind to.
+#
+# DEFAULT | &quot;127.0.0.1&quot;
+# EXAMPLE | &quot;192.168.2.10&quot;, &quot;0.0.0.0&quot;
+# TYPE    | IPv4 string
+ip = &quot;127.0.0.1&quot;
+
+# The port `festivald` bind to.
+#
+# DEFAULT | 18425
+# EXAMPLE | 15000, 8080, 9999
+# TYPE    | 16-bit unsigned integer (0..65535)
+port = 18425
+
+# The max amount of connections `festivald`
+# will serve at any given moment.
+# `0` means unlimited.
+#
+# Note that 1 client doesn't necessarily mean
+# 1 connection. A single web browser client for
+# example can make many multiple connections
+# to `festivald`.
+#
+# DEFAULT | 0
+# EXAMPLE | 2, 4, 8, 16, 32, 64, 1000, 99999
+# TYPE    | unsigned integer
+max_connections = 0
+
+# `festivald` will only serve connections coming
+# from these IPs. An empty array `[]` or an array
+# containing &quot;0.0.0.0&quot; will serve all IP ranges.
+#
+# DEFAULT | []
+# EXAMPLE | [&quot;127.0.0.1&quot;, &quot;192.168.2.10&quot;, &quot;13.248.169.48&quot;]
+# TYPE    | array of IPv4 addresses
+exclusive_ips = []
+
+# Upon a failed, potentially malicious request, instead of
+# immediately responding, `festivald` will randomly sleep
+# up to this many milliseconds before responding to the connection.
+#
+# This includes:
+#   - Authentication failure
+#   - IPs not in the `exclusive_ips` list
+#   - IPv6 connections
+#
+# If 0, `festivald` will immediately respond. This may
+# not be wanted due to potential DoS and timing attacks.
+#
+# If you're hosting locally (127.0.0.1), you can set this
+# to 0 (unless you don't trust your local network?).
+#
+# DEFAULT | 3000
+# EXAMPLE | 0, 1000, 3000, 10000, 300000
+# TYPE    | unsigned integer
+sleep_on_fail = 3000
+
+
+#----------------------------------------------------------#
+#                           TLS                            #
+#----------------------------------------------------------#
+# Enable/disable HTTPS.
+#
+# You must also provide a PEM-formatted X509 certificate and key
+# in the below options for this to work.
+#
+# DEFAULT | false
+# VALUES  | true, false
+# TYPE    | boolean
+tls = false
+
+# The PEM-formatted X509 certificate used for TLS.
+#
+# DEFAULT | &quot;&quot;
+# EXAMPLE | &quot;/my/path/to/cert.pem&quot;
+# TYPE    | PATH string
+certificate = &quot;&quot;
+
+# The PEM-formatted key for the above X509 certificate.
+#
+# DEFAULT | &quot;&quot;
+# EXAMPLE | &quot;/my/path/to/key.pem&quot;
+# TYPE    | PATH string
+key = &quot;&quot;
+
+
+#----------------------------------------------------------#
+#                           API                            #
+#----------------------------------------------------------#
+# Enable/disable the REST API.
+# This is responsible for the `/rest` API that
+# serves image, audio, and other heavy resource data.
+#
+# Setting this to `false` will disable this part
+# of the system, and will only leave the JSON-RPC
+# API available.
+#
+# DEFAULT | true
+# VALUES  | true, false
+# TYPE    | boolean
+rest = true
+
+# Enable/disable serving documentation.
+#
+# By default, `festivald` serves a markdown book
+# of it's own documentation, accessible at the
+# root `/` endpoint, e.g:
+# ```
+# http://localhost:18425/
+# ```
+#
+# Setting this to `false` will disable that.
+#
+# DEFAULT | true
+# VALUES  | true, false
+# TYPE    | boolean
+docs = true
+
+# Enable/disable direct downloads via the REST API.
+#
+# By default, accessing the REST API via a browser
+# will open the resource in the browser (audio player,
+# image viewer, etc)
+#
+# Setting this to true will make browsers download
+# the file directly, without opening it.
+#
+# DEFAULT | false
+# VALUES  | true, false
+# TYPE    | boolean
+direct_download = false
+
+# When files are downloaded via the REST API, and the
+# file is a nested object referencing multiple things
+# (e.g, an _album_ owned by an _artist_), we must include
+# that information, but what string should separate them?
+#
+# The default separator is &quot; - &quot;, e.g:
+# ```
+# Artist Name - Album Title.zip
+# ```
+# it can be changed to any string, like &quot;/&quot;:
+# ```
+# Artist Name/Album Title.zip
+# ```
+# or left empty &quot;&quot; for no separator at all.
+#
+# DEFAULT | &quot; - &quot;
+# EXAMPLE | &quot;/&quot;, &quot; --- &quot;, &quot;_&quot;, &quot;&quot;
+# TYPE    | string
+filename_separator = &quot; - &quot;
+
+
+#----------------------------------------------------------#
+#                         LOGGING                          #
+#----------------------------------------------------------#
+# The logging level `festivald` will use.
+#
+# DEFAULT | &quot;off&quot;
+# VALUES  | &quot;off&quot;, &quot;error&quot;, &quot;warn&quot;, &quot;info&quot;, &quot;debug&quot;, &quot;trace&quot;
+# TYPE    | string, one of the above
+log_level = &quot;off&quot;
+
+
+#----------------------------------------------------------#
+#                       FILESYSTEM                         #
+#----------------------------------------------------------#
+# Enable/disable watching the filesystem for signals
+#
+# Other than RPC calls, `festivald` can send signals
+# to another local `festivald`, e.g:
+# `./festivald --play`
+#
+# The way this is done is by creating a file
+# in Festival's `signal` directory.
+#
+# `./festivald --FLAG` just creates a file in that directory,
+# which an existing Festival will notice and do the appropriate task.
+#
+# Setting this to `false` will disable that part of the system so that
+# filesystem signals won't work, e.g, `./festivald --play` will not work.
+#
+# DEFAULT | true
+# VALUES  | true, false
+# TYPE    | boolean
+watch = true
+
+# When serving `ZIP` files via the REST API, `festivald`
+# will first write them to disk, then serve those files
+# instead of directly storing everything in memory,
+# as to not get OOM-killed on more than a few requests.
+#
+# This option sets the time limit on how many seconds
+# `festivald` will hold onto this cache for.
+#
+# Once the time limit is up, `festivald` will remove the
+# file. This cache is also reset on startup and shutdown.
+#
+# DEFAULT | 3600 (1 hour)
+# EXAMPLE | 60 (1 minute), 600 (10 minutes), 1800 (30 minutes), 14400 (4 hours)
+# TYPE    | unsigned integer
+cache_time = 3600
+
+
+#----------------------------------------------------------#
+#                      MEDIA CONTROLS                      #
+#----------------------------------------------------------#
+# Enable/disable OS media controls
+#
+# `festivald` plugs into the native OS's media controls so that signals
+# like `play/pause/stop` and/or keyboard controls can be processed.
+#
+# Setting this to `false` will disable media controls.
+#
+# DEFAULT | true
+# VALUES  | true, false
+# TYPE    | boolean
+media_controls = true
+
+
+#----------------------------------------------------------#
+#                      AUTHORIZATION                       #
+#----------------------------------------------------------#
+# Only process connections to `festivald` that have a
+# &quot;authorization&quot; HTTP header with this username and password.
+#
+# TLS must be enabled for this feature to work
+# or `festivald` will refuse to start.
+#
+# This value must be:
+#   1. The &quot;username&quot;
+#   2. Followed by a single colon &quot;:&quot;
+#   3. Then the &quot;password&quot;, e.g:
+# ```
+# curl -u my_user:my_pass https://127.0.0.1:18425
+# ```
+# or the equivalent wget command:
+# ```
+# wget --user my_user --password my_pass https://localhost:18425
+# ```
+#
+# An empty string disables this feature.
+#
+# Alternatively, you can input an absolute PATH to a file
+# `festivald` can access, containing the string, e.g:
+# ```
+# authorization = &quot;/path/to/user_and_pass.txt&quot;
+# ```
+# In this case, `festivald` will read the file and attempt
+# to parse it with the same syntax, i.e, the file should contain:
+# ```
+# my_user:my_pass
+# ```
+#
+# DEFAULT | &quot;&quot; (disabled)
+# EXAMPLE | &quot;my_username:my_password&quot;, &quot;my_username:aoig2A%^$AWS^%&quot;, &quot;/path/to/file&quot;
+# TYPE    | string or PATH to file
+authorization = &quot;&quot;
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="disk"><a class="header" href="#disk">Disk</a></h1>
+<p><code>festivald</code> saves all of its files within various &quot;OS&quot; directories, owned by the user running it.</p>
+<p>You can list all the PATHs on your system with:</p>
+<pre><code class="language-bash">./festivald data --path
+</code></pre>
+<p>And delete them with with:</p>
+<pre><code class="language-bash">./festivald data --delete
+</code></pre>
+<p><code>festivald</code> saves everything into <code>daemon/</code> because other Festival frontends also use the same <code>festival</code> project directory, e.g:</p>
+<pre><code>~/.local/share/festival/
+  ├─ gui/
+  ├─ daemon/
+  ├─ cli/
+</code></pre>
+<h2 id="cache"><a class="header" href="#cache">Cache</a></h2>
+<p>Where <code>festivald</code>'s cache data is saved (<code>REST</code> ZIP cache, etc).</p>
+<div class="table-wrapper"><table><thead><tr><th>Platform</th><th>Value</th><th>Example</th></tr></thead><tbody>
+<tr><td>Windows</td><td><code>{FOLDERID_LocalAppData}\Festival\cache</code></td><td><code>C:\Users\Alice\AppData\Local\Festival\daemon\cache</code></td></tr>
+<tr><td>macOS</td><td><code>$HOME/Library/Caches/Festival</code></td><td><code>/Users/Alice/Library/Caches/Festival/daemon</code></td></tr>
+<tr><td>Linux</td><td><code>$HOME/.cache/festival/daemon</code></td><td><code>/home/alice/.cache/festival/daemon</code></td></tr>
+</tbody></table>
+</div>
+<p>The <code>Cache</code> sub-directories/files, and their purpose:</p>
+<pre><code class="language-plaintext">├─ daemon/
+   │
+   ├─ collection_zip/ # Cached `Collection` ZIPs, created by the `/collection` REST endpoint
+   │
+   ├─ artist_zip/ # Cached `Artist` ZIPs, created by the `*_artist` REST endpoints
+   │
+   ├─ album_zip/ # # Cached `Artist` ZIPs, created by the `*_album` REST endpoints
+   │
+   ├─ art_zip/ # # Cached `Artist` ZIPs, created by the `art_*` REST endpoints
+</code></pre>
+<h2 id="config-1"><a class="header" href="#config-1">Config</a></h2>
+<p>Where <code>festivald</code>'s configuration files are saved.</p>
+<div class="table-wrapper"><table><thead><tr><th>Platform</th><th>Value</th><th>Example</th></tr></thead><tbody>
+<tr><td>Windows</td><td><code>{FOLDERID_RoamingAppData}\Festival\config\daemon</code></td><td><code>C:\Users\Alice\AppData\Roaming\Festival\config\daemon</code></td></tr>
+<tr><td>macOS</td><td><code>$HOME/Library/Application Support/Festival/daemon</code></td><td><code>/Users/Alice/Library/Application Support/Festival/daemon</code></td></tr>
+<tr><td>Linux</td><td><code>$HOME/.config/festival/daemon</code></td><td><code>/home/alice/.config/festival/daemon</code></td></tr>
+</tbody></table>
+</div>
+<p>The <code>Config</code> sub-directories/files, and their purpose:</p>
+<pre><code class="language-plaintext">├─ daemon/
+   │
+   ├─ festivald.toml # Config file used by `festivald`
+</code></pre>
+<h2 id="data"><a class="header" href="#data">Data</a></h2>
+<p>Where <code>festivald</code>'s main data is saved (the <a href="common-objects/common-objects.html"><code>Collection</code></a>, audio state, etc).</p>
+<div class="table-wrapper"><table><thead><tr><th>Platform</th><th>Value</th><th>Example</th></tr></thead><tbody>
+<tr><td>Windows</td><td><code>{FOLDERID_RoamingAppData}\Festival\data\daemon</code></td><td><code>C:\Users\Alice\AppData\Roaming\Festival\data\daemon</code></td></tr>
+<tr><td>macOS</td><td><code>$HOME/Library/Application Support/Festival/daemon</code></td><td><code>/Users/Alice/Library/Application Support/Festival/daemon</code></td></tr>
+<tr><td>Linux</td><td><code>$HOME/.local/share/festival/daemon</code></td><td><code>/home/alice/.local/share/festival/daemon</code></td></tr>
+</tbody></table>
+</div>
+<p>The <code>Data</code> sub-directories/files, and their purpose:</p>
+<pre><code class="language-plaintext">├─ daemon/
+   │
+   ├─ state/
+   │  ├─ audio.bin      # Audio state, e.g: elapsed time, current song.
+   │  ├─ collection.bin # The main music `Collection`, holds metadata and PATHs to audio files.
+   │
+   ├─ txt/
+   │  ├─ crash.txt  # Crash/panic data. Useful for bug reports.
+   │  ├─ perf.json  # Collection creation performance timings, in JSON.
+   │
+   ├─ docs/ # The static documentations files served by `festivald`
+   │
+   ├─ image/ # Full-sized, un-changed `Album` art
+   │
+   ├─ signal/ # This is how `festivald` communicates with an existing one
+              # (e.g `festivald signal --play`), via filesystem-based signals.
+              # `festivald --play` quite literally just creates an empty
+              # file inside this folder called `play`.
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="authorization"><a class="header" href="#authorization">Authorization</a></h1>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="command-line"><a class="header" href="#command-line">Command Line</a></h1>
+<p><code>festivald</code> has a basic username + password authorization <a href="config.html">configuration</a> option.</p>
+<p>If enabled, <code>festivald</code> will only process connections to it that have the &quot;authorization&quot; HTTP header with this username and password.</p>
+<p>TLS must be enabled for this feature to work or <code>festivald</code> will refuse to start.</p>
+<p>The option can either be set in the <a href="config.html">config</a> file or passed via a <a href="command-line/command-line.html">command-line flag</a>.</p>
+<h2 id="syntax"><a class="header" href="#syntax">Syntax</a></h2>
+<p>The username &amp; password syntax is the same as <code>curl</code>.</p>
+<p>The &quot;authorization&quot; value must be:</p>
+<ol>
+<li>The username</li>
+<li>Followed by a single colon &quot;:&quot;</li>
+<li>Then the password</li>
+</ol>
+<p>For example:</p>
+<pre><code>my_user:my_pass
+</code></pre>
+<p>A request including this information looks like:</p>
+<pre><code>curl -u my_user:my_pass https://127.0.0.1:18425
+</code></pre>
+<p>or the equivalent wget command:</p>
+<pre><code>wget --user my_user --password my_pass https://localhost:18425
+</code></pre>
+<p>Alternatively, you can input an absolute PATH to a file <code>festivald</code> can access, containing the string, e.g:</p>
+<pre><code>authorization = &quot;/path/to/user_and_pass.txt&quot;
+</code></pre>
+<p>In this case, <code>festivald</code> will read the file and attempt to parse it with the same syntax, i.e, the file should contain:</p>
+<pre><code>my_user:my_pass
+</code></pre>
+<h2 id="web-browser"><a class="header" href="#web-browser">Web Browser</a></h2>
+<p>If connecting to <code>festivald</code> via a web browser, you will receive a visual prompt for authentication:</p>
+<p><img src="authorization.png" alt="authorization" /></p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="api-stability"><a class="header" href="#api-stability">API Stability</a></h1>
 <p><code>festivald</code>'s JSON output and REST endpoint changes will only be <em>additional</em> until a breaking <code>v2.0.0</code> release.</p>
 <p>More JSON fields and/or more REST endpoints could be added in the future, however previous fields and endpoints will remain.</p>
@@ -342,6 +730,341 @@ http://localhost:18425/map/Artist Name/Artist Title/Song Title
 <pre><code class="language-json">{
   &quot;new_new_field&quot;: &quot;The entire output is different&quot;,
 }
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="command-line"><a class="header" href="#command-line">Command Line</a></h1>
+<p><code>festivald</code> takes in <code>--flags</code> for many purposes.</p>
+<p>Arguments passed to <code>festivald</code> will always take priority over the same <a href="command-line/../config.html">configuration</a> options read from disk.</p>
+<p><code>festivald</code> also has a few sub-commands. For example, to send a signal to a <code>festivald</code> running on the same local machine, you can run:</p>
+<pre><code class="language-bash">./festivald signal --play
+</code></pre>
+<p>All these &quot;signal&quot;-related <code>--flags</code> live in the <a href="command-line/signal.html"><code>signal</code></a> sub-command.</p>
+<h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
+<p>Here are some command-line usage examples.</p>
+<h4 id="start-festivald-on-httplocalhost18425-by-default"><a class="header" href="#start-festivald-on-httplocalhost18425-by-default">Start <code>festivald</code> on <code>http://localhost:18425</code> (by default)</a></h4>
+<pre><code class="language-bash">./festivald
+</code></pre>
+<h4 id="print-the-path-used-by-festivald"><a class="header" href="#print-the-path-used-by-festivald">Print the PATH used by <code>festivald</code></a></h4>
+<pre><code class="language-bash">./festivald data --path
+</code></pre>
+<h4 id="delete-all-data-createdused-by-festivald"><a class="header" href="#delete-all-data-createdused-by-festivald">Delete all data created/used by <code>festivald</code></a></h4>
+<pre><code class="language-bash">./festivald data --delete
+</code></pre>
+<h4 id="set-log-level-disable-everything-except-json-rpc"><a class="header" href="#set-log-level-disable-everything-except-json-rpc">Set log level, disable everything except <code>JSON-RPC</code></a></h4>
+<pre><code class="language-bash">./festivald --log-level DEBUG --disable-watch --disable-media-controls --disable-rest --disable-docs
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="top-level-flags"><a class="header" href="#top-level-flags">Top-level flags</a></h1>
+<p>Top-level command flags and sub-commands.</p>
+<pre><code class="language-plaintext">Usage: festivald [OPTIONS] [COMMAND + OPTIONS] [ARGS...]
+
+Options:
+      --ip &lt;IP&gt;
+          The IPv4 address `festivald` will bind to [default: 127.0.0.1]
+
+      --port &lt;PORT&gt;
+          The port `festivald` will bind to [default: 18425]
+
+      --max-connections &lt;NUMBER&gt;
+          Max amount of connections [default: unlimited]
+          
+          The max amount of connections `festivald`
+          will serve at any given moment.
+          `0` means unlimited.
+          
+          Note that 1 client doesn't necessarily mean
+          1 connection. A single web browser client for
+          example can make many multiple connections
+          to `festivald`.
+
+      --exclusive-ip &lt;IP&gt;
+          Only accept connections from these IPs
+          
+          `festivald` will only serve connections coming
+          from these IPs. If there's no value given or
+          any of the values is &quot;0.0.0.0&quot;, `festivald`
+          will serve all IP ranges.
+          
+          To allow multiple IPs, use this flag per IP.
+          
+          Example: `festivald --exclusive-ip 127.0.0.1 --exclusive-ip 192.168.2.1`
+
+      --tls
+          Enable HTTPS
+          
+          You must also provide a PEM-formatted X509 certificate
+          and key in the below options for this to work.
+          
+          Example: `festivald --tls --certificate /path/to/cert.pem --key /path/to/key.pem`
+
+      --certificate &lt;FILE&gt;
+          The PEM-formatted X509 certificate file used for TLS
+
+      --key &lt;FILE&gt;
+          The PEM-formatted key file used for TLS
+
+      --authorization &lt;USER:PASS or FILE&gt;
+          Enforce a `username` and `password` for connections to `festivald`
+          
+          Only process connections to `festivald` that have a
+          &quot;authorization&quot; HTTP header with this username and password.
+          
+          TLS must be enabled for this feature to work
+          or `festivald` will refuse to start.
+          
+          This value must be:
+            1. The &quot;username&quot;
+            2. Followed by a single colon &quot;:&quot;
+            3. Then the &quot;password&quot;, e.g:
+          ```
+          festivald --authorization my_user:my_pass
+          ```
+          An empty string disables this feature.
+          
+          Alternatively, you can input an absolute PATH to a file
+          `festivald` can access, containing the string, e.g:
+          ```
+          festivald --authorization &quot;/path/to/user_and_pass.txt&quot;
+          ```
+          In this case, `festivald` will read the file and attempt
+          to parse it with the same syntax, i.e, the file should contain:
+          ```
+          my_user:my_pass
+          ```
+
+      --sleep-on-fail &lt;MILLI&gt;
+          Sleep before responding to (potentially malicious) failed connections
+          
+          Upon a failed, potentially malicious request, instead of
+          immediately responding, `festivald` will randomly sleep
+          up to this many milliseconds before responding to the connection.
+          
+          This includes:
+            - Authentication failure
+            - IPs not in the `exclusive_ips` list
+            - IPv6 connections
+          
+          If 0, `festivald` will immediately respond. This may
+          not be wanted to due potential DoS and timing attacks.
+          
+          If you're hosting locally (127.0.0.1), you can set this
+          to 0 (unless you don't trust your local network?).
+
+      --direct-download
+          Enable direct downloads via the REST API for browsers
+          
+          By default, accessing the REST API via a browser
+          will open the resource in the browser (audio player,
+          image viewer, etc)
+          
+          Using this flag will make browsers download
+          the file directly, without opening it.
+
+      --filename-separator &lt;SEPARATOR&gt;
+          When files are downloaded via the REST API, and the
+          file is a nested object referencing multiple things
+          (e.g, an _album_ owned by an _artist_), we must include
+          that information, but what string should separate them?
+          
+          The default separator is &quot; - &quot;, e.g:
+          ```
+          Artist Name - Album Title.zip
+          ```
+          it can be changed to any string, like &quot;/&quot;:
+          ```
+          Artist Name/Album Title.zip
+          ```
+          or left empty &quot;&quot; for no separator at all.
+
+      --cache-time &lt;SECONDS&gt;
+          Set the `REST` API cache time limit
+          
+          When serving `ZIP` files via the REST API, `festivald`
+          will first write them to disk, then serve those files
+          instead of directly storing everything in memory,
+          as to not get OOM-killed on more than a few requests.
+          
+          This option sets the time limit on how many seconds
+          `festivald` will hold onto this cache for.
+          
+          Once the time limit is up, `festivald` will remove the
+          file. This cache is also reset on startup and shutdown.
+          
+          Default is 3600 seconds (1 hour).
+
+      --disable-watch
+          Disable watching the filesystem for signals
+          
+          The way a newly launched Festival communicates to
+          an already existing one (e.g, `festivald --play`) is
+          by creating a file in Festival's `signal` directory.
+          
+          `festivald --FLAG` just creates a file in that directory,
+          which an existing Festival will notice and do the appropriate task.
+          
+          Using `--disable-watch` will disable that part of the system so that
+          filesystem signals won't work, e.g, `festivald --play` will not work.
+
+      --disable-media-controls
+          Disable OS media controls
+          
+          Festival plugs into the native OS's media controls so that signals
+          like `play/pause/stop` and/or keyboard controls can be processed.
+          
+          `--disable-media-controls` disables this.
+
+      --disable-rest
+          Disable the REST API
+          
+          This is responsible for the `/rest` API that
+          serves image, audio, and other heavy resource data.
+          
+          `--disable-rest` will disable this part of the system,
+          and will only leave the JSON-RPC API available.
+
+      --disable-docs
+          Enable/disable serving documentation
+          
+          By default, `festivald` serves a markdown book
+          of it's own documentation, accessible at the
+          root `/` endpoint, e.g:
+          ```
+          http://localhost:18425/
+          ```
+          
+          `--disable-docs` will disable that.
+
+      --log-daemon-only
+          Only print logs for `festivald`
+          
+          Logs that aren't directly from `festivald`, e.g
+          anything related to the internals, `shukusai`,
+          will not be printed if this is enabled.
+
+      --log-level &lt;OFF|ERROR|INFO|WARN|DEBUG|TRACE&gt;
+          Set filter level for console logs
+          
+          [default: OFF]
+
+  -v, --version
+          Print version
+
+  -h, --help
+          Print help (see a summary with '-h')
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="sub-command-data"><a class="header" href="#sub-command-data">Sub-command: <code>data</code></a></h1>
+<p>Various utility flags related to <code>festivald</code>'s data.</p>
+<pre><code class="language-plaintext">Various utility flags related to `festivald` data
+
+Usage: festivald data OPTION [ARG]
+
+Options:
+      --docs
+          Open documentation locally in browser
+          
+          This opens `festivald'`s documentation in a web
+          browser, and does not start `festivald` itself.
+
+      --path
+          Print the PATHs used by Festival
+          
+          All data saved by Festival is saved in these directories.
+          For more information, see: &lt;https://docs.festival.pm/daemon/disk.html&gt;
+
+      --state-collection-full
+          Print JSON metadata about the current `Collection` on disk
+          
+          This output is the exact same as the `state_collection_full` JSON-RPC call.
+
+      --delete
+          Delete all Festival files that are currently on disk
+          
+          This deletes all `daemon` Festival folder, which contains:
+          - The `Collection`
+          - `daemon` configuration (`festivald.toml`)
+          - Audio state (currently playing song, queue, etc)
+          - Cached images for the OS media controls
+          
+          The PATH deleted will be printed on success.
+
+  -h, --help
+          Print help (see a summary with '-h')
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="sub-command-signal"><a class="header" href="#sub-command-signal">Sub-command: <code>signal</code></a></h1>
+<p>Send a signal to a <code>festivald</code> running on the same machine.</p>
+<p>This will not start a new <code>festivald</code>, but send a signal to an already running one. This only works if there's a <code>festivald</code> already running on the same machine.</p>
+<p>The <a href="command-line/command-line.html">top-level flag <code>--disable-media-controls</code></a> or <a href="command-line/../config.html"><code>config</code></a> option <code>media_controls</code> can disable this feature.</p>
+<pre><code class="language-plaintext">Usage: festivald signal OPTION [ARG]
+
+Options:
+      --play
+          Start playback
+
+      --pause
+          Pause playback
+
+      --toggle
+          Toggle playback (play/pause)
+
+      --next
+          Skip to next track
+
+      --previous
+          Play previous track
+
+      --stop
+          Clear queue and stop playback
+
+      --clear
+          Clear queue but don't stop playback
+
+      --shuffle
+          Shuffle the current queue and reset to the first song
+
+      --repeat-song
+          Turn on single `Song` track repeat
+
+      --repeat-queue
+          Turn on queue repeat
+
+      --repeat-off
+          Turn off repeating
+
+      --volume &lt;VOLUME&gt;
+          Set the volume to `VOLUME` (0-100)
+
+      --seek &lt;SECOND&gt;
+          Seek to the absolute `SECOND` second in the current song
+
+      --seek-forward &lt;SECOND&gt;
+          Seek `SECOND` seconds forwards in the current song
+
+      --seek-backward &lt;SECOND&gt;
+          Seek `SECOND` seconds backwards in the current song
+
+      --index &lt;NUMBER&gt;
+          Set the current song to the index `NUMBER` in the queue.
+          
+          NOTE:
+          The queue index starts from 1 (first song is `--index 1`).
+          
+          Providing an index that is out-of-bounds
+          will end the queue (even if repeat is turned on).
+
+      --skip &lt;NUMBER&gt;
+          Skip `NUMBER` amount of songs
+          
+          If the last song in the queue is skipped over,
+          and queue repeat is turned on, this will reset
+          the current song to the 1st in the queue.
+
+      --back &lt;NUMBER&gt;
+          Go backwards in the queue by `NUMBER` amount of songs
+          
+          If `NUMBER` is greater than the amount of songs we can
+          skip backwards, this will reset the current song to
+          the 1st in the queue.
+
+  -h, --help
+          Print help (see a summary with '-h')
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="common-objects"><a class="header" href="#common-objects">Common Objects</a></h1>
 <p>These often appear in many JSON-RPC call outputs.</p>
@@ -1198,7 +1921,7 @@ curl \
 </ol>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;play&quot;}'
 </code></pre>
-<h2 id="view-state-of-current-audio-playback-with-state_audio"><a class="header" href="#view-state-of-current-audio-playback-with-state_audio">View state of current audio playback with <a href="json-rpc/state/state_audio.html"><code>state_audio</code></a></a></h2>
+<h2 id="view-state-of-current-audio-playback-with-state_audio"><a class="header" href="#view-state-of-current-audio-playback-with-state_audio">View state of current audio playback with <a href="json-rpc/state-retrieval/state_audio.html"><code>state_audio</code></a></a></h2>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;state_audio&quot;}'
 </code></pre>
 <h2 id="set-the-volume-to-10-with-volume"><a class="header" href="#set-the-volume-to-10-with-volume">Set the volume to 10% with <a href="json-rpc/playback-control/volume.html"><code>volume</code></a></a></h2>
@@ -2580,23 +3303,271 @@ curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&qu
 <p>Most the responses of the methods will be empty <code>result</code>'s, indicating success, or an <code>error</code>.</p>
 <p>See <a href="json-rpc/playback-control/../../common-objects/common-objects.html#generic-response"><code>Common Objects # Generic Response</code></a> for more info.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="toggle"><a class="header" href="#toggle">toggle</a></h1>
+<p>Toggle playback.</p>
+<h4 id="inputs-22"><a class="header" href="#inputs-22">Inputs</a></h4>
+<p><code>None</code></p>
+<h4 id="outputs-22"><a class="header" href="#outputs-22">Outputs</a></h4>
+<p><code>null</code> if everything went ok.</p>
+<h4 id="example-request-22"><a class="header" href="#example-request-22">Example Request</a></h4>
+<pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;toggle&quot;}'
+</code></pre>
+<h4 id="example-response-22"><a class="header" href="#example-response-22">Example Response</a></h4>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;result&quot;: null, // &lt;--- everything went ok.
+  &quot;id&quot;: 0
+}
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="play"><a class="header" href="#play">play</a></h1>
+<p>Start playback.</p>
+<h4 id="inputs-23"><a class="header" href="#inputs-23">Inputs</a></h4>
+<p><code>None</code></p>
+<h4 id="outputs-23"><a class="header" href="#outputs-23">Outputs</a></h4>
+<p><code>null</code> if everything went ok.</p>
+<h4 id="example-request-23"><a class="header" href="#example-request-23">Example Request</a></h4>
+<pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;play&quot;}'
+</code></pre>
+<h4 id="example-response-23"><a class="header" href="#example-response-23">Example Response</a></h4>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;result&quot;: null, // &lt;--- everything went ok.
+  &quot;id&quot;: 0
+}
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="pause"><a class="header" href="#pause">pause</a></h1>
+<p>Pause playback.</p>
+<h4 id="inputs-24"><a class="header" href="#inputs-24">Inputs</a></h4>
+<p><code>None</code></p>
+<h4 id="outputs-24"><a class="header" href="#outputs-24">Outputs</a></h4>
+<p><code>null</code> if everything went ok.</p>
+<h4 id="example-request-24"><a class="header" href="#example-request-24">Example Request</a></h4>
+<pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;pause&quot;}'
+</code></pre>
+<h4 id="example-response-24"><a class="header" href="#example-response-24">Example Response</a></h4>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;result&quot;: null, // &lt;--- everything went ok.
+  &quot;id&quot;: 0
+}
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="next"><a class="header" href="#next">next</a></h1>
+<p>Skip to the next song in the queue.</p>
+<p>Ends the queue (or repeats if a <a href="json-rpc/playback-control/repeat_queue.html"><code>repeat</code></a> mode is on) if at the last song.</p>
+<p>Does nothing if the queue is empty.</p>
+<h4 id="inputs-25"><a class="header" href="#inputs-25">Inputs</a></h4>
+<p><code>None</code></p>
+<h4 id="outputs-25"><a class="header" href="#outputs-25">Outputs</a></h4>
+<p><code>null</code> if everything went ok.</p>
+<h4 id="example-request-25"><a class="header" href="#example-request-25">Example Request</a></h4>
+<pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;next&quot;}'
+</code></pre>
+<h4 id="example-response-25"><a class="header" href="#example-response-25">Example Response</a></h4>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;result&quot;: null, // &lt;--- everything went ok.
+  &quot;id&quot;: 0
+}
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="stop"><a class="header" href="#stop">stop</a></h1>
+<p>Clear the queue and stop playback.</p>
+<h4 id="inputs-26"><a class="header" href="#inputs-26">Inputs</a></h4>
+<p><code>None</code></p>
+<h4 id="outputs-26"><a class="header" href="#outputs-26">Outputs</a></h4>
+<p><code>null</code> if everything went ok.</p>
+<h4 id="example-request-26"><a class="header" href="#example-request-26">Example Request</a></h4>
+<pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;stop&quot;}'
+</code></pre>
+<h4 id="example-response-26"><a class="header" href="#example-response-26">Example Response</a></h4>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;result&quot;: null, // &lt;--- everything went ok.
+  &quot;id&quot;: 0
+}
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="shuffle"><a class="header" href="#shuffle">shuffle</a></h1>
+<p>Shuffle the current queue, then start playing from the 1st <code>Song</code> in the queue.</p>
+<h4 id="inputs-27"><a class="header" href="#inputs-27">Inputs</a></h4>
+<p><code>None</code></p>
+<h4 id="outputs-27"><a class="header" href="#outputs-27">Outputs</a></h4>
+<p><code>null</code> if everything went ok.</p>
+<h4 id="example-request-27"><a class="header" href="#example-request-27">Example Request</a></h4>
+<pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;shuffle&quot;}'
+</code></pre>
+<h4 id="example-response-27"><a class="header" href="#example-response-27">Example Response</a></h4>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;result&quot;: null, // &lt;--- everything went ok.
+  &quot;id&quot;: 0
+}
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="repeat_off"><a class="header" href="#repeat_off">repeat_off</a></h1>
+<p>Turn off queue repeating.</p>
+<h4 id="inputs-28"><a class="header" href="#inputs-28">Inputs</a></h4>
+<p><code>None</code></p>
+<h4 id="outputs-28"><a class="header" href="#outputs-28">Outputs</a></h4>
+<p><code>null</code> if everything went ok.</p>
+<h4 id="example-request-28"><a class="header" href="#example-request-28">Example Request</a></h4>
+<pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;repeat_off&quot;}'
+</code></pre>
+<h4 id="example-response-28"><a class="header" href="#example-response-28">Example Response</a></h4>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;result&quot;: null, // &lt;--- everything went ok.
+  &quot;id&quot;: 0
+}
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="repeat_song"><a class="header" href="#repeat_song">repeat_song</a></h1>
+<p>Turn on song repeating.</p>
+<p>After the end of a <code>Song</code>, play it again, forever.</p>
+<h4 id="inputs-29"><a class="header" href="#inputs-29">Inputs</a></h4>
+<p><code>None</code></p>
+<h4 id="outputs-29"><a class="header" href="#outputs-29">Outputs</a></h4>
+<p><code>null</code> if everything went ok.</p>
+<h4 id="example-request-29"><a class="header" href="#example-request-29">Example Request</a></h4>
+<pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;repeat_song&quot;}'
+</code></pre>
+<h4 id="example-response-29"><a class="header" href="#example-response-29">Example Response</a></h4>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;result&quot;: null, // &lt;--- everything went ok.
+  &quot;id&quot;: 0
+}
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="repeat_queue"><a class="header" href="#repeat_queue">repeat_queue</a></h1>
+<p>Turn on queue repeating.</p>
+<p>If at the last <code>Song</code> in the queue, it will wrap around and start again at the first <code>Song</code> in the queue.</p>
+<h4 id="inputs-30"><a class="header" href="#inputs-30">Inputs</a></h4>
+<p><code>None</code></p>
+<h4 id="outputs-30"><a class="header" href="#outputs-30">Outputs</a></h4>
+<p><code>null</code> if everything went ok.</p>
+<h4 id="example-request-30"><a class="header" href="#example-request-30">Example Request</a></h4>
+<pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;repeat_queue&quot;}'
+</code></pre>
+<h4 id="example-response-30"><a class="header" href="#example-response-30">Example Response</a></h4>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;result&quot;: null, // &lt;--- everything went ok.
+  &quot;id&quot;: 0
+}
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="previous"><a class="header" href="#previous">previous</a></h1>
+<p>Set the current <code>Song</code> to the previous in the queue.</p>
+<h4 id="inputs-31"><a class="header" href="#inputs-31">Inputs</a></h4>
+<div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td>threshold</td><td>unsigned integer</td><td>If the current <code>Song</code> runtime (seconds) has passed this number, this method will reset the current <code>Song</code> instead of skipping backwards. Setting this to <code>0</code> will make this method always go to the previous <code>Song</code>.</td></tr>
+</tbody></table>
+</div>
+<h4 id="outputs-31"><a class="header" href="#outputs-31">Outputs</a></h4>
+<p><code>null</code> if everything went ok.</p>
+<h4 id="example-request-31"><a class="header" href="#example-request-31">Example Request</a></h4>
+<pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;previous&quot;,&quot;params&quot;:{&quot;threshold&quot;:0}}'
+</code></pre>
+<h4 id="example-response-31"><a class="header" href="#example-response-31">Example Response</a></h4>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;result&quot;: null, // &lt;--- everything went ok.
+  &quot;id&quot;: 0
+}
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="volume"><a class="header" href="#volume">volume</a></h1>
+<p>Set the playback volume.</p>
+<h4 id="inputs-32"><a class="header" href="#inputs-32">Inputs</a></h4>
+<div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td>volume</td><td>unsigned integer</td><td>The volume % to set. Must be in-between <code>0..100</code>. If greater than <code>100</code>, it will set the volume to <code>100</code>.</td></tr>
+</tbody></table>
+</div>
+<h4 id="outputs-32"><a class="header" href="#outputs-32">Outputs</a></h4>
+<p><code>null</code> if everything went ok.</p>
+<h4 id="example-request-32"><a class="header" href="#example-request-32">Example Request</a></h4>
+<pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;volume&quot;,&quot;params&quot;:{&quot;volume&quot;:15}}'
+</code></pre>
+<h4 id="example-response-32"><a class="header" href="#example-response-32">Example Response</a></h4>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;result&quot;: null, // &lt;--- everything went ok.
+  &quot;id&quot;: 0
+}
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="clear"><a class="header" href="#clear">clear</a></h1>
+<p>Clear the queue.</p>
+<h4 id="inputs-33"><a class="header" href="#inputs-33">Inputs</a></h4>
+<div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td>playback</td><td>boolean</td><td>If there is a <code>Song</code> currently set and playing, should we continue playback?</td></tr>
+</tbody></table>
+</div>
+<h4 id="outputs-33"><a class="header" href="#outputs-33">Outputs</a></h4>
+<p><code>null</code> if everything went ok.</p>
+<h4 id="example-request-33"><a class="header" href="#example-request-33">Example Request</a></h4>
+<pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;clear&quot;,&quot;params&quot;:{&quot;playback&quot;:false}}'
+</code></pre>
+<h4 id="example-response-33"><a class="header" href="#example-response-33">Example Response</a></h4>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;result&quot;: null, // &lt;--- everything went ok.
+  &quot;id&quot;: 0
+}
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="seek"><a class="header" href="#seek">seek</a></h1>
+<p>Seek forwards/backwards or to an absolute second in the current <code>Song</code>.</p>
+<h4 id="inputs-34"><a class="header" href="#inputs-34">Inputs</a></h4>
+<div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td>seek</td><td>string, one of <code>forward</code>, <code>backward</code>, <code>absolute</code></td><td>The &quot;type&quot; of seeking we should do. <code>forward</code> means advance the current <code>Song</code> by the provided <code>second</code>. <code>backward</code> means go back in the current <code>Song</code> by the provided <code>second</code>. <code>absolute</code> means skip to the exact <code>second</code> in the <code>Song</code>, e.g, to skip to the 1 minute mark in the current <code>Song</code>, you would use <code>absolute</code> + <code>60</code>.</td></tr>
+<tr><td>second</td><td>unsigned integer</td><td>The <code>second</code> to seek forward/backwards/to.</td></tr>
+</tbody></table>
+</div>
+<h4 id="outputs-34"><a class="header" href="#outputs-34">Outputs</a></h4>
+<p><code>null</code> if everything went ok.</p>
+<h4 id="example-request-34"><a class="header" href="#example-request-34">Example Request</a></h4>
+<pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;seek&quot;,&quot;params&quot;:{&quot;absolute&quot;:60}}'
+</code></pre>
+<h4 id="example-response-34"><a class="header" href="#example-response-34">Example Response</a></h4>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;result&quot;: null, // &lt;--- everything went ok.
+  &quot;id&quot;: 0
+}
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="skip"><a class="header" href="#skip">skip</a></h1>
+<p>Skip forwards a variable amount of <code>Song</code>'s in the current queue.</p>
+<h4 id="inputs-35"><a class="header" href="#inputs-35">Inputs</a></h4>
+<div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td>skip</td><td>unsigned integer</td><td>How many <code>Song</code>'s to skip. If greater than the rest of the <code>Song</code>'s in the queue, the queue will end (else a <a href="json-rpc/playback-control/repeat_queue.html"><code>repeat</code></a> mode is on).</td></tr>
+</tbody></table>
+</div>
+<h4 id="outputs-35"><a class="header" href="#outputs-35">Outputs</a></h4>
+<p><code>null</code> if everything went ok.</p>
+<h4 id="example-request-35"><a class="header" href="#example-request-35">Example Request</a></h4>
+<pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;skip&quot;,&quot;param&quot;:{&quot;skip&quot;:3}}'
+</code></pre>
+<h4 id="example-response-35"><a class="header" href="#example-response-35">Example Response</a></h4>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;result&quot;: null, // &lt;--- everything went ok.
+  &quot;id&quot;: 0
+}
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="back"><a class="header" href="#back">back</a></h1>
+<p>Go backwards a variable amount of <code>Song</code>'s in the current queue.</p>
+<h4 id="inputs-36"><a class="header" href="#inputs-36">Inputs</a></h4>
+<div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td>back</td><td>unsigned integer</td><td>How many <code>Song</code>'s to go backwards. This will <em>not</em> wrap around if we hit the 1st <code>Song</code>.</td></tr>
+</tbody></table>
+</div>
+<h4 id="outputs-36"><a class="header" href="#outputs-36">Outputs</a></h4>
+<p><code>null</code> if everything went ok.</p>
+<h4 id="example-request-36"><a class="header" href="#example-request-36">Example Request</a></h4>
+<pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;back&quot;,&quot;params&quot;:{&quot;back&quot;:10}}'
+</code></pre>
+<h4 id="example-response-36"><a class="header" href="#example-response-36">Example Response</a></h4>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;result&quot;: null, // &lt;--- everything went ok.
+  &quot;id&quot;: 0
+}
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="add_queue_key_artist"><a class="header" href="#add_queue_key_artist">add_queue_key_artist</a></h1>
 <p>Add an <a href="json-rpc/playback-control/../../common-objects/artist.html"><code>Artist</code></a> to the queue with an <code>Artist</code> <a href="json-rpc/playback-control/../../common-objects/key.html">key</a>.</p>
-<h4 id="inputs-22"><a class="header" href="#inputs-22">Inputs</a></h4>
+<h4 id="inputs-37"><a class="header" href="#inputs-37">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>key</td><td><code>Artist</code> key (unsigned integer)</td><td>See <a href="json-rpc/playback-control/key.html"><code>Key</code></a></td></tr>
 <tr><td>append</td><td><code>string</code>, one of <code>front</code>, <code>back</code> or <code>index</code></td><td>In which way should we add to the queue? <code>front</code> means to the front of the queue. <code>back</code> means to the back. <code>index</code> means at an exact queue index. Queue index starts at <code>0</code>, so to mimic <code>front</code>, you would provide <code>0</code>.</td></tr>
@@ -2627,7 +3598,7 @@ index 3 | song_4 &lt;--- We will start playing from this `Song`.
 index 4 | song_5
 index 5 | song_6
 </code></pre>
-<h4 id="outputs-22"><a class="header" href="#outputs-22">Outputs</a></h4>
+<h4 id="outputs-37"><a class="header" href="#outputs-37">Outputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>out_of_bounds</td><td>boolean</td><td>If the provided <code>offset</code> was equal to or greater than the amount of <code>Songs</code> by the <code>Artist</code></td></tr>
 </tbody></table>
@@ -2644,7 +3615,7 @@ curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&qu
 <pre><code class="language-bash"># Clear the queue, add all the `Song`'s by this `Artist`, but start at the 5th `Song` (offset 4).
 curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;add_queue_key_artist&quot;,&quot;params&quot;:{&quot;key&quot;:&quot;123&quot;,&quot;append&quot;:&quot;front&quot;,&quot;clear&quot;:true,&quot;offset&quot;:4}}'
 </code></pre>
-<h4 id="example-response-22"><a class="header" href="#example-response-22">Example Response</a></h4>
+<h4 id="example-response-37"><a class="header" href="#example-response-37">Example Response</a></h4>
 <pre><code class="language-json">{
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {
@@ -2655,7 +3626,7 @@ curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&qu
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="add_queue_key_album"><a class="header" href="#add_queue_key_album">add_queue_key_album</a></h1>
 <p>Add an <a href="json-rpc/playback-control/../../common-objects/album.html"><code>Album</code></a> to the queue with an <code>Album</code> <a href="json-rpc/playback-control/../../common-objects/key.html">key</a>.</p>
-<h4 id="inputs-23"><a class="header" href="#inputs-23">Inputs</a></h4>
+<h4 id="inputs-38"><a class="header" href="#inputs-38">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>key</td><td><code>Album</code> key (unsigned integer)</td><td>See <a href="json-rpc/playback-control/key.html"><code>Key</code></a></td></tr>
 <tr><td>append</td><td><code>string</code>, one of <code>front</code>, <code>back</code> or <code>index</code></td><td>In which way should we add to the queue? <code>front</code> means to the front of the queue. <code>back</code> means to the back. <code>index</code> means at an exact queue index. Queue index starts at <code>0</code>, so to mimic <code>front</code>, you would provide <code>0</code>.</td></tr>
@@ -2686,7 +3657,7 @@ index 3 | song_4 &lt;--- We will start playing from this `Song`.
 index 4 | song_5
 index 5 | song_6
 </code></pre>
-<h4 id="outputs-23"><a class="header" href="#outputs-23">Outputs</a></h4>
+<h4 id="outputs-38"><a class="header" href="#outputs-38">Outputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>out_of_bounds</td><td>boolean</td><td>If the provided <code>offset</code> was equal to or greater than the amount of <code>Song</code>'s in the <code>Album</code></td></tr>
 </tbody></table>
@@ -2703,7 +3674,7 @@ curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&qu
 <pre><code class="language-bash"># Clear the queue, add all the `Song`'s in this `Album`, but start at the 5th `Song` (offset 4).
 curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;add_queue_key_album&quot;,&quot;params&quot;:{&quot;key&quot;:&quot;123&quot;,&quot;append&quot;:&quot;front&quot;,&quot;clear&quot;:true,&quot;offset&quot;:4}}'
 </code></pre>
-<h4 id="example-response-23"><a class="header" href="#example-response-23">Example Response</a></h4>
+<h4 id="example-response-38"><a class="header" href="#example-response-38">Example Response</a></h4>
 <pre><code class="language-json">{
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {
@@ -2714,7 +3685,7 @@ curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&qu
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="add_queue_key_song"><a class="header" href="#add_queue_key_song">add_queue_key_song</a></h1>
 <p>Add a <a href="json-rpc/playback-control/../../common-objects/song.html"><code>Song</code></a> to the queue with a <code>Song</code> <a href="json-rpc/playback-control/../../common-objects/key.html">key</a>.</p>
-<h4 id="inputs-24"><a class="header" href="#inputs-24">Inputs</a></h4>
+<h4 id="inputs-39"><a class="header" href="#inputs-39">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>key</td><td><code>Song</code> key (unsigned integer  )</td><td>See <a href="json-rpc/playback-control/key.html"><code>Key</code></a></td></tr>
 <tr><td>append</td><td><code>string</code>, one of <code>front</code>, <code>back</code> or <code>index</code></td><td>In which way should we add to the queue? <code>front</code> means to the front of the queue. <code>back</code> means to the back. <code>index</code> means at an exact queue index. Queue index starts at <code>0</code>, so to mimic <code>front</code>, you would provide <code>0</code>.</td></tr>
@@ -2730,7 +3701,7 @@ curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&qu
 </code></pre>
 <pre><code class="language-json">&quot;append&quot;:&quot;back&quot;,
 </code></pre>
-<h4 id="outputs-24"><a class="header" href="#outputs-24">Outputs</a></h4>
+<h4 id="outputs-39"><a class="header" href="#outputs-39">Outputs</a></h4>
 <p><code>null</code> if everything went okay.</p>
 <h4 id="example-request-1-2"><a class="header" href="#example-request-1-2">Example Request 1</a></h4>
 <pre><code class="language-bash"># Add to back of the queue.
@@ -2744,7 +3715,7 @@ curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&qu
 <pre><code class="language-bash"># Clear the queue, add `Song` 123.
 curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;add_queue_key_song&quot;,&quot;params&quot;:{&quot;key&quot;:&quot;123&quot;,&quot;append&quot;:&quot;front&quot;,&quot;clear&quot;:true}'
 </code></pre>
-<h4 id="example-response-24"><a class="header" href="#example-response-24">Example Response</a></h4>
+<h4 id="example-response-39"><a class="header" href="#example-response-39">Example Response</a></h4>
 <pre><code class="language-json">{
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: null, // &lt;--- everything went ok.
@@ -2753,7 +3724,7 @@ curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&qu
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="add_queue_map_artist"><a class="header" href="#add_queue_map_artist">add_queue_map_artist</a></h1>
 <p>Add an <a href="json-rpc/playback-control/../../common-objects/artist.html"><code>Artist</code></a> to the queue with an <code>Artist</code> name.</p>
-<h4 id="inputs-25"><a class="header" href="#inputs-25">Inputs</a></h4>
+<h4 id="inputs-40"><a class="header" href="#inputs-40">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>artist</td><td><code>string</code></td><td><code>Artist</code> name</td></tr>
 <tr><td>append</td><td><code>string</code>, one of <code>front</code>, <code>back</code> or <code>index</code></td><td>In which way should we add to the queue? <code>front</code> means to the front of the queue. <code>back</code> means to the back. <code>index</code> means at an exact queue index. Queue index starts at <code>0</code>, so to mimic <code>front</code>, you would provide <code>0</code>.</td></tr>
@@ -2784,7 +3755,7 @@ index 3 | song_4 &lt;--- We will start playing from this `Song`.
 index 4 | song_5
 index 5 | song_6
 </code></pre>
-<h4 id="outputs-25"><a class="header" href="#outputs-25">Outputs</a></h4>
+<h4 id="outputs-40"><a class="header" href="#outputs-40">Outputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>out_of_bounds</td><td>boolean</td><td>If the provided <code>offset</code> was equal to or greater than the amount of <code>Songs</code> by the <code>Artist</code></td></tr>
 </tbody></table>
@@ -2801,7 +3772,7 @@ curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&qu
 <pre><code class="language-bash"># Clear the queue, add all the `Song`'s by this `Artist`, but start at the 5th `Song` (offset 4).
 curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;add_queue_map_artist&quot;,&quot;params&quot;:{&quot;artist&quot;:&quot;TWICE&quot;,&quot;append&quot;:&quot;front&quot;,&quot;clear&quot;:true,&quot;offset&quot;:4}}'
 </code></pre>
-<h4 id="example-response-25"><a class="header" href="#example-response-25">Example Response</a></h4>
+<h4 id="example-response-40"><a class="header" href="#example-response-40">Example Response</a></h4>
 <pre><code class="language-json">{
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {
@@ -2812,7 +3783,7 @@ curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&qu
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="add_queue_map_album"><a class="header" href="#add_queue_map_album">add_queue_map_album</a></h1>
 <p>Add an <a href="json-rpc/playback-control/../../common-objects/album.html"><code>Album</code></a> to the queue with an <a href="json-rpc/playback-control/../../common-objects/artist.html"><code>Artist</code></a> name and <code>Album</code> title.</p>
-<h4 id="inputs-26"><a class="header" href="#inputs-26">Inputs</a></h4>
+<h4 id="inputs-41"><a class="header" href="#inputs-41">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>artist</td><td><code>string</code></td><td><code>Artist</code> name</td></tr>
 <tr><td>album</td><td><code>string</code></td><td><code>Album</code> title</td></tr>
@@ -2844,7 +3815,7 @@ index 3 | song_4 &lt;--- We will start playing from this `Song`.
 index 4 | song_5
 index 5 | song_6
 </code></pre>
-<h4 id="outputs-26"><a class="header" href="#outputs-26">Outputs</a></h4>
+<h4 id="outputs-41"><a class="header" href="#outputs-41">Outputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>out_of_bounds</td><td>boolean</td><td>If the provided <code>offset</code> was equal to or greater than the amount of <code>Song</code>'s in the <code>Album</code></td></tr>
 </tbody></table>
@@ -2861,7 +3832,7 @@ curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&qu
 <pre><code class="language-bash"># Clear the queue, add all the `Song`'s in this `Album`, but start at the 5th `Song` (offset 4).
 curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;add_queue_map_album&quot;,&quot;params&quot;:{&quot;artist&quot;:&quot;TWICE&quot;,&quot;album&quot;:&quot;PAGE TWO&quot;,&quot;append&quot;:&quot;front&quot;,&quot;clear&quot;:true,&quot;offset&quot;:4}}'
 </code></pre>
-<h4 id="example-response-26"><a class="header" href="#example-response-26">Example Response</a></h4>
+<h4 id="example-response-41"><a class="header" href="#example-response-41">Example Response</a></h4>
 <pre><code class="language-json">{
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {
@@ -2872,7 +3843,7 @@ curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&qu
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="add_queue_map_song"><a class="header" href="#add_queue_map_song">add_queue_map_song</a></h1>
 <p>Add a <a href="json-rpc/playback-control/../../common-objects/song.html"><code>Song</code></a> to the queue with an <a href="json-rpc/playback-control/../../common-objects/artist.html"><code>Artist</code></a> name <a href="json-rpc/playback-control/../../common-objects/album.html"><code>Album</code></a> title, and <code>Song</code> title.</p>
-<h4 id="inputs-27"><a class="header" href="#inputs-27">Inputs</a></h4>
+<h4 id="inputs-42"><a class="header" href="#inputs-42">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>artist</td><td><code>string</code></td><td><code>Artist</code> name</td></tr>
 <tr><td>album</td><td><code>string</code></td><td><code>Album</code> title</td></tr>
@@ -2890,7 +3861,7 @@ curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&qu
 </code></pre>
 <pre><code class="language-json">&quot;append&quot;:&quot;back&quot;,
 </code></pre>
-<h4 id="outputs-27"><a class="header" href="#outputs-27">Outputs</a></h4>
+<h4 id="outputs-42"><a class="header" href="#outputs-42">Outputs</a></h4>
 <p><code>null</code> if everything went okay.</p>
 <h4 id="example-request-1-5"><a class="header" href="#example-request-1-5">Example Request 1</a></h4>
 <pre><code class="language-bash"># Add to back of the queue.
@@ -2904,7 +3875,7 @@ curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&qu
 <pre><code class="language-bash"># Clear the queue, add starting from `Song` 5 (offset 4).
 curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;add_queue_key_song&quot;,&quot;params&quot;:{&quot;key&quot;:&quot;123&quot;,&quot;append&quot;:&quot;front&quot;,&quot;clear&quot;:true}'
 </code></pre>
-<h4 id="example-response-27"><a class="header" href="#example-response-27">Example Response</a></h4>
+<h4 id="example-response-42"><a class="header" href="#example-response-42">Example Response</a></h4>
 <pre><code class="language-json">{
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: null, // &lt;--- everything went ok.
@@ -2913,22 +3884,22 @@ curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&qu
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="set_queue_index"><a class="header" href="#set_queue_index">set_queue_index</a></h1>
 <p>Set the current <code>Song</code> to a queue index.</p>
-<h4 id="inputs-28"><a class="header" href="#inputs-28">Inputs</a></h4>
+<h4 id="inputs-43"><a class="header" href="#inputs-43">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>index</td><td>unsigned integer</td><td>An index in the queue (1st <code>Song</code> is index <code>0</code>, 2nd <code>Song</code> is index <code>1</code>, etc). The current state of the &quot;queue&quot; can be viewed with <a href="json-rpc/playback-control/../state-retrieval/state_audio.html"><code>state_audio</code></a>.</td></tr>
 </tbody></table>
 </div>
 <p>If the <code>index</code> is out-of-bounds (queue has 10 songs, index is <code>10</code> or greater), the queue will end.</p>
-<h4 id="outputs-28"><a class="header" href="#outputs-28">Outputs</a></h4>
+<h4 id="outputs-43"><a class="header" href="#outputs-43">Outputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>out_of_bounds</td><td>boolean</td><td>If the provided index was equal to or greater than the queue length.</td></tr>
 </tbody></table>
 </div>
-<h4 id="example-request-22"><a class="header" href="#example-request-22">Example Request</a></h4>
+<h4 id="example-request-37"><a class="header" href="#example-request-37">Example Request</a></h4>
 <pre><code class="language-bash"># Set the current `Song` to index `4`.
 curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;set_queue_index&quot;,&quot;params&quot;:{&quot;index&quot;:4}'
 </code></pre>
-<h4 id="example-response-28"><a class="header" href="#example-response-28">Example Response</a></h4>
+<h4 id="example-response-43"><a class="header" href="#example-response-43">Example Response</a></h4>
 <pre><code class="language-json">{
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {
@@ -2939,7 +3910,7 @@ curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&qu
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="remove_queue_range"><a class="header" href="#remove_queue_range">remove_queue_range</a></h1>
 <p>Remove a range of queue indices.</p>
-<h4 id="inputs-29"><a class="header" href="#inputs-29">Inputs</a></h4>
+<h4 id="inputs-44"><a class="header" href="#inputs-44">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>start</td><td>unsigned integer</td><td>The beginning index to start removing from</td></tr>
 <tr><td>end</td><td>unsigned integer</td><td>The index to remove <em>until</em></td></tr>
@@ -2959,7 +3930,7 @@ index 3 | song_4 &lt;--- To here.
 index 4 | song_5 &lt;--- This song is not removed.
 index 5 | song_6
 </code></pre>
-<h4 id="outputs-29"><a class="header" href="#outputs-29">Outputs</a></h4>
+<h4 id="outputs-44"><a class="header" href="#outputs-44">Outputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>out_of_bounds</td><td>boolean</td><td>If either <code>start</code> or <code>end</code> was out-of-bounds</td></tr>
 </tbody></table>
@@ -2972,7 +3943,7 @@ curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&qu
 <pre><code class="language-bash"># Remove 0, 1, 2, 3 from the queue.
 curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;remove_queue_range&quot;,&quot;params&quot;:{&quot;start&quot;:0,&quot;end&quot;:4,&quot;skip&quot;:true}}'
 </code></pre>
-<h4 id="example-response-29"><a class="header" href="#example-response-29">Example Response</a></h4>
+<h4 id="example-response-44"><a class="header" href="#example-response-44">Example Response</a></h4>
 <pre><code class="language-json">{
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {
@@ -2996,25 +3967,25 @@ curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&qu
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="rest-quick-start"><a class="header" href="#rest-quick-start"><code>REST</code> Quick Start</a></h1>
 <p>A quick start to using <code>festivald</code>'s <code>REST</code> API.</p>
-<h3 id="view-random-album-art-in-a-web-browser-with-randart"><a class="header" href="#view-random-album-art-in-a-web-browser-with-randart">View random <a href="rest/..common-objects/album.html"><code>Album</code></a> art in a web browser with <a href="rest/rand/art.html"><code>/rand/art</code></a></a></h3>
+<h3 id="view-random-album-art-in-a-web-browser-with-randart"><a class="header" href="#view-random-album-art-in-a-web-browser-with-randart">View random <a href="rest/../common-objects/album.html"><code>Album</code></a> art in a web browser with <a href="rest/rand/art.html"><code>/rand/art</code></a></a></h3>
 <pre><code class="language-http">http://localhost:18425/rand/art
 </code></pre>
 <h3 id="open-a-mini-player-of-a-random-song-in-a-web-browser-with-randsong"><a class="header" href="#open-a-mini-player-of-a-random-song-in-a-web-browser-with-randsong">Open a mini-player of a random <a href="rest/../common-objects/song.html"><code>Song</code></a> in a web browser with <a href="rest/rand/song.html"><code>/rand/song</code></a></a></h3>
 <pre><code class="language-http">http://localhost:18425/rand/song
 </code></pre>
-<h3 id="download-a-random-album-in-the-zip-format-with-randalbum"><a class="header" href="#download-a-random-album-in-the-zip-format-with-randalbum">Download a random <a href="rest/..common-objects/album.html"><code>Album</code></a> in the <code>ZIP</code> format with <a href="rest/rand/album.html"><code>/rand/album</code></a></a></h3>
+<h3 id="download-a-random-album-in-the-zip-format-with-randalbum"><a class="header" href="#download-a-random-album-in-the-zip-format-with-randalbum">Download a random <a href="rest/../common-objects/album.html"><code>Album</code></a> in the <code>ZIP</code> format with <a href="rest/rand/album.html"><code>/rand/album</code></a></a></h3>
 <pre><code class="language-http">http://localhost:18425/rand/album
 </code></pre>
-<h3 id="download-a-specific-artist-in-the-zip-format-with-mapartist_name"><a class="header" href="#download-a-specific-artist-in-the-zip-format-with-mapartist_name">Download a <em>specific</em> <a href="rest/..common-objects/artist.html"><code>Artist</code></a> in the <code>ZIP</code> format with <a href="rest/map/artist.html"><code>/map/$ARTIST_NAME</code></a></a></h3>
+<h3 id="download-a-specific-artist-in-the-zip-format-with-mapartist_name"><a class="header" href="#download-a-specific-artist-in-the-zip-format-with-mapartist_name">Download a <em>specific</em> <a href="rest/../common-objects/artist.html"><code>Artist</code></a> in the <code>ZIP</code> format with <a href="rest/map/artist.html"><code>/map/$ARTIST_NAME</code></a></a></h3>
 <pre><code class="language-http">http://localhost:18425/map/Artist Name
 </code></pre>
-<h3 id="download-the-currently-set-song-with-currentsong"><a class="header" href="#download-the-currently-set-song-with-currentsong">Download the currently set <a href="rest/..common-objects/song.html"><code>Song</code></a> with <a href="rest/current/song.html"><code>/current/song</code></a></a></h3>
+<h3 id="download-the-currently-set-song-with-currentsong"><a class="header" href="#download-the-currently-set-song-with-currentsong">Download the currently set <a href="rest/../common-objects/song.html"><code>Song</code></a> with <a href="rest/current/song.html"><code>/current/song</code></a></a></h3>
 <pre><code class="language-http">http://localhost:18425/current/song
 </code></pre>
-<h3 id="view-the-art-of-the-currently-set-song-with-currentart"><a class="header" href="#view-the-art-of-the-currently-set-song-with-currentart">View the art of the currently set <a href="rest/..common-objects/song.html"><code>Song</code></a> with <a href="rest/current/art.html"><code>/current/art</code></a></a></h3>
+<h3 id="view-the-art-of-the-currently-set-song-with-currentart"><a class="header" href="#view-the-art-of-the-currently-set-song-with-currentart">View the art of the currently set <a href="rest/../common-objects/song.html"><code>Song</code></a> with <a href="rest/current/art.html"><code>/current/art</code></a></a></h3>
 <pre><code class="language-http">http://localhost:18425/current/art
 </code></pre>
-<h3 id="download-all-the-art-belonging-to-an-artist-with-artartist_name"><a class="header" href="#download-all-the-art-belonging-to-an-artist-with-artartist_name">Download <em>all</em> the art belonging to an <a href="rest/..common-objects/artist.html"><code>Artist</code></a> with <a href="rest/art/artist.html"><code>/art/$ARTIST_NAME</code></a></a></h3>
+<h3 id="download-all-the-art-belonging-to-an-artist-with-artartist_name"><a class="header" href="#download-all-the-art-belonging-to-an-artist-with-artartist_name">Download <em>all</em> the art belonging to an <a href="rest/../common-objects/artist.html"><code>Artist</code></a> with <a href="rest/art/artist.html"><code>/art/$ARTIST_NAME</code></a></a></h3>
 <pre><code class="language-http">http://localhost:18425/art/Artist Name
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="key-2"><a class="header" href="#key-2">/key</a></h1>
@@ -3123,7 +4094,7 @@ curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&qu
 <pre><code class="language-plaintext">Artist Name - Album Title.jpg
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="map-1"><a class="header" href="#map-1">/map</a></h1>
-<p>This is the same as the <code>/key</code> endpoint, but instead of numbers, you can directly use:</p>
+<p>This is the same as the <a href="rest/map/../key/key.html"><code>/key</code></a> endpoint, but instead of numbers, you can directly use:</p>
 <ul>
 <li>Artist names</li>
 <li>Album titles</li>
@@ -3435,7 +4406,7 @@ curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&qu
 <pre><code class="language-plaintext">Art - Artist Name - Album Title.png
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="collection-3"><a class="header" href="#collection-3">/collection</a></h1>
-<p>Download <em>the entire</em> <a href="rest/../../common-objects/collection.html"><code>Collection</code></a>.</p>
+<p>Download <em>the entire</em> <a href="rest/../common-objects/collection.html"><code>Collection</code></a>.</p>
 <h2 id="warning-2"><a class="header" href="#warning-2">Warning</a></h2>
 <p>This is by-far the heaviest <code>REST</code> endpoint (it's basically a superset of <em>all</em> endpoints) and will cause <code>festivald</code> to use at least the same amount of disk space your <code>Collection</code>'s <code>Song</code> files take up.</p>
 <p>For example, if all your <code>Song</code>'s combined are <code>100GB</code> in size, <code>festivald</code> will use at least <code>100GB</code> in disk space when receiving this request. Further same requests will not further disk usage, depending on your <a href="rest/../config.html"><code>cache_time</code></a> configuration.</p>
@@ -3446,10 +4417,10 @@ curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&qu
 <h4 id="output-17"><a class="header" href="#output-17">Output</a></h4>
 <p>Archive including:</p>
 <ul>
-<li>A copy of <a href="rest/../../json-rpc/state-retrieval/state_collection_full.html"><code>state_collection_full</code></a> output in <code>JSON</code></li>
-<li>All <a href="rest/../../common-objects/artist.html"><code>Artist</code></a>'s</li>
-<li>All <a href="rest/../../common-objects/album.html"><code>Album</code></a>'s (including art if found)</li>
-<li>All <a href="rest/../../common-objects/song.html"><code>Song</code></a>'s</li>
+<li>A copy of <a href="rest/../json-rpc/state-retrieval/state_collection_full.html"><code>state_collection_full</code></a> output in <code>JSON</code></li>
+<li>All <a href="rest/../common-objects/artist.html"><code>Artist</code></a>'s</li>
+<li>All <a href="rest/../common-objects/album.html"><code>Album</code></a>'s (including art if found)</li>
+<li>All <a href="rest/../common-objects/song.html"><code>Song</code></a>'s</li>
 </ul>
 <h4 id="example-input-17"><a class="header" href="#example-input-17">Example Input</a></h4>
 <pre><code class="language-http">http://localhost:18425/collection
