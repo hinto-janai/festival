@@ -837,7 +837,18 @@ async fn new_collection<'a>(
 			}
 		}
 
-		send!(TO_KERNEL, FrontendToKernel::NewCollection(params.paths.unwrap_or_else(|| vec![])));
+		// Priority goes to parameter PATHs, then fallback to `collection_paths`,
+		// else send empty `Vec`, `shukusai` will handle it and use default the Music directory.
+		let paths = match params.paths {
+			Some(p) => p,
+			None    => config().collection_paths.clone(),
+		};
+
+		for p in paths.iter() {
+			debug!("Task - Collection Reset Path: {}", p.display());
+		}
+
+		send!(TO_KERNEL, FrontendToKernel::NewCollection(paths));
 
 		// Wait until `Kernel` has given us `Arc<Collection>`.
 		let mut collection = loop {

@@ -256,6 +256,27 @@ sleep_on_fail = 3000
 
 
 #----------------------------------------------------------#
+#                       COLLECTION                         #
+#----------------------------------------------------------#
+# Upon a `new_collection` JSON-RPC method call, if the
+# `paths` parameter is empty, these PATHs will be scanned
+# instead.
+#
+# If this is also empty, the default OS `Music`
+# directory will be scanned.
+#
+# Unix-style PATHs will always work (`/home/user/Music`)
+#
+# Windows-style PATHs will only work if `festivald`
+# is running on Windows (`C:\\Users\\User\\Music`)
+#
+# DEFAULT | []
+# EXAMPLE | [&quot;/home/user/Music/albums&quot;, &quot;/home/user/data/songs&quot;]
+# TYPE    | array of PATHs
+collection_paths = []
+
+
+#----------------------------------------------------------#
 #                           TLS                            #
 #----------------------------------------------------------#
 # Enable/disable HTTPS.
@@ -355,10 +376,14 @@ filename_separator = &quot; - &quot;
 #----------------------------------------------------------#
 # The logging level `festivald` will use.
 #
-# DEFAULT | &quot;off&quot;
+# &quot;error&quot; will only show critical error messages,
+# &quot;warn&quot; will in addition show warnings,
+# &quot;info&quot; will in addition show info, etc, etc.
+#
+# DEFAULT | &quot;error&quot;
 # VALUES  | &quot;off&quot;, &quot;error&quot;, &quot;warn&quot;, &quot;info&quot;, &quot;debug&quot;, &quot;trace&quot;
 # TYPE    | string, one of the above
-log_level = &quot;off&quot;
+log_level = &quot;error&quot;
 
 
 #----------------------------------------------------------#

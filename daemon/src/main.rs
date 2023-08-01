@@ -57,6 +57,9 @@ fn main() {
 		log::info!("festivald ... Skipping docs");
 	}
 
+	// Tell `Kernel` to cache directories.
+	benri::send!(TO_KERNEL, shukusai::kernel::FrontendToKernel::CachePath(CONFIG.collection_paths.clone()));
+
 	// Cleanup cache.
 	match crate::zip::clean_cache() {
 		Ok(_)  => benri::ok!("festivald ... Cache clean"),

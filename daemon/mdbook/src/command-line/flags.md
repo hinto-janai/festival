@@ -96,6 +96,19 @@ Options:
           If you're hosting locally (127.0.0.1), you can set this
           to 0 (unless you don't trust your local network?).
 
+      --collection-path <PATH>
+          Default PATHs to use for the `Collection`
+          
+          Upon a `new_collection` JSON-RPC method call, if the
+          `paths` parameter is empty, these PATHs will be scanned
+          instead.
+          
+          If this is not set, the default OS `Music` directory will be scanned.
+          
+          To set multiple PATHs, use this flag per PATH.
+          
+          Example: `festivald --collection-path /my/path/1 --collection-path /my/path/2`
+
       --direct-download
           Enable direct downloads via the REST API for browsers
           
@@ -190,7 +203,7 @@ Options:
       --log-level <OFF|ERROR|INFO|WARN|DEBUG|TRACE>
           Set filter level for console logs
           
-          [default: OFF]
+          [default: ERROR]
 
   -v, --version
           Print version

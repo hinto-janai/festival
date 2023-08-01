@@ -144,6 +144,20 @@ pub struct Cli {
 	/// to 0 (unless you don't trust your local network?).
 	sleep_on_fail: Option<u64>,
 
+	#[arg(long, verbatim_doc_comment, value_name = "PATH")]
+	/// Default PATHs to use for the `Collection`
+	///
+	/// Upon a `new_collection` JSON-RPC method call, if the
+	/// `paths` parameter is empty, these PATHs will be scanned
+	/// instead.
+	///
+	/// If this is not set, the default OS `Music` directory will be scanned.
+	///
+	/// To set multiple PATHs, use this flag per PATH.
+	///
+	/// Example: `festivald --collection-path /my/path/1 --collection-path /my/path/2`
+	collection_path: Vec<PathBuf>,
+
 	#[arg(long, verbatim_doc_comment)]
 	/// Enable direct downloads via the REST API for browsers
 	///

@@ -75,6 +75,27 @@ sleep_on_fail = 3000
 
 
 #----------------------------------------------------------#
+#                       COLLECTION                         #
+#----------------------------------------------------------#
+# Upon a `new_collection` JSON-RPC method call, if the
+# `paths` parameter is empty, these PATHs will be scanned
+# instead.
+#
+# If this is also empty, the default OS `Music`
+# directory will be scanned.
+#
+# Unix-style PATHs will always work (`/home/user/Music`)
+#
+# Windows-style PATHs will only work if `festivald`
+# is running on Windows (`C:\\Users\\User\\Music`)
+#
+# DEFAULT | []
+# EXAMPLE | ["/home/user/Music/albums", "/home/user/data/songs"]
+# TYPE    | array of PATHs
+collection_paths = []
+
+
+#----------------------------------------------------------#
 #                           TLS                            #
 #----------------------------------------------------------#
 # Enable/disable HTTPS.

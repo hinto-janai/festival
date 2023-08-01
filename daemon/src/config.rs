@@ -57,6 +57,7 @@ pub struct ConfigBuilder {
 	pub max_connections:    Option<u64>,
 	pub exclusive_ips:      Option<HashSet<Ipv4Addr>>,
 	pub sleep_on_fail:      Option<u64>,
+	pub collection_paths:   Option<Vec<PathBuf>>,
 	pub tls:                Option<bool>,
 	pub certificate:        Option<PathBuf>,
 	pub key:                Option<PathBuf>,
@@ -81,6 +82,7 @@ impl Default for ConfigBuilder {
 			max_connections:    None,
 			exclusive_ips:      None,
 			sleep_on_fail:      Some(3000),
+			collection_paths:   Some(vec![]),
 			tls:                Some(false),
 			certificate:        None,
 			key:                None,
@@ -107,6 +109,7 @@ impl ConfigBuilder {
 			max_connections,
 			exclusive_ips,
 			sleep_on_fail,
+			collection_paths,
 			tls,
 			certificate,
 			key,
@@ -126,7 +129,7 @@ impl ConfigBuilder {
 				match $option {
 					Some(v) => v,
 					_ => {
-						warn!("missing config [{}], using default [{}]", $field, $default);
+						warn!("missing config [{}], using default [{:?}]", $field, $default);
 						$default
 					},
 				}
@@ -151,6 +154,7 @@ impl ConfigBuilder {
 			max_connections:    sum!(max_connections,    "max_connections",    None::<u64>),
 			exclusive_ips:      sum!(exclusive_ips,      "exclusive_ips",      None::<HashSet<Ipv4Addr>>),
 			sleep_on_fail:      sum!(sleep_on_fail,      "sleep_on_fail",      Some(3000)),
+			collection_paths:   get!(collection_paths,   "collection_paths",   if let Some(p) = dirs::audio_dir() { vec![p] } else { Vec::<PathBuf>::with_capacity(0) }),
 			tls:                get!(tls,                "tls",                false),
 			certificate:        sum!(certificate,        "certificate",        None::<PathBuf>),
 			key:                sum!(key,                "key",                None::<PathBuf>),
@@ -284,6 +288,7 @@ pub struct Config {
 	pub max_connections:    Option<u64>,
 	pub exclusive_ips:      Option<HashSet<Ipv4Addr>>,
 	pub sleep_on_fail:      Option<u64>,
+	pub collection_paths:   Vec<PathBuf>,
 	pub tls:                bool,
 	pub certificate:        Option<PathBuf>,
 	pub key:                Option<PathBuf>,

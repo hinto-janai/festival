@@ -28,6 +28,7 @@ clap         = { workspace = true }
 const_format = { workspace = true }
 compact_str  = { workspace = true }
 crossbeam    = { workspace = true }
+dirs         = { workspace = true }
 image        = { workspace = true }
 log          = { workspace = true }
 memmap2      = { workspace = true }
