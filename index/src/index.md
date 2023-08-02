@@ -5,7 +5,7 @@ See frontend-specific documentation here:
 
 | Frontend       | URL |
 |----------------|-----|
-| Festival GUI   | [https://docs.festival.pm/gui](https://docs.festival.pm/gui)
+| `festival-gui` | [https://docs.festival.pm/gui](https://docs.festival.pm/gui)
 | `festivald`    | [https://docs.festival.pm/daemon](https://docs.festival.pm/daemon)
 | `festival-cli` | [https://docs.festival.pm/cli](https://docs.festival.pm/cli)
 | `festival-tui` | [https://docs.festival.pm/tui](https://docs.festival.pm/tui)
