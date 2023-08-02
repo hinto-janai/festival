@@ -17,16 +17,16 @@ mod zip;
 
 fn main() {
 	// Handle CLI arguments.
-	let (disable_watch, disable_media_controls, log) = {
+	let (disable_watch, disable_media_controls, log, config_cmd) = {
 		if std::env::args_os().len() == 1 {
-			(false, false, log::LevelFilter::Error)
+			(false, false, None, None)
 		} else {
 			crate::cli::Cli::get()
 		}
 	};
 
 	// Init logger.
-	shukusai::logger::init_logger(log);
+	shukusai::logger::init_logger(log.unwrap_or_else(|| log::LevelFilter::Error));
 
 	// Set `umask` (`rwxr-x---`)
 	disk::umask(0o027);
@@ -38,10 +38,19 @@ fn main() {
 	};
 
 	// These last forever.
-	// INVARIANT: Initialize `CONFIG`. This must be set, and once only.
-	let CONFIG:      &'static crate::config::Config = crate::config::ConfigBuilder::file_or().build_and_set();
 	let TO_KERNEL:   &'static crossbeam::channel::Sender<shukusai::kernel::FrontendToKernel>   = Box::leak(Box::new(to_kernel));
 	let FROM_KERNEL: &'static crossbeam::channel::Receiver<shukusai::kernel::KernelToFrontend> = Box::leak(Box::new(from_kernel));
+
+	// Start config construction.
+	let mut config_builder: crate::config::ConfigBuilder = crate::config::ConfigBuilder::file_or();
+
+	// Merge disk config with command-line config.
+	if let Some(mut config_cmd) = config_cmd {
+		config_builder.merge(&mut config_cmd);
+	}
+
+	// INVARIANT: Initialize `CONFIG`. This must be set, and once only.
+	let CONFIG: &'static crate::config::Config = config_builder.build_and_set();
 
 	// Create documentation.
 	if CONFIG.docs {

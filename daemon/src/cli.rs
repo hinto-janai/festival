@@ -18,6 +18,7 @@ use const_format::formatcp;
 use std::process::exit;
 use std::net::Ipv4Addr;
 use std::path::PathBuf;
+use crate::config::ConfigBuilder;
 
 //---------------------------------------------------------------------------------------------------- CLI Parser (clap)
 #[cfg(windows)]
@@ -27,11 +28,6 @@ const BIN: &str = "festivald";
 
 const USAGE: &str = formatcp!(
 r#"{BIN} [OPTIONS] [COMMAND + OPTIONS] [ARGS...]
-
-    Example 1 | Start festivald on localhost (by default) | {BIN}
-    Example 2 | Print the PATH used by festivald          | {BIN} data --path
-    Example 3 | Send play signal to local festivald       | {BIN} signal --play
-    Example 4 | Set log level and send a signal           | {BIN} --log-level debug signal --index 1
 
 Arguments passed to `festivald` will always take
 priority over configuration options read from disk."#);
@@ -63,7 +59,7 @@ pub struct Cli {
 	/// 1 connection. A single web browser client for
 	/// example can make many multiple connections
 	/// to `festivald`.
-	max_connections: Option<usize>,
+	max_connections: Option<u64>,
 
 	#[arg(long, verbatim_doc_comment, value_name = "IP")]
 	/// Only accept connections from these IPs
@@ -249,18 +245,9 @@ pub struct Cli {
 	/// `--disable-docs` will disable that.
 	disable_docs: bool,
 
-	#[arg(long, verbatim_doc_comment)]
-	/// Only print logs for `festivald`
-	///
-	/// Logs that aren't directly from `festivald`, e.g
-	/// anything related to the internals, `shukusai`,
-	/// will not be printed if this is enabled.
-	log_daemon_only: bool,
-
 	#[arg(long, value_name = "OFF|ERROR|INFO|WARN|DEBUG|TRACE")]
-	#[arg(default_value_t = log::LevelFilter::Error)]
 	/// Set filter level for console logs
-	log_level: log::LevelFilter,
+	log_level: Option<log::LevelFilter>,
 
 	#[arg(short, long)]
 	/// Print version
@@ -313,15 +300,10 @@ pub struct Data {
 	state_collection_full: bool,
 
 	#[arg(long, verbatim_doc_comment)]
-	/// Delete all Festival files that are currently on disk
+	/// Delete all `festivald` files that are on disk
 	///
-	/// This deletes all `daemon` Festival folder, which contains:
-	/// - The `Collection`
-	/// - `daemon` configuration (`festivald.toml`)
-	/// - Audio state (currently playing song, queue, etc)
-	/// - Cached images for the OS media controls
-	///
-	/// The PATH deleted will be printed on success.
+	/// This deletes all `daemon` Festival folders.
+	/// The PATHs deleted will be printed on success.
 	delete: bool,
 }
 
@@ -420,11 +402,11 @@ pub struct Signal {
 
 //---------------------------------------------------------------------------------------------------- CLI argument handling
 impl Cli {
-	pub fn get() -> (bool, bool, log::LevelFilter) {
+	pub fn get() -> (bool, bool, Option<log::LevelFilter>, Option<ConfigBuilder>) {
 		Self::parse().handle_args()
 	}
 
-	fn handle_args(self) -> (bool, bool, log::LevelFilter) {
+	fn handle_args(mut self) -> (bool, bool, Option<log::LevelFilter>, Option<ConfigBuilder>) {
 		// Version.
 		if self.version {
 			println!("{FESTIVALD_SHUKUSAI_COMMIT}\n{COPYRIGHT}");
@@ -432,9 +414,10 @@ impl Cli {
 		}
 
 		self.handle_command();
+		let config = self.handle_config();
 
 		// Return.
-		(self.disable_watch, self.disable_media_controls, self.log_level)
+		(self.disable_watch, self.disable_media_controls, self.log_level, config)
 	}
 
 	fn handle_command(&self) {
@@ -454,7 +437,7 @@ impl Cli {
 		if u.state_collection_full {
 			match shukusai::collection::rpc::state_collection_full() {
 				Ok(md) => { println!("{md}"); exit(0); },
-				Err(e) => { eprintln!("festival error: {e}"); exit(1); },
+				Err(e) => { eprintln!("festivald error: {e}"); exit(1); },
 			}
 		}
 
@@ -492,17 +475,34 @@ impl Cli {
 			exit(0);
 		}
 
-//		// Delete.
-//		if self.delete {
-//			// SAFETY:
-//			// If we can't get a PATH, `panic!()`'ing is fine.
-//			let p = crate::data::State::sub_dir_parent_path().unwrap();
-//			match crate::data::State::rm_sub() {
-//				Ok(md) => { println!("{}", md.path().display()); exit(0); },
-//				Err(e) => { eprintln!("festival error: {} - {e}", p.display()); exit(1); },
-//			}
-//		}
-//
+		// Delete.
+		if u.delete {
+			let paths = [
+				// Cache.
+				crate::zip::CollectionZip::sub_dir_parent_path().unwrap(),
+				// Config.
+				crate::config::Config::sub_dir_parent_path().unwrap(),
+				// `.local/share`
+				shukusai::collection::Collection::sub_dir_parent_path().unwrap(),
+			];
+
+			let mut code = 0;
+
+			for p in paths {
+				if !p.exists() {
+					println!("festivald: PATH does not exist ... {}", p.display());
+					continue;
+				}
+
+				match std::fs::remove_dir_all(&p) {
+					Ok(_)  => println!("{}", p.display()),
+					Err(e) => { eprintln!("festivald error: {} - {e}", p.display()); code = 1; },
+				}
+			}
+
+			exit(code);
+		}
+
 	}
 
 	pub fn handle_signal(&self, s: &Signal) -> ! {
@@ -538,5 +538,92 @@ impl Cli {
 		if let Some(back)   = s.back          { handle(Back(back).save())          }
 
 		exit(0);
+	}
+
+	pub fn handle_config(&mut self) -> Option<ConfigBuilder> {
+		let mut cb = ConfigBuilder::default();
+		let mut diff = false;
+
+		macro_rules! if_some_swap {
+			($($command:expr => $config:expr),*) => {
+				$(
+					if $command.is_some() {
+						std::mem::swap(&mut $command, &mut $config);
+						diff = true;
+					}
+				)*
+			}
+		}
+
+		fn if_true_some(b: bool) -> Option<bool> {
+			if b {
+				Some(!b)
+			} else {
+				None
+			}
+		}
+
+		let mut tls             = if_true_some(self.tls);
+		let mut direct_download = if_true_some(self.direct_download);
+
+		fn if_true_negate_some(b: bool) -> Option<bool> {
+			if b {
+				Some(!b)
+			} else {
+				None
+			}
+		}
+
+		// `disable_*` negation.
+		let mut docs           = if_true_negate_some(self.disable_docs);
+		let mut media_controls = if_true_negate_some(self.disable_media_controls);
+		let mut rest           = if_true_negate_some(self.disable_rest);
+		let mut watch          = if_true_negate_some(self.disable_watch);
+
+		// Special-case conversions.
+		let mut exclusive_ips = if let Some(vec) = self.exclusive_ip.take() {
+			let mut h = std::collections::HashSet::with_capacity(vec.len());
+			for ip in vec {
+				h.insert(ip);
+			}
+			Some(h)
+		} else {
+			None
+		};
+
+		let mut collection_paths = if self.collection_path.is_empty() {
+			None
+		} else {
+			Some(std::mem::take(&mut self.collection_path))
+		};
+
+		let mut log_level = self.log_level.clone();
+
+		if_some_swap! {
+			self.ip                 => cb.ip,
+			self.port               => cb.port,
+			self.max_connections    => cb.max_connections,
+			exclusive_ips           => cb.exclusive_ips,
+			self.sleep_on_fail      => cb.sleep_on_fail,
+			collection_paths        => cb.collection_paths,
+			tls                     => cb.tls,
+			self.certificate        => cb.certificate,
+			self.key                => cb.key,
+			rest                    => cb.rest,
+			docs                    => cb.docs,
+			direct_download         => cb.direct_download,
+			self.filename_separator => cb.filename_separator,
+			log_level               => cb.log_level,
+			watch                   => cb.watch,
+			self.cache_time         => cb.cache_time,
+			media_controls          => cb.media_controls,
+			self.authorization      => cb.authorization
+		}
+
+		if diff {
+			Some(cb)
+		} else {
+			None
+		}
 	}
 }

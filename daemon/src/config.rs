@@ -244,12 +244,12 @@ impl ConfigBuilder {
 			warn!("missing config [authorization], skipping");
 		}
 
-		debug!("{DASH} Configuration");
+		info!("{DASH} Configuration");
 		for line in format!("{c:#?}").lines() {
-			debug!("{line}");
+			info!("{line}");
 		}
-		debug!("Authorization: {}", AUTH.get().is_some());
-		debug!("{DASH} Configuration");
+		info!("Authorization: {}", AUTH.get().is_some());
+		info!("{DASH} Configuration");
 
 		// SAFETY: unwrap is okay, we only set `CONFIG` here.
 		CONFIG.set(c).unwrap();
@@ -271,6 +271,40 @@ impl ConfigBuilder {
 
 				Self::default()
 			},
+		}
+	}
+
+	// Used to merge the command-line version with the disk.
+	pub fn merge(&mut self, cmd: &mut Self) {
+		macro_rules! if_some_swap {
+			($($command:expr => $config:expr),*) => {
+				$(
+					if $command.is_some() {
+						std::mem::swap(&mut $command, &mut $config);
+					}
+				)*
+			}
+		}
+
+		if_some_swap! {
+			cmd.ip                 => self.ip,
+			cmd.port               => self.port,
+			cmd.max_connections    => self.max_connections,
+			cmd.exclusive_ips      => self.exclusive_ips,
+			cmd.sleep_on_fail      => self.sleep_on_fail,
+			cmd.collection_paths   => self.collection_paths,
+			cmd.tls                => self.tls,
+			cmd.certificate        => self.certificate,
+			cmd.key                => self.key,
+			cmd.rest               => self.rest,
+			cmd.docs               => self.docs,
+			cmd.direct_download    => self.direct_download,
+			cmd.filename_separator => self.filename_separator,
+			cmd.log_level          => self.log_level,
+			cmd.watch              => self.watch,
+			cmd.cache_time         => self.cache_time,
+			cmd.media_controls     => self.media_controls,
+			cmd.authorization      => self.authorization
 		}
 	}
 }
