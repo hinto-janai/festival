@@ -38,7 +38,7 @@ impl CollectionPtr {
 		// SAFETY:
 		// The _ONLY_ "entity" _setting_ this pointer
 		// should be the `Router`, after receiving
-		// a new `Collection` from the `new_collection` task.
+		// a new `Collection` from the `collection_new` task.
 		//
 		// It must also _always_ be set to something, even `Collection::dummy()`,
 		// meaning, we cannot overwrite the _actual_ `Collection` until

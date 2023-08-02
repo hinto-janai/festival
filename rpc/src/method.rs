@@ -92,6 +92,12 @@ pub enum Method {
 	AddQueueMapAlbum,
 	/// [`crate::resp::AddQueueMapSong`] & [`crate::param::AddQueueMapSong`]
 	AddQueueMapSong,
+	/// [`crate::resp::AddQueueRandArtist`] & [`crate::param::AddQueueRandArtist`]
+	AddQueueRandArtist,
+	/// [`crate::resp::AddQueueRandAlbum`] & [`crate::param::AddQueueRandAlbum`]
+	AddQueueRandAlbum,
+	/// [`crate::resp::AddQueueRandSong`] & [`crate::param::AddQueueRandSong`]
+	AddQueueRandSong,
 	/// [`crate::resp::SetQueueIndex`] & [`crate::param::SetQueueIndex`]
 	SetQueueIndex,
 	/// [`crate::resp::Status`] & [`crate::param::RemoveQueueRange`]
@@ -140,8 +146,12 @@ pub enum Method {
 	SearchSong,
 
 	// Collection
-	/// [`crate::resp::NewCollection`] & [`crate::param::NewCollection`]
-	NewCollection,
+	/// [`crate::resp::CollectionNew`] & [`crate::param::CollectionNew`]
+	CollectionNew,
+	/// [`crate::resp::CollectionPerf`]
+	CollectionPerf,
+	/// [`crate::resp::CollectionResourceSize`]
+	CollectionResourceSize,
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

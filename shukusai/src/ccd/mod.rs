@@ -1,6 +1,7 @@
 mod mime;
 
-mod perf;
+/// Collection creation performance
+pub mod perf;
 
 mod thread;
 pub(crate) use thread::*;

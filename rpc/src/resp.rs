@@ -35,7 +35,7 @@ impl_struct_anon!(Status, ());
 
 // Collection
 impl_struct! {
-	NewCollection,
+	CollectionNew,
 	time: f64,
 	empty: bool,
 	timestamp: u64,
@@ -43,6 +43,17 @@ impl_struct! {
 	count_album: u64,
 	count_song: u64,
 	count_art: u64
+}
+impl_struct! {
+	CollectionPerf,
+	bytes: u64,
+	user: f32,
+	sys: f32
+}
+impl_struct! {
+	CollectionResourceSize,
+	audio: u64,
+	art: usize
 }
 
 // State retrieval.
@@ -214,6 +225,21 @@ impl_struct! {
 impl_struct! {
 	AddQueueMapSong,
 	out_of_bounds: bool
+}
+impl_struct_lt! {
+	AddQueueRandArtist,
+	#[serde(borrow)]
+	artist: Cow<'a, ArtistJson<'a>>
+}
+impl_struct_lt! {
+	AddQueueRandAlbum,
+	#[serde(borrow)]
+	album: Cow<'a, AlbumJson<'a>>
+}
+impl_struct_lt! {
+	AddQueueRandSong,
+	#[serde(borrow)]
+	song: Cow<'a, SongJson<'a>>
 }
 impl_struct! {
 	SetQueueIndex,

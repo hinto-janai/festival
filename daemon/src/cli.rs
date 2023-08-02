@@ -147,7 +147,7 @@ pub struct Cli {
 	#[arg(long, verbatim_doc_comment, value_name = "PATH")]
 	/// Default PATHs to use for the `Collection`
 	///
-	/// Upon a `new_collection` JSON-RPC method call, if the
+	/// Upon a `collection_new` JSON-RPC method call, if the
 	/// `paths` parameter is empty, these PATHs will be scanned
 	/// instead.
 	///

@@ -30,6 +30,9 @@ impl_struct!(AddQueueKeySong, key: SongKey, append: Append, clear: bool);
 impl_struct_lt!(AddQueueMapArtist, artist: Cow<'a, str>, append: Append, clear: bool, offset: usize);
 impl_struct_lt!(AddQueueMapAlbum, artist: Cow<'a, str>, album: Cow<'a, str>, append: Append, clear: bool, offset: usize);
 impl_struct_lt!(AddQueueMapSong, artist: Cow<'a, str>, album: Cow<'a, str>, song: Cow<'a, str>, append: Append, clear: bool);
+impl_struct!(AddQueueRandArtist, append: Append, clear: bool, offset: usize);
+impl_struct!(AddQueueRandAlbum, append: Append, clear: bool, offset: usize);
+impl_struct!(AddQueueRandSong, append: Append, clear: bool);
 impl_struct!(SetQueueIndex, index: usize);
 impl_struct!(RemoveQueueRange, start: usize, end: usize, skip: bool);
 impl_struct!(Seek, seek: shukusai::audio::Seek, second: u64);
@@ -51,7 +54,7 @@ impl_struct_lt!(SearchAlbum, input: Cow<'a, str>, kind: SearchKind);
 impl_struct_lt!(SearchSong, input: Cow<'a, str>, kind: SearchKind);
 
 // Collection
-impl_struct!(NewCollection, paths: Option<Vec<PathBuf>>);
+impl_struct!(CollectionNew, paths: Option<Vec<PathBuf>>);
 
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
@@ -192,6 +195,6 @@ mod tests {
 
 	#[test]
 	fn new_collection() {
-		t(&NewCollection { paths: vec![PathBuf::from("/path_1"), PathBuf::from("/path_2")] }, r#"{"paths":["/path_1","/path_2"]}"#);
+		t(&CollectionNew { paths: vec![PathBuf::from("/path_1"), PathBuf::from("/path_2")] }, r#"{"paths":["/path_1","/path_2"]}"#);
 	}
 }

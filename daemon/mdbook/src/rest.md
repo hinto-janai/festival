@@ -39,4 +39,4 @@ mv "Artist/Album/Song Title" "Artist/Album/Song_Title"
 File not found
 ```
 
-You can re-create the `Collection` with [`new_collection`](json-rpc/collection/new_collection.md) to re-link these PATHs.
+You can re-create the `Collection` with [`collection_new`](json-rpc/collection/collection_new.md) to re-link these PATHs.

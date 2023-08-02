@@ -75,6 +75,8 @@ const ERR_MAP_SONG:   (i32, &str) = (-32017, "Song does not exist");
 const ERR_CURRENT:    (i32, &str) = (-32018, "No song is currently set");
 const ERR_RAND:       (i32, &str) = (-32019, "The Collection is empty");
 const ERR_RESETTING:  (i32, &str) = (-32020, "Currently resetting the Collection");
+const ERR_PERF:       (i32, &str) = (-32021, "Performance file does not exist");
+const ERR_FS:         (i32, &str) = (-32022, "Filesystem error");
 
 //---------------------------------------------------------------------------------------------------- Parse, call func, or return macro.
 // Parse
@@ -179,6 +181,9 @@ pub async fn handle(
 		AddQueueMapArtist => ppacor!(request, add_queue_map_artist, rpc::param::AddQueueMapArtist, collection.arc(), TO_KERNEL).await,
 		AddQueueMapAlbum  => ppacor!(request, add_queue_map_album, rpc::param::AddQueueMapAlbum, collection.arc(), TO_KERNEL).await,
 		AddQueueMapSong   => ppacor!(request, add_queue_map_song, rpc::param::AddQueueMapSong, collection.arc(), TO_KERNEL).await,
+		AddQueueRandArtist => ppacor!(request, add_queue_rand_artist, rpc::param::AddQueueRandArtist, collection.arc(), TO_KERNEL).await,
+		AddQueueRandAlbum  => ppacor!(request, add_queue_rand_album, rpc::param::AddQueueRandAlbum, collection.arc(), TO_KERNEL).await,
+		AddQueueRandSong   => ppacor!(request, add_queue_rand_song, rpc::param::AddQueueRandSong, collection.arc(), TO_KERNEL).await,
 		SetQueueIndex     => ppacor!(request, set_queue_index, rpc::param::SetQueueIndex, TO_KERNEL).await,
 		RemoveQueueRange  => ppacor!(request, remove_queue_range, rpc::param::RemoveQueueRange, TO_KERNEL).await,
 
@@ -209,7 +214,9 @@ pub async fn handle(
 		SearchSong   => ppacor!(request, search_song, rpc::param::SearchSong, collection.arc(), TO_KERNEL, FROM_KERNEL).await,
 
 		// Collection
-		NewCollection => ppacor!(request, new_collection, rpc::param::NewCollection, collection.arc(), TO_KERNEL, FROM_KERNEL, TO_ROUTER).await,
+		CollectionNew          => ppacor!(request, collection_new, rpc::param::CollectionNew, collection.arc(), TO_KERNEL, FROM_KERNEL, TO_ROUTER).await,
+		CollectionPerf         => collection_perf(request.id).await,
+		CollectionResourceSize => collection_resource_size(request.id, collection.arc()).await,
 	}
 }
 
@@ -494,6 +501,51 @@ async fn add_queue_map_song<'a>(
 		Ok(resp::result_ok(id))
 	} else {
 		Ok(resp::error(ERR_MAP_SONG.0, ERR_MAP_SONG.1, id))
+	}
+}
+
+async fn add_queue_rand_artist<'a>(
+	params:     rpc::param::AddQueueRandArtist,
+	id:         Option<Id<'a>>,
+	collection: Arc<Collection>,
+	TO_KERNEL:  &Sender<FrontendToKernel>
+) -> Result<Response<Body>, anyhow::Error> {
+	if let Some(key) = collection.rand_artist(None) {
+		send!(TO_KERNEL, FrontendToKernel::AddQueueArtist((key, params.append, params.clear, params.offset)));
+		let r = &collection.artists[key];
+		Ok(resp::result(serde_json::json!({ "artist": r }), id))
+	} else {
+		Ok(resp::error(ERR_MAP_ARTIST.0, ERR_MAP_ARTIST.1, id))
+	}
+}
+
+async fn add_queue_rand_album<'a>(
+	params:     rpc::param::AddQueueRandAlbum,
+	id:         Option<Id<'a>>,
+	collection: Arc<Collection>,
+	TO_KERNEL:  &Sender<FrontendToKernel>
+) -> Result<Response<Body>, anyhow::Error> {
+	if let Some(key) = collection.rand_album(None) {
+		send!(TO_KERNEL, FrontendToKernel::AddQueueAlbum((key, params.append, params.clear, params.offset)));
+		let r = &collection.albums[key];
+		Ok(resp::result(serde_json::json!({ "album": r }), id))
+	} else {
+		Ok(resp::error(ERR_MAP_ALBUM.0, ERR_MAP_ALBUM.1, id))
+	}
+}
+
+async fn add_queue_rand_song<'a>(
+	params: rpc::param::AddQueueRandSong,
+	id: Option<Id<'a>>,
+	collection: Arc<Collection>,
+	TO_KERNEL:  &Sender<FrontendToKernel>
+) -> Result<Response<Body>, anyhow::Error> {
+	if let Some(key) = collection.rand_song(None) {
+		send!(TO_KERNEL, FrontendToKernel::AddQueueSong((key, params.append, params.clear)));
+		let r = &collection.songs[key];
+		Ok(resp::result(serde_json::json!({ "song": r }), id))
+	} else {
+		Ok(resp::error(ERR_RAND.0, ERR_RAND.1, id))
 	}
 }
 
@@ -790,8 +842,8 @@ async fn search_song<'a>(
 }
 
 //---------------------------------------------------------------------------------------------------- Collection
-async fn new_collection<'a>(
-	params:      rpc::param::NewCollection,
+async fn collection_new<'a>(
+	params:      rpc::param::CollectionNew,
 	id:          Option<Id<'a>>,
 	collection:  Arc<Collection>,
 	TO_KERNEL:   &'static Sender<FrontendToKernel>,
@@ -830,7 +882,7 @@ async fn new_collection<'a>(
 			let sc = Arc::strong_count(&collection);
 
 			if sc > 5 {
-				debug!("Task - new_collection(): strong count == {sc}, waiting...");
+				debug!("Task - collection_new(): strong count == {sc}, waiting...");
 				tokio::time::sleep(Duration::from_millis(10)).await;
 			} else {
 				break;
@@ -862,7 +914,7 @@ async fn new_collection<'a>(
 		atomic_store!(RESETTING, false);
 
 		// Respond to user.
-		let r = rpc::resp::NewCollection {
+		let r = rpc::resp::CollectionNew {
 			time: secs_f64!(now),
 			empty: collection.empty,
 			timestamp: collection.timestamp,
@@ -877,6 +929,54 @@ async fn new_collection<'a>(
 		TO_ROUTER.send(collection).await.unwrap();
 
 		Ok(resp::result(r, id))
+	}).await
+}
+
+async fn collection_perf<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	use disk::Json;
+
+	let Ok(perf) = shukusai::perf::Perf::from_file() else {
+		return Ok(resp::error(ERR_PERF.0, ERR_PERF.1, id));
+	};
+
+	let resp = rpc::resp::CollectionPerf {
+		bytes: perf.total.bytes,
+		user: perf.total.user,
+		sys: perf.total.sys,
+	};
+
+	Ok(resp::result(resp, id))
+}
+
+async fn collection_resource_size<'a>(
+	id:          Option<Id<'a>>,
+	collection:  Arc<Collection>,
+) -> Result<Response<Body>, anyhow::Error> {
+	tokio::task::block_in_place(move || async move {
+		// Audio size.
+		let mut audio = 0;
+		for song in collection.songs.iter() {
+			let Ok(metadata) = tokio::fs::metadata(&song.path).await else {
+				return Ok(resp::error(ERR_FS.0, ERR_FS.1, id));
+			};
+
+			audio += metadata.len();
+		}
+
+		// Art size.
+		let mut art = 0;
+		for album in collection.albums.iter() {
+			if let shukusai::collection::Art::Known { len, .. } = &album.art {
+				art += len;
+			}
+		}
+
+		let resp = rpc::resp::CollectionResourceSize {
+			audio,
+			art,
+		};
+
+		Ok(resp::result(resp, id))
 	}).await
 }
 

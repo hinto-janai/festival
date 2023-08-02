@@ -94,7 +94,7 @@ sleep_on_fail = 3000
 #----------------------------------------------------------#
 #                       COLLECTION                         #
 #----------------------------------------------------------#
-# Upon a `new_collection` JSON-RPC method call, if the
+# Upon a `collection_new` JSON-RPC method call, if the
 # `paths` parameter is empty, these PATHs will be scanned
 # instead.
 #

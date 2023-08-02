@@ -29,19 +29,19 @@ compared to `front` and `back`:
 #### Example Request 1
 ```bash
 # Add to back of the queue.
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"add_queue_key_song","params":{"key":"123","append":"back","clear":false}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"add_queue_key_song","params":{"key":123,"append":"back","clear":false}'
 ```
 
 #### Example Request 2
 ```bash
 # Append at queue index 4.
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"add_queue_key_song","params":{"key":"123","append":{"index":4},"clear":false}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"add_queue_key_song","params":{"key":123,"append":{"index":4},"clear":false}'
 ```
 
 #### Example Request 3
 ```bash
 # Clear the queue, add `Song` 123.
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"add_queue_key_song","params":{"key":"123","append":"front","clear":true}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"add_queue_key_song","params":{"key":123,"append":"front","clear":true}'
 ```
 
 #### Example Response

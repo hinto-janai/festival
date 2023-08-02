@@ -25,10 +25,10 @@ Or you can open the files locally with:
 ./festivald data --docs
 ```
 
-## Create a `Collection` with the `JSON-RPC` method [`new_collection`](json-rpc/collection/new_collection.md)
+## Create a `Collection` with the `JSON-RPC` method [`collection_new`](json-rpc/collection/collection_new.md)
 This scans the default `Music` directory on `festivald`'s filesystem and creates a `Collection` from it.
 ```bash
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"new_collection","params":{"paths":null}}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_new","params":{"paths":null}}'
 ```
 
 ## Download a random `Artist` with the `REST` endpoint [`/rand/artist`](/rest/rand/artist.md)

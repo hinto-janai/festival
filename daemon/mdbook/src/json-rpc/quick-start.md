@@ -3,9 +3,9 @@ A quick start to using `festivald`'s `JSON-RPC 2.0` API.
 
 ## Create the `Collection` and start playing an `Artist`
 
-1. First, scan the default `Music` directory on `festivald`'s filesystem, and create a `Collection` with [`new_collection`](collection/new_collection.md):
+1. First, scan the default `Music` directory on `festivald`'s filesystem, and create a `Collection` with [`collection_new`](collection/collection_new.md):
 ```bash
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"new_collection","params":{"paths":null}}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_new","params":{"paths":null}}'
 ```
 
 2. Add the `Artist` "LUCKY TAPES" to the queue with [`add_queue_map_artist`](playback-control/add_queue_map_artist.md):

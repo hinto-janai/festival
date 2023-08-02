@@ -1,4 +1,4 @@
-# current_song
+# rand_song
 Access a random [`Song`](../../common-objects/song.md).
 
 #### Inputs

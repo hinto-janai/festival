@@ -504,8 +504,8 @@ impl Ccd {
 		trace!("CCD [13/13] ... Disk: {perf_disk}");
 
 		//-------------------------------------------------------------------------------- Print & save `Perf` stats.
-		let ccd_time = secs_f32!(beginning);
-		info!("CCD ... CCD time: {}", ccd_time);
+		let sys_time = secs_f32!(beginning);
+		info!("CCD ... Sys time: {}", sys_time);
 
 		// Gather and save perf data.
 		let phases = crate::ccd::perf::Phases {
@@ -531,7 +531,7 @@ impl Ccd {
 		let total = crate::ccd::perf::Total {
 			bytes: total_bytes,
 			user: user_time,
-			ccd: ccd_time,
+			sys: sys_time,
 		};
 		let perf = crate::ccd::perf::Perf {
 			objects,

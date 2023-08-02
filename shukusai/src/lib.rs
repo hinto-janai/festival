@@ -86,6 +86,9 @@ pub use const_format::assertcp as const_assert;
 pub use const_format::formatcp as const_format;
 
 //---------------------------------------------------------------------------------------------------- Public modules.
+/// Collection creation performance.
+pub use ccd::perf as perf;
+
 /// Panic.
 pub mod panic;
 

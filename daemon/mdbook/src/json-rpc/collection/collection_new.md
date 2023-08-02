@@ -1,4 +1,4 @@
-# new_collection
+# collection_new
 Create a new [`Collection`](../../common-objects/collection.md) (and replace the current one).
 
 `festivald` will respond with some stats when the `Collection` reset has finished.
@@ -26,13 +26,13 @@ The output is a superset of the [`state_collection`](../state-retrieval/state_co
 #### Example Request
 ```bash
 # Use default Music PATH.
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"new_collection","params":{"paths":null}}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_new","params":{"paths":null}}'
 
 # Use the PATH `/home/user/Music/collection` on `festivald`'s filesystem.
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"new_collection","params":{"paths":["/home/user/Music/collection"]}}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_new","params":{"paths":["/home/user/Music/collection"]}}'
 
 # Windows PATH works too if `\` is escaped (and if `festivald` is running on Windows).
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"new_collection","params":{"paths":["C:\\Users\\User\\Music\\collection"]}}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_new","params":{"paths":["C:\\Users\\User\\Music\\collection"]}}'
 ```
 
 #### Example Response

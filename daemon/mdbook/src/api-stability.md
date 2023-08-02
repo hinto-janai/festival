@@ -25,7 +25,7 @@ All locations and filenames of all files written to disk by `festivald` are stab
 | [`Data`](disk.md#data)     | `Collection` file is always at `~/.local/share/festival/daemon/state/collection.bin`
 
 ## JSON-RPC
-- Method names ([`new_collection`](json-rpc/collection/new_collection.md)) and their input types are stable
+- Method names ([`collection_new`](json-rpc/collection/collection_new.md)) and their input types are stable
 - Parameter names ([`volume`](json-rpc/playback-control/volume.md)) are stable
 - More fields _may_ be added in the future, previous fields will remain
 - Although old fields will remain, the _ordering_ of fields should _NOT_ be relied upon

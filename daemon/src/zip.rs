@@ -22,7 +22,7 @@ pub fn clean_cache() -> Result<(), anyhow::Error> {
 		return Ok(());
 	}
 
-	match std::fs::remove_dir(&dir) {
+	match std::fs::remove_dir_all(&dir) {
 		Ok(_)  => Ok(()),
 		Err(e) => Err(e.into()),
 	}
@@ -42,7 +42,7 @@ macro_rules! impl_zip {
 				let mut real = Self::mkdir()?;
 
 				let mut tmp = Self::absolute_path()?;
-				std::fs::create_dir_all(&tmp);
+				std::fs::create_dir_all(&tmp)?;
 				tmp.push(Alphanumeric.sample_string(&mut rand::thread_rng(), 16));
 
 				real.push(input);
