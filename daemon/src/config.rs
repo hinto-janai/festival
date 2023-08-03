@@ -71,7 +71,8 @@ pub struct ConfigBuilder {
 	pub media_controls:     Option<bool>,
 	pub authorization:	    Option<String>,
 	pub no_auth_rpc:        Option<HashSet<rpc::Method>>,
-	pub no_auth_rest:       Option<HashSet<crate::resource::Resource>>,
+	pub no_auth_rest:       Option<HashSet<rpc::resource::Resource>>,
+	pub no_auth_docs:       Option<bool>,
 }
 
 impl Default for ConfigBuilder {
@@ -97,6 +98,7 @@ impl Default for ConfigBuilder {
 			authorization:      None,
 			no_auth_rpc:        None,
 			no_auth_rest:       None,
+			no_auth_docs:       Some(false),
 		}
 	}
 }
@@ -126,6 +128,7 @@ impl ConfigBuilder {
 			authorization,
 			no_auth_rpc,
 			no_auth_rest,
+			no_auth_docs,
 		} = self;
 
 		macro_rules! get {
@@ -171,7 +174,8 @@ impl ConfigBuilder {
 			cache_time:         get!(cache_time,         "cache_time",         3600),
 			media_controls:     get!(media_controls,     "media_controls",     true),
 			no_auth_rpc:        sum!(no_auth_rpc,        "no_auth_rpc",        None::<HashSet<rpc::Method>>),
-			no_auth_rest:       sum!(no_auth_rest,       "no_auth_rest",       None::<HashSet<crate::resource::Resource>>),
+			no_auth_rest:       sum!(no_auth_rest,       "no_auth_rest",       None::<HashSet<rpc::resource::Resource>>),
+			no_auth_docs:       get!(no_auth_docs,       "no_auth_docs",       false),
 		};
 
 		if c.max_connections == Some(0) {
@@ -186,9 +190,9 @@ impl ConfigBuilder {
 //		c.tls = true;
 //		c.certificate = Some(PathBuf::from("../../assets/tls/cert.pem"));
 //		c.key = Some(PathBuf::from("../../assets/tls/key.pem"));
-//		let authorization = Some("my_username:my_password".to_string());
+//		let authorization = Some("user:pass".to_string());
 //		c.no_auth_rpc = Some([rpc::Method::Toggle].into());
-//		c.no_auth_rest = Some([crate::resource::Resource::Song].into());
+//		c.no_auth_rest = Some([rpc::resource::Resource::Song].into());
 
 		if let Some(ref hs) = c.exclusive_ips {
 			if hs.is_empty() ||  hs.contains(&Ipv4Addr::UNSPECIFIED) {
@@ -351,7 +355,8 @@ pub struct Config {
 	pub cache_time:         u64,
 	pub media_controls:     bool,
 	pub no_auth_rpc:        Option<HashSet<rpc::Method>>,
-	pub no_auth_rest:       Option<HashSet<crate::resource::Resource>>,
+	pub no_auth_rest:       Option<HashSet<rpc::resource::Resource>>,
+	pub no_auth_docs:       bool,
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

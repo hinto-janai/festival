@@ -30,8 +30,8 @@ use crate::{
 	hash::Hash,
 	config::{Config,config},
 	ptr::CollectionPtr,
-	resource::Resource,
 };
+use rpc::resource::Resource;
 use tokio::io::AsyncReadExt;
 use std::{
 	path::{Path,PathBuf},
@@ -58,7 +58,7 @@ pub const ERR_END: &str = "Unknown endpoint";
 async fn rest_auth_ok(
 	parts:    &Parts,
 	addr:     &SocketAddrV4,
-	resource: crate::resource::Resource,
+	resource: Resource,
 ) -> Option<Response<Body>> {
 	if !config().no_auth_rest.as_ref().is_some_and(|h| h.contains(&resource)) {
 		if let Some(hash) = AUTH.get() {

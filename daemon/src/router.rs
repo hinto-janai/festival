@@ -426,7 +426,21 @@ async fn route(
 			.request(&req)
 			.build(resolve)
 		{
-			Ok(r) => Ok(r),
+			Ok(r) => {
+				// Check auth.
+				if !config().no_auth_docs {
+					if let Some(hash) = AUTH.get() {
+						if !auth_ok(&req.into_parts().0, hash).await {
+							if crate::seen::seen(&addr).await {
+								sleep_on_fail().await;
+							}
+							return Ok(resp::unauthorized("Unauthorized"));
+						}
+					}
+				}
+
+				Ok(r)
+			},
 			_     => Ok(resp::not_found(crate::rest::ERR_END)),
 		}
 	//-------------------------------------------------- Unknown endpoint.

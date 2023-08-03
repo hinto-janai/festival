@@ -72,8 +72,7 @@ The output gives us back a `Song` object, which contains some keys:
         "track": 8,
         "disc": 1,
         "mime": "audio/x-flac",
-        "extension": "flac",
-        "path": "/home/hinto/Music/HELLO.flac"
+        "extension": "flac"
       }
     ]
   },

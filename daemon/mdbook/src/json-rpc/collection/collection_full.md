@@ -134,8 +134,7 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_ful
         "track": 1,
         "disc": 2,
         "mime": "audio/mpeg",
-        "extension": "mp3",
-        "path": "/home/hinto/festival/assets/audio/song_1.mp3"
+        "extension": "mp3"
       },
       {
         "title": "mp3",
@@ -146,8 +145,7 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_ful
         "track": 2,
         "disc": 2,
         "mime": "audio/mpeg",
-        "extension": "mp3",
-        "path": "/home/hinto/festival/assets/audio/song_2.mp3"
+        "extension": "mp3"
       },
       {
         "title": "mp3",
@@ -158,8 +156,7 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_ful
         "track": 1,
         "disc": 2,
         "mime": "audio/mpeg",
-        "extension": "mp3",
-        "path": "/home/hinto/festival/assets/audio/song_3.mp3"
+        "extension": "mp3"
       },
       {
         "title": "flac",
@@ -170,8 +167,7 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_ful
         "track": 2,
         "disc": 2,
         "mime": "audio/x-flac",
-        "extension": "flac",
-        "path": "/home/hinto/festival/assets/audio/song_4.flac"
+        "extension": "flac"
       },
       {
         "title": "m4a",
@@ -182,8 +178,7 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_ful
         "track": 1,
         "disc": null,
         "mime": "audio/m4a",
-        "extension": "m4a",
-        "path": "/home/hinto/festival/assets/audio/song_5.m4a"
+        "extension": "m4a"
       },
       {
         "title": "song_6",
@@ -194,8 +189,7 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_ful
         "track": 2,
         "disc": 2,
         "mime": "audio/ogg",
-        "extension": "ogg",
-        "path": "/home/hinto/festival/assets/audio/song_6.ogg"
+        "extension": "ogg"
       },
       {
         "title": "mp3",
@@ -206,8 +200,7 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_ful
         "track": 1,
         "disc": 2,
         "mime": "audio/mpeg",
-        "extension": "mp3",
-        "path": "/home/hinto/festival/assets/audio/song_7.mp3"
+        "extension": "mp3"
       }
     ],
     "sort_artist_lexi": [

@@ -84,8 +84,6 @@ sleep_on_fail = 3000
 # If this is also empty, the default OS `Music`
 # directory will be scanned.
 #
-# Unix-style PATHs will always work (`/home/user/Music`)
-#
 # Windows-style PATHs will only work if `festivald`
 # is running on Windows (`C:\\Users\\User\\Music`)
 #
@@ -361,3 +359,11 @@ no_auth_rpc = []
 # EXAMPLE | ["art", "song", "album"]
 # TYPE    | string, must be a REST resource
 no_auth_rest = []
+
+# Allow documentation to be served without authorization,
+# while still requiring authorization for everything else.
+#
+# DEFAULT | false
+# VALUES  | true, false
+# TYPE    | boolean
+no_auth_docs = false

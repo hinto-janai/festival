@@ -8,3 +8,6 @@ pub mod param;
 
 /// Structs that represent the responses expected from a given [`Method`]
 pub mod resp;
+
+/// REST resources
+pub mod resource;

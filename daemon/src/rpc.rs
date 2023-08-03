@@ -23,6 +23,9 @@ use shukusai::{
 		Artist,
 		Album,
 		Song,
+		ArtistKey,
+		AlbumKey,
+		SongKey,
 		json::{
 			CollectionJson,
 			ArtistJson,
@@ -158,7 +161,7 @@ pub async fn handle(
 				if crate::seen::seen(&addr).await {
 					crate::router::sleep_on_fail().await;
 				}
-				return Ok(resp::error(ERR_AUTH.0, ERR_AUTH.1, request.id));
+				return Ok(resp::unauth_rpc(ERR_AUTH.0, ERR_AUTH.1, request.id));
 			}
 		}
 	}
@@ -167,6 +170,7 @@ pub async fn handle(
 	match method {
 		// State retrieval.
 		StateIp                 => state_ip(request.id).await,
+		StateConfig             => state_config(request.id).await,
 		StateDaemon             => state_daemon(request.id).await,
 		StateAudio              => state_audio(request.id, collection.arc()).await,
 		StateReset              => state_reset(request.id).await,
@@ -227,11 +231,12 @@ pub async fn handle(
 		SearchSong   => ppacor!(request, search_song, rpc::param::SearchSong, collection.arc(), TO_KERNEL, FROM_KERNEL).await,
 
 		// Collection
+		CollectionNew          => ppacor!(request, collection_new, rpc::param::CollectionNew, collection.arc(), TO_KERNEL, FROM_KERNEL, TO_ROUTER).await,
 		CollectionBrief        => collection_brief(request.id, collection.arc()).await,
 		CollectionFull         => collection_full(request.id, collection.arc()).await,
-		CollectionNew          => ppacor!(request, collection_new, rpc::param::CollectionNew, collection.arc(), TO_KERNEL, FROM_KERNEL, TO_ROUTER).await,
+		CollectionRelation     => collection_relation(request.id, collection.arc()).await,
+		CollectionRelationFull => collection_relation_full(request.id, collection.arc()).await,
 		CollectionPerf         => collection_perf(request.id).await,
-		CollectionSongPaths    => collection_song_paths(request.id, collection.arc()).await,
 		CollectionResourceSize => collection_resource_size(request.id, collection.arc()).await,
 	}
 }
@@ -251,6 +256,35 @@ async fn state_ip<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Erro
 	}
 
 	let resp = rpc::resp::StateIp(Cow::Owned(vec));
+
+	Ok(resp::result(resp, id))
+}
+
+async fn state_config<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	let c = config();
+
+	let resp = rpc::resp::StateConfig {
+		ip:                 c.ip,
+		port:               c.port,
+		max_connections:    c.max_connections,
+		exclusive_ips:      c.exclusive_ips.as_ref().map(|h| Cow::Borrowed(h)),
+		sleep_on_fail:      c.sleep_on_fail.clone(),
+		collection_paths:   Cow::Borrowed(&c.collection_paths),
+		tls:                c.tls,
+		certificate:        c.certificate.as_ref().map(|p| Cow::Borrowed(p.as_path())),
+		key:                c.key.as_ref().map(|p| Cow::Borrowed(p.as_path())),
+		rest:               c.rest,
+		docs:               c.docs,
+		direct_download:    c.direct_download,
+		filename_separator: Cow::Borrowed(&c.filename_separator),
+		log_level:          c.log_level.clone(),
+		watch:              c.watch,
+		cache_time:         c.cache_time,
+		media_controls:     c.media_controls,
+		authorization:      AUTH.get().is_some(),
+		no_auth_rpc:        c.no_auth_rpc.as_ref().map(|h| Cow::Borrowed(h)),
+		no_auth_rest:       c.no_auth_rest.as_ref().map(|h| Cow::Borrowed(h)),
+	};
 
 	Ok(resp::result(resp, id))
 }
@@ -982,19 +1016,49 @@ async fn collection_perf<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyho
 	Ok(resp::result(resp, id))
 }
 
-async fn collection_song_paths<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
-	let mut vec = Vec::with_capacity(collection.songs.len());
+async fn collection_relation<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+	let mut vec = Vec::<rpc::resp::CollectionRelationInner>::with_capacity(collection.songs.len());
 
 	for song in collection.songs.iter() {
-		vec.push(song.path.as_path());
+		let album  = &collection.albums[song.album];
+		let artist = &collection.artists[album.artist];
+
+		let r = rpc::resp::CollectionRelationInner {
+			artist: Cow::Borrowed(&artist.name),
+			album: Cow::Borrowed(&album.title),
+			song: Cow::Borrowed(&song.title),
+			key_artist: ArtistKey::from(album.artist),
+			key_album: AlbumKey::from(song.album),
+			key_song: SongKey::from(song.key),
+		};
+
+		vec.push(r);
 	}
 
-	let resp = rpc::resp::CollectionSongPaths {
-		len: vec.len(),
-		paths: Cow::Borrowed(&vec),
-	};
+	Ok(resp::result(rpc::resp::CollectionRelation(Cow::Owned(vec)), id))
+}
 
-	Ok(resp::result(resp, id))
+async fn collection_relation_full<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+	let mut vec = Vec::<rpc::resp::CollectionRelationFullInner>::with_capacity(collection.songs.len());
+
+	for song in collection.songs.iter() {
+		let album  = &collection.albums[song.album];
+		let artist = &collection.artists[album.artist];
+
+		let r = rpc::resp::CollectionRelationFullInner {
+			artist: Cow::Borrowed(&artist.name),
+			album: Cow::Borrowed(&album.title),
+			song: Cow::Borrowed(&song.title),
+			key_artist: ArtistKey::from(album.artist),
+			key_album: AlbumKey::from(song.album),
+			key_song: SongKey::from(song.key),
+			path: Cow::Borrowed(song.path.as_path()),
+		};
+
+		vec.push(r);
+	}
+
+	Ok(resp::result(rpc::resp::CollectionRelationFull(Cow::Owned(vec)), id))
 }
 
 async fn collection_resource_size<'a>(

@@ -50,8 +50,7 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"state_audio"}'
       "track": 1,
       "disc": 1,
       "mime": "audio/x-flac",
-      "extension": "flac",
-      "path": "/home/hinto/Music/山下達郎/RIDE ON TIME/いつか.flac"
+      "extension": "flac"
     }
   },
   "id": 0

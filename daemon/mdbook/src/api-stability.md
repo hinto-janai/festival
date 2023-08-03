@@ -8,7 +8,7 @@ In general:
 These rules will apply until a potential `v2.0.0` breaking release.
 
 ## `festival-cli`
-`festivald` and `festival-cli`'s versions are tied together to represent their compatability.
+`festivald` and `festival-cli`'s versions are tied together to represent their compatibility.
 
 `festivald` will be able to (fully) respond to `festival-cli` as long as `festivald`'s:
 - Major version is the same
@@ -27,10 +27,12 @@ Note that an older `festivald` will still be able to communicate with a newer `f
 - Their expected inputs are stable (`max_connections` will always want an unsigned integer)
 - Their expected behavior is stable (`max_connections` will always control the max amount of connections)
 - Default config values _may_ be changed (default `port` value may not always be `18425`)
+- Additional fields _may_ be added in the future
 
 ## Command Line
 - [`--flags`](command-line/command-line.md) and sub-command names are stable (`festivald data --path` will always be `festivald data --path`)
 - Their expected inputs/outputs are stable
+- Additional flags and/or sub-commands _may_ be added in the future
 
 ## Disk
 All locations and filenames of all files written to disk by `festivald` are stable.
@@ -120,6 +122,11 @@ My Artist/
     │    ├─ Album Name 2.png
     │    ├─ Song Name 2.mp3
 ```
+
+## Errors 
+Do not rely on the _details_ of the `JSON-RPC` & `REST` API errors.
+
+You can rely that an input that leads to OK/ERROR will always be the same.
 
 ## Logs
 Do not rely on the log output of `festivald`.

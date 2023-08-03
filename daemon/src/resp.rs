@@ -96,7 +96,7 @@ pub fn unauthorized(msg: &'static str) -> Response<Body> {
 		.status(StatusCode::UNAUTHORIZED)
 		.header(CONTENT_TYPE, TEXT_PLAIN_UTF_8.essence_str())
 		.header(CONTENT_LENGTH, msg.len())
-		.header(WWW_AUTHENTICATE, r#"Basic realm="User Visible Realm", charset="UTF-8""#)
+		.header(WWW_AUTHENTICATE, r#"Basic realm="Acesss to REST API", charset="UTF-8""#)
 		.body(Body::from(msg))
 		.unwrap()
 }
@@ -296,6 +296,30 @@ pub fn internal_error<'a>(id: Option<json_rpc::Id<'a>>) -> Response<Body> {
 		.header(CONTENT_TYPE, APPLICATION_JSON.essence_str())
 		.header(CONTENT_LENGTH, s.len())
 		.body(Body::from(s))
+		.unwrap()
+}
+
+// Unauthorized request (401)
+pub fn unauth_rpc<'a>(code: i32, msg: &'static str, id: Option<json_rpc::Id<'a>>) -> Response<Body> {
+	let e = json_rpc::error::ErrorObject {
+		code: json_rpc::error::ErrorCode::ServerError(code),
+		message: Cow::Borrowed(msg),
+		data: None,
+	};
+
+	let r = json_rpc::Response::<()>::error(e, id.clone());
+	let r = match serde_json::to_string_pretty(&r) {
+		Ok(r)  => r,
+		Err(e) => return internal_error(id),
+	};
+
+	// SAFETY: This `.unwraps()` are safe. The content is static.
+	Builder::new()
+		.status(StatusCode::UNAUTHORIZED)
+		.header(CONTENT_TYPE, TEXT_PLAIN_UTF_8.essence_str())
+		.header(CONTENT_LENGTH, msg.len())
+		.header(WWW_AUTHENTICATE, r#"Basic realm="Access to JSON-RPC API""#)
+		.body(Body::from(r))
 		.unwrap()
 }
 

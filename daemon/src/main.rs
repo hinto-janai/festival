@@ -11,7 +11,6 @@ mod seen;
 mod statics;
 mod shutdown;
 mod rest;
-mod resource;
 mod resp;
 mod rpc;
 mod router;

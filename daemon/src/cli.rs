@@ -182,7 +182,11 @@ pub struct Cli {
 	/// To allow multiple methods, use this flag per method.
 	///
 	/// Example: `festivald --no-auth-rest art --no-auth-rest song`
-	no_auth_rest: Option<Vec<crate::resource::Resource>>,
+	no_auth_rest: Option<Vec<rpc::resource::Resource>>,
+
+	#[arg(long, verbatim_doc_comment, requires = "authorization")]
+	/// Allow documentation to be served without authorization
+	no_auth_docs: bool,
 
 	#[arg(long, verbatim_doc_comment, value_name = "MILLI")]
 	/// Sleep before responding to (potentially malicious) failed connections
@@ -211,6 +215,9 @@ pub struct Cli {
 	/// instead.
 	///
 	/// If this is not set, the default OS `Music` directory will be scanned.
+	///
+	/// If `festivald` is running on Windows, you can use
+	/// Windows-style PATHs: `C:\\Users\\User\\Music`.
 	///
 	/// To set multiple PATHs, use this flag per PATH.
 	///
@@ -631,6 +638,7 @@ impl Cli {
 
 		let mut tls             = if_true_some(self.tls);
 		let mut direct_download = if_true_some(self.direct_download);
+		let mut no_auth_docs    = if_true_some(self.no_auth_docs);
 
 		fn if_true_negate_some(b: bool) -> Option<bool> {
 			if b {
@@ -706,7 +714,8 @@ impl Cli {
 			media_controls          => cb.media_controls,
 			self.authorization      => cb.authorization,
 			no_auth_rpc             => cb.no_auth_rpc,
-			no_auth_rest            => cb.no_auth_rest
+			no_auth_rest            => cb.no_auth_rest,
+			no_auth_docs            => cb.no_auth_docs
 		}
 
 		if diff {

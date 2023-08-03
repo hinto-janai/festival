@@ -40,6 +40,8 @@ pub enum Method {
 	// State retrieval.
 	/// [`crate::resp::StateIp`] (inner type is [`crate::resp::StateIpInner`])
 	StateIp,
+	/// [`crate::resp::StateConfig`]
+	StateConfig,
 	/// [`crate::resp::StateDaemon`]
 	StateDaemon,
 	/// [`crate::resp::StateAudio`]
@@ -150,10 +152,12 @@ pub enum Method {
 	CollectionBrief,
 	/// [`crate::resp::CollectionFull`]
 	CollectionFull,
+	/// [`crate::resp::CollectionRelation`] (inner type is [`crate::resp::CollectionRelationInner`])
+	CollectionRelation,
+	/// [`crate::resp::CollectionRelationFull`] (inner type is [`crate::resp::CollectionRelationFullInner`])
+	CollectionRelationFull,
 	/// [`crate::resp::CollectionPerf`]
 	CollectionPerf,
-	/// [`crate::resp::CollectionSongPaths`]
-	CollectionSongPaths,
 	/// [`crate::resp::CollectionResourceSize`]
 	CollectionResourceSize,
 }

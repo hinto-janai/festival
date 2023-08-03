@@ -194,8 +194,7 @@ This full `Collection` object can be received via the [`collection_full`](../jso
         "track": 1,
         "disc": 2,
         "mime": "audio/mpeg",
-        "extension": "mp3",
-        "path": "/home/hinto/festival/assets/audio/song_1.mp3"
+        "extension": "mp3"
       },
       {
         "title": "mp3",
@@ -206,8 +205,7 @@ This full `Collection` object can be received via the [`collection_full`](../jso
         "track": 2,
         "disc": 2,
         "mime": "audio/mpeg",
-        "extension": "mp3",
-        "path": "/home/hinto/festival/assets/audio/song_2.mp3"
+        "extension": "mp3"
       },
       {
         "title": "mp3",
@@ -218,8 +216,7 @@ This full `Collection` object can be received via the [`collection_full`](../jso
         "track": 1,
         "disc": 2,
         "mime": "audio/mpeg",
-        "extension": "mp3",
-        "path": "/home/hinto/festival/assets/audio/song_3.mp3"
+        "extension": "mp3"
       },
       {
         "title": "flac",
@@ -230,8 +227,7 @@ This full `Collection` object can be received via the [`collection_full`](../jso
         "track": 2,
         "disc": 2,
         "mime": "audio/x-flac",
-        "extension": "flac",
-        "path": "/home/hinto/festival/assets/audio/song_4.flac"
+        "extension": "flac"
       },
       {
         "title": "m4a",
@@ -242,8 +238,7 @@ This full `Collection` object can be received via the [`collection_full`](../jso
         "track": 1,
         "disc": null,
         "mime": "audio/m4a",
-        "extension": "m4a",
-        "path": "/home/hinto/festival/assets/audio/song_5.m4a"
+        "extension": "m4a"
       },
       {
         "title": "song_6",
@@ -254,8 +249,7 @@ This full `Collection` object can be received via the [`collection_full`](../jso
         "track": 2,
         "disc": 2,
         "mime": "audio/ogg",
-        "extension": "ogg",
-        "path": "/home/hinto/festival/assets/audio/song_6.ogg"
+        "extension": "ogg"
       },
       {
         "title": "mp3",
@@ -266,8 +260,7 @@ This full `Collection` object can be received via the [`collection_full`](../jso
         "track": 1,
         "disc": 2,
         "mime": "audio/mpeg",
-        "extension": "mp3",
-        "path": "/home/hinto/festival/assets/audio/song_7.mp3"
+        "extension": "mp3"
       }
     ],
     "sort_artist_lexi": [

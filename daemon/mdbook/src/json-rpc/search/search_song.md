@@ -34,8 +34,7 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"search_song","
         "track": 5,
         "disc": 1,
         "mime": "audio/x-flac",
-        "extension": "flac",
-        "path": "/home/hinto/Music/TIME.flac"
+        "extension": "flac"
       }
     ]
   },

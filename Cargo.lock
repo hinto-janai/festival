@@ -217,6 +217,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4b46cbb362ab8752921c97e041f5e366ee6297bd428a31275b9fcf1e380f7299"
 
 [[package]]
+name = "ansipix"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "69b26d91bd0a16f2b44f339f6bcc7baf1797030c888ed5f36d036dfbfb4603f6"
+dependencies = [
+ "image",
+]
+
+[[package]]
 name = "anstream"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1983,6 +1992,7 @@ dependencies = [
 name = "festivald"
 version = "0.0.0"
 dependencies = [
+ "ansipix",
  "anyhow",
  "async_zip",
  "base64 0.21.2",

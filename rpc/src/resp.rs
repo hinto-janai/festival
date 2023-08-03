@@ -4,8 +4,6 @@ use serde::{Serialize,Deserialize};
 use anyhow::anyhow;
 use log::{error,info,warn,debug,trace};
 use disk::{Bincode2,Json};
-use std::path::PathBuf;
-use std::borrow::Cow;
 use shukusai::{
 	collection::{
 		json::{
@@ -27,7 +25,15 @@ use crate::{
 	impl_struct_anon,
 	impl_struct_anon_lt,
 };
-use std::collections::VecDeque;
+use std::{
+	net::Ipv4Addr,
+	path::{Path,PathBuf},
+	borrow::Cow,
+	collections::{
+		VecDeque,
+		HashSet,
+	},
+};
 
 //---------------------------------------------------------------------------------------------------- Response impl
 // Generic response.
@@ -40,6 +46,29 @@ impl_struct! {
 	count: u64
 }
 impl_struct_anon_lt!(StateIp, Cow<'a, [StateIpInner]>);
+impl_struct_lt! {
+	StateConfig,
+	ip:                 std::net::Ipv4Addr,
+	port:               u16,
+	max_connections:    Option<u64>,
+	exclusive_ips:      Option<Cow<'a, HashSet<Ipv4Addr>>>,
+	sleep_on_fail:      Option<u64>,
+	collection_paths:   Cow<'a, [PathBuf]>,
+	tls:                bool,
+	certificate:        Option<Cow<'a, Path>>,
+	key:                Option<Cow<'a, Path>>,
+	rest:               bool,
+	docs:               bool,
+	direct_download:    bool,
+	filename_separator: Cow<'a, str>,
+	log_level:          log::LevelFilter,
+	watch:              bool,
+	cache_time:         u64,
+	media_controls:     bool,
+	authorization:      bool,
+	no_auth_rpc:        Option<Cow<'a, HashSet<crate::method::Method>>>,
+	no_auth_rest:       Option<Cow<'a, HashSet<crate::resource::Resource>>>
+}
 impl_struct_lt! {
 	StateDaemon,
 	uptime:              u64,
@@ -256,11 +285,40 @@ impl_struct! {
 	art: usize
 }
 impl_struct_lt! {
-	CollectionSongPaths,
-	len: usize,
+	CollectionRelationInner,
 	#[serde(borrow)]
-	paths: Cow<'a, [&'a std::path::Path]>
+	artist: Cow<'a, str>,
+	#[serde(borrow)]
+	album: Cow<'a, str>,
+	#[serde(borrow)]
+	song: Cow<'a, str>,
+	key_artist: ArtistKey,
+	key_album: AlbumKey,
+	key_song: SongKey
 }
+impl_struct_anon_lt! {
+	CollectionRelation,
+	Cow<'a, [CollectionRelationInner<'a>]>
+}
+impl_struct_lt! {
+	CollectionRelationFullInner,
+	#[serde(borrow)]
+	artist: Cow<'a, str>,
+	#[serde(borrow)]
+	album: Cow<'a, str>,
+	#[serde(borrow)]
+	song: Cow<'a, str>,
+	key_artist: ArtistKey,
+	key_album: AlbumKey,
+	key_song: SongKey,
+	#[serde(borrow)]
+	path: Cow<'a, std::path::Path>
+}
+impl_struct_anon_lt! {
+	CollectionRelationFull,
+	Cow<'a, [CollectionRelationFullInner<'a>]>
+}
+
 
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]

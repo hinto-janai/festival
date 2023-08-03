@@ -23,6 +23,11 @@ If a file is downloaded that is nested, the `filename_separator` [config](config
 Artist Name - Album Title.zip
 ```
 
+## ZIP
+For `REST` endpoints that serve large collections of files, the `ZIP` format will be used.
+
+There is no compression applied to the files, they are stored as-is.
+
 ## Missing resource
 If the underlying file for a resource is missing from the filesystem, `festivald` will respond to `REST` requests with an error.
 

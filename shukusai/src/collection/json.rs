@@ -166,7 +166,6 @@ pub struct SongJson<'a> {
 	pub disc: Option<u32>,
 	pub mime: Cow<'a, str>,
 	pub extension: Cow<'a, str>,
-	pub path: Cow<'a, std::path::Path>,
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

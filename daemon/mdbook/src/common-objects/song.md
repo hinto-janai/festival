@@ -11,7 +11,6 @@
 | disc        | optional (maybe null) unsigned integer | Disc number this `Song` belongs to, `null` if not found
 | mime        | string                                 | Audio MIME type of this `Song`
 | extension   | string                                 | File extension of this `Song`
-| path        | string                                 | The absolute PATH of this `Song` on `festivald`'s local filesystem
 
 #### Example
 ```json
@@ -24,7 +23,6 @@
   "track": 5,
   "disc": null,
   "mime": "audio/x-flac",
-  "extension": "flac",
-  "path": "/home/hinto/Music/song.flac"
+  "extension": "flac"
 }
 ```
