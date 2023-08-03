@@ -16,7 +16,7 @@ you can use:
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"map_artist","params":{"artist":"カネコアヤノ"}}'
 ```
 
-If the input is invalid, a JSON-RPC [`error`](../../json-rpc.md#example-json-rpc-20-failed-response) will be returned.
+If the input is invalid, a JSON-RPC [`error`](../json-rpc.md#example-json-rpc-20-failed-response) will be returned.
 
 ## Warning
 Inputs are case-sensitive and must be exactly correct.

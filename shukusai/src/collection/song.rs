@@ -44,7 +44,7 @@ pub struct Song {
 	/// The file extension of this [`Song`].
 	pub extension: Arc<str>,
 
-	#[serde(skip)]
+//	#[serde(skip)]
 	/// The [`PathBuf`] this [`Song`] is located at.
 	pub path: PathBuf,
 }

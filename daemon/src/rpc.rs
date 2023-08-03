@@ -77,6 +77,8 @@ const ERR_RAND:       (i32, &str) = (-32019, "The Collection is empty");
 const ERR_RESETTING:  (i32, &str) = (-32020, "Currently resetting the Collection");
 const ERR_PERF:       (i32, &str) = (-32021, "Performance file does not exist");
 const ERR_FS:         (i32, &str) = (-32022, "Filesystem error");
+const ERR_AUTH:       (i32, &str) = (-32023, "Unauthorized");
+const ERR_SERDE:      (i32, &str) = (-32024, "(De)serialization error");
 
 //---------------------------------------------------------------------------------------------------- Parse, call func, or return macro.
 // Parse
@@ -149,14 +151,25 @@ pub async fn handle(
 		return Ok(resp::method_not_found(request.id));
 	};
 
+	// Check auth.
+	if !config().no_auth_rpc.as_ref().is_some_and(|h| h.contains(&method)) {
+		if let Some(hash) = AUTH.get() {
+			if !crate::router::auth_ok(&parts, hash).await {
+				if crate::seen::seen(&addr).await {
+					crate::router::sleep_on_fail().await;
+				}
+				return Ok(resp::error(ERR_AUTH.0, ERR_AUTH.1, request.id));
+			}
+		}
+	}
+
 	use rpc::Method::*;
 	match method {
 		// State retrieval.
-		StateDaemon         => state_daemon(request.id).await,
-		StateAudio          => state_audio(request.id, collection.arc()).await,
-		StateReset          => state_reset(request.id).await,
-		StateCollection     => state_collection(request.id, collection.arc()).await,
-		StateCollectionFull => state_collection_full(request.id, collection.arc()).await,
+		StateIp                 => state_ip(request.id).await,
+		StateDaemon             => state_daemon(request.id).await,
+		StateAudio              => state_audio(request.id, collection.arc()).await,
+		StateReset              => state_reset(request.id).await,
 
 		// Playback control, no params.
 		Toggle      => toggle(request.id, TO_KERNEL).await,
@@ -214,13 +227,34 @@ pub async fn handle(
 		SearchSong   => ppacor!(request, search_song, rpc::param::SearchSong, collection.arc(), TO_KERNEL, FROM_KERNEL).await,
 
 		// Collection
+		CollectionBrief        => collection_brief(request.id, collection.arc()).await,
+		CollectionFull         => collection_full(request.id, collection.arc()).await,
 		CollectionNew          => ppacor!(request, collection_new, rpc::param::CollectionNew, collection.arc(), TO_KERNEL, FROM_KERNEL, TO_ROUTER).await,
 		CollectionPerf         => collection_perf(request.id).await,
+		CollectionSongPaths    => collection_song_paths(request.id, collection.arc()).await,
 		CollectionResourceSize => collection_resource_size(request.id, collection.arc()).await,
 	}
 }
 
 //---------------------------------------------------------------------------------------------------- State retrieval.
+async fn state_ip<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	let seen = crate::seen::SEEN_IPS.read().await.clone();
+
+	let mut vec = Vec::with_capacity(seen.len());
+
+	for (ip, count) in seen.into_iter() {
+		let inner = rpc::resp::StateIpInner {
+			ip,
+			count,
+		};
+		vec.push(inner);
+	}
+
+	let resp = rpc::resp::StateIp(Cow::Owned(vec));
+
+	Ok(resp::result(resp, id))
+}
+
 async fn state_daemon<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
 	let resp = rpc::resp::StateDaemon {
 		uptime:              shukusai::logger::uptime(),
@@ -283,8 +317,8 @@ async fn state_reset<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::E
 	Ok(resp::result(resp, id))
 }
 
-async fn state_collection<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
-	let resp = rpc::resp::StateCollection {
+async fn collection_brief<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+	let resp = rpc::resp::CollectionBrief {
 		empty: collection.empty,
 		timestamp: collection.timestamp,
 		count_artist: collection.count_artist.inner(),
@@ -296,7 +330,7 @@ async fn state_collection<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -
 	Ok(resp::result(resp, id))
 }
 
-async fn state_collection_full<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+async fn collection_full<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
 	// Instead of checking if the `Collection` -> `JSON String`
 	// output is correct for every response, only check in debug builds.
 	//
@@ -943,6 +977,21 @@ async fn collection_perf<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyho
 		bytes: perf.total.bytes,
 		user: perf.total.user,
 		sys: perf.total.sys,
+	};
+
+	Ok(resp::result(resp, id))
+}
+
+async fn collection_song_paths<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+	let mut vec = Vec::with_capacity(collection.songs.len());
+
+	for song in collection.songs.iter() {
+		vec.push(song.path.as_path());
+	}
+
+	let resp = rpc::resp::CollectionSongPaths {
+		len: vec.len(),
+		paths: Cow::Borrowed(&vec),
 	};
 
 	Ok(resp::result(resp, id))

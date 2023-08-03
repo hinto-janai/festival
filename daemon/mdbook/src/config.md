@@ -284,6 +284,10 @@ media_controls = true
 # Only process connections to `festivald` that have a
 # "authorization" HTTP header with this username and password.
 #
+# If either the `no_auth_rpc` or `no_auth_rest` options are
+# used, then every RPC call/REST endpoint _NOT_ in those lists
+# will require this authorization.
+#
 # TLS must be enabled for this feature to work
 # or `festivald` will refuse to start.
 #
@@ -316,4 +320,62 @@ media_controls = true
 # EXAMPLE | "my_username:my_password", "my_username:aoig2A%^$AWS^%", "/path/to/file"
 # TYPE    | string or PATH to file
 authorization = ""
+
+# Allow specified JSON-RPC calls without authorization,
+# while still requiring authorization for everything else.
+#
+# If a JSON-RPC method is listed in this array,
+# `festivald` will allow any client to use it,
+# regardless of authorization.
+#
+# This allows you to have `authorization` enabled
+# across the board, but allow specific JSON-RPC
+# calls for public usage.
+#
+# For example, if only `toggle` is listed, then
+# clients WITHOUT authorization will only be
+# allowed to use the `toggle` method, for every
+# other method, they must authenticate.
+#
+# The method names listed here must match the
+# exact names when using them, or shown in the
+# documentation, see here:
+#
+# <https://docs.festival.pm/daemon/json-rpc/json-rpc.html>
+#
+# OR WITH
+#
+# ```
+# festivald data --docs
+# ```
+# DEFAULT | [] (disabled)
+# EXAMPLE | ["toggle", "state_audio", "volume"]
+# TYPE    | string, must be a method name
+no_auth_rpc = []
+
+# Allow specified REST resources without authorization,
+# while still requiring authorization for everything else.
+#
+# REST resources, from most expensive to least:
+#   - `collection`
+#   - `artist`
+#   - `album`
+#   - `song`
+#   - `art`
+#
+# If a REST resource is listed in this array,
+# `festivald` will allow any client to use it,
+# regardless of authorization.
+#
+# For example, if only `art` is listed, then
+# clients WITHOUT authorization will only be
+# allowed to use the `art` related endpoints
+# (/rand/art, /current/art, etc). For every
+# other endpoint (/rand/song, /collection, etc),
+# they must authenticate.
+#
+# DEFAULT | [] (disabled)
+# EXAMPLE | ["art", "song", "album"]
+# TYPE    | string, must be a REST resource
+no_auth_rest = []
 ```

@@ -55,6 +55,10 @@ Options:
           Only process connections to `festivald` that have a
           "authorization" HTTP header with this username and password.
           
+          If either the `--no-auth-rpc` or `--no-auth-rest` options are
+          used, then every RPC call/REST endpoint _NOT_ in those lists
+          will require this authorization.
+          
           TLS must be enabled for this feature to work
           or `festivald` will refuse to start.
           
@@ -77,6 +81,63 @@ Options:
           ```
           my_user:my_pass
           ```
+
+      --no-auth-rpc <METHOD>
+          Allow specified JSON-RPC calls without authorization
+          
+          If a JSON-RPC method is listed in this array,
+          `festivald` will allow any client to use it,
+          regardless of authorization.
+          
+          This allows you to have `authorization` enabled
+          across the board, but allow specific JSON-RPC
+          calls for public usage.
+          
+          For example, if only `toggle` is listed, then
+          clients WITHOUT authorization will only be
+          allowed to use the `toggle` method, for every
+          other method, they must authenticate.
+          
+          The method names listed here must match the
+          exact names when using them, or shown in the
+          documentation, see here:
+          
+          <https://docs.festival.pm/daemon/json-rpc/json-rpc.html>
+          
+          OR WITH
+          
+          ```
+          festivald data --docs
+          ```
+          
+          To allow multiple methods, use this flag per method.
+          
+          Example: `festivald --no-auth-rpc toggle --no-auth-rpc volume`
+
+      --no-auth-rest <RESOURCE>
+          Allow specified REST resources without authorization,
+          
+          REST resources, from most expensive to least:
+            - `collection`
+            - `artist`
+            - `album`
+            - `song`
+            - `art`
+          
+          If a REST resource is listed in this array,
+          `festivald` will allow any client to use it,
+          regardless of authorization.
+          
+          For example, if only `art` is listed, then
+          clients WITHOUT authorization will only be
+          allowed to use the `art` related endpoints
+          (/rand/art, /current/art, etc). For every
+          other endpoint (/rand/song, /collection, etc),
+          they must authenticate.
+          
+          To allow multiple methods, use this flag per method.
+          
+          Example: `festivald --no-auth-rest art --no-auth-rest song`
 
       --sleep-on-fail <MILLI>
           Sleep before responding to (potentially malicious) failed connections
@@ -193,17 +254,8 @@ Options:
           
           `--disable-docs` will disable that.
 
-      --log-daemon-only
-          Only print logs for `festivald`
-          
-          Logs that aren't directly from `festivald`, e.g
-          anything related to the internals, `shukusai`,
-          will not be printed if this is enabled.
-
       --log-level <OFF|ERROR|INFO|WARN|DEBUG|TRACE>
           Set filter level for console logs
-          
-          [default: ERROR]
 
   -v, --version
           Print version

@@ -1,11 +1,11 @@
 # Authorization
-`festivald` has a basic username + password authorization [configuration](config.md) option.
+`festivald` has a username + password authorization [configuration](../config.md) option, with optional bypasses on specified [`JSON-RPC` methods](json-rpc.md) or [`REST` resources](../rest/rest.md).
 
-If enabled, `festivald` will only process connections to it that have the "authorization" HTTP header with this username and password.
+If `authorization` is enabled, `festivald` will only process connections to it that have the "authorization" HTTP header with this username and password (unless specified in the bypass options).
 
 TLS must be enabled for this feature to work or `festivald` will refuse to start.
 
-The option can either be set in the [config](config.md) file or passed via a [command-line flag](command-line/command-line.md).
+The option can either be set in the [config](../config.md) file or passed via a [command-line flag](../command-line/command-line.md).
 
 ## Syntax
 The username & password syntax is the same as `curl`.

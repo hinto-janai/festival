@@ -1,2 +1,2 @@
 # Collection
-Methods related to the [`Collection`](../../common-objects/collection.md).
+Methods related for creating and viewing various info about the [`Collection`](../../common-objects/collection.md).

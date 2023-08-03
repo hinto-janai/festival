@@ -31,25 +31,27 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"state_audio"}'
   "jsonrpc": "2.0",
   "result": {
     "queue": [
-      1286,
-      1340,
-      12248
+      44
     ],
+    "queue_len": 1,
     "queue_idx": 0,
     "playing": true,
-    "song_key": 1286,
-    "elapsed": 9,
+    "song_key": 44,
+    "elapsed": 4,
     "runtime": 349,
     "repeat": "off",
     "volume": 25,
     "song": {
       "title": "いつか",
-      "key": 1286,
-      "album": 146,
+      "key": 44,
+      "album": 10,
       "runtime": 349,
       "sample_rate": 44100,
       "track": 1,
-      "disc": 1
+      "disc": 1,
+      "mime": "audio/x-flac",
+      "extension": "flac",
+      "path": "/home/hinto/Music/山下達郎/RIDE ON TIME/いつか.flac"
     }
   },
   "id": 0

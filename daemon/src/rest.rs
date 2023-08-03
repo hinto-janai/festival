@@ -30,10 +30,16 @@ use crate::{
 	hash::Hash,
 	config::{Config,config},
 	ptr::CollectionPtr,
+	resource::Resource,
 };
 use tokio::io::AsyncReadExt;
-use std::path::{Path,PathBuf};
-use std::io::Write;
+use std::{
+	path::{Path,PathBuf},
+	io::Write,
+};
+use crate::config::AUTH;
+use std::str::FromStr;
+use benri::debug_panic;
 
 //---------------------------------------------------------------------------------------------------- Const
 pub const REST_ENDPOINTS: [&'static str; 6] = [
@@ -47,9 +53,31 @@ pub const REST_ENDPOINTS: [&'static str; 6] = [
 
 pub const ERR_END: &str = "Unknown endpoint";
 
+//---------------------------------------------------------------------------------------------------- Auth.
+// Check auth.
+async fn rest_auth_ok(
+	parts:    &Parts,
+	addr:     &SocketAddrV4,
+	resource: crate::resource::Resource,
+) -> Option<Response<Body>> {
+	if !config().no_auth_rest.as_ref().is_some_and(|h| h.contains(&resource)) {
+		if let Some(hash) = AUTH.get() {
+			if !crate::router::auth_ok(parts, hash).await {
+				if crate::seen::seen(&addr).await {
+					crate::router::sleep_on_fail().await;
+				}
+				return Some(resp::unauthorized("Unauthorized"));
+			}
+		}
+	}
+
+	None
+}
+
 //---------------------------------------------------------------------------------------------------- REST Handler
 pub async fn handle(
-	parts:      Parts,
+	parts:  Parts,
+	addr:       SocketAddrV4,
 	collection: &'static CollectionPtr,
 ) -> Result<Response<Body>, anyhow::Error> {
 	// If we're in the middle of a `Collection` reset, respond with "busy".
@@ -71,7 +99,6 @@ pub async fn handle(
 	split.next();
 
 	let Some(ep1) = split.next() else {
-//		crate::router::sleep_on_fail_task(collection);
 		return Ok(resp::not_found("Missing endpoint 1"));
 	};
 
@@ -96,12 +123,23 @@ pub async fn handle(
 			return Ok(resp::not_found("Key parse failure"));
 		};
 
-		match ep2 {
-			"artist" => key_artist(key, collection.arc()).await,
-			"album"  => key_album(key, collection.arc()).await,
-			"song"   => key_song(key, collection.arc()).await,
-			"art"    => key_art(key, collection.arc()).await,
-			_        => Ok(resp::not_found(ERR_END)),
+		let Some(resource) = Resource::from_str_not_c(ep2) else {
+			return Ok(resp::not_found(ERR_END));
+		};
+
+		if let Some(resp) = rest_auth_ok(&parts, &addr, resource).await {
+			return Ok(resp);
+		}
+
+		match resource {
+			Resource::Artist => key_artist(key, collection.arc()).await,
+			Resource::Album  => key_album(key, collection.arc()).await,
+			Resource::Song   => key_song(key, collection.arc()).await,
+			Resource::Art    => key_art(key, collection.arc()).await,
+			_ => {
+				debug_panic!("parsed resource {resource:?}, but reached unreachable");
+				Ok(resp::server_err("Unknown resource"))
+			},
 		}
 	//-------------------------------------------------- `/map` endpoint.
 	} else if ep1 == "map" {
@@ -119,12 +157,37 @@ pub async fn handle(
 		}
 
 		match (album, song) {
-			(Some(a), None) if !a.is_empty() => map_album(artist.as_ref(), a.as_ref(), collection.arc()).await,
-			(Some(a), Some(s)) if !a.is_empty() && !s.is_empty() => map_song(artist.as_ref(), a.as_ref(), s.as_ref(), collection.arc()).await,
-			_                  => map_artist(artist.as_ref(), collection.arc()).await,
+			// Album.
+			(Some(a), None) if !a.is_empty() => {
+				if let Some(resp) = rest_auth_ok(&parts, &addr, Resource::Album).await {
+					return Ok(resp);
+				}
+				map_album(artist.as_ref(), a.as_ref(), collection.arc()).await
+			},
+
+			// Song.
+			(Some(a), Some(s)) if !a.is_empty() && !s.is_empty() => {
+				if let Some(resp) = rest_auth_ok(&parts, &addr, Resource::Song).await {
+					return Ok(resp);
+				}
+				map_song(artist.as_ref(), a.as_ref(), s.as_ref(), collection.arc()).await
+			},
+
+			// Artist
+			_ => {
+				if let Some(resp) = rest_auth_ok(&parts, &addr, Resource::Artist).await {
+					return Ok(resp);
+				}
+				map_artist(artist.as_ref(), collection.arc()).await
+			},
 		}
 	//-------------------------------------------------- `/art` endpoint.
 	} else if ep1 == "art" {
+		// Art auth.
+		if let Some(resp) = rest_auth_ok(&parts, &addr, Resource::Art).await {
+			return Ok(resp);
+		}
+
 		let Some(artist) = split.next() else {
 			return Ok(resp::not_found("Missing endpoint: [artist]"));
 		};
@@ -154,12 +217,24 @@ pub async fn handle(
 			_ => (),
 		}
 
-		match ep2 {
-			"artist" => current_artist(collection.arc()).await,
-			"album"  => current_album(collection.arc()).await,
-			"song"   => current_song(collection.arc()).await,
-			"art"    => current_art(collection.arc()).await,
-			_        => Ok(resp::not_found(ERR_END)),
+		let Some(resource) = Resource::from_str_not_c(ep2) else {
+			return Ok(resp::not_found(ERR_END));
+		};
+
+		// Auth.
+		if let Some(resp) = rest_auth_ok(&parts, &addr, resource).await {
+			return Ok(resp);
+		}
+
+		match resource {
+			Resource::Artist => current_artist(collection.arc()).await,
+			Resource::Album  => current_album(collection.arc()).await,
+			Resource::Song   => current_song(collection.arc()).await,
+			Resource::Art    => current_art(collection.arc()).await,
+			_ => {
+				debug_panic!("parsed resource {resource:?}, but reached unreachable");
+				Ok(resp::server_err("Unknown resource"))
+			},
 		}
 	//-------------------------------------------------- `/rand` endpoint.
 	} else if ep1 == "rand" {
@@ -173,15 +248,32 @@ pub async fn handle(
 			_ => (),
 		}
 
-		match ep2 {
-			"artist" => rand_artist(collection.arc()).await,
-			"album"  => rand_album(collection.arc()).await,
-			"song"   => rand_song(collection.arc()).await,
-			"art"    => rand_art(collection.arc()).await,
-			_        => Ok(resp::not_found(ERR_END)),
+		let Some(resource) = Resource::from_str_not_c(ep2) else {
+			return Ok(resp::not_found(ERR_END));
+		};
+
+		// Auth.
+		if let Some(resp) = rest_auth_ok(&parts, &addr, resource).await {
+			return Ok(resp);
+		}
+
+		match resource {
+			Resource::Artist => rand_artist(collection.arc()).await,
+			Resource::Album  => rand_album(collection.arc()).await,
+			Resource::Song   => rand_song(collection.arc()).await,
+			Resource::Art    => rand_art(collection.arc()).await,
+			_ => {
+				debug_panic!("parsed resource {resource:?}, but reached unreachable");
+				Ok(resp::server_err("Unknown resource"))
+			},
 		}
 	//-------------------------------------------------- `/collection` endpoint.
 	} else if ep1 == "collection" {
+		// Auth.
+		if let Some(resp) = rest_auth_ok(&parts, &addr, Resource::Collection).await {
+			return Ok(resp);
+		}
+
 		match split.next() {
 			Some(s) if !s.is_empty() => return Ok(resp::not_found(ERR_END)),
 			_ => (),

@@ -33,30 +33,13 @@ use std::collections::VecDeque;
 // Generic response.
 impl_struct_anon!(Status, ());
 
-// Collection
-impl_struct! {
-	CollectionNew,
-	time: f64,
-	empty: bool,
-	timestamp: u64,
-	count_artist: u64,
-	count_album: u64,
-	count_song: u64,
-	count_art: u64
-}
-impl_struct! {
-	CollectionPerf,
-	bytes: u64,
-	user: f32,
-	sys: f32
-}
-impl_struct! {
-	CollectionResourceSize,
-	audio: u64,
-	art: usize
-}
-
 // State retrieval.
+impl_struct! {
+	StateIpInner,
+	ip: std::net::Ipv4Addr,
+	count: u64
+}
+impl_struct_anon_lt!(StateIp, Cow<'a, [StateIpInner]>);
 impl_struct_lt! {
 	StateDaemon,
 	uptime:              u64,
@@ -92,19 +75,6 @@ impl_struct! {
 	StateReset,
 	resetting: bool,
 	saving:    bool
-}
-impl_struct! {
-	StateCollection,
-	empty: bool,
-	timestamp: u64,
-	count_artist: u64,
-	count_album: u64,
-	count_song: u64,
-	count_art: u64
-}
-impl_struct_anon_lt! {
-	StateCollectionFull,
-	CollectionJson<'a>
 }
 
 // Key (exact key)
@@ -248,6 +218,48 @@ impl_struct! {
 impl_struct! {
 	RemoveQueueRange,
 	out_of_bounds: bool
+}
+
+// Collection
+impl_struct! {
+	CollectionNew,
+	time: f64,
+	empty: bool,
+	timestamp: u64,
+	count_artist: u64,
+	count_album: u64,
+	count_song: u64,
+	count_art: u64
+}
+impl_struct! {
+	CollectionBrief,
+	empty: bool,
+	timestamp: u64,
+	count_artist: u64,
+	count_album: u64,
+	count_song: u64,
+	count_art: u64
+}
+impl_struct_anon_lt! {
+	CollectionFull,
+	CollectionJson<'a>
+}
+impl_struct! {
+	CollectionPerf,
+	bytes: u64,
+	user: f32,
+	sys: f32
+}
+impl_struct! {
+	CollectionResourceSize,
+	audio: u64,
+	art: usize
+}
+impl_struct_lt! {
+	CollectionSongPaths,
+	len: usize,
+	#[serde(borrow)]
+	paths: Cow<'a, [&'a std::path::Path]>
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

@@ -3,7 +3,7 @@ Create a new [`Collection`](../../common-objects/collection.md) (and replace the
 
 `festivald` will respond with some stats when the `Collection` reset has finished.
 
-The output is a superset of the [`state_collection`](../state-retrieval/state_collection.md) method.
+The output is a superset of the [`collection_brief`](collection_brief.md) method.
 
 #### Inputs
 

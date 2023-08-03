@@ -38,16 +38,14 @@ use std::borrow::Cow;
 ///   - (Optionally) a struct representation of the associated parameters, found in [`crate::param`]
 pub enum Method {
 	// State retrieval.
+	/// [`crate::resp::StateIp`] (inner type is [`crate::resp::StateIpInner`])
+	StateIp,
 	/// [`crate::resp::StateDaemon`]
 	StateDaemon,
 	/// [`crate::resp::StateAudio`]
 	StateAudio,
 	/// [`crate::resp::StateReset`]
 	StateReset,
-	/// [`crate::resp::StateCollection`]
-	StateCollection,
-	/// [`crate::resp::StateCollectionFull`]
-	StateCollectionFull,
 
 	// Playback control.
 	/// [`crate::resp::Toggle`]
@@ -148,8 +146,14 @@ pub enum Method {
 	// Collection
 	/// [`crate::resp::CollectionNew`] & [`crate::param::CollectionNew`]
 	CollectionNew,
+	/// [`crate::resp::CollectionBrief`]
+	CollectionBrief,
+	/// [`crate::resp::CollectionFull`]
+	CollectionFull,
 	/// [`crate::resp::CollectionPerf`]
 	CollectionPerf,
+	/// [`crate::resp::CollectionSongPaths`]
+	CollectionSongPaths,
 	/// [`crate::resp::CollectionResourceSize`]
 	CollectionResourceSize,
 }

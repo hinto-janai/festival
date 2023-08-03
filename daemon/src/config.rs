@@ -69,9 +69,9 @@ pub struct ConfigBuilder {
 	pub watch:              Option<bool>,
 	pub cache_time:         Option<u64>,
 	pub media_controls:     Option<bool>,
-
-	// Statics.
-	pub authorization:	 Option<String>,
+	pub authorization:	    Option<String>,
+	pub no_auth_rpc:        Option<HashSet<rpc::Method>>,
+	pub no_auth_rest:       Option<HashSet<crate::resource::Resource>>,
 }
 
 impl Default for ConfigBuilder {
@@ -95,6 +95,8 @@ impl Default for ConfigBuilder {
 			cache_time:         Some(3600),
 			media_controls:     Some(true),
 			authorization:      None,
+			no_auth_rpc:        None,
+			no_auth_rest:       None,
 		}
 	}
 }
@@ -122,6 +124,8 @@ impl ConfigBuilder {
 			cache_time,
 			media_controls,
 			authorization,
+			no_auth_rpc,
+			no_auth_rest,
 		} = self;
 
 		macro_rules! get {
@@ -166,10 +170,16 @@ impl ConfigBuilder {
 			watch:              get!(watch,              "watch",              true),
 			cache_time:         get!(cache_time,         "cache_time",         3600),
 			media_controls:     get!(media_controls,     "media_controls",     true),
+			no_auth_rpc:        sum!(no_auth_rpc,        "no_auth_rpc",        None::<HashSet<rpc::Method>>),
+			no_auth_rest:       sum!(no_auth_rest,       "no_auth_rest",       None::<HashSet<crate::resource::Resource>>),
 		};
 
 		if c.max_connections == Some(0) {
 			c.max_connections = None;
+		}
+
+		if c.sleep_on_fail == Some(0) {
+			c.sleep_on_fail = None;
 		}
 
 		// FIXME TODO: testing.
@@ -177,6 +187,8 @@ impl ConfigBuilder {
 //		c.certificate = Some(PathBuf::from("../../assets/tls/cert.pem"));
 //		c.key = Some(PathBuf::from("../../assets/tls/key.pem"));
 //		let authorization = Some("my_username:my_password".to_string());
+//		c.no_auth_rpc = Some([rpc::Method::Toggle].into());
+//		c.no_auth_rest = Some([crate::resource::Resource::Song].into());
 
 		if let Some(ref hs) = c.exclusive_ips {
 			if hs.is_empty() ||  hs.contains(&Ipv4Addr::UNSPECIFIED) {
@@ -259,14 +271,18 @@ impl ConfigBuilder {
 	// Read from disk, or create a default.
 	pub fn file_or() -> Self {
 		use disk::Toml;
+
 		match Self::from_file() {
 			Ok(c)  => { ok!("festivald.conf ... from disk"); c },
 			Err(e) => {
-				warn!("festivald.conf ... failed from disk: {e}, returning default");
+				// SAFETY: if we can't get the config, panic is ok.
+				let p = Config::absolute_path().unwrap();
 
-				if let Ok(p) = Config::absolute_path() {
-					let _ = Config::mkdir();
-					let _ = std::fs::write(&p, FESTIVALD_CONFIG);
+				if p.exists() {
+					crate::exit!("festivald.conf exists but is invalid:\n\n{e}\ntip: use `festivald data --reset-config` to reset it");
+				} else {
+					Config::mkdir().unwrap();
+					std::fs::write(&p, FESTIVALD_CONFIG).unwrap();
 				}
 
 				Self::default()
@@ -334,6 +350,8 @@ pub struct Config {
 	pub watch:              bool,
 	pub cache_time:         u64,
 	pub media_controls:     bool,
+	pub no_auth_rpc:        Option<HashSet<rpc::Method>>,
+	pub no_auth_rest:       Option<HashSet<crate::resource::Resource>>,
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

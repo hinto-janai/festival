@@ -34,7 +34,8 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"map_song","par
       "track": 1,
       "disc": null,
       "mime": "audio/mpeg",
-      "extension": "mp3"
+      "extension": "mp3",
+      "path": "/home/hinto/Music/SUNFLOWER.mp3"
     }
   },
   "id": 0

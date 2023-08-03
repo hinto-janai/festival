@@ -259,6 +259,19 @@ pub async fn init(
 		}
 	// Else If `HTTP`, start main `HTTP` loop (the exact same, but without TLS).
 	} else {
+		// Sanity-checks.
+		if CONFIG.certificate.is_some() {
+			crate::exit!("TLS certificate was provided, but TLS is disabled");
+		}
+
+		if CONFIG.key.is_some() {
+			crate::exit!("TLS key was provided, but TLS is disabled");
+		}
+
+		if AUTH.get().is_some() {
+			crate::exit!("authorization is enabled, but TLS is disabled");
+		}
+
 		listening!();
 
 		loop {
@@ -355,6 +368,7 @@ async fn route(
 		},
 	};
 
+	crate::seen::add(&addr).await;
 
 	//-------------------------------------------------- Exclusive IP list
 	let ip = addr.ip();
@@ -369,9 +383,9 @@ async fn route(
 	//-------------------------------------------------- Authorization
 	let (mut parts, body) = req.into_parts();
 
-	if let Some(resp) = auth(&mut parts).await {
-		return Ok(resp);
-	}
+//	if let Some(resp) = auth(&mut parts, &addr).await {
+//		return Ok(resp);
+//	}
 
 //	println!("{parts:#?}");
 //	println!("{body:#?}");
@@ -386,7 +400,7 @@ async fn route(
 		&uri.next().unwrap_or_else(|| "")
 	}) {
 		if config().rest {
-			crate::rest::handle(parts, COLLECTION_PTR).await
+			crate::rest::handle(parts, addr, COLLECTION_PTR).await
 		} else {
 			Ok(resp::forbidden("REST is disabled"))
 		}
@@ -422,45 +436,31 @@ async fn route(
 }
 
 //---------------------------------------------------------------------------------------------------- Auth
-// Verify authentication, ask for it, or ignore if none is set in our config.
-async fn auth(parts: &mut Parts) -> Option<Response<Body>> {
-	// If auth stuff isn't set in user's config, skip this.
-	let Some(hash) = AUTH.get() else { return None };
-
-	match parts.headers.remove(AUTHORIZATION) {
+// Verify authentication, ask for it, or ignore
+// if none is set in our config.
+pub async fn auth_ok(parts: &Parts, hash: &crate::hash::Hash) -> bool {
+	match parts.headers.get(AUTHORIZATION) {
 		// AUTH header exists.
 		Some(s) => {
 			// Attempt to turn into UTF-8 string.
 			let string = match String::from_utf8(s.as_bytes().into()) {
 				Ok(s)  => s,
-				Err(e) => {
-					sleep_on_fail().await;
-					return Some(resp::unauthorized("Authorization value is non-utf8"));
-				},
+				Err(e) => return false,
 			};
 
 			// Check if the hash matches our existing one.
-			if !hash.same(string) {
-				sleep_on_fail().await;
-				return Some(resp::unauthorized("Authorization failed"));
-			}
+			hash.same(string)
 		},
 
 		// AUTH header doesn't exist, reject this request.
-		None => {
-			sleep_on_fail().await;
-			return Some(resp::unauthorized("Missing authorization"));
-		},
+		None => false,
 	}
-
-	// If we're here, that means AUTH went OK.
-	None
 }
 
 //---------------------------------------------------------------------------------------------------- Sleep
 // Sleep for a random while.
 // Used for timing out requests, preventing timing attacks, etc.
-async fn sleep_on_fail() {
+pub async fn sleep_on_fail() {
 	use rand::{Rng,thread_rng};
 
 	if let Some(end) = config().sleep_on_fail {

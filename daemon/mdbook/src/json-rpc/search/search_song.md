@@ -27,12 +27,15 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"search_song","
     "songs": [
       {
         "title": "TIME",
-        "key": 5560,
-        "album": 538,
+        "key": 5412,
+        "album": 528,
         "runtime": 249,
         "sample_rate": 44100,
         "track": 5,
-        "disc": 1
+        "disc": 1,
+        "mime": "audio/x-flac",
+        "extension": "flac",
+        "path": "/home/hinto/Music/TIME.flac"
       }
     ]
   },

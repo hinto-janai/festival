@@ -97,6 +97,10 @@ pub struct Cli {
 	/// Only process connections to `festivald` that have a
 	/// "authorization" HTTP header with this username and password.
 	///
+	/// If either the `--no-auth-rpc` or `--no-auth-rest` options are
+	/// used, then every RPC call/REST endpoint _NOT_ in those lists
+	/// will require this authorization.
+	///
 	/// TLS must be enabled for this feature to work
 	/// or `festivald` will refuse to start.
 	///
@@ -120,6 +124,65 @@ pub struct Cli {
 	/// my_user:my_pass
 	/// ```
 	authorization: Option<String>,
+
+	#[arg(long, verbatim_doc_comment, value_name = "METHOD", requires = "authorization")]
+	/// Allow specified JSON-RPC calls without authorization
+	///
+	/// If a JSON-RPC method is listed in this array,
+	/// `festivald` will allow any client to use it,
+	/// regardless of authorization.
+	///
+	/// This allows you to have `authorization` enabled
+	/// across the board, but allow specific JSON-RPC
+	/// calls for public usage.
+	///
+	/// For example, if only `toggle` is listed, then
+	/// clients WITHOUT authorization will only be
+	/// allowed to use the `toggle` method, for every
+	/// other method, they must authenticate.
+	///
+	/// The method names listed here must match the
+	/// exact names when using them, or shown in the
+	/// documentation, see here:
+	///
+	/// <https://docs.festival.pm/daemon/json-rpc/json-rpc.html>
+	///
+	/// OR WITH
+	///
+	/// ```
+	/// festivald data --docs
+	/// ```
+	///
+	/// To allow multiple methods, use this flag per method.
+	///
+	/// Example: `festivald --no-auth-rpc toggle --no-auth-rpc volume`
+	no_auth_rpc: Option<Vec<rpc::Method>>,
+
+	#[arg(long, verbatim_doc_comment, value_name = "RESOURCE", requires = "authorization")]
+	/// Allow specified REST resources without authorization,
+	///
+	/// REST resources, from most expensive to least:
+	///   - `collection`
+	///   - `artist`
+	///   - `album`
+	///   - `song`
+	///   - `art`
+	///
+	/// If a REST resource is listed in this array,
+	/// `festivald` will allow any client to use it,
+	/// regardless of authorization.
+	///
+	/// For example, if only `art` is listed, then
+	/// clients WITHOUT authorization will only be
+	/// allowed to use the `art` related endpoints
+	/// (/rand/art, /current/art, etc). For every
+	/// other endpoint (/rand/song, /collection, etc),
+	/// they must authenticate.
+	///
+	/// To allow multiple methods, use this flag per method.
+	///
+	/// Example: `festivald --no-auth-rest art --no-auth-rest song`
+	no_auth_rest: Option<Vec<crate::resource::Resource>>,
 
 	#[arg(long, verbatim_doc_comment, value_name = "MILLI")]
 	/// Sleep before responding to (potentially malicious) failed connections
@@ -294,6 +357,12 @@ pub struct Data {
 	path: bool,
 
 	#[arg(long, verbatim_doc_comment)]
+	/// Reset the current `festivald.toml` config file to the default
+	///
+	/// Exits with `0` if everything went ok, otherwise shows error.
+	reset_config: bool,
+
+	#[arg(long, verbatim_doc_comment)]
 	/// Print JSON metadata about the current `Collection` on disk
 	///
 	/// This output is the exact same as the `state_collection_full` JSON-RPC call.
@@ -458,6 +527,14 @@ impl Cli {
 			exit(0);
 		}
 
+		// `reset_config`
+		if u.reset_config {
+			let p = crate::config::Config::absolute_path().unwrap();
+			crate::config::Config::mkdir().unwrap();
+			std::fs::write(&p, crate::constants::FESTIVALD_CONFIG).unwrap();
+			exit(0);
+		}
+
 		// Docs.
 		if u.docs {
 			// Create documentation.
@@ -544,17 +621,6 @@ impl Cli {
 		let mut cb = ConfigBuilder::default();
 		let mut diff = false;
 
-		macro_rules! if_some_swap {
-			($($command:expr => $config:expr),*) => {
-				$(
-					if $command.is_some() {
-						std::mem::swap(&mut $command, &mut $config);
-						diff = true;
-					}
-				)*
-			}
-		}
-
 		fn if_true_some(b: bool) -> Option<bool> {
 			if b {
 				Some(!b)
@@ -581,15 +647,23 @@ impl Cli {
 		let mut watch          = if_true_negate_some(self.disable_watch);
 
 		// Special-case conversions.
-		let mut exclusive_ips = if let Some(vec) = self.exclusive_ip.take() {
-			let mut h = std::collections::HashSet::with_capacity(vec.len());
-			for ip in vec {
-				h.insert(ip);
+		macro_rules! vec_to_some_hashset {
+			($vec:expr) => {
+				if let Some(vec) = $vec.take() {
+					let mut hashset = std::collections::HashSet::with_capacity(vec.len());
+					for entry in vec {
+						hashset.insert(entry);
+					}
+					Some(hashset)
+				} else {
+					None
+				}
 			}
-			Some(h)
-		} else {
-			None
-		};
+		}
+
+		let mut exclusive_ips = vec_to_some_hashset!(self.exclusive_ip);
+		let mut no_auth_rpc   = vec_to_some_hashset!(self.no_auth_rpc);
+		let mut no_auth_rest  = vec_to_some_hashset!(self.no_auth_rest);
 
 		let mut collection_paths = if self.collection_path.is_empty() {
 			None
@@ -599,7 +673,20 @@ impl Cli {
 
 		let mut log_level = self.log_level.clone();
 
-		if_some_swap! {
+		macro_rules! if_some {
+			($($command:expr => $config:expr),*) => {
+				$(
+					if $command.is_some() {
+						std::mem::swap(&mut $command, &mut $config);
+						diff = true;
+					} else {
+						$config = None;
+					}
+				)*
+			}
+		}
+
+		if_some! {
 			self.ip                 => cb.ip,
 			self.port               => cb.port,
 			self.max_connections    => cb.max_connections,
@@ -617,7 +704,9 @@ impl Cli {
 			watch                   => cb.watch,
 			self.cache_time         => cb.cache_time,
 			media_controls          => cb.media_controls,
-			self.authorization      => cb.authorization
+			self.authorization      => cb.authorization,
+			no_auth_rpc             => cb.no_auth_rpc,
+			no_auth_rest            => cb.no_auth_rest
 		}
 
 		if diff {

@@ -1,7 +1,5 @@
-# state_collection_full
+# collection_full
 Retrieve full metadata about the current [`Collection`](../../common-objects/collection.md).
-
-This method is much heavier superset of [`state_collection`](state_collection.md).
 
 #### Inputs
 `None`
@@ -11,7 +9,7 @@ The output of this method will be a full [`Collection`](../../common-objects/col
 
 #### Example Request
 ```bash
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"state_collection_full"}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_full"}'
 ```
 
 #### Example Response
@@ -20,7 +18,7 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"state_collecti
   "jsonrpc": "2.0",
   "result": {
     "empty": false,
-    "timestamp": 1690665271,
+    "timestamp": 1691018515,
     "count_artist": 3,
     "count_album": 4,
     "count_song": 7,
@@ -136,7 +134,8 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"state_collecti
         "track": 1,
         "disc": 2,
         "mime": "audio/mpeg",
-        "extension": "mp3"
+        "extension": "mp3",
+        "path": "/home/hinto/festival/assets/audio/song_1.mp3"
       },
       {
         "title": "mp3",
@@ -147,7 +146,8 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"state_collecti
         "track": 2,
         "disc": 2,
         "mime": "audio/mpeg",
-        "extension": "mp3"
+        "extension": "mp3",
+        "path": "/home/hinto/festival/assets/audio/song_2.mp3"
       },
       {
         "title": "mp3",
@@ -158,7 +158,8 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"state_collecti
         "track": 1,
         "disc": 2,
         "mime": "audio/mpeg",
-        "extension": "mp3"
+        "extension": "mp3",
+        "path": "/home/hinto/festival/assets/audio/song_3.mp3"
       },
       {
         "title": "flac",
@@ -169,7 +170,8 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"state_collecti
         "track": 2,
         "disc": 2,
         "mime": "audio/x-flac",
-        "extension": "flac"
+        "extension": "flac",
+        "path": "/home/hinto/festival/assets/audio/song_4.flac"
       },
       {
         "title": "m4a",
@@ -180,7 +182,8 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"state_collecti
         "track": 1,
         "disc": null,
         "mime": "audio/m4a",
-        "extension": "m4a"
+        "extension": "m4a",
+        "path": "/home/hinto/festival/assets/audio/song_5.m4a"
       },
       {
         "title": "song_6",
@@ -191,7 +194,8 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"state_collecti
         "track": 2,
         "disc": 2,
         "mime": "audio/ogg",
-        "extension": "ogg"
+        "extension": "ogg",
+        "path": "/home/hinto/festival/assets/audio/song_6.ogg"
       },
       {
         "title": "mp3",
@@ -202,7 +206,8 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"state_collecti
         "track": 1,
         "disc": 2,
         "mime": "audio/mpeg",
-        "extension": "mp3"
+        "extension": "mp3",
+        "path": "/home/hinto/festival/assets/audio/song_7.mp3"
       }
     ],
     "sort_artist_lexi": [

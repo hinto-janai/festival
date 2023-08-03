@@ -44,7 +44,7 @@ macro_rules! impl_struct_anon_lt {
 		#[derive(Clone,Debug,PartialEq,Serialize,Deserialize)]
 		#[serde(transparent)]
 		#[repr(transparent)]
-		pub struct $struct<'a>(#[serde(borrow)] $type);
+		pub struct $struct<'a>(#[serde(borrow)] pub $type);
 	}
 }
 

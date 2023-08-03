@@ -1,9 +1,26 @@
 # API Stability
 Some notes on what parts of `festivald`'s API can/cannot be relied upon.
 
-In general, things may be added, but never removed from the public API.
+In general:
+- Things may be added, but never removed
+- Inputs will never change, but their outputs _may_ contain additions in the future
 
 These rules will apply until a potential `v2.0.0` breaking release.
+
+## `festival-cli`
+`festivald` and `festival-cli`'s versions are tied together to represent their compatability.
+
+`festivald` will be able to (fully) respond to `festival-cli` as long as `festivald`'s:
+- Major version is the same
+- Minor version is the same or greater
+
+For example, `festivald v1.2.x` is fully compatible with:
+- `festival-cli v1.2.x`
+- `festival-cli v1.1.x`
+- `festival-cli v1.0.x`
+
+but not necessarily with `festival-cli v1.3.x` and beyond.
+Note that an older `festivald` will still be able to communicate with a newer `festival-cli`, however, if the new `festival-cli` is requesting a new method, the old `festivald` won't be able to respond correctly.
 
 ## Config
 - [`config`](config.md) names are stable (`max_connections` will always be named `max_connections`)
@@ -25,10 +42,11 @@ All locations and filenames of all files written to disk by `festivald` are stab
 | [`Data`](disk.md#data)     | `Collection` file is always at `~/.local/share/festival/daemon/state/collection.bin`
 
 ## JSON-RPC
-- Method names ([`collection_new`](json-rpc/collection/collection_new.md)) and their input types are stable
-- Parameter names ([`volume`](json-rpc/playback-control/volume.md)) are stable
-- More fields _may_ be added in the future, previous fields will remain
-- Although old fields will remain, the _ordering_ of fields should _NOT_ be relied upon
+- Method names ([`collection_new`](json-rpc/collection/collection_new.md)) are stable
+- Additional methods _may_ be added in the future
+- Parameter names, types, and count are stable (new parameter fields to an _existing_ method will never be added)
+- Additional response fields to an _existing_ method _may_ be added in the future
+- Although old response fields will remain, the _ordering_ of response fields should _NOT_ be relied upon
 - These rules also apply to the [`Common Objects`](common-objects/common-objects.md)
 
 Old `v1.0.0` JSON-RPC example:
@@ -36,10 +54,9 @@ Old `v1.0.0` JSON-RPC example:
 // Request
 {
   "jsonrpc": "2.0",
-  "method": "Introduced in v1.0.0",
+  "method": "This will never change",
   "param": {
-    "param_field": "Introduced in v1.0.0",
-    "param_field2": "Introduced in v1.0.0"
+    "param_field": "This will never change"
   },
   "id": 0,
 }
@@ -48,23 +65,20 @@ Old `v1.0.0` JSON-RPC example:
 {
   "jsonrpc": "2.0",
   "result": {
-    "result_field": "Introduced in v1.0.0",
-    "result_field2": "Introduced in v1.0.0"
+    "result_field": "Introduced in v1.0.0"
   },
   "id": 0,
 }
 ```
 
-New `v1.x.x`+ JSON-RPC example:
+New `v1.x.x` JSON-RPC example:
 ```json
 // Request
 {
   "jsonrpc": "2.0",
-  "method": "Introduced in v1.0.0",
+  "method": "This will never change",
   "param": {
-    "param_field3": "Introduced in v1.x.x",
-    "param_field2": "Introduced in v1.0.0",
-    "param_field": "Introduced in v1.0.0"
+    "param_field": "This will never change"
   },
   "id": 0,
 }
@@ -73,9 +87,9 @@ New `v1.x.x`+ JSON-RPC example:
 {
   "jsonrpc": "2.0",
   "result": {
+    "result_field3": "Introduced in v1.3.x",
     "result_field": "Introduced in v1.0.0",
-    "result_field3": "Introduced in v1.x.x",
-    "result_field2": "Introduced in v1.0.0"
+    "result_field2": "Introduced in v1.2.x"
   },
   "id": 0,
 }
@@ -84,7 +98,7 @@ New `v1.x.x`+ JSON-RPC example:
 ## REST
 - Endpoint names ([`/key_artist`](rest/key/artist.md)) and their input types are stable
 - Endpoint outputs are stable (the above endpoint will _always_ output a ZIP file)
-- More endpoints could be added in the future, previous endpoints will remain
+- Additional endpoints _may_ be added in the future
 - Output filenames are stable (`/key_artist` will always output a ZIP file with the name `${ARTIST_NAME}.zip`)
 - The file hierarchy within ZIPs are stable
 

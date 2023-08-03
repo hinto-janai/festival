@@ -1,7 +1,7 @@
-# state_collection
+# collection_brief
 Retrieve some brief metadata about the current [`Collection`](../../common-objects/collection.md).
 
-This method is a subset of the [`state_collection_full`](state_collection_full.md) method.
+This method is a subset of the [`collection_full`](collection_full.md) method.
 
 #### Inputs
 
@@ -20,7 +20,7 @@ This method is a subset of the [`state_collection_full`](state_collection_full.m
 
 #### Example Request
 ```bash
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"state_collection"}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_brief"}'
 ```
 
 #### Example Response

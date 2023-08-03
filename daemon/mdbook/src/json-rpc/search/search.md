@@ -65,7 +65,10 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"search","param
         "runtime": 249,
         "sample_rate": 44100,
         "track": 5,
-        "disc": 1
+        "disc": 1,
+        "mime": "audio/x-flac",
+        "extension": "flac",
+        "path": "/home/hinto/Music/TIME.flac"
       }
     ]
   },
