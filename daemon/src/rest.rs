@@ -27,7 +27,6 @@ use shukusai::collection::{
 	Song,
 };
 use crate::{
-	hash::Hash,
 	config::{Config,config},
 	ptr::CollectionPtr,
 };

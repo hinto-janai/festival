@@ -53,7 +53,6 @@ use crate::{
 		TOTAL_CONNECTIONS,
 		TOTAL_REQUESTS,
 	},
-	hash::Hash,
 	ptr::CollectionPtr,
 };
 use tokio_native_tls::{
@@ -452,7 +451,7 @@ async fn route(
 //---------------------------------------------------------------------------------------------------- Auth
 // Verify authentication, ask for it, or ignore
 // if none is set in our config.
-pub async fn auth_ok(parts: &Parts, hash: &crate::hash::Hash) -> bool {
+pub async fn auth_ok(parts: &Parts, hash: &rpc::hash::Hash) -> bool {
 	match parts.headers.get(AUTHORIZATION) {
 		// AUTH header exists.
 		Some(s) => {

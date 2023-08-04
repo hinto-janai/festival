@@ -1,0 +1,15 @@
+[book]
+authors      = ["hinto-janai"]
+language     =  "en"
+multilingual = false
+src          = "src"
+title        = "festival-cli v0.0.0"
+
+[build]
+build-dir = "docs"
+
+[output.html]
+default-theme = "ayu"
+preferred-dark-theme = "ayu"
+git-repository-url = "https://github.com/hinto-janai/festival"
+site-url = "/cli/"

@@ -40,7 +40,6 @@ use shukusai::{
 	search::SearchKind,
 };
 use crate::{
-	hash::Hash,
 	resp,
 	constants::FESTIVALD_VERSION,
 	config::{AUTH,Config,config},

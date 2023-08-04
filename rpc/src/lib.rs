@@ -11,3 +11,8 @@ pub mod resp;
 
 /// REST resources
 pub mod resource;
+
+/// Base64 operations
+pub mod base64;
+/// Hashing operations
+pub mod hash;
