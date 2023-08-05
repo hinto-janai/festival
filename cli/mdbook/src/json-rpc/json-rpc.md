@@ -8,7 +8,7 @@ For a quick start on using it, see the next section: [Quick Start](json-rpc/quic
 ### Missing resource
 If a `JSON-RPC` method is interacting with an underlying resource and that resource is missing from the filesystem, `festivald` will _not_ respond to the client with an error, however, it will log an error message on the machine it is running on.
 
-For example, if a [`add_queue_key_song`](json-rpc/playback-control/add_queue_key_song.md) method is sent, and _that_ `Song`'s underlying PATH is missing/moved/renamed from when the `Collection` was created:
+For example, if a [`add_queue_key_song`](json-rpc/playback/add_queue_key_song.md) method is sent, and _that_ `Song`'s underlying PATH is missing/moved/renamed from when the `Collection` was created:
 ```bash
 mv "Artist/Album/Song Title" "Artist/Album/Song_Title"
 ```

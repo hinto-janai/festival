@@ -8,24 +8,20 @@ use shukusai::constants::{
 	FESTIVAL,FRONTEND_SUB_DIR,
 };
 use crate::constants::{
-	FESTIVALD_PORT,
-	FESTIVALD_CONFIG,
+	FESTIVAL_CLI_NAME_VER,
+	FESTIVAL_CLI_PORT,
+	FESTIVAL_CLI_CONFIG,
 };
-use strum::{
-	AsRefStr,
-	Display,
-	EnumCount,
-	EnumIter,
-	EnumString,
-	EnumVariantNames,
-	IntoStaticStr,
+use std::{
+	net::{
+		Ipv4Addr,
+		SocketAddrV4,
+	},
+	collections::HashSet,
+	path::PathBuf,
+	borrow::Cow,
+	str::FromStr,
 };
-use std::net::{
-	Ipv4Addr,
-	SocketAddrV4,
-};
-use std::collections::HashSet;
-use std::path::PathBuf;
 use once_cell::sync::OnceCell;
 use shukusai::constants::DASH;
 
@@ -39,65 +35,47 @@ pub fn config() -> &'static Config {
 	unsafe { CONFIG.get_unchecked() }
 }
 
-// SAFETY: This does not get initialized if there's no `authorization` config.
-// This is okay because we will only ever use `.get()`.
-pub static AUTH: OnceCell<rpc::hash::Hash> = OnceCell::new();
+//---------------------------------------------------------------------------------------------------- Defaults
+const DEFAULT_URL: &str = "http://127.0.0.1:18425";
+fn default_url() -> http::uri::Uri {
+	// SAFETY: unwrap ok, static str.
+	http::uri::Uri::from_str(DEFAULT_URL).unwrap()
+}
+
+
+const DEFAULT_ID: &str = FESTIVAL_CLI_NAME_VER;
+fn default_id() -> json_rpc::Id<'static> {
+	json_rpc::Id::Str(Cow::Borrowed(FESTIVAL_CLI_NAME_VER))
+}
+
 
 //---------------------------------------------------------------------------------------------------- ConfigBuilder
 /// The `struct` that maps value directly from the disk.
 ///
 /// We can't use this directly, but we can transform it into
 /// the `Config` we will be using for the rest of the program.
-disk::toml!(ConfigBuilder, disk::Dir::Config, FESTIVAL, FRONTEND_SUB_DIR, "festivald");
+disk::toml!(ConfigBuilder, disk::Dir::Config, FESTIVAL, FRONTEND_SUB_DIR, "festival-cli");
 #[derive(Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
 pub struct ConfigBuilder {
-	pub ip:                 Option<Ipv4Addr>,
-	pub port:               Option<u16>,
-	pub max_connections:    Option<u64>,
-	pub exclusive_ips:      Option<HashSet<Ipv4Addr>>,
-	pub sleep_on_fail:      Option<u64>,
+	pub festivald:          Option<String>,
+	pub ignore_cert:        Option<bool>,
+	pub timeout:            Option<u64>,
+	pub id:                 Option<String>,
 	pub collection_paths:   Option<Vec<PathBuf>>,
-	pub tls:                Option<bool>,
-	pub certificate:        Option<PathBuf>,
-	pub key:                Option<PathBuf>,
-	pub rest:               Option<bool>,
-	pub docs:               Option<bool>,
-	pub direct_download:    Option<bool>,
-	pub filename_separator: Option<String>,
 	pub log_level:          Option<log::LevelFilter>,
-	pub watch:              Option<bool>,
-	pub cache_time:         Option<u64>,
-	pub media_controls:     Option<bool>,
 	pub authorization:	    Option<String>,
-	pub no_auth_rpc:        Option<HashSet<rpc::Method>>,
-	pub no_auth_rest:       Option<HashSet<rpc::resource::Resource>>,
-	pub no_auth_docs:       Option<bool>,
 }
 
 impl Default for ConfigBuilder {
 	fn default() -> Self {
 		Self {
-			ip:                 Some(Ipv4Addr::LOCALHOST),
-			port:               Some(FESTIVALD_PORT),
-			max_connections:    None,
-			exclusive_ips:      None,
-			sleep_on_fail:      Some(3000),
+			festivald:          Some(DEFAULT_URL.into()),
+			ignore_cert:        Some(false),
+			timeout:            Some(0),
+			id:                 Some(DEFAULT_ID.into()),
 			collection_paths:   Some(vec![]),
-			tls:                Some(false),
-			certificate:        None,
-			key:                None,
-			rest:               Some(true),
-			docs:               Some(true),
-			direct_download:    Some(false),
-			filename_separator: Some(" - ".to_string()),
 			log_level:          Some(log::LevelFilter::Error),
-			watch:              Some(true),
-			cache_time:         Some(3600),
-			media_controls:     Some(true),
 			authorization:      None,
-			no_auth_rpc:        None,
-			no_auth_rest:       None,
-			no_auth_docs:       Some(false),
 		}
 	}
 }
@@ -107,27 +85,13 @@ impl ConfigBuilder {
 	// Sets `CONFIG`, and returns a ref.
 	pub fn build_and_set(self) -> &'static Config {
 		let ConfigBuilder {
-			ip,
-			port,
-			max_connections,
-			exclusive_ips,
-			sleep_on_fail,
+			festivald,
+			ignore_cert,
+			timeout,
+			id,
 			collection_paths,
-			tls,
-			certificate,
-			key,
-			rest,
-			docs,
-			direct_download,
-			filename_separator,
 			log_level,
-			watch,
-			cache_time,
-			media_controls,
 			authorization,
-			no_auth_rpc,
-			no_auth_rest,
-			no_auth_docs,
 		} = self;
 
 		macro_rules! get {
@@ -154,68 +118,26 @@ impl ConfigBuilder {
 			}
 		}
 
+		// TODO
+		let festivald = festivald.map(|s| http::uri::Uri::from_str(s.as_str()).unwrap());
+		let id = id.map(|s| json_rpc::Id::from(s));
+
 		let mut c = Config {
-			ip:                 get!(ip,                 "ip",                 Ipv4Addr::LOCALHOST),
-			port:               get!(port,               "port",               FESTIVALD_PORT),
-			max_connections:    sum!(max_connections,    "max_connections",    None::<u64>),
-			exclusive_ips:      sum!(exclusive_ips,      "exclusive_ips",      None::<HashSet<Ipv4Addr>>),
-			sleep_on_fail:      sum!(sleep_on_fail,      "sleep_on_fail",      Some(3000)),
+			festivald:          get!(festivald,          "festivald",          default_url()),
+			ignore_cert:        get!(ignore_cert,        "ignore_cert",        false),
+			timeout:            sum!(timeout,            "timeout",            None::<u64>),
+			id:                 get!(id,                 "id",                 default_id()),
 			collection_paths:   get!(collection_paths,   "collection_paths",   if let Some(p) = dirs::audio_dir() { vec![p] } else { Vec::<PathBuf>::with_capacity(0) }),
-			tls:                get!(tls,                "tls",                false),
-			certificate:        sum!(certificate,        "certificate",        None::<PathBuf>),
-			key:                sum!(key,                "key",                None::<PathBuf>),
-			rest:               get!(rest,               "rest",               true),
-			docs:               get!(docs,               "docs",               true),
-			direct_download:    get!(direct_download,    "direct_download",    false),
-			filename_separator: get!(filename_separator, "filename_separator", " - ".to_string()),
 			log_level:          get!(log_level,          "log_level",          log::LevelFilter::Error),
-			watch:              get!(watch,              "watch",              true),
-			cache_time:         get!(cache_time,         "cache_time",         3600),
-			media_controls:     get!(media_controls,     "media_controls",     true),
-			no_auth_rpc:        sum!(no_auth_rpc,        "no_auth_rpc",        None::<HashSet<rpc::Method>>),
-			no_auth_rest:       sum!(no_auth_rest,       "no_auth_rest",       None::<HashSet<rpc::resource::Resource>>),
-			no_auth_docs:       get!(no_auth_docs,       "no_auth_docs",       false),
+			authorization: None,
 		};
 
-		if c.max_connections == Some(0) {
-			c.max_connections = None;
-		}
-
-		if c.sleep_on_fail == Some(0) {
-			c.sleep_on_fail = None;
+		if c.timeout == Some(0) {
+			c.timeout = None;
 		}
 
 		// FIXME TODO: testing.
-//		c.tls = true;
-//		c.certificate = Some(PathBuf::from("../../assets/tls/cert.pem"));
-//		c.key = Some(PathBuf::from("../../assets/tls/key.pem"));
 //		let authorization = Some("user:pass".to_string());
-//		c.no_auth_rpc = Some([rpc::Method::Toggle].into());
-//		c.no_auth_rest = Some([rpc::resource::Resource::Song].into());
-
-		if let Some(ref hs) = c.exclusive_ips {
-			if hs.is_empty() ||  hs.contains(&Ipv4Addr::UNSPECIFIED) {
-				c.exclusive_ips = None;
-			}
-		}
-
-		if let Some(ref cert) = c.certificate {
-			if cert.as_os_str().is_empty() {
-				warn!("TLS certificate is empty PATH, ignoring");
-				c.certificate = None;
-			} else if !cert.exists() {
-				crate::exit!("TLS certificate [{}] does not exist", cert.display());
-			}
-		}
-
-		if let Some(ref key) = c.key {
-			if key.as_os_str().is_empty() {
-				warn!("TLS key is empty PATH, ignoring");
-				c.key = None;
-			} else if !key.exists() {
-				crate::exit!("TLS key [{}] does not exist", key.display());
-			}
-		}
 
 		// AUTHORIZATION
 		if let Some(s) = authorization {
@@ -242,18 +164,12 @@ impl ConfigBuilder {
 			} else if s.split_once(":").is_none() {
 				crate::exit!("[authorization] field is not in `USERNAME:PASSWORD` format");
 			// Reject if TLS is not enabled.
-			} else if !c.tls || c.certificate.is_none() || c.key.is_none() {
-				crate::exit!("[authorization] field was provided but TLS is not enabled, exiting for safety");
+			// TODO: replace with https check
+//			} else if !c.tls || c.certificate.is_none() || c.key.is_none() {
+//				crate::exit!("[authorization] field was provided but TLS is not enabled, exiting for safety");
 			} else {
-				// Base64 encode before hashing.
-				// This means we don't parse + decode every HTTP input,
-				// instead, we just hash it assuming it is in the correct
-				// `Basic <BASE64_ENCODED_USER_PASS>` format, then we
-				// can just directly compare with this.
-				let s = rpc::base64::encode_with_authorization_basic_header(s);
-
-				// SAFETY: unwrap is okay, we only set `AUTH` here.
-				AUTH.set(rpc::hash::Hash::new(s)).unwrap();
+				// Set auth.
+				c.authorization = Some(crate::auth::Auth::new(s));
 			}
 		} else {
 			warn!("missing config [authorization], skipping");
@@ -263,7 +179,7 @@ impl ConfigBuilder {
 		for line in format!("{c:#?}").lines() {
 			info!("{line}");
 		}
-		info!("Authorization: {}", AUTH.get().is_some());
+		info!("Authorization: {}", c.authorization.is_some());
 		info!("{DASH} Configuration");
 
 		// SAFETY: unwrap is okay, we only set `CONFIG` here.
@@ -276,16 +192,16 @@ impl ConfigBuilder {
 		use disk::Toml;
 
 		match Self::from_file() {
-			Ok(c)  => { ok!("festivald.conf ... from disk"); c },
+			Ok(c)  => { ok!("festival-cli.conf ... from disk"); c },
 			Err(e) => {
 				// SAFETY: if we can't get the config, panic is ok.
-				let p = Config::absolute_path().unwrap();
+				let p = ConfigBuilder::absolute_path().unwrap();
 
 				if p.exists() {
-					crate::exit!("festivald.conf exists but is invalid:\n\n{e}\ntip: use `festivald data --reset-config` to reset it");
+					crate::exit!("festival-cli.conf exists but is invalid:\n\n{e}\ntip: use `festival-cli data --reset-config` to reset it");
 				} else {
-					Config::mkdir().unwrap();
-					std::fs::write(&p, FESTIVALD_CONFIG).unwrap();
+					ConfigBuilder::mkdir().unwrap();
+					std::fs::write(&p, FESTIVAL_CLI_CONFIG).unwrap();
 				}
 
 				Self::default()
@@ -306,24 +222,13 @@ impl ConfigBuilder {
 		}
 
 		if_some_swap! {
-			cmd.ip                 => self.ip,
-			cmd.port               => self.port,
-			cmd.max_connections    => self.max_connections,
-			cmd.exclusive_ips      => self.exclusive_ips,
-			cmd.sleep_on_fail      => self.sleep_on_fail,
-			cmd.collection_paths   => self.collection_paths,
-			cmd.tls                => self.tls,
-			cmd.certificate        => self.certificate,
-			cmd.key                => self.key,
-			cmd.rest               => self.rest,
-			cmd.docs               => self.docs,
-			cmd.direct_download    => self.direct_download,
-			cmd.filename_separator => self.filename_separator,
-			cmd.log_level          => self.log_level,
-			cmd.watch              => self.watch,
-			cmd.cache_time         => self.cache_time,
-			cmd.media_controls     => self.media_controls,
-			cmd.authorization      => self.authorization
+			cmd.festivald        => self.festivald,
+			cmd.ignore_cert      => self.ignore_cert,
+			cmd.timeout          => self.timeout,
+			cmd.id               => self.id,
+			cmd.collection_paths => self.collection_paths,
+			cmd.authorization    => self.authorization,
+			cmd.log_level        => self.log_level
 		}
 	}
 }
@@ -333,40 +238,27 @@ impl ConfigBuilder {
 ///
 /// The global immutable copy the whole program will refer
 /// to is the static `CONFIG` in this module. Or, `config()`.
-disk::toml!(Config, disk::Dir::Config, FESTIVAL, FRONTEND_SUB_DIR, "festivald");
-#[derive(Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
+//disk::toml!(Config, disk::Dir::Config, FESTIVAL, FRONTEND_SUB_DIR, "festival-cli");
+#[derive(Debug,PartialEq)]
 pub struct Config {
-	pub ip:                 std::net::Ipv4Addr,
-	pub port:               u16,
-	pub max_connections:    Option<u64>,
-	pub exclusive_ips:      Option<HashSet<Ipv4Addr>>,
-	pub sleep_on_fail:      Option<u64>,
-	pub collection_paths:   Vec<PathBuf>,
-	pub tls:                bool,
-	pub certificate:        Option<PathBuf>,
-	pub key:                Option<PathBuf>,
-	pub rest:               bool,
-	pub docs:               bool,
-	pub direct_download:    bool,
-	pub filename_separator: String,
-	pub log_level:          log::LevelFilter,
-	pub watch:              bool,
-	pub cache_time:         u64,
-	pub media_controls:     bool,
-	pub no_auth_rpc:        Option<HashSet<rpc::Method>>,
-	pub no_auth_rest:       Option<HashSet<rpc::resource::Resource>>,
-	pub no_auth_docs:       bool,
+	pub festivald:        http::uri::Uri,
+	pub ignore_cert:      bool,
+	pub timeout:          Option<u64>,
+	pub id:               json_rpc::Id<'static>,
+	pub collection_paths: Vec<PathBuf>,
+	pub log_level:        log::LevelFilter,
+	pub authorization:	  Option<crate::auth::Auth>,
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
 mod tests {
 	use super::*;
-	use crate::constants::FESTIVALD_CONFIG;
+	use crate::constants::FESTIVAL_CLI_CONFIG;
 
 	#[test]
 	fn default() {
-		let t1: ConfigBuilder = toml_edit::de::from_str(&FESTIVALD_CONFIG).unwrap();
+		let t1: ConfigBuilder = toml_edit::de::from_str(&FESTIVAL_CLI_CONFIG).unwrap();
 		let t1 = t1.build_and_set();
 		let t2 = config();
 

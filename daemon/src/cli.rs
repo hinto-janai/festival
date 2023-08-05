@@ -272,12 +272,12 @@ pub struct Cli {
 	#[arg(long, verbatim_doc_comment, default_value_t = false)]
 	/// Disable watching the filesystem for signals
 	///
-	/// The way a newly launched Festival communicates to
+	/// The way a newly launched `festivald` communicates to
 	/// an already existing one (e.g, `festivald --play`) is
-	/// by creating a file in Festival's `signal` directory.
+	/// by creating a file in `festivald`'s `signal` directory.
 	///
 	/// `festivald --FLAG` just creates a file in that directory,
-	/// which an existing Festival will notice and do the appropriate task.
+	/// which an existing `festivald` will notice and do the appropriate task.
 	///
 	/// Using `--disable-watch` will disable that part of the system so that
 	/// filesystem signals won't work, e.g, `festivald --play` will not work.
@@ -286,7 +286,7 @@ pub struct Cli {
 	#[arg(long, verbatim_doc_comment, default_value_t = false)]
 	/// Disable OS media controls
 	///
-	/// Festival plugs into the native OS's media controls so that signals
+	/// `festivald` plugs into the native OS's media controls so that signals
 	/// like `play/pause/stop` and/or keyboard controls can be processed.
 	///
 	/// `--disable-media-controls` disables this.
@@ -357,9 +357,9 @@ pub struct Data {
 	docs: bool,
 
 	#[arg(long, verbatim_doc_comment)]
-	/// Print the PATHs used by Festival
+	/// Print the PATHs used by `festivald`
 	///
-	/// All data saved by Festival is saved in these directories.
+	/// All data saved by `festivald` is saved in these directories.
 	/// For more information, see: <https://docs.festival.pm/daemon/disk.html>
 	path: bool,
 
@@ -545,17 +545,11 @@ impl Cli {
 		// Docs.
 		if u.docs {
 			// Create documentation.
-			match crate::docs::Docs::create() {
-				Ok(mut path) => {
-					path.push("index.html");
-
-					match open::that_detached(path) {
-						Ok(_)  => exit(0),
-						Err(e) => { eprintln!("festivald: Could not open docs: {e}"); exit(1); },
-					}
-				},
-				Err(e) => { eprintln!("festivald: Could not create docs: {e}"); exit(1); },
+			if let Err(e) = crate::docs::Docs::create_open() {
+				eprintln!("festivald: Could not create docs: {e}");
+				exit(1);
 			}
+
 			exit(0);
 		}
 

@@ -39,6 +39,7 @@ strum        = { workspace = true }
 once_cell    = { workspace = true }
 open         = { workspace = true }
 zeroize      = { workspace = true }
+zip          = { workspace = true }
 
 ### Regular libraries.
 http             = { version = "0.2.9" }
@@ -49,4 +50,3 @@ mime             = { version = "0.3.17" }
 urlencoding      = { version = "2.1.3" }
 hyper-staticfile = { version = "0.9.5" }
 tokio-util       = { version = "0.7.8", features = ["full"] }
-zip              = { version = "0.6.6" }

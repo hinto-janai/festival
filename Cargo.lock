@@ -1951,13 +1951,16 @@ dependencies = [
  "json-rpc",
  "log",
  "memmap2 0.6.2",
+ "once_cell",
  "open",
  "readable",
  "rpc",
  "serde",
  "serde_json",
+ "shukusai",
  "urlencoding",
  "zeroize",
+ "zip",
 ]
 
 [[package]]
@@ -2945,7 +2948,6 @@ dependencies = [
 [[package]]
 name = "json-rpc"
 version = "0.1.1"
-source = "git+https://github.com/hinto-janai/json-rpc#bead2044484fd5c750ad607882fbde550a7cb37b"
 dependencies = [
  "serde",
  "serde_json",

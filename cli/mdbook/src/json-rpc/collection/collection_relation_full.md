@@ -5,7 +5,7 @@ This will return an empty array (`"result": []`) if the `Collection` is empty.
 
 This is a superset of the [`collection_relation`](collection_relation.md) method, with 1 additional field: the `path` of the `Song`.
 
-This and [`state_config`](../state-retrieval/state_config.md) are the only methods that expose `festivald`'s local filesystem PATHs.
+This and [`state_config`](../state/state_config.md) are the only methods that expose `festivald`'s local filesystem PATHs.
 
 #### Inputs
 `None`

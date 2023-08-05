@@ -9,8 +9,8 @@ This allows you to have `authorization` enabled across the board, but allow spec
 The method names in the option must match the exact names of the [actual methods](../json-rpc/json-rpc.md).
 
 For example:
-- [`toggle`](../json-rpc/playback-control/toggle.md)
-- [`state_audio`](../json-rpc/state-retrieval/state_audio.md)
+- [`toggle`](../json-rpc/playback/toggle.md)
+- [`state_audio`](../json-rpc/state/state_audio.md)
 - [`collection_new`](../json-rpc/collection/collection_new.md)
 
 If a specified method name is incorrect, `festivald` will not start.

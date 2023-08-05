@@ -1,5 +1,5 @@
 # Config
-`festivald.toml` is `festivald`'s config file. It is in the [`TOML`](https://en.wikipedia.org/wiki/TOML) format.
+`festival-cli.toml` is `festival-cli`'s config file. It is in the [`TOML`](https://en.wikipedia.org/wiki/TOML) format.
 
 Values will be loaded from this file on startup.
 

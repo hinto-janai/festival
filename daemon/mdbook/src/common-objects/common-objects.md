@@ -27,7 +27,7 @@ This is the generic "success" response object, just an empty `result`:
   "id": 0         // the `result` field existing in JSON-RPC means success,
 }                 // so the value in this case (null) doesn't matter.
 ```
-This is the response to many JSON-RPC as well, typically the [`Playback Control`](../json-rpc/playback-control/playback-control.md) methods.
+This is the response to many JSON-RPC as well, typically the [`Playback Control`](../json-rpc/playback/playback.md) methods.
 
 If an error occurred in this situation, the JSON-RPC defined `error` would be used:
 ```json

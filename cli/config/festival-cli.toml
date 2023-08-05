@@ -1,0 +1,135 @@
+#===================#
+# festival-cli.toml #
+#================================================================#
+# This is `festival-cli`'s config file.                          #
+# It is in the TOML (https://en.wikipedia.org/wiki/TOML) format. #
+#                                                                #
+# Values will be loaded from this file on startup.               #
+# If overlapping `--command-flags` are provided,                 #
+# they will be used instead.                                     #
+#                                                                #
+# For full documentation on config options, see:                 #
+# <https://docs.festival.pm/cli/config.html>                     #
+#================================================================#
+
+
+#----------------------------------------------------------#
+#                         NETWORK                          #
+#----------------------------------------------------------#
+# The protocol, IPv4 address, and port of the
+# `festivald` that `festival-cli` will connect
+# to by default.
+#
+# DEFAULT | "http://127.0.0.1:18425"
+# EXAMPLE | "https://192.168.2.10:8080", "http://185.199.110.153:80"
+# TYPE    | string
+festivald = "http://127.0.0.1:18425"
+
+
+# If using HTTPS, do not validate `festivald`'s TLS certificate.
+#
+# This is similar to `curl --insecure` or `wget --no-check-certificate`.
+#
+# Useful for connecting to your own `festivald`,
+# which may be using a self-signed certificate.
+#
+# DEFAULT | false
+# VALUES  | true, false
+# TYPE    | boolean
+ignore-cert = false
+
+
+# Disconnect from a non-responding `festivald`
+#
+# If `festivald` does not respond with _at least_
+# a basic HTTP header within this time (seconds),
+# `festival-cli` will disconnect.
+#
+# 0 means never disconnect.
+#
+# DEFAULT | 0
+# VALUES  | 5, 10, 60
+# TYPE    | unsigned integer
+timeout = 0
+
+
+#----------------------------------------------------------#
+#                        JSON-RPC                          #
+#----------------------------------------------------------#
+# The `JSON-RPC 2.0` ID to send to `festivald`.
+# See below for more info:
+# <https://jsonrpc.org/specification>
+#
+# DEFAULT | "festival-cli v1.0.0"
+# VALUES  | 0, 1, "1", "Hello"
+# TYPE    | unsigned integer, string, or null (commented out)
+id = "festival-cli v1.0.0"
+
+
+#----------------------------------------------------------#
+#                       COLLECTION                         #
+#----------------------------------------------------------#
+# Upon a `collection_new` JSON-RPC method call, if the
+# `--paths` parameter is empty or not passed,
+# these PATHs will be sent instead.
+#
+# If this is also empty, the default OS `Music`
+# directory will be used
+#
+# Windows-style PATHs will only work if the target
+# `festivald` is running on Windows (`C:\\Users\\User\\Music`)
+#
+# Note these are PATHs on the _target_ `festivald`,
+# NOT on the filesystem `festival-cli` is running on.
+#
+# DEFAULT | []
+# EXAMPLE | ["/home/user/Music/albums", "/home/user/data/songs"]
+# TYPE    | array of PATHs
+collection_paths = []
+
+
+#----------------------------------------------------------#
+#                         LOGGING                          #
+#----------------------------------------------------------#
+# The logging level `festival-cli` will use.
+#
+# "error" will only show critical error messages,
+# "warn" will in addition show warnings,
+# "info" will in addition show info, etc, etc.
+#
+# DEFAULT | "error"
+# VALUES  | "off", "error", "warn", "info", "debug", "trace"
+# TYPE    | string, one of the above
+log_level = "error"
+
+
+#----------------------------------------------------------#
+#                      AUTHORIZATION                       #
+#----------------------------------------------------------#
+# Authorization sent to `festivald`.
+#
+# This matches the `authorization` config
+# in `festivald`, see here for more info:
+# <https://docs.festival.pm/daemon/authorization/authorization.html>
+#
+# A `festivald` with HTTPS must be used or `festival-cli`
+# will refuse to start.
+#
+# An empty string disables this feature.
+#
+# Alternatively, you can input an absolute PATH to a file
+# `festival-cli` can access, containing the string, e.g:
+# ```
+# authorization = "/path/to/user_and_pass.txt"
+# ```
+#
+# In this case, `festival-cli` will read the file and attempt
+# to parse it with the same syntax, i.e, the file should contain:
+# ```
+# my_user:my_pass
+# ```
+#
+# DEFAULT | "" (disabled)
+# EXAMPLE | "my_username:my_password", "my_username:aoig2A%^$AWS^%", "/path/to/file"
+# TYPE    | string or PATH to file
+authorization = ""

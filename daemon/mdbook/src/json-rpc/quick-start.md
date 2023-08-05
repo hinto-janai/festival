@@ -8,23 +8,23 @@ A quick start to using `festivald`'s `JSON-RPC 2.0` API.
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_new","params":{"paths":null}}'
 ```
 
-2. Add the `Artist` "LUCKY TAPES" to the queue with [`add_queue_map_artist`](playback-control/add_queue_map_artist.md):
+2. Add the `Artist` "LUCKY TAPES" to the queue with [`add_queue_map_artist`](playback/add_queue_map_artist.md):
 ```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"add_queue_map_artist","params":{"artist":"LUCKY TAPES"}}'
 ```
 
-3. Start playing with [`play`](playback-control/play.md):
+3. Start playing with [`play`](playback/play.md):
 ```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"play"}'
 ```
 
 
-## View state of current audio playback with [`state_audio`](state-retrieval/state_audio.md)
+## View state of current audio playback with [`state_audio`](state/state_audio.md)
 ```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"state_audio"}'
 ```
 
-## Set the volume to 10% with [`volume`](playback-control/volume.md)
+## Set the volume to 10% with [`volume`](playback/volume.md)
 ```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"volume","params":{"volume":10}}'
 ```
@@ -34,7 +34,7 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"volume","param
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"current_album"}'
 ```
 
-## Clear the queue and stop playback with [`stop`](playback-control/stop.md)
+## Clear the queue and stop playback with [`stop`](playback/stop.md)
 ```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"stop"}'
 ```

@@ -1,5 +1,5 @@
 # key_album
-Input a `Album` key, retrieve an [`Album`](../../common-objects/album.md).
+Input an `Album` key, retrieve an [`Album`](../../common-objects/album.md).
 
 #### Inputs
 

@@ -43,3 +43,23 @@ pub enum Append {
 	/// - After: `a, 1, 2, 3, b, c`
 	Index(usize),
 }
+
+#[derive(Copy,Clone,Default,Debug,Hash,Eq,Ord,PartialEq,PartialOrd,Serialize,Deserialize,Encode,Decode)]
+#[derive(AsRefStr,Display,EnumCount,EnumIter,EnumString,EnumVariantNames,IntoStaticStr)]
+#[strum(serialize_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
+/// For `festivald` + `festival-cli`.
+pub enum Append2 {
+	/// [`Append::Front`]
+	#[default]
+	Front,
+	/// [`Append::Back`]
+	Back,
+	/// [`Append::Index`], the index is specified in a different field.
+	///
+	/// This is because `clap` gets weird with `enum`'s with values.
+	///
+	/// `festival-cli ... --append index ...` is allowed but
+	/// it does not let us specifiy the value.
+	Index,
+}

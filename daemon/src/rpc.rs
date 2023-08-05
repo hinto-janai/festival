@@ -81,6 +81,7 @@ const ERR_PERF:       (i32, &str) = (-32021, "Performance file does not exist");
 const ERR_FS:         (i32, &str) = (-32022, "Filesystem error");
 const ERR_AUTH:       (i32, &str) = (-32023, "Unauthorized");
 const ERR_SERDE:      (i32, &str) = (-32024, "(De)serialization error");
+const ERR_APPEND:     (i32, &str) = (-32025, "Index append was chosen, but no index was provided");
 
 //---------------------------------------------------------------------------------------------------- Parse, call func, or return macro.
 // Parse
@@ -467,14 +468,37 @@ async fn back<'a>(
 	Ok(resp::result_ok(id))
 }
 
+macro_rules! handle_append {
+	($params:expr, $id:expr) => {
+		match $params.append {
+			shukusai::audio::Append2::Index => {
+				let Some(i) = $params.index else {
+					return Ok(resp::error(ERR_APPEND.0, ERR_APPEND.1, $id));
+				};
+
+				if i != 0 && i >= shukusai::state::AUDIO_STATE.read().queue.len() {
+					return Ok(resp::result(rpc::resp::AddQueueKeyArtist { out_of_bounds: true }, $id));
+				}
+
+				shukusai::audio::Append::Index(i)
+			},
+			shukusai::audio::Append2::Front => shukusai::audio::Append::Front,
+			shukusai::audio::Append2::Back => shukusai::audio::Append::Back,
+		}
+	}
+}
+
 async fn add_queue_key_artist<'a>(
 	params:     rpc::param::AddQueueKeyArtist,
 	id:         Option<Id<'a>>,
 	collection: Arc<Collection>,
 	TO_KERNEL:  &Sender<FrontendToKernel>
 ) -> Result<Response<Body>, anyhow::Error> {
-	if let Some(x) = collection.artists.get(params.key) {
-		send!(TO_KERNEL, FrontendToKernel::AddQueueArtist((params.key, params.append, params.clear, params.offset)));
+	let key = ArtistKey::from(params.key);
+	if let Some(x) = collection.artists.get(key) {
+		let append = handle_append!(params, id);
+
+		send!(TO_KERNEL, FrontendToKernel::AddQueueArtist((key, append, params.clear, params.offset)));
 
 		if params.offset != 0 && params.offset >= x.songs.len() {
 			Ok(resp::result(rpc::resp::AddQueueKeyArtist { out_of_bounds: true }, id))
@@ -492,8 +516,11 @@ async fn add_queue_key_album<'a>(
 	collection: Arc<Collection>,
 	TO_KERNEL:  &Sender<FrontendToKernel>
 ) -> Result<Response<Body>, anyhow::Error> {
-	if let Some(x) = collection.albums.get(params.key) {
-		send!(TO_KERNEL, FrontendToKernel::AddQueueAlbum((params.key, params.append, params.clear, params.offset)));
+	let key = AlbumKey::from(params.key);
+	if let Some(x) = collection.albums.get(key) {
+		let append = handle_append!(params, id);
+
+		send!(TO_KERNEL, FrontendToKernel::AddQueueAlbum((key, append, params.clear, params.offset)));
 
 		if params.offset != 0 && params.offset >= x.songs.len() {
 			Ok(resp::result(rpc::resp::AddQueueKeyAlbum { out_of_bounds: true }, id))
@@ -511,8 +538,10 @@ async fn add_queue_key_song<'a>(
 	collection: Arc<Collection>,
 	TO_KERNEL:  &Sender<FrontendToKernel>
 ) -> Result<Response<Body>, anyhow::Error> {
-	if let Some(x) = collection.songs.get(params.key) {
-		send!(TO_KERNEL, FrontendToKernel::AddQueueSong((params.key, params.append, params.clear)));
+	let key = SongKey::from(params.key);
+	if let Some(x) = collection.songs.get(key) {
+		let append = handle_append!(params, id);
+		send!(TO_KERNEL, FrontendToKernel::AddQueueSong((key, append, params.clear)));
 		Ok(resp::result_ok(id))
 	} else {
 		Ok(resp::error(ERR_KEY_SONG.0, ERR_KEY_SONG.1, id))
@@ -526,7 +555,8 @@ async fn add_queue_map_artist<'a>(
 	TO_KERNEL:  &Sender<FrontendToKernel>
 ) -> Result<Response<Body>, anyhow::Error> {
 	if let Some((x, key)) = collection.artist(params.artist) {
-		send!(TO_KERNEL, FrontendToKernel::AddQueueArtist((key, params.append, params.clear, params.offset)));
+		let append = handle_append!(params, id);
+		send!(TO_KERNEL, FrontendToKernel::AddQueueArtist((key, append, params.clear, params.offset)));
 
 		if params.offset != 0 && params.offset >= x.songs.len() {
 			Ok(resp::result(rpc::resp::AddQueueKeyArtist { out_of_bounds: true }, id))
@@ -545,7 +575,8 @@ async fn add_queue_map_album<'a>(
 	TO_KERNEL:  &Sender<FrontendToKernel>
 ) -> Result<Response<Body>, anyhow::Error> {
 	if let Some((x, key)) = collection.album(params.artist, params.album) {
-		send!(TO_KERNEL, FrontendToKernel::AddQueueAlbum((key, params.append, params.clear, params.offset)));
+		let append = handle_append!(params, id);
+		send!(TO_KERNEL, FrontendToKernel::AddQueueAlbum((key, append, params.clear, params.offset)));
 
 		if params.offset != 0 && params.offset >= x.songs.len() {
 			Ok(resp::result(rpc::resp::AddQueueKeyAlbum { out_of_bounds: true }, id))
@@ -564,7 +595,8 @@ async fn add_queue_map_song<'a>(
 	TO_KERNEL:  &Sender<FrontendToKernel>
 ) -> Result<Response<Body>, anyhow::Error> {
 	if let Some((_, key)) = collection.song(params.artist, params.album, params.song) {
-		send!(TO_KERNEL, FrontendToKernel::AddQueueSong((key, params.append, params.clear)));
+		let append = handle_append!(params, id);
+		send!(TO_KERNEL, FrontendToKernel::AddQueueSong((key, append, params.clear)));
 		Ok(resp::result_ok(id))
 	} else {
 		Ok(resp::error(ERR_MAP_SONG.0, ERR_MAP_SONG.1, id))
@@ -578,9 +610,10 @@ async fn add_queue_rand_artist<'a>(
 	TO_KERNEL:  &Sender<FrontendToKernel>
 ) -> Result<Response<Body>, anyhow::Error> {
 	if let Some(key) = collection.rand_artist(None) {
-		send!(TO_KERNEL, FrontendToKernel::AddQueueArtist((key, params.append, params.clear, params.offset)));
+		let append = handle_append!(params, id);
+		send!(TO_KERNEL, FrontendToKernel::AddQueueArtist((key, append, params.clear, params.offset)));
 		let r = &collection.artists[key];
-		Ok(resp::result(serde_json::json!({ "artist": r }), id))
+		Ok(resp::result(serde_json::json!({ "artist": r, "out_of_bounds": false }), id))
 	} else {
 		Ok(resp::error(ERR_MAP_ARTIST.0, ERR_MAP_ARTIST.1, id))
 	}
@@ -593,9 +626,10 @@ async fn add_queue_rand_album<'a>(
 	TO_KERNEL:  &Sender<FrontendToKernel>
 ) -> Result<Response<Body>, anyhow::Error> {
 	if let Some(key) = collection.rand_album(None) {
-		send!(TO_KERNEL, FrontendToKernel::AddQueueAlbum((key, params.append, params.clear, params.offset)));
+		let append = handle_append!(params, id);
+		send!(TO_KERNEL, FrontendToKernel::AddQueueAlbum((key, append, params.clear, params.offset)));
 		let r = &collection.albums[key];
-		Ok(resp::result(serde_json::json!({ "album": r }), id))
+		Ok(resp::result(serde_json::json!({ "album": r, "out_of_bounds": false }), id))
 	} else {
 		Ok(resp::error(ERR_MAP_ALBUM.0, ERR_MAP_ALBUM.1, id))
 	}
@@ -608,9 +642,10 @@ async fn add_queue_rand_song<'a>(
 	TO_KERNEL:  &Sender<FrontendToKernel>
 ) -> Result<Response<Body>, anyhow::Error> {
 	if let Some(key) = collection.rand_song(None) {
-		send!(TO_KERNEL, FrontendToKernel::AddQueueSong((key, params.append, params.clear)));
+		let append = handle_append!(params, id);
+		send!(TO_KERNEL, FrontendToKernel::AddQueueSong((key, append, params.clear)));
 		let r = &collection.songs[key];
-		Ok(resp::result(serde_json::json!({ "song": r }), id))
+		Ok(resp::result(serde_json::json!({ "song": r, "out_of_bounds": false }), id))
 	} else {
 		Ok(resp::error(ERR_RAND.0, ERR_RAND.1, id))
 	}
@@ -621,11 +656,10 @@ async fn set_queue_index<'a>(
 	id:        Option<Id<'a>>,
 	TO_KERNEL: &Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
-	send!(TO_KERNEL, FrontendToKernel::SetQueueIndex(params.index));
-
 	if params.index >= shukusai::state::AUDIO_STATE.read().queue.len() {
 		Ok(resp::result(rpc::resp::SetQueueIndex { out_of_bounds: true }, id))
 	} else {
+		send!(TO_KERNEL, FrontendToKernel::SetQueueIndex(params.index));
 		Ok(resp::result(rpc::resp::SetQueueIndex { out_of_bounds: false }, id))
 	}
 }
@@ -636,11 +670,11 @@ async fn remove_queue_range<'a>(
 	TO_KERNEL: &Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	let len = shukusai::state::AUDIO_STATE.read().queue.len();
-	send!(TO_KERNEL, FrontendToKernel::RemoveQueueRange((params.start..params.end, params.skip)));
 
 	if params.start > params.end ||  params.start >= len || params.end > len {
 		Ok(resp::result(rpc::resp::RemoveQueueRange { out_of_bounds: true }, id))
 	} else {
+		send!(TO_KERNEL, FrontendToKernel::RemoveQueueRange((params.start..params.end, params.skip)));
 		Ok(resp::result(rpc::resp::RemoveQueueRange { out_of_bounds: false }, id))
 	}
 }
@@ -651,7 +685,7 @@ async fn key_artist<'a>(
 	id:         Option<Id<'a>>,
 	collection: Arc<Collection>,
 ) -> Result<Response<Body>, anyhow::Error> {
-	if let Some(r) = collection.artists.get(params.key) {
+	if let Some(r) = collection.artists.get(params.key.into()) {
 		Ok(resp::result(serde_json::json!({ "artist": r }), id))
 	} else {
 		Ok(resp::error(ERR_KEY_ARTIST.0, ERR_KEY_ARTIST.1, id))
@@ -663,7 +697,7 @@ async fn key_album<'a>(
 	id:         Option<Id<'a>>,
 	collection: Arc<Collection>,
 ) -> Result<Response<Body>, anyhow::Error> {
-	if let Some(r) = collection.albums.get(params.key) {
+	if let Some(r) = collection.albums.get(params.key.into()) {
 		Ok(resp::result(serde_json::json!({ "album": r }), id))
 	} else {
 		Ok(resp::error(ERR_KEY_ALBUM.0, ERR_KEY_ALBUM.1, id))
@@ -675,7 +709,7 @@ async fn key_song<'a>(
 	id:         Option<Id<'a>>,
 	collection: Arc<Collection>,
 ) -> Result<Response<Body>, anyhow::Error> {
-	if let Some(r) = collection.songs.get(params.key) {
+	if let Some(r) = collection.songs.get(params.key.into()) {
 		Ok(resp::result(serde_json::json!({ "song": r }), id))
 	} else {
 		Ok(resp::error(ERR_KEY_SONG.0, ERR_KEY_SONG.1, id))

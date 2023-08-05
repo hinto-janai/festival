@@ -1,9 +1,7 @@
 # `festival-cli`
-`Festival` CLI client for `festivald`.
+`Festival` CLI client for `festivald`'s `JSON-RPC 2.0` API.
 
 `festivald` is a music server that plays on the device it is running on, while allowing remote control via clients.
-
-`festival-cli` is `festivald`'s reference client.
 
 For `festival-cli`'s documentation:
 

@@ -13,7 +13,7 @@ The transport used is `HTTP(s)`.
 For a general quick start, see the next section: [Quick Start](quick-start.md).
 
 ### Clients
-To interact with `festivald`, you need a client. The reference client is [`festival-cli`](https://github.com/hinto-janai/festival/tree/main/cli).
+To interact with `festivald`, you need a client. The reference `JSON-RPC` client is [`festival-cli`](https://github.com/hinto-janai/festival/tree/main/cli).
 
 `HTTP` clients like `curl`, `wget` or a web browser will also do.
 

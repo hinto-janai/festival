@@ -1,5 +1,5 @@
 # map_artist
-Input a `Artist` name, retrieve an [`Artist`](../../common-objects/artist.md).
+Input an `Artist` name, retrieve an [`Artist`](../../common-objects/artist.md).
 
 #### Inputs
 

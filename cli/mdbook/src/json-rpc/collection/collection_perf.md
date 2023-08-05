@@ -3,9 +3,7 @@ View some performance stats about the latest [`Collection`](../../common-objects
 
 #### Inputs
 
-| Field | Type                                 | Description |
-|-------|--------------------------------------|-------------|
-| paths | optional (maybe null) array of PATHs | An array of filesystem PATHs to scan for the new `Collection`. These must be absolute PATHs **on the system `festivald` is running on**, not PATHs on the client. If `null` is provided, the default `Music` directory will be used.
+`None`
 
 #### Outputs
 

@@ -1,5 +1,5 @@
 # key_artist
-Input a `Artist` key, retrieve an [`Artist`](../../common-objects/artist.md).
+Input an `Artist` key, retrieve an [`Artist`](../../common-objects/artist.md).
 
 #### Inputs
 

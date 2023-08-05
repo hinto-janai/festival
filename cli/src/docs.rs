@@ -1,18 +1,11 @@
 //---------------------------------------------------------------------------------------------------- Use
-use bincode::{Encode,Decode};
 use serde::{Serialize,Deserialize};
-use anyhow::anyhow;
-use log::{error,info,warn,debug,trace};
 use disk::Empty;
 use std::path::{Path,PathBuf};
 use shukusai::constants::{
 	FESTIVAL,FRONTEND_SUB_DIR,
 };
 use const_format::formatcp;
-use rand::{
-	Rng,
-	distributions::{DistString,Alphanumeric},
-};
 use once_cell::sync::OnceCell;
 
 //---------------------------------------------------------------------------------------------------- Docs
@@ -37,6 +30,16 @@ impl Docs {
 		path.push("docs");
 
 		Ok(path)
+	}
+
+	pub fn create_open() -> Result<(), anyhow::Error> {
+		match crate::docs::Docs::create() {
+			Ok(mut path) => {
+				path.push("index.html");
+				Ok(open::that_detached(path)?)
+			},
+			Err(e) => Err(e),
+		}
 	}
 }
 
