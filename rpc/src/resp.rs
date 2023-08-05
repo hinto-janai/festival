@@ -39,220 +39,7 @@ use std::{
 // Generic response.
 impl_struct_anon!(Status, ());
 
-// State retrieval.
-impl_struct! {
-	StateIpInner,
-	ip: std::net::Ipv4Addr,
-	count: u64
-}
-impl_struct_anon_lt!(StateIp, Cow<'a, [StateIpInner]>);
-impl_struct_lt! {
-	StateConfig,
-	ip:                 std::net::Ipv4Addr,
-	port:               u16,
-	max_connections:    Option<u64>,
-	exclusive_ips:      Option<Cow<'a, HashSet<Ipv4Addr>>>,
-	sleep_on_fail:      Option<u64>,
-	collection_paths:   Cow<'a, [PathBuf]>,
-	tls:                bool,
-	certificate:        Option<Cow<'a, Path>>,
-	key:                Option<Cow<'a, Path>>,
-	rest:               bool,
-	docs:               bool,
-	direct_download:    bool,
-	filename_separator: Cow<'a, str>,
-	log_level:          log::LevelFilter,
-	watch:              bool,
-	cache_time:         u64,
-	media_controls:     bool,
-	authorization:      bool,
-	no_auth_rpc:        Option<Cow<'a, HashSet<crate::method::Method>>>,
-	no_auth_rest:       Option<Cow<'a, HashSet<crate::resource::Resource>>>
-}
-impl_struct_lt! {
-	StateDaemon,
-	uptime:              u64,
-	total_requests:      u64,
-	total_connections:   u64,
-	current_connections: u64,
-	rest:                bool,
-	docs:                bool,
-	direct_download:     bool,
-	authorization:       bool,
-	#[serde(borrow)]
-	version: Cow<'a, str>,
-	#[serde(borrow)]
-	commit: Cow<'a, str>,
-	#[serde(borrow)]
-	os: Cow<'a, str>
-}
-impl_struct_lt! {
-	StateAudio,
-	#[serde(borrow)]
-	queue:     Cow<'a, [SongKey]>,
-	queue_len: usize,
-	queue_idx: Option<usize>,
-	playing:   bool,
-	song_key:  Option<SongKey>,
-	elapsed:   u32,
-	runtime:   u32,
-	repeat:    Repeat,
-	volume:    u8,
-	song:      Option<SongJson<'a>>
-}
-impl_struct! {
-	StateReset,
-	resetting: bool,
-	saving:    bool
-}
-
-// Key (exact key)
-impl_struct_lt! {
-	Artist,
-	#[serde(borrow)]
-	artist: ArtistJson<'a>
-}
-impl_struct_lt! {
-	Album,
-	#[serde(borrow)]
-	album: AlbumJson<'a>
-}
-impl_struct_lt! {
-	Song,
-	#[serde(borrow)]
-	song: SongJson<'a>
-}
-
-// Map (exact hashmap)
-impl_struct_lt! {
-	MapArtist,
-	#[serde(borrow)]
-	artist: ArtistJson<'a>
-}
-impl_struct_lt! {
-	MapAlbum,
-	#[serde(borrow)]
-	album: AlbumJson<'a>
-}
-impl_struct_lt! {
-	MapSong,
-	#[serde(borrow)]
-	song: SongJson<'a>
-}
-
-// Current (audio state)
-impl_struct_lt! {
-	CurrentArtist,
-	#[serde(borrow)]
-	artist: ArtistJson<'a>
-}
-impl_struct_lt! {
-	CurrentAlbum,
-	#[serde(borrow)]
-	album: AlbumJson<'a>
-}
-impl_struct_lt! {
-	CurrentSong,
-	#[serde(borrow)]
-	song: SongJson<'a>
-}
-
-// Rand (rng)
-impl_struct_lt! {
-	RandArtist,
-	#[serde(borrow)]
-	artist: ArtistJson<'a>
-}
-impl_struct_lt! {
-	RandAlbum,
-	#[serde(borrow)]
-	album: AlbumJson<'a>
-}
-impl_struct_lt! {
-	RandSong,
-	#[serde(borrow)]
-	song: SongJson<'a>
-}
-
-// Search (fuzzy keys)
-impl_struct_lt! {
-	Search,
-	#[serde(borrow)]
-	artists: Cow<'a, [ArtistJson<'a>]>,
-	#[serde(borrow)]
-	albums: Cow<'a, [AlbumJson<'a>]>,
-	#[serde(borrow)]
-	songs: Cow<'a, [SongJson<'a>]>
-}
-impl_struct_lt! {
-	SearchArtist,
-	#[serde(borrow)]
-	artists: Cow<'a, [ArtistJson<'a>]>
-}
-impl_struct_lt! {
-	SearchAlbum,
-	#[serde(borrow)]
-	albums: Cow<'a, [AlbumJson<'a>]>
-}
-impl_struct_lt! {
-	SearchSong,
-	#[serde(borrow)]
-	songs: Cow<'a, [SongJson<'a>]>
-}
-
-// Queue
-impl_struct! {
-	AddQueueKeyArtist,
-	out_of_bounds: bool
-}
-impl_struct! {
-	AddQueueKeyAlbum,
-	out_of_bounds: bool
-}
-impl_struct! {
-	AddQueueKeySong,
-	out_of_bounds: bool
-}
-impl_struct! {
-	AddQueueMapArtist,
-	out_of_bounds: bool
-}
-impl_struct! {
-	AddQueueMapAlbum,
-	out_of_bounds: bool
-}
-impl_struct! {
-	AddQueueMapSong,
-	out_of_bounds: bool
-}
-impl_struct_lt! {
-	AddQueueRandArtist,
-	#[serde(borrow)]
-	artist: Cow<'a, ArtistJson<'a>>,
-	out_of_bounds: bool
-}
-impl_struct_lt! {
-	AddQueueRandAlbum,
-	#[serde(borrow)]
-	album: Cow<'a, AlbumJson<'a>>,
-	out_of_bounds: bool
-}
-impl_struct_lt! {
-	AddQueueRandSong,
-	#[serde(borrow)]
-	song: Cow<'a, SongJson<'a>>,
-	out_of_bounds: bool
-}
-impl_struct! {
-	SetQueueIndex,
-	out_of_bounds: bool
-}
-impl_struct! {
-	RemoveQueueRange,
-	out_of_bounds: bool
-}
-
-// Collection
+//---------------------------------------------------------------------------------------------------- Collection
 impl_struct! {
 	CollectionNew,
 	time: f64,
@@ -321,6 +108,197 @@ impl_struct_anon_lt! {
 	CollectionRelationFull,
 	Cow<'a, [CollectionRelationFullInner<'a>]>
 }
+
+//---------------------------------------------------------------------------------------------------- State
+impl_struct! {
+	StateIpInner,
+	ip: std::net::Ipv4Addr,
+	count: u64
+}
+impl_struct_anon_lt!(StateIp, Cow<'a, [StateIpInner]>);
+impl_struct_lt! {
+	StateConfig,
+	ip:                 std::net::Ipv4Addr,
+	port:               u16,
+	max_connections:    Option<u64>,
+	exclusive_ips:      Option<Cow<'a, HashSet<Ipv4Addr>>>,
+	sleep_on_fail:      Option<u64>,
+	collection_paths:   Cow<'a, [PathBuf]>,
+	tls:                bool,
+	certificate:        Option<Cow<'a, Path>>,
+	key:                Option<Cow<'a, Path>>,
+	rest:               bool,
+	docs:               bool,
+	direct_download:    bool,
+	filename_separator: Cow<'a, str>,
+	log_level:          log::LevelFilter,
+	watch:              bool,
+	cache_time:         u64,
+	media_controls:     bool,
+	authorization:      bool,
+	no_auth_rpc:        Option<Cow<'a, HashSet<crate::method::Method>>>,
+	no_auth_rest:       Option<Cow<'a, HashSet<crate::resource::Resource>>>
+}
+impl_struct_lt! {
+	StateDaemon,
+	uptime:              u64,
+	total_requests:      u64,
+	total_connections:   u64,
+	current_connections: u64,
+	rest:                bool,
+	docs:                bool,
+	direct_download:     bool,
+	authorization:       bool,
+	#[serde(borrow)]
+	version: Cow<'a, str>,
+	#[serde(borrow)]
+	commit: Cow<'a, str>,
+	#[serde(borrow)]
+	os: Cow<'a, str>
+}
+impl_struct_lt! {
+	StateAudio,
+	#[serde(borrow)]
+	queue:     Cow<'a, [SongKey]>,
+	queue_len: usize,
+	queue_idx: Option<usize>,
+	playing:   bool,
+	song_key:  Option<SongKey>,
+	elapsed:   u32,
+	runtime:   u32,
+	repeat:    Repeat,
+	volume:    u8,
+	song:      Option<SongJson<'a>>
+}
+impl_struct! {
+	StateReset,
+	resetting: bool,
+	saving:    bool
+}
+
+//---------------------------------------------------------------------------------------------------- Key
+impl_struct_lt! {
+	Artist,
+	#[serde(borrow)]
+	artist: ArtistJson<'a>
+}
+impl_struct_lt! {
+	Album,
+	#[serde(borrow)]
+	album: AlbumJson<'a>
+}
+impl_struct_lt! {
+	Song,
+	#[serde(borrow)]
+	song: SongJson<'a>
+}
+
+//---------------------------------------------------------------------------------------------------- Map
+impl_struct_lt! {
+	MapArtist,
+	#[serde(borrow)]
+	artist: ArtistJson<'a>
+}
+impl_struct_lt! {
+	MapAlbum,
+	#[serde(borrow)]
+	album: AlbumJson<'a>
+}
+impl_struct_lt! {
+	MapSong,
+	#[serde(borrow)]
+	song: SongJson<'a>
+}
+
+//---------------------------------------------------------------------------------------------------- Current
+impl_struct_lt! {
+	CurrentArtist,
+	#[serde(borrow)]
+	artist: ArtistJson<'a>
+}
+impl_struct_lt! {
+	CurrentAlbum,
+	#[serde(borrow)]
+	album: AlbumJson<'a>
+}
+impl_struct_lt! {
+	CurrentSong,
+	#[serde(borrow)]
+	song: SongJson<'a>
+}
+
+//---------------------------------------------------------------------------------------------------- Rand
+impl_struct_lt! {
+	RandArtist,
+	#[serde(borrow)]
+	artist: ArtistJson<'a>
+}
+impl_struct_lt! {
+	RandAlbum,
+	#[serde(borrow)]
+	album: AlbumJson<'a>
+}
+impl_struct_lt! {
+	RandSong,
+	#[serde(borrow)]
+	song: SongJson<'a>
+}
+
+//---------------------------------------------------------------------------------------------------- Search
+impl_struct_lt! {
+	Search,
+	#[serde(borrow)]
+	artists: Cow<'a, [ArtistJson<'a>]>,
+	#[serde(borrow)]
+	albums: Cow<'a, [AlbumJson<'a>]>,
+	#[serde(borrow)]
+	songs: Cow<'a, [SongJson<'a>]>
+}
+impl_struct_lt! {
+	SearchArtist,
+	#[serde(borrow)]
+	artists: Cow<'a, [ArtistJson<'a>]>
+}
+impl_struct_lt! {
+	SearchAlbum,
+	#[serde(borrow)]
+	albums: Cow<'a, [AlbumJson<'a>]>
+}
+impl_struct_lt! {
+	SearchSong,
+	#[serde(borrow)]
+	songs: Cow<'a, [SongJson<'a>]>
+}
+
+//---------------------------------------------------------------------------------------------------- Playback
+//impl_struct_anon!(Toggle, ());
+//impl_struct_anon!(Play, ());
+//impl_struct_anon!(Pause, ());
+//impl_struct_anon!(Next, ());
+//impl_struct_anon!(Stop, ());
+//impl_struct_anon!(Shuffle, ());
+//impl_struct_anon!(RepeatOff, ());
+//impl_struct_anon!(RepeatSong, ());
+//impl_struct_anon!(RepeatQueue, ());
+//impl_struct_anon!(Previous, ());
+//impl_struct_anon!(Volume, ());
+//impl_struct_anon!(Clear, ());
+//impl_struct_anon!(Seek, ());
+//impl_struct_anon!(Skip, ());
+//impl_struct_anon!(Back, ());
+
+//---------------------------------------------------------------------------------------------------- Queue
+//impl_struct_anon!(AddQueueKeyArtist, ());
+//impl_struct_anon!(AddQueueKeyAlbum, ());
+//impl_struct_anon!(AddQueueKeySong, ());
+//impl_struct_anon!(AddQueueMapArtist, ());
+//impl_struct_anon!(AddQueueMapAlbum, ());
+//impl_struct_anon!(AddQueueMapSong, ());
+impl_struct_lt!(AddQueueRandArtist, #[serde(borrow)] artist: Cow<'a, ArtistJson<'a>>);
+impl_struct_lt!(AddQueueRandAlbum, #[serde(borrow)] album: Cow<'a, AlbumJson<'a>>);
+impl_struct_lt!(AddQueueRandSong, #[serde(borrow)] song: Cow<'a, SongJson<'a>>);
+impl_struct!(SetQueueIndex, out_of_bounds: bool);
+impl_struct!(RemoveQueueRange, out_of_bounds: bool);
 
 
 //---------------------------------------------------------------------------------------------------- TESTS

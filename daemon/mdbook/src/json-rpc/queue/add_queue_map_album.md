@@ -8,9 +8,9 @@ Add an [`Album`](../../common-objects/album.md) to the queue with an [`Artist`](
 | artist | `string`                                    | `Artist` name
 | album  | `string`                                    | `Album` title
 | append | `string`, one of `front`, `back` or `index` | In which way should we add to the queue? `front` means to the front of the queue. `back` means to the back. `index` means at an exact queue index. Queue index starts at `0`, so to mimic `front`, you would provide `0`.
-| index  | optional (maybe-null) unsigned integer      | If the `index` append is chosen, this will be the index used
 | clear  | boolean                                     | Should the queue be cleared before adding?
-| offset | unsigned integer                            | If this method is responsible for setting the current `Song`, should we start at an offset within the `Album`? e.g, starting at the first `Song` would be offset `0`, starting at the 3rd `Song` would be offset `2`, etc.
+| index  | optional (maybe-null) unsigned integer      | If the `index` append is chosen, this will be the index used
+| offset | optional (maybe_null) unsigned integer      | If this method is responsible for setting the current `Song`, should we start at an offset within the `Album`? e.g, starting at the first `Song` would be offset `0`, starting at the 3rd `Song` would be offset `2`, etc.
 
 #### `offset`
 If this method also happens to set the current `Song` (added to empty queue, added to front, etc), this field lets you _start_ at a particular `Song` offset.
@@ -33,20 +33,20 @@ index 5 | song_6
 ```
 
 #### Outputs
-| Field         | Type    | Description |
-|---------------|---------|-------------|
-| out_of_bounds | boolean | If the provided `offset` was equal to or greater than the amount of `Song`'s in the `Album` OR if the `index` append was chosen and the index was out of bounds
+`result: null` if everything went ok.
+
+`error: ...` if there was a index/offset error.
 
 #### Example Request 1
 ```bash
 # Add to back of the queue.
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"add_queue_map_album","params":{"artist":"TWICE","album":"PAGE TWO","append":"back","clear":false,"offset":0}}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"add_queue_map_album","params":{"artist":"TWICE","album":"PAGE TWO","append":"back","clear":false}}'
 ```
 
 #### Example Request 2
 ```bash
 # Append at queue index 4.
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"add_queue_map_album","params":{"artist":"TWICE","album":"PAGE TWO","append":"index","index"::4,"clear":false,"offset":0}}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"add_queue_map_album","params":{"artist":"TWICE","album":"PAGE TWO","append":"index","index"::4,"clear":false}}'
 ```
 
 #### Example Request 3
@@ -59,9 +59,7 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"add_queue_map_
 ```json
 {
   "jsonrpc": "2.0",
-  "result": {
-    "out_of_bounds": false
-  },
+  "result": null, // <--- everything went ok.
   "id": 0
 }
 ```

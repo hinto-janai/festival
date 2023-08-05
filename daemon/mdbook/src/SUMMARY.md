@@ -74,7 +74,7 @@
 		- [seek](json-rpc/playback/seek.md)
 		- [skip](json-rpc/playback/skip.md)
 		- [back](json-rpc/playback/back.md)
-	- [Playback](json-rpc/playback/playback.md)
+	- [Queue](json-rpc/queue/queue.md)
 		- [add_queue_key_artist](json-rpc/queue/add_queue_key_artist.md)
 		- [add_queue_key_album](json-rpc/queue/add_queue_key_album.md)
 		- [add_queue_key_song](json-rpc/queue/add_queue_key_song.md)

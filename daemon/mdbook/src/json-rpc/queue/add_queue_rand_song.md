@@ -6,13 +6,13 @@ Add a random [`Song`](../../common-objects/song.md) to the queue.
 | Field  | Type                                        | Description |
 |--------|---------------------------------------------|-------------|
 | append | `string`, one of `front`, `back` or `index` | In which way should we add to the queue? `front` means to the front of the queue. `back` means to the back. `index` means at an exact queue index. Queue index starts at `0`, so to mimic `front`, you would provide `0`.
-| index  | optional (maybe-null) unsigned integer      | If the `index` append is chosen, this will be the index used
 | clear  | boolean                                     | Should the queue be cleared before adding?
+| index  | optional (maybe-null) unsigned integer      | If the `index` append is chosen, this will be the index used
 
 #### Outputs
-| Field         | Type    | Description |
-|---------------|---------|-------------|
-| out_of_bounds | boolean | If the `index` append was chosen and the index was out of bounds
+| Field | Type                                          | Description |
+|-------|-----------------------------------------------|-------------|
+| song  | [`Song`](../../common-objects/song.md) object | The `Song` that was added to the queue
 
 #### Example Request 1
 ```bash

@@ -7,13 +7,13 @@ Add a [`Song`](../../common-objects/song.md) to the queue with a `Song` [key](..
 |--------|---------------------------------------------|-------------|
 | key    | `Song` key (unsigned integer  )             | See [`Key`](key.md)
 | append | `string`, one of `front`, `back` or `index` | In which way should we add to the queue? `front` means to the front of the queue. `back` means to the back. `index` means at an exact queue index. Queue index starts at `0`, so to mimic `front`, you would provide `0`.
-| index  | optional (maybe-null) unsigned integer      | If the `index` append is chosen, this will be the index used
 | clear  | boolean                                     | Should the queue be cleared before adding?
+| index  | optional (maybe-null) unsigned integer      | If the `index` append is chosen, this will be the index used
 
 #### Outputs
-| Field         | Type    | Description |
-|---------------|---------|-------------|
-| out_of_bounds | boolean | If the `index` append was chosen and the index was out of bounds
+`result: null` if everything went ok.
+
+`error: ...` if there was a index/offset error.
 
 #### Example Request 1
 ```bash

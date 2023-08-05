@@ -4,10 +4,9 @@ use anyhow::anyhow;
 use benri::ok;
 use log::{error,info,warn,debug,trace};
 use disk::Toml;
-use shukusai::constants::{
-	FESTIVAL,FRONTEND_SUB_DIR,
-};
+use shukusai::constants::FESTIVAL;
 use crate::constants::{
+	SUB_DIR,
 	FESTIVAL_CLI_NAME_VER,
 	FESTIVAL_CLI_PORT,
 	FESTIVAL_CLI_CONFIG,
@@ -54,7 +53,7 @@ fn default_id() -> json_rpc::Id<'static> {
 ///
 /// We can't use this directly, but we can transform it into
 /// the `Config` we will be using for the rest of the program.
-disk::toml!(ConfigBuilder, disk::Dir::Config, FESTIVAL, FRONTEND_SUB_DIR, "festival-cli");
+disk::toml!(ConfigBuilder, disk::Dir::Config, FESTIVAL, SUB_DIR, "festival-cli");
 #[derive(Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
 pub struct ConfigBuilder {
 	pub festivald:          Option<String>,
@@ -198,7 +197,7 @@ impl ConfigBuilder {
 				let p = ConfigBuilder::absolute_path().unwrap();
 
 				if p.exists() {
-					crate::exit!("festival-cli.conf exists but is invalid:\n\n{e}\ntip: use `festival-cli data --reset-config` to reset it");
+					crate::exit!("festival-cli.conf exists but is invalid:\n\n{e}\ntip: use `festival-cli --reset-config` to reset it");
 				} else {
 					ConfigBuilder::mkdir().unwrap();
 					std::fs::write(&p, FESTIVAL_CLI_CONFIG).unwrap();
@@ -238,7 +237,7 @@ impl ConfigBuilder {
 ///
 /// The global immutable copy the whole program will refer
 /// to is the static `CONFIG` in this module. Or, `config()`.
-//disk::toml!(Config, disk::Dir::Config, FESTIVAL, FRONTEND_SUB_DIR, "festival-cli");
+//disk::toml!(Config, disk::Dir::Config, FESTIVAL, SUB_DIR, "festival-cli");
 #[derive(Debug,PartialEq)]
 pub struct Config {
 	pub festivald:        http::uri::Uri,

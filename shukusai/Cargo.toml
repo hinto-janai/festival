@@ -23,7 +23,6 @@ default = ["panic"]
 panic   = []
 gui     = ["egui", "egui_extras", "epaint"]
 daemon  = []
-cli     = []
 web     = []
 
 [package.metadata.docs.rs]

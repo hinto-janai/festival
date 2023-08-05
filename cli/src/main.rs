@@ -4,7 +4,6 @@ mod config;
 mod constants;
 mod docs;
 mod macros;
-mod rpc;
 
 fn main() {
 	// Handle CLI arguments.

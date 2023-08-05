@@ -40,12 +40,18 @@ pub struct Cli {
 	#[command(subcommand)]
 	rpc: Option<Rpc>,
 
-	#[arg(long, verbatim_doc_comment, value_name = "URI")]
-	/// `festivald` URI
+	#[arg(long, verbatim_doc_comment, value_name = "URL")]
+	/// URL of the `festivald` to connect to
 	///
 	/// The protocol, IPv4 address, and port of the
 	/// `festivald` that `festival-cli` will connect
 	/// to by default.
+	///
+	/// Protocol must be:
+	///   - http
+	///   - https
+	///
+	/// IP address must be IPv4.
 	///
 	/// Default is: `http://127.0.0.1:18425`
 	festivald: Option<String>,
@@ -71,29 +77,10 @@ pub struct Cli {
 
 	#[arg(long, verbatim_doc_comment, value_name = "ID")]
 	/// The `JSON-RPC 2.0` ID to send to `festivald`.
+	///
 	/// See below for more info:
 	/// <https://jsonrpc.org/specification>
 	id: Option<String>,
-
-	#[arg(long, verbatim_doc_comment, value_name = "PATH")]
-	/// Upon a `collection_new` JSON-RPC method call, if the
-	/// `--paths` parameter is empty or not passed,
-	/// these PATHs will be sent instead.
-	///
-	/// If this is also empty, the default OS `Music`
-	/// directory will be used
-	///
-	/// Windows-style PATHs will only work if the target
-	/// `festivald` is running on Windows (`C:\\Users\\User\\Music`)
-	///
-	/// Note these are PATHs on the _target_ `festivald`,
-	/// NOT on the filesystem `festival-cli` is running on.
-	///
-	/// To set multiple PATHs, use this flag per PATH.
-	///
-	/// Example: `festivald --collection-path /my/path/1 --collection-path /my/path/2`
-	collection_path: Vec<PathBuf>,
-
 
 	#[arg(long, verbatim_doc_comment, value_name = "USER:PASS or FILE")]
 	/// Authorization sent to `festivald`
@@ -221,13 +208,6 @@ pub enum Rpc {
 	RemoveQueueRange(rpc::param::RemoveQueueRange),
 }
 
-//---------------------------------------------------------------------------------------------------- Subcommand - Data
-#[derive(Args)]
-#[command(arg_required_else_help(true))]
-#[command(override_usage = formatcp!("{BIN} data OPTION [ARG]"))]
-pub struct Data {
-}
-
 //---------------------------------------------------------------------------------------------------- CLI argument handling
 impl Cli {
 	pub fn get() -> (Option<log::LevelFilter>, Option<ConfigBuilder>) {
@@ -248,7 +228,7 @@ impl Cli {
 			println!("{}", p.display());
 
 			// `.local/share`
-			let p = shukusai::collection::Collection::sub_dir_parent_path().unwrap();
+			let p = crate::docs::Docs::sub_dir_parent_path().unwrap();
 			println!("{}", p.display());
 
 			exit(0);
@@ -278,7 +258,7 @@ impl Cli {
 				// Config.
 				crate::config::ConfigBuilder::sub_dir_parent_path().unwrap(),
 				// `.local/share`
-				shukusai::collection::Collection::sub_dir_parent_path().unwrap(),
+				crate::docs::Docs::sub_dir_parent_path().unwrap(),
 			];
 
 			let mut code = 0;
@@ -338,12 +318,6 @@ impl Cli {
 			}
 		}
 
-		let mut collection_paths = if self.collection_path.is_empty() {
-			None
-		} else {
-			Some(std::mem::take(&mut self.collection_path))
-		};
-
 		let mut log_level = self.log_level.clone();
 
 		macro_rules! if_some {
@@ -364,7 +338,6 @@ impl Cli {
 			ignore_cert        => cb.ignore_cert,
 			self.timeout       => cb.timeout,
 			self.id            => cb.id,
-			collection_paths   => cb.collection_paths,
 			self.authorization => cb.authorization,
 			log_level          => cb.log_level
 		}

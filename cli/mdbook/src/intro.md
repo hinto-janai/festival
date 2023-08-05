@@ -12,6 +12,12 @@ You can use:
 festival-cli rpc collection_new
 ```
 
+The typical invocation of `festival-cli`:
+1. Reads the config file
+2. Reads the command-line options
+3. Connects and sends a request to `festivald`
+4. Prints out `JSON` response
+
 For a general quick start, see the next section: [Quick Start](quick-start.md).
 
 ### `JSON-RPC`
@@ -27,5 +33,5 @@ A generic HTTP client is better suited for this job, like `curl`, `wget`, or a w
 ### Documentation
 To open this documentation locally:
 ```bash
-festival-cli data --docs
+festival-cli --docs
 ```

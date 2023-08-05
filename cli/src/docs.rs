@@ -2,14 +2,13 @@
 use serde::{Serialize,Deserialize};
 use disk::Empty;
 use std::path::{Path,PathBuf};
-use shukusai::constants::{
-	FESTIVAL,FRONTEND_SUB_DIR,
-};
+use shukusai::constants::FESTIVAL;
+use crate::constants::SUB_DIR;
 use const_format::formatcp;
 use once_cell::sync::OnceCell;
 
 //---------------------------------------------------------------------------------------------------- Docs
-disk::empty!(Docs, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/docs"), "__docs");
+disk::empty!(Docs, disk::Dir::Data, FESTIVAL, formatcp!("{SUB_DIR}/docs"), "__docs");
 #[derive(Debug,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
 pub struct Docs;
 

@@ -20,6 +20,12 @@
 # `festivald` that `festival-cli` will connect
 # to by default.
 #
+# Protocol must be:
+#   - http
+#   - https
+#
+# IP address must be IPv4.
+#
 # DEFAULT | "http://127.0.0.1:18425"
 # EXAMPLE | "https://192.168.2.10:8080", "http://185.199.110.153:80"
 # TYPE    | string

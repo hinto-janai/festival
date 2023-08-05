@@ -1,7 +1,5 @@
 # Quick Start
-A quick start to using `festivald` and its `JSON-RPC 2.0` & `REST` APIs.
-
-More JSON-RPC specific examples [here](json-rpc/quick-start.md), and more REST specific examples [here](rest/quick-start.md).
+A quick start to using `festival-cli`.
 
 Important things to know:
 1. The main music library/database in `festivald` is called the [`Collection`](common-objects/collection.md)
@@ -9,38 +7,31 @@ Important things to know:
 3. Everything revolves around the `Collection`, you should create one before doing anything
 4. In `festivald`, there are "objects" that appear often, see [`Common Objects`](common-objects/common-objects.md) for more info
 
-## Launch `festivald`
+## Launch `festivald` & create a new `Collection` with `festival-cli`
 Start `festivald` with no options:
 ```bash
 ./festivald
 ```
 `festivald` will use a default [`configuration`](config.md) and open up on `http://localhost:18425`.
 
-To view this documentation locally after starting `festivald`, you can open it in a web browser:
-```http
-http://localhost:18425
-```
-Or you can open the files locally with:
+You can then tell `festivald` to create a new `Collection` with:
 ```bash
-./festivald data --docs
+festival-cli collection_new /path/to/collection/on/festivald
 ```
+The PATH used _must_ be a PATH on the machine `festivald` is running on, not the machine `festival-cli` is ran on.
 
-## Create a `Collection` with the `JSON-RPC` method [`collection_new`](json-rpc/collection/collection_new.md)
-This scans the default `Music` directory on `festivald`'s filesystem and creates a `Collection` from it.
-```bash
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_new","params":{"paths":null}}'
-```
+If no PATH is specified, 4 things can happen:
+- Your `festival-cli`'s custom [config](config.md) PATH is used
+- `festival-cli`'s default PATH is used (OS Music directory)
+- `festivald`'s custom config PATH is used
+- `festivald`'s default PATH is used (OS Music directory)
 
-## Download a random `Artist` with the `REST` endpoint [`/rand/artist`](/rest/rand/artist.md)
-Opening this link in a web browser will cause `festivald` to collect, organize, and archive all the `Album`'s of a random `Artist`, and send it over.
-```http
-http://localhost:18425/rand/artist
-```
+If you have a custom PATH set in [`festival-cli.toml`](config.md), that PATH will be used if no PATH is specified on the command line.
 
-## View metadata about an `Album` with the `JSON-RPC` method [`map_artist`](json-rpc/map/map_artist.md)
+## View metadata about an `Album` with [`map_artist`](json-rpc/map/map_artist.md)
 This will lookup the `Album` "Cigarette & Alcohol" by the `Artist` "LUCKY TAPES".
 ```bash
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"map_album","params":{"artist":"LUCKY TAPES","album":"Cigarette & Alcohol"}}'
+festival-cli map_artist --artist "LUCKY TAPES" --album "Cigarette & Alcohol"
 ```
 The response looks like:
 ```json
@@ -73,10 +64,10 @@ The response looks like:
 }
 ```
 
-## Search for an `Artist` with the `JSON-RPC` method [`search_artist`](json-rpc/search/search_artist.md)
-This will look up _all_ `Artist`'s in the `Collection`, and return the one that is the most similar (lexicographically) to the input "lUcKee TaPeZ":
+## Search for an `Artist` with [`search_artist`](json-rpc/search/search_artist.md)
+This will look up _all_ `Artist`'s in the `Collection`, and return the one that is the most similar (lexicographically) to the input "lUcKee TaPeZ".
 ```bash
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"search_artist","params":{"input":"lUcKee TaPeZ","kind":"top1"}}'
+festival-cli search_artist --input "lUcKee TaPeZ" --kind "top1"
 ```
 We found "LUCKY TAPES":
 ```json
@@ -108,4 +99,10 @@ We found "LUCKY TAPES":
   },
   "id": 0
 }
+```
+
+## Add an `Artist` to the queue with [`add_queue_map_artist`](json-rpc/queue/add_queue_map_artist)
+This will add all `Song`'s by the `Artist` "LUCKY TAPES" to the front of the queue.
+```bash
+festival-cli add_queue_map_artist --artist "LUCKY TAPES" --append front
 ```

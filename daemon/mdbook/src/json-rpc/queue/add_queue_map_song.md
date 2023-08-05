@@ -9,13 +9,13 @@ Add a [`Song`](../../common-objects/song.md) to the queue with an [`Artist`](../
 | album  | `string`                                    | `Album` title
 | song   | `string`                                    | `Song` title
 | append | `string`, one of `front`, `back` or `index` | In which way should we add to the queue? `front` means to the front of the queue. `back` means to the back. `index` means at an exact queue index. Queue index starts at `0`, so to mimic `front`, you would provide `0`.
-| index  | optional (maybe-null) unsigned integer      | If the `index` append is chosen, this will be the index used
 | clear  | boolean                                     | Should the queue be cleared before adding?
+| index  | optional (maybe-null) unsigned integer      | If the `index` append is chosen, this will be the index used
 
 #### Outputs
-| Field         | Type    | Description |
-|---------------|---------|-------------|
-| out_of_bounds | boolean | If the `index` append was chosen and the index was out of bounds
+`result: null` if everything went ok.
+
+`error: ...` if there was a index/offset error.
 
 #### Example Request 1
 ```bash
@@ -26,13 +26,13 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"add_queue_key_
 #### Example Request 2
 ```bash
 # Append at index 4, start from `Song` 3 (offset 2).
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"add_queue_key_song","params":{"key":123,"append":"index","index":4,"clear":false}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"add_queue_key_song","params":{"key":123,"append":"index","index":4,"clear":false,"offset":2}'
 ```
 
 #### Example Request 3
 ```bash
 # Clear the queue, add starting from `Song` 5 (offset 4).
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"add_queue_key_song","params":{"key":123,"append":"front","clear":true}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"add_queue_key_song","params":{"key":123,"append":"front","clear":true,"offset":4}'
 ```
 
 #### Example Response

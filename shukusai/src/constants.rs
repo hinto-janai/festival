@@ -50,7 +50,6 @@ pub const FESTIVAL: &str = "Festival";
 pub const FRONTEND_SUB_DIR: &str = {
 	if cfg!(feature = "gui")           { "gui"
 	} else if cfg!(feature = "daemon") { "daemon"
-	} else if cfg!(feature = "cli")    { "cli"
 	} else if cfg!(feature = "web")    { "web"
 	} else if cfg!(feature = "tui")    { "tui"
 	} else { panic!("missing frontend feature flag") }

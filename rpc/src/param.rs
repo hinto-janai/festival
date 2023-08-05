@@ -20,13 +20,12 @@ use crate::{
 	impl_rpc_param,
 };
 
-//---------------------------------------------------------------------------------------------------- Param impl
-// Collection
+//---------------------------------------------------------------------------------------------------- Collection
 impl_rpc_param! {
 	"Create a new Collection (and replace the current one)",
 	"collection/collection_new",
 	CollectionNew => Method::CollectionNew,
-	"An array of filesystem PATHs on the target `festivald`",
+	"Filesystem PATH(s) `festivald`, to use multiple PATHs, use this flag per PATH",
 	paths: Option<Vec<PathBuf>>
 }
 impl_rpc! {
@@ -60,7 +59,7 @@ impl_rpc! {
 	CollectionResourceSize => Method::CollectionResourceSize
 }
 
-// State
+//---------------------------------------------------------------------------------------------------- State
 impl_rpc! {
 	"Retrieve state about the status of festivald itself",
 	"state-retrieval/state_daemon",
@@ -87,7 +86,7 @@ impl_rpc! {
 	StateIp => Method::StateIp
 }
 
-// Key
+//---------------------------------------------------------------------------------------------------- Key
 impl_rpc_param! {
 	"Input an Artist key, retrieve an Artist",
 	"key/key_artist",
@@ -110,7 +109,7 @@ impl_rpc_param! {
 	key: usize
 }
 
-// Map (exact hashmap)
+//---------------------------------------------------------------------------------------------------- Map
 // `clap` + `lifetimes` == super fun macro error hell, so define 2 types, one borrowed (for no-copy deserialization), one owned (for clap).
 impl_struct_lt!(MapArtist, #[serde(borrow)] artist: Cow<'a, str>);
 impl_rpc_param! {
@@ -143,7 +142,7 @@ impl_rpc_param! {
 	song: String
 }
 
-// Current
+//---------------------------------------------------------------------------------------------------- Current
 impl_rpc! {
 	"Access the Artist of the currently set Song",
 	"current/current_artist",
@@ -160,7 +159,7 @@ impl_rpc! {
 	CurrentSong => Method::CurrentSong
 }
 
-// Rand
+//---------------------------------------------------------------------------------------------------- Rand
 impl_rpc! {
 	"Access a random Artist",
 	"rand/rand_artist",
@@ -177,7 +176,7 @@ impl_rpc! {
 	RandSong => Method::RandSong
 }
 
-// Search
+//---------------------------------------------------------------------------------------------------- Search
 impl_struct_lt!(Search, #[serde(borrow)] input: Cow<'a, str>, kind: SearchKind);
 impl_rpc_param! {
 	"Input a string, retrieve arrays of Artist's, Album's, and Song's, sorted by how similar their names/titles are to the input",
@@ -223,7 +222,7 @@ impl_rpc_param! {
 	kind: SearchKind
 }
 
-// Playback control
+//---------------------------------------------------------------------------------------------------- Playback
 impl_rpc! {
 	"Toggle playback",
 	"playback/toggle",
@@ -316,6 +315,8 @@ impl_rpc_param! {
 	"How many Song's to go backwards",
 	back: usize
 }
+
+//---------------------------------------------------------------------------------------------------- Queue
 impl_rpc_param! {
 	"Add an Artist to the queue with an Artist key",
 	"queue/add_queue_key_artist",
@@ -327,10 +328,10 @@ impl_rpc_param! {
 	append: Append2,
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>,
-	"Should the queue be cleared before adding?",
-	clear: bool,
 	"Should we start at an offset within the Artist?",
-	offset: usize
+	offset: Option<usize>,
+	"Should the queue be cleared before adding?",
+	clear: bool
 }
 impl_rpc_param! {
 	"Add an Album to the queue with an Album key",
@@ -343,10 +344,10 @@ impl_rpc_param! {
 	append: Append2,
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>,
+	"Should we start at an offset within the Album?",
+	offset: Option<usize>,
 	"Should the queue be cleared before adding?",
-	clear: bool,
-	"Should we start at an offset within the Song?",
-	offset: usize
+	clear: bool
 }
 impl_rpc_param! {
 	"Add an Song to the queue with an Song key",
@@ -362,8 +363,8 @@ impl_rpc_param! {
 	"Should the queue be cleared before adding?",
 	clear: bool
 }
-impl_struct_lt!(AddQueueMapArtist, #[serde(borrow)] artist: Cow<'a, str>, append: Append2, index: Option<usize>,clear: bool, offset: usize);
-impl_struct_lt!(AddQueueMapAlbum, #[serde(borrow)] artist: Cow<'a, str>, #[serde(borrow)] album: Cow<'a, str>, append: Append2, index: Option<usize>, clear: bool, offset: usize);
+impl_struct_lt!(AddQueueMapArtist, #[serde(borrow)] artist: Cow<'a, str>, append: Append2, index: Option<usize>, offset: Option<usize>, clear: bool);
+impl_struct_lt!(AddQueueMapAlbum, #[serde(borrow)] artist: Cow<'a, str>, #[serde(borrow)] album: Cow<'a, str>, append: Append2, index: Option<usize>, offset: Option<usize>, clear: bool);
 impl_struct_lt!(AddQueueMapSong, #[serde(borrow)] artist: Cow<'a, str>, #[serde(borrow)] album: Cow<'a, str>, #[serde(borrow)] song: Cow<'a, str>, append: Append2, index: Option<usize>, clear: bool);
 impl_rpc_param! {
 	"Add an Artist to the queue with an Artist name",
@@ -376,10 +377,10 @@ impl_rpc_param! {
 	append: Append2,
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>,
-	"Should the queue be cleared before adding?",
-	clear: bool,
 	"Should we start at an offset within the Artist?",
-	offset: usize
+	offset: Option<usize>,
+	"Should the queue be cleared before adding?",
+	clear: bool
 }
 impl_rpc_param! {
 	"Add an Album to the queue with an Artist name and Album title",
@@ -394,10 +395,10 @@ impl_rpc_param! {
 	append: Append2,
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>,
-	"Should the queue be cleared before adding?",
-	clear: bool,
 	"Should we start at an offset within the Album?",
-	offset: usize
+	offset: Option<usize>,
+	"Should the queue be cleared before adding?",
+	clear: bool
 }
 impl_rpc_param! {
 	"Add a Song to the queue with an Artist name Album title, and Song title",
@@ -426,10 +427,10 @@ impl_rpc_param! {
 	append: Append2,
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>,
-	"Should the queue be cleared before adding?",
-	clear: bool,
 	"Should we start at an offset within the Artist?",
-	offset: usize
+	offset: Option<usize>,
+	"Should the queue be cleared before adding?",
+	clear: bool
 }
 impl_rpc_param! {
 	"Add a random Album to the queue",
@@ -440,10 +441,10 @@ impl_rpc_param! {
 	append: Append2,
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>,
-	"Should the queue be cleared before adding?",
-	clear: bool,
 	"Should we start at an offset within the Album?",
-	offset: usize
+	offset: Option<usize>,
+	"Should the queue be cleared before adding?",
+	clear: bool
 }
 impl_rpc_param! {
 	"Add a random Song to the queue",

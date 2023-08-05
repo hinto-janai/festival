@@ -64,8 +64,8 @@ compile_error!("shukusai is only compatible with 64-bit/32bit CPUs");
 compile_error!("shukusai is only tested on Window/macOS/Linux");
 
 #[cfg(any(
-    all(feature = "gui", any(feature = "daemon", feature = "cli", feature = "web", feature = "tui")),
-    all(feature = "daemon", any(feature = "gui", feature = "cli", feature = "web", feature = "tui")),
+    all(feature = "gui", any(feature = "daemon", feature = "web", feature = "tui")),
+    all(feature = "daemon", any(feature = "cli", feature = "web", feature = "tui")),
 ))]
 compile_error!(
 r#"Multiple frontend feature flags enabled. Cargo doesn't allow non-additive features.
