@@ -37,6 +37,22 @@ use std::borrow::Cow;
 ///   - A struct representation of the expected response, found in [`resp`] with exact same name
 ///   - (Optionally) a struct representation of the associated parameters, found in [`crate::param`]
 pub enum Method {
+	// Collection
+	/// [`crate::resp::CollectionNew`] & [`crate::param::CollectionNew`]
+	CollectionNew,
+	/// [`crate::resp::CollectionBrief`]
+	CollectionBrief,
+	/// [`crate::resp::CollectionFull`]
+	CollectionFull,
+	/// [`crate::resp::CollectionRelation`] (inner type is [`crate::resp::CollectionRelationInner`])
+	CollectionRelation,
+	/// [`crate::resp::CollectionRelationFull`] (inner type is [`crate::resp::CollectionRelationFullInner`])
+	CollectionRelationFull,
+	/// [`crate::resp::CollectionPerf`]
+	CollectionPerf,
+	/// [`crate::resp::CollectionResourceSize`]
+	CollectionResourceSize,
+
 	// State retrieval.
 	/// [`crate::resp::StateIp`] (inner type is [`crate::resp::StateIpInner`])
 	StateIp,
@@ -48,6 +64,49 @@ pub enum Method {
 	StateAudio,
 	/// [`crate::resp::StateReset`]
 	StateReset,
+
+
+	// Key (exact key)
+	/// [`crate::resp::KeyArtist`] & [`crate::param::KeyArtist`]
+	KeyArtist,
+	/// [`crate::resp::KeyAlbum`] & [`crate::param::KeyAlbum`]
+	KeyAlbum,
+	/// [`crate::resp::KeySong`] & [`crate::param::KeySong`]
+	KeySong,
+
+	// Map (exact hashmap)
+	/// [`crate::resp::MapArtist`] & [`crate::param::MapArtist`]
+	MapArtist,
+	/// [`crate::resp::MapAlbum`] & [`crate::param::MapAlbum`]
+	MapAlbum,
+	/// [`crate::resp::MapSong`] & [`crate::param::MapSong`]
+	MapSong,
+
+	// Current (audio state)
+	/// [`crate::resp::CurrentArtist`]
+	CurrentArtist,
+	/// [`crate::resp::CurrentAlbum`]
+	CurrentAlbum,
+	/// [`crate::resp::CurrentSong`]
+	CurrentSong,
+
+	// Rand (audio state)
+	/// [`crate::resp::RandArtist`]
+	RandArtist,
+	/// [`crate::resp::RandAlbum`]
+	RandAlbum,
+	/// [`crate::resp::RandSong`]
+	RandSong,
+
+	// Search (fuzzy keys)
+	/// [`crate::resp::Search`] & [`crate::param::Search`]
+	Search,
+	/// [`crate::resp::SearchArtist`] &  [`crate::param::SearchArtist`]
+	SearchArtist,
+	/// [`crate::resp::SearchAlbum`] & [`crate::param::SearchAlbum`]
+	SearchAlbum,
+	/// [`crate::resp::SearchSong`] & [`crate::param::SearchSong`]
+	SearchSong,
 
 	// Playback control.
 	/// [`crate::resp::Toggle`]
@@ -102,64 +161,6 @@ pub enum Method {
 	SetQueueIndex,
 	/// [`crate::resp::Status`] & [`crate::param::RemoveQueueRange`]
 	RemoveQueueRange,
-
-	// Key (exact key)
-	/// [`crate::resp::KeyArtist`] & [`crate::param::KeyArtist`]
-	KeyArtist,
-	/// [`crate::resp::KeyAlbum`] & [`crate::param::KeyAlbum`]
-	KeyAlbum,
-	/// [`crate::resp::KeySong`] & [`crate::param::KeySong`]
-	KeySong,
-
-	// Map (exact hashmap)
-	/// [`crate::resp::MapArtist`] & [`crate::param::MapArtist`]
-	MapArtist,
-	/// [`crate::resp::MapAlbum`] & [`crate::param::MapAlbum`]
-	MapAlbum,
-	/// [`crate::resp::MapSong`] & [`crate::param::MapSong`]
-	MapSong,
-
-	// Current (audio state)
-	/// [`crate::resp::CurrentArtist`]
-	CurrentArtist,
-	/// [`crate::resp::CurrentAlbum`]
-	CurrentAlbum,
-	/// [`crate::resp::CurrentSong`]
-	CurrentSong,
-
-	// Rand (audio state)
-	/// [`crate::resp::RandArtist`]
-	RandArtist,
-	/// [`crate::resp::RandAlbum`]
-	RandAlbum,
-	/// [`crate::resp::RandSong`]
-	RandSong,
-
-	// Search (fuzzy keys)
-	/// [`crate::resp::Search`] & [`crate::param::Search`]
-	Search,
-	/// [`crate::resp::SearchArtist`] &  [`crate::param::SearchArtist`]
-	SearchArtist,
-	/// [`crate::resp::SearchAlbum`] & [`crate::param::SearchAlbum`]
-	SearchAlbum,
-	/// [`crate::resp::SearchSong`] & [`crate::param::SearchSong`]
-	SearchSong,
-
-	// Collection
-	/// [`crate::resp::CollectionNew`] & [`crate::param::CollectionNew`]
-	CollectionNew,
-	/// [`crate::resp::CollectionBrief`]
-	CollectionBrief,
-	/// [`crate::resp::CollectionFull`]
-	CollectionFull,
-	/// [`crate::resp::CollectionRelation`] (inner type is [`crate::resp::CollectionRelationInner`])
-	CollectionRelation,
-	/// [`crate::resp::CollectionRelationFull`] (inner type is [`crate::resp::CollectionRelationFullInner`])
-	CollectionRelationFull,
-	/// [`crate::resp::CollectionPerf`]
-	CollectionPerf,
-	/// [`crate::resp::CollectionResourceSize`]
-	CollectionResourceSize,
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

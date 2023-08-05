@@ -8,53 +8,473 @@ use std::path::PathBuf;
 use std::borrow::Cow;
 use shukusai::{
 	collection::{SongKey,AlbumKey,ArtistKey},
-	audio::Append,
+	audio::Append2,
 	search::SearchKind,
 };
 
 use crate::{
+	method::Method,
 	impl_struct,
 	impl_struct_lt,
+	impl_rpc,
+	impl_rpc_param,
 };
 
 //---------------------------------------------------------------------------------------------------- Param impl
-// Playback control.
-impl_struct!(Previous, threshold: Option<u32>);
-impl_struct!(Volume, volume: u8);
-impl_struct!(Clear, playback: bool);
-impl_struct!(Skip, skip: usize);
-impl_struct!(Back, back: usize);
-impl_struct!(AddQueueKeyArtist, key: ArtistKey, append: Append, clear: bool, offset: usize);
-impl_struct!(AddQueueKeyAlbum, key: AlbumKey, append: Append, clear: bool, offset: usize);
-impl_struct!(AddQueueKeySong, key: SongKey, append: Append, clear: bool);
-impl_struct_lt!(AddQueueMapArtist, artist: Cow<'a, str>, append: Append, clear: bool, offset: usize);
-impl_struct_lt!(AddQueueMapAlbum, artist: Cow<'a, str>, album: Cow<'a, str>, append: Append, clear: bool, offset: usize);
-impl_struct_lt!(AddQueueMapSong, artist: Cow<'a, str>, album: Cow<'a, str>, song: Cow<'a, str>, append: Append, clear: bool);
-impl_struct!(AddQueueRandArtist, append: Append, clear: bool, offset: usize);
-impl_struct!(AddQueueRandAlbum, append: Append, clear: bool, offset: usize);
-impl_struct!(AddQueueRandSong, append: Append, clear: bool);
-impl_struct!(SetQueueIndex, index: usize);
-impl_struct!(RemoveQueueRange, start: usize, end: usize, skip: bool);
-impl_struct!(Seek, seek: shukusai::audio::Seek, second: u64);
+// Collection
+impl_rpc_param! {
+	"Create a new Collection (and replace the current one)",
+	"collection/collection_new",
+	CollectionNew => Method::CollectionNew,
+	"An array of filesystem PATHs on the target `festivald`",
+	paths: Option<Vec<PathBuf>>
+}
+impl_rpc! {
+	"Retrieve some brief metadata about the current Collection",
+	"collection/collection_brief",
+	CollectionBrief => Method::CollectionBrief
+}
+impl_rpc! {
+	"Retrieve full metadata about the current Collection",
+	"collection/collection_full",
+	CollectionFull => Method::CollectionFull
+}
+impl_rpc! {
+	"Retrieve an array of every Song in the current Collection, with its relational data",
+	"collection/collection_relation",
+	CollectionRelation => Method::CollectionRelation
+}
+impl_rpc! {
+	"Retrieve an array of every Song in the current Collection, with its relational data",
+	"collection/collection_relation_full",
+	CollectionRelationFull => Method::CollectionRelationFull
+}
+impl_rpc! {
+	"View some performance stats about the latest Collection construction",
+	"collection/collection_perf",
+	CollectionPerf => Method::CollectionPerf
+}
+impl_rpc! {
+	"View the size of the current Collection's underlying resources (audio files and art)",
+	"collection/collection_resource_size",
+	CollectionResourceSize => Method::CollectionResourceSize
+}
 
-// Key (exact key)
-impl_struct!(KeyArtist, key: ArtistKey);
-impl_struct!(KeyAlbum, key: AlbumKey);
-impl_struct!(KeySong, key: SongKey);
+// State
+impl_rpc! {
+	"Retrieve state about the status of festivald itself",
+	"state-retrieval/state_daemon",
+	StateDaemon => Method::StateDaemon
+}
+impl_rpc! {
+	"Retrieve audio state",
+	"state-retrieval/state_audio",
+	StateAudio => Method::StateAudio
+}
+impl_rpc! {
+	"Retrieve the current state of a Collection reset",
+	"state-retrieval/state_reset",
+	StateReset => Method::StateReset
+}
+impl_rpc! {
+	"Retrieve the active configuration of festivald",
+	"state-retrieval/state_config",
+	StateConfig => Method::StateConfig
+}
+impl_rpc! {
+	"Retrieve an array of the IP addresses festivald has seen",
+	"state-retrieval/state_ip",
+	StateIp => Method::StateIp
+}
+
+// Key
+impl_rpc_param! {
+	"Input an Artist key, retrieve an Artist",
+	"key/key_artist",
+	KeyArtist => Method::KeyArtist,
+	"Artist key (unsigned integer)",
+	key: usize
+}
+impl_rpc_param! {
+	"Input an Album key, retrieve an Album",
+	"key/key_album",
+	KeyAlbum => Method::KeyAlbum,
+	"Album key (unsigned integer)",
+	key: usize
+}
+impl_rpc_param! {
+	"Input a Song key, retrieve an Song",
+	"key/key_song",
+	KeySong => Method::KeySong,
+	"Song key (unsigned integer)",
+	key: usize
+}
 
 // Map (exact hashmap)
-impl_struct_lt!(MapArtist, artist: Cow<'a, str>);
-impl_struct_lt!(MapAlbum, artist: Cow<'a, str>, album: Cow<'a, str>);
-impl_struct_lt!(MapSong, artist: Cow<'a, str>, album: Cow<'a, str>, song: Cow<'a, str>);
+// `clap` + `lifetimes` == super fun macro error hell, so define 2 types, one borrowed (for no-copy deserialization), one owned (for clap).
+impl_struct_lt!(MapArtist, #[serde(borrow)] artist: Cow<'a, str>);
+impl_rpc_param! {
+	"Input an Artist name, retrieve an Artist",
+	"map/map_artist",
+	MapArtistOwned => Method::MapArtist,
+	"Artist name",
+	artist: String
+}
+impl_struct_lt!(MapAlbum, #[serde(borrow)] artist: Cow<'a, str>, #[serde(borrow)] album: Cow<'a, str>);
+impl_rpc_param! {
+	"Input an Artist name and Album title, retrieve an Album",
+	"map/map_album",
+	MapAlbumOwned => Method::MapAlbum,
+	"Artist name",
+	artist: String,
+	"Album title",
+	album: String
+}
+impl_struct_lt!(MapSong, #[serde(borrow)] artist: Cow<'a, str>, #[serde(borrow)] album: Cow<'a, str>, #[serde(borrow)] song: Cow<'a, str>);
+impl_rpc_param! {
+	"Input an Artist name, Album title, and Song title, retrieve a Song",
+	"map/map_song",
+	MapSongOwned => Method::MapSong,
+	"Artist name",
+	artist: String,
+	"Album title",
+	album: String,
+	"Song title",
+	song: String
+}
 
-// Search (fuzzy keys)
-impl_struct_lt!(Search, input: Cow<'a, str>, kind: SearchKind);
-impl_struct_lt!(SearchArtist, input: Cow<'a, str>, kind: SearchKind);
-impl_struct_lt!(SearchAlbum, input: Cow<'a, str>, kind: SearchKind);
-impl_struct_lt!(SearchSong, input: Cow<'a, str>, kind: SearchKind);
+// Current
+impl_rpc! {
+	"Access the Artist of the currently set Song",
+	"current/current_artist",
+	CurrentArtist => Method::CurrentArtist
+}
+impl_rpc! {
+	"Access the Album of the currently set Song",
+	"current/current_album",
+	CurrentAlbum => Method::CurrentAlbum
+}
+impl_rpc! {
+	"Access the currently set Song",
+	"current/current_song",
+	CurrentSong => Method::CurrentSong
+}
 
-// Collection
-impl_struct!(CollectionNew, paths: Option<Vec<PathBuf>>);
+// Rand
+impl_rpc! {
+	"Access a random Artist",
+	"rand/rand_artist",
+	RandArtist => Method::RandArtist
+}
+impl_rpc! {
+	"Access a random Album",
+	"rand/rand_album",
+	RandAlbum => Method::RandAlbum
+}
+impl_rpc! {
+	"Access a random Song",
+	"rand/rand_song",
+	RandSong => Method::RandSong
+}
+
+// Search
+impl_struct_lt!(Search, #[serde(borrow)] input: Cow<'a, str>, kind: SearchKind);
+impl_rpc_param! {
+	"Input a string, retrieve arrays of Artist's, Album's, and Song's, sorted by how similar their names/titles are to the input",
+	"search/search",
+	SearchOwned => Method::Search,
+	"The string to match against, to use as input",
+	input: String,
+	"Type of search",
+	#[arg(value_name = "ALL|SIM70|TOP25|TOP1")]
+	kind: SearchKind
+}
+impl_struct_lt!(SearchArtist, #[serde(borrow)] input: Cow<'a, str>, kind: SearchKind);
+impl_rpc_param! {
+	"Input a string, retrieve an array of Artist's, sorted by how similar their names are to the input",
+	"search/search_artist",
+	SearchArtistOwned => Method::SearchArtist,
+	"The string to match against, to use as input",
+	input: String,
+	"Type of search",
+	#[arg(value_name = "ALL|SIM70|TOP25|TOP1")]
+	kind: SearchKind
+}
+impl_struct_lt!(SearchAlbum, #[serde(borrow)] input: Cow<'a, str>, kind: SearchKind);
+impl_rpc_param! {
+	"Input a string, retrieve an array of Album's, sorted by how similar their titles are to the input",
+	"search/search_album",
+	SearchAlbumOwned => Method::SearchAlbum,
+	"The string to match against, to use as input",
+	input: String,
+	"Type of search",
+	#[arg(value_name = "ALL|SIM70|TOP25|TOP1")]
+	kind: SearchKind
+}
+impl_struct_lt!(SearchSong, #[serde(borrow)] input: Cow<'a, str>, kind: SearchKind);
+impl_rpc_param! {
+	"Input a string, retrieve an array of Song's, sorted by how similar their titles are to the input",
+	"search/search_song",
+	SearchSongOwned => Method::SearchSong,
+	"The string to match against, to use as input",
+	input: String,
+	"Type of search",
+	#[arg(value_name = "ALL|SIM70|TOP25|TOP1")]
+	kind: SearchKind
+}
+
+// Playback control
+impl_rpc! {
+	"Toggle playback",
+	"playback/toggle",
+	Toggle => Method::Toggle
+}
+impl_rpc! {
+	"Start playback",
+	"playback/play",
+	Play => Method::Play
+}
+impl_rpc! {
+	"Pause playback",
+	"playback/pause",
+	Pause => Method::Pause
+}
+impl_rpc! {
+	"Skip to the next song in the queue",
+	"playback/next",
+	Next => Method::Next
+}
+impl_rpc! {
+	"Clear the queue and stop playback",
+	"playback/stop",
+	Stop => Method::Stop
+}
+impl_rpc! {
+	"Shuffle the current queue, then start playing from the 1st Song in the queue",
+	"playback/shuffle",
+	Shuffle => Method::Shuffle
+}
+impl_rpc! {
+	"Turn off repeating",
+	"playback/repeat_off",
+	RepeatOff => Method::RepeatOff
+}
+impl_rpc! {
+	"Turn on song repeating",
+	"playback/repeat_song",
+	RepeatSong => Method::RepeatSong
+}
+impl_rpc! {
+	"Turn on queue repeating",
+	"playback/repeat_queue",
+	RepeatQueue => Method::RepeatQueue
+}
+impl_rpc_param! {
+	"Set the current Song to the previous in the queue",
+	"playback/previous",
+	Previous => Method::Previous,
+	"Reset current Song if the current Song runtime (seconds) has passed this number",
+	#[arg(value_name = "SECONDS")]
+	threshold: Option<u32>
+}
+impl_rpc_param! {
+	"Set the playback volume",
+	"playback/volume",
+	Volume => Method::Volume,
+	"The volume % to set. Must be in-between 0..100.",
+	#[arg(value_parser = clap::value_parser!(u8).range(0..=100))]
+	volume: u8
+}
+impl_rpc_param! {
+	"Clear the queue",
+	"playback/clear",
+	Clear => Method::Clear,
+	"If there is a Song currently set and playing, this flag continues playback",
+	playback: bool
+}
+impl_rpc_param! {
+	"Seek forwards/backwards or to an absolute second in the current Song",
+	"playback/seek",
+	Seek => Method::Seek,
+	r#"The "type" of seeking we should do"#,
+	#[arg(value_name = "FORWARD|BACKWARD|ABSOLUTE")]
+	seek: shukusai::audio::Seek,
+	"The second to seek forward/backwards/to",
+	second: u64
+}
+impl_rpc_param! {
+	"Skip forwards a variable amount of Song's in the current queue",
+	"playback/skip",
+	Skip => Method::Skip,
+	"How many Song's to skip",
+	skip: usize
+}
+impl_rpc_param! {
+	"Go backwards a variable amount of Song's in the current queue",
+	"playback/back",
+	Back => Method::Back,
+	"How many Song's to go backwards",
+	back: usize
+}
+impl_rpc_param! {
+	"Add an Artist to the queue with an Artist key",
+	"queue/add_queue_key_artist",
+	AddQueueKeyArtist => Method::AddQueueKeyArtist,
+	"Artist key",
+	key: usize,
+	"In which way should we add to the queue?",
+	#[arg(value_name = "FRONT|BACK|INDEX")]
+	append: Append2,
+	"If the `index` append option was picked, this will be index used",
+	index: Option<usize>,
+	"Should the queue be cleared before adding?",
+	clear: bool,
+	"Should we start at an offset within the Artist?",
+	offset: usize
+}
+impl_rpc_param! {
+	"Add an Album to the queue with an Album key",
+	"queue/add_queue_key_album",
+	AddQueueKeyAlbum => Method::AddQueueKeyAlbum,
+	"Album key",
+	key: usize,
+	"In which way should we add to the queue?",
+	#[arg(value_name = "FRONT|BACK|INDEX")]
+	append: Append2,
+	"If the `index` append option was picked, this will be index used",
+	index: Option<usize>,
+	"Should the queue be cleared before adding?",
+	clear: bool,
+	"Should we start at an offset within the Song?",
+	offset: usize
+}
+impl_rpc_param! {
+	"Add an Song to the queue with an Song key",
+	"queue/add_queue_key_song",
+	AddQueueKeySong => Method::AddQueueKeySong,
+	"Song key",
+	key: usize,
+	"In which way should we add to the queue?",
+	#[arg(value_name = "FRONT|BACK|INDEX")]
+	append: Append2,
+	"If the `index` append option was picked, this will be index used",
+	index: Option<usize>,
+	"Should the queue be cleared before adding?",
+	clear: bool
+}
+impl_struct_lt!(AddQueueMapArtist, #[serde(borrow)] artist: Cow<'a, str>, append: Append2, index: Option<usize>,clear: bool, offset: usize);
+impl_struct_lt!(AddQueueMapAlbum, #[serde(borrow)] artist: Cow<'a, str>, #[serde(borrow)] album: Cow<'a, str>, append: Append2, index: Option<usize>, clear: bool, offset: usize);
+impl_struct_lt!(AddQueueMapSong, #[serde(borrow)] artist: Cow<'a, str>, #[serde(borrow)] album: Cow<'a, str>, #[serde(borrow)] song: Cow<'a, str>, append: Append2, index: Option<usize>, clear: bool);
+impl_rpc_param! {
+	"Add an Artist to the queue with an Artist name",
+	"queue/add_queue_map_artist",
+	AddQueueMapArtistOwned => Method::AddQueueMapArtist,
+	"Artist name",
+	artist: String,
+	"In which way should we add to the queue?",
+	#[arg(value_name = "FRONT|BACK|INDEX")]
+	append: Append2,
+	"If the `index` append option was picked, this will be index used",
+	index: Option<usize>,
+	"Should the queue be cleared before adding?",
+	clear: bool,
+	"Should we start at an offset within the Artist?",
+	offset: usize
+}
+impl_rpc_param! {
+	"Add an Album to the queue with an Artist name and Album title",
+	"queue/add_queue_map_album",
+	AddQueueMapAlbumOwned => Method::AddQueueMapAlbum,
+	"Artist name",
+	artist: String,
+	"Album title",
+	album: String,
+	"In which way should we add to the queue?",
+	#[arg(value_name = "FRONT|BACK|INDEX")]
+	append: Append2,
+	"If the `index` append option was picked, this will be index used",
+	index: Option<usize>,
+	"Should the queue be cleared before adding?",
+	clear: bool,
+	"Should we start at an offset within the Album?",
+	offset: usize
+}
+impl_rpc_param! {
+	"Add a Song to the queue with an Artist name Album title, and Song title",
+	"queue/add_queue_map_song",
+	AddQueueMapSongOwned => Method::AddQueueMapSong,
+	"Artist name",
+	artist: String,
+	"Album title",
+	album: String,
+	"Song title",
+	song: String,
+	"In which way should we add to the queue?",
+	#[arg(value_name = "FRONT|BACK|INDEX")]
+	append: Append2,
+	"If the `index` append option was picked, this will be index used",
+	index: Option<usize>,
+	"Should the queue be cleared before adding?",
+	clear: bool
+}
+impl_rpc_param! {
+	"Add a random Artist to the queue",
+	"queue/add_queue_rand_artist",
+	AddQueueRandArtist => Method::AddQueueRandArtist,
+	"In which way should we add to the queue?",
+	#[arg(value_name = "FRONT|BACK|INDEX")]
+	append: Append2,
+	"If the `index` append option was picked, this will be index used",
+	index: Option<usize>,
+	"Should the queue be cleared before adding?",
+	clear: bool,
+	"Should we start at an offset within the Artist?",
+	offset: usize
+}
+impl_rpc_param! {
+	"Add a random Album to the queue",
+	"queue/add_queue_rand_album",
+	AddQueueRandAlbum => Method::AddQueueRandAlbum,
+	"In which way should we add to the queue?",
+	#[arg(value_name = "FRONT|BACK|INDEX")]
+	append: Append2,
+	"If the `index` append option was picked, this will be index used",
+	index: Option<usize>,
+	"Should the queue be cleared before adding?",
+	clear: bool,
+	"Should we start at an offset within the Album?",
+	offset: usize
+}
+impl_rpc_param! {
+	"Add a random Song to the queue",
+	"queue/add_queue_rand_song",
+	AddQueueRandSong => Method::AddQueueRandSong,
+	"In which way should we add to the queue?",
+	#[arg(value_name = "FRONT|BACK|INDEX")]
+	append: Append2,
+	"If the `index` append option was picked, this will be index used",
+	index: Option<usize>,
+	"Should the queue be cleared before adding?",
+	clear: bool
+}
+impl_rpc_param! {
+	"Set the current Song to a queue index",
+	"queue/set_queue_index",
+	SetQueueIndex => Method::SetQueueIndex,
+	"An index in the queue (1st Song is index 0, 2nd Song is index 1, etc)",
+	index: usize
+}
+impl_rpc_param! {
+	"Remove a range of queue indices",
+	"queue/remove_queue_range",
+	RemoveQueueRange => Method::RemoveQueueRange,
+	"The beginning index to start removing from",
+	start: usize,
+	"The index to stop at",
+	end: usize,
+	"This flag will skip to the next song if the range includes the current one",
+	skip: bool
+}
 
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]

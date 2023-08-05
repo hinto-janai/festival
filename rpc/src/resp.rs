@@ -228,17 +228,20 @@ impl_struct! {
 impl_struct_lt! {
 	AddQueueRandArtist,
 	#[serde(borrow)]
-	artist: Cow<'a, ArtistJson<'a>>
+	artist: Cow<'a, ArtistJson<'a>>,
+	out_of_bounds: bool
 }
 impl_struct_lt! {
 	AddQueueRandAlbum,
 	#[serde(borrow)]
-	album: Cow<'a, AlbumJson<'a>>
+	album: Cow<'a, AlbumJson<'a>>,
+	out_of_bounds: bool
 }
 impl_struct_lt! {
 	AddQueueRandSong,
 	#[serde(borrow)]
-	song: Cow<'a, SongJson<'a>>
+	song: Cow<'a, SongJson<'a>>,
+	out_of_bounds: bool
 }
 impl_struct! {
 	SetQueueIndex,
