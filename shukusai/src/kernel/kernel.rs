@@ -13,15 +13,22 @@ use crate::{
 	logger::INIT_INSTANT,
 	ccd::{CcdToKernel, Ccd},
 	search::{KernelToSearch, SearchToKernel, Search},
-	audio::{KernelToAudio, AudioToKernel, Audio, Volume},
+	audio::{KernelToAudio, AudioToKernel, Audio, Volume, Append},
 	watch::{WatchToKernel, Watch},
-	collection::{Collection,DUMMY_COLLECTION,SongKey},
+	collection::{
+		DUMMY_COLLECTION,
+		Collection,
+		ArtistKey,
+		AlbumKey,
+		SongKey,
+	},
 	constants::{
 		COLLECTION_VERSION,
 		AUDIO_VERSION,
 		PLAYLIST_VERSION,
 	},
 	state::{
+		PlaylistEntry,
 		Playlists,
 		PLAYLISTS,
 		Phase,
@@ -33,6 +40,7 @@ use crate::{
 };
 use crossbeam::channel::{Sender,Receiver};
 use std::path::PathBuf;
+use std::collections::VecDeque;
 use once_cell::sync::Lazy;
 use rayon::prelude::*;
 use std::time::Duration;
@@ -549,13 +557,13 @@ impl Kernel {
 		    RemoveQueueRange(tuple) => send!(self.to_audio, KernelToAudio::RemoveQueueRange(tuple)),
 
 			// Playlists.
-			NewPlaylist(string)        => todo!(),
-			RemovePlaylist(arc_str)    => todo!(),
-			ClonePlaylist(tuple)       => todo!(),
-			RemovePlaylistIndex(tuple) => todo!(),
-			AddPlaylistArtist(tuple)   => todo!(),
-			AddPlaylistAlbum(tuple)    => todo!(),
-			AddPlaylistSong(tuple)     => todo!(),
+			NewPlaylist(string)        => Self::new_playlist(string),
+			RemovePlaylist(arc_str)    => Self::remove_playlist(arc_str),
+			ClonePlaylist((a, b))      => Self::clone_playlist(a, b),
+			RemovePlaylistIndex((a,b)) => Self::remove_playlist_index(a,b),
+			AddPlaylistArtist((a,b,c)) => self.add_playlist_artist(a,b,c),
+			AddPlaylistAlbum((a,b,c))  => self.add_playlist_album(a,b,c),
+			AddPlaylistSong((a,b,c))   => self.add_playlist_song(a,b,c),
 
 			// Audio State.
 			RestoreAudioState => send!(self.to_audio, KernelToAudio::RestoreAudioState),
@@ -623,6 +631,146 @@ impl Kernel {
 //			Artist(s)       => send!(self.to_audio, KernelToAudio::Artist(k)),
 //			Album(s)        => send!(self.to_audio, KernelToAudio::Album(k)),
 //			Song(s)         => send!(self.to_audio, KernelToAudio::Song(k)),
+		}
+	}
+
+	//-------------------------------------------------- Playlist handling.
+	fn new_playlist(s: String) {
+		PLAYLISTS.write().insert(s.into(), VecDeque::with_capacity(8));
+	}
+
+	fn remove_playlist(s: Arc<str>) {
+		PLAYLISTS.write().remove(&s);
+	}
+
+	fn clone_playlist(from: Arc<str>, into: String) {
+		let mut p = PLAYLISTS.write();
+
+		let vec = p.get(&from).map(|v| v.clone());
+		if let Some(vec) = vec {
+			p.insert(into.into(), vec);
+		}
+	}
+
+	fn remove_playlist_index(index: usize, playlist: Arc<str>) {
+		if let Some(p) = PLAYLISTS.write().get_mut(&playlist) {
+			p.remove(index);
+		}
+	}
+
+	fn add_playlist_artist(&self, playlist: Arc<str>, key: ArtistKey, append: Append) {
+		trace!("Kernel - add_playlist_artist({playlist}, {key}, {append}");
+
+		let keys: Box<[SongKey]> = self.collection.all_songs(key);
+		let iter = keys.iter();
+
+		let mut p = PLAYLISTS.write();
+		let v = p
+			.entry(playlist)
+			.or_insert_with(|| VecDeque::with_capacity(keys.len()));
+
+		match append {
+			Append::Back => iter.for_each(|k| {
+				let (artist, album, song) = self.collection.walk(k);
+				let entry = PlaylistEntry::Valid {
+					key: *k,
+					artist: Arc::clone(&artist.name),
+					album: Arc::clone(&album.title),
+					song: Arc::clone(&song.title),
+				};
+				v.push_back(entry);
+			}),
+			Append::Front => iter.rev().for_each(|k| {
+				let (artist, album, song) = self.collection.walk(k);
+				let entry = PlaylistEntry::Valid {
+					key: *k,
+					artist: Arc::clone(&artist.name),
+					album: Arc::clone(&album.title),
+					song: Arc::clone(&song.title),
+				};
+				v.push_front(entry);
+			}),
+			Append::Index(mut i) => iter.for_each(|k| {
+				let (artist, album, song) = self.collection.walk(k);
+				let entry = PlaylistEntry::Valid {
+					key: *k,
+					artist: Arc::clone(&artist.name),
+					album: Arc::clone(&album.title),
+					song: Arc::clone(&song.title),
+				};
+				v.insert(i, entry);
+				i += 1;
+			}),
+		}
+	}
+
+	fn add_playlist_album(&self, playlist: Arc<str>, key: AlbumKey, append: Append) {
+		trace!("Kernel - add_playlist_album({playlist}, {key}, {append}");
+
+		let keys = &self.collection.albums[key].songs;
+		let iter = keys.iter();
+
+		let mut p = PLAYLISTS.write();
+		let v = p
+			.entry(playlist)
+			.or_insert_with(|| VecDeque::with_capacity(keys.len()));
+
+		let album  = &self.collection.albums[key];
+		let artist = &self.collection.artists[album.artist];
+
+		match append {
+			Append::Back => iter.for_each(|k| {
+				let entry = PlaylistEntry::Valid {
+					key: *k,
+					artist: Arc::clone(&artist.name),
+					album: Arc::clone(&album.title),
+					song: Arc::clone(&self.collection.songs[*k].title),
+				};
+				v.push_back(entry)
+			}),
+			Append::Front => iter.rev().for_each(|k| {
+				let entry = PlaylistEntry::Valid {
+					key: *k,
+					artist: Arc::clone(&artist.name),
+					album: Arc::clone(&album.title),
+					song: Arc::clone(&self.collection.songs[*k].title),
+				};
+				v.push_front(entry)
+			}),
+			Append::Index(mut i) => iter.for_each(|k| {
+				let entry = PlaylistEntry::Valid {
+					key: *k,
+					artist: Arc::clone(&artist.name),
+					album: Arc::clone(&album.title),
+					song: Arc::clone(&self.collection.songs[*k].title),
+				};
+				v.insert(i, entry);
+				i += 1;
+			}),
+		}
+	}
+
+	fn add_playlist_song(&self, playlist: Arc<str>, key: SongKey, append: Append) {
+		trace!("Kernel - add_playlist_album({playlist}, {key}, {append}");
+
+		let (artist, album, song) = self.collection.walk(key);
+
+		let entry = PlaylistEntry::Valid {
+			key,
+			artist: Arc::clone(&artist.name),
+			album: Arc::clone(&album.title),
+			song: Arc::clone(&song.title),
+		};
+
+		let mut p = PLAYLISTS.write();
+		let v = p
+			.entry(playlist)
+			.or_insert_with(|| VecDeque::with_capacity(8));
+
+		match append {
+			Append::Back     => v.push_back(entry),
+			Append::Front    => v.push_front(entry),
+			Append::Index(i) => v.insert(i, entry),
 		}
 	}
 
