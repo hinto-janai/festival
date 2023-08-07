@@ -27,6 +27,7 @@ use rayon::prelude::*;
 //---------------------------------------------------------------------------------------------------- __NAME__
 disk::bincode2!(Playlists, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{STATE_SUB_DIR}"), "playlists", HEADER, PLAYLIST_VERSION);
 #[derive(Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
+#[serde(rename_all = "snake_case")]
 /// Playlist implementation.
 ///
 /// Contains all user playlists, ordering via `BTreeMap`.
@@ -42,17 +43,27 @@ pub struct Playlists(pub PlaylistsInner);
 pub type PlaylistsInner = BTreeMap<String, VecDeque<PlaylistEntry>>;
 
 #[derive(Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
+#[serde(rename_all = "snake_case")]
 /// `Option`-like enum for playlist entries.
 ///
 /// Either song exists in the current `Collection` (`PlaylistEntry::Key`)
-/// or it is missing (`PlaylistEntry::Missing`).
+/// or it is missing (`PlaylistEntry::Invalid`).
 pub enum PlaylistEntry {
 	/// This is a valid song in the current `Collection`
-	Key(SongKey),
+	Valid {
+		/// Song key
+		key: SongKey,
+		/// Artist name
+		artist: Arc<str>,
+		/// Album title
+		album: Arc<str>,
+		/// Song title
+		song: Arc<str>,
+	},
 
 	/// This song is missing, this was the
 	/// `artist.name`, `album.title`, `song.title`.
-	Missing {
+	Invalid {
 		/// Artist name
 		artist: Arc<str>,
 		/// Album title
@@ -77,6 +88,68 @@ impl std::ops::DerefMut for Playlists {
 }
 
 impl Playlists {
+	/// Validate all keys (and strings), replace invalid ones with `Invalid`.
+	///
+	/// Also, clone the `Arc`'s from the `Collection` as to not use more space.
+	pub fn validate(&mut self, collection: &Arc<Collection>) {
+		self.0
+			.par_iter_mut()
+			.for_each(|(_, entry)| {
+				entry
+				.par_iter_mut()
+				.for_each(|entry| {
+					match entry {
+						PlaylistEntry::Valid { key, artist, album, song } => {
+							let Some((s, _)) = collection.song(&artist, &album, &song) else {
+								*entry = PlaylistEntry::Invalid {
+									artist: Arc::clone(artist),
+									album: Arc::clone(album),
+									song: Arc::clone(song),
+								};
+								return;
+							};
+
+							// FIXME:
+							// This will cause songs that have the same name
+							// to be invalidated. Songs with the same name in the
+							// same album is not compatible `shukusai` in general.
+							//
+							// These are quite common with `interlude` type of songs
+							// so multiple songs with the same name should be supported...
+							// somehow... eventually... SOMEDAY.
+//							if *key != s.key {
+//								*entry = PlaylistEntry::Invalid {
+//									artist: Arc::clone(artist),
+//									album: Arc::clone(album),
+//									song: Arc::clone(song),
+//								};
+//								return;
+//							}
+
+							let (artist, album, song) = collection.walk(s.key);
+							*entry = PlaylistEntry::Valid {
+								key: s.key,
+								artist: Arc::clone(&artist.name),
+								album: Arc::clone(&album.title),
+								song: Arc::clone(&song.title),
+							};
+						},
+						PlaylistEntry::Invalid { artist, album, song } => {
+							if let Some((s, _)) = collection.song(&artist, &album, &song) {
+								let (artist, album, song) = collection.walk(s.key);
+								*entry = PlaylistEntry::Valid {
+									key: s.key,
+									artist: Arc::clone(&artist.name),
+									album: Arc::clone(&album.title),
+									song: Arc::clone(&song.title),
+								};
+							}
+						},
+					}
+				});
+			});
+	}
+
 	/// Convert all inner `PlaylistEntry`'s
 	/// into the string variants.
 	pub fn all_missing(&mut self, collection: &Arc<Collection>) {
@@ -86,35 +159,46 @@ impl Playlists {
 				entry
 				.par_iter_mut()
 				.for_each(|entry| {
-					if let PlaylistEntry::Key(key) = entry {
-						let (artist, album, song) = collection.walk(*key);
-						*entry = PlaylistEntry::Missing {
-							artist: Arc::clone(&artist.name),
-							album: Arc::clone(&album.title),
-							song: Arc::clone(&song.title),
+					if let PlaylistEntry::Valid { key, artist, album, song } = entry {
+						*entry = PlaylistEntry::Invalid {
+							artist: Arc::clone(artist),
+							album: Arc::clone(album),
+							song: Arc::clone(song),
 						};
 					}
 				});
 			});
 	}
 
-	/// For all `PlaylistEntry`'s, if it is missing
-	/// but the key is found in the passed `Collection`,
-	/// convert it to `PlaylistEntry::Key`.
-	pub fn find_key(&mut self, collection: &Arc<Collection>) {
+	/// Convert all `PlaylistEntry`'s to `Valid` is possible.
+	pub fn convert(&mut self, collection: &Arc<Collection>) {
 		self.0
 			.par_iter_mut()
 			.for_each(|(_, entry)| {
 				entry
 				.par_iter_mut()
 				.for_each(|entry| {
-					if let PlaylistEntry::Missing { artist, album, song } = entry {
-						if let Some((song, _)) = collection.song(artist, album, song) {
-							*entry = PlaylistEntry::Key(song.key);
+					if let PlaylistEntry::Invalid { artist, album, song } = entry {
+						if let Some((s, _)) = collection.song(&artist, &album, &song) {
+							let (artist, album, song) = collection.walk(s.key);
+							*entry = PlaylistEntry::Valid {
+								key: s.key,
+								artist: Arc::clone(&artist.name),
+								album: Arc::clone(&album.title),
+								song: Arc::clone(&song.title),
+							};
 						}
 					}
 				});
 			});
+	}
+
+	/// Returns a `Vec` of (`playlist_name_str`, `entry_count`).
+	pub fn name_count_iter(&self) -> Vec<(&str, usize)> {
+		self.0
+			.iter()
+			.map(|(s, v)| (s.as_str(), v.len()))
+			.collect()
 	}
 }
 
