@@ -140,6 +140,31 @@ impl Playlists {
 		Self(BTreeMap::new())
 	}
 
+	/// INVARIANT: this assumes the playlist's validity is already correct.
+	///
+	/// Given a playlist name, extract out all the valid keys.
+	///
+	/// `None` if playlist doesn't exist.
+	///
+	/// Empty `Box<[]>` if it had no valid keys.
+	pub fn valid_keys(&self, playlist_name: &str, collection: &Arc<Collection>) -> Option<Box<[SongKey]>> {
+		let Some(playlist) = self.get(playlist_name) else {
+			return None;
+		};
+
+		Some(playlist
+			.iter()
+			.filter_map(|e| {
+				if let PlaylistEntry::Valid { key, .. } = e {
+					Some(*key)
+				} else {
+					None
+				}
+			})
+			.collect()
+		)
+	}
+
 	/// Validate all keys (and strings), replace invalid ones with `Invalid`.
 	///
 	/// Also, clone the `Arc`'s from the `Collection` as to not use more space.

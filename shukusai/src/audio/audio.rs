@@ -412,6 +412,7 @@ impl Audio {
 			AddQueueSong((s_key,    append, clear))         => self.add_queue_song(s_key, append, clear),
 			AddQueueAlbum((al_key,  append, clear, offset)) => self.add_queue_album(al_key, append, clear, offset),
 			AddQueueArtist((ar_key, append, clear, offset)) => self.add_queue_artist(ar_key, append, clear, offset),
+			AddQueuePlaylist((p, append, clear, offset))    => self.add_queue_playlist(p, append, clear, offset),
 			Shuffle     => self.shuffle(),
 			Clear(play) => {
 				self.clear(play, &mut AUDIO_STATE.write());
@@ -1025,6 +1026,69 @@ impl Audio {
 		trace!("Audio - add_queue_artist({key:?}, {append:?}, {clear}, {offset}");
 
 		let keys: Box<[SongKey]> = self.collection.all_songs(key);
+
+		let mut state = AUDIO_STATE.write();
+
+		if clear {
+			self.clear(clear, &mut state)
+		}
+
+		// Prevent bad offsets panicking.
+		let offset = if offset >= keys.len() {
+			0
+		} else {
+			offset
+		};
+
+		// INVARIANT:
+		// `Collection` only creates `Artist`'s that
+		// have a minimum of 1 `Song`, so this should
+		// never panic.
+		let iter = keys.iter();
+		match append {
+			Append::Back  => {
+				iter.for_each(|k| state.queue.push_back(*k));
+				if self.current.is_none() {
+					state.queue_idx = Some(offset);
+					self.set(keys[offset], &mut state);
+				}
+			},
+			Append::Front => {
+				iter.rev().for_each(|k| state.queue.push_front(*k));
+				state.queue_idx = Some(offset);
+				self.set(keys[offset], &mut state);
+			},
+			Append::Index(mut i) => {
+				iter.for_each(|k| {
+					state.queue.insert(i, *k);
+					i += 1;
+				});
+				if i == 0 {
+					state.queue_idx = Some(0);
+					self.set(keys[offset], &mut state);
+				}
+			}
+		}
+	}
+
+	fn add_queue_playlist(
+		&mut self,
+		playlist: Arc<str>,
+		append: Append,
+		clear: bool,
+		offset: usize,
+	) {
+		trace!("Audio - add_queue_playlist({playlist}, {append:?}, {clear}, {offset}");
+
+		let Some(keys) = crate::state::PLAYLISTS.read().valid_keys(&playlist, &self.collection) else {
+			trace!("Audio - {playlist} doesn't exist, skipping");
+			return;
+		};
+
+		if keys.is_empty() {
+			trace!("Audio - {playlist} is empty, skipping");
+			return;
+		};
 
 		let mut state = AUDIO_STATE.write();
 

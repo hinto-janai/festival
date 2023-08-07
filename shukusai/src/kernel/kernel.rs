@@ -538,7 +538,7 @@ impl Kernel {
 			AddQueueSong(tuple)     => send!(self.to_audio, KernelToAudio::AddQueueSong(tuple)),
 			AddQueueAlbum(tuple)    => send!(self.to_audio, KernelToAudio::AddQueueAlbum(tuple)),
 			AddQueueArtist(tuple)   => send!(self.to_audio, KernelToAudio::AddQueueArtist(tuple)),
-			AddQueuePlaylist(tuple) => todo!(),
+			AddQueuePlaylist(tuple) => send!(self.to_audio, KernelToAudio::AddQueuePlaylist(tuple)),
 			Shuffle                 => send!(self.to_audio, KernelToAudio::Shuffle),
 			Clear(play)             => send!(self.to_audio, KernelToAudio::Clear(play)),
 			Skip(num)               => send!(self.to_audio, KernelToAudio::Skip(num)),
