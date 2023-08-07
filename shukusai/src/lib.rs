@@ -109,6 +109,9 @@ pub mod search;
 /// Global state.
 pub mod state;
 
+/// Playlists.
+pub mod playlist;
+
 /// The main music `Collection` and its inner data
 pub mod collection;
 
