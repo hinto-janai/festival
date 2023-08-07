@@ -88,6 +88,6 @@ r#"
 	}
 
 	//-------------------------------------------------- Exit.
-	println!("\nfestival: Total uptime ... {}", readable::Time::from(*shukusai::logger::INIT_INSTANT));
+	println!("\nfestivald: Total uptime ... {}", readable::Time::from(*shukusai::logger::INIT_INSTANT));
 	std::process::exit(0)
 }

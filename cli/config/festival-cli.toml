@@ -32,23 +32,10 @@
 festivald = "http://127.0.0.1:18425"
 
 
-# If using HTTPS, do not validate `festivald`'s TLS certificate.
+# Set a timeout for a non-responding `festivald`
 #
-# This is similar to `curl --insecure` or `wget --no-check-certificate`.
-#
-# Useful for connecting to your own `festivald`,
-# which may be using a self-signed certificate.
-#
-# DEFAULT | false
-# VALUES  | true, false
-# TYPE    | boolean
-ignore-cert = false
-
-
-# Disconnect from a non-responding `festivald`
-#
-# If `festivald` does not respond with _at least_
-# a basic HTTP header within this time (seconds),
+# If the request & response time to/from `festivald`
+# takes up more than this amount of seconds,
 # `festival-cli` will disconnect.
 #
 # 0 means never disconnect.
@@ -66,32 +53,10 @@ timeout = 0
 # See below for more info:
 # <https://jsonrpc.org/specification>
 #
-# DEFAULT | "festival-cli v1.0.0"
+# DEFAULT | "festival-cli"
 # VALUES  | 0, 1, "1", "Hello"
 # TYPE    | unsigned integer, string, or null (commented out)
-id = "festival-cli v1.0.0"
-
-
-#----------------------------------------------------------#
-#                       COLLECTION                         #
-#----------------------------------------------------------#
-# Upon a `collection_new` JSON-RPC method call, if the
-# `--paths` parameter is empty or not passed,
-# these PATHs will be sent instead.
-#
-# If this is also empty, the default OS `Music`
-# directory will be used
-#
-# Windows-style PATHs will only work if the target
-# `festivald` is running on Windows (`C:\\Users\\User\\Music`)
-#
-# Note these are PATHs on the _target_ `festivald`,
-# NOT on the filesystem `festival-cli` is running on.
-#
-# DEFAULT | []
-# EXAMPLE | ["/home/user/Music/albums", "/home/user/data/songs"]
-# TYPE    | array of PATHs
-collection_paths = []
+id = "festival-cli"
 
 
 #----------------------------------------------------------#

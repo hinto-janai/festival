@@ -4,20 +4,33 @@ mod config;
 mod constants;
 mod docs;
 mod macros;
+mod rpc;
 
 fn main() {
-	// Handle CLI arguments.
-//	let (disable_watch, disable_media_controls, log, config_cmd) = {
-//		if std::env::args_os().len() == 1 {
-//			(false, false, None, None)
-//		} else {
-//			crate::cli::Cli::get()
-//		}
-//	};
+	// Handle regular CLI arguments (exit if needed).
+	let (config_cmd, rpc, dry_run) = crate::cli::Cli::get();
 
-	// Init logger.
-//	shukusai::logger::init_logger(log.unwrap_or_else(|| log::LevelFilter::Error));
+	// Read config: `festival-cli.toml`.
+	let mut config_builder = crate::config::ConfigBuilder::file_or();
 
-	crate::cli::Cli::get();
-//    println!("{}", x.id);
+	// Merge config + command-line.
+	if let Some(mut config_cmd) = config_cmd {
+		config_builder.merge(&mut config_cmd);
+	}
+
+	// Build config.
+	let config = config_builder.build();
+
+	let Some(rpc) = rpc else {
+		crate::exit!("missing method");
+	};
+
+	// Exit early if dry run.
+	if dry_run {
+		eprintln!("{config:#?}\n\nMethod: {rpc:#?}");
+		std::process::exit(0);
+	}
+
+	// Connect to `festivald`, send request, print response.
+	crate::rpc::request(config, rpc);
 }

@@ -163,6 +163,77 @@ pub enum Method {
 	RemoveQueueRange,
 }
 
+#[derive(clap::Subcommand,Clone,Debug,Serialize,Deserialize)]
+#[derive(AsRefStr,Display,EnumCount,EnumVariantNames,IntoStaticStr)]
+#[strum(serialize_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
+#[command(rename_all = "snake_case")]
+/// Combined method + param.
+pub enum Rpc {
+	CollectionNew(crate::param::CollectionNew),
+	CollectionBrief(crate::param::CollectionBrief),
+	CollectionFull(crate::param::CollectionFull),
+	CollectionRelation(crate::param::CollectionRelation),
+	CollectionRelationFull(crate::param::CollectionRelationFull),
+	CollectionPerf(crate::param::CollectionPerf),
+	CollectionResourceSize(crate::param::CollectionResourceSize),
+
+	StateIp(crate::param::StateIp),
+	StateConfig(crate::param::StateConfig),
+	StateDaemon(crate::param::StateDaemon),
+	StateAudio(crate::param::StateAudio),
+	StateReset(crate::param::StateReset),
+
+	KeyArtist(crate::param::KeyArtist),
+	KeyAlbum(crate::param::KeyAlbum),
+	KeySong(crate::param::KeySong),
+
+	MapArtist(crate::param::MapArtistOwned),
+	MapAlbum(crate::param::MapAlbumOwned),
+	MapSong(crate::param::MapSongOwned),
+
+	CurrentArtist(crate::param::CurrentArtist),
+	CurrentAlbum(crate::param::CurrentAlbum),
+	CurrentSong(crate::param::CurrentSong),
+
+	RandArtist(crate::param::RandArtist),
+	RandAlbum(crate::param::RandAlbum),
+	RandSong(crate::param::RandSong),
+
+	Search(crate::param::SearchOwned),
+	SearchArtist(crate::param::SearchArtistOwned),
+	SearchAlbum(crate::param::SearchAlbumOwned),
+	SearchSong(crate::param::SearchSongOwned),
+
+	Toggle(crate::param::Toggle),
+	Play(crate::param::Play),
+	Pause(crate::param::Pause),
+	Next(crate::param::Next),
+	Stop(crate::param::Stop),
+	Shuffle(crate::param::Shuffle),
+	RepeatOff(crate::param::RepeatOff),
+	RepeatSong(crate::param::RepeatSong),
+	RepeatQueue(crate::param::RepeatQueue),
+	Previous(crate::param::Previous),
+	Volume(crate::param::Volume),
+	Clear(crate::param::Clear),
+	Seek(crate::param::Seek),
+	Skip(crate::param::Skip),
+	Back(crate::param::Back),
+
+	AddQueueKeyArtist(crate::param::AddQueueKeyArtist),
+	AddQueueKeyAlbum(crate::param::AddQueueKeyAlbum),
+	AddQueueKeySong(crate::param::AddQueueKeySong),
+	AddQueueMapArtist(crate::param::AddQueueMapArtistOwned),
+	AddQueueMapAlbum(crate::param::AddQueueMapAlbumOwned),
+	AddQueueMapSong(crate::param::AddQueueMapSongOwned),
+	AddQueueRandArtist(crate::param::AddQueueRandArtist),
+	AddQueueRandAlbum(crate::param::AddQueueRandAlbum),
+	AddQueueRandSong(crate::param::AddQueueRandSong),
+	SetQueueIndex(crate::param::SetQueueIndex),
+	RemoveQueueRange(crate::param::RemoveQueueRange),
+}
+
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
 mod tests {

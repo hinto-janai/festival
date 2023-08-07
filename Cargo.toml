@@ -33,8 +33,7 @@ shukusai = { version = "0.0.3",  path = "shukusai" }
 benri    = { version = "0.1.12", features = ["log"] }
 disk     = { version = "0.1.20", features = ["bincode2", "empty", "toml", "plain", "json", "bytesize"] }
 readable = { version = "0.8.12",  features = ["ignore_nan_inf", "serde", "bincode"] }
-#json-rpc = { version = "0.1.1", git = "https://github.com/hinto-janai/json-rpc" }
-json-rpc = { version = "0.1.1", path = "../json-rpc" }
+json-rpc = { version = "0.1.2", git = "https://github.com/hinto-janai/json-rpc" }
 rpc      = { version = "0.0.0", path = "rpc/" }
 
 ### Regular libraries.
@@ -45,6 +44,7 @@ crossbeam    = { version = "0.8.2", features = ["crossbeam-channel"] }
 const_format = { version = "0.2.31", features = ["rust_1_51", "assertcp", "rust_1_64"] }
 compact_str  = { version = "0.7.0" }
 dirs         = { version = "5.0.1" }
+env_logger   = { version = "0.10.0" }
 image        = { version = "0.24.6" }
 log          = { version = "0.4.18", features = ["serde"] }
 memmap2      = { version = "0.6.2" }

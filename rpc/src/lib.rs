@@ -2,6 +2,7 @@ mod macros;
 
 mod method;
 pub use method::Method;
+pub use method::Rpc;
 
 /// Structs that represent the parameters of a [`Method`]
 pub mod param;

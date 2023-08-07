@@ -1,5 +1,5 @@
 # Config
-`festivald` reads and loads its configuration file, `festivald.toml`, on startup. It controls various behaviors of `festivald`.
+`festival-cli` reads and loads its configuration file, `festival-cli.toml`, on startup. It controls various behaviors of `festival-cli`.
 
 Exactly where this file is depends on the OS, more details in the [`Disk`](disk.md) section.
 
@@ -8,12 +8,12 @@ Exactly where this file is depends on the OS, more details in the [`Disk`](disk.
 ## `festivald.toml`
 This is the default configuration file `festivald` creates and uses.
 
-If `festivald` is started with no `--flags`, e.g:
+If `festival-cli` is started with no `--flags`, e.g:
 ```bash
-./festivald
+./festival-cli <method>
 ```
 Then it will be equivalent to this config file.
 
 ```toml
-{{#include ../../config/festivald.toml}}
+{{#include ../../config/festival-cli.toml}}
 ```

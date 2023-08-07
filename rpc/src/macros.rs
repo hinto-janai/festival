@@ -54,15 +54,15 @@ macro_rules! impl_rpc {
 	($method_doc:literal, $method_link:literal, $method_name:ident => $method_enum:expr) => {
 		#[derive(Clone,Debug,PartialEq,Serialize,Deserialize)]
         #[derive(clap::Args)]
-		#[command(about = $method_doc, long_about = include_str!(concat!("../../cli/mdbook/src/json-rpc/", $method_link, ".md")))]
+		#[command(about = $method_doc, long_about = include_str!(concat!("../../daemon/mdbook/src/json-rpc/", $method_link, ".md")))]
 		pub struct $method_name;
 
 		impl $method_name {
-	        pub fn request<'a>(id: Option<json_rpc::Id<'a>>) -> json_rpc::Request<'a, crate::method::Method, ()> {
+	        pub fn request<'a>(&self, id: json_rpc::Id<'a>) -> json_rpc::Request<'a, crate::method::Method, ()> {
 	            json_rpc::Request::new(
 	                Cow::Owned($method_enum),
 	                None,
-	                id,
+	                Some(id),
 	            )
 	        }
 		}
@@ -74,7 +74,7 @@ macro_rules! impl_rpc_param {
 	($method_doc:literal, $method_link:literal, $method_name:ident => $method_enum:expr, $($param_doc:literal, $( #[$attrs:meta] )* $param:ident: $param_type:ty),*) => {
 		#[derive(Clone,Debug,PartialEq,Serialize,Deserialize)]
         #[derive(clap::Args)]
-		#[command(about = $method_doc, long_about = include_str!(concat!("../../cli/mdbook/src/json-rpc/", $method_link, ".md")))]
+		#[command(about = $method_doc, long_about = include_str!(concat!("../../daemon/mdbook/src/json-rpc/", $method_link, ".md")))]
 		pub struct $method_name {
 			$(
 				#[doc = $param_doc]
@@ -85,11 +85,11 @@ macro_rules! impl_rpc_param {
 		}
 
 		impl $method_name {
-	        pub fn request<'a>(&'a self, id: Option<json_rpc::Id<'a>>) -> json_rpc::Request<'a, crate::method::Method, Self> {
+	        pub fn request<'a>(&'a self, id: json_rpc::Id<'a>) -> json_rpc::Request<'a, crate::method::Method, Self> {
 	            json_rpc::Request::new(
 	                Cow::Owned($method_enum),
 	                Some(Cow::Borrowed(&self)),
-	                id,
+	                Some(id),
 	            )
 	        }
 		}

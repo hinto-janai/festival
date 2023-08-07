@@ -46,6 +46,8 @@ pub struct Cli {
 
 	#[arg(long, verbatim_doc_comment)]
 	/// The port `festivald` will bind to [default: 18425]
+	///
+	/// Using port `0` will select a random port.
 	port: Option<u16>,
 
 	#[arg(long, verbatim_doc_comment, value_name = "NUMBER")]

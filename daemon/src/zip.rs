@@ -72,10 +72,8 @@ macro_rules! impl_zip {
 							Err(e) => warn!("Task - Failed to remove tmp: {e} ... {}", tmp.display()),
 						}
 					}
-				});
 
-				// Removes the created cached ZIPs `x` seconds _after_ creation.
-				tokio::task::spawn(async move {
+					// Removes the created cached ZIPs `x` seconds _after_ creation.
 					tokio::time::sleep(std::time::Duration::from_secs(crate::config::config().cache_time)).await;
 
 					if real.exists() {

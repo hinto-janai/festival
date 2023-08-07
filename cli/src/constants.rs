@@ -25,6 +25,12 @@ pub const FESTIVAL_CLI_NAME_VER: &str = {
 	concat!("festival-cli v", env!("CARGO_PKG_VERSION"))
 };
 
+/// `festival-cli/${version}`
+pub const FESTIVAL_CLI_USER_AGENT: &str = {
+	assertcp!(env!("CARGO_PKG_VERSION").len() != 0, "CARGO_PKG_VERSION is 0 length");
+	concat!("festival-cli/v", env!("CARGO_PKG_VERSION"))
+};
+
 /// - festival-cli name + version
 /// - OS + Arch
 /// - Git commit hash

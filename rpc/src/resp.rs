@@ -178,17 +178,17 @@ impl_struct! {
 
 //---------------------------------------------------------------------------------------------------- Key
 impl_struct_lt! {
-	Artist,
+	KeyArtist,
 	#[serde(borrow)]
 	artist: ArtistJson<'a>
 }
 impl_struct_lt! {
-	Album,
+	KeyAlbum,
 	#[serde(borrow)]
 	album: AlbumJson<'a>
 }
 impl_struct_lt! {
-	Song,
+	KeySong,
 	#[serde(borrow)]
 	song: SongJson<'a>
 }

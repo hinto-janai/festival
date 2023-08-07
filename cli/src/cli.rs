@@ -19,6 +19,7 @@ use std::process::exit;
 use std::net::Ipv4Addr;
 use std::path::PathBuf;
 use crate::config::ConfigBuilder;
+use rpc::Rpc;
 
 //---------------------------------------------------------------------------------------------------- CLI Parser (clap)
 #[cfg(windows)]
@@ -27,7 +28,7 @@ pub const BIN: &str = "festival-cli.exe";
 pub const BIN: &str = "festival-cli";
 
 const USAGE: &str = formatcp!(
-r#"{BIN} [OPTIONS] [COMMAND + OPTIONS] [ARGS...]
+r#"{BIN} [OPTIONS] [METHOD] [--PARAM <ARG>]
 
 Arguments passed to `festival-cli` will always take
 priority over configuration options read from disk."#);
@@ -56,17 +57,8 @@ pub struct Cli {
 	/// Default is: `http://127.0.0.1:18425`
 	festivald: Option<String>,
 
-	#[arg(long, verbatim_doc_comment)]
-	/// If using HTTPS, do not validate `festivald`'s TLS certificate
-	///
-	/// This is similar to `curl --insecure` or `wget --no-check-certificate`.
-	///
-	/// Useful for connecting to your own `festivald`,
-	/// which may be using a self-signed certificate.
-	ignore_cert: bool,
-
 	#[arg(long, verbatim_doc_comment, value_name = "SECONDS")]
-	/// Disconnect from a non-responding `festivald`
+	/// Set a timeout for a non-responding `festivald`
 	///
 	/// If `festivald` does not respond with _at least_
 	/// a basic HTTP header within this time (seconds),
@@ -108,6 +100,10 @@ pub struct Cli {
 	authorization: Option<String>,
 
 	#[arg(long, verbatim_doc_comment)]
+	/// Print the options that would be used, but don't actually connect to `festivald`
+	dry_run: bool,
+
+	#[arg(long, verbatim_doc_comment)]
 	/// Open `festival-cli` documentation locally in browser
 	docs: bool,
 
@@ -131,93 +127,25 @@ pub struct Cli {
 	/// The PATHs deleted will be printed on success.
 	delete: bool,
 
-	#[arg(long, value_name = "OFF|ERROR|INFO|WARN|DEBUG|TRACE")]
-	/// Set filter level for console logs
-	log_level: Option<log::LevelFilter>,
+	#[arg(long, verbatim_doc_comment)]
+	/// Print all the methods available
+	methods: bool,
 
 	#[arg(short, long)]
 	/// Print version
 	version: bool,
 }
 
-//---------------------------------------------------------------------------------------------------- Subcommands
-#[derive(Subcommand,Debug,Clone)]
-#[command(rename_all = "snake_case")]
-pub enum Rpc {
-	CollectionNew(rpc::param::CollectionNew),
-	CollectionBrief(rpc::param::CollectionBrief),
-	CollectionFull(rpc::param::CollectionFull),
-	CollectionRelation(rpc::param::CollectionRelation),
-	CollectionRelationFull(rpc::param::CollectionRelationFull),
-	CollectionPerf(rpc::param::CollectionPerf),
-	CollectionResourceSize(rpc::param::CollectionResourceSize),
-
-	StateIp(rpc::param::StateIp),
-	StateConfig(rpc::param::StateConfig),
-	StateDaemon(rpc::param::StateDaemon),
-	StateAudio(rpc::param::StateAudio),
-	StateReset(rpc::param::StateReset),
-
-	KeyArtist(rpc::param::KeyArtist),
-	KeyAlbum(rpc::param::KeyAlbum),
-	KeySong(rpc::param::KeySong),
-
-	MapArtist(rpc::param::MapArtistOwned),
-	MapAlbum(rpc::param::MapAlbumOwned),
-	MapSong(rpc::param::MapSongOwned),
-
-	CurrentArtist(rpc::param::CurrentArtist),
-	CurrentAlbum(rpc::param::CurrentAlbum),
-	CurrentSong(rpc::param::CurrentSong),
-
-	RandArtist(rpc::param::RandArtist),
-	RandAlbum(rpc::param::RandAlbum),
-	RandSong(rpc::param::RandSong),
-
-	Search(rpc::param::SearchOwned),
-	SearchArtist(rpc::param::SearchArtistOwned),
-	SearchAlbum(rpc::param::SearchAlbumOwned),
-	SearchSong(rpc::param::SearchSongOwned),
-
-	Toggle(rpc::param::Toggle),
-	Play(rpc::param::Play),
-	Pause(rpc::param::Pause),
-	Next(rpc::param::Next),
-	Stop(rpc::param::Stop),
-	Shuffle(rpc::param::Shuffle),
-	RepeatOff(rpc::param::RepeatOff),
-	RepeatSong(rpc::param::RepeatSong),
-	RepeatQueue(rpc::param::RepeatQueue),
-	Previous(rpc::param::Previous),
-	Volume(rpc::param::Volume),
-	Clear(rpc::param::Clear),
-	Seek(rpc::param::Seek),
-	Skip(rpc::param::Skip),
-	Back(rpc::param::Back),
-
-	AddQueueKeyArtist(rpc::param::AddQueueKeyArtist),
-	AddQueueKeyAlbum(rpc::param::AddQueueKeyAlbum),
-	AddQueueKeySong(rpc::param::AddQueueKeySong),
-	AddQueueMapArtist(rpc::param::AddQueueMapArtistOwned),
-	AddQueueMapAlbum(rpc::param::AddQueueMapAlbumOwned),
-	AddQueueMapSong(rpc::param::AddQueueMapSongOwned),
-	AddQueueRandArtist(rpc::param::AddQueueRandArtist),
-	AddQueueRandAlbum(rpc::param::AddQueueRandAlbum),
-	AddQueueRandSong(rpc::param::AddQueueRandSong),
-	SetQueueIndex(rpc::param::SetQueueIndex),
-	RemoveQueueRange(rpc::param::RemoveQueueRange),
-}
-
-//---------------------------------------------------------------------------------------------------- CLI argument handling
+//---------------------------------------------------------------------------------------------------- Regular CLI argument handling
 impl Cli {
-	pub fn get() -> (Option<log::LevelFilter>, Option<ConfigBuilder>) {
+	pub fn get() -> (Option<ConfigBuilder>, Option<Rpc>, bool) {
 		Self::parse().handle_args()
 	}
 
-	fn handle_args(mut self) -> (Option<log::LevelFilter>, Option<ConfigBuilder>) {
+	fn handle_args(mut self) -> (Option<ConfigBuilder>, Option<Rpc>, bool) {
 		// Version.
 		if self.version {
-			println!("{FESTIVAL_CLI_SHUKUSAI_COMMIT}\n{COPYRIGHT}");
+			eprintln!("{FESTIVAL_CLI_SHUKUSAI_COMMIT}\n{COPYRIGHT}");
 			exit(0);
 		}
 
@@ -225,12 +153,22 @@ impl Cli {
 		if self.path {
 			// Config.
 			let p = crate::config::ConfigBuilder::sub_dir_parent_path().unwrap();
-			println!("{}", p.display());
+			eprintln!("{}", p.display());
 
 			// `.local/share`
 			let p = crate::docs::Docs::sub_dir_parent_path().unwrap();
-			println!("{}", p.display());
+			eprintln!("{}", p.display());
 
+			exit(0);
+		}
+
+		// Methods
+		if self.methods {
+			use strum::IntoEnumIterator;
+			for method in rpc::Method::iter() {
+				let method: &'static str = method.into();
+				eprintln!("{method}");
+			}
 			exit(0);
 		}
 
@@ -270,7 +208,7 @@ impl Cli {
 				}
 
 				match std::fs::remove_dir_all(&p) {
-					Ok(_)  => println!("{}", p.display()),
+					Ok(_)  => eprintln!("{}", p.display()),
 					Err(e) => { eprintln!("festival-cli error: {} - {e}", p.display()); code = 1; },
 				}
 			}
@@ -278,15 +216,10 @@ impl Cli {
 			exit(code);
 		}
 
-		// RPC
-		if let Some(rpc) = &self.rpc {
-			println!("rpc: {:?}", self.rpc);
-		}
-
 		let config = self.handle_config();
 
 		// Return.
-		(self.log_level, config)
+		(config, self.rpc, self.dry_run)
 	}
 
 	pub fn handle_config(&mut self) -> Option<ConfigBuilder> {
@@ -300,8 +233,6 @@ impl Cli {
 				None
 			}
 		}
-
-		let mut ignore_cert = if_true_some(self.ignore_cert);
 
 		// Special-case conversions.
 		macro_rules! vec_to_some_hashset {
@@ -318,8 +249,6 @@ impl Cli {
 			}
 		}
 
-		let mut log_level = self.log_level.clone();
-
 		macro_rules! if_some {
 			($($command:expr => $config:expr),*) => {
 				$(
@@ -335,11 +264,9 @@ impl Cli {
 
 		if_some! {
 			self.festivald     => cb.festivald,
-			ignore_cert        => cb.ignore_cert,
 			self.timeout       => cb.timeout,
 			self.id            => cb.id,
-			self.authorization => cb.authorization,
-			log_level          => cb.log_level
+			self.authorization => cb.authorization
 		}
 
 		if diff {

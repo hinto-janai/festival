@@ -62,27 +62,27 @@ impl_rpc! {
 //---------------------------------------------------------------------------------------------------- State
 impl_rpc! {
 	"Retrieve state about the status of festivald itself",
-	"state-retrieval/state_daemon",
+	"state/state_daemon",
 	StateDaemon => Method::StateDaemon
 }
 impl_rpc! {
 	"Retrieve audio state",
-	"state-retrieval/state_audio",
+	"state/state_audio",
 	StateAudio => Method::StateAudio
 }
 impl_rpc! {
 	"Retrieve the current state of a Collection reset",
-	"state-retrieval/state_reset",
+	"state/state_reset",
 	StateReset => Method::StateReset
 }
 impl_rpc! {
 	"Retrieve the active configuration of festivald",
-	"state-retrieval/state_config",
+	"state/state_config",
 	StateConfig => Method::StateConfig
 }
 impl_rpc! {
 	"Retrieve an array of the IP addresses festivald has seen",
-	"state-retrieval/state_ip",
+	"state/state_ip",
 	StateIp => Method::StateIp
 }
 

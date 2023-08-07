@@ -50,6 +50,7 @@ crossbeam    = { workspace = true }
 const_format = { workspace = true }
 compact_str  = { workspace = true }
 dirs         = { workspace = true }
+env_logger   = { workspace = true }
 image        = { workspace = true }
 log          = { workspace = true }
 memmap2      = { workspace = true }
@@ -63,7 +64,6 @@ seq-macro    = { workspace = true }
 strum        = { workspace = true }
 
 ### Regular.
-env_logger        = "0.10.0"
 fast_image_resize = "2.7.3"
 infer             = "0.13.0"
 jpeg-encoder      = { version = "0.5.1", features = ["simd"] }

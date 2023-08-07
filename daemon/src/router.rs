@@ -210,12 +210,21 @@ pub async fn init(
 		() => {{
 			let protocol = if CONFIG.tls { "https" } else { "http" };
 
+			let port = match LISTENER.local_addr() {
+				Ok(a) => if let SocketAddr::V4(a) = a {
+					a.port()
+				} else {
+					addr.port()
+				}
+				_ => addr.port(),
+			};
+
 			const PURPLE: &str = "\x1b[1;95m";
 			const YELLOW: &str = "\x1b[1;93m";
 			const BLUE:   &str = "\x1b[1;94m";
 			const WHITE:  &str = "\x1b[1;97m";
 			const OFF:    &str = "\x1b[0m";
-			let listening = format!("| festivald listening on {PURPLE}{protocol}{OFF}://{YELLOW}{}{OFF}:{BLUE}{}{OFF} |", addr.ip(), addr.port());
+			let listening = format!("| festivald listening on {PURPLE}{protocol}{OFF}://{YELLOW}{}{OFF}:{BLUE}{port}{OFF} |", addr.ip());
 			println!("{WHITE}{0}{OFF}\n{listening}\n{WHITE}{0}{OFF}", "=".repeat(listening.len() - 33));
 		}}
 	}
@@ -381,10 +390,6 @@ async fn route(
 
 	//-------------------------------------------------- Authorization
 	let (mut parts, body) = req.into_parts();
-
-//	if let Some(resp) = auth(&mut parts, &addr).await {
-//		return Ok(resp);
-//	}
 
 //	println!("{parts:#?}");
 //	println!("{body:#?}");
