@@ -7,20 +7,26 @@ use benri::{
 	thread::*,
 	time::*,
 };
-use crate::collection::{
-	Collection,
-	Artists,
-	Albums,
-	Songs,
-	Map,
-	ArtistKey,
-	AlbumKey,
-	SongKey,
-	Art,
-	Image,
-};
-use crate::state::{
-	Phase,
+use crate::{
+	collection::{
+		Collection,
+		Artists,
+		Albums,
+		Songs,
+		Map,
+		ArtistKey,
+		AlbumKey,
+		SongKey,
+		Art,
+		Image,
+	},
+	state::{
+		Playlists,PLAYLISTS,Phase,
+	},
+	constants::{
+		COLLECTION_VERSION,
+		PLAYLIST_VERSION,
+	},
 };
 use crossbeam::channel::{Sender};
 use std::path::{PathBuf};
@@ -32,7 +38,6 @@ use readable::{
 use crate::ccd::{
 	msg::CcdToKernel,
 };
-use crate::constants::COLLECTION_VERSION;
 use rayon::prelude::*;
 
 #[cfg(feature = "gui")]
@@ -94,8 +99,9 @@ impl Ccd {
 		// 9. Clone `Collection` for later saving
 		// 10. Transform in-memory `Collection` album art bytes to `egui`'s `RetainedImage`
 		// 11. Pre-allocate the `RetainedImage`'s into `egui`
-		// 12. Send to `Kernel`
-		// 13. Save `Collection` to disk.
+		// 12. Validate playlists
+		// 13. Send to `Kernel`
+		// 14. Save `Collection` to disk.
 		let beginning = now!();
 		debug!("CCD ... purpose in life: new_collection()");
 
@@ -117,7 +123,7 @@ impl Ccd {
 		{
 			let mut i = 1;
 			loop {
-				trace!("CCD [1/13] Deconstruct attempt {i}");
+				trace!("CCD [1/14] Deconstruct attempt {i}");
 
 				if Arc::strong_count(&old_collection) == 1 {
 					if let Some(c) = Arc::into_inner(old_collection) {
@@ -135,14 +141,14 @@ impl Ccd {
 			}
 		}
 		let perf_deconstruct = secs_f32!(now);
-		trace!("CCD [1/13] ... Deconstruct: {perf_deconstruct}");
+		trace!("CCD [1/14] ... Deconstruct: {perf_deconstruct}");
 
 		//-------------------------------------------------------------------------------- 2
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((2.50, Phase::WalkDir)));
 		let paths = Self::walkdir_audio(paths);
 		let perf_walkdir = secs_f32!(now);
-		trace!("CCD [2/13] ... WalkDir: {perf_walkdir}");
+		trace!("CCD [2/14] ... WalkDir: {perf_walkdir}");
 
 		//-------------------------------------------------------------------------------- 3
 		let now = now!();
@@ -150,14 +156,14 @@ impl Ccd {
 		let (mut vec_artist, mut vec_album, vec_song, count_art) = Self::the_loop(&to_kernel, paths);
 		// Update should be < 50% at this point.
 		let perf_metadata = secs_f32!(now);
-		trace!("CCD [3/13] ... Metadata: {perf_metadata}");
+		trace!("CCD [3/14] ... Metadata: {perf_metadata}");
 
 		//-------------------------------------------------------------------------------- 4
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((50.00, Phase::Fix)));
 		Self::fix_metadata(&mut vec_artist, &mut vec_album, &vec_song);
 		let perf_fix = secs_f32!(now);
-		trace!("CCD [4/13] ... Fix: {perf_fix}");
+		trace!("CCD [4/14] ... Fix: {perf_fix}");
 
 		//-------------------------------------------------------------------------------- 5
 		let now = now!();
@@ -209,14 +215,14 @@ impl Ccd {
 		let sort_song_title_rev                         = sort_song_title.iter().rev().copied().collect::<Box<[SongKey]>>();
 
 		let perf_sort = secs_f32!(now);
-		trace!("CCD [5/13] ... Sort: {perf_sort}");
+		trace!("CCD [5/14] ... Sort: {perf_sort}");
 
 		//-------------------------------------------------------------------------------- 6
 		let now = now!();
 		send!(to_kernel, CcdToKernel::UpdatePhase((55.00, Phase::Search)));
 		let map = Map::from_3_vecs(&vec_artist, &vec_album, &vec_song);
 		let perf_map = secs_f32!(now);
-		trace!("CCD [6/13] ... Map: {perf_map}");
+		trace!("CCD [6/14] ... Map: {perf_map}");
 
 		//-------------------------------------------------------------------------------- 7
 		let now = now!();
@@ -306,7 +312,7 @@ impl Ccd {
 			collection.timestamp = benri::unix!();
 		}
 		let perf_prepare = secs_f32!(now);
-		trace!("CCD [7/13] ... Prepare: {perf_prepare}");
+		trace!("CCD [7/14] ... Prepare: {perf_prepare}");
 
 		#[cfg(feature = "gui")]
 		let (
@@ -323,7 +329,7 @@ impl Ccd {
 			Self::priv_convert_art(&to_kernel, &mut collection, ArtConvertType::Resize, increment);
 			// Update should be <= 90% at this point.
 			let perf_resize = secs_f32!(now);
-			trace!("CCD [8/13] ... Resize: {perf_resize}");
+			trace!("CCD [8/14] ... Resize: {perf_resize}");
 
 			//-------------------------------------------------------------------------------- 9
 			// FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
@@ -355,7 +361,7 @@ impl Ccd {
 			send!(to_kernel, CcdToKernel::UpdatePhase((90.00, Phase::Clone)));
 			let collection_for_disk = collection.clone();
 			let perf_clone = secs_f32!(now);
-			trace!("CCD [9/13] ... Clone: {perf_clone}");
+			trace!("CCD [9/14] ... Clone: {perf_clone}");
 			// FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
 			//-------------------------------------------------------------------------------- 10
@@ -366,7 +372,7 @@ impl Ccd {
 			Self::priv_convert_art(&to_kernel, &mut collection, ArtConvertType::ToKnown, increment);
 			// Update should be <= 99% at this point.
 			let perf_convert = secs_f32!(now);
-			trace!("CCD [10/13] ... Convert: {perf_convert}");
+			trace!("CCD [10/14] ... Convert: {perf_convert}");
 
 			//-------------------------------------------------------------------------------- 11
 			let now = now!();
@@ -374,7 +380,7 @@ impl Ccd {
 			// FIXME: See `img.rs`.
 			crate::ccd::img::alloc_textures(&collection.albums);
 			let perf_textures = secs_f32!(now);
-			trace!("CCD [11/13] ... Textures: {perf_textures}");
+			trace!("CCD [11/14] ... Textures: {perf_textures}");
 
 			(perf_resize, perf_clone, perf_convert, perf_textures, collection_for_disk)
 		};
@@ -386,8 +392,8 @@ impl Ccd {
 			perf_convert,
 			perf_textures,
 		) = {
-			trace!("CCD [8/13] ... Resize: SKIP");
-			trace!("CCD [9/13] ... Clone: SKIP");
+			trace!("CCD [8/14] ... Resize: SKIP");
+			trace!("CCD [9/14] ... Clone: SKIP");
 
 			let now = now!();
 			send!(to_kernel, CcdToKernel::UpdatePhase((95.00, Phase::Convert)));
@@ -416,9 +422,9 @@ impl Ccd {
 
 			// Update should be <= 99% at this point.
 			let perf_convert = secs_f32!(now);
-			trace!("CCD [10/13] ... Convert: {perf_convert}");
+			trace!("CCD [10/14] ... Convert: {perf_convert}");
 
-			trace!("CCD [11/13] ... Textures: SKIP");
+			trace!("CCD [11/14] ... Textures: SKIP");
 
 			(0.0, 0.0, perf_convert, 0.0)
 		};
@@ -441,9 +447,16 @@ impl Ccd {
 		};
 
 		//-------------------------------------------------------------------------------- 12
+		let now = now!();
+		crate::state::PLAYLISTS.write().validate(&collection);
+		let playlists_for_disk = crate::state::PLAYLISTS.read().clone();
+		let perf_playlists = secs_f32!(now);
+		info!("CCD [12/14] ... Playlists: {perf_playlists}");
+
+		//-------------------------------------------------------------------------------- 13
 		send!(to_kernel, CcdToKernel::NewCollection(collection));
 		let user_time = secs_f32!(beginning);
-		info!("CCD [12/13] ... User time: {}", user_time);
+		info!("CCD [13/14] ... User time: {user_time}");
 
 		//-------------------------------------------------------------------------------- 13
 		let now = now!();
@@ -467,6 +480,17 @@ impl Ccd {
 			},
 		};
 
+		// SAFETY: `memmap` used.
+		//
+		// Save the `Playlists`
+		match unsafe { playlists_for_disk.save_atomic_memmap() } {
+			Ok(md) => debug!("CCD ... Playlists{PLAYLIST_VERSION}: {md}"),
+			Err(e) => {
+				debug_panic!("CCD ... Playlists{PLAYLIST_VERSION}: {e}");
+				fail!("CCD ... Playlists{PLAYLIST_VERSION}: {e}");
+			},
+		}
+
 		#[cfg(feature = "gui")]
 		{
 			// Delete old images.
@@ -488,7 +512,7 @@ impl Ccd {
 		// Set `saving` state.
 		atomic_store!(crate::state::SAVING, false);
 		let perf_disk = secs_f32!(now);
-		trace!("CCD [13/13] ... Disk: {perf_disk}");
+		trace!("CCD [14/14] ... Disk: {perf_disk}");
 
 		//-------------------------------------------------------------------------------- Print & save `Perf` stats.
 		let ccd_time = secs_f32!(beginning);
@@ -507,6 +531,7 @@ impl Ccd {
 			clone:       perf_clone,
 			convert:     perf_convert,
 			textures:    perf_textures,
+			playlists:   perf_playlists,
 			disk:        perf_disk,
 		};
 		let objects = crate::ccd::perf::Objects {

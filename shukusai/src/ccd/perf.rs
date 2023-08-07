@@ -37,6 +37,7 @@ pub(super) struct Phases {
 	pub(super) clone:       f32,
 	pub(super) convert:     f32,
 	pub(super) textures:    f32,
+	pub(super) playlists:   f32,
 	pub(super) disk:        f32,
 }
 
