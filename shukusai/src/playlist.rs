@@ -1,4 +1,5 @@
 //---------------------------------------------------------------------------------------------------- Use
+use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
 use log::{error,info,warn,debug,trace};
 use disk::Bincode2;
@@ -25,11 +26,22 @@ use rayon::prelude::*;
 
 //---------------------------------------------------------------------------------------------------- __NAME__
 disk::bincode2!(Playlists, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{STATE_SUB_DIR}"), "playlists", HEADER, PLAYLIST_VERSION);
-#[derive(Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Encode,Decode)]
+#[derive(Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
 /// Playlist implementation.
-pub struct Playlists(pub BTreeMap<String, VecDeque<PlaylistEntry>>);
+///
+/// Contains all user playlists, ordering via `BTreeMap`.
+///
+/// Each node in the `BTreeMap` is a `(String, VecDeque)` where
+/// the `String` is the name of the playlist, and the `VecDeque`
+/// contains [`PlaylistEntry`]'s.
+pub struct Playlists(pub PlaylistsInner);
 
-#[derive(Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Encode,Decode)]
+/// The internal type of [`Playlists`].
+///
+/// [`Playlists`] is just a wrapper so methods/traits can be implemented on it.
+pub type PlaylistsInner = BTreeMap<String, VecDeque<PlaylistEntry>>;
+
+#[derive(Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
 /// `Option`-like enum for playlist entries.
 ///
 /// Either song exists in the current `Collection` (`PlaylistEntry::Key`)
@@ -48,6 +60,20 @@ pub enum PlaylistEntry {
 		/// Song title
 		song: Arc<str>,
 	},
+}
+
+impl std::ops::Deref for Playlists {
+	type Target = PlaylistsInner;
+
+	fn deref(&self) -> &Self::Target {
+		&self.0
+	}
+}
+
+impl std::ops::DerefMut for Playlists {
+	fn deref_mut(&mut self) -> &mut PlaylistsInner {
+		&mut self.0
+	}
 }
 
 impl Playlists {
