@@ -87,7 +87,7 @@ pub struct Playlists(pub PlaylistsInner);
 /// The internal type of [`Playlists`].
 ///
 /// [`Playlists`] is just a wrapper so methods/traits can be implemented on it.
-pub type PlaylistsInner = BTreeMap<String, VecDeque<PlaylistEntry>>;
+pub type PlaylistsInner = BTreeMap<Arc<str>, VecDeque<PlaylistEntry>>;
 
 #[derive(Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
 #[serde(rename_all = "snake_case")]
@@ -249,7 +249,7 @@ impl Playlists {
 	pub fn name_count_iter(&self) -> Vec<(&str, usize)> {
 		self.0
 			.iter()
-			.map(|(s, v)| (s.as_str(), v.len()))
+			.map(|(s, v)| (&**s, v.len()))
 			.collect()
 	}
 }

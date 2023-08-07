@@ -85,6 +85,8 @@ pub enum FrontendToKernel {
 	/// 2042-01-01, album_3, song_1
 	/// ```
 	AddQueueArtist((ArtistKey, Append, bool, usize)),
+	/// Add the playlist with this name to the queue.
+	AddQueuePlaylist((Arc<str>, Append, bool, usize)),
 	/// Shuffle the _current_ queue.
 	Shuffle,
 	/// Clear the entire queue.
@@ -139,6 +141,22 @@ pub enum FrontendToKernel {
 	/// Preemptively walk these directories so that the next `Collection`
 	/// reset benefits of the OS hopefully indexing them into cache.
 	CachePath(Vec<PathBuf>),
+
+	// Playlists.
+	/// Create a new playlist with this name.
+	NewPlaylist(String),
+	/// Remove the playlist with this name.
+	RemovePlaylist(Arc<str>),
+	/// Clone the playlist from the 1st input, into a new one called the 2nd input.
+	ClonePlaylist((Arc<str>, String)),
+	/// Remove the [`Song`] with index `index` within the playlist `playlist`.
+	RemovePlaylistIndex((usize, Arc<str>)),
+	/// Add this artist to this playlist.
+	AddPlaylistArtist((Arc<str>, ArtistKey, Append)),
+	/// Add this album to this playlist.
+	AddPlaylistAlbum((Arc<str>, AlbumKey, Append)),
+	/// Add this song to this playlist.
+	AddPlaylistSong((Arc<str>, SongKey, Append)),
 
 	// Exiting.
 	/// I'm exiting, save everything.
