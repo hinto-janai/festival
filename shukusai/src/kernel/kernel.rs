@@ -23,6 +23,7 @@ use crate::{
 	},
 	state::{
 		Playlists,
+		PLAYLISTS,
 		Phase,
 		RESET_STATE,
 		AUDIO_STATE,
@@ -637,21 +638,19 @@ impl Kernel {
 			},
 		}
 
-//		// Save `Playlists`.
-//		if let Some(playlists) = playlists {
-//			match playlists.save_atomic() {
-//				Ok(o)  => ok!("Kernel - Playlists{PLAYLIST_VERSION} save: {o}"),
-//				Err(e) => {
-//					fail!("Kernel - Playlists{PLAYLIST_VERSION} save: {e}");
-//					send!(self.to_frontend, KernelToFrontend::Exit(Err(e.to_string())));
-//					ok = false
-//				},
-//			}
-//		}
-//
-//		if ok {
-//			send!(self.to_frontend, KernelToFrontend::Exit(Ok(())));
-//		}
+		// Save `Playlists`.
+		match PLAYLISTS.read().save_atomic() {
+			Ok(o)  => ok!("Kernel - Playlists{PLAYLIST_VERSION} save: {o}"),
+			Err(e) => {
+				fail!("Kernel - Playlists{PLAYLIST_VERSION} save: {e}");
+				send!(self.to_frontend, KernelToFrontend::Exit(Err(e.to_string())));
+				ok = false
+			},
+		}
+
+		if ok {
+			send!(self.to_frontend, KernelToFrontend::Exit(Ok(())));
+		}
 
 		// Hang forever.
 		info!("Kernel - Total uptime: {}", readable::Time::from(*crate::logger::INIT_INSTANT));
