@@ -143,6 +143,8 @@ pub enum FrontendToKernel {
 	// Exiting.
 	/// I'm exiting, save everything.
 	///
+	/// Take ownership of the `Playlists` and save it too.
+	///
 	/// # Notes
 	/// After you send this message, [`Kernel`] will save everything, and respond with a
 	/// [`KernelToFrontend::Exit`] that contains either a [`Result::Ok`] meaning everything went okay,
@@ -153,7 +155,7 @@ pub enum FrontendToKernel {
 	/// - Ignore all channel messages
 	///
 	/// After you receive the response, you should [`std::process::exit`] to kill all threads.
-	Exit,
+	Exit(crate::playlist::Playlists),
 }
 
 /// Messages [`Kernel`] can send to `Frontend`
@@ -192,6 +194,13 @@ pub enum KernelToFrontend {
 	SeekError(String),
 	/// Attempting to play this [`SongKey`] has errored (probably doesn't exist).
 	PathError((SongKey, String)),
+
+	// Playlists.
+	/// Here is ownership of the one and only
+	/// initialized `Playlists` object, validated.
+	///
+	/// This is only sent once.
+	Playlists(crate::playlist::Playlists),
 
 	// Search.
 	/// Here's a (similarity) search result.
