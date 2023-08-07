@@ -1,23 +1,6 @@
 //---------------------------------------------------------------------------------------------------- Use
 use log::{info,error,warn,debug,trace};
-use crate::constants::{
-	COLLECTION_VERSION,
-	AUDIO_VERSION,
-	PLAYLIST_VERSION,
-};
-use std::sync::{Arc};
-use crate::logger::INIT_INSTANT;
-use crate::collection::{
-	SongKey,
-};
-use crate::state::{
-	Phase,
-	RESET_STATE,
-	AUDIO_STATE,
-	AudioState,
-	RESETTING,
-};
-use crate::audio::Volume;
+use std::sync::Arc;
 use benri::{
 	debug_panic,
 	time::*,
@@ -27,12 +10,25 @@ use benri::{
 use disk::{Bincode2,Json};
 use super::{KernelToFrontend, FrontendToKernel};
 use crate::{
+	logger::INIT_INSTANT,
 	ccd::{CcdToKernel, Ccd},
 	search::{KernelToSearch, SearchToKernel, Search},
-	audio::{KernelToAudio, AudioToKernel, Audio},
+	audio::{KernelToAudio, AudioToKernel, Audio, Volume},
 	watch::{WatchToKernel, Watch},
-	collection::{Collection,DUMMY_COLLECTION},
-	playlist::Playlists,
+	collection::{Collection,DUMMY_COLLECTION,SongKey},
+	constants::{
+		COLLECTION_VERSION,
+		AUDIO_VERSION,
+		PLAYLIST_VERSION,
+	},
+	state::{
+		Playlists,
+		Phase,
+		RESET_STATE,
+		AUDIO_STATE,
+		AudioState,
+		RESETTING,
+	},
 };
 use crossbeam::channel::{Sender,Receiver};
 use std::path::PathBuf;
@@ -85,7 +81,7 @@ pub struct Kernel {
 // See `GUI`'s Drop impl for reasoning on why this exists.
 impl Drop for Kernel {
 	fn drop(&mut self) {
-		self.exit(None);
+		self.exit();
 	}
 }
 
@@ -399,9 +395,8 @@ impl Kernel {
 			None => { debug!("Kernel Init [10/13] ... Playlists NOT found, returning default"); Playlists::default() },
 		};
 
-		// Send stuff to `Frontend`.
+		// Send `Collection` to `Frontend`.
 		send!(to_frontend, KernelToFrontend::NewCollection(Arc::clone(&collection)));
-		send!(to_frontend, KernelToFrontend::Playlists(playlists));
 		#[cfg(feature = "gui")]
 		gui_request_update();
 
@@ -560,7 +555,7 @@ impl Kernel {
 			Search(string)       => send!(self.to_search, KernelToSearch::Search(string)),
 
 			// Exit.
-			Exit(playlists)      => self.exit(Some(playlists)),
+			Exit => self.exit(),
 		}
 	}
 
@@ -623,7 +618,7 @@ impl Kernel {
 	//-------------------------------------------------- Misc message handling.
 	#[inline(always)]
 	// The `Frontend` is exiting, save everything.
-	fn exit(&mut self, playlists: Option<Playlists>) -> ! {
+	fn exit(&mut self) -> ! {
 		// Set the saved state's volume
 		// to the correct global.
 		let volume    =  Volume::new(atomic_load!(crate::state::VOLUME));
@@ -642,21 +637,21 @@ impl Kernel {
 			},
 		}
 
-		// Save `Playlists`.
-		if let Some(playlists) = playlists {
-			match playlists.save_atomic() {
-				Ok(o)  => ok!("Kernel - Playlists{PLAYLIST_VERSION} save: {o}"),
-				Err(e) => {
-					fail!("Kernel - Playlists{PLAYLIST_VERSION} save: {e}");
-					send!(self.to_frontend, KernelToFrontend::Exit(Err(e.to_string())));
-					ok = false
-				},
-			}
-		}
-
-		if ok {
-			send!(self.to_frontend, KernelToFrontend::Exit(Ok(())));
-		}
+//		// Save `Playlists`.
+//		if let Some(playlists) = playlists {
+//			match playlists.save_atomic() {
+//				Ok(o)  => ok!("Kernel - Playlists{PLAYLIST_VERSION} save: {o}"),
+//				Err(e) => {
+//					fail!("Kernel - Playlists{PLAYLIST_VERSION} save: {e}");
+//					send!(self.to_frontend, KernelToFrontend::Exit(Err(e.to_string())));
+//					ok = false
+//				},
+//			}
+//		}
+//
+//		if ok {
+//			send!(self.to_frontend, KernelToFrontend::Exit(Ok(())));
+//		}
 
 		// Hang forever.
 		info!("Kernel - Total uptime: {}", readable::Time::from(*crate::logger::INIT_INSTANT));

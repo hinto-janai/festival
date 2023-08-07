@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------------------------------- Use
+ //---------------------------------------------------------------------------------------------------- Use
 use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
 use log::{error,info,warn,debug,trace};
@@ -23,6 +23,53 @@ use crate::{
 };
 use const_format::formatcp;
 use rayon::prelude::*;
+use std::sync::{
+	RwLock,
+	RwLockReadGuard,
+	RwLockWriteGuard,
+	TryLockError,
+};
+use benri::{
+	lockw,lockr,
+};
+
+//---------------------------------------------------------------------------------------------------- Lazy
+/// This is the single, global copy of `Playlists` that `Kernel` uses.
+///
+/// To obtain a read-only lock, use `PLAYLISTS.read()`.
+pub static PLAYLISTS: PlaylistsLock = PlaylistsLock(RwLock::new(Playlists::new()));
+
+//---------------------------------------------------------------------------------------------------- PlaylistsLock
+/// There is only a single, global copy of `Playlists` that `Kernel` uses: [`PLAYLISTS`].
+///
+/// To obtain a read-only lock, use `PLAYLISTS.read()`.
+pub struct PlaylistsLock(RwLock<Playlists>);
+
+impl PlaylistsLock {
+	#[inline(always)]
+	/// Obtain a read-only lock to the global [`Playlists`].
+	pub fn read(&'static self) -> RwLockReadGuard<'static, Playlists> {
+		lockr!(self.0)
+	}
+
+	#[inline(always)]
+	/// Call the non-blocking `.try_read()` on the global [`Playlists`].
+	pub fn try_read(&'static self) -> Result<RwLockReadGuard<'static, Playlists>, TryLockError<RwLockReadGuard<'static, Playlists>>> {
+		self.0.try_read()
+	}
+
+	#[inline(always)]
+	// Private write.
+	pub(crate) fn write(&'static self) -> RwLockWriteGuard<'static, Playlists> {
+		lockw!(self.0)
+	}
+
+	#[inline(always)]
+	// Private write.
+	pub(crate) fn try_write(&'static self) -> Result<RwLockWriteGuard<'static, Playlists>, TryLockError<RwLockWriteGuard<'static, Playlists>>> {
+		self.0.try_write()
+	}
+}
 
 //---------------------------------------------------------------------------------------------------- __NAME__
 disk::bincode2!(Playlists, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{STATE_SUB_DIR}"), "playlists", HEADER, PLAYLIST_VERSION);
@@ -88,6 +135,11 @@ impl std::ops::DerefMut for Playlists {
 }
 
 impl Playlists {
+	/// Create an empty `Self` with no allocation.
+	pub const fn new() -> Self {
+		Self(BTreeMap::new())
+	}
+
 	/// Validate all keys (and strings), replace invalid ones with `Invalid`.
 	///
 	/// Also, clone the `Arc`'s from the `Collection` as to not use more space.
