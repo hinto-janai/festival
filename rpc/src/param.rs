@@ -503,7 +503,7 @@ impl_rpc_param! {
 	"The name of the new playlist",
 	playlist: String
 }
-impl_struct_lt!(PlaylistRemove, #[serde(borrow)] name: Cow<'a, str>);
+impl_struct_lt!(PlaylistRemove, #[serde(borrow)] playlist: Cow<'a, str>);
 impl_rpc_param! {
 	"Remove a playlist",
 	"playlist/playlist_remove",
@@ -531,7 +531,7 @@ impl_rpc_param! {
 	"The index of the song in the playlist",
 	index: usize
 }
-impl_struct_lt!(PlaylistAddArtist, #[serde(borrow)] playlist: Cow<'a, str>, artist: Cow<'a, str>);
+impl_struct_lt!(PlaylistAddArtist, #[serde(borrow)] playlist: Cow<'a, str>, artist: Cow<'a, str>, append: Append2, index: Option<usize>);
 impl_rpc_param! {
 	"Add an artist to a playlist",
 	"playlist/playlist_add_artist",
@@ -546,7 +546,7 @@ impl_rpc_param! {
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>
 }
-impl_struct_lt!(PlaylistAddAlbum, #[serde(borrow)] playlist: Cow<'a, str>, artist: Cow<'a, str>, album: Cow<'a, str>);
+impl_struct_lt!(PlaylistAddAlbum, #[serde(borrow)] playlist: Cow<'a, str>, artist: Cow<'a, str>, album: Cow<'a, str>, append: Append2, index: Option<usize>);
 impl_rpc_param! {
 	"Add an album to a playlist",
 	"playlist/playlist_add_album",
@@ -563,7 +563,7 @@ impl_rpc_param! {
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>
 }
-impl_struct_lt!(PlaylistAddSong, #[serde(borrow)] playlist: Cow<'a, str>, artist: Cow<'a, str>, album: Cow<'a, str>, song: Cow<'a, str>);
+impl_struct_lt!(PlaylistAddSong, #[serde(borrow)] playlist: Cow<'a, str>, artist: Cow<'a, str>, album: Cow<'a, str>, song: Cow<'a, str>, append: Append2, index: Option<usize>);
 impl_rpc_param! {
 	"Add a song to a playlist",
 	"playlist/playlist_add_song",

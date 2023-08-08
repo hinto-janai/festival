@@ -1193,9 +1193,10 @@ async fn playlist_new<'a>(
 	collection:  Arc<Collection>,
 	TO_KERNEL:   &'static Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
-
-//	Ok(resp::result(rpc::resp::PlaylistNew {}, id))
-	todo!()
+	match PLAYLISTS.write().playlist_new(&params.playlist) {
+		Some(_) => Ok(resp::result(rpc::resp::PlaylistNew { existed: true }, id)),
+		None    => Ok(resp::result(rpc::resp::PlaylistNew { existed: false }, id)),
+	}
 }
 
 async fn playlist_remove<'a>(
@@ -1204,9 +1205,10 @@ async fn playlist_remove<'a>(
 	collection:  Arc<Collection>,
 	TO_KERNEL:   &'static Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
-
-//	Ok(resp::result(rpc::resp::PlaylistRemove {}, id))
-	todo!()
+	match PLAYLISTS.write().playlist_remove(params.playlist.into()) {
+		Some(_) => Ok(resp::result(rpc::resp::PlaylistRemove { existed: true }, id)),
+		None    => Ok(resp::result(rpc::resp::PlaylistRemove { existed: false }, id)),
+	}
 }
 
 async fn playlist_clone<'a>(
@@ -1215,9 +1217,11 @@ async fn playlist_clone<'a>(
 	collection:  Arc<Collection>,
 	TO_KERNEL:   &'static Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
-
-//	Ok(resp::result(rpc::resp::PlaylistClone {}, id))
-	todo!()
+	match PLAYLISTS.write().playlist_clone(params.from.into(), &params.to) {
+		Ok(Some(_)) => Ok(resp::result(rpc::resp::PlaylistClone { existed: true }, id)),
+		Ok(None)    => Ok(resp::result(rpc::resp::PlaylistClone { existed: false }, id)),
+		Err(_)      => Ok(resp::error(ERR_PLAYLIST.0, ERR_PLAYLIST.1, id)),
+	}
 }
 
 async fn playlist_remove_song<'a>(
@@ -1226,9 +1230,11 @@ async fn playlist_remove_song<'a>(
 	collection:  Arc<Collection>,
 	TO_KERNEL:   &'static Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
-
-//	Ok(resp::result(rpc::resp::PlaylistRemoveSong {}, id))
-	todo!()
+	match PLAYLISTS.write().playlist_remove_song(params.index, params.playlist.into()) {
+		Ok(Some(_)) => Ok(resp::result(rpc::resp::PlaylistRemoveSong { existed: true }, id)),
+		Ok(None)    => Ok(resp::result(rpc::resp::PlaylistRemoveSong { existed: false }, id)),
+		Err(_)      => Ok(resp::error(ERR_PLAYLIST.0, ERR_PLAYLIST.1, id)),
+	}
 }
 
 async fn playlist_add_artist<'a>(
@@ -1237,9 +1243,13 @@ async fn playlist_add_artist<'a>(
 	collection:  Arc<Collection>,
 	TO_KERNEL:   &'static Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
+	let append = get_append!(params, id);
 
-//	Ok(resp::result(rpc::resp::PlaylistAddArtist {}, id))
-	todo!()
+	match PLAYLISTS.write().playlist_add_artist(params.playlist.into(), &params.artist, append, &collection) {
+		Some(true)  => Ok(resp::result(rpc::resp::PlaylistAddArtist { existed: true }, id)),
+		Some(false) => Ok(resp::result(rpc::resp::PlaylistAddArtist { existed: false }, id)),
+		None        => Ok(resp::error(ERR_PLAYLIST.0, ERR_PLAYLIST.1, id)),
+	}
 }
 
 async fn playlist_add_album<'a>(
@@ -1248,9 +1258,13 @@ async fn playlist_add_album<'a>(
 	collection:  Arc<Collection>,
 	TO_KERNEL:   &'static Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
+	let append = get_append!(params, id);
 
-//	Ok(resp::result(rpc::resp::PlaylistAddAlbum {}, id))
-	todo!()
+	match PLAYLISTS.write().playlist_add_album(params.playlist.into(), &params.artist, &params.album, append, &collection) {
+		Some(true)  => Ok(resp::result(rpc::resp::PlaylistAddAlbum { existed: true }, id)),
+		Some(false) => Ok(resp::result(rpc::resp::PlaylistAddAlbum { existed: false }, id)),
+		None        => Ok(resp::error(ERR_PLAYLIST.0, ERR_PLAYLIST.1, id)),
+	}
 }
 
 async fn playlist_add_song<'a>(
@@ -1259,9 +1273,13 @@ async fn playlist_add_song<'a>(
 	collection:  Arc<Collection>,
 	TO_KERNEL:   &'static Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
+	let append = get_append!(params, id);
 
-//	Ok(resp::result(rpc::resp::PlaylistAddSong {}, id))
-	todo!()
+	match PLAYLISTS.write().playlist_add_song(params.playlist.into(), &params.artist, &params.album, &params.song, append, &collection) {
+		Some(true)  => Ok(resp::result(rpc::resp::PlaylistAddSong { existed: true }, id)),
+		Some(false) => Ok(resp::result(rpc::resp::PlaylistAddSong { existed: false }, id)),
+		None        => Ok(resp::error(ERR_PLAYLIST.0, ERR_PLAYLIST.1, id)),
+	}
 }
 
 async fn playlist_names<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {

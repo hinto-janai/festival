@@ -309,10 +309,10 @@ impl_struct!(QueueRemoveRange, out_of_bounds: bool);
 impl_struct!(PlaylistNew, existed: bool);
 impl_struct!(PlaylistRemove, existed: bool);
 impl_struct!(PlaylistClone, existed: bool);
-impl_struct!(PlaylistRemoveSong, out_of_bounds: bool);
-//impl_struct!(PlaylistAddArtist, ());
-//impl_struct!(PlaylistAddAlbum, ());
-//impl_struct!(PlaylistAddSong, ());
+impl_struct!(PlaylistRemoveSong, existed: bool);
+impl_struct!(PlaylistAddArtist, existed: bool);
+impl_struct!(PlaylistAddAlbum, existed: bool);
+impl_struct!(PlaylistAddSong, existed: bool);
 impl_struct_anon_lt!(PlaylistNames, Cow<'a, [Cow<'a, str>]>);
 impl_struct!(PlaylistCount, count: usize);
 impl_struct_lt! {

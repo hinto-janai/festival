@@ -322,7 +322,6 @@ impl Playlists {
 				i += 1;
 			}),
 		}
-
 		Some(existed)
 	}
 
