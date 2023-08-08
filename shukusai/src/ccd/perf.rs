@@ -27,18 +27,19 @@ pub struct Perf {
 #[derive(Copy,Clone,Debug,Default,PartialEq,PartialOrd,Serialize,Deserialize)]
 /// How many objects we allocated in our `Collection`.
 pub(crate) struct Phases {
-	pub(crate) deconstruct: f32,
-	pub(crate) walkdir:     f32,
-	pub(crate) metadata:    f32,
-	pub(crate) fix:         f32,
-	pub(crate) sort:        f32,
-	pub(crate) map:         f32,
-	pub(crate) prepare:     f32,
-	pub(crate) resize:      f32,
-	pub(crate) clone:       f32,
-	pub(crate) convert:     f32,
-	pub(crate) textures:    f32,
-	pub(crate) disk:        f32,
+	pub(super) deconstruct: f32,
+	pub(super) walkdir:     f32,
+	pub(super) metadata:    f32,
+	pub(super) fix:         f32,
+	pub(super) sort:        f32,
+	pub(super) map:         f32,
+	pub(super) prepare:     f32,
+	pub(super) resize:      f32,
+	pub(super) clone:       f32,
+	pub(super) convert:     f32,
+	pub(super) textures:    f32,
+	pub(super) playlists:   f32,
+	pub(super) disk:        f32,
 }
 
 #[derive(Copy,Clone,Debug,Default,PartialEq,PartialOrd,Serialize,Deserialize)]

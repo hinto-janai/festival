@@ -1,22 +1,6 @@
 //---------------------------------------------------------------------------------------------------- Use
 use log::{info,error,warn,debug,trace};
-use crate::constants::{
-	COLLECTION_VERSION,
-	AUDIO_VERSION,
-};
-use std::sync::{Arc};
-use crate::logger::INIT_INSTANT;
-use crate::collection::{
-	SongKey,
-};
-use crate::state::{
-	Phase,
-	RESET_STATE,
-	AUDIO_STATE,
-	AudioState,
-	RESETTING,
-};
-use crate::audio::Volume;
+use std::sync::Arc;
 use benri::{
 	debug_panic,
 	time::*,
@@ -26,14 +10,37 @@ use benri::{
 use disk::{Bincode2,Json};
 use super::{KernelToFrontend, FrontendToKernel};
 use crate::{
+	logger::INIT_INSTANT,
 	ccd::{CcdToKernel, Ccd},
 	search::{KernelToSearch, SearchToKernel, Search},
-	audio::{KernelToAudio, AudioToKernel, Audio},
+	audio::{KernelToAudio, AudioToKernel, Audio, Volume, Append},
 	watch::{WatchToKernel, Watch},
-	collection::{Collection,DUMMY_COLLECTION},
+	collection::{
+		DUMMY_COLLECTION,
+		Collection,
+		ArtistKey,
+		AlbumKey,
+		SongKey,
+	},
+	constants::{
+		COLLECTION_VERSION,
+		AUDIO_VERSION,
+		PLAYLIST_VERSION,
+	},
+	state::{
+		PlaylistEntry,
+		Playlists,
+		PLAYLISTS,
+		Phase,
+		RESET_STATE,
+		AUDIO_STATE,
+		AudioState,
+		RESETTING,
+	},
 };
 use crossbeam::channel::{Sender,Receiver};
 use std::path::PathBuf;
+use std::collections::VecDeque;
 use once_cell::sync::Lazy;
 use rayon::prelude::*;
 use std::time::Duration;
@@ -163,7 +170,7 @@ impl Kernel {
 		watch:          bool,
 		media_controls: bool,
 	) {
-		debug!("Kernel Init [1/12] ... entering bios()");
+		debug!("Kernel Init [1/13] ... entering bios()");
 
 		#[cfg(feature = "panic")]
 		// Set panic hook.
@@ -210,8 +217,8 @@ impl Kernel {
 			},
 			// Else, straight to `init` with default flag set.
 			Err(e) => {
-				warn!("Kernel Init ... Collection{COLLECTION_VERSION} from file error: {}", e);
-				Self::init(None, None, to_frontend, from_frontend, *beginning, watch, media_controls);
+				warn!("Kernel Init ... Collection{COLLECTION_VERSION} from file error: {e}");
+				Self::init(None, None, None, to_frontend, from_frontend, *beginning, watch, media_controls);
 			},
 		}
 	}
@@ -226,7 +233,7 @@ impl Kernel {
 		media_controls: bool,
 		version:        u8,
 	) {
-		debug!("Kernel Init [2/12] ... entering boot_loader()");
+		debug!("Kernel Init [2/13] ... entering boot_loader()");
 
 		// If the `Collection` got upgraded, that means
 		// we need to save the new version to disk.
@@ -250,22 +257,31 @@ impl Kernel {
 		let from_ccd = {
 			// We successfully loaded `Collection`.
 			// Create `CCD` channel + thread and make it convert images.
-			debug!("Kernel Init [3/12] ... spawning CCD");
+			debug!("Kernel Init [3/13] ... spawning CCD");
 			let (ccd_send, from_ccd) = crossbeam::channel::unbounded::<CcdToKernel>();
 			if let Err(e) = std::thread::Builder::new()
 				.name("CCD".to_string())
 				.spawn(move || Ccd::convert_art(ccd_send, collection))
 			{
-				panic!("Kernel Init [3/12] ... failed to spawn CCD: {e}");
+				panic!("Kernel Init [3/13] ... failed to spawn CCD: {e}");
 			}
 			from_ccd
 		};
 
+		#[cfg(not(feature = "gui"))]
+		debug!("Kernel Init [3/13] ... skipping CCD");
+
 		// Before hanging on `CCD`, read `AudioState` file.
 		// Note: This is a `Result`.
-		debug!("Kernel Init [4/12] ... reading AudioState");
+		debug!("Kernel Init [4/13] ... reading AudioState");
 		// SAFETY: memmap is used.
 		let state = unsafe { AudioState::from_file_memmap() };
+
+		// Before hanging on `CCD`, read `Playlists` file.
+		// Note: This is a `Result`.
+		debug!("Kernel Init [5/13] ... reading Playlists");
+		// SAFETY: memmap is used.
+		let playlists = unsafe { Playlists::from_file_memmap() };
 
 		// Set `ResetState` to `Start` + `Art` phase.
 		{
@@ -277,7 +293,7 @@ impl Kernel {
 		#[cfg(feature = "gui")]
 		let collection = {
 			// Wait for `Collection` to be returned by `CCD`.
-			debug!("Kernel Init [5/12] ... waiting on CCD");
+			debug!("Kernel Init [6/13] ... waiting on CCD");
 
 			loop {
 				use CcdToKernel::*;
@@ -298,8 +314,7 @@ impl Kernel {
 
 		#[cfg(not(feature = "gui"))]
 		let collection = {
-			debug!("Kernel Init [3/12] ... skipping CCD");
-			debug!("Kernel Init [5/12] ... skipping CCD");
+			debug!("Kernel Init [6/13] ... skipping CCD");
 			Arc::new(collection)
 		};
 
@@ -307,20 +322,21 @@ impl Kernel {
 		RESET_STATE.write().done();
 
 		// Continue to `kernel` to verify data.
-		Self::kernel(collection, state, to_frontend, from_frontend, beginning, watch, media_controls);
+		Self::kernel(collection, state, playlists, to_frontend, from_frontend, beginning, watch, media_controls);
 	}
 
 	//-------------------------------------------------- kernel()
 	fn kernel(
 		collection:     Arc<Collection>,
 		audio:          Result<AudioState, anyhow::Error>,
+		playlists:      Result<Playlists, anyhow::Error>,
 		to_frontend:    Sender<KernelToFrontend>,
 		from_frontend:  Receiver<FrontendToKernel>,
 		beginning:      std::time::Instant,
 		watch:          bool,
 		media_controls: bool,
 	) {
-		debug!("Kernel Init [6/12] ... entering kernel()");
+		debug!("Kernel Init [7/13] ... entering kernel()");
 		let mut audio = match audio {
 			Ok(s) => { info!("Kernel Init ... AudioState{AUDIO_VERSION} from disk"); s },
 			Err(e) => { warn!("Kernel Init ... AudioState failed from disk: {e}, returning default AudioState{AUDIO_VERSION}"); AudioState::new() },
@@ -346,34 +362,49 @@ impl Kernel {
 			audio.queue.clear();
 		}
 
-		Self::init(Some(collection), Some(audio), to_frontend, from_frontend, beginning, watch, media_controls);
+		// Check playlist validity.
+		let playlists = if let Ok(mut playlists) = playlists {
+			playlists.validate(&collection);
+			Some(playlists)
+		} else {
+			None
+		};
+
+		Self::init(Some(collection), Some(audio), playlists, to_frontend, from_frontend, beginning, watch, media_controls);
 	}
 
 	//-------------------------------------------------- init()
 	fn init(
 		collection:     Option<Arc<Collection>>,
 		audio:          Option<AudioState>,
+		playlists:      Option<Playlists>,
 		to_frontend:    Sender<KernelToFrontend>,
 		from_frontend:  Receiver<FrontendToKernel>,
 		beginning:      std::time::Instant,
 		watch:          bool,
 		media_controls: bool,
 	) {
-		debug!("Kernel Init [7/12] ... entering init()");
+		debug!("Kernel Init ... entering init()");
 
 		// Handle potentially missing `Collection`.
 		let collection = match collection {
-			Some(c) => { debug!("Kernel Init [8/12] ... Collection found"); c },
-			None    => { debug!("Kernel Init [8/12] ... Collection NOT found, returning default"); Arc::new(Collection::new()) },
+			Some(c) => { debug!("Kernel Init [8/13] ... Collection found"); c },
+			None    => { debug!("Kernel Init [8/13] ... Collection NOT found, returning default"); Arc::new(Collection::new()) },
 		};
 
 		// Handle potentially missing `AudioState`.
 		let audio = match audio {
-			Some(a) => { debug!("Kernel Init [9/12] ... AudioState found"); a }
-			None => { debug!("Kernel Init [9/12] ... AudioState NOT found, returning default"); AudioState::new() },
+			Some(a) => { debug!("Kernel Init [9/13] ... AudioState found"); a }
+			None => { debug!("Kernel Init [9/13] ... AudioState NOT found, returning default"); AudioState::new() },
 		};
 
-		// Send `Collection/State` to `Frontend`.
+		// Handle potentially missing `Playlists`.
+		let playlists = match playlists {
+			Some(a) => { debug!("Kernel Init [10/13] ... Playlists found"); a }
+			None => { debug!("Kernel Init [10/13] ... Playlists NOT found, returning default"); Playlists::default() },
+		};
+
+		// Send `Collection` to `Frontend`.
 		send!(to_frontend, KernelToFrontend::NewCollection(Arc::clone(&collection)));
 		#[cfg(feature = "gui")]
 		gui_request_update();
@@ -418,8 +449,8 @@ impl Kernel {
 			}
 			Audio::init(collection, audio, audio_send, audio_recv, media_controls);
 		}) {
-			Ok(_)  => debug!("Kernel Init [10/12] ... spawned Audio"),
-			Err(e) => panic!("Kernel Init [10/12] ... failed to spawn Audio: {e}"),
+			Ok(_)  => debug!("Kernel Init [11/13] ... spawned Audio"),
+			Err(e) => panic!("Kernel Init [11/13] ... failed to spawn Audio: {e}"),
 		}
 
 		// Spawn `Search`.
@@ -428,8 +459,8 @@ impl Kernel {
 			.name("Search".to_string())
 			.spawn(move || Search::init(collection, search_send, search_recv))
 		{
-			Ok(_)  => debug!("Kernel Init [11/12] ... spawned Search"),
-			Err(e) => panic!("Kernel Init [11/12] ... failed to spawn Search: {e}"),
+			Ok(_)  => debug!("Kernel Init [12/13] ... spawned Search"),
+			Err(e) => panic!("Kernel Init [12/13] ... failed to spawn Search: {e}"),
 		}
 
 		// Spawn `Watch`.
@@ -438,11 +469,11 @@ impl Kernel {
 				.name("Watch".to_string())
 				.spawn(move || Watch::init(watch_send))
 			{
-				Ok(_)  => debug!("Kernel Init [12/12] ... spawned Watch"),
-				Err(e) => fail!("Kernel Init [12/12] ... failed to spawn Watch: {e}"),
+				Ok(_)  => debug!("Kernel Init [13/13] ... spawned Watch"),
+				Err(e) => fail!("Kernel Init [13/13] ... failed to spawn Watch: {e}"),
 			}
 		} else {
-			debug!("Kernel Init [12/12] ... skipping Watch");
+			debug!("Kernel Init [13/13] ... skipping Watch");
 		}
 
 		// We're done, enter main `userspace` loop.
@@ -515,6 +546,7 @@ impl Kernel {
 			AddQueueSong(tuple)     => send!(self.to_audio, KernelToAudio::AddQueueSong(tuple)),
 			AddQueueAlbum(tuple)    => send!(self.to_audio, KernelToAudio::AddQueueAlbum(tuple)),
 			AddQueueArtist(tuple)   => send!(self.to_audio, KernelToAudio::AddQueueArtist(tuple)),
+			AddQueuePlaylist(tuple) => send!(self.to_audio, KernelToAudio::AddQueuePlaylist(tuple)),
 			Shuffle                 => send!(self.to_audio, KernelToAudio::Shuffle),
 			Clear(play)             => send!(self.to_audio, KernelToAudio::Clear(play)),
 			Skip(num)               => send!(self.to_audio, KernelToAudio::Skip(num)),
@@ -523,6 +555,15 @@ impl Kernel {
 		    // Queue Index.
 			SetQueueIndex(q_key)    => send!(self.to_audio, KernelToAudio::SetQueueIndex(q_key)),
 		    RemoveQueueRange(tuple) => send!(self.to_audio, KernelToAudio::RemoveQueueRange(tuple)),
+
+			// Playlists.
+			NewPlaylist(string)        => Self::new_playlist(string),
+			RemovePlaylist(arc_str)    => Self::remove_playlist(arc_str),
+			ClonePlaylist((a, b))      => Self::clone_playlist(a, b),
+			RemovePlaylistIndex((a,b)) => Self::remove_playlist_index(a,b),
+			AddPlaylistArtist((a,b,c)) => self.add_playlist_artist(a,b,c),
+			AddPlaylistAlbum((a,b,c))  => self.add_playlist_album(a,b,c),
+			AddPlaylistSong((a,b,c))   => self.add_playlist_song(a,b,c),
 
 			// Audio State.
 			RestoreAudioState => send!(self.to_audio, KernelToAudio::RestoreAudioState),
@@ -533,7 +574,7 @@ impl Kernel {
 			Search(string)       => send!(self.to_search, KernelToSearch::Search(string)),
 
 			// Exit.
-			Exit                 => self.exit(),
+			Exit => self.exit(),
 		}
 	}
 
@@ -593,28 +634,180 @@ impl Kernel {
 		}
 	}
 
+	//-------------------------------------------------- Playlist handling.
+	fn new_playlist(s: String) {
+		PLAYLISTS.write().insert(s.into(), VecDeque::with_capacity(8));
+	}
+
+	fn remove_playlist(s: Arc<str>) {
+		PLAYLISTS.write().remove(&s);
+	}
+
+	fn clone_playlist(from: Arc<str>, into: String) {
+		let mut p = PLAYLISTS.write();
+
+		let vec = p.get(&from).map(|v| v.clone());
+		if let Some(vec) = vec {
+			p.insert(into.into(), vec);
+		}
+	}
+
+	fn remove_playlist_index(index: usize, playlist: Arc<str>) {
+		if let Some(p) = PLAYLISTS.write().get_mut(&playlist) {
+			p.remove(index);
+		}
+	}
+
+	fn add_playlist_artist(&self, playlist: Arc<str>, key: ArtistKey, append: Append) {
+		trace!("Kernel - add_playlist_artist({playlist}, {key}, {append}");
+
+		let keys: Box<[SongKey]> = self.collection.all_songs(key);
+		let iter = keys.iter();
+
+		let mut p = PLAYLISTS.write();
+		let v = p
+			.entry(playlist)
+			.or_insert_with(|| VecDeque::with_capacity(keys.len()));
+
+		match append {
+			Append::Back => iter.for_each(|k| {
+				let (artist, album, song) = self.collection.walk(k);
+				let entry = PlaylistEntry::Valid {
+					key: *k,
+					artist: Arc::clone(&artist.name),
+					album: Arc::clone(&album.title),
+					song: Arc::clone(&song.title),
+				};
+				v.push_back(entry);
+			}),
+			Append::Front => iter.rev().for_each(|k| {
+				let (artist, album, song) = self.collection.walk(k);
+				let entry = PlaylistEntry::Valid {
+					key: *k,
+					artist: Arc::clone(&artist.name),
+					album: Arc::clone(&album.title),
+					song: Arc::clone(&song.title),
+				};
+				v.push_front(entry);
+			}),
+			Append::Index(mut i) => iter.for_each(|k| {
+				let (artist, album, song) = self.collection.walk(k);
+				let entry = PlaylistEntry::Valid {
+					key: *k,
+					artist: Arc::clone(&artist.name),
+					album: Arc::clone(&album.title),
+					song: Arc::clone(&song.title),
+				};
+				v.insert(i, entry);
+				i += 1;
+			}),
+		}
+	}
+
+	fn add_playlist_album(&self, playlist: Arc<str>, key: AlbumKey, append: Append) {
+		trace!("Kernel - add_playlist_album({playlist}, {key}, {append}");
+
+		let keys = &self.collection.albums[key].songs;
+		let iter = keys.iter();
+
+		let mut p = PLAYLISTS.write();
+		let v = p
+			.entry(playlist)
+			.or_insert_with(|| VecDeque::with_capacity(keys.len()));
+
+		let album  = &self.collection.albums[key];
+		let artist = &self.collection.artists[album.artist];
+
+		match append {
+			Append::Back => iter.for_each(|k| {
+				let entry = PlaylistEntry::Valid {
+					key: *k,
+					artist: Arc::clone(&artist.name),
+					album: Arc::clone(&album.title),
+					song: Arc::clone(&self.collection.songs[*k].title),
+				};
+				v.push_back(entry)
+			}),
+			Append::Front => iter.rev().for_each(|k| {
+				let entry = PlaylistEntry::Valid {
+					key: *k,
+					artist: Arc::clone(&artist.name),
+					album: Arc::clone(&album.title),
+					song: Arc::clone(&self.collection.songs[*k].title),
+				};
+				v.push_front(entry)
+			}),
+			Append::Index(mut i) => iter.for_each(|k| {
+				let entry = PlaylistEntry::Valid {
+					key: *k,
+					artist: Arc::clone(&artist.name),
+					album: Arc::clone(&album.title),
+					song: Arc::clone(&self.collection.songs[*k].title),
+				};
+				v.insert(i, entry);
+				i += 1;
+			}),
+		}
+	}
+
+	fn add_playlist_song(&self, playlist: Arc<str>, key: SongKey, append: Append) {
+		trace!("Kernel - add_playlist_album({playlist}, {key}, {append}");
+
+		let (artist, album, song) = self.collection.walk(key);
+
+		let entry = PlaylistEntry::Valid {
+			key,
+			artist: Arc::clone(&artist.name),
+			album: Arc::clone(&album.title),
+			song: Arc::clone(&song.title),
+		};
+
+		let mut p = PLAYLISTS.write();
+		let v = p
+			.entry(playlist)
+			.or_insert_with(|| VecDeque::with_capacity(8));
+
+		match append {
+			Append::Back     => v.push_back(entry),
+			Append::Front    => v.push_front(entry),
+			Append::Index(i) => v.insert(i, entry),
+		}
+	}
+
 	//-------------------------------------------------- Misc message handling.
 	#[inline(always)]
 	// The `Frontend` is exiting, save everything.
 	fn exit(&mut self) -> ! {
-		{
-			// Set the saved state's volume
-			// to the correct global.
-			let volume    =  Volume::new(atomic_load!(crate::state::VOLUME));
-			let mut state = AUDIO_STATE.write();
-			state.volume  = volume;
+		// Set the saved state's volume
+		// to the correct global.
+		let volume    =  Volume::new(atomic_load!(crate::state::VOLUME));
+		let mut state = AUDIO_STATE.write();
+		state.volume  = volume;
 
-			// Save `AudioState`.
-			match state.save() {
-				Ok(o)  => {
-					ok!("Kernel - AudioState{AUDIO_VERSION} save: {o}");
-					send!(self.to_frontend, KernelToFrontend::Exit(Ok(())));
-				},
-				Err(e) => {
-					fail!("Kernel - AudioState{AUDIO_VERSION} save: {e}");
-					send!(self.to_frontend, KernelToFrontend::Exit(Err(e.to_string())));
-				},
-			}
+		let mut ok = true;
+
+		// Save `AudioState`.
+		match state.save_atomic() {
+			Ok(o)  => ok!("Kernel - AudioState{AUDIO_VERSION} save: {o}"),
+			Err(e) => {
+				fail!("Kernel - AudioState{AUDIO_VERSION} save: {e}");
+				send!(self.to_frontend, KernelToFrontend::Exit(Err(e.to_string())));
+				ok = false
+			},
+		}
+
+		// Save `Playlists`.
+		match PLAYLISTS.read().save_atomic() {
+			Ok(o)  => ok!("Kernel - Playlists{PLAYLIST_VERSION} save: {o}"),
+			Err(e) => {
+				fail!("Kernel - Playlists{PLAYLIST_VERSION} save: {e}");
+				send!(self.to_frontend, KernelToFrontend::Exit(Err(e.to_string())));
+				ok = false
+			},
+		}
+
+		if ok {
+			send!(self.to_frontend, KernelToFrontend::Exit(Ok(())));
 		}
 
 		// Hang forever.

@@ -9,3 +9,6 @@ pub use statics::*;
 
 mod phase;
 pub use phase::*;
+
+mod playlist;
+pub use playlist::*;

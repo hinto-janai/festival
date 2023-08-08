@@ -133,6 +133,9 @@ pub const COLLECTION_VERSION: u8 = 2;
 /// Current major version of the [`AudioState`]
 pub const AUDIO_VERSION: u8 = 0;
 
+/// Current major version of the [`Playlists`]
+pub const PLAYLIST_VERSION: u8 = 0;
+
 #[cfg(target_os = "windows")]
 #[cfg(target_arch = "x86_64")]
 /// OS + Arch

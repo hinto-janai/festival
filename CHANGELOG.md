@@ -17,6 +17,7 @@ Types of changes:
 
 # Festival GUI Unreleased
 ## Added
+* Playlists ([#58](https://github.com/hinto-janai/festival/pull/58))
 * Drag-and-drop support for `Collection` folders ([#51](https://github.com/hinto-janai/festival/pull/51))
 
 ## Fixed
