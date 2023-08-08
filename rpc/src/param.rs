@@ -521,21 +521,63 @@ impl_rpc_param! {
 	"The name of the new playlist",
 	to: String
 }
-impl_struct_lt!(PlaylistRemoveSong, #[serde(borrow)] playlist: Cow<'a, str>, index: usize);
+impl_struct_lt!(PlaylistRemoveEntry, #[serde(borrow)] playlist: Cow<'a, str>, index: usize);
 impl_rpc_param! {
 	"Remove a song in a playlist",
 	"playlist/playlist_remove_song",
-	PlaylistRemoveSongOwned => Method::PlaylistRemoveSong,
+	PlaylistRemoveEntryOwned => Method::PlaylistRemoveEntry,
 	"The name of the playlist",
 	playlist: String,
-	"The index of the song in the playlist",
+	"The index of the entry in the playlist",
 	index: usize
 }
-impl_struct_lt!(PlaylistAddArtist, #[serde(borrow)] playlist: Cow<'a, str>, artist: Cow<'a, str>, append: Append2, index: Option<usize>);
 impl_rpc_param! {
 	"Add an artist to a playlist",
-	"playlist/playlist_add_artist",
-	PlaylistAddArtistOwned => Method::PlaylistAddArtist,
+	"playlist/playlist_add_key_artist",
+	PlaylistAddKeyArtist => Method::PlaylistAddKeyArtist,
+	"The name of the playlist",
+	playlist: String,
+	"The artist key",
+	key: usize,
+	"In which way should we add to the queue?",
+	#[arg(value_name = "FRONT|BACK|INDEX")]
+	append: Append2,
+	"If the `index` append option was picked, this will be index used",
+	index: Option<usize>
+}
+impl_rpc_param! {
+	"Add an album to a playlist",
+	"playlist/playlist_add_key_album",
+	PlaylistAddKeyAlbum => Method::PlaylistAddKeyAlbum,
+	"The name of the playlist",
+	playlist: String,
+	"The album key",
+	key: usize,
+	"In which way should we add to the queue?",
+	#[arg(value_name = "FRONT|BACK|INDEX")]
+	append: Append2,
+	"If the `index` append option was picked, this will be index used",
+	index: Option<usize>
+}
+impl_rpc_param! {
+	"Add a song to a playlist",
+	"playlist/playlist_add_key_song",
+	PlaylistAddKeySong => Method::PlaylistAddKeySong,
+	"The name of the playlist",
+	playlist: String,
+	"The song key",
+	key: usize,
+	"In which way should we add to the queue?",
+	#[arg(value_name = "FRONT|BACK|INDEX")]
+	append: Append2,
+	"If the `index` append option was picked, this will be index used",
+	index: Option<usize>
+}
+impl_struct_lt!(PlaylistAddMapArtist, #[serde(borrow)] playlist: Cow<'a, str>, artist: Cow<'a, str>, append: Append2, index: Option<usize>);
+impl_rpc_param! {
+	"Add an artist to a playlist",
+	"playlist/playlist_add_map_artist",
+	PlaylistAddMapArtistOwned => Method::PlaylistAddMapArtist,
 	"The name of the playlist",
 	playlist: String,
 	"The name of the artist",
@@ -546,11 +588,11 @@ impl_rpc_param! {
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>
 }
-impl_struct_lt!(PlaylistAddAlbum, #[serde(borrow)] playlist: Cow<'a, str>, artist: Cow<'a, str>, album: Cow<'a, str>, append: Append2, index: Option<usize>);
+impl_struct_lt!(PlaylistAddMapAlbum, #[serde(borrow)] playlist: Cow<'a, str>, artist: Cow<'a, str>, album: Cow<'a, str>, append: Append2, index: Option<usize>);
 impl_rpc_param! {
 	"Add an album to a playlist",
-	"playlist/playlist_add_album",
-	PlaylistAddAlbumOwned => Method::PlaylistAddAlbum,
+	"playlist/playlist_add_map_album",
+	PlaylistAddMapAlbumOwned => Method::PlaylistAddMapAlbum,
 	"The name of the playlist",
 	playlist: String,
 	"The name of the artist",
@@ -563,11 +605,11 @@ impl_rpc_param! {
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>
 }
-impl_struct_lt!(PlaylistAddSong, #[serde(borrow)] playlist: Cow<'a, str>, artist: Cow<'a, str>, album: Cow<'a, str>, song: Cow<'a, str>, append: Append2, index: Option<usize>);
+impl_struct_lt!(PlaylistAddMapSong, #[serde(borrow)] playlist: Cow<'a, str>, artist: Cow<'a, str>, album: Cow<'a, str>, song: Cow<'a, str>, append: Append2, index: Option<usize>);
 impl_rpc_param! {
 	"Add a song to a playlist",
-	"playlist/playlist_add_song",
-	PlaylistAddSongOwned => Method::PlaylistAddSong,
+	"playlist/playlist_add_map_song",
+	PlaylistAddMapSongOwned => Method::PlaylistAddMapSong,
 	"The name of the playlist",
 	playlist: String,
 	"The name of the artist",

@@ -171,14 +171,20 @@ pub enum Method {
 	PlaylistRemove,
 	/// [`crate::resp::PlaylistClone`] & [`crate::param::PlaylistClone`]
 	PlaylistClone,
-	/// [`crate::resp::PlaylistRemoveSong`] & [`crate::param::PlaylistRemoveSong`]
-	PlaylistRemoveSong,
-	/// [`crate::resp::PlaylistAddArtist`] & [`crate::param::PlaylistAddArtist`]
-	PlaylistAddArtist,
-	/// [`crate::resp::PlaylistAddAlbum`] & [`crate::param::PlaylistAddAlbum`]
-	PlaylistAddAlbum,
-	/// [`crate::resp::PlaylistAddSong`] & [`crate::param::PlaylistAddSong`]
-	PlaylistAddSong,
+	/// [`crate::resp::PlaylistRemoveEntry`] & [`crate::param::PlaylistRemoveEntry`]
+	PlaylistRemoveEntry,
+	/// [`crate::resp::PlaylistAddKeyArtist`] & [`crate::param::PlaylistAddKeyArtist`]
+	PlaylistAddKeyArtist,
+	/// [`crate::resp::PlaylistAddKeyAlbum`] & [`crate::param::PlaylistAddKeyAlbum`]
+	PlaylistAddKeyAlbum,
+	/// [`crate::resp::PlaylistAddKeySong`] & [`crate::param::PlaylistAddKeySong`]
+	PlaylistAddKeySong,
+	/// [`crate::resp::PlaylistAddMapArtist`] & [`crate::param::PlaylistAddMapArtist`]
+	PlaylistAddMapArtist,
+	/// [`crate::resp::PlaylistAddMapAlbum`] & [`crate::param::PlaylistAddMapAlbum`]
+	PlaylistAddMapAlbum,
+	/// [`crate::resp::PlaylistAddMapSong`] & [`crate::param::PlaylistAddMapSong`]
+	PlaylistAddMapSong,
 	/// [`crate::resp::PlaylistNames`] & [`crate::param::PlaylistNames`]
 	PlaylistNames,
 	/// [`crate::resp::PlaylistCount`] & [`crate::param::PlaylistCount`]
@@ -262,10 +268,13 @@ pub enum Rpc {
 	PlaylistNew(crate::param::PlaylistNewOwned),
 	PlaylistRemove(crate::param::PlaylistRemoveOwned),
 	PlaylistClone(crate::param::PlaylistCloneOwned),
-	PlaylistRemoveSong(crate::param::PlaylistRemoveSongOwned),
-	PlaylistAddArtist(crate::param::PlaylistAddArtistOwned),
-	PlaylistAddAlbum(crate::param::PlaylistAddAlbumOwned),
-	PlaylistAddSong(crate::param::PlaylistAddSongOwned),
+	PlaylistRemoveEntry(crate::param::PlaylistRemoveEntryOwned),
+	PlaylistAddKeyArtist(crate::param::PlaylistAddKeyArtist),
+	PlaylistAddKeyAlbum(crate::param::PlaylistAddKeyAlbum),
+	PlaylistAddKeySong(crate::param::PlaylistAddKeySong),
+	PlaylistAddMapArtist(crate::param::PlaylistAddMapArtistOwned),
+	PlaylistAddMapAlbum(crate::param::PlaylistAddMapAlbumOwned),
+	PlaylistAddMapSong(crate::param::PlaylistAddMapSongOwned),
 	PlaylistNames(crate::param::PlaylistNames),
 	PlaylistCount(crate::param::PlaylistCount),
 	PlaylistSingle(crate::param::PlaylistSingleOwned),

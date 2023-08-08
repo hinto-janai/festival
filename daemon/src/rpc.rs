@@ -260,17 +260,20 @@ pub async fn handle(
 		QueueRemoveRange   => ppacor!(request, queue_remove_range, rpc::param::QueueRemoveRange, TO_KERNEL).await,
 
 		//-------------------------------------------------- Playlist
-		PlaylistNew        => ppacor!(request, playlist_new, rpc::param::PlaylistNew, collection.arc(), TO_KERNEL).await,
-		PlaylistRemove     => ppacor!(request, playlist_remove, rpc::param::PlaylistRemove, collection.arc(), TO_KERNEL).await,
-		PlaylistClone      => ppacor!(request, playlist_clone, rpc::param::PlaylistClone, collection.arc(), TO_KERNEL).await,
-		PlaylistRemoveSong => ppacor!(request, playlist_remove_song, rpc::param::PlaylistRemoveSong, collection.arc(), TO_KERNEL).await,
-		PlaylistAddArtist  => ppacor!(request, playlist_add_artist, rpc::param::PlaylistAddArtist, collection.arc(), TO_KERNEL).await,
-		PlaylistAddAlbum   => ppacor!(request, playlist_add_album, rpc::param::PlaylistAddAlbum, collection.arc(), TO_KERNEL).await,
-		PlaylistAddSong    => ppacor!(request, playlist_add_song, rpc::param::PlaylistAddSong, collection.arc(), TO_KERNEL).await,
-		PlaylistNames      => playlist_names(request.id).await,
-		PlaylistCount      => playlist_count(request.id).await,
-		PlaylistSingle     => ppacor!(request, playlist_single, rpc::param::PlaylistSingle, collection.arc(), TO_KERNEL).await,
-		PlaylistAll        => playlist_all(request.id).await,
+		PlaylistNew          => ppacor!(request, playlist_new, rpc::param::PlaylistNew, collection.arc(), TO_KERNEL).await,
+		PlaylistRemove       => ppacor!(request, playlist_remove, rpc::param::PlaylistRemove, collection.arc(), TO_KERNEL).await,
+		PlaylistClone        => ppacor!(request, playlist_clone, rpc::param::PlaylistClone, collection.arc(), TO_KERNEL).await,
+		PlaylistRemoveEntry  => ppacor!(request, playlist_remove_entry, rpc::param::PlaylistRemoveEntry, collection.arc(), TO_KERNEL).await,
+		PlaylistAddKeyArtist => ppacor!(request, playlist_add_key_artist, rpc::param::PlaylistAddKeyArtist, collection.arc(), TO_KERNEL).await,
+		PlaylistAddKeyAlbum  => ppacor!(request, playlist_add_key_album, rpc::param::PlaylistAddKeyAlbum, collection.arc(), TO_KERNEL).await,
+		PlaylistAddKeySong   => ppacor!(request, playlist_add_key_song, rpc::param::PlaylistAddKeySong, collection.arc(), TO_KERNEL).await,
+		PlaylistAddMapArtist => ppacor!(request, playlist_add_map_artist, rpc::param::PlaylistAddMapArtist, collection.arc(), TO_KERNEL).await,
+		PlaylistAddMapAlbum  => ppacor!(request, playlist_add_map_album, rpc::param::PlaylistAddMapAlbum, collection.arc(), TO_KERNEL).await,
+		PlaylistAddMapSong   => ppacor!(request, playlist_add_map_song, rpc::param::PlaylistAddMapSong, collection.arc(), TO_KERNEL).await,
+		PlaylistNames        => playlist_names(request.id).await,
+		PlaylistCount        => playlist_count(request.id).await,
+		PlaylistSingle       => ppacor!(request, playlist_single, rpc::param::PlaylistSingle, collection.arc(), TO_KERNEL).await,
+		PlaylistAll          => playlist_all(request.id).await,
 	}
 }
 
@@ -1236,15 +1239,15 @@ async fn playlist_clone<'a>(
 	}
 }
 
-async fn playlist_remove_song<'a>(
-	params:      rpc::param::PlaylistRemoveSong<'a>,
+async fn playlist_remove_entry<'a>(
+	params:      rpc::param::PlaylistRemoveEntry<'a>,
 	id:          Option<Id<'a>>,
 	collection:  Arc<Collection>,
 	TO_KERNEL:   &'static Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
-	match PLAYLISTS.write().playlist_remove_song(params.index, params.playlist.into()) {
-		Ok(Some(_)) => Ok(resp::result(rpc::resp::PlaylistRemoveSong { existed: true }, id)),
-		Ok(None)    => Ok(resp::result(rpc::resp::PlaylistRemoveSong { existed: false }, id)),
+	match PLAYLISTS.write().playlist_remove_entry(params.index, params.playlist.into()) {
+		Ok(Some(_)) => Ok(resp::result(rpc::resp::PlaylistRemoveEntry { existed: true }, id)),
+		Ok(None)    => Ok(resp::result(rpc::resp::PlaylistRemoveEntry { existed: false }, id)),
 		Err(_)      => Ok(resp::error(ERR_PLAYLIST.0, ERR_PLAYLIST.1, id)),
 	}
 }
@@ -1271,58 +1274,121 @@ macro_rules! get_append_playlist {
 	}
 }
 
-async fn playlist_add_artist<'a>(
-	params:      rpc::param::PlaylistAddArtist<'a>,
+async fn playlist_add_key_artist<'a>(
+	params:      rpc::param::PlaylistAddKeyArtist,
 	id:          Option<Id<'a>>,
 	collection:  Arc<Collection>,
 	TO_KERNEL:   &'static Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
+	let key = ArtistKey::from(params.key);
+	if collection.artists.get(key).is_none() {
+		return Ok(resp::error(ERR_KEY_ARTIST.0, ERR_KEY_ARTIST.1, id));
+	};
+
 	let playlist: Arc<str> = params.playlist.into();
 	let mut p = PLAYLISTS.write();
 
 	let append = get_append_playlist!(params, id, p, playlist);
 
-	match p.playlist_add_artist(playlist, &params.artist, append, &collection) {
-		Some(true)  => Ok(resp::result(rpc::resp::PlaylistAddArtist { existed: true }, id)),
-		Some(false) => Ok(resp::result(rpc::resp::PlaylistAddArtist { existed: false }, id)),
-		None        => Ok(resp::error(ERR_PLAYLIST.0, ERR_PLAYLIST.1, id)),
-	}
+	let existed = p.playlist_add_artist(playlist, key, append, &collection);
+	Ok(resp::result(rpc::resp::PlaylistAddKeyArtist { existed }, id))
 }
 
-async fn playlist_add_album<'a>(
-	params:      rpc::param::PlaylistAddAlbum<'a>,
+async fn playlist_add_key_album<'a>(
+	params:      rpc::param::PlaylistAddKeyAlbum,
 	id:          Option<Id<'a>>,
 	collection:  Arc<Collection>,
 	TO_KERNEL:   &'static Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
+	let key = AlbumKey::from(params.key);
+	if collection.albums.get(key).is_none() {
+		return Ok(resp::error(ERR_KEY_ALBUM.0, ERR_KEY_ALBUM.1, id));
+	};
+
 	let playlist: Arc<str> = params.playlist.into();
 	let mut p = PLAYLISTS.write();
 
 	let append = get_append_playlist!(params, id, p, playlist);
 
-	match p.playlist_add_album(playlist, &params.artist, &params.album, append, &collection) {
-		Some(true)  => Ok(resp::result(rpc::resp::PlaylistAddAlbum { existed: true }, id)),
-		Some(false) => Ok(resp::result(rpc::resp::PlaylistAddAlbum { existed: false }, id)),
-		None        => Ok(resp::error(ERR_PLAYLIST.0, ERR_PLAYLIST.1, id)),
-	}
+	let existed = p.playlist_add_album(playlist, key, append, &collection);
+	Ok(resp::result(rpc::resp::PlaylistAddKeyAlbum { existed }, id))
 }
 
-async fn playlist_add_song<'a>(
-	params:      rpc::param::PlaylistAddSong<'a>,
+async fn playlist_add_key_song<'a>(
+	params:      rpc::param::PlaylistAddKeySong,
 	id:          Option<Id<'a>>,
 	collection:  Arc<Collection>,
 	TO_KERNEL:   &'static Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
+	let key = SongKey::from(params.key);
+	if collection.songs.get(key).is_none() {
+		return Ok(resp::error(ERR_KEY_SONG.0, ERR_KEY_SONG.1, id));
+	};
+
 	let playlist: Arc<str> = params.playlist.into();
 	let mut p = PLAYLISTS.write();
 
 	let append = get_append_playlist!(params, id, p, playlist);
 
-	match p.playlist_add_song(playlist, &params.artist, &params.album, &params.song, append, &collection) {
-		Some(true)  => Ok(resp::result(rpc::resp::PlaylistAddSong { existed: true }, id)),
-		Some(false) => Ok(resp::result(rpc::resp::PlaylistAddSong { existed: false }, id)),
-		None        => Ok(resp::error(ERR_PLAYLIST.0, ERR_PLAYLIST.1, id)),
-	}
+	let existed = p.playlist_add_song(playlist, key, append, &collection);
+	Ok(resp::result(rpc::resp::PlaylistAddKeySong { existed }, id))
+}
+
+async fn playlist_add_map_artist<'a>(
+	params:      rpc::param::PlaylistAddMapArtist<'a>,
+	id:          Option<Id<'a>>,
+	collection:  Arc<Collection>,
+	TO_KERNEL:   &'static Sender<FrontendToKernel>,
+) -> Result<Response<Body>, anyhow::Error> {
+	let Some((_, key)) = collection.artist(&params.artist) else {
+		return Ok(resp::error(ERR_MAP_ARTIST.0, ERR_MAP_ARTIST.1, id));
+	};
+
+	let playlist: Arc<str> = params.playlist.into();
+	let mut p = PLAYLISTS.write();
+
+	let append = get_append_playlist!(params, id, p, playlist);
+
+	let existed = p.playlist_add_artist(playlist, key, append, &collection);
+	Ok(resp::result(rpc::resp::PlaylistAddMapArtist { existed }, id))
+}
+
+async fn playlist_add_map_album<'a>(
+	params:      rpc::param::PlaylistAddMapAlbum<'a>,
+	id:          Option<Id<'a>>,
+	collection:  Arc<Collection>,
+	TO_KERNEL:   &'static Sender<FrontendToKernel>,
+) -> Result<Response<Body>, anyhow::Error> {
+	let Some((_, key)) = collection.album(&params.artist, &params.album) else {
+		return Ok(resp::error(ERR_MAP_ALBUM.0, ERR_MAP_ALBUM.1, id));
+	};
+
+	let playlist: Arc<str> = params.playlist.into();
+	let mut p = PLAYLISTS.write();
+
+	let append = get_append_playlist!(params, id, p, playlist);
+
+	let existed = p.playlist_add_album(playlist, key, append, &collection);
+	Ok(resp::result(rpc::resp::PlaylistAddMapAlbum { existed }, id))
+}
+
+async fn playlist_add_map_song<'a>(
+	params:      rpc::param::PlaylistAddMapSong<'a>,
+	id:          Option<Id<'a>>,
+	collection:  Arc<Collection>,
+	TO_KERNEL:   &'static Sender<FrontendToKernel>,
+) -> Result<Response<Body>, anyhow::Error> {
+	let Some((song, _)) = collection.song(&params.artist, &params.album, &params.song) else {
+		return Ok(resp::error(ERR_MAP_SONG.0, ERR_MAP_SONG.1, id));
+	};
+
+	let playlist: Arc<str> = params.playlist.into();
+	let mut p = PLAYLISTS.write();
+
+	let append = get_append_playlist!(params, id, p, playlist);
+
+	let existed = p.playlist_add_song(playlist, song.key, append, &collection);
+	Ok(resp::result(rpc::resp::PlaylistAddMapSong { existed }, id))
 }
 
 async fn playlist_names<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
