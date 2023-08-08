@@ -64,13 +64,13 @@ impl PlaylistsLock {
 	}
 
 	#[inline(always)]
-	// Private write.
+	/// Obtain a write lock to the global [`Playlists`].
 	pub fn write(&'static self) -> RwLockWriteGuard<'static, Playlists> {
 		lockw!(self.0)
 	}
 
 	#[inline(always)]
-	// Private write.
+	/// Call the non-blocking `.try_write()` on the global [`Playlists`].
 	pub fn try_write(&'static self) -> Result<RwLockWriteGuard<'static, Playlists>, TryLockError<RwLockWriteGuard<'static, Playlists>>> {
 		self.0.try_write()
 	}
