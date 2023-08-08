@@ -408,9 +408,12 @@ impl Kernel {
 		};
 
 		// Handle potentially missing `Playlists`.
-		let playlists = match playlists {
-			Some(a) => { debug!("Kernel Init [10/13] ... Playlists found"); a }
-			None => { debug!("Kernel Init [10/13] ... Playlists NOT found, returning default"); Playlists::default() },
+		match playlists {
+			Some(p) => {
+				debug!("Kernel Init [10/13] ... Playlists found");
+				*PLAYLISTS.write() = p;
+			},
+			None => debug!("Kernel Init [10/13] ... Playlists NOT found"),
 		};
 
 		// Send `Collection` to `Frontend`.
