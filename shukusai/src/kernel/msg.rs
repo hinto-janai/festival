@@ -144,19 +144,19 @@ pub enum FrontendToKernel {
 
 	// Playlists.
 	/// Create a new playlist with this name.
-	NewPlaylist(String),
+	PlaylistNew(String),
 	/// Remove the playlist with this name.
-	RemovePlaylist(Arc<str>),
+	PlaylistRemove(Arc<str>),
 	/// Clone the playlist from the 1st input, into a new one called the 2nd input.
-	ClonePlaylist((Arc<str>, String)),
+	PlaylistClone((Arc<str>, String)),
 	/// Remove the [`Song`] with index `index` within the playlist `playlist`.
-	RemovePlaylistIndex((usize, Arc<str>)),
+	PlaylistRemoveSong((usize, Arc<str>)),
 	/// Add this artist to this playlist.
-	AddPlaylistArtist((Arc<str>, ArtistKey, Append)),
+	PlaylistAddArtist((Arc<str>, ArtistKey, Append)),
 	/// Add this album to this playlist.
-	AddPlaylistAlbum((Arc<str>, AlbumKey, Append)),
+	PlaylistAddAlbum((Arc<str>, AlbumKey, Append)),
 	/// Add this song to this playlist.
-	AddPlaylistSong((Arc<str>, SongKey, Append)),
+	PlaylistAddSong((Arc<str>, SongKey, Append)),
 
 	// Exiting.
 	/// I'm exiting, save everything.

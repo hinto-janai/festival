@@ -557,13 +557,13 @@ impl Kernel {
 		    RemoveQueueRange(tuple) => send!(self.to_audio, KernelToAudio::RemoveQueueRange(tuple)),
 
 			// Playlists.
-			NewPlaylist(string)        => Self::new_playlist(string),
-			RemovePlaylist(arc_str)    => Self::remove_playlist(arc_str),
-			ClonePlaylist((a, b))      => Self::clone_playlist(a, b),
-			RemovePlaylistIndex((a,b)) => Self::remove_playlist_index(a,b),
-			AddPlaylistArtist((a,b,c)) => self.add_playlist_artist(a,b,c),
-			AddPlaylistAlbum((a,b,c))  => self.add_playlist_album(a,b,c),
-			AddPlaylistSong((a,b,c))   => self.add_playlist_song(a,b,c),
+			PlaylistNew(string)        => Self::playlist_new(string),
+			PlaylistRemove(arc_str)    => Self::playlist_remove(arc_str),
+			PlaylistClone((a, b))      => Self::playlist_clone(a, b),
+			PlaylistRemoveSong((a,b))  => Self::playlist_remove_song(a,b),
+			PlaylistAddArtist((a,b,c)) => self.playlist_add_artist(a,b,c),
+			PlaylistAddAlbum((a,b,c))  => self.playlist_add_album(a,b,c),
+			PlaylistAddSong((a,b,c))   => self.playlist_add_song(a,b,c),
 
 			// Audio State.
 			RestoreAudioState => send!(self.to_audio, KernelToAudio::RestoreAudioState),
@@ -635,15 +635,15 @@ impl Kernel {
 	}
 
 	//-------------------------------------------------- Playlist handling.
-	fn new_playlist(s: String) {
+	fn playlist_new(s: String) {
 		PLAYLISTS.write().insert(s.into(), VecDeque::with_capacity(8));
 	}
 
-	fn remove_playlist(s: Arc<str>) {
+	fn playlist_remove(s: Arc<str>) {
 		PLAYLISTS.write().remove(&s);
 	}
 
-	fn clone_playlist(from: Arc<str>, into: String) {
+	fn playlist_clone(from: Arc<str>, into: String) {
 		let mut p = PLAYLISTS.write();
 
 		let vec = p.get(&from).map(|v| v.clone());
@@ -652,14 +652,14 @@ impl Kernel {
 		}
 	}
 
-	fn remove_playlist_index(index: usize, playlist: Arc<str>) {
+	fn playlist_remove_song(index: usize, playlist: Arc<str>) {
 		if let Some(p) = PLAYLISTS.write().get_mut(&playlist) {
 			p.remove(index);
 		}
 	}
 
-	fn add_playlist_artist(&self, playlist: Arc<str>, key: ArtistKey, append: Append) {
-		trace!("Kernel - add_playlist_artist({playlist}, {key}, {append}");
+	fn playlist_add_artist(&self, playlist: Arc<str>, key: ArtistKey, append: Append) {
+		trace!("Kernel - playlist_remove_artist({playlist}, {key}, {append}");
 
 		let keys: Box<[SongKey]> = self.collection.all_songs(key);
 		let iter = keys.iter();
@@ -704,8 +704,8 @@ impl Kernel {
 		}
 	}
 
-	fn add_playlist_album(&self, playlist: Arc<str>, key: AlbumKey, append: Append) {
-		trace!("Kernel - add_playlist_album({playlist}, {key}, {append}");
+	fn playlist_add_album(&self, playlist: Arc<str>, key: AlbumKey, append: Append) {
+		trace!("Kernel - playlist_add_album({playlist}, {key}, {append}");
 
 		let keys = &self.collection.albums[key].songs;
 		let iter = keys.iter();
@@ -750,8 +750,8 @@ impl Kernel {
 		}
 	}
 
-	fn add_playlist_song(&self, playlist: Arc<str>, key: SongKey, append: Append) {
-		trace!("Kernel - add_playlist_album({playlist}, {key}, {append}");
+	fn playlist_add_song(&self, playlist: Arc<str>, key: SongKey, append: Append) {
+		trace!("Kernel - playlist_add_album({playlist}, {key}, {append}");
 
 		let (artist, album, song) = self.collection.walk(key);
 
