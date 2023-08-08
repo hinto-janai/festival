@@ -194,16 +194,14 @@ impl Playlists {
 	///
 	/// Creates playlist if it did not exist.
 	///
-	/// Assumes `Append` index is not out-of-bounds.
+	/// # Return
+	/// - `true`  => playlist existed
+	/// - `false` => playlist did not exist
 	///
-	/// `Some(true)`  => playlist/artist existed and was added
-	/// `Some(false)` => playlist existed, artist did not exist
-	/// `None`        => playlist did not exist
-	pub fn playlist_add_artist(&mut self, playlist: Arc<str>, artist: &str, append: Append, collection: &Arc<Collection>) -> Option<bool> {
-		let Some((_, key)) = collection.artist(artist) else {
-			return None;
-		};
-
+	/// # INVARIANT
+	/// - Assumes `Append` index is not out-of-bounds
+	/// - Assumes key is not out-of-bounds
+	pub fn playlist_add_artist(&mut self, playlist: Arc<str>, key: ArtistKey, append: Append, collection: &Arc<Collection>) -> bool {
 		let keys: Box<[SongKey]> = collection.all_songs(key);
 		let iter = keys.iter();
 
@@ -255,23 +253,21 @@ impl Playlists {
 			}),
 		}
 
-		Some(existed)
+		existed
 	}
 
 	/// Add this album to this playlist.
 	///
 	/// Creates playlist if it did not exist.
 	///
-	/// Assumes `Append` index is not out-of-bounds.
+	/// # Return
+	/// - `true`  => playlist existed
+	/// - `false` => playlist did not exist
 	///
-	/// `Some(true)`  => playlist/artist/album existed and was added
-	/// `Some(false)` => playlist existed, artist/album did not exist
-	/// `None`        => playlist did not exist
-	pub fn playlist_add_album(&mut self, playlist: Arc<str>, artist: &str, album: &str, append: Append, collection: &Arc<Collection>) -> Option<bool> {
-		let Some((_, key)) = collection.album(artist, album) else {
-			return None;
-		};
-
+	/// # INVARIANT
+	/// - Assumes `Append` index is not out-of-bounds
+	/// - Assumes key is not out-of-bounds
+	pub fn playlist_add_album(&mut self, playlist: Arc<str>, key: AlbumKey, append: Append, collection: &Arc<Collection>) -> bool {
 		let keys = &collection.albums[key].songs;
 		let iter = keys.iter();
 
@@ -322,24 +318,23 @@ impl Playlists {
 				i += 1;
 			}),
 		}
-		Some(existed)
+
+		existed
 	}
 
 	/// Add this song to this playlist.
 	///
 	/// Creates playlist if it did not exist.
 	///
-	/// Assumes `Append` index is not out-of-bounds.
+	/// # Return
+	/// - `true`  => playlist existed
+	/// - `false` => playlist did not exist
 	///
-	/// `Some(true)`  => playlist/artist/album/song existed and was added
-	/// `Some(false)` => playlist existed, artist/album/song did not exist
-	/// `None`        => playlist did not exist
-	pub fn playlist_add_song(&mut self, playlist: Arc<str>, artist: &str, album: &str, song: &str, append: Append, collection: &Arc<Collection>) -> Option<bool> {
-		let Some((song, _)) = collection.song(artist, album, song) else {
-			return None;
-		};
-
-		let (artist, album, song) = collection.walk(song.key);
+	/// # INVARIANT
+	/// - Assumes `Append` index is not out-of-bounds
+	/// - Assumes key is not out-of-bounds
+	pub fn playlist_add_song(&mut self, playlist: Arc<str>, key: SongKey, append: Append, collection: &Arc<Collection>) -> bool {
+		let (artist, album, song) = collection.walk(key);
 
 		let entry = PlaylistEntry::Valid {
 			key_artist: artist.key,
@@ -364,7 +359,7 @@ impl Playlists {
 			Append::Index(i) => v.insert(i, entry),
 		}
 
-		Some(existed)
+		existed
 	}
 
 	//-------------------------------------------------- Misc.
