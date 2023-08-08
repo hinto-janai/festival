@@ -35,10 +35,10 @@ pub(crate) enum KernelToAudio {
 	Volume(Volume),
 
 	// Queue.
-	AddQueueSong((SongKey, Append, bool)),
-	AddQueueAlbum((AlbumKey, Append, bool, usize)),
-	AddQueueArtist((ArtistKey, Append, bool, usize)),
-	AddQueuePlaylist((Arc<str>, Append, bool, usize)),
+	QueueAddSong((SongKey, Append, bool)),
+	QueueAddAlbum((AlbumKey, Append, bool, usize)),
+	QueueAddArtist((ArtistKey, Append, bool, usize)),
+	QueueAddPlaylist((Arc<str>, Append, bool, usize)),
 	Shuffle,
 	Clear(bool),
 	Seek((Seek, u64)),
@@ -46,8 +46,8 @@ pub(crate) enum KernelToAudio {
 	Back(usize),
 
 	// Queue Index.
-	SetQueueIndex(usize),
-	RemoveQueueRange((std::ops::Range<usize>, bool)),
+	QueueSetIndex(usize),
+	QueueRemoveRange((std::ops::Range<usize>, bool)),
 
 	// Audio State.
 	RestoreAudioState,

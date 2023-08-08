@@ -54,7 +54,7 @@ pub enum FrontendToKernel {
 	/// - [`SongKey`]: add this `Song` to the queue.
 	/// - [`Append`]: in which way should we append to the queue?
 	/// - [`bool`]: should we clear the queue before appending?
-	AddQueueSong((SongKey, Append, bool)),
+	QueueAddSong((SongKey, Append, bool)),
 	/// - [`AlbumKey`]: add all the songs in this `Album` to the queue.
 	/// - [`Append`]: in which way should we append to the queue?
 	/// - [`bool`]: should we clear the queue before appending?
@@ -63,7 +63,7 @@ pub enum FrontendToKernel {
 	///   `Song` would be offset 2, etc.
 	///
 	/// If the offset is out of bounds, we will start at the first `Song`.
-	AddQueueAlbum((AlbumKey, Append, bool, usize)),
+	QueueAddAlbum((AlbumKey, Append, bool, usize)),
 	/// - [`ArtistKey`]: add all the songs by this `Artist` to the queue.
 	/// - [`Append`]: in which way should we append to the queue?
 	/// - [`bool`]: should we clear the queue before appending?
@@ -84,9 +84,9 @@ pub enum FrontendToKernel {
 	/// 2022-01-01, album_2, song_1 // <- Offset of 2 would start at this song.
 	/// 2042-01-01, album_3, song_1
 	/// ```
-	AddQueueArtist((ArtistKey, Append, bool, usize)),
+	QueueAddArtist((ArtistKey, Append, bool, usize)),
 	/// Add the playlist with this name to the queue.
-	AddQueuePlaylist((Arc<str>, Append, bool, usize)),
+	QueueAddPlaylist((Arc<str>, Append, bool, usize)),
 	/// Shuffle the _current_ queue.
 	Shuffle,
 	/// Clear the entire queue.
@@ -115,14 +115,14 @@ pub enum FrontendToKernel {
 	/// in the queue without adding/removing anything.
 	///
 	/// This will do nothing if the index is out of bounds.
-	SetQueueIndex(usize),
+	QueueSetIndex(usize),
 	/// Remove a range of queue indices.
 	///
 	/// - [`bool`]: should we skip to the next song if the range includes the current one?
 	/// `false` will leave playback as is, even if the current song is wiped from the queue.
 	///
 	/// This will do nothing if the start or end is out of bounds.
-	RemoveQueueRange((std::ops::Range<usize>, bool)),
+	QueueRemoveRange((std::ops::Range<usize>, bool)),
 
 	// Audio State.
 	/// We just started up, restore the previous audio
