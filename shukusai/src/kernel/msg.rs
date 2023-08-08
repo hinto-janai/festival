@@ -142,22 +142,6 @@ pub enum FrontendToKernel {
 	/// reset benefits of the OS hopefully indexing them into cache.
 	CachePath(Vec<PathBuf>),
 
-	// Playlists.
-	/// Create a new playlist with this name.
-	PlaylistNew(String),
-	/// Remove the playlist with this name.
-	PlaylistRemove(Arc<str>),
-	/// Clone the playlist from the 1st input, into a new one called the 2nd input.
-	PlaylistClone((Arc<str>, String)),
-	/// Remove the [`Song`] with index `index` within the playlist `playlist`.
-	PlaylistRemoveSong((usize, Arc<str>)),
-	/// Add this artist to this playlist.
-	PlaylistAddArtist((Arc<str>, ArtistKey, Append)),
-	/// Add this album to this playlist.
-	PlaylistAddAlbum((Arc<str>, AlbumKey, Append)),
-	/// Add this song to this playlist.
-	PlaylistAddSong((Arc<str>, SongKey, Append)),
-
 	// Exiting.
 	/// I'm exiting, save everything.
 	///

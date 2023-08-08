@@ -10,6 +10,7 @@ use std::{
 	sync::Arc,
 };
 use crate::{
+	audio::Append,
 	collection::{
 		Collection,
 		ArtistKey,
@@ -145,11 +146,163 @@ impl std::ops::DerefMut for Playlists {
 }
 
 impl Playlists {
+	//-------------------------------------------------- Construction.
 	/// Create an empty `Self` with no allocation.
 	pub const fn new() -> Self {
 		Self(BTreeMap::new())
 	}
 
+	//-------------------------------------------------- Playlist handling.
+	/// Create a new playlist with this name.
+	pub fn playlist_new(&mut self, s: &str) {
+		self.insert(s.into(), VecDeque::with_capacity(8));
+	}
+
+	/// Remove the playlist with this name.
+	pub fn playlist_remove(&mut self, s: Arc<str>) {
+		self.remove(&s);
+	}
+
+	/// Clone the playlist from the 1st input, into a new one called the 2nd input.
+	pub fn playlist_clone(&mut self, from: Arc<str>, into: &str) {
+		let vec = self.get(&from).map(|v| v.clone());
+		if let Some(vec) = vec {
+			self.insert(into.into(), vec);
+		}
+	}
+
+	/// Remove the [`Song`] with index `index` within the playlist `playlist`.
+	pub fn playlist_remove_song(&mut self, index: usize, playlist: Arc<str>) {
+		if let Some(p) = self.get_mut(&playlist) {
+			p.remove(index);
+		}
+	}
+
+	/// Add this artist to this playlist.
+	pub fn playlist_add_artist(&mut self, playlist: Arc<str>, key: ArtistKey, append: Append, collection: &Arc<Collection>) {
+		let keys: Box<[SongKey]> = collection.all_songs(key);
+		let iter = keys.iter();
+
+		let v = self
+			.entry(playlist)
+			.or_insert_with(|| VecDeque::with_capacity(keys.len()));
+
+		match append {
+			Append::Back => iter.for_each(|k| {
+				let (artist, album, song) = collection.walk(k);
+				let entry = PlaylistEntry::Valid {
+					key_artist: artist.key,
+					key_album: album.key,
+					key_song: *k,
+					artist: Arc::clone(&artist.name),
+					album: Arc::clone(&album.title),
+					song: Arc::clone(&song.title),
+				};
+				v.push_back(entry);
+			}),
+			Append::Front => iter.rev().for_each(|k| {
+				let (artist, album, song) = collection.walk(k);
+				let entry = PlaylistEntry::Valid {
+					key_artist: artist.key,
+					key_album: album.key,
+					key_song: *k,
+					artist: Arc::clone(&artist.name),
+					album: Arc::clone(&album.title),
+					song: Arc::clone(&song.title),
+				};
+				v.push_front(entry);
+			}),
+			Append::Index(mut i) => iter.for_each(|k| {
+				let (artist, album, song) = collection.walk(k);
+				let entry = PlaylistEntry::Valid {
+					key_artist: artist.key,
+					key_album: album.key,
+					key_song: *k,
+					artist: Arc::clone(&artist.name),
+					album: Arc::clone(&album.title),
+					song: Arc::clone(&song.title),
+				};
+				v.insert(i, entry);
+				i += 1;
+			}),
+		}
+	}
+
+	/// Add this album to this playlist.
+	pub fn playlist_add_album(&mut self, playlist: Arc<str>, key: AlbumKey, append: Append, collection: &Arc<Collection>) {
+		let keys = &collection.albums[key].songs;
+		let iter = keys.iter();
+
+		let v = self
+			.entry(playlist)
+			.or_insert_with(|| VecDeque::with_capacity(keys.len()));
+
+		let album  = &collection.albums[key];
+		let artist = &collection.artists[album.artist];
+
+		match append {
+			Append::Back => iter.for_each(|k| {
+				let entry = PlaylistEntry::Valid {
+					key_artist: artist.key,
+					key_album: album.key,
+					key_song: *k,
+					artist: Arc::clone(&artist.name),
+					album: Arc::clone(&album.title),
+					song: Arc::clone(&collection.songs[*k].title),
+				};
+				v.push_back(entry)
+			}),
+			Append::Front => iter.rev().for_each(|k| {
+				let entry = PlaylistEntry::Valid {
+					key_artist: artist.key,
+					key_album: album.key,
+					key_song: *k,
+					artist: Arc::clone(&artist.name),
+					album: Arc::clone(&album.title),
+					song: Arc::clone(&collection.songs[*k].title),
+				};
+				v.push_front(entry)
+			}),
+			Append::Index(mut i) => iter.for_each(|k| {
+				let entry = PlaylistEntry::Valid {
+					key_artist: artist.key,
+					key_album: album.key,
+					key_song: *k,
+					artist: Arc::clone(&artist.name),
+					album: Arc::clone(&album.title),
+					song: Arc::clone(&collection.songs[*k].title),
+				};
+				v.insert(i, entry);
+				i += 1;
+			}),
+		}
+	}
+
+	/// Add this song to this playlist.
+	pub fn playlist_add_song(&mut self, playlist: Arc<str>, key: SongKey, append: Append, collection: &Arc<Collection>) {
+		let (artist, album, song) = collection.walk(key);
+
+		let entry = PlaylistEntry::Valid {
+			key_artist: artist.key,
+			key_album: album.key,
+			key_song: key,
+			artist: Arc::clone(&artist.name),
+			album: Arc::clone(&album.title),
+			song: Arc::clone(&song.title),
+		};
+
+		let v = self
+			.entry(playlist)
+			.or_insert_with(|| VecDeque::with_capacity(8));
+
+		match append {
+			Append::Back     => v.push_back(entry),
+			Append::Front    => v.push_front(entry),
+			Append::Index(i) => v.insert(i, entry),
+		}
+	}
+
+	//-------------------------------------------------- Misc.
 	/// INVARIANT: this assumes the playlist's validity is already correct.
 	///
 	/// Given a playlist name, extract out all the valid keys.
