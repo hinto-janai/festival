@@ -32,6 +32,7 @@ use std::sync::{
 use benri::{
 	lockw,lockr,
 };
+use std::borrow::Cow;
 
 //---------------------------------------------------------------------------------------------------- Lazy
 /// This is the single, global copy of `Playlists` that `Kernel` uses.
@@ -75,6 +76,8 @@ impl PlaylistsLock {
 disk::bincode2!(Playlists, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{STATE_SUB_DIR}"), "playlists", HEADER, PLAYLIST_VERSION);
 #[derive(Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
 #[serde(rename_all = "snake_case")]
+#[serde(transparent)]
+#[repr(transparent)]
 /// Playlist implementation.
 ///
 /// Contains all user playlists, ordering via `BTreeMap`.
@@ -277,6 +280,42 @@ impl Playlists {
 			.map(|(s, v)| (&**s, v.len()))
 			.collect()
 	}
+}
+
+//---------------------------------------------------------------------------------------------------- JSON Representation
+#[derive(Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[serde(transparent)]
+#[repr(transparent)]
+/// Stable `JSON` representation of [`Playlists`].
+pub struct PlaylistsJson<'a>(BTreeMap<Cow<'a, str>, VecDeque<PlaylistEntryJson<'a>>>);
+
+#[derive(Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
+#[serde(rename_all = "snake_case")]
+/// Stable `JSON` representation of [`PlaylistEntry`].
+pub enum PlaylistEntryJson<'a> {
+	/// This is a valid song in the current `Collection`
+	Valid {
+		/// Song key
+		key: SongKey,
+		/// Artist name
+		artist: Cow<'a, str>,
+		/// Album title
+		album: Cow<'a, str>,
+		/// Song title
+		song: Cow<'a, str>,
+	},
+
+	/// This song is missing, this was the
+	/// `artist.name`, `album.title`, `song.title`.
+	Invalid {
+		/// Artist name
+		artist: Cow<'a, str>,
+		/// Album title
+		album: Cow<'a, str>,
+		/// Song title
+		song: Cow<'a, str>,
+	},
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
