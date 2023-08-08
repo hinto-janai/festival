@@ -285,7 +285,7 @@ impl Playlists {
 #[serde(transparent)]
 #[repr(transparent)]
 /// Stable `JSON` representation of [`Playlists`].
-pub struct PlaylistsJson<'a>(BTreeMap<Cow<'a, str>, VecDeque<PlaylistEntryJson<'a>>)
+pub struct PlaylistsJson<'a>(BTreeMap<Cow<'a, str>, VecDeque<PlaylistEntryJson<'a>>>);
 
 #[derive(Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
 #[serde(rename_all = "snake_case")]
