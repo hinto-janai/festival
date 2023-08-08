@@ -454,9 +454,8 @@ impl Playlists {
 			});
 	}
 
-	/// Convert all inner `PlaylistEntry`'s
-	/// into the string variants.
-	pub fn all_missing(&mut self, collection: &Arc<Collection>) {
+	/// Convert all inner `PlaylistEntry`'s into the `invalid` variants.
+	pub fn all_invalid(&mut self) {
 		self.0
 			.par_iter_mut()
 			.for_each(|(_, entry)| {

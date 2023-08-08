@@ -218,7 +218,16 @@ impl Kernel {
 			// Else, straight to `init` with default flag set.
 			Err(e) => {
 				warn!("Kernel Init ... Collection{COLLECTION_VERSION} from file error: {e}");
-				Self::init(None, None, None, to_frontend, from_frontend, *beginning, watch, media_controls);
+
+				// Read `Playlist`'s anyway, and turn all entries into `invalid`.
+				// SAFETY: memmap is used.
+				let playlists = unsafe { Playlists::from_file_memmap() };
+				let playlists = match playlists {
+					Ok(mut p) => { p.all_invalid(); Some(p) },
+					Err(_)    => None,
+				};
+
+				Self::init(None, None, playlists, to_frontend, from_frontend, *beginning, watch, media_controls);
 			},
 		}
 	}
@@ -635,15 +644,14 @@ impl Kernel {
 		let mut state = AUDIO_STATE.write();
 		state.volume  = volume;
 
-		let mut ok = true;
+		let mut err = None::<String>;
 
 		// Save `AudioState`.
 		match state.save_atomic() {
 			Ok(o)  => ok!("Kernel - AudioState{AUDIO_VERSION} save: {o}"),
 			Err(e) => {
 				fail!("Kernel - AudioState{AUDIO_VERSION} save: {e}");
-				send!(self.to_frontend, KernelToFrontend::Exit(Err(e.to_string())));
-				ok = false
+				err = Some(e.to_string());
 			},
 		}
 
@@ -652,12 +660,13 @@ impl Kernel {
 			Ok(o)  => ok!("Kernel - Playlists{PLAYLIST_VERSION} save: {o}"),
 			Err(e) => {
 				fail!("Kernel - Playlists{PLAYLIST_VERSION} save: {e}");
-				send!(self.to_frontend, KernelToFrontend::Exit(Err(e.to_string())));
-				ok = false
+				err = Some(e.to_string());
 			},
 		}
 
-		if ok {
+		if let Some(err) = err {
+			send!(self.to_frontend, KernelToFrontend::Exit(Err(err)));
+		} else {
 			send!(self.to_frontend, KernelToFrontend::Exit(Ok(())));
 		}
 
