@@ -543,18 +543,18 @@ impl Kernel {
 			Seek(tuple)          => send!(self.to_audio, KernelToAudio::Seek(tuple)),
 
 			// Queue.
-			AddQueueSong(tuple)     => send!(self.to_audio, KernelToAudio::AddQueueSong(tuple)),
-			AddQueueAlbum(tuple)    => send!(self.to_audio, KernelToAudio::AddQueueAlbum(tuple)),
-			AddQueueArtist(tuple)   => send!(self.to_audio, KernelToAudio::AddQueueArtist(tuple)),
-			AddQueuePlaylist(tuple) => send!(self.to_audio, KernelToAudio::AddQueuePlaylist(tuple)),
+			QueueAddSong(tuple)     => send!(self.to_audio, KernelToAudio::QueueAddSong(tuple)),
+			QueueAddAlbum(tuple)    => send!(self.to_audio, KernelToAudio::QueueAddAlbum(tuple)),
+			QueueAddArtist(tuple)   => send!(self.to_audio, KernelToAudio::QueueAddArtist(tuple)),
+			QueueAddPlaylist(tuple) => send!(self.to_audio, KernelToAudio::QueueAddPlaylist(tuple)),
 			Shuffle                 => send!(self.to_audio, KernelToAudio::Shuffle),
 			Clear(play)             => send!(self.to_audio, KernelToAudio::Clear(play)),
 			Skip(num)               => send!(self.to_audio, KernelToAudio::Skip(num)),
 			Back(num)               => send!(self.to_audio, KernelToAudio::Back(num)),
 
 		    // Queue Index.
-			SetQueueIndex(q_key)    => send!(self.to_audio, KernelToAudio::SetQueueIndex(q_key)),
-		    RemoveQueueRange(tuple) => send!(self.to_audio, KernelToAudio::RemoveQueueRange(tuple)),
+			QueueSetIndex(q_key)    => send!(self.to_audio, KernelToAudio::QueueSetIndex(q_key)),
+		    QueueRemoveRange(tuple) => send!(self.to_audio, KernelToAudio::QueueRemoveRange(tuple)),
 
 			// Playlists.
 			PlaylistNew(string)        => Self::playlist_new(string),
@@ -622,7 +622,7 @@ impl Kernel {
 			Seek(s)         => send!(self.to_audio, KernelToAudio::Seek((Seek::Absolute, s))),
 			SeekForward(s)  => send!(self.to_audio, KernelToAudio::Seek((Seek::Forward, s))),
 			SeekBackward(s) => send!(self.to_audio, KernelToAudio::Seek((Seek::Backward, s))),
-			Index(s)        => send!(self.to_audio, KernelToAudio::SetQueueIndex(s)),
+			Index(s)        => send!(self.to_audio, KernelToAudio::QueueSetIndex(s)),
 			Skip(s)         => send!(self.to_audio, KernelToAudio::Skip(s)),
 			Back(s)         => send!(self.to_audio, KernelToAudio::Back(s)),
 //			ArtistKey(k)    => send!(self.to_audio, KernelToAudio::ArtistKey(k)),

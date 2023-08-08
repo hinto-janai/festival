@@ -409,10 +409,10 @@ impl Audio {
 			Volume(v)  => self.volume(v),
 
 			// Queue.
-			AddQueueSong((s_key,    append, clear))         => self.add_queue_song(s_key, append, clear),
-			AddQueueAlbum((al_key,  append, clear, offset)) => self.add_queue_album(al_key, append, clear, offset),
-			AddQueueArtist((ar_key, append, clear, offset)) => self.add_queue_artist(ar_key, append, clear, offset),
-			AddQueuePlaylist((p, append, clear, offset))    => self.add_queue_playlist(p, append, clear, offset),
+			QueueAddSong((s_key,    append, clear))         => self.queue_add_song(s_key, append, clear),
+			QueueAddAlbum((al_key,  append, clear, offset)) => self.queue_add_album(al_key, append, clear, offset),
+			QueueAddArtist((ar_key, append, clear, offset)) => self.queue_add_artist(ar_key, append, clear, offset),
+			QueueAddPlaylist((p, append, clear, offset))    => self.queue_add_playlist(p, append, clear, offset),
 			Shuffle     => self.shuffle(),
 			Clear(play) => {
 				self.clear(play, &mut AUDIO_STATE.write());
@@ -424,8 +424,8 @@ impl Audio {
 			Back(back)         => self.back(back, None, &mut AUDIO_STATE.write()),
 
 			// Queue Index.
-			SetQueueIndex(idx)              => self.set_queue_index(idx),
-			RemoveQueueRange((range, next)) => self.remove_queue_range(range, next),
+			QueueSetIndex(idx)              => self.queue_set_index(idx),
+			QueueRemoveRange((range, next)) => self.queue_remove_range(range, next),
 
 			// Audio State.
 			RestoreAudioState => self.restore_audio_state(),
@@ -927,13 +927,13 @@ impl Audio {
 	}
 
 	//-------------------------------------------------- Queue.
-	fn add_queue_song(
+	fn queue_add_song(
 		&mut self,
 		key: SongKey,
 		append: Append,
 		clear: bool,
 	) {
-		trace!("Audio - add_queue_song({key:?}, {append:?}, {clear})");
+		trace!("Audio - queue_add_song({key:?}, {append:?}, {clear})");
 
 		let mut state = AUDIO_STATE.write();
 
@@ -964,14 +964,14 @@ impl Audio {
 		}
 	}
 
-	fn add_queue_album(
+	fn queue_add_album(
 		&mut self,
 		key: AlbumKey,
 		append: Append,
 		clear: bool,
 		offset: usize,
 	) {
-		trace!("Audio - add_queue_album({key:?}, {append:?}, {clear}, {offset})");
+		trace!("Audio - queue_add_album({key:?}, {append:?}, {clear}, {offset})");
 
 		let mut state = AUDIO_STATE.write();
 
@@ -1020,14 +1020,14 @@ impl Audio {
 		}
 	}
 
-	fn add_queue_artist(
+	fn queue_add_artist(
 		&mut self,
 		key: ArtistKey,
 		append: Append,
 		clear: bool,
 		offset: usize,
 	) {
-		trace!("Audio - add_queue_artist({key:?}, {append:?}, {clear}, {offset}");
+		trace!("Audio - queue_add_artist({key:?}, {append:?}, {clear}, {offset}");
 
 		let keys: Box<[SongKey]> = self.collection.all_songs(key);
 
@@ -1075,14 +1075,14 @@ impl Audio {
 		}
 	}
 
-	fn add_queue_playlist(
+	fn queue_add_playlist(
 		&mut self,
 		playlist: Arc<str>,
 		append: Append,
 		clear: bool,
 		offset: usize,
 	) {
-		trace!("Audio - add_queue_playlist({playlist}, {append:?}, {clear}, {offset}");
+		trace!("Audio - queue_add_playlist({playlist}, {append:?}, {clear}, {offset}");
 
 		let Some(keys) = crate::state::PLAYLISTS.read().valid_keys(&playlist, &self.collection) else {
 			trace!("Audio - {playlist} doesn't exist, skipping");
@@ -1138,18 +1138,18 @@ impl Audio {
 		}
 	}
 
-	fn set_queue_index(&mut self, index: usize) {
+	fn queue_set_index(&mut self, index: usize) {
 		let mut state = AUDIO_STATE.write();
 
 		// Prevent bad index panicking.
 		let len = state.queue.len();
 		if index >= state.queue.len() {
-			trace!("Audio - set_queue_index({index}) >= {len}, calling .finish()");
+			trace!("Audio - queue_set_index({index}) >= {len}, calling .finish()");
 			self.state.finish();
 			state.finish();
 			self.current = None;
 		} else {
-			trace!("Audio - set_queue_index({index})");
+			trace!("Audio - queue_set_index({index})");
 			state.queue_idx = Some(index);
 			self.set(state.queue[index], &mut state);
 		}
@@ -1158,7 +1158,7 @@ impl Audio {
 		gui_request_update();
 	}
 
-	fn remove_queue_range(
+	fn queue_remove_range(
 		&mut self,
 		range: std::ops::Range<usize>,
 		next: bool,
@@ -1168,7 +1168,7 @@ impl Audio {
 
 		#[cfg(debug_assertions)]
 		if start >= end {
-			debug_panic!("Audio - remove_queue_range({start} >= {end}");
+			debug_panic!("Audio - queue_remove_range({start} >= {end}");
 		}
 
 		let mut state = AUDIO_STATE.write();
@@ -1182,14 +1182,14 @@ impl Audio {
 
 		// Prevent bad start/end panicking.
 		if start >= len {
-			warn!("Audio - start is invalid, skipping remove_queue_range({range:?})");
+			warn!("Audio - start is invalid, skipping queue_remove_range({range:?})");
 			return;
 		} else if end > len {
-			warn!("Audio - end is invalid, skipping remove_queue_range({range:?})");
+			warn!("Audio - end is invalid, skipping queue_remove_range({range:?})");
 			return;
 		}
 
-		trace!("Audio - remove_queue_range({range:?})");
+		trace!("Audio - queue_remove_range({range:?})");
 		state.queue.drain(range);
 
 		// Figure out the real `queue_idx` position after draining.
@@ -1198,7 +1198,7 @@ impl Audio {
 			if start == 0 && contains && len > end {
 				let _new = 0;
 				state.queue_idx = Some(0);
-				trace!("Audio - remove_queue_range({start}..{end}), beginning index: 0");
+				trace!("Audio - queue_remove_range({start}..{end}), beginning index: 0");
 				if next {
 					self.set(state.queue[0], &mut state);
 				}
@@ -1208,7 +1208,7 @@ impl Audio {
 			} else if next && index == start {
 				if let Some(key) = state.queue.get(index) {
 					self.set(*key, &mut state);
-					trace!("Audio - remove_queue_range({start}..{end}), resetting current index: {index}");
+					trace!("Audio - queue_remove_range({start}..{end}), resetting current index: {index}");
 				}
 			// If the current index is greater than the end, e.g:
 			//
@@ -1232,7 +1232,7 @@ impl Audio {
 			} else if index >= end {
 				let new = end - start;
 				state.queue_idx = Some(index - new);
-				trace!("Audio - remove_queue_range({start}..{end}), new index: {new}");
+				trace!("Audio - queue_remove_range({start}..{end}), new index: {new}");
 			}
 		}
 
