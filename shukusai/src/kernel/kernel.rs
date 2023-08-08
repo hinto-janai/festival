@@ -673,7 +673,9 @@ impl Kernel {
 			Append::Back => iter.for_each(|k| {
 				let (artist, album, song) = self.collection.walk(k);
 				let entry = PlaylistEntry::Valid {
-					key: *k,
+					key_artist: artist.key,
+					key_album: album.key,
+					key_song: *k,
 					artist: Arc::clone(&artist.name),
 					album: Arc::clone(&album.title),
 					song: Arc::clone(&song.title),
@@ -683,7 +685,9 @@ impl Kernel {
 			Append::Front => iter.rev().for_each(|k| {
 				let (artist, album, song) = self.collection.walk(k);
 				let entry = PlaylistEntry::Valid {
-					key: *k,
+					key_artist: artist.key,
+					key_album: album.key,
+					key_song: *k,
 					artist: Arc::clone(&artist.name),
 					album: Arc::clone(&album.title),
 					song: Arc::clone(&song.title),
@@ -693,7 +697,9 @@ impl Kernel {
 			Append::Index(mut i) => iter.for_each(|k| {
 				let (artist, album, song) = self.collection.walk(k);
 				let entry = PlaylistEntry::Valid {
-					key: *k,
+					key_artist: artist.key,
+					key_album: album.key,
+					key_song: *k,
 					artist: Arc::clone(&artist.name),
 					album: Arc::clone(&album.title),
 					song: Arc::clone(&song.title),
@@ -721,7 +727,9 @@ impl Kernel {
 		match append {
 			Append::Back => iter.for_each(|k| {
 				let entry = PlaylistEntry::Valid {
-					key: *k,
+					key_artist: artist.key,
+					key_album: album.key,
+					key_song: *k,
 					artist: Arc::clone(&artist.name),
 					album: Arc::clone(&album.title),
 					song: Arc::clone(&self.collection.songs[*k].title),
@@ -730,7 +738,9 @@ impl Kernel {
 			}),
 			Append::Front => iter.rev().for_each(|k| {
 				let entry = PlaylistEntry::Valid {
-					key: *k,
+					key_artist: artist.key,
+					key_album: album.key,
+					key_song: *k,
 					artist: Arc::clone(&artist.name),
 					album: Arc::clone(&album.title),
 					song: Arc::clone(&self.collection.songs[*k].title),
@@ -739,7 +749,9 @@ impl Kernel {
 			}),
 			Append::Index(mut i) => iter.for_each(|k| {
 				let entry = PlaylistEntry::Valid {
-					key: *k,
+					key_artist: artist.key,
+					key_album: album.key,
+					key_song: *k,
 					artist: Arc::clone(&artist.name),
 					album: Arc::clone(&album.title),
 					song: Arc::clone(&self.collection.songs[*k].title),
@@ -756,7 +768,9 @@ impl Kernel {
 		let (artist, album, song) = self.collection.walk(key);
 
 		let entry = PlaylistEntry::Valid {
-			key,
+			key_artist: artist.key,
+			key_album: album.key,
+			key_song: key,
 			artist: Arc::clone(&artist.name),
 			album: Arc::clone(&album.title),
 			song: Arc::clone(&song.title),

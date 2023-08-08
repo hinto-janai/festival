@@ -11,7 +11,10 @@ use std::{
 };
 use crate::{
 	collection::{
-		SongKey,Collection,
+		Collection,
+		ArtistKey,
+		AlbumKey,
+		SongKey,
 	},
 	constants::{
 		FESTIVAL,
@@ -101,8 +104,12 @@ pub type PlaylistsInner = BTreeMap<Arc<str>, VecDeque<PlaylistEntry>>;
 pub enum PlaylistEntry {
 	/// This is a valid song in the current `Collection`
 	Valid {
+		/// Artist key
+		key_artist: ArtistKey,
+		/// Album key
+		key_album: AlbumKey,
 		/// Song key
-		key: SongKey,
+		key_song: SongKey,
 		/// Artist name
 		artist: Arc<str>,
 		/// Album title
@@ -158,8 +165,8 @@ impl Playlists {
 		Some(playlist
 			.iter()
 			.filter_map(|e| {
-				if let PlaylistEntry::Valid { key, .. } = e {
-					Some(*key)
+				if let PlaylistEntry::Valid { key_song, .. } = e {
+					Some(*key_song)
 				} else {
 					None
 				}
@@ -179,7 +186,7 @@ impl Playlists {
 				.par_iter_mut()
 				.for_each(|entry| {
 					match entry {
-						PlaylistEntry::Valid { key, artist, album, song } => {
+						PlaylistEntry::Valid { artist, album, song, .. } => {
 							let Some((s, _)) = collection.song(&artist, &album, &song) else {
 								*entry = PlaylistEntry::Invalid {
 									artist: Arc::clone(artist),
@@ -208,7 +215,9 @@ impl Playlists {
 
 							let (artist, album, song) = collection.walk(s.key);
 							*entry = PlaylistEntry::Valid {
-								key: s.key,
+								key_artist: artist.key,
+								key_album: album.key,
+								key_song: s.key,
 								artist: Arc::clone(&artist.name),
 								album: Arc::clone(&album.title),
 								song: Arc::clone(&song.title),
@@ -218,7 +227,9 @@ impl Playlists {
 							if let Some((s, _)) = collection.song(&artist, &album, &song) {
 								let (artist, album, song) = collection.walk(s.key);
 								*entry = PlaylistEntry::Valid {
-									key: s.key,
+									key_artist: artist.key,
+									key_album: album.key,
+									key_song: s.key,
 									artist: Arc::clone(&artist.name),
 									album: Arc::clone(&album.title),
 									song: Arc::clone(&song.title),
@@ -239,7 +250,7 @@ impl Playlists {
 				entry
 				.par_iter_mut()
 				.for_each(|entry| {
-					if let PlaylistEntry::Valid { key, artist, album, song } = entry {
+					if let PlaylistEntry::Valid { artist, album, song, .. } = entry {
 						*entry = PlaylistEntry::Invalid {
 							artist: Arc::clone(artist),
 							album: Arc::clone(album),
@@ -262,7 +273,9 @@ impl Playlists {
 						if let Some((s, _)) = collection.song(&artist, &album, &song) {
 							let (artist, album, song) = collection.walk(s.key);
 							*entry = PlaylistEntry::Valid {
-								key: s.key,
+								key_artist: artist.key,
+								key_album: album.key,
+								key_song: s.key,
 								artist: Arc::clone(&artist.name),
 								album: Arc::clone(&album.title),
 								song: Arc::clone(&song.title),
@@ -304,9 +317,12 @@ pub struct PlaylistsJson<'a>(#[serde(borrow)] BTreeMap<Cow<'a, str>, VecDeque<Pl
 pub enum PlaylistEntryJson<'a> {
 	/// This is a valid song in the current `Collection`
 	Valid {
+		/// Artist key
+		key_artist: ArtistKey,
+		/// Album key
+		key_album: AlbumKey,
 		/// Song key
-		key: SongKey,
-		#[serde(borrow)]
+		key_song: SongKey,
 		/// Artist name
 		artist: Cow<'a, str>,
 		#[serde(borrow)]
