@@ -319,8 +319,8 @@ impl_rpc_param! {
 //---------------------------------------------------------------------------------------------------- Queue
 impl_rpc_param! {
 	"Add an Artist to the queue with an Artist key",
-	"queue/add_queue_key_artist",
-	AddQueueKeyArtist => Method::AddQueueKeyArtist,
+	"queue/queue_add_key_artist",
+	QueueAddKeyArtist => Method::QueueAddKeyArtist,
 	"Artist key",
 	key: usize,
 	"In which way should we add to the queue?",
@@ -335,8 +335,8 @@ impl_rpc_param! {
 }
 impl_rpc_param! {
 	"Add an Album to the queue with an Album key",
-	"queue/add_queue_key_album",
-	AddQueueKeyAlbum => Method::AddQueueKeyAlbum,
+	"queue/queue_add_key_album",
+	QueueAddKeyAlbum => Method::QueueAddKeyAlbum,
 	"Album key",
 	key: usize,
 	"In which way should we add to the queue?",
@@ -351,8 +351,8 @@ impl_rpc_param! {
 }
 impl_rpc_param! {
 	"Add an Song to the queue with an Song key",
-	"queue/add_queue_key_song",
-	AddQueueKeySong => Method::AddQueueKeySong,
+	"queue/queue_add_key_song",
+	QueueAddKeySong => Method::QueueAddKeySong,
 	"Song key",
 	key: usize,
 	"In which way should we add to the queue?",
@@ -363,13 +363,13 @@ impl_rpc_param! {
 	"Should the queue be cleared before adding?",
 	clear: bool
 }
-impl_struct_lt!(AddQueueMapArtist, #[serde(borrow)] artist: Cow<'a, str>, append: Append2, index: Option<usize>, offset: Option<usize>, clear: bool);
-impl_struct_lt!(AddQueueMapAlbum, #[serde(borrow)] artist: Cow<'a, str>, #[serde(borrow)] album: Cow<'a, str>, append: Append2, index: Option<usize>, offset: Option<usize>, clear: bool);
-impl_struct_lt!(AddQueueMapSong, #[serde(borrow)] artist: Cow<'a, str>, #[serde(borrow)] album: Cow<'a, str>, #[serde(borrow)] song: Cow<'a, str>, append: Append2, index: Option<usize>, clear: bool);
+impl_struct_lt!(QueueAddMapArtist, #[serde(borrow)] artist: Cow<'a, str>, append: Append2, index: Option<usize>, offset: Option<usize>, clear: bool);
+impl_struct_lt!(QueueAddMapAlbum, #[serde(borrow)] artist: Cow<'a, str>, #[serde(borrow)] album: Cow<'a, str>, append: Append2, index: Option<usize>, offset: Option<usize>, clear: bool);
+impl_struct_lt!(QueueAddMapSong, #[serde(borrow)] artist: Cow<'a, str>, #[serde(borrow)] album: Cow<'a, str>, #[serde(borrow)] song: Cow<'a, str>, append: Append2, index: Option<usize>, clear: bool);
 impl_rpc_param! {
 	"Add an Artist to the queue with an Artist name",
-	"queue/add_queue_map_artist",
-	AddQueueMapArtistOwned => Method::AddQueueMapArtist,
+	"queue/queue_add_map_artist",
+	QueueAddMapArtistOwned => Method::QueueAddMapArtist,
 	"Artist name",
 	artist: String,
 	"In which way should we add to the queue?",
@@ -384,8 +384,8 @@ impl_rpc_param! {
 }
 impl_rpc_param! {
 	"Add an Album to the queue with an Artist name and Album title",
-	"queue/add_queue_map_album",
-	AddQueueMapAlbumOwned => Method::AddQueueMapAlbum,
+	"queue/queue_add_map_album",
+	QueueAddMapAlbumOwned => Method::QueueAddMapAlbum,
 	"Artist name",
 	artist: String,
 	"Album title",
@@ -402,8 +402,8 @@ impl_rpc_param! {
 }
 impl_rpc_param! {
 	"Add a Song to the queue with an Artist name Album title, and Song title",
-	"queue/add_queue_map_song",
-	AddQueueMapSongOwned => Method::AddQueueMapSong,
+	"queue/queue_add_map_song",
+	QueueAddMapSongOwned => Method::QueueAddMapSong,
 	"Artist name",
 	artist: String,
 	"Album title",
@@ -420,8 +420,8 @@ impl_rpc_param! {
 }
 impl_rpc_param! {
 	"Add a random Artist to the queue",
-	"queue/add_queue_rand_artist",
-	AddQueueRandArtist => Method::AddQueueRandArtist,
+	"queue/queue_add_rand_artist",
+	QueueAddRandArtist => Method::QueueAddRandArtist,
 	"In which way should we add to the queue?",
 	#[arg(value_name = "FRONT|BACK|INDEX")]
 	append: Append2,
@@ -434,8 +434,8 @@ impl_rpc_param! {
 }
 impl_rpc_param! {
 	"Add a random Album to the queue",
-	"queue/add_queue_rand_album",
-	AddQueueRandAlbum => Method::AddQueueRandAlbum,
+	"queue/queue_add_rand_album",
+	QueueAddRandAlbum => Method::QueueAddRandAlbum,
 	"In which way should we add to the queue?",
 	#[arg(value_name = "FRONT|BACK|INDEX")]
 	append: Append2,
@@ -448,8 +448,23 @@ impl_rpc_param! {
 }
 impl_rpc_param! {
 	"Add a random Song to the queue",
-	"queue/add_queue_rand_song",
-	AddQueueRandSong => Method::AddQueueRandSong,
+	"queue/queue_add_rand_song",
+	QueueAddRandSong => Method::QueueAddRandSong,
+	"In which way should we add to the queue?",
+	#[arg(value_name = "FRONT|BACK|INDEX")]
+	append: Append2,
+	"If the `index` append option was picked, this will be index used",
+	index: Option<usize>,
+	"Should the queue be cleared before adding?",
+	clear: bool
+}
+impl_struct_lt!(QueueAddPlaylist, #[serde(borrow)] playlist: Cow<'a, str>, append: Append2, index: Option<usize>, clear: bool);
+impl_rpc_param! {
+	"Add a playlist to the queue",
+	"queue/queue_add_playlist",
+	QueueAddPlaylistOwned => Method::QueueAddPlaylist,
+	"The name of the playlist",
+	playlist: String,
 	"In which way should we add to the queue?",
 	#[arg(value_name = "FRONT|BACK|INDEX")]
 	append: Append2,
@@ -460,21 +475,133 @@ impl_rpc_param! {
 }
 impl_rpc_param! {
 	"Set the current Song to a queue index",
-	"queue/set_queue_index",
-	SetQueueIndex => Method::SetQueueIndex,
+	"queue/queue_set_index",
+	QueueSetIndex => Method::QueueSetIndex,
 	"An index in the queue (1st Song is index 0, 2nd Song is index 1, etc)",
 	index: usize
 }
 impl_rpc_param! {
 	"Remove a range of queue indices",
-	"queue/remove_queue_range",
-	RemoveQueueRange => Method::RemoveQueueRange,
+	"queue/queue_remove_range",
+	QueueRemoveRange => Method::QueueRemoveRange,
 	"The beginning index to start removing from",
 	start: usize,
 	"The index to stop at",
 	end: usize,
 	"This flag will skip to the next song if the range includes the current one",
 	skip: bool
+}
+
+//---------------------------------------------------------------------------------------------------- Playlists
+impl_struct_lt!(PlaylistNew, #[serde(borrow)] playlist: Cow<'a, str>);
+impl_rpc_param! {
+	"Create a new empty playlist",
+	"playlist/playlist_new",
+	PlaylistNewOwned => Method::PlaylistNew,
+	"The name of the new playlist",
+	playlist: String
+}
+impl_struct_lt!(PlaylistRemove, #[serde(borrow)] name: Cow<'a, str>);
+impl_rpc_param! {
+	"Remove a playlist",
+	"playlist/playlist_remove",
+	PlaylistRemoveOwned => Method::PlaylistRemove,
+	"The name of the playlist to remove",
+	playlist: String
+}
+impl_struct_lt!(PlaylistClone, #[serde(borrow)] from: Cow<'a, str>, to: Cow<'a, str>);
+impl_rpc_param! {
+	"Clone a playlist into a new one",
+	"playlist/playlist_clone",
+	PlaylistCloneOwned => Method::PlaylistClone,
+	"The name of the playlist to clone",
+	from: String,
+	"The name of the new playlist",
+	to: String
+}
+impl_struct_lt!(PlaylistRemoveSong, #[serde(borrow)] playlist: Cow<'a, str>, index: usize);
+impl_rpc_param! {
+	"Remove a song in a playlist",
+	"playlist/playlist_remove_song",
+	PlaylistRemoveSongOwned => Method::PlaylistRemoveSong,
+	"The name of the playlist",
+	playlist: String,
+	"The index of the song in the playlist",
+	index: usize
+}
+impl_struct_lt!(PlaylistAddArtist, #[serde(borrow)] playlist: Cow<'a, str>, artist: Cow<'a, str>);
+impl_rpc_param! {
+	"Add an artist to a playlist",
+	"playlist/playlist_add_artist",
+	PlaylistAddArtistOwned => Method::PlaylistAddArtist,
+	"The name of the playlist",
+	playlist: String,
+	"The name of the artist",
+	artist: String,
+	"In which way should we add to the queue?",
+	#[arg(value_name = "FRONT|BACK|INDEX")]
+	append: Append2,
+	"If the `index` append option was picked, this will be index used",
+	index: Option<usize>
+}
+impl_struct_lt!(PlaylistAddAlbum, #[serde(borrow)] playlist: Cow<'a, str>, artist: Cow<'a, str>, album: Cow<'a, str>);
+impl_rpc_param! {
+	"Add an album to a playlist",
+	"playlist/playlist_add_album",
+	PlaylistAddAlbumOwned => Method::PlaylistAddAlbum,
+	"The name of the playlist",
+	playlist: String,
+	"The name of the artist",
+	artist: String,
+	"The name of the album",
+	album: String,
+	"In which way should we add to the queue?",
+	#[arg(value_name = "FRONT|BACK|INDEX")]
+	append: Append2,
+	"If the `index` append option was picked, this will be index used",
+	index: Option<usize>
+}
+impl_struct_lt!(PlaylistAddSong, #[serde(borrow)] playlist: Cow<'a, str>, artist: Cow<'a, str>, album: Cow<'a, str>, song: Cow<'a, str>);
+impl_rpc_param! {
+	"Add a song to a playlist",
+	"playlist/playlist_add_song",
+	PlaylistAddSongOwned => Method::PlaylistAddSong,
+	"The name of the playlist",
+	playlist: String,
+	"The name of the artist",
+	artist: String,
+	"The name of the album",
+	album: String,
+	"The name of the song",
+	song: String,
+	"In which way should we add to the queue?",
+	#[arg(value_name = "FRONT|BACK|INDEX")]
+	append: Append2,
+	"If the `index` append option was picked, this will be index used",
+	index: Option<usize>
+}
+impl_rpc! {
+	"Retrieve all playlist names",
+	"playlist/playlist_names",
+	PlaylistNames => Method::PlaylistNames
+}
+impl_rpc! {
+	"Retrieve how many playlists there are",
+	"playlist/playlist_count",
+	PlaylistCount => Method::PlaylistCount
+}
+impl_struct_lt!(PlaylistSingle, #[serde(borrow)] playlist: Cow<'a, str>);
+impl_rpc_param! {
+	"Retrieve a single playlist",
+	"playlist/playlist_single",
+	PlaylistSingleOwned => Method::PlaylistSingle,
+	"The name of the playlist",
+	playlist: String
+}
+impl_rpc! {
+	"Retrieve all playlists",
+	"playlist/playlist_all",
+	PlaylistAll => Method::PlaylistAll
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
@@ -541,23 +668,23 @@ mod tests {
 
 	#[test]
 	fn add_queue_song() {
-		t(&AddQueueSong { key: SongKey::from(0_u8), append: shukusai::audio::Append::Front, clear: true }, r#"{"key":0,"append":"front","clear":true}"#);
-		t(&AddQueueSong { key: SongKey::from(1_u8), append: shukusai::audio::Append::Back, clear: false }, r#"{"key":1,"append":"back","clear":false}"#);
-		t(&AddQueueSong { key: SongKey::from(2_u8), append: shukusai::audio::Append::Index(0), clear: true }, r#"{"key":2,"append":{"index":0},"clear":true}"#);
+		t(&QueueAddSong { key: SongKey::from(0_u8), append: shukusai::audio::Append::Front, clear: true }, r#"{"key":0,"append":"front","clear":true}"#);
+		t(&QueueAddSong { key: SongKey::from(1_u8), append: shukusai::audio::Append::Back, clear: false }, r#"{"key":1,"append":"back","clear":false}"#);
+		t(&QueueAddSong { key: SongKey::from(2_u8), append: shukusai::audio::Append::Index(0), clear: true }, r#"{"key":2,"append":{"index":0},"clear":true}"#);
 	}
 
 	#[test]
 	fn add_queue_album() {
-		t(&AddQueueAlbum { key: AlbumKey::from(0_u8), append: shukusai::audio::Append::Front, clear: true, offset: 0 }, r#"{"key":0,"append":"front","clear":true,"offset":0}"#);
-		t(&AddQueueAlbum { key: AlbumKey::from(1_u8), append: shukusai::audio::Append::Back, clear: false, offset: 1 }, r#"{"key":1,"append":"back","clear":false,"offset":1}"#);
-		t(&AddQueueAlbum { key: AlbumKey::from(2_u8), append: shukusai::audio::Append::Index(0), clear: true, offset: 2 }, r#"{"key":2,"append":{"index":0},"clear":true,"offset":2}"#);
+		t(&QueueAddAlbum { key: AlbumKey::from(0_u8), append: shukusai::audio::Append::Front, clear: true, offset: 0 }, r#"{"key":0,"append":"front","clear":true,"offset":0}"#);
+		t(&QueueAddAlbum { key: AlbumKey::from(1_u8), append: shukusai::audio::Append::Back, clear: false, offset: 1 }, r#"{"key":1,"append":"back","clear":false,"offset":1}"#);
+		t(&QueueAddAlbum { key: AlbumKey::from(2_u8), append: shukusai::audio::Append::Index(0), clear: true, offset: 2 }, r#"{"key":2,"append":{"index":0},"clear":true,"offset":2}"#);
 	}
 
 	#[test]
 	fn add_queue_artist() {
-		t(&AddQueueArtist { key: ArtistKey::from(0_u8), append: shukusai::audio::Append::Front, clear: true, offset: 0 }, r#"{"key":0,"append":"front","clear":true,"offset":0}"#);
-		t(&AddQueueArtist { key: ArtistKey::from(1_u8), append: shukusai::audio::Append::Back, clear: false, offset: 1 }, r#"{"key":1,"append":"back","clear":false,"offset":1}"#);
-		t(&AddQueueArtist { key: ArtistKey::from(2_u8), append: shukusai::audio::Append::Index(0), clear: true, offset: 2 }, r#"{"key":2,"append":{"index":0},"clear":true,"offset":2}"#);
+		t(&QueueAddArtist { key: ArtistKey::from(0_u8), append: shukusai::audio::Append::Front, clear: true, offset: 0 }, r#"{"key":0,"append":"front","clear":true,"offset":0}"#);
+		t(&QueueAddArtist { key: ArtistKey::from(1_u8), append: shukusai::audio::Append::Back, clear: false, offset: 1 }, r#"{"key":1,"append":"back","clear":false,"offset":1}"#);
+		t(&QueueAddArtist { key: ArtistKey::from(2_u8), append: shukusai::audio::Append::Index(0), clear: true, offset: 2 }, r#"{"key":2,"append":{"index":0},"clear":true,"offset":2}"#);
 	}
 
 	#[test]

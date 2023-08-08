@@ -17,7 +17,10 @@ use shukusai::{
 		FrontendToKernel,
 		KernelToFrontend,
 	},
-	state::AUDIO_STATE,
+	state::{
+		AUDIO_STATE,
+		PLAYLISTS,
+	},
 	collection::{
 		Collection,
 		Artist,
@@ -84,6 +87,7 @@ const ERR_SERDE:      (i32, &str) = (-32024, "(De)serialization error");
 const ERR_APPEND:     (i32, &str) = (-32025, "Index append was chosen, but no index was provided");
 const ERR_INDEX:      (i32, &str) = (-32026, "Bad index, greater or equal to queue length");
 const ERR_OFFSET:     (i32, &str) = (-32027, "Bad offset, greater or equal to amount of songs");
+const ERR_PLAYLIST:   (i32, &str) = (-32028, "Playlist doesn't exist");
 
 //---------------------------------------------------------------------------------------------------- Parse, call func, or return macro.
 // Parse
@@ -230,18 +234,31 @@ pub async fn handle(
 		Back               => ppacor!(request, back, rpc::param::Back, TO_KERNEL).await,
 
 		//-------------------------------------------------- Queue
-		AddQueueKeyArtist  => ppacor!(request, add_queue_key_artist, rpc::param::AddQueueKeyArtist, collection.arc(), TO_KERNEL).await,
-		AddQueueKeyAlbum   => ppacor!(request, add_queue_key_album, rpc::param::AddQueueKeyAlbum, collection.arc(), TO_KERNEL).await,
-		AddQueueKeySong    => ppacor!(request, add_queue_key_song, rpc::param::AddQueueKeySong, collection.arc(), TO_KERNEL).await,
-		AddQueueMapArtist  => ppacor!(request, add_queue_map_artist, rpc::param::AddQueueMapArtist, collection.arc(), TO_KERNEL).await,
-		AddQueueMapAlbum   => ppacor!(request, add_queue_map_album, rpc::param::AddQueueMapAlbum, collection.arc(), TO_KERNEL).await,
-		AddQueueMapSong    => ppacor!(request, add_queue_map_song, rpc::param::AddQueueMapSong, collection.arc(), TO_KERNEL).await,
-		AddQueueRandArtist => ppacor!(request, add_queue_rand_artist, rpc::param::AddQueueRandArtist, collection.arc(), TO_KERNEL).await,
-		AddQueueRandAlbum  => ppacor!(request, add_queue_rand_album, rpc::param::AddQueueRandAlbum, collection.arc(), TO_KERNEL).await,
-		AddQueueRandSong   => ppacor!(request, add_queue_rand_song, rpc::param::AddQueueRandSong, collection.arc(), TO_KERNEL).await,
-		SetQueueIndex      => ppacor!(request, set_queue_index, rpc::param::SetQueueIndex, TO_KERNEL).await,
-		RemoveQueueRange   => ppacor!(request, remove_queue_range, rpc::param::RemoveQueueRange, TO_KERNEL).await,
+		QueueAddKeyArtist  => ppacor!(request, queue_add_key_artist, rpc::param::QueueAddKeyArtist, collection.arc(), TO_KERNEL).await,
+		QueueAddKeyAlbum   => ppacor!(request, queue_add_key_album, rpc::param::QueueAddKeyAlbum, collection.arc(), TO_KERNEL).await,
+		QueueAddKeySong    => ppacor!(request, queue_add_key_song, rpc::param::QueueAddKeySong, collection.arc(), TO_KERNEL).await,
+		QueueAddMapArtist  => ppacor!(request, queue_add_map_artist, rpc::param::QueueAddMapArtist, collection.arc(), TO_KERNEL).await,
+		QueueAddMapAlbum   => ppacor!(request, queue_add_map_album, rpc::param::QueueAddMapAlbum, collection.arc(), TO_KERNEL).await,
+		QueueAddMapSong    => ppacor!(request, queue_add_map_song, rpc::param::QueueAddMapSong, collection.arc(), TO_KERNEL).await,
+		QueueAddRandArtist => ppacor!(request, queue_add_rand_artist, rpc::param::QueueAddRandArtist, collection.arc(), TO_KERNEL).await,
+		QueueAddRandAlbum  => ppacor!(request, queue_add_rand_album, rpc::param::QueueAddRandAlbum, collection.arc(), TO_KERNEL).await,
+		QueueAddRandSong   => ppacor!(request, queue_add_rand_song, rpc::param::QueueAddRandSong, collection.arc(), TO_KERNEL).await,
+		QueueAddPlaylist   => ppacor!(request, queue_add_playlist, rpc::param::QueueAddPlaylist, collection.arc(), TO_KERNEL).await,
+		QueueSetIndex      => ppacor!(request, queue_set_index, rpc::param::QueueSetIndex, TO_KERNEL).await,
+		QueueRemoveRange   => ppacor!(request, queue_remove_range, rpc::param::QueueRemoveRange, TO_KERNEL).await,
 
+		//-------------------------------------------------- Playlist
+		PlaylistNew        => ppacor!(request, playlist_new, rpc::param::PlaylistNew, collection.arc(), TO_KERNEL).await,
+		PlaylistRemove     => ppacor!(request, playlist_remove, rpc::param::PlaylistRemove, collection.arc(), TO_KERNEL).await,
+		PlaylistClone      => ppacor!(request, playlist_clone, rpc::param::PlaylistClone, collection.arc(), TO_KERNEL).await,
+		PlaylistRemoveSong => ppacor!(request, playlist_remove_song, rpc::param::PlaylistRemoveSong, collection.arc(), TO_KERNEL).await,
+		PlaylistAddArtist  => ppacor!(request, playlist_add_artist, rpc::param::PlaylistAddArtist, collection.arc(), TO_KERNEL).await,
+		PlaylistAddAlbum   => ppacor!(request, playlist_add_album, rpc::param::PlaylistAddAlbum, collection.arc(), TO_KERNEL).await,
+		PlaylistAddSong    => ppacor!(request, playlist_add_song, rpc::param::PlaylistAddSong, collection.arc(), TO_KERNEL).await,
+		PlaylistNames      => playlist_names(request.id).await,
+		PlaylistCount      => playlist_count(request.id).await,
+		PlaylistSingle     => ppacor!(request, playlist_single, rpc::param::PlaylistSingle, collection.arc(), TO_KERNEL).await,
+		PlaylistAll        => playlist_all(request.id).await,
 	}
 }
 
@@ -953,8 +970,8 @@ macro_rules! get_offset {
 	}
 }
 
-async fn add_queue_key_artist<'a>(
-	params:     rpc::param::AddQueueKeyArtist,
+async fn queue_add_key_artist<'a>(
+	params:     rpc::param::QueueAddKeyArtist,
 	id:         Option<Id<'a>>,
 	collection: Arc<Collection>,
 	TO_KERNEL:  &Sender<FrontendToKernel>
@@ -964,7 +981,7 @@ async fn add_queue_key_artist<'a>(
 		let append = get_append!(params, id);
 		let offset = get_offset!(params.offset, x.songs.len(), id);
 
-		send!(TO_KERNEL, FrontendToKernel::AddQueueArtist((key, append, params.clear, offset)));
+		send!(TO_KERNEL, FrontendToKernel::QueueAddArtist((key, append, params.clear, offset)));
 
 		Ok(resp::result_ok(id))
 	} else {
@@ -972,8 +989,8 @@ async fn add_queue_key_artist<'a>(
 	}
 }
 
-async fn add_queue_key_album<'a>(
-	params:     rpc::param::AddQueueKeyAlbum,
+async fn queue_add_key_album<'a>(
+	params:     rpc::param::QueueAddKeyAlbum,
 	id:         Option<Id<'a>>,
 	collection: Arc<Collection>,
 	TO_KERNEL:  &Sender<FrontendToKernel>
@@ -983,7 +1000,7 @@ async fn add_queue_key_album<'a>(
 		let append = get_append!(params, id);
 		let offset = get_offset!(params.offset, x.songs.len(), id);
 
-		send!(TO_KERNEL, FrontendToKernel::AddQueueAlbum((key, append, params.clear, offset)));
+		send!(TO_KERNEL, FrontendToKernel::QueueAddAlbum((key, append, params.clear, offset)));
 
 		Ok(resp::result_ok(id))
 	} else {
@@ -991,8 +1008,8 @@ async fn add_queue_key_album<'a>(
 	}
 }
 
-async fn add_queue_key_song<'a>(
-	params:     rpc::param::AddQueueKeySong,
+async fn queue_add_key_song<'a>(
+	params:     rpc::param::QueueAddKeySong,
 	id:         Option<Id<'a>>,
 	collection: Arc<Collection>,
 	TO_KERNEL:  &Sender<FrontendToKernel>
@@ -1001,7 +1018,7 @@ async fn add_queue_key_song<'a>(
 	if let Some(x) = collection.songs.get(key) {
 		let append = get_append!(params, id);
 
-		send!(TO_KERNEL, FrontendToKernel::AddQueueSong((key, append, params.clear)));
+		send!(TO_KERNEL, FrontendToKernel::QueueAddSong((key, append, params.clear)));
 
 		Ok(resp::result_ok(id))
 	} else {
@@ -1009,8 +1026,8 @@ async fn add_queue_key_song<'a>(
 	}
 }
 
-async fn add_queue_map_artist<'a>(
-	params:     rpc::param::AddQueueMapArtist<'a>,
+async fn queue_add_map_artist<'a>(
+	params:     rpc::param::QueueAddMapArtist<'a>,
 	id:         Option<Id<'a>>,
 	collection: Arc<Collection>,
 	TO_KERNEL:  &Sender<FrontendToKernel>
@@ -1019,7 +1036,7 @@ async fn add_queue_map_artist<'a>(
 		let append = get_append!(params, id);
 		let offset = get_offset!(params.offset, x.songs.len(), id);
 
-		send!(TO_KERNEL, FrontendToKernel::AddQueueArtist((key, append, params.clear, offset)));
+		send!(TO_KERNEL, FrontendToKernel::QueueAddArtist((key, append, params.clear, offset)));
 
 		Ok(resp::result_ok(id))
 	} else {
@@ -1027,8 +1044,8 @@ async fn add_queue_map_artist<'a>(
 	}
 }
 
-async fn add_queue_map_album<'a>(
-	params:     rpc::param::AddQueueMapAlbum<'a>,
+async fn queue_add_map_album<'a>(
+	params:     rpc::param::QueueAddMapAlbum<'a>,
 	id:         Option<Id<'a>>,
 	collection: Arc<Collection>,
 	TO_KERNEL:  &Sender<FrontendToKernel>
@@ -1037,7 +1054,7 @@ async fn add_queue_map_album<'a>(
 		let append = get_append!(params, id);
 		let offset = get_offset!(params.offset, x.songs.len(), id);
 
-		send!(TO_KERNEL, FrontendToKernel::AddQueueAlbum((key, append, params.clear, offset)));
+		send!(TO_KERNEL, FrontendToKernel::QueueAddAlbum((key, append, params.clear, offset)));
 
 		Ok(resp::result_ok(id))
 	} else {
@@ -1045,8 +1062,8 @@ async fn add_queue_map_album<'a>(
 	}
 }
 
-async fn add_queue_map_song<'a>(
-	params: rpc::param::AddQueueMapSong<'a>,
+async fn queue_add_map_song<'a>(
+	params: rpc::param::QueueAddMapSong<'a>,
 	id: Option<Id<'a>>,
 	collection: Arc<Collection>,
 	TO_KERNEL:  &Sender<FrontendToKernel>
@@ -1054,7 +1071,7 @@ async fn add_queue_map_song<'a>(
 	if let Some((_, key)) = collection.song(params.artist, params.album, params.song) {
 		let append = get_append!(params, id);
 
-		send!(TO_KERNEL, FrontendToKernel::AddQueueSong((key, append, params.clear)));
+		send!(TO_KERNEL, FrontendToKernel::QueueAddSong((key, append, params.clear)));
 
 		Ok(resp::result_ok(id))
 	} else {
@@ -1062,8 +1079,8 @@ async fn add_queue_map_song<'a>(
 	}
 }
 
-async fn add_queue_rand_artist<'a>(
-	params:     rpc::param::AddQueueRandArtist,
+async fn queue_add_rand_artist<'a>(
+	params:     rpc::param::QueueAddRandArtist,
 	id:         Option<Id<'a>>,
 	collection: Arc<Collection>,
 	TO_KERNEL:  &Sender<FrontendToKernel>
@@ -1074,7 +1091,7 @@ async fn add_queue_rand_artist<'a>(
 		let append = get_append!(params, id);
 		let offset = get_offset!(params.offset, x.songs.len(), id);
 
-		send!(TO_KERNEL, FrontendToKernel::AddQueueArtist((key, append, params.clear, offset)));
+		send!(TO_KERNEL, FrontendToKernel::QueueAddArtist((key, append, params.clear, offset)));
 
 		Ok(resp::result(serde_json::json!({ "artist": x }), id))
 	} else {
@@ -1082,8 +1099,8 @@ async fn add_queue_rand_artist<'a>(
 	}
 }
 
-async fn add_queue_rand_album<'a>(
-	params:     rpc::param::AddQueueRandAlbum,
+async fn queue_add_rand_album<'a>(
+	params:     rpc::param::QueueAddRandAlbum,
 	id:         Option<Id<'a>>,
 	collection: Arc<Collection>,
 	TO_KERNEL:  &Sender<FrontendToKernel>
@@ -1094,7 +1111,7 @@ async fn add_queue_rand_album<'a>(
 		let append = get_append!(params, id);
 		let offset = get_offset!(params.offset, x.songs.len(), id);
 
-		send!(TO_KERNEL, FrontendToKernel::AddQueueAlbum((key, append, params.clear, offset)));
+		send!(TO_KERNEL, FrontendToKernel::QueueAddAlbum((key, append, params.clear, offset)));
 
 		Ok(resp::result(serde_json::json!({ "album": x }), id))
 	} else {
@@ -1102,8 +1119,8 @@ async fn add_queue_rand_album<'a>(
 	}
 }
 
-async fn add_queue_rand_song<'a>(
-	params: rpc::param::AddQueueRandSong,
+async fn queue_add_rand_song<'a>(
+	params: rpc::param::QueueAddRandSong,
 	id: Option<Id<'a>>,
 	collection: Arc<Collection>,
 	TO_KERNEL:  &Sender<FrontendToKernel>
@@ -1113,7 +1130,7 @@ async fn add_queue_rand_song<'a>(
 
 		let append = get_append!(params, id);
 
-		send!(TO_KERNEL, FrontendToKernel::AddQueueSong((key, append, params.clear)));
+		send!(TO_KERNEL, FrontendToKernel::QueueAddSong((key, append, params.clear)));
 
 		Ok(resp::result(serde_json::json!({ "song": x }), id))
 	} else {
@@ -1121,33 +1138,194 @@ async fn add_queue_rand_song<'a>(
 	}
 }
 
-async fn set_queue_index<'a>(
-	params:    rpc::param::SetQueueIndex,
+async fn queue_add_playlist<'a>(
+	params: rpc::param::QueueAddPlaylist<'a>,
+	id: Option<Id<'a>>,
+	collection: Arc<Collection>,
+	TO_KERNEL:  &Sender<FrontendToKernel>
+) -> Result<Response<Body>, anyhow::Error> {
+	todo!()
+}
+
+async fn queue_set_index<'a>(
+	params:    rpc::param::QueueSetIndex,
 	id:        Option<Id<'a>>,
 	TO_KERNEL: &Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	if params.index >= AUDIO_STATE.read().queue.len() {
-		Ok(resp::result(rpc::resp::SetQueueIndex { out_of_bounds: true }, id))
+		Ok(resp::result(rpc::resp::QueueSetIndex { out_of_bounds: true }, id))
 	} else {
-		send!(TO_KERNEL, FrontendToKernel::SetQueueIndex(params.index));
-		Ok(resp::result(rpc::resp::SetQueueIndex { out_of_bounds: false }, id))
+		send!(TO_KERNEL, FrontendToKernel::QueueSetIndex(params.index));
+		Ok(resp::result(rpc::resp::QueueSetIndex { out_of_bounds: false }, id))
 	}
 }
 
-async fn remove_queue_range<'a>(
-	params:    rpc::param::RemoveQueueRange,
+async fn queue_remove_range<'a>(
+	params:    rpc::param::QueueRemoveRange,
 	id:        Option<Id<'a>>,
 	TO_KERNEL: &Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	let len = AUDIO_STATE.read().queue.len();
 
 	if params.start > params.end ||  params.start >= len || params.end > len {
-		Ok(resp::result(rpc::resp::RemoveQueueRange { out_of_bounds: true }, id))
+		Ok(resp::result(rpc::resp::QueueRemoveRange { out_of_bounds: true }, id))
 	} else {
-		send!(TO_KERNEL, FrontendToKernel::RemoveQueueRange((params.start..params.end, params.skip)));
-		Ok(resp::result(rpc::resp::RemoveQueueRange { out_of_bounds: false }, id))
+		send!(TO_KERNEL, FrontendToKernel::QueueRemoveRange((params.start..params.end, params.skip)));
+		Ok(resp::result(rpc::resp::QueueRemoveRange { out_of_bounds: false }, id))
 	}
 }
+
+//---------------------------------------------------------------------------------------------------- Playlists
+async fn playlist_new<'a>(
+	params:      rpc::param::PlaylistNew<'a>,
+	id:          Option<Id<'a>>,
+	collection:  Arc<Collection>,
+	TO_KERNEL:   &'static Sender<FrontendToKernel>,
+) -> Result<Response<Body>, anyhow::Error> {
+
+//	Ok(resp::result(rpc::resp::PlaylistNew {}, id))
+	todo!()
+}
+
+async fn playlist_remove<'a>(
+	params:      rpc::param::PlaylistRemove<'a>,
+	id:          Option<Id<'a>>,
+	collection:  Arc<Collection>,
+	TO_KERNEL:   &'static Sender<FrontendToKernel>,
+) -> Result<Response<Body>, anyhow::Error> {
+
+//	Ok(resp::result(rpc::resp::PlaylistRemove {}, id))
+	todo!()
+}
+
+async fn playlist_clone<'a>(
+	params:      rpc::param::PlaylistClone<'a>,
+	id:          Option<Id<'a>>,
+	collection:  Arc<Collection>,
+	TO_KERNEL:   &'static Sender<FrontendToKernel>,
+) -> Result<Response<Body>, anyhow::Error> {
+
+//	Ok(resp::result(rpc::resp::PlaylistClone {}, id))
+	todo!()
+}
+
+async fn playlist_remove_song<'a>(
+	params:      rpc::param::PlaylistRemoveSong<'a>,
+	id:          Option<Id<'a>>,
+	collection:  Arc<Collection>,
+	TO_KERNEL:   &'static Sender<FrontendToKernel>,
+) -> Result<Response<Body>, anyhow::Error> {
+
+//	Ok(resp::result(rpc::resp::PlaylistRemoveSong {}, id))
+	todo!()
+}
+
+async fn playlist_add_artist<'a>(
+	params:      rpc::param::PlaylistAddArtist<'a>,
+	id:          Option<Id<'a>>,
+	collection:  Arc<Collection>,
+	TO_KERNEL:   &'static Sender<FrontendToKernel>,
+) -> Result<Response<Body>, anyhow::Error> {
+
+//	Ok(resp::result(rpc::resp::PlaylistAddArtist {}, id))
+	todo!()
+}
+
+async fn playlist_add_album<'a>(
+	params:      rpc::param::PlaylistAddAlbum<'a>,
+	id:          Option<Id<'a>>,
+	collection:  Arc<Collection>,
+	TO_KERNEL:   &'static Sender<FrontendToKernel>,
+) -> Result<Response<Body>, anyhow::Error> {
+
+//	Ok(resp::result(rpc::resp::PlaylistAddAlbum {}, id))
+	todo!()
+}
+
+async fn playlist_add_song<'a>(
+	params:      rpc::param::PlaylistAddSong<'a>,
+	id:          Option<Id<'a>>,
+	collection:  Arc<Collection>,
+	TO_KERNEL:   &'static Sender<FrontendToKernel>,
+) -> Result<Response<Body>, anyhow::Error> {
+
+//	Ok(resp::result(rpc::resp::PlaylistAddSong {}, id))
+	todo!()
+}
+
+async fn playlist_names<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	Ok(resp::result(PLAYLISTS.read().name_arcs(), id))
+}
+
+async fn playlist_count<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	let count = PLAYLISTS.read().len();
+	Ok(resp::result(rpc::resp::PlaylistCount { count }, id))
+}
+
+async fn playlist_single<'a>(
+	params:      rpc::param::PlaylistSingle<'a>,
+	id:          Option<Id<'a>>,
+	collection:  Arc<Collection>,
+	TO_KERNEL:   &'static Sender<FrontendToKernel>,
+) -> Result<Response<Body>, anyhow::Error> {
+	let v = PLAYLISTS.read().get(&*params.playlist).map(|v| v.clone());
+	if let Some(v) = v {
+		let mut valid   = 0;
+		let mut invalid = 0;
+
+		for i in v.iter() {
+			match i {
+				shukusai::state::PlaylistEntry::Valid { .. }   => valid +=1,
+				shukusai::state::PlaylistEntry::Invalid { .. } => invalid +=1,
+			}
+		}
+
+		let resp = serde_json::json!({
+			"playlist": Cow::Borrowed(&*params.playlist),
+			"all_valid": invalid == 0,
+			"len": v.len(),
+			"valid": valid,
+			"invalid": invalid,
+			"entries": v,
+		});
+
+		Ok(resp::result(resp, id))
+	} else {
+		Ok(resp::error(ERR_PLAYLIST.0, ERR_PLAYLIST.1, id))
+	}
+}
+
+async fn playlist_all<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	let playlists = PLAYLISTS.read().clone();
+
+	let playlist_len = playlists.len();
+	let mut entry_len = 0;
+	let mut valid     = 0;
+	let mut invalid   = 0;
+
+	for vec_deque in playlists.values() {
+		for i in vec_deque.iter() {
+			entry_len += 1;
+
+			match i {
+				shukusai::state::PlaylistEntry::Valid { .. }   => valid +=1,
+				shukusai::state::PlaylistEntry::Invalid { .. } => invalid +=1,
+			}
+		}
+	}
+
+	let resp = serde_json::json!({
+		"all_valid":    invalid == 0,
+		"playlist_len": playlist_len,
+		"entry_len":    entry_len,
+		"valid":        valid,
+		"invalid":      invalid,
+		"playlists":    playlists,
+	});
+
+	Ok(resp::result(resp, id))
+}
+
 
 //---------------------------------------------------------------------------------------------------- TESTS
 //#[cfg(test)]

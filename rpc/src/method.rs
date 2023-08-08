@@ -139,28 +139,54 @@ pub enum Method {
 	Skip,
 	/// [`crate::resp::Status`] & [`crate::param::Back`]
 	Back,
-	/// [`crate::resp::AddQueueKeyArtist`] & [`crate::param::AddQueueKeyArtist`]
-	AddQueueKeyArtist,
-	/// [`crate::resp::AddQueueKeyAlbum`] & [`crate::param::AddQueueKeyAlbum`]
-	AddQueueKeyAlbum,
-	/// [`crate::resp::AddQueueKeySong`] & [`crate::param::AddQueueKeySong`]
-	AddQueueKeySong,
-	/// [`crate::resp::AddQueueMapArtist`] & [`crate::param::AddQueueMapArtist`]
-	AddQueueMapArtist,
-	/// [`crate::resp::AddQueueMapAlbum`] & [`crate::param::AddQueueMapAlbum`]
-	AddQueueMapAlbum,
-	/// [`crate::resp::AddQueueMapSong`] & [`crate::param::AddQueueMapSong`]
-	AddQueueMapSong,
-	/// [`crate::resp::AddQueueRandArtist`] & [`crate::param::AddQueueRandArtist`]
-	AddQueueRandArtist,
-	/// [`crate::resp::AddQueueRandAlbum`] & [`crate::param::AddQueueRandAlbum`]
-	AddQueueRandAlbum,
-	/// [`crate::resp::AddQueueRandSong`] & [`crate::param::AddQueueRandSong`]
-	AddQueueRandSong,
-	/// [`crate::resp::SetQueueIndex`] & [`crate::param::SetQueueIndex`]
-	SetQueueIndex,
-	/// [`crate::resp::Status`] & [`crate::param::RemoveQueueRange`]
-	RemoveQueueRange,
+	/// [`crate::resp::QueueAddKeyArtist`] & [`crate::param::QueueAddKeyArtist`]
+	QueueAddKeyArtist,
+	/// [`crate::resp::QueueAddKeyAlbum`] & [`crate::param::QueueAddKeyAlbum`]
+	QueueAddKeyAlbum,
+	/// [`crate::resp::QueueAddKeySong`] & [`crate::param::QueueAddKeySong`]
+	QueueAddKeySong,
+	/// [`crate::resp::QueueAddMapArtist`] & [`crate::param::QueueAddMapArtist`]
+	QueueAddMapArtist,
+	/// [`crate::resp::QueueAddMapAlbum`] & [`crate::param::QueueAddMapAlbum`]
+	QueueAddMapAlbum,
+	/// [`crate::resp::QueueAddMapSong`] & [`crate::param::QueueAddMapSong`]
+	QueueAddMapSong,
+	/// [`crate::resp::QueueAddRandArtist`] & [`crate::param::QueueAddRandArtist`]
+	QueueAddRandArtist,
+	/// [`crate::resp::QueueAddRandAlbum`] & [`crate::param::QueueAddRandAlbum`]
+	QueueAddRandAlbum,
+	/// [`crate::resp::QueueAddRandSong`] & [`crate::param::QueueAddRandSong`]
+	QueueAddRandSong,
+	/// [`crate::resp::QueueAddPlaylist`] & [`crate::param::QueueAddPlaylist`]
+	QueueAddPlaylist,
+	/// [`crate::resp::SetQueueIndex`] & [`crate::param::QueueSetIndex`]
+	QueueSetIndex,
+	/// [`crate::resp::Status`] & [`crate::param::QueueRemoveRange`]
+	QueueRemoveRange,
+
+	// Playlists.
+	/// [`crate::resp::PlaylistNew`] & [`crate::param::PlaylistNew`]
+	PlaylistNew,
+	/// [`crate::resp::PlaylistRemove`] & [`crate::param::PlaylistRemove`]
+	PlaylistRemove,
+	/// [`crate::resp::PlaylistClone`] & [`crate::param::PlaylistClone`]
+	PlaylistClone,
+	/// [`crate::resp::PlaylistRemoveSong`] & [`crate::param::PlaylistRemoveSong`]
+	PlaylistRemoveSong,
+	/// [`crate::resp::PlaylistAddArtist`] & [`crate::param::PlaylistAddArtist`]
+	PlaylistAddArtist,
+	/// [`crate::resp::PlaylistAddAlbum`] & [`crate::param::PlaylistAddAlbum`]
+	PlaylistAddAlbum,
+	/// [`crate::resp::PlaylistAddSong`] & [`crate::param::PlaylistAddSong`]
+	PlaylistAddSong,
+	/// [`crate::resp::PlaylistNames`] & [`crate::param::PlaylistNames`]
+	PlaylistNames,
+	/// [`crate::resp::PlaylistCount`] & [`crate::param::PlaylistCount`]
+	PlaylistCount,
+	/// [`crate::resp::PlaylistSingle`] & [`crate::param::PlaylistSingle`]
+	PlaylistSingle,
+	/// [`crate::resp::PlaylistAll`] & [`crate::param::PlaylistAll`]
+	PlaylistAll,
 }
 
 #[derive(clap::Subcommand,Clone,Debug,Serialize,Deserialize)]
@@ -168,7 +194,6 @@ pub enum Method {
 #[strum(serialize_all = "snake_case")]
 #[serde(rename_all = "snake_case")]
 #[command(rename_all = "snake_case")]
-/// Combined method + param.
 pub enum Rpc {
 	CollectionNew(crate::param::CollectionNew),
 	CollectionBrief(crate::param::CollectionBrief),
@@ -221,17 +246,29 @@ pub enum Rpc {
 	Skip(crate::param::Skip),
 	Back(crate::param::Back),
 
-	AddQueueKeyArtist(crate::param::AddQueueKeyArtist),
-	AddQueueKeyAlbum(crate::param::AddQueueKeyAlbum),
-	AddQueueKeySong(crate::param::AddQueueKeySong),
-	AddQueueMapArtist(crate::param::AddQueueMapArtistOwned),
-	AddQueueMapAlbum(crate::param::AddQueueMapAlbumOwned),
-	AddQueueMapSong(crate::param::AddQueueMapSongOwned),
-	AddQueueRandArtist(crate::param::AddQueueRandArtist),
-	AddQueueRandAlbum(crate::param::AddQueueRandAlbum),
-	AddQueueRandSong(crate::param::AddQueueRandSong),
-	SetQueueIndex(crate::param::SetQueueIndex),
-	RemoveQueueRange(crate::param::RemoveQueueRange),
+	QueueAddKeyArtist(crate::param::QueueAddKeyArtist),
+	QueueAddKeyAlbum(crate::param::QueueAddKeyAlbum),
+	QueueAddKeySong(crate::param::QueueAddKeySong),
+	QueueAddMapArtist(crate::param::QueueAddMapArtistOwned),
+	QueueAddMapAlbum(crate::param::QueueAddMapAlbumOwned),
+	QueueAddMapSong(crate::param::QueueAddMapSongOwned),
+	QueueAddRandArtist(crate::param::QueueAddRandArtist),
+	QueueAddRandAlbum(crate::param::QueueAddRandAlbum),
+	QueueAddRandSong(crate::param::QueueAddRandSong),
+	QueueSetIndex(crate::param::QueueSetIndex),
+	QueueRemoveRange(crate::param::QueueRemoveRange),
+
+	PlaylistNew(crate::param::PlaylistNewOwned),
+	PlaylistRemove(crate::param::PlaylistRemoveOwned),
+	PlaylistClone(crate::param::PlaylistCloneOwned),
+	PlaylistRemoveSong(crate::param::PlaylistRemoveSongOwned),
+	PlaylistAddArtist(crate::param::PlaylistAddArtistOwned),
+	PlaylistAddAlbum(crate::param::PlaylistAddAlbumOwned),
+	PlaylistAddSong(crate::param::PlaylistAddSongOwned),
+	PlaylistNames(crate::param::PlaylistNames),
+	PlaylistCount(crate::param::PlaylistCount),
+	PlaylistSingle(crate::param::PlaylistSingleOwned),
+	PlaylistAll(crate::param::PlaylistAll),
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

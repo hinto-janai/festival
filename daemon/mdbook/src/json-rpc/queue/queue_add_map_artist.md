@@ -1,10 +1,11 @@
-# add_queue_rand_artist
-Add a random [`Artist`](../../common-objects/artist.md) to the queue.
+# queue_add_map_artist
+Add an [`Artist`](../../common-objects/artist.md) to the queue with an `Artist` name.
 
 #### Inputs
 
 | Field  | Type                                        | Description |
 |--------|---------------------------------------------|-------------|
+| artist | `string`                                    | `Artist` name
 | append | `string`, one of `front`, `back` or `index` | In which way should we add to the queue? `front` means to the front of the queue. `back` means to the back. `index` means at an exact queue index. Queue index starts at `0`, so to mimic `front`, you would provide `0`.
 | clear  | boolean                                     | Should the queue be cleared before adding?
 | index  | optional (maybe-null) unsigned integer      | If the `index` append is chosen, this will be the index used
@@ -31,47 +32,33 @@ index 5 | song_6
 ```
 
 #### Outputs
-| Field         | Type                                              | Description |
-|---------------|---------------------------------------------------|-------------|
-| artist        | [`Artist`](../../common-objects/artist.md) object | The `Artist` that was added to the queue
+`result: null` if everything went ok.
+
+`error: ...` if there was a index/offset error.
 
 #### Example Request 1
 ```bash
 # Add to back of the queue.
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"add_queue_rand_artist","params":{"append":"back","clear":false}}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"queue_add_map_artist","params":{"artist":"TWICE","append":"back","clear":false}}'
 ```
 
 #### Example Request 2
 ```bash
 # Append at queue index 4.
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"add_queue_rand_artist","params":{"append":"index","index":4,"clear":false}}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"queue_add_map_artist","params":{"artist":"TWICE","append":"index","index":4,"clear":false}}'
 ```
 
 #### Example Request 3
 ```bash
 # Clear the queue, add all the `Song`'s by this `Artist`, but start at the 5th `Song` (offset 4).
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"add_queue_rand_artist","params":{"append":"front","clear":true,"offset":4}}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"queue_add_map_artist","params":{"artist":"TWICE","append":"front","clear":true,"offset":4}}'
 ```
 
 #### Example Response
 ```json
 {
   "jsonrpc": "2.0",
-  "result": {
-    "artist": {
-      "name": "Rex Orange County",
-      "key": 65,
-      "runtime": 7583,
-      "albums": [
-        237
-      ],
-      "songs": [
-        2800,
-        2803,
-        2809
-      ]
-    }
-  },
+  "result": null, // <--- everything went ok.
   "id": 0
 }
 ```

@@ -18,6 +18,10 @@ use shukusai::{
 	},
 	audio::Repeat,
 	search::SearchKind,
+	state::{
+		PlaylistsJson,
+		PlaylistEntryJson,
+	},
 };
 use crate::{
 	impl_struct,
@@ -288,18 +292,49 @@ impl_struct_lt! {
 //impl_struct_anon!(Back, ());
 
 //---------------------------------------------------------------------------------------------------- Queue
-//impl_struct_anon!(AddQueueKeyArtist, ());
-//impl_struct_anon!(AddQueueKeyAlbum, ());
-//impl_struct_anon!(AddQueueKeySong, ());
-//impl_struct_anon!(AddQueueMapArtist, ());
-//impl_struct_anon!(AddQueueMapAlbum, ());
-//impl_struct_anon!(AddQueueMapSong, ());
-impl_struct_lt!(AddQueueRandArtist, #[serde(borrow)] artist: Cow<'a, ArtistJson<'a>>);
-impl_struct_lt!(AddQueueRandAlbum, #[serde(borrow)] album: Cow<'a, AlbumJson<'a>>);
-impl_struct_lt!(AddQueueRandSong, #[serde(borrow)] song: Cow<'a, SongJson<'a>>);
-impl_struct!(SetQueueIndex, out_of_bounds: bool);
-impl_struct!(RemoveQueueRange, out_of_bounds: bool);
+//impl_struct_anon!(QueueAddKeyArtist, ());
+//impl_struct_anon!(QueueAddKeyAlbum, ());
+//impl_struct_anon!(QueueAddKeySong, ());
+//impl_struct_anon!(QueueAddMapArtist, ());
+//impl_struct_anon!(QueueAddMapAlbum, ());
+//impl_struct_anon!(QueueAddMapSong, ());
+impl_struct_lt!(QueueAddRandArtist, #[serde(borrow)] artist: Cow<'a, ArtistJson<'a>>);
+impl_struct_lt!(QueueAddRandAlbum, #[serde(borrow)] album: Cow<'a, AlbumJson<'a>>);
+impl_struct_lt!(QueueAddRandSong, #[serde(borrow)] song: Cow<'a, SongJson<'a>>);
+impl_struct!(QueueSetIndex, out_of_bounds: bool);
+impl_struct!(QueueRemoveRange, out_of_bounds: bool);
 
+//---------------------------------------------------------------------------------------------------- Playlist
+impl_struct!(PlaylistNew, existed: bool);
+impl_struct!(PlaylistRemove, existed: bool);
+impl_struct!(PlaylistClone, existed: bool);
+impl_struct!(PlaylistRemoveSong, out_of_bounds: bool);
+//impl_struct!(PlaylistAddArtist, ());
+//impl_struct!(PlaylistAddAlbum, ());
+//impl_struct!(PlaylistAddSong, ());
+impl_struct_anon_lt!(PlaylistNames, Cow<'a, [Cow<'a, str>]>);
+impl_struct!(PlaylistCount, count: usize);
+impl_struct_lt! {
+	PlaylistSingle,
+	#[serde(borrow)]
+	playlist: Cow<'a, str>,
+	all_valid: bool,
+	len: usize,
+	valid: usize,
+	invalid: usize,
+	#[serde(borrow)]
+	entries: Cow<'a, [PlaylistEntryJson<'a>]>
+}
+impl_struct_lt! {
+	PlaylistAll,
+	all_valid: bool,
+	playlist_len: usize,
+	entry_len: usize,
+	valid: usize,
+	invalid: usize,
+	#[serde(borrow)]
+	playlists: Cow<'a, PlaylistsJson<'a>>
+}
 
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]

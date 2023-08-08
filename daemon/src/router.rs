@@ -118,6 +118,15 @@ pub async fn init(
 		}
 	};
 
+	// FIXME TODO
+//	for (i, artist) in collection.artists.iter().enumerate() {
+//		send!(TO_KERNEL, shukusai::kernel::FrontendToKernel::PlaylistNew(artist.name.to_string()));
+//		for song in artist.songs.iter() {
+//			send!(TO_KERNEL, shukusai::kernel::FrontendToKernel::PlaylistAddSong((Arc::clone(&artist.name), *song, shukusai::audio::Append::Back)));
+//		}
+//	}
+	// FIXME TODO
+
 	// Create the 1 and only "global" `CollectionPtr`.
 	// See `ptr.rs` for why this exists.
 	let ptr = std::ptr::addr_of_mut!(collection);

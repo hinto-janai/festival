@@ -280,6 +280,14 @@ impl Playlists {
 			.map(|(s, v)| (&**s, v.len()))
 			.collect()
 	}
+
+	/// Returns a `Vec` of all playlist names, cheaply cloned.
+	pub fn name_arcs(&self) -> Vec<Arc<str>> {
+		self.0
+			.keys()
+			.map(Arc::clone)
+			.collect()
+	}
 }
 
 //---------------------------------------------------------------------------------------------------- JSON Representation
@@ -288,7 +296,7 @@ impl Playlists {
 #[serde(transparent)]
 #[repr(transparent)]
 /// Stable `JSON` representation of [`Playlists`].
-pub struct PlaylistsJson<'a>(BTreeMap<Cow<'a, str>, VecDeque<PlaylistEntryJson<'a>>>);
+pub struct PlaylistsJson<'a>(#[serde(borrow)] BTreeMap<Cow<'a, str>, VecDeque<PlaylistEntryJson<'a>>>);
 
 #[derive(Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -298,10 +306,13 @@ pub enum PlaylistEntryJson<'a> {
 	Valid {
 		/// Song key
 		key: SongKey,
+		#[serde(borrow)]
 		/// Artist name
 		artist: Cow<'a, str>,
+		#[serde(borrow)]
 		/// Album title
 		album: Cow<'a, str>,
+		#[serde(borrow)]
 		/// Song title
 		song: Cow<'a, str>,
 	},
@@ -309,10 +320,13 @@ pub enum PlaylistEntryJson<'a> {
 	/// This song is missing, this was the
 	/// `artist.name`, `album.title`, `song.title`.
 	Invalid {
+		#[serde(borrow)]
 		/// Artist name
 		artist: Cow<'a, str>,
+		#[serde(borrow)]
 		/// Album title
 		album: Cow<'a, str>,
+		#[serde(borrow)]
 		/// Song title
 		song: Cow<'a, str>,
 	},

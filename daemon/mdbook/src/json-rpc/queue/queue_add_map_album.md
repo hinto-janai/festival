@@ -1,4 +1,4 @@
-# add_queue_map_album
+# queue_add_map_album
 Add an [`Album`](../../common-objects/album.md) to the queue with an [`Artist`](../../common-objects/artist.md) name and `Album` title.
 
 #### Inputs
@@ -40,19 +40,19 @@ index 5 | song_6
 #### Example Request 1
 ```bash
 # Add to back of the queue.
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"add_queue_map_album","params":{"artist":"TWICE","album":"PAGE TWO","append":"back","clear":false}}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"queue_add_map_album","params":{"artist":"TWICE","album":"PAGE TWO","append":"back","clear":false}}'
 ```
 
 #### Example Request 2
 ```bash
 # Append at queue index 4.
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"add_queue_map_album","params":{"artist":"TWICE","album":"PAGE TWO","append":"index","index"::4,"clear":false}}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"queue_add_map_album","params":{"artist":"TWICE","album":"PAGE TWO","append":"index","index"::4,"clear":false}}'
 ```
 
 #### Example Request 3
 ```bash
 # Clear the queue, add all the `Song`'s in this `Album`, but start at the 5th `Song` (offset 4).
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"add_queue_map_album","params":{"artist":"TWICE","album":"PAGE TWO","append":"front","clear":true,"offset":4}}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"queue_add_map_album","params":{"artist":"TWICE","album":"PAGE TWO","append":"front","clear":true,"offset":4}}'
 ```
 
 #### Example Response
