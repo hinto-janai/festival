@@ -195,13 +195,25 @@ impl Playlists {
 	/// Creates playlist if it did not exist.
 	///
 	/// Assumes `Append` index is not out-of-bounds.
-	pub fn playlist_add_artist(&mut self, playlist: Arc<str>, key: ArtistKey, append: Append, collection: &Arc<Collection>) {
+	///
+	/// `Some(true)`  => playlist/artist existed and was added
+	/// `Some(false)` => playlist existed, artist did not exist
+	/// `None`        => playlist did not exist
+	pub fn playlist_add_artist(&mut self, playlist: Arc<str>, artist: &str, append: Append, collection: &Arc<Collection>) -> Option<bool> {
+		let Some((_, key)) = collection.artist(artist) else {
+			return None;
+		};
+
 		let keys: Box<[SongKey]> = collection.all_songs(key);
 		let iter = keys.iter();
 
+		let mut existed = true;
 		let v = self
 			.entry(playlist)
-			.or_insert_with(|| VecDeque::with_capacity(keys.len()));
+			.or_insert_with(|| {
+				existed = false;
+				VecDeque::with_capacity(keys.len())
+			});
 
 		match append {
 			Append::Back => iter.for_each(|k| {
@@ -242,6 +254,8 @@ impl Playlists {
 				i += 1;
 			}),
 		}
+
+		Some(existed)
 	}
 
 	/// Add this album to this playlist.
@@ -249,13 +263,25 @@ impl Playlists {
 	/// Creates playlist if it did not exist.
 	///
 	/// Assumes `Append` index is not out-of-bounds.
-	pub fn playlist_add_album(&mut self, playlist: Arc<str>, key: AlbumKey, append: Append, collection: &Arc<Collection>) {
+	///
+	/// `Some(true)`  => playlist/artist/album existed and was added
+	/// `Some(false)` => playlist existed, artist/album did not exist
+	/// `None`        => playlist did not exist
+	pub fn playlist_add_album(&mut self, playlist: Arc<str>, artist: &str, album: &str, append: Append, collection: &Arc<Collection>) -> Option<bool> {
+		let Some((_, key)) = collection.album(artist, album) else {
+			return None;
+		};
+
 		let keys = &collection.albums[key].songs;
 		let iter = keys.iter();
 
+		let mut existed = true;
 		let v = self
 			.entry(playlist)
-			.or_insert_with(|| VecDeque::with_capacity(keys.len()));
+			.or_insert_with(|| {
+				existed = false;
+				VecDeque::with_capacity(keys.len())
+			});
 
 		let album  = &collection.albums[key];
 		let artist = &collection.artists[album.artist];
@@ -296,6 +322,8 @@ impl Playlists {
 				i += 1;
 			}),
 		}
+
+		Some(existed)
 	}
 
 	/// Add this song to this playlist.
@@ -303,27 +331,41 @@ impl Playlists {
 	/// Creates playlist if it did not exist.
 	///
 	/// Assumes `Append` index is not out-of-bounds.
-	pub fn playlist_add_song(&mut self, playlist: Arc<str>, key: SongKey, append: Append, collection: &Arc<Collection>) {
-		let (artist, album, song) = collection.walk(key);
+	///
+	/// `Some(true)`  => playlist/artist/album/song existed and was added
+	/// `Some(false)` => playlist existed, artist/album/song did not exist
+	/// `None`        => playlist did not exist
+	pub fn playlist_add_song(&mut self, playlist: Arc<str>, artist: &str, album: &str, song: &str, append: Append, collection: &Arc<Collection>) -> Option<bool> {
+		let Some((song, _)) = collection.song(artist, album, song) else {
+			return None;
+		};
+
+		let (artist, album, song) = collection.walk(song.key);
 
 		let entry = PlaylistEntry::Valid {
 			key_artist: artist.key,
 			key_album: album.key,
-			key_song: key,
+			key_song: song.key,
 			artist: Arc::clone(&artist.name),
 			album: Arc::clone(&album.title),
 			song: Arc::clone(&song.title),
 		};
 
+		let mut existed = true;
 		let v = self
 			.entry(playlist)
-			.or_insert_with(|| VecDeque::with_capacity(8));
+			.or_insert_with(|| {
+				existed = false;
+				VecDeque::with_capacity(8)
+			});
 
 		match append {
 			Append::Back     => v.push_back(entry),
 			Append::Front    => v.push_front(entry),
 			Append::Index(i) => v.insert(i, entry),
 		}
+
+		Some(existed)
 	}
 
 	//-------------------------------------------------- Misc.
@@ -470,6 +512,14 @@ impl Playlists {
 			.map(|(s, v)| (&**s, v.len()))
 			.collect()
 	}
+
+	/// Returns a `Vec` of all playlist names, cheaply cloned.
+	pub fn name_arcs(&self) -> Vec<Arc<str>> {
+		self.0
+			.keys()
+			.map(Arc::clone)
+			.collect()
+	}
 }
 
 //---------------------------------------------------------------------------------------------------- JSON Representation
@@ -478,7 +528,7 @@ impl Playlists {
 #[serde(transparent)]
 #[repr(transparent)]
 /// Stable `JSON` representation of [`Playlists`].
-pub struct PlaylistsJson<'a>(BTreeMap<Cow<'a, str>, VecDeque<PlaylistEntryJson<'a>>>);
+pub struct PlaylistsJson<'a>(#[serde(borrow)] BTreeMap<Cow<'a, str>, VecDeque<PlaylistEntryJson<'a>>>);
 
 #[derive(Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -494,8 +544,10 @@ pub enum PlaylistEntryJson<'a> {
 		key_song: SongKey,
 		/// Artist name
 		artist: Cow<'a, str>,
+		#[serde(borrow)]
 		/// Album title
 		album: Cow<'a, str>,
+		#[serde(borrow)]
 		/// Song title
 		song: Cow<'a, str>,
 	},
@@ -503,10 +555,13 @@ pub enum PlaylistEntryJson<'a> {
 	/// This song is missing, this was the
 	/// `artist.name`, `album.title`, `song.title`.
 	Invalid {
+		#[serde(borrow)]
 		/// Artist name
 		artist: Cow<'a, str>,
+		#[serde(borrow)]
 		/// Album title
 		album: Cow<'a, str>,
+		#[serde(borrow)]
 		/// Song title
 		song: Cow<'a, str>,
 	},
