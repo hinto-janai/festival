@@ -32,6 +32,7 @@ use std::sync::{
 use benri::{
 	lockw,lockr,
 };
+use std::borrow::Cow;
 
 //---------------------------------------------------------------------------------------------------- Lazy
 /// This is the single, global copy of `Playlists` that `Kernel` uses.
@@ -75,6 +76,8 @@ impl PlaylistsLock {
 disk::bincode2!(Playlists, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{STATE_SUB_DIR}"), "playlists", HEADER, PLAYLIST_VERSION);
 #[derive(Clone,Debug,Default,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
 #[serde(rename_all = "snake_case")]
+#[serde(transparent)]
+#[repr(transparent)]
 /// Playlist implementation.
 ///
 /// Contains all user playlists, ordering via `BTreeMap`.
