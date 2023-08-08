@@ -177,12 +177,12 @@ impl Playlists {
 		}
 	}
 
-	/// Remove the [`Song`] with index `index` within the playlist `playlist`.
+	/// Remove the [`PlaylistEntry`] with index `index` within the playlist `playlist`.
 	///
 	/// `Ok(Some(_))` => playlist existed, song was removed
 	/// `Ok(None)`    => playlist existed, song did not exist
 	/// `Err(())`     => playlist did not exist, nothing was removed
-	pub fn playlist_remove_song(&mut self, index: usize, playlist: Arc<str>) -> Result<Option<PlaylistEntry>, ()> {
+	pub fn playlist_remove_entry(&mut self, index: usize, playlist: Arc<str>) -> Result<Option<PlaylistEntry>, ()> {
 		if let Some(p) = self.get_mut(&playlist) {
 			Ok(p.remove(index))
 		} else {
