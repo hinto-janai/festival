@@ -70,24 +70,36 @@ use json_rpc::{
 };
 
 //---------------------------------------------------------------------------------------------------- Custom Method Error Codes/Messages
-const ERR_VOLUME:     (i32, &str) = (-32011, "Volume must be in between 0..100");
-const ERR_KEY_ARTIST: (i32, &str) = (-32012, "Artist key is invalid");
-const ERR_KEY_ALBUM:  (i32, &str) = (-32013, "Album key is invalid");
-const ERR_KEY_SONG:   (i32, &str) = (-32014, "Song key is invalid");
-const ERR_MAP_ARTIST: (i32, &str) = (-32015, "Artist does not exist");
-const ERR_MAP_ALBUM:  (i32, &str) = (-32016, "Album does not exist");
-const ERR_MAP_SONG:   (i32, &str) = (-32017, "Song does not exist");
-const ERR_CURRENT:    (i32, &str) = (-32018, "No song is currently set");
-const ERR_RAND:       (i32, &str) = (-32019, "The Collection is empty");
-const ERR_RESETTING:  (i32, &str) = (-32020, "Currently resetting the Collection");
-const ERR_PERF:       (i32, &str) = (-32021, "Performance file does not exist");
-const ERR_FS:         (i32, &str) = (-32022, "Filesystem error");
-const ERR_AUTH:       (i32, &str) = (-32023, "Unauthorized");
-const ERR_SERDE:      (i32, &str) = (-32024, "(De)serialization error");
-const ERR_APPEND:     (i32, &str) = (-32025, "Index append was chosen, but no index was provided");
-const ERR_INDEX:      (i32, &str) = (-32026, "Bad index, greater or equal to queue length");
-const ERR_OFFSET:     (i32, &str) = (-32027, "Bad offset, greater or equal to amount of songs");
-const ERR_PLAYLIST:   (i32, &str) = (-32028, "Playlist doesn't exist");
+macro_rules! impl_err {
+	($($name:ident, $code:literal, $msg:literal),*) => {
+		const ERR_BASE_CODE: i32 = -32011;
+		$(
+			const $name: (i32, &str) = (ERR_BASE_CODE - $code, $msg);
+		)*
+	}
+}
+
+impl_err! {
+	ERR_VOLUME,         0,  "Volume must be in between 0..100",
+	ERR_KEY_ARTIST,     1,  "Artist key is invalid",
+	ERR_KEY_ALBUM,      2,  "Album key is invalid",
+	ERR_KEY_SONG,       3,  "Song key is invalid",
+	ERR_MAP_ARTIST,     4,  "Artist does not exist",
+	ERR_MAP_ALBUM,      5,  "Album does not exist",
+	ERR_MAP_SONG,       6,  "Song does not exist",
+	ERR_CURRENT,        7,  "No song is currently set",
+	ERR_RAND,           8,  "The Collection is empty",
+	ERR_RESETTING,      9,  "Currently resetting the Collection",
+	ERR_PERF,           10, "Performance file does not exist",
+	ERR_FS,             11, "Filesystem error",
+	ERR_AUTH,           12, "Unauthorized",
+	ERR_SERDE,          13, "(De)serialization error",
+	ERR_APPEND,         14, "Index append was chosen, but no index was provided",
+	ERR_INDEX,          15, "Bad index, greater or equal to queue length",
+	ERR_OFFSET,         16, "Bad offset, greater or equal to amount of songs",
+	ERR_PLAYLIST,       17, "Playlist doesn't exist",
+	ERR_INDEX_PLAYLIST, 18, "Bad index, greater or equal to playlist length"
+}
 
 //---------------------------------------------------------------------------------------------------- Parse, call func, or return macro.
 // Parse
@@ -1237,15 +1249,40 @@ async fn playlist_remove_song<'a>(
 	}
 }
 
+macro_rules! get_append_playlist {
+	($params:expr, $id:expr, $playlist_lock:expr, $playlist:expr) => {
+		match $params.append {
+			shukusai::audio::Append2::Index => {
+				let Some(i) = $params.index else {
+					return Ok(resp::error(ERR_APPEND.0, ERR_APPEND.1, $id));
+				};
+
+				let p = $playlist_lock.get(&$playlist);
+
+				if i != 0 && (p.is_none() || p.is_some_and(|v| i >= v.len())) {
+					return Ok(resp::error(ERR_INDEX_PLAYLIST.0, ERR_INDEX_PLAYLIST.1, $id));
+				}
+
+				shukusai::audio::Append::Index(i)
+			},
+			shukusai::audio::Append2::Front => shukusai::audio::Append::Front,
+			shukusai::audio::Append2::Back => shukusai::audio::Append::Back,
+		}
+	}
+}
+
 async fn playlist_add_artist<'a>(
 	params:      rpc::param::PlaylistAddArtist<'a>,
 	id:          Option<Id<'a>>,
 	collection:  Arc<Collection>,
 	TO_KERNEL:   &'static Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
-	let append = get_append!(params, id);
+	let playlist: Arc<str> = params.playlist.into();
+	let mut p = PLAYLISTS.write();
 
-	match PLAYLISTS.write().playlist_add_artist(params.playlist.into(), &params.artist, append, &collection) {
+	let append = get_append_playlist!(params, id, p, playlist);
+
+	match p.playlist_add_artist(playlist, &params.artist, append, &collection) {
 		Some(true)  => Ok(resp::result(rpc::resp::PlaylistAddArtist { existed: true }, id)),
 		Some(false) => Ok(resp::result(rpc::resp::PlaylistAddArtist { existed: false }, id)),
 		None        => Ok(resp::error(ERR_PLAYLIST.0, ERR_PLAYLIST.1, id)),
@@ -1258,9 +1295,12 @@ async fn playlist_add_album<'a>(
 	collection:  Arc<Collection>,
 	TO_KERNEL:   &'static Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
-	let append = get_append!(params, id);
+	let playlist: Arc<str> = params.playlist.into();
+	let mut p = PLAYLISTS.write();
 
-	match PLAYLISTS.write().playlist_add_album(params.playlist.into(), &params.artist, &params.album, append, &collection) {
+	let append = get_append_playlist!(params, id, p, playlist);
+
+	match p.playlist_add_album(playlist, &params.artist, &params.album, append, &collection) {
 		Some(true)  => Ok(resp::result(rpc::resp::PlaylistAddAlbum { existed: true }, id)),
 		Some(false) => Ok(resp::result(rpc::resp::PlaylistAddAlbum { existed: false }, id)),
 		None        => Ok(resp::error(ERR_PLAYLIST.0, ERR_PLAYLIST.1, id)),
@@ -1273,9 +1313,12 @@ async fn playlist_add_song<'a>(
 	collection:  Arc<Collection>,
 	TO_KERNEL:   &'static Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
-	let append = get_append!(params, id);
+	let playlist: Arc<str> = params.playlist.into();
+	let mut p = PLAYLISTS.write();
 
-	match PLAYLISTS.write().playlist_add_song(params.playlist.into(), &params.artist, &params.album, &params.song, append, &collection) {
+	let append = get_append_playlist!(params, id, p, playlist);
+
+	match p.playlist_add_song(playlist, &params.artist, &params.album, &params.song, append, &collection) {
 		Some(true)  => Ok(resp::result(rpc::resp::PlaylistAddSong { existed: true }, id)),
 		Some(false) => Ok(resp::result(rpc::resp::PlaylistAddSong { existed: false }, id)),
 		None        => Ok(resp::error(ERR_PLAYLIST.0, ERR_PLAYLIST.1, id)),
