@@ -1144,7 +1144,18 @@ async fn queue_add_playlist<'a>(
 	collection: Arc<Collection>,
 	TO_KERNEL:  &Sender<FrontendToKernel>
 ) -> Result<Response<Body>, anyhow::Error> {
-	todo!()
+	if let Some(playlist) = PLAYLISTS.read().get(&*params.playlist) {
+		let append = get_append!(params, id);
+		let offset = get_offset!(params.offset, playlist.len(), id);
+
+		let playlist: Arc<str> = params.playlist.into();
+
+		send!(TO_KERNEL, FrontendToKernel::QueueAddPlaylist((playlist, append, params.clear, offset)));
+
+		Ok(resp::result_ok(id))
+	} else {
+		Ok(resp::error(ERR_PLAYLIST.0, ERR_PLAYLIST.1, id))
+	}
 }
 
 async fn queue_set_index<'a>(

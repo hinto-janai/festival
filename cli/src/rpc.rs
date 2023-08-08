@@ -123,6 +123,7 @@ pub fn request(config: Config, rpc: Rpc) -> ! {
 		QueueAddRandArtist(x) => req_resp!(x, rpc::resp::QueueAddRandArtist),
 		QueueAddRandAlbum(x)  => req_resp!(x, rpc::resp::QueueAddRandAlbum),
 		QueueAddRandSong(x)   => req_resp!(x, rpc::resp::QueueAddRandSong),
+		QueueAddPlaylist(x)   => req_resp!(x, rpc::resp::Status),
 		QueueSetIndex(x)      => req_resp!(x, rpc::resp::QueueSetIndex),
 		QueueRemoveRange(x)   => req_resp!(x, rpc::resp::QueueRemoveRange),
 

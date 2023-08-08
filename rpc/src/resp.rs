@@ -301,6 +301,7 @@ impl_struct_lt! {
 impl_struct_lt!(QueueAddRandArtist, #[serde(borrow)] artist: Cow<'a, ArtistJson<'a>>);
 impl_struct_lt!(QueueAddRandAlbum, #[serde(borrow)] album: Cow<'a, AlbumJson<'a>>);
 impl_struct_lt!(QueueAddRandSong, #[serde(borrow)] song: Cow<'a, SongJson<'a>>);
+//impl_struct_anon!(QueueAddPlaylist, ());
 impl_struct!(QueueSetIndex, out_of_bounds: bool);
 impl_struct!(QueueRemoveRange, out_of_bounds: bool);
 

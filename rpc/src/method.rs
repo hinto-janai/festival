@@ -255,6 +255,7 @@ pub enum Rpc {
 	QueueAddRandArtist(crate::param::QueueAddRandArtist),
 	QueueAddRandAlbum(crate::param::QueueAddRandAlbum),
 	QueueAddRandSong(crate::param::QueueAddRandSong),
+	QueueAddPlaylist(crate::param::QueueAddPlaylistOwned),
 	QueueSetIndex(crate::param::QueueSetIndex),
 	QueueRemoveRange(crate::param::QueueRemoveRange),
 

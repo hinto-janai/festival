@@ -458,7 +458,7 @@ impl_rpc_param! {
 	"Should the queue be cleared before adding?",
 	clear: bool
 }
-impl_struct_lt!(QueueAddPlaylist, #[serde(borrow)] playlist: Cow<'a, str>, append: Append2, index: Option<usize>, clear: bool);
+impl_struct_lt!(QueueAddPlaylist, #[serde(borrow)] playlist: Cow<'a, str>, append: Append2, index: Option<usize>, offset: Option<usize>, clear: bool);
 impl_rpc_param! {
 	"Add a playlist to the queue",
 	"queue/queue_add_playlist",
@@ -470,6 +470,8 @@ impl_rpc_param! {
 	append: Append2,
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>,
+	"Should we start at an offset within the playlist?",
+	offset: Option<usize>,
 	"Should the queue be cleared before adding?",
 	clear: bool
 }
