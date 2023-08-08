@@ -153,32 +153,48 @@ impl Playlists {
 	}
 
 	//-------------------------------------------------- Playlist handling.
-	/// Create a new playlist with this name.
-	pub fn playlist_new(&mut self, s: &str) {
-		self.insert(s.into(), VecDeque::with_capacity(8));
+	/// Create a new playlist with this name, overwriting if it already exists.
+	pub fn playlist_new(&mut self, s: &str) -> Option<VecDeque<PlaylistEntry>> {
+		self.insert(s.into(), VecDeque::with_capacity(8))
 	}
 
 	/// Remove the playlist with this name.
-	pub fn playlist_remove(&mut self, s: Arc<str>) {
-		self.remove(&s);
+	pub fn playlist_remove(&mut self, s: Arc<str>) -> Option<VecDeque<PlaylistEntry>> {
+		self.remove(&s)
 	}
 
 	/// Clone the playlist from the 1st input, into a new one called the 2nd input.
-	pub fn playlist_clone(&mut self, from: Arc<str>, into: &str) {
+	///
+	/// `Ok(Some(_))` => from existed, into was overwritten
+	/// `Ok(None)`    => from existed, into was created
+	/// `Err(())`     => from did not exist, nothing was created
+	pub fn playlist_clone(&mut self, from: Arc<str>, into: &str) -> Result<Option<VecDeque<PlaylistEntry>>, ()> {
 		let vec = self.get(&from).map(|v| v.clone());
 		if let Some(vec) = vec {
-			self.insert(into.into(), vec);
+			Ok(self.insert(into.into(), vec))
+		} else {
+			Err(())
 		}
 	}
 
 	/// Remove the [`Song`] with index `index` within the playlist `playlist`.
-	pub fn playlist_remove_song(&mut self, index: usize, playlist: Arc<str>) {
+	///
+	/// `Ok(Some(_))` => playlist existed, song was removed
+	/// `Ok(None)`    => playlist existed, song did not exist
+	/// `Err(())`     => playlist did not exist, nothing was removed
+	pub fn playlist_remove_song(&mut self, index: usize, playlist: Arc<str>) -> Result<Option<PlaylistEntry>, ()> {
 		if let Some(p) = self.get_mut(&playlist) {
-			p.remove(index);
+			Ok(p.remove(index))
+		} else {
+			Err(())
 		}
 	}
 
 	/// Add this artist to this playlist.
+	///
+	/// Creates playlist if it did not exist.
+	///
+	/// Assumes `Append` index is not out-of-bounds.
 	pub fn playlist_add_artist(&mut self, playlist: Arc<str>, key: ArtistKey, append: Append, collection: &Arc<Collection>) {
 		let keys: Box<[SongKey]> = collection.all_songs(key);
 		let iter = keys.iter();
@@ -229,6 +245,10 @@ impl Playlists {
 	}
 
 	/// Add this album to this playlist.
+	///
+	/// Creates playlist if it did not exist.
+	///
+	/// Assumes `Append` index is not out-of-bounds.
 	pub fn playlist_add_album(&mut self, playlist: Arc<str>, key: AlbumKey, append: Append, collection: &Arc<Collection>) {
 		let keys = &collection.albums[key].songs;
 		let iter = keys.iter();
@@ -279,6 +299,10 @@ impl Playlists {
 	}
 
 	/// Add this song to this playlist.
+	///
+	/// Creates playlist if it did not exist.
+	///
+	/// Assumes `Append` index is not out-of-bounds.
 	pub fn playlist_add_song(&mut self, playlist: Arc<str>, key: SongKey, append: Append, collection: &Arc<Collection>) {
 		let (artist, album, song) = collection.walk(key);
 
