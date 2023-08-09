@@ -44,6 +44,22 @@ festivald = "http://127.0.0.1:18425"
 # TYPE    | integer or non-negative float
 timeout = 0
 
+# Route connections through a proxy
+#
+# Requests/responses will be routed via this proxy.
+#
+# Supported proxies are: `HTTP`, `SOCKS4`, and `SOCKS5`.
+#
+# The input must be:
+#   - Proxy protocol (`http://`, `socks4://`, `socks5://`)
+#   - Proxy IP
+#   - Proxy port
+#
+# DEFAULT | "" (disabled)
+# EXAMPLE | "socks5://127.0.0.1:9050", "http://127.0.0.1:9049"
+# TYPE    | string (URL)
+proxy = ""
+
 
 #----------------------------------------------------------#
 #                        JSON-RPC                          #
@@ -88,3 +104,20 @@ id = "festival-cli"
 # EXAMPLE | "my_username:my_password", "my_username:aoig2A%^$AWS^%", "/path/to/file"
 # TYPE    | string or PATH to file
 authorization = ""
+
+# Allow authorization even without TLS
+#
+# This will let you set the authorization
+# setting even if TLS is disabled.
+#
+# This means your `user:pass` will be sent in clear-text HTTP,
+# unless you are wrapping HTTP in something else, like SSH
+# port forwarding, or Tor.
+#
+# This setting is automatically enabled if connecting
+# to a `festivald` via an `.onion` service.
+#
+# DEFAULT | false
+# VALUES  | true, false
+# TYPE    | boolean
+confirm_no_tls_auth = false

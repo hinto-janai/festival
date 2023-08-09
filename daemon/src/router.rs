@@ -276,19 +276,6 @@ pub async fn init(
 		}
 	// Else If `HTTP`, start main `HTTP` loop (the exact same, but without TLS).
 	} else {
-		// Sanity-checks.
-		if CONFIG.certificate.is_some() {
-			crate::exit!("TLS certificate was provided, but TLS is disabled");
-		}
-
-		if CONFIG.key.is_some() {
-			crate::exit!("TLS key was provided, but TLS is disabled");
-		}
-
-		if AUTH.get().is_some() {
-			crate::exit!("authorization is enabled, but TLS is disabled");
-		}
-
 		listening!();
 
 		loop {

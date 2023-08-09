@@ -100,8 +100,34 @@ pub struct Cli {
 	authorization: Option<String>,
 
 	#[arg(short, long, verbatim_doc_comment)]
+	/// Route connections through a proxy
+	///
+	/// Requests/responses will be routed via this proxy.
+	///
+	/// Supported proxies are: `HTTP`, `SOCKS4`, and `SOCKS5`.
+	///
+	/// The input must be:
+	///   - Proxy protocol (`http://`, `socks4://`, `socks5://`)
+	///   - Proxy IP
+	///   - Proxy port
+	///
+	/// For example: `festival-cli --proxy socks5://127.0.0.1:9050`
+	proxy: Option<String>,
+
+	#[arg(short, long, verbatim_doc_comment)]
 	/// Print debug information about the config/request/response
 	debug: bool,
+
+	#[arg(long, verbatim_doc_comment)]
+	/// Allow `--authorization` even without TLS
+	///
+	/// This will let you set the authorization
+	/// setting even if TLS is disabled.
+	///
+	/// This means your `user:pass` will be sent in clear-text HTTP,
+	/// unless you are wrapping HTTP in something else, like SSH
+	/// port forwarding, or Tor.
+	confirm_no_tls_auth: bool,
 
 	#[arg(long, verbatim_doc_comment)]
 	/// Print debug information, but don't actually connect to `festivald`
@@ -120,7 +146,7 @@ pub struct Cli {
 	/// The PATHs deleted will be printed on success.
 	delete: bool,
 
-	#[arg(short, long, verbatim_doc_comment)]
+	#[arg(long, verbatim_doc_comment)]
 	/// Print the PATHs used by `festival-cli`
 	///
 	/// All data saved by `festival-cli` is saved in these directories.
@@ -234,11 +260,13 @@ impl Cli {
 
 		fn if_true_some(b: bool) -> Option<bool> {
 			if b {
-				Some(!b)
+				Some(b)
 			} else {
 				None
 			}
 		}
+
+		let mut confirm_no_tls_auth = if_true_some(self.confirm_no_tls_auth);
 
 		// Special-case conversions.
 		macro_rules! vec_to_some_hashset {
@@ -269,10 +297,12 @@ impl Cli {
 		}
 
 		if_some! {
-			self.festivald     => cb.festivald,
-			self.timeout       => cb.timeout,
-			self.id            => cb.id,
-			self.authorization => cb.authorization
+			self.festivald      => cb.festivald,
+			self.timeout        => cb.timeout,
+			self.id             => cb.id,
+			confirm_no_tls_auth => cb.confirm_no_tls_auth,
+			self.authorization  => cb.authorization,
+			self.proxy          => cb.proxy
 		}
 
 		if diff {

@@ -15,7 +15,7 @@ impl Auth {
 	}
 
 	pub fn as_str(&self) -> &str {
-		self.as_str()
+		self.0.as_str()
 	}
 }
 

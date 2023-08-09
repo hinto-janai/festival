@@ -274,6 +274,9 @@ media_controls = true
 # TLS must be enabled for this feature to work
 # or `festivald` will refuse to start.
 #
+# To set authorization EVEN IF TLS IS DISABLED,
+# See `--confirm-no-tls-auth`.
+#
 # This value must be:
 #   1. The "username"
 #   2. Followed by a single colon ":"
@@ -303,6 +306,20 @@ media_controls = true
 # EXAMPLE | "my_username:my_password", "my_username:aoig2A%^$AWS^%", "/path/to/file"
 # TYPE    | string or PATH to file
 authorization = ""
+
+# Allow authorization even without TLS
+#
+# This will let you set the authorization
+# setting even if TLS is disabled.
+#
+# This means your `user:pass` will be sent in clear-text HTTP,
+# unless you are wrapping HTTP in something else, like SSH
+# port forwarding, or Tor.
+#
+# DEFAULT | false
+# VALUES  | true, false
+# TYPE    | boolean
+confirm_no_tls_auth = false
 
 # Allow specified JSON-RPC calls without authorization,
 # while still requiring authorization for everything else.

@@ -83,7 +83,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="intro.html">Intro</a></li><li class="chapter-item expanded "><a href="disk.html"><strong aria-hidden="true">1.</strong> Disk</a></li><li class="chapter-item expanded "><a href="config.html" class="active"><strong aria-hidden="true">2.</strong> Config</a></li><li class="chapter-item expanded "><a href="command-line.html"><strong aria-hidden="true">3.</strong> Command Line</a></li><li class="chapter-item expanded "><a href="authorization.html"><strong aria-hidden="true">4.</strong> Authorization</a></li><li class="chapter-item expanded "><a href="json-rpc.html"><strong aria-hidden="true">5.</strong> JSON-RPC</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="intro.html">Intro</a></li><li class="chapter-item expanded "><a href="disk.html"><strong aria-hidden="true">1.</strong> Disk</a></li><li class="chapter-item expanded "><a href="config.html" class="active"><strong aria-hidden="true">2.</strong> Config</a></li><li class="chapter-item expanded "><a href="command-line.html"><strong aria-hidden="true">3.</strong> Command Line</a></li><li class="chapter-item expanded "><a href="authorization.html"><strong aria-hidden="true">4.</strong> Authorization</a></li><li class="chapter-item expanded "><a href="tor.html"><strong aria-hidden="true">5.</strong> Tor</a></li><li class="chapter-item expanded "><a href="json-rpc.html"><strong aria-hidden="true">6.</strong> JSON-RPC</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -225,6 +225,22 @@ festivald = &quot;http://127.0.0.1:18425&quot;
 # TYPE    | integer or non-negative float
 timeout = 0
 
+# Route connections through a proxy
+#
+# Requests/responses will be routed via this proxy.
+#
+# Supported proxies are: `HTTP`, `SOCKS4`, and `SOCKS5`.
+#
+# The input must be:
+#   - Proxy protocol (`http://`, `socks4://`, `socks5://`)
+#   - Proxy IP
+#   - Proxy port
+#
+# DEFAULT | &quot;&quot; (disabled)
+# EXAMPLE | &quot;socks5://127.0.0.1:9050&quot;, &quot;http://127.0.0.1:9049&quot;
+# TYPE    | string (URL)
+proxy = &quot;&quot;
+
 
 #----------------------------------------------------------#
 #                        JSON-RPC                          #
@@ -269,6 +285,23 @@ id = &quot;festival-cli&quot;
 # EXAMPLE | &quot;my_username:my_password&quot;, &quot;my_username:aoig2A%^$AWS^%&quot;, &quot;/path/to/file&quot;
 # TYPE    | string or PATH to file
 authorization = &quot;&quot;
+
+# Allow authorization even without TLS
+#
+# This will let you set the authorization
+# setting even if TLS is disabled.
+#
+# This means your `user:pass` will be sent in clear-text HTTP,
+# unless you are wrapping HTTP in something else, like SSH
+# port forwarding, or Tor.
+#
+# This setting is automatically enabled if connecting
+# to a `festivald` via an `.onion` service.
+#
+# DEFAULT | false
+# VALUES  | true, false
+# TYPE    | boolean
+confirm_no_tls_auth = false
 </code></pre>
 
                     </main>

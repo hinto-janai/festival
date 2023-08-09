@@ -35,6 +35,12 @@ fn default_id() -> json_rpc::Id<'static> {
 	json_rpc::Id::Str(Cow::Borrowed(DEFAULT_ID))
 }
 
+//---------------------------------------------------------------------------------------------------- Proxy
+#[derive(Clone,Debug,PartialEq)]
+pub struct Proxy {
+	pub string: String,
+	pub proxy: ureq::Proxy,
+}
 
 //---------------------------------------------------------------------------------------------------- ConfigBuilder
 /// The `struct` that maps value directly from the disk.
@@ -44,19 +50,23 @@ fn default_id() -> json_rpc::Id<'static> {
 disk::toml!(ConfigBuilder, disk::Dir::Config, FESTIVAL, SUB_DIR, "festival-cli");
 #[derive(Clone,Debug,PartialEq,Serialize,Deserialize)]
 pub struct ConfigBuilder {
-	pub festivald:          Option<String>,
-	pub timeout:            Option<f64>,
-	pub id:                 Option<String>,
-	pub authorization:	    Option<String>,
+	pub festivald:           Option<String>,
+	pub timeout:             Option<f64>,
+	pub proxy:               Option<String>,
+	pub id:                  Option<String>,
+	pub authorization:	     Option<String>,
+	pub confirm_no_tls_auth: Option<bool>,
 }
 
 impl Default for ConfigBuilder {
 	fn default() -> Self {
 		Self {
-			festivald:          Some(DEFAULT_URL.into()),
-			timeout:            Some(0.0),
-			id:                 Some(DEFAULT_ID.into()),
-			authorization:      None,
+			festivald:           Some(DEFAULT_URL.into()),
+			timeout:             Some(0.0),
+			proxy:               None,
+			id:                  Some(DEFAULT_ID.into()),
+			authorization:       None,
+			confirm_no_tls_auth: Some(false),
 		}
 	}
 }
@@ -66,8 +76,10 @@ impl ConfigBuilder {
 		let ConfigBuilder {
 			festivald,
 			timeout,
+			proxy,
 			id,
 			authorization,
+			confirm_no_tls_auth,
 		} = self;
 
 		macro_rules! get {
@@ -109,10 +121,17 @@ impl ConfigBuilder {
 			_ => None,
 		};
 
+		let proxy = proxy.map(|string| Proxy {
+			proxy: ureq::Proxy::new(&string).unwrap_or_else(|e| crate::exit!("[proxy] error: {e}")),
+			string,
+		});
+
 		let mut c = Config {
-			festivald:          get!(festivald, "festivald", default_url()),
-			timeout:            sum!(timeout,   "timeout",   None::<std::time::Duration>),
-			id:                 get!(id,        "id",        default_id()),
+			festivald:           get!(festivald, "festivald", default_url()),
+			timeout:             sum!(timeout,   "timeout",   None::<std::time::Duration>),
+			proxy:               sum!(proxy,     "proxy",     None::<Proxy>),
+			id:                  get!(id,        "id",        default_id()),
+			confirm_no_tls_auth: get!(confirm_no_tls_auth, "confirm_no_tls_auth", false),
 			authorization: None,
 		};
 
@@ -121,16 +140,28 @@ impl ConfigBuilder {
 			Ok(uri) => uri,
 			Err(_)  => crate::exit!("invalid [festivald] URL: {}", c.festivald),
 		};
-		let (festivald, protocol) = {
+		let (festivald, protocol, onion) = {
 			let protocol = match uri.scheme_str() {
 				Some("http")  => "http",
 				Some("https") => "https",
 				Some(x) => crate::exit!("invalid [festivald] URL protocol: {x}, must be HTTP or HTTPS"),
-				None => crate::exit!("missing [festivald] URL protocol"),
+				None => {
+					if debug { eprintln!("missing [festivald] URL protocol, defaulting to [http]") }
+					"http"
+				},
 			};
-			let ip = uri.host().unwrap_or_else(|| crate::exit!("missing [festivald] URL IP"));
-			let port = uri.port_u16().unwrap_or_else(|| crate::exit!("missing [festivald] URL Port"));
-			(format!("{protocol}://{ip}:{port}"), protocol)
+			let (ip, onion) = match uri.host() {
+				Some(ip) => (ip, ip.ends_with(".onion")),
+				None => {
+					if debug { eprintln!("missing [festivald] URL Port, defaulting to [localhost]"); }
+					("localhost", false)
+				},
+			};
+			let port = uri.port_u16().unwrap_or_else(|| {
+				if debug { eprintln!("missing [festivald] URL Port, defaulting to [{FESTIVAL_CLI_PORT}]"); }
+				FESTIVAL_CLI_PORT
+			});
+			(format!("{protocol}://{ip}:{port}"), protocol, onion)
 		};
 
 		// FIXME TODO: testing.
@@ -165,7 +196,12 @@ impl ConfigBuilder {
 			}
 		}
 
-		if c.authorization.is_some() && protocol != "https" {
+		if onion {
+			eprintln!("onion address detected, enabling [confirm_no_tls_auth]");
+			c.confirm_no_tls_auth = true;
+		}
+
+		if c.authorization.is_some() && !c.confirm_no_tls_auth && protocol != "https" {
 			crate::exit!("[authorization] is enabled, but HTTPS is not");
 		}
 
@@ -207,10 +243,12 @@ impl ConfigBuilder {
 		}
 
 		if_some_swap! {
-			cmd.festivald        => self.festivald,
-			cmd.timeout          => self.timeout,
-			cmd.id               => self.id,
-			cmd.authorization    => self.authorization
+			cmd.festivald           => self.festivald,
+			cmd.timeout             => self.timeout,
+			cmd.id                  => self.id,
+			cmd.confirm_no_tls_auth => self.confirm_no_tls_auth,
+			cmd.authorization       => self.authorization,
+			cmd.proxy               => self.proxy
 		}
 	}
 }
@@ -223,10 +261,23 @@ impl ConfigBuilder {
 //disk::toml!(Config, disk::Dir::Config, FESTIVAL, SUB_DIR, "festival-cli");
 #[derive(Debug,PartialEq,Serialize)]
 pub struct Config {
-	pub festivald:        String,
-	pub timeout:          Option<std::time::Duration>,
-	pub id:               json_rpc::Id<'static>,
-	pub authorization:	  Option<crate::auth::Auth>,
+	pub festivald:           String,
+	pub timeout:             Option<std::time::Duration>,
+	pub id:                  json_rpc::Id<'static>,
+	pub authorization:	     Option<crate::auth::Auth>,
+	#[serde(serialize_with = "serde_proxy")]
+	pub proxy:               Option<Proxy>,
+	pub confirm_no_tls_auth: bool,
+}
+
+fn serde_proxy<S>(p: &Option<Proxy>, s: S) -> Result<S::Ok, S::Error>
+where
+	S: Serializer,
+{
+	match p {
+		Some(p) => s.serialize_str(p.string.as_str()),
+		_ => s.serialize_none(),
+	}
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

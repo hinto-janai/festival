@@ -7,6 +7,7 @@
 * [Disk](disk.md)
 * [Media Controls](media-controls.md)
 * [API Stability](api-stability.md)
+* [Tor](tor.md)
 * [Authorization](authorization/authorization.md)
 	- [JSON-RPC](authorization/json-rpc.md)
 	- [REST](authorization/rest.md)

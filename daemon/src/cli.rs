@@ -93,7 +93,7 @@ pub struct Cli {
 	/// The PEM-formatted key file used for TLS
 	key: Option<PathBuf>,
 
-	#[arg(long, verbatim_doc_comment, value_name = "USER:PASS or FILE", requires = "certificate", requires = "key", requires = "tls")]
+	#[arg(long, verbatim_doc_comment, value_name = "USER:PASS or FILE")]
 	/// Enforce a `username` and `password` for connections to `festivald`
 	///
 	/// Only process connections to `festivald` that have a
@@ -105,6 +105,9 @@ pub struct Cli {
 	///
 	/// TLS must be enabled for this feature to work
 	/// or `festivald` will refuse to start.
+	///
+	/// To set authorization EVEN IF TLS IS DISABLED,
+	/// See `--confirm-no-tls-auth`.
 	///
 	/// This value must be:
 	///   1. The "username"
@@ -126,6 +129,17 @@ pub struct Cli {
 	/// my_user:my_pass
 	/// ```
 	authorization: Option<String>,
+
+	#[arg(long, verbatim_doc_comment, requires = "authorization")]
+	/// Allow `--authorization` even without TLS
+	///
+	/// This will let you set the authorization
+	/// setting even if TLS is disabled.
+	///
+	/// This means your `user:pass` will be sent in clear-text HTTP,
+	/// unless you are wrapping HTTP in something else, like SSH
+	/// port forwarding, or Tor.
+	confirm_no_tls_auth: bool,
 
 	#[arg(long, verbatim_doc_comment, value_name = "METHOD", requires = "authorization")]
 	/// Allow specified JSON-RPC calls without authorization
@@ -632,9 +646,10 @@ impl Cli {
 			}
 		}
 
-		let mut tls             = if_true_some(self.tls);
-		let mut direct_download = if_true_some(self.direct_download);
-		let mut no_auth_docs    = if_true_some(self.no_auth_docs);
+		let mut tls                 = if_true_some(self.tls);
+		let mut direct_download     = if_true_some(self.direct_download);
+		let mut confirm_no_tls_auth = if_true_some(self.confirm_no_tls_auth);
+		let mut no_auth_docs        = if_true_some(self.no_auth_docs);
 
 		fn if_true_negate_some(b: bool) -> Option<bool> {
 			if b {
@@ -709,6 +724,7 @@ impl Cli {
 			self.cache_time         => cb.cache_time,
 			media_controls          => cb.media_controls,
 			self.authorization      => cb.authorization,
+			confirm_no_tls_auth     => cb.confirm_no_tls_auth,
 			no_auth_rpc             => cb.no_auth_rpc,
 			no_auth_rest            => cb.no_auth_rest,
 			no_auth_docs            => cb.no_auth_docs

@@ -299,7 +299,7 @@ pub fn internal_error<'a>(id: Option<json_rpc::Id<'a>>) -> Response<Body> {
 		.unwrap()
 }
 
-// Unauthorized request (401)
+// Unauthorized JSON-RPC request, HTTP code is still OK.
 pub fn unauth_rpc<'a>(code: i32, msg: &'static str, id: Option<json_rpc::Id<'a>>) -> Response<Body> {
 	let e = json_rpc::error::ErrorObject {
 		code: json_rpc::error::ErrorCode::ServerError(code),
@@ -313,14 +313,16 @@ pub fn unauth_rpc<'a>(code: i32, msg: &'static str, id: Option<json_rpc::Id<'a>>
 		Err(e) => return internal_error(id),
 	};
 
-	// SAFETY: This `.unwraps()` are safe. The content is static.
-	Builder::new()
-		.status(StatusCode::UNAUTHORIZED)
-		.header(CONTENT_TYPE, TEXT_PLAIN_UTF_8.essence_str())
-		.header(CONTENT_LENGTH, msg.len())
+	match Builder::new()
+		.status(StatusCode::OK)
+		.header(CONTENT_TYPE, APPLICATION_JSON.essence_str())
+		.header(CONTENT_LENGTH, r.len())
 		.header(WWW_AUTHENTICATE, r#"Basic realm="Access to JSON-RPC API""#)
 		.body(Body::from(r))
-		.unwrap()
+	{
+		Ok(r)  => r,
+		Err(_) => internal_error(id),
+	}
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

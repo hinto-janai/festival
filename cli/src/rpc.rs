@@ -12,25 +12,28 @@ pub fn request(config: Config, debug: bool, dry_run: bool, rpc: Rpc) -> ! {
 		eprintln!("=================================================> Config\n{}\n", serde_json::to_string_pretty(&config).unwrap());
 	}
 
-	// Create request.
-	let mut req = ureq::post(&config.festivald)
-		.set("User-Agent", FESTIVAL_CLI_USER_AGENT);
+	// Create agent
+	let agent = ureq::AgentBuilder::new()
+		.user_agent(FESTIVAL_CLI_USER_AGENT);
+
+	// Add timeout.
+	let agent = match config.timeout {
+		None    => agent,
+		Some(t) => agent.timeout(t),
+	};
+
+	// Add proxy.
+	let agent = match config.proxy {
+		None    => agent,
+		Some(p) => agent.proxy(p.proxy),
+	};
+
+	let req = agent.build().post(&config.festivald);
 
 	// Add authorization.
 	let req = match config.authorization {
 		None    => req,
-		Some(mut a) => {
-			let req = req.set("Authorization", a.as_str());
-			a.zeroize();
-			req
-		},
-	};
-
-
-	// Add timeout.
-	let req = match config.timeout {
-		None    => req,
-		Some(t) => req.timeout(t),
+		Some(a) => req.set("authorization", a.as_str()),
 	};
 
 	macro_rules! req_resp {
