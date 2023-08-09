@@ -1,0 +1,391 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js ayu">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Command Line - festival-cli v0.0.0</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "ayu" : "ayu";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('ayu')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var html = document.querySelector('html');
+            var sidebar = null;
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="intro.html">Intro</a></li><li class="chapter-item expanded "><a href="disk.html"><strong aria-hidden="true">1.</strong> Disk</a></li><li class="chapter-item expanded "><a href="config.html"><strong aria-hidden="true">2.</strong> Config</a></li><li class="chapter-item expanded "><a href="command-line.html" class="active"><strong aria-hidden="true">3.</strong> Command Line</a></li><li class="chapter-item expanded "><a href="authorization.html"><strong aria-hidden="true">4.</strong> Authorization</a></li><li class="chapter-item expanded "><a href="json-rpc.html"><strong aria-hidden="true">5.</strong> JSON-RPC</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">festival-cli v0.0.0</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/hinto-janai/festival" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="command-line"><a class="header" href="#command-line">Command Line</a></h1>
+<p><code>festival-cli</code> takes in <code>--flags</code> for many purposes.</p>
+<p>Arguments passed to <code>festival-cli</code> will always take priority over the same <a href="../config.html">configuration</a> options read from disk.</p>
+<p>See <a href="json-rpc.html"><code>JSON-RPC</code></a> for method command-line syntax.</p>
+<pre><code class="language-plaintext">Usage: festival-cli [OPTIONS] [METHOD] [--PARAM &lt;ARG&gt;]
+
+Arguments passed to `festival-cli` will always take
+priority over configuration options read from disk.
+
+Commands:
+  collection_new            Create a new Collection (and replace the current one)
+  collection_brief          Retrieve some brief metadata about the current Collection
+  collection_full           Retrieve full metadata about the current Collection
+  collection_relation       Retrieve an array of every Song in the current Collection, with its relational data
+  collection_relation_full  Retrieve an array of every Song in the current Collection, with its relational data
+  collection_perf           View some performance stats about the latest Collection construction
+  collection_resource_size  View the size of the current Collection's underlying resources (audio files and art)
+  state_ip                  Retrieve an array of the IP addresses festivald has seen
+  state_config              Retrieve the active configuration of festivald
+  state_daemon              Retrieve state about the status of festivald itself
+  state_audio               Retrieve audio state
+  state_reset               Retrieve the current state of a Collection reset
+  key_artist                Input an Artist key, retrieve an Artist
+  key_album                 Input an Album key, retrieve an Album
+  key_song                  Input a Song key, retrieve an Song
+  map_artist                Input an Artist name, retrieve an Artist
+  map_album                 Input an Artist name and Album title, retrieve an Album
+  map_song                  Input an Artist name, Album title, and Song title, retrieve a Song
+  current_artist            Access the Artist of the currently set Song
+  current_album             Access the Album of the currently set Song
+  current_song              Access the currently set Song
+  rand_artist               Access a random Artist
+  rand_album                Access a random Album
+  rand_song                 Access a random Song
+  search                    Input a string, retrieve arrays of Artist's, Album's, and Song's, sorted by how similar their names/titles are to the input
+  search_artist             Input a string, retrieve an array of Artist's, sorted by how similar their names are to the input
+  search_album              Input a string, retrieve an array of Album's, sorted by how similar their titles are to the input
+  search_song               Input a string, retrieve an array of Song's, sorted by how similar their titles are to the input
+  toggle                    Toggle playback
+  play                      Start playback
+  pause                     Pause playback
+  next                      Skip to the next song in the queue
+  stop                      Clear the queue and stop playback
+  shuffle                   Shuffle the current queue, then start playing from the 1st Song in the queue
+  repeat_off                Turn off repeating
+  repeat_song               Turn on song repeating
+  repeat_queue              Turn on queue repeating
+  previous                  Set the current Song to the previous in the queue
+  volume                    Set the playback volume
+  clear                     Clear the queue
+  seek                      Seek forwards/backwards or to an absolute second in the current Song
+  skip                      Skip forwards a variable amount of Song's in the current queue
+  back                      Go backwards a variable amount of Song's in the current queue
+  queue_add_key_artist      Add an Artist to the queue with an Artist key
+  queue_add_key_album       Add an Album to the queue with an Album key
+  queue_add_key_song        Add an Song to the queue with an Song key
+  queue_add_map_artist      Add an Artist to the queue with an Artist name
+  queue_add_map_album       Add an Album to the queue with an Artist name and Album title
+  queue_add_map_song        Add a Song to the queue with an Artist name Album title, and Song title
+  queue_add_rand_artist     Add a random Artist to the queue
+  queue_add_rand_album      Add a random Album to the queue
+  queue_add_rand_song       Add a random Song to the queue
+  queue_add_playlist        Add a playlist to the queue
+  queue_set_index           Set the current Song to a queue index
+  queue_remove_range        Remove a range of queue indices
+  playlist_new              Create a new empty playlist
+  playlist_remove           Remove a playlist
+  playlist_clone            Clone a playlist into a new one
+  playlist_remove_entry     Remove a song in a playlist
+  playlist_add_key_artist   Add an artist to a playlist
+  playlist_add_key_album    Add an album to a playlist
+  playlist_add_key_song     Add a song to a playlist
+  playlist_add_map_artist   Add an artist to a playlist
+  playlist_add_map_album    Add an album to a playlist
+  playlist_add_map_song     Add a song to a playlist
+  playlist_names            Retrieve all playlist names
+  playlist_count            Retrieve how many playlists there are
+  playlist_single           Retrieve a single playlist
+  playlist_all              Retrieve all playlists
+  help                      Print this message or the help of the given subcommand(s)
+
+Options:
+      --festivald &lt;URL&gt;
+          URL of the `festivald` to connect to
+          
+          The protocol, IPv4 address, and port of the
+          `festivald` that `festival-cli` will connect
+          to by default.
+          
+          Protocol must be:
+            - http
+            - https
+          
+          IP address must be IPv4.
+          
+          Default is: `http://127.0.0.1:18425`
+
+      --timeout &lt;SECONDS&gt;
+          Set a timeout for a non-responding `festivald`
+          
+          If `festivald` does not respond with _at least_
+          a basic HTTP header within this time (seconds),
+          `festival-cli` will disconnect.
+          
+          0 means never disconnect.
+
+      --id &lt;ID&gt;
+          The `JSON-RPC 2.0` ID to send to `festivald`.
+          
+          See below for more info:
+          &lt;https://jsonrpc.org/specification&gt;
+
+      --authorization &lt;USER:PASS or FILE&gt;
+          Authorization sent to `festivald`
+          
+          This matches the `authorization` config
+          in `festivald`, see here for more info:
+          &lt;https://docs.festival.pm/daemon/authorization/authorization.html&gt;
+          
+          A `festivald` with HTTPS must be used or `festival-cli`
+          will refuse to start.
+          
+          An empty string disables this feature.
+          
+          Alternatively, you can input an absolute PATH to a file
+          `festival-cli` can access, containing the string, e.g:
+          ```
+          authorization = &quot;/path/to/user_and_pass.txt&quot;
+          ```
+          
+          In this case, `festival-cli` will read the file and attempt
+          to parse it with the same syntax, i.e, the file should contain:
+          ```
+          my_user:my_pass
+          ```
+
+      --dry-run
+          Print the options that would be used, but don't actually connect to `festivald`
+
+      --docs
+          Open `festival-cli` documentation locally in browser
+
+      --path
+          Print the PATHs used by `festival-cli`
+          
+          All data saved by `festival-cli` is saved in these directories.
+          For more information, see: &lt;https://docs.festival.pm/cli/disk.html&gt;
+
+      --reset-config
+          Reset the current `festival-cli.toml` config file to the default
+          
+          Exits with `0` if everything went ok, otherwise shows error.
+
+      --delete
+          Delete all `festival-cli` files that are on disk
+          
+          This deletes all `cli` Festival folders.
+          The PATHs deleted will be printed on success.
+
+      --methods
+          Print all the methods available
+
+  -v, --version
+          Print version
+
+  -h, --help
+          Print help (see a summary with '-h')
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="config.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next" href="authorization.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="config.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next" href="authorization.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
