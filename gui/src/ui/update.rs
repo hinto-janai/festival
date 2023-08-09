@@ -648,7 +648,7 @@ fn show_left(&mut self, ctx: &egui::Context, width: f32, height: f32) {
 
 		// Size definitions of the elements within the left panel.
 		let half_height = height / 2.0;
-		let tab_height  = half_height / 8.0;
+		let tab_height  = half_height / 9.0;
 		let tab_width   = width / 1.2;
 
 		// Main UI
@@ -769,6 +769,7 @@ fn show_central(&mut self, ctx: &egui::Context, width: f32, height: f32, side_pa
 			Tab::Artists   => self.show_tab_artists(ui, ctx, width, height),
 			Tab::Songs     => self.show_tab_songs(ui, ctx, width, height),
 			Tab::Queue     => self.show_tab_queue(ui, ctx, width, height),
+			Tab::Playlists => self.show_tab_playlists(ui, ctx, width, height),
 			Tab::Search    => self.show_tab_search(ui, ctx, width, height),
 			Tab::Settings  => self.show_tab_settings(ui, ctx, width, height),
 		}

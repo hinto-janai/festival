@@ -14,6 +14,7 @@ use crate::constants::{
 use crate::data::{
 	State,
 	Settings,
+	Settings1,
 	Settings0,
 	DebugInfo,
 };
@@ -169,6 +170,7 @@ impl crate::data::Gui {
 		// Read `Settings` from disk.
 		let settings = Settings::from_versions(&[
 			(SETTINGS_VERSION, Settings::from_file),
+			(1,                Settings1::disk_into),
 			(0,                Settings0::disk_into),
 		]);
 		let settings = match settings {

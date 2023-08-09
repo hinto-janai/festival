@@ -1,19 +1,11 @@
 mod artist;
-
 mod albums;
-
 mod exit;
-
 mod search;
-
 mod settings;
-
 mod songs;
-
 mod update;
-
 mod queue;
-
+mod playlists;
 mod view;
-
 mod macros;

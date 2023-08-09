@@ -8,6 +8,8 @@ mod settings;
 pub use settings::*;
 mod settings0;
 pub use settings0::*;
+mod settings1;
+pub use settings1::*;
 
 mod gui;
 pub use gui::*;
@@ -32,3 +34,6 @@ pub use window::*;
 
 mod exit;
 pub use exit::*;
+
+mod playlist;
+pub use playlist::*;

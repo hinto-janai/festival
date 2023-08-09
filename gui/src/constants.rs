@@ -151,7 +151,7 @@ pub const GUI: &str = "gui";
 pub const STATE_VERSION: u8 = 0;
 
 /// Current major version of `GUI`'s `Settings`
-pub const SETTINGS_VERSION: u8 = 1;
+pub const SETTINGS_VERSION: u8 = 2;
 
 //---------------------------------------------------------------------------------------------------- Resolution
 // 700.0 works on some `Album`'s in view tabs

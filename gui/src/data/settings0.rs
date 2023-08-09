@@ -39,17 +39,9 @@ use std::marker::PhantomData;
 use disk::Bincode2;
 
 //---------------------------------------------------------------------------------------------------- Settings
-//#[cfg(debug_assertions)]
-//disk::json!(Settings0, disk::Dir::Data, FESTIVAL, formatcp!("{GUI}/{STATE_SUB_DIR}"), "settings");
-//#[cfg(not(debug_assertions))]
 disk::bincode2!(Settings0, disk::Dir::Data, FESTIVAL, formatcp!("{GUI}/{STATE_SUB_DIR}"), "settings", HEADER, 0);
 #[derive(Clone,Debug,PartialEq,Serialize,Deserialize,Encode,Decode)]
-/// `GUI`'s settings.
-///
-/// Holds user-mutable `GUI` settings, e.g:
-/// - Accent color
-/// - Album art size
-/// - etc
+/// Version 0 of `GUI`'s settings.
 pub struct Settings0 {
 	/// Collection sorting of artist view.
 	pub artist_sort: ArtistSort,
@@ -197,6 +189,7 @@ impl Into<Settings> for Settings0 {
 
 			// New fields.
 			pixels_per_point: PIXELS_PER_POINT_DEFAULT,
+			playlist_sub_tab: Default::default(),
 		}
 	}
 }
