@@ -9,7 +9,7 @@ use crate::constants::FESTIVAL_CLI_USER_AGENT;
 // We are exiting the program anyway so they don't need to run.
 pub fn request(config: Config, debug: bool, dry_run: bool, rpc: Rpc) -> ! {
 	if debug {
-		eprintln!("=================================================> Config\n{}\n", serde_json::to_string_pretty(&config).unwrap());
+		eprintln!("\n=================================================> Config\n{}\n", serde_json::to_string_pretty(&config).unwrap());
 	}
 
 	// Create agent

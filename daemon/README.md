@@ -6,5 +6,5 @@
 For `festivald`'s documentation:
 
 - View it at [`https://docs.festival.pm/daemon`](https://docs.festival.pm/daemon), or
-- View it locally with `./festivald data --docs`, or
+- View it locally with `./festivald --docs`, or
 - Serve/view it yourself at `http://localhost:18425` after starting `festivald`

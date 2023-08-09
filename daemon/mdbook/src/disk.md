@@ -3,12 +3,12 @@
 
 You can list all the PATHs on your system with:
 ```bash
-./festivald data --path
+./festivald --path
 ```
 
 And delete them with with:
 ```bash
-./festivald data --delete
+./festivald --delete
 ```
 
 `festivald` saves everything into `daemon/` because other Festival frontends also use the same `festival` project directory, e.g:

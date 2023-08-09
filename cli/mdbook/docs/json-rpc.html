@@ -83,7 +83,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="intro.html">Intro</a></li><li class="chapter-item expanded "><a href="disk.html"><strong aria-hidden="true">1.</strong> Disk</a></li><li class="chapter-item expanded "><a href="config.html"><strong aria-hidden="true">2.</strong> Config</a></li><li class="chapter-item expanded "><a href="command-line.html"><strong aria-hidden="true">3.</strong> Command Line</a></li><li class="chapter-item expanded "><a href="authorization.html"><strong aria-hidden="true">4.</strong> Authorization</a></li><li class="chapter-item expanded "><a href="tor.html"><strong aria-hidden="true">5.</strong> Tor</a></li><li class="chapter-item expanded "><a href="json-rpc.html" class="active"><strong aria-hidden="true">6.</strong> JSON-RPC</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="intro.html">Intro</a></li><li class="chapter-item expanded "><a href="disk.html"><strong aria-hidden="true">1.</strong> Disk</a></li><li class="chapter-item expanded "><a href="config.html"><strong aria-hidden="true">2.</strong> Config</a></li><li class="chapter-item expanded "><a href="command-line.html"><strong aria-hidden="true">3.</strong> Command Line</a></li><li class="chapter-item expanded "><a href="authorization.html"><strong aria-hidden="true">4.</strong> Authorization</a></li><li class="chapter-item expanded "><a href="json-rpc.html" class="active"><strong aria-hidden="true">5.</strong> JSON-RPC</a></li><li class="chapter-item expanded "><a href="tor.html"><strong aria-hidden="true">6.</strong> Tor</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -184,6 +184,13 @@
 <p>Methods without parameters do not need (and don't have) any associated command flags:</p>
 <pre><code class="language-bash">festival-cli collection_full
 </code></pre>
+<h3 id="output"><a class="header" href="#output">Output</a></h3>
+<p><code>festival-cli</code> sends output to <code>STDOUT</code> and <code>STDERR</code>.</p>
+<p>The <em>only</em> output sent to <code>STDOUT</code> is the actual <code>JSON-RPC</code> method response, <em>everything else</em> is sent to <code>STDERR</code>.</p>
+<p>This means you can do:</p>
+<pre><code class="language-bash">festival-cli --debug collection_full | jq
+</code></pre>
+<p>and the debug information will be printed, but <code>jq</code> (or any other program/redirection) will only see the <code>JSON-RPC</code> response.</p>
 <h3 id="pre-flags"><a class="header" href="#pre-flags">Pre-flags</a></h3>
 <p>Before specifying a <code>method</code>, you can insert some command-lines that alter various things.</p>
 <p>For example, to connect to a different <code>festivald</code>:</p>
@@ -222,10 +229,13 @@
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="tor.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="authorization.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
+                            <a rel="next" href="tor.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -233,10 +243,13 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="tor.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="authorization.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
+                    <a rel="next" href="tor.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
             </nav>
 
         </div>

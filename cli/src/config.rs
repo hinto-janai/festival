@@ -82,14 +82,21 @@ impl ConfigBuilder {
 			confirm_no_tls_auth,
 		} = self;
 
+		// Print if `debug` bool is `true`.
+		macro_rules! debug_print {
+			($($tt:tt)*) => {
+				if debug { eprintln!("{}", ::std::format_args!($($tt)*)); }
+			}
+		}
+
+		debug_print!("=================================================> Config Info");
+
 		macro_rules! get {
 			($option:expr, $field:literal, $default:expr) => {
 				match $option {
 					Some(v) => v,
 					_ => {
-						if debug {
-							eprintln!("missing config [{}], using default [{:?}]", $field, $default);
-						}
+						debug_print!("missing config [{}], using default [{:?}]", $field, $default);
 						$default
 					},
 				}
@@ -101,9 +108,7 @@ impl ConfigBuilder {
 				match $option {
 					Some(v) => Some(v),
 					_ => {
-						if debug {
-							warn!("missing config [{}], using default: [{:?}]", $field, $default);
-						}
+						debug_print!("missing config [{}], using default [{:?}]", $field, $default);
 						$default
 					},
 				}
@@ -146,19 +151,19 @@ impl ConfigBuilder {
 				Some("https") => "https",
 				Some(x) => crate::exit!("invalid [festivald] URL protocol: {x}, must be HTTP or HTTPS"),
 				None => {
-					if debug { eprintln!("missing [festivald] URL protocol, defaulting to [http]") }
+					debug_print!("missing [festivald] URL protocol, defaulting to [http]");
 					"http"
 				},
 			};
 			let (ip, onion) = match uri.host() {
 				Some(ip) => (ip, ip.ends_with(".onion")),
 				None => {
-					if debug { eprintln!("missing [festivald] URL Port, defaulting to [localhost]"); }
+					debug_print!("missing [festivald] URL Port, defaulting to [localhost]");
 					("localhost", false)
 				},
 			};
 			let port = uri.port_u16().unwrap_or_else(|| {
-				if debug { eprintln!("missing [festivald] URL Port, defaulting to [{FESTIVAL_CLI_PORT}]"); }
+				debug_print!("missing [festivald] URL Port, defaulting to [{FESTIVAL_CLI_PORT}]");
 				FESTIVAL_CLI_PORT
 			});
 			(format!("{protocol}://{ip}:{port}"), protocol, onion)
@@ -172,6 +177,8 @@ impl ConfigBuilder {
 			// Check if it's a PATH or a String.
 			let path = PathBuf::from(&s);
 			let s = if path.is_absolute() && path.exists() {
+				debug_print!("reading file [{}] for [authorization]", path.display());
+
 				match std::fs::read_to_string(path) {
 					Ok(s) => {
 						match s.lines().next() {
@@ -182,6 +189,7 @@ impl ConfigBuilder {
 					Err(e) => crate::exit!("[authorization] PATH read error: {e}"),
 				}
 			} else {
+				debug_print!("assuming [authorization] is a string, not a PATH");
 				s
 			};
 
@@ -197,7 +205,7 @@ impl ConfigBuilder {
 		}
 
 		if onion {
-			eprintln!("onion address detected, enabling [confirm_no_tls_auth]");
+			debug_print!("onion address detected, enabling [confirm_no_tls_auth]");
 			c.confirm_no_tls_auth = true;
 		}
 

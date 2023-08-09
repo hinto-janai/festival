@@ -22,7 +22,7 @@ http://localhost:18425
 ```
 Or you can open the files locally with:
 ```bash
-./festivald data --docs
+./festivald --docs
 ```
 
 ## Create a `Collection` with the `JSON-RPC` method [`collection_new`](json-rpc/collection/collection_new.md)

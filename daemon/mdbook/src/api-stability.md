@@ -30,7 +30,7 @@ Note that an older `festivald` will still be able to communicate with a newer `f
 - Additional fields _may_ be added in the future
 
 ## Command Line
-- [`--flags`](command-line/command-line.md) and sub-command names are stable (`festivald data --path` will always be `festivald data --path`)
+- [`--flags`](command-line/command-line.md) and sub-command names are stable (`festivald --path` will always be `festivald --path`)
 - Their expected inputs/outputs are stable
 - Additional flags and/or sub-commands _may_ be added in the future
 

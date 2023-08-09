@@ -84,7 +84,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="intro.html">Intro</a></li><li class="chapter-item expanded "><a href="disk.html"><strong aria-hidden="true">1.</strong> Disk</a></li><li class="chapter-item expanded "><a href="config.html"><strong aria-hidden="true">2.</strong> Config</a></li><li class="chapter-item expanded "><a href="command-line.html"><strong aria-hidden="true">3.</strong> Command Line</a></li><li class="chapter-item expanded "><a href="authorization.html"><strong aria-hidden="true">4.</strong> Authorization</a></li><li class="chapter-item expanded "><a href="tor.html"><strong aria-hidden="true">5.</strong> Tor</a></li><li class="chapter-item expanded "><a href="json-rpc.html"><strong aria-hidden="true">6.</strong> JSON-RPC</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="intro.html">Intro</a></li><li class="chapter-item expanded "><a href="disk.html"><strong aria-hidden="true">1.</strong> Disk</a></li><li class="chapter-item expanded "><a href="config.html"><strong aria-hidden="true">2.</strong> Config</a></li><li class="chapter-item expanded "><a href="command-line.html"><strong aria-hidden="true">3.</strong> Command Line</a></li><li class="chapter-item expanded "><a href="authorization.html"><strong aria-hidden="true">4.</strong> Authorization</a></li><li class="chapter-item expanded "><a href="json-rpc.html"><strong aria-hidden="true">5.</strong> JSON-RPC</a></li><li class="chapter-item expanded "><a href="tor.html"><strong aria-hidden="true">6.</strong> Tor</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -451,7 +451,7 @@ Commands:
   help                      Print this message or the help of the given subcommand(s)
 
 Options:
-      --festivald &lt;URL&gt;
+  -f, --festivald &lt;URL&gt;
           URL of the `festivald` to connect to
           
           The protocol, IPv4 address, and port of the
@@ -466,7 +466,7 @@ Options:
           
           Default is: `http://127.0.0.1:18425`
 
-      --timeout &lt;SECONDS&gt;
+  -t, --timeout &lt;SECONDS&gt;
           Set a timeout for a non-responding `festivald`
           
           If `festivald` does not respond with _at least_
@@ -475,13 +475,13 @@ Options:
           
           0 means never disconnect.
 
-      --id &lt;ID&gt;
+  -i, --id &lt;ID&gt;
           The `JSON-RPC 2.0` ID to send to `festivald`.
           
           See below for more info:
           &lt;https://jsonrpc.org/specification&gt;
 
-      --authorization &lt;USER:PASS or FILE&gt;
+  -a, --authorization &lt;USER:PASS or FILE&gt;
           Authorization sent to `festivald`
           
           This matches the `authorization` config
@@ -505,22 +505,40 @@ Options:
           my_user:my_pass
           ```
 
+  -p, --proxy &lt;PROXY&gt;
+          Route connections through a proxy
+          
+          Requests/responses will be routed via this proxy.
+          
+          Supported proxies are: `HTTP`, `SOCKS4`, and `SOCKS5`.
+          
+          The input must be:
+            - Proxy protocol (`http://`, `socks4://`, `socks5://`)
+            - Proxy IP
+            - Proxy port
+          
+          For example: `festival-cli --proxy socks5://127.0.0.1:9050`
+
+  -d, --debug
+          Print debug information about the config/request/response
+
+      --confirm-no-tls-auth
+          Allow `--authorization` even without TLS
+          
+          This will let you set the authorization
+          setting even if TLS is disabled.
+          
+          This means your `user:pass` will be sent in clear-text HTTP,
+          unless you are wrapping HTTP in something else, like SSH
+          port forwarding, or Tor.
+
       --dry-run
-          Print the options that would be used, but don't actually connect to `festivald`
+          Print debug information, but don't actually connect to `festivald`
+          
+          This implies `--debug`.
 
       --docs
           Open `festival-cli` documentation locally in browser
-
-      --path
-          Print the PATHs used by `festival-cli`
-          
-          All data saved by `festival-cli` is saved in these directories.
-          For more information, see: &lt;https://docs.festival.pm/cli/disk.html&gt;
-
-      --reset-config
-          Reset the current `festival-cli.toml` config file to the default
-          
-          Exits with `0` if everything went ok, otherwise shows error.
 
       --delete
           Delete all `festival-cli` files that are on disk
@@ -528,7 +546,18 @@ Options:
           This deletes all `cli` Festival folders.
           The PATHs deleted will be printed on success.
 
-      --methods
+      --path
+          Print the PATHs used by `festival-cli`
+          
+          All data saved by `festival-cli` is saved in these directories.
+          For more information, see: &lt;https://docs.festival.pm/cli/disk.html&gt;
+
+  -r, --reset-config
+          Reset the current `festival-cli.toml` config file to the default
+          
+          Exits with `0` if everything went ok, otherwise shows error.
+
+  -m, --methods
           Print all the methods available
 
   -v, --version
@@ -561,32 +590,7 @@ Options:
 <p>In this case, <code>festival-cli</code> will read the file and attempt to parse it with the same syntax, i.e, the file should contain:</p>
 <pre><code class="language-plaintext">my_user:my_pass
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="tor"><a class="header" href="#tor">Tor</a></h1>
-<p>Like other web services, <code>festivald</code> can be set-up &amp; accessed via <a href="https://torproject.org">Tor</a>.</p>
-<p>See <a href="https://docs.festival.pm/daemon/tor.html">here</a> to see how to set <code>festivald</code> up with Tor.</p>
-<p><code>festival-cli</code> has support for <code>HTTP</code>, <code>SOCKS4</code>, and <code>SOCKS5</code> proxies, which will allow you to connect to <code>festivald</code>'s running as <a href="https://community.torproject.org/onion-services/">Tor Onion Services</a>.</p>
-<h3 id="json-rpc"><a class="header" href="#json-rpc">JSON-RPC</a></h3>
-<p>To connect to <code>festivald</code> over a Tor onion service, you can use <code>--proxy</code>:</p>
-<pre><code class="language-bash">ONION=&quot;http://2gzyxa5ihm7nsggfxnu52rck2vv4rvmdlkiu3zzui5du4xyclen53wid.onion&quot;
-
-festival-cli
-	--proxy socks5://127.0.0.1:9050 \ # The Tor SOCKS5 proxy.
-	$ONION \                          # The onion address mapped at `festivald`
-	state_daemon                      # Method
-
-</code></pre>
-<p>or wrap <code>festival-cli</code> with <a href="https://support.torproject.org/glossary/torsocks"><code>torsocks</code></a>:</p>
-<pre><code class="language-bash">torsocks festival-cli $ONION state_daemon
-</code></pre>
-<h3 id="authentication"><a class="header" href="#authentication">Authentication</a></h3>
-<p>Since <a href="https://community.torproject.org/onion-services/overview/">Onion Service's</a> are end-to-end encrypted, <code>HTTPS</code> is not required.</p>
-<p>Thus, <code>festivald</code> and <code>festival-cli</code> can freely pass <a href="config.html"><code>authentication</code></a> tokens around when used with <code>onion</code> addresses.</p>
-<p>For <code>festivald</code>, since it cannot know if an <code>onion</code> address is being mapped to it, you must pass:</p>
-<pre><code class="language-bash">festivald --confirm-no-tls-auth
-</code></pre>
-<p>to confirm that you allow authentication without TLS.</p>
-<p>For <code>festival-cli</code>, it will automatically detect if you're connecting to an onion address and will allow authentication.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="json-rpc-1"><a class="header" href="#json-rpc-1">JSON-RPC</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="json-rpc"><a class="header" href="#json-rpc">JSON-RPC</a></h1>
 <p><code>festival-cli</code>'s main purpose is to send and receive <a href="https://www.jsonrpc.org/specification"><code>JSON-RPC 2.0</code></a> messages from/to a <code>festivald</code>.</p>
 <p>The way to send a method to <code>festival</code> using <code>festival-cli</code> is always the same:</p>
 <pre><code class="language-bash">festival-cli &lt;METHOD&gt; [--PARAM &lt;VALUE&gt;]
@@ -601,6 +605,13 @@ festival-cli
 <p>Methods without parameters do not need (and don't have) any associated command flags:</p>
 <pre><code class="language-bash">festival-cli collection_full
 </code></pre>
+<h3 id="output"><a class="header" href="#output">Output</a></h3>
+<p><code>festival-cli</code> sends output to <code>STDOUT</code> and <code>STDERR</code>.</p>
+<p>The <em>only</em> output sent to <code>STDOUT</code> is the actual <code>JSON-RPC</code> method response, <em>everything else</em> is sent to <code>STDERR</code>.</p>
+<p>This means you can do:</p>
+<pre><code class="language-bash">festival-cli --debug collection_full | jq
+</code></pre>
+<p>and the debug information will be printed, but <code>jq</code> (or any other program/redirection) will only see the <code>JSON-RPC</code> response.</p>
 <h3 id="pre-flags"><a class="header" href="#pre-flags">Pre-flags</a></h3>
 <p>Before specifying a <code>method</code>, you can insert some command-lines that alter various things.</p>
 <p>For example, to connect to a different <code>festivald</code>:</p>
@@ -634,6 +645,31 @@ festival-cli
 <p>All method documentation will include what inputs it needs, what output to expect, and examples.</p>
 <h3 id="examples"><a class="header" href="#examples">Examples</a></h3>
 <p>Each method in <a href="https://docs.festival.pm/daemon/json-rpc/json-rpc.html"><code>festivald</code>'s documentation</a> has a <code>festival-cli</code> example.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="tor"><a class="header" href="#tor">Tor</a></h1>
+<p>Like other web services, <code>festivald</code> can be set-up &amp; accessed via <a href="https://torproject.org">Tor</a>.</p>
+<p>See <a href="https://docs.festival.pm/daemon/tor.html">here</a> to see how to set <code>festivald</code> up with Tor.</p>
+<p><code>festival-cli</code> has support for <code>HTTP</code>, <code>SOCKS4</code>, and <code>SOCKS5</code> proxies, which will allow you to connect to <code>festivald</code>'s running as <a href="https://community.torproject.org/onion-services/">Tor Onion Services</a>.</p>
+<h3 id="json-rpc-1"><a class="header" href="#json-rpc-1">JSON-RPC</a></h3>
+<p>To connect to <code>festivald</code> over a Tor onion service, you can use <code>--proxy</code>:</p>
+<pre><code class="language-bash">ONION=&quot;http://2gzyxa5ihm7nsggfxnu52rck2vv4rvmdlkiu3zzui5du4xyclen53wid.onion&quot;
+
+festival-cli
+	--proxy socks5://127.0.0.1:9050 \ # The Tor SOCKS5 proxy.
+	$ONION \                          # The onion address mapped at `festivald`
+	state_daemon                      # Method
+
+</code></pre>
+<p>or wrap <code>festival-cli</code> with <a href="https://support.torproject.org/glossary/torsocks"><code>torsocks</code></a>:</p>
+<pre><code class="language-bash">torsocks festival-cli $ONION state_daemon
+</code></pre>
+<h3 id="authentication"><a class="header" href="#authentication">Authentication</a></h3>
+<p>Since <a href="https://community.torproject.org/onion-services/overview/">Onion Service's</a> are end-to-end encrypted, <code>HTTPS</code> is not required.</p>
+<p>Thus, <code>festivald</code> and <code>festival-cli</code> can freely pass <a href="config.html"><code>authentication</code></a> tokens around when used with <code>onion</code> addresses.</p>
+<p>For <code>festivald</code>, since it cannot know if an <code>onion</code> address is being mapped to it, you must pass:</p>
+<pre><code class="language-bash">festivald --confirm-no-tls-auth
+</code></pre>
+<p>to confirm that you allow authentication without TLS.</p>
+<p>For <code>festival-cli</code>, it will automatically detect if you're connecting to an onion address and will allow authentication.</p>
 
                     </main>
 

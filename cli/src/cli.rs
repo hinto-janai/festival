@@ -187,9 +187,13 @@ impl Cli {
 			let p = crate::config::ConfigBuilder::sub_dir_parent_path().unwrap();
 			eprintln!("{}", p.display());
 
-			// `.local/share`
-			let p = crate::docs::Docs::sub_dir_parent_path().unwrap();
-			eprintln!("{}", p.display());
+			// macOS is in the same folder.
+			#[cfg(not(target_os = "macos"))]
+			{
+				// `.local/share`
+				let p = crate::docs::Docs::sub_dir_parent_path().unwrap();
+				eprintln!("{}", p.display());
+			}
 
 			exit(0);
 		}
@@ -224,12 +228,17 @@ impl Cli {
 
 		// Delete.
 		if self.delete {
+			#[cfg(not(target_os = "macos"))]
 			let paths = [
 				// Config.
 				crate::config::ConfigBuilder::sub_dir_parent_path().unwrap(),
 				// `.local/share`
 				crate::docs::Docs::sub_dir_parent_path().unwrap(),
 			];
+
+			// macOS is in the same folder.
+			#[cfg(target_os = "macos")]
+			let paths = [crate::config::ConfigBuilder::sub_dir_parent_path().unwrap()];
 
 			let mut code = 0;
 

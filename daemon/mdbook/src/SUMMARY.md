@@ -14,7 +14,6 @@
 	- [Documentation](authorization/documentation.md)
 * [Command Line](command-line/command-line.md)
 	- [Top-level flags](command-line/flags.md)
-	- [Sub-command: `data`](command-line/data.md)
 	- [Sub-command: `signal`](command-line/signal.md)
 * [Common Objects](common-objects/common-objects.md)
 	- [Collection](common-objects/collection.md)

@@ -3,7 +3,7 @@
 
 Arguments passed to `festivald` will always take priority over the same [configuration](../config.md) options read from disk.
 
-`festivald` also has a few sub-commands. For example, to send a signal to a `festivald` running on the same local machine, you can run:
+`festivald` also has a `signal` sub-command. For example, to send a signal to a `festivald` running on the same local machine, you can run:
 ```bash
 ./festivald signal --play
 ```
@@ -19,12 +19,12 @@ Here are some command-line usage examples.
 
 #### Print the PATH used by `festivald`
 ```bash
-./festivald data --path
+./festivald --path
 ```
 
 #### Delete all data created/used by `festivald`
 ```bash
-./festivald data --delete
+./festivald --delete
 ```
 
 #### Set log level, disable everything except `JSON-RPC`

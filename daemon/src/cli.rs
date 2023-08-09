@@ -335,36 +335,7 @@ pub struct Cli {
 	/// Set filter level for console logs
 	log_level: Option<log::LevelFilter>,
 
-	#[arg(short, long)]
-	/// Print version
-	version: bool,
-}
-
-//---------------------------------------------------------------------------------------------------- Subcommands
-#[derive(Subcommand)]
-pub enum Command {
-	#[command(verbatim_doc_comment)]
-	/// Various utility flags related to `festivald` data
-	Data(Data),
-
-	#[command(verbatim_doc_comment)]
-	/// Send a signal to a `festivald` running on the same machine
-	///
-	/// This will not start a new `festivald`, but send a
-	/// signal to an already running one. This only works
-	/// if there's a `festivald` already running on the
-	/// same machine.
-	///
-	/// The flag `--disable-media-controls` disables this feature.
-	Signal(Signal),
-}
-
-
-//---------------------------------------------------------------------------------------------------- Subcommand - Data
-#[derive(Args)]
-#[command(arg_required_else_help(true))]
-#[command(override_usage = formatcp!("{BIN} data OPTION [ARG]"))]
-pub struct Data {
+	//--------------------------------------------------------------- Data related, will return early
 	#[arg(long, verbatim_doc_comment)]
 	/// Open documentation locally in browser
 	///
@@ -386,17 +357,30 @@ pub struct Data {
 	reset_config: bool,
 
 	#[arg(long, verbatim_doc_comment)]
-	/// Print JSON metadata about the current `Collection` on disk
-	///
-	/// This output is the exact same as the `state_collection_full` JSON-RPC call.
-	state_collection_full: bool,
-
-	#[arg(long, verbatim_doc_comment)]
 	/// Delete all `festivald` files that are on disk
 	///
 	/// This deletes all `daemon` Festival folders.
 	/// The PATHs deleted will be printed on success.
 	delete: bool,
+
+	#[arg(short, long)]
+	/// Print version
+	version: bool,
+}
+
+//---------------------------------------------------------------------------------------------------- Subcommands
+#[derive(Subcommand)]
+pub enum Command {
+	#[command(verbatim_doc_comment)]
+	/// Send a signal to a `festivald` running on the same machine
+	///
+	/// This will not start a new `festivald`, but send a
+	/// signal to an already running one. This only works
+	/// if there's a `festivald` already running on the
+	/// same machine.
+	///
+	/// The flag `--disable-media-controls` disables this feature.
+	Signal(Signal),
 }
 
 //---------------------------------------------------------------------------------------------------- Subcommand - Signal
@@ -499,42 +483,14 @@ impl Cli {
 	}
 
 	fn handle_args(mut self) -> (bool, bool, Option<log::LevelFilter>, Option<ConfigBuilder>) {
-		// Version.
+		//-------------------------------------------------- Version.
 		if self.version {
 			println!("{FESTIVALD_SHUKUSAI_COMMIT}\n{COPYRIGHT}");
 			exit(0);
 		}
 
-		self.handle_command();
-		let config = self.handle_config();
-
-		// Return.
-		(self.disable_watch, self.disable_media_controls, self.log_level, config)
-	}
-
-	fn handle_command(&self) {
-		if let Some(c) = &self.command {
-			match c {
-				Command::Data(x)   => self.handle_data(x),
-				Command::Signal(x) => self.handle_signal(x),
-			}
-			exit(0);
-		} else {
-			return;
-		}
-	}
-
-	fn handle_data(&self, u: &Data) {
-		// `state_collection_full`
-		if u.state_collection_full {
-			match shukusai::collection::rpc::state_collection_full() {
-				Ok(md) => { println!("{md}"); exit(0); },
-				Err(e) => { eprintln!("festivald error: {e}"); exit(1); },
-			}
-		}
-
-		// Path.
-		if u.path {
+		//-------------------------------------------------- Path.
+		if self.path {
 			// Cache.
 			let p = crate::zip::CollectionZip::sub_dir_parent_path().unwrap();
 			println!("{}", p.display());
@@ -543,23 +499,26 @@ impl Cli {
 			let p = crate::config::Config::sub_dir_parent_path().unwrap();
 			println!("{}", p.display());
 
-			// `.local/share`
-			let p = shukusai::collection::Collection::sub_dir_parent_path().unwrap();
-			println!("{}", p.display());
+			#[cfg(not(target_os = "macos"))]
+			{
+				// `.local/share`
+				let p = shukusai::collection::Collection::sub_dir_parent_path().unwrap();
+				println!("{}", p.display());
+			}
 
 			exit(0);
 		}
 
-		// `reset_config`
-		if u.reset_config {
+		//-------------------------------------------------- `reset_config`
+		if self.reset_config {
 			let p = crate::config::Config::absolute_path().unwrap();
 			crate::config::Config::mkdir().unwrap();
 			std::fs::write(&p, crate::constants::FESTIVALD_CONFIG).unwrap();
 			exit(0);
 		}
 
-		// Docs.
-		if u.docs {
+		//-------------------------------------------------- Docs.
+		if self.docs {
 			// Create documentation.
 			if let Err(e) = crate::docs::Docs::create_open() {
 				eprintln!("festivald: Could not create docs: {e}");
@@ -569,8 +528,9 @@ impl Cli {
 			exit(0);
 		}
 
-		// Delete.
-		if u.delete {
+		//-------------------------------------------------- Delete.
+		if self.delete {
+			#[cfg(not(target_os = "macos"))]
 			let paths = [
 				// Cache.
 				crate::zip::CollectionZip::sub_dir_parent_path().unwrap(),
@@ -578,6 +538,14 @@ impl Cli {
 				crate::config::Config::sub_dir_parent_path().unwrap(),
 				// `.local/share`
 				shukusai::collection::Collection::sub_dir_parent_path().unwrap(),
+			];
+
+			#[cfg(target_os = "macos")]
+			let paths = [
+				// Cache.
+				crate::zip::CollectionZip::sub_dir_parent_path().unwrap(),
+				// Config.
+				crate::config::Config::sub_dir_parent_path().unwrap(),
 			];
 
 			let mut code = 0;
@@ -597,6 +565,25 @@ impl Cli {
 			exit(code);
 		}
 
+		//-------------------------------------------------- Sub-commands
+		self.handle_command();
+
+		//-------------------------------------------------- Config
+		let config = self.handle_config();
+
+		//-------------------------------------------------- Return.
+		(self.disable_watch, self.disable_media_controls, self.log_level, config)
+	}
+
+	fn handle_command(&self) {
+		if let Some(c) = &self.command {
+			match c {
+				Command::Signal(x) => self.handle_signal(x),
+			}
+			exit(0);
+		} else {
+			return;
+		}
 	}
 
 	pub fn handle_signal(&self, s: &Signal) -> ! {

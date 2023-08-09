@@ -6,4 +6,4 @@
 For `festival-cli`'s documentation:
 
 - View it at [`https://docs.festival.pm/cli`](https://docs.festival.pm/cli), or
-- View it locally with `./festival-cli data --docs`
+- View it locally with `./festival-cli --docs`

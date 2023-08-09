@@ -36,7 +36,7 @@ wget -qO- http://localhost:18425 --post-data '{"jsonrpc":"2.0","id":0,"method":"
 
 The equivalent `festival-cli` command:
 ```bash
-festival-cli rpc toggle
+festival-cli toggle
 ```
 
 For a quick start on the `JSON-RPC` API, see [here](json-rpc/quick-start.md).
@@ -58,11 +58,6 @@ The equivalent `wget` command:
 wget --content-disposition "http://localhost:18425/map/Artist Name/Artist Title/Song Title"
 ```
 
-The equivalent `festival-cli` command:
-```bash
-festival-cli rest map --artist "Artist Name" --album "Album Title" --song "Song Title"
-```
-
 For a quick start on the `REST` API, see [here](rest/quick-start.md).
 
 To disable the `REST` API, set the [config](config.md) option `rest` to `false` OR pass `--disable-rest` via [command line](command-line/command-line.md) on start up.
@@ -76,7 +71,7 @@ http://localhost:18425
 ```
 Or you can open the files locally with:
 ```bash
-festivald data --docs
+festivald --docs
 ```
 
 To disable serving documentation, set the [config](config.md) option `docs` to `false` OR pass `--disable-docs` via [command line](command-line/command-line.md) on start up.

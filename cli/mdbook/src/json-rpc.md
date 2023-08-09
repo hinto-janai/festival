@@ -21,6 +21,17 @@ Methods without parameters do not need (and don't have) any associated command f
 festival-cli collection_full
 ```
 
+### Output
+`festival-cli` sends output to `STDOUT` and `STDERR`.
+
+The _only_ output sent to `STDOUT` is the actual `JSON-RPC` method response, _everything else_ is sent to `STDERR`.
+
+This means you can do:
+```bash
+festival-cli --debug collection_full | jq
+```
+and the debug information will be printed, but `jq` (or any other program/redirection) will only see the `JSON-RPC` response.
+
 ### Pre-flags
 Before specifying a `method`, you can insert some command-lines that alter various things.
 
