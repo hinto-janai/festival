@@ -1,5 +1,5 @@
 # JSON-RPC
-`festival-cli`'s main purpose is to send and receieve [`JSON-RPC 2.0`](https://www.jsonrpc.org/specification) messages from/to a `festivald`.
+`festival-cli`'s main purpose is to send and receive [`JSON-RPC 2.0`](https://www.jsonrpc.org/specification) messages from/to a `festivald`.
 
 The way to send a method to `festival` using `festival-cli` is always the same:
 ```bash

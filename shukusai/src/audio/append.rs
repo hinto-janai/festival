@@ -60,6 +60,6 @@ pub enum Append2 {
 	/// This is because `clap` gets weird with `enum`'s with values.
 	///
 	/// `festival-cli ... --append index ...` is allowed but
-	/// it does not let us specifiy the value.
+	/// it does not let us specify the value.
 	Index,
 }

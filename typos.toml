@@ -9,6 +9,7 @@ extend-exclude = [
 	# Doc output.
 	"daemon/mdbook/docs/",
 	"gui/mdbook/docs/",
+	"cli/mdbook/docs/",
 
 	"daemon/src/cert.rs",
 	"external/",

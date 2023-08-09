@@ -1,5 +1,5 @@
 # playlist_count
-Retreive the count of all [`Playlist`](playlist.md)'s.
+Retrieve the count of all [`Playlist`](playlist.md)'s.
 
 #### Inputs
 `None`

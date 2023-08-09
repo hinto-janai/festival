@@ -1,5 +1,5 @@
 # playlist_single
-Retreive a single [`Playlist`](playlist.md).
+Retrieve a single [`Playlist`](playlist.md).
 
 This method errors if the specified playlist does not exist.
 
