@@ -363,6 +363,10 @@ pub struct Cli {
 	/// The PATHs deleted will be printed on success.
 	delete: bool,
 
+	#[arg(long, verbatim_doc_comment)]
+	/// Print all the JSON-RPC methods available
+	methods: bool,
+
 	#[arg(short, long)]
 	/// Print version
 	version: bool,
@@ -563,6 +567,12 @@ impl Cli {
 			}
 
 			exit(code);
+		}
+
+		//-------------------------------------------------- Methods
+		if self.methods {
+			rpc::Method::println_all();
+			exit(0);
 		}
 
 		//-------------------------------------------------- Sub-commands

@@ -195,6 +195,16 @@ pub enum Method {
 	PlaylistAll,
 }
 
+impl Method {
+	/// Print each method, seperated by a newline.
+	pub fn println_all() {
+		use strum::IntoEnumIterator;
+		for i in Self::iter() {
+			println!("{i}");
+		}
+	}
+}
+
 #[derive(clap::Subcommand,Clone,Debug,Serialize,Deserialize)]
 #[derive(AsRefStr,Display,EnumCount,EnumVariantNames,IntoStaticStr)]
 #[strum(serialize_all = "snake_case")]

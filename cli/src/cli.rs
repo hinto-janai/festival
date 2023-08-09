@@ -160,7 +160,7 @@ pub struct Cli {
 	reset_config: bool,
 
 	#[arg(short, long, verbatim_doc_comment)]
-	/// Print all the methods available
+	/// Print all the JSON-RPC methods available
 	methods: bool,
 
 	#[arg(short, long)]
@@ -200,11 +200,7 @@ impl Cli {
 
 		// Methods
 		if self.methods {
-			use strum::IntoEnumIterator;
-			for method in rpc::Method::iter() {
-				let method: &'static str = method.into();
-				eprintln!("{method}");
-			}
+			rpc::Method::println_all();
 			exit(0);
 		}
 
