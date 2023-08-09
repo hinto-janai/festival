@@ -415,7 +415,7 @@ async fn impl_album_inner(
 	None
 }
 
-async fn impl_artist(key: ArtistKey, artist: &Artist, collection: &Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+async fn impl_artist(artist: &Artist, collection: &Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
 	trace!("Task - impl_artist(): {}", artist.name);
 
 	// Zip name.
@@ -470,7 +470,7 @@ async fn impl_artist(key: ArtistKey, artist: &Artist, collection: &Arc<Collectio
 	Ok(resp::rest_zip(body, &zip_name, len))
 }
 
-async fn impl_album(key: AlbumKey, album: &Album, collection: &Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+async fn impl_album(album: &Album, collection: &Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
 	trace!("Task - impl_album(): {}", album.title);
 
 	let artist = &collection.artists[album.artist];
@@ -527,27 +527,20 @@ async fn impl_album(key: AlbumKey, album: &Album, collection: &Arc<Collection>) 
 	Ok(resp::rest_zip(body, &zip_name, len))
 }
 
-async fn impl_song(key: SongKey, song: &Song, collection: &Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+async fn impl_song(song: &Song, collection: &Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
 	trace!("Task - impl_song(): {}", song.title);
 
 	// Open the file.
-	let Ok(mut file) = tokio::fs::File::open(&song.path).await else {
+	let Ok(file) = tokio::fs::File::open(&song.path).await else {
 		return Ok(resp::not_found(ERR_SONG));
 	};
 
-	let cap = match file.metadata().await {
-		Ok(m) => m.len() as usize,
-		_ => 1_000_000 // 1 megabyte,
-	};
-
-	// Copy the bytes into owned buffer.
-	let mut dst: Vec<u8> = Vec::with_capacity(cap);
-	if file.read_to_end(&mut dst).await.is_err() {
-		return Ok(resp::server_err(ERR_BYTE));
-	};
+	let len    = file_len(&file).await;
+	let stream = FramedRead::new(file, BytesCodec::new());
+	let body   = Body::wrap_stream(stream);
 
 	// Format the file name.
-	let (artist, album, _) = collection.walk(key);
+	let (artist, album, _) = collection.walk(song.key);
 	let name = format!(
 		"{}{}{}{}{}.{}",
 		artist.name,
@@ -558,25 +551,23 @@ async fn impl_song(key: SongKey, song: &Song, collection: &Arc<Collection>) -> R
 		song.extension,
 	);
 
-	Ok(resp::rest_ok(dst, &name, &song.mime))
+	Ok(resp::rest_stream(body, &name, &song.mime, len))
 }
 
-async fn impl_art(key: AlbumKey, album: &Album, collection: &Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+async fn impl_art(album: &Album, collection: &Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
 	// If art exists...
 	let Art::Known { path, mime, len, extension } = &album.art  else {
 		return Ok(resp::not_found("No album art available"));
 	};
 
 	// Open the file.
-	let Ok(mut file) = tokio::fs::File::open(&path).await else {
+	let Ok(file) = tokio::fs::File::open(&path).await else {
 		return Ok(resp::not_found("Album art not found on filesystem"));
 	};
 
-	// Copy the bytes into owned buffer.
-	let mut dst: Vec<u8> = Vec::with_capacity(*len);
-	if file.read_to_end(&mut dst).await.is_err() {
-		return Ok(resp::server_err("Failed to copy album art bytes"));
-	};
+	let len    = file_len(&file).await;
+	let stream = FramedRead::new(file, BytesCodec::new());
+	let body   = Body::wrap_stream(stream);
 
 	// Format the file name.
 	let artist = &collection.artists[album.artist];
@@ -588,7 +579,7 @@ async fn impl_art(key: AlbumKey, album: &Album, collection: &Arc<Collection>) ->
 		extension,
 	);
 
-	Ok(resp::rest_ok(dst, &name, mime))
+	Ok(resp::rest_stream(body, &name, mime, len))
 }
 
 //---------------------------------------------------------------------------------------------------- `/key`
@@ -596,7 +587,7 @@ pub async fn key_artist(key: usize, collection: Arc<Collection>) -> Result<Respo
 	let key = ArtistKey::from(key);
 
 	if let Some(artist) = collection.artists.get(key) {
-		impl_artist(key, artist, &collection).await
+		impl_artist(artist, &collection).await
 	} else {
 		Ok(resp::not_found("Artist key is invalid"))
 	}
@@ -606,7 +597,7 @@ pub async fn key_album(key: usize, collection: Arc<Collection>) -> Result<Respon
 	let key = AlbumKey::from(key);
 
 	if let Some(album) = collection.albums.get(key) {
-		impl_album(key, album, &collection).await
+		impl_album(album, &collection).await
 	} else {
 		Ok(resp::not_found("Album key is invalid"))
 	}
@@ -616,7 +607,7 @@ pub async fn key_song(key: usize, collection: Arc<Collection>) -> Result<Respons
 	let key = SongKey::from(key);
 
 	if let Some(song) = collection.songs.get(key) {
-		impl_song(key, song, &collection).await
+		impl_song(song, &collection).await
 	} else {
 		Ok(resp::not_found("Song key is invalid"))
 	}
@@ -627,7 +618,7 @@ pub async fn key_art(key: usize, collection: Arc<Collection>) -> Result<Response
 
 	// If key exists...
 	if let Some(album) = collection.albums.get(key) {
-		impl_art(key, album, &collection).await
+		impl_art(album, &collection).await
 	} else {
 		Ok(resp::not_found("Album key is invalid"))
 	}
@@ -636,7 +627,7 @@ pub async fn key_art(key: usize, collection: Arc<Collection>) -> Result<Response
 //---------------------------------------------------------------------------------------------------- `/map`
 pub async fn map_artist(artist: &str, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
 	if let Some((artist, key)) = collection.artist(artist) {
-		impl_artist(key, artist, &collection).await
+		impl_artist(artist, &collection).await
 	} else {
 		Ok(resp::not_found("Artist not found"))
 	}
@@ -644,15 +635,15 @@ pub async fn map_artist(artist: &str, collection: Arc<Collection>) -> Result<Res
 
 pub async fn map_album(artist: &str, album: &str, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
 	if let Some((album, key)) = collection.album(artist, album) {
-		impl_album(key, album, &collection).await
+		impl_album(album, &collection).await
 	} else {
 		Ok(resp::not_found("Artist/Album not found"))
 	}
 }
 
 pub async fn map_song(artist: &str, album: &str, song: &str, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
-	if let Some((song, key)) = collection.song(artist, album, song) {
-		impl_song(key, song, &collection).await
+	if let Some((song, _)) = collection.song(artist, album, song) {
+		impl_song(song, &collection).await
 	} else {
 		Ok(resp::not_found("Artist/Album/Song not found"))
 	}
@@ -677,7 +668,7 @@ pub async fn current_artist(collection: Arc<Collection>) -> Result<Response<Body
 
 	if let Some(key) = song {
 		let (artist, key) = collection.artist_from_song(key);
-		impl_artist(key, artist, &collection).await
+		impl_artist(artist, &collection).await
 	} else {
 		Ok(resp::not_found("No current song"))
 	}
@@ -688,7 +679,7 @@ pub async fn current_album(collection: Arc<Collection>) -> Result<Response<Body>
 
 	if let Some(key) = song {
 		let (album, key) = collection.album_from_song(key);
-		impl_album(key, album, &collection).await
+		impl_album(album, &collection).await
 	} else {
 		Ok(resp::not_found("No current song"))
 	}
@@ -699,7 +690,7 @@ pub async fn current_song(collection: Arc<Collection>) -> Result<Response<Body>,
 
 	if let Some(key) = song {
 		let song = &collection.songs[key];
-		impl_song(key, song, &collection).await
+		impl_song(song, &collection).await
 	} else {
 		Ok(resp::not_found("No current song"))
 	}
@@ -710,7 +701,7 @@ pub async fn current_art(collection: Arc<Collection>) -> Result<Response<Body>, 
 
 	if let Some(key) = song {
 		let (album, key) = collection.album_from_song(key);
-		impl_art(key, album, &collection).await
+		impl_art(album, &collection).await
 	} else {
 		Ok(resp::not_found("No current song"))
 	}
@@ -722,7 +713,7 @@ pub async fn rand_artist(collection: Arc<Collection>) -> Result<Response<Body>, 
 		return Ok(resp::not_found("No artists"));
 	};
 
-	impl_artist(key, &collection.artists[key], &collection).await
+	impl_artist(&collection.artists[key], &collection).await
 }
 
 pub async fn rand_album(collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
@@ -730,7 +721,7 @@ pub async fn rand_album(collection: Arc<Collection>) -> Result<Response<Body>, a
 		return Ok(resp::not_found("No albums"));
 	};
 
-	impl_album(key, &collection.albums[key], &collection).await
+	impl_album(&collection.albums[key], &collection).await
 }
 
 pub async fn rand_song(collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
@@ -738,7 +729,7 @@ pub async fn rand_song(collection: Arc<Collection>) -> Result<Response<Body>, an
 		return Ok(resp::not_found("No songs"));
 	};
 
-	impl_song(key, &collection.songs[key], &collection).await
+	impl_song(&collection.songs[key], &collection).await
 }
 
 pub async fn rand_art(collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
@@ -746,7 +737,7 @@ pub async fn rand_art(collection: Arc<Collection>) -> Result<Response<Body>, any
 		return Ok(resp::not_found("No art"));
 	};
 
-	impl_art(key, &collection.albums[key], &collection).await
+	impl_art(&collection.albums[key], &collection).await
 }
 
 //---------------------------------------------------------------------------------------------------- `/art`
@@ -838,7 +829,7 @@ pub async fn art_artist(artist: &str, collection: Arc<Collection>) -> Result<Res
 pub async fn art_album(artist: &str, album: &str, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
 	// If album exists...
 	if let Some((album, key)) = collection.album(artist, album) {
-		impl_art(key, album, &collection).await
+		impl_art(album, &collection).await
 	} else {
 		Ok(resp::not_found("Album was not found"))
 	}
