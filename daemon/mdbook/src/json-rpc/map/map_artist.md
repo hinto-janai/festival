@@ -15,6 +15,9 @@ Input an `Artist` name, retrieve an [`Artist`](../../common-objects/artist.md).
 
 #### Example Request
 ```bash
+festival-cli map_artist --artist "Rex Orange County"
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"map_artist","params":{"artist":"Rex Orange County"}}'
 ```
 

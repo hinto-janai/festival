@@ -5,12 +5,12 @@ Exactly where this file is depends on the OS, more details in the [`Disk`](disk.
 
 [`Command Line`](command-line/command-line.md) flags will override any overlapping config values.
 
-## `festivald.toml`
-This is the default configuration file `festivald` creates and uses.
+## `festival-cli.toml`
+This is the default configuration file `festival-cli` creates and uses.
 
 If `festival-cli` is started with no `--flags`, e.g:
 ```bash
-./festival-cli <method>
+festival-cli <METHOD>
 ```
 Then it will be equivalent to this config file.
 

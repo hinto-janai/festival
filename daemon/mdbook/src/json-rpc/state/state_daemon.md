@@ -23,6 +23,9 @@ Retrieve state about the status of `festivald` itself.
 
 #### Example Request
 ```bash
+festival-cli search_daemon
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"state_daemon"}'
 ```
 

@@ -12,6 +12,9 @@ Skip forwards a variable amount of `Song`'s in the current queue.
 
 #### Example Request
 ```bash
+festival-cli skip --skip 3
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"skip","param":{"skip":3}}'
 ```
 

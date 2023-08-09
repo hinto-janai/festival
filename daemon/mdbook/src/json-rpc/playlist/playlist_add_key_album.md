@@ -20,14 +20,20 @@ This method errors if there was a `index` error.
 | existed | boolean | If `playlist` already existed or not
 
 #### Example Request 1
+Add to back of the playlist "Hello".
 ```bash
-# Add to back of the playlist "Hello".
+festival-cli playlist_add_key_album --playlist Hello --key 0 --append back
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"playlist_add_key_album","params":{"playlist":"Hello","key":0,"append":"back"}}'
 ```
 
 #### Example Request 2
+Append at playlist index 4.
 ```bash
-# Append at playlist index 4.
+festival-cli playlist_add_key_album --playlist Hello --key 0 --append index --index 4
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"playlist_add_key_album","params":{"playlist":"Hello","key":0,"append":"index","index":4}}'
 ```
 

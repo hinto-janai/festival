@@ -13,6 +13,9 @@ Access the [`Artist`](../../common-objects/artist.md) of the currently set `Song
 
 #### Example Request
 ```bash
+festival-cli current_artist
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"current_artist"}'
 ```
 

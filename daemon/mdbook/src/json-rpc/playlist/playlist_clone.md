@@ -18,6 +18,9 @@ This method errors if `from` does not exist.
 
 #### Example Request
 ```bash
+festival-cli playlist_clone --from original --to clone
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"playlist_remove","params":{"from":"original","to":"clone"}}'
 ```
 

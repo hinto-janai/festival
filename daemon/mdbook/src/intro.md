@@ -17,7 +17,7 @@ To interact with `festivald`, you need a client. The reference `JSON-RPC` client
 
 `HTTP` clients like `curl`, `wget` or a web browser will also do.
 
-The documentation will use `curl` on the default `http://localhost:18425` for examples.
+The documentation will use `festival-cli` & `curl` on the default `http://localhost:18425` for examples.
 
 To see documentation for the more user-friendly `festival-cli`, see here:  
 [https://docs.festival.pm/cli](https://docs.festival.pm/cli).

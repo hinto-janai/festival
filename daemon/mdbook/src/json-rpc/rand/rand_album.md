@@ -13,6 +13,9 @@ Access a random [`Album`](../../common-objects/album.md).
 
 #### Example Request
 ```bash
+festival-cli rand_album
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"rand_album"}'
 ```
 

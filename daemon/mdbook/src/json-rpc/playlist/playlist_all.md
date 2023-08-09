@@ -18,6 +18,9 @@ Playlists are sorted by their name's [lexicographical order](https://en.wikipedi
 
 #### Example Request
 ```bash
+festival-cli playlist_all
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"playlist_all"}'
 ```
 

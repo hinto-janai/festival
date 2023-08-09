@@ -20,6 +20,9 @@ This method errors if the specified playlist does not exist.
 
 #### Example Request
 ```bash
+festival-cli playlist_single --playlist Hello 
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"playlist_single","params":{"playlist":"Hello"}}'
 ```
 

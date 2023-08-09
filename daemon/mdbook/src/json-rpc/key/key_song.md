@@ -15,6 +15,9 @@ Input a `Song` key, retrieve a [`Song`](../../common-objects/song.md).
 
 #### Example Request
 ```bash
+festival-cli key_song --key 123
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"key_song","params":{"key":123}}'
 ```
 

@@ -13,6 +13,9 @@ Access the [`Album`](../../common-objects/album.md) of the currently set `Song`.
 
 #### Example Request
 ```bash
+festival-cli current_album
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"current_album"}'
 ```
 

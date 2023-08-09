@@ -14,8 +14,11 @@ If the `index` is out-of-bounds (queue has 10 songs, index is `10` or greater), 
 | out_of_bounds | boolean | If the provided index was equal to or greater than the queue length.
 
 #### Example Request
+Set the current `Song` to index `4`.
 ```bash
-# Set the current `Song` to index `4`.
+festival-cli queue_set_index --index 4
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"queue_set_index","params":{"index":4}'
 ```
 

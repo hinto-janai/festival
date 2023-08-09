@@ -83,6 +83,7 @@ The `Data` sub-directories/files, and their purpose:
    ├─ state/
    │  ├─ audio.bin      # Audio state, e.g: elapsed time, current song.
    │  ├─ collection.bin # The main music `Collection`, holds metadata and PATHs to audio files.
+   │  ├─ playlists.bin  # The `Playlists` database, holds all playlist data
    │
    ├─ txt/
    │  ├─ crash.txt  # Crash/panic data. Useful for bug reports.

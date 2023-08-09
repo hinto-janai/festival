@@ -16,20 +16,29 @@ Add a [`Song`](../../common-objects/song.md) to the queue with a `Song` [key](..
 `error: ...` if there was a index/offset error.
 
 #### Example Request 1
+Add to back of the queue.
 ```bash
-# Add to back of the queue.
+festival-cli queue_add_key_song --key 123 --append back
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"queue_add_key_song","params":{"key":123,"append":"back","clear":false}'
 ```
 
 #### Example Request 2
+Append at queue index 4.
 ```bash
-# Append at queue index 4.
+festival-cli queue_add_key_song --key 123 --append index --index 4
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"queue_add_key_song","params":{"key":123,"append":"index","index":4,"clear":false}'
 ```
 
 #### Example Request 3
+Clear the queue, add `Song` 123.
 ```bash
-# Clear the queue, add `Song` 123.
+festival-cli queue_add_key_song --key 123 --append front --clear
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"queue_add_key_song","params":{"key":123,"append":"front","clear":true}'
 ```
 

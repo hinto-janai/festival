@@ -11,6 +11,9 @@ Go backwards a variable amount of `Song`'s in the current queue.
 
 #### Example Request
 ```bash
+festival-cli back --back 10
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"back","params":{"back":10}}'
 ```
 

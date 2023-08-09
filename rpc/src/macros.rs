@@ -49,12 +49,26 @@ macro_rules! impl_struct_anon_lt {
 }
 
 //---------------------------------------------------------------------------------------------------- Impl macros for clap (request/params)
+// Input  | string
+// Output | ready-to-print markdown text
+pub fn markdown(s: &'static str) -> String {
+	use termimad::crossterm::{execute, style::Color::*, terminal};
+	use termimad::*;
+	let mut skin = MadSkin::default();
+	skin.set_headers_fg(rgb(255, 187, 0));
+	skin.bold.set_fg(Yellow);
+	skin.italic.set_fgbg(Magenta, rgb(30, 30, 40));
+	skin.bullet = StyledChar::from_fg_char(Yellow, '⟡');
+	skin.quote_mark.set_fg(Yellow);
+	skin.term_text(s).to_string()
+}
+
 #[macro_export]
 macro_rules! impl_rpc {
 	($method_doc:literal, $method_link:literal, $method_name:ident => $method_enum:expr) => {
 		#[derive(Clone,Debug,PartialEq,Serialize,Deserialize)]
         #[derive(clap::Args)]
-		#[command(about = $method_doc, long_about = include_str!(concat!("../../daemon/mdbook/src/json-rpc/", $method_link, ".md")))]
+		#[command(about = $method_doc, long_about = $crate::macros::markdown(include_str!(concat!("../../daemon/mdbook/src/json-rpc/", $method_link, ".md"))))]
 		pub struct $method_name;
 
 		impl $method_name {
@@ -74,7 +88,7 @@ macro_rules! impl_rpc_param {
 	($method_doc:literal, $method_link:literal, $method_name:ident => $method_enum:expr, $($param_doc:literal, $( #[$attrs:meta] )* $param:ident: $param_type:ty),*) => {
 		#[derive(Clone,Debug,PartialEq,Serialize,Deserialize)]
         #[derive(clap::Args)]
-		#[command(about = $method_doc, long_about = include_str!(concat!("../../daemon/mdbook/src/json-rpc/", $method_link, ".md")))]
+		#[command(about = $method_doc, long_about = $crate::macros::markdown(include_str!(concat!("../../daemon/mdbook/src/json-rpc/", $method_link, ".md"))))]
 		pub struct $method_name {
 			$(
 				#[doc = $param_doc]

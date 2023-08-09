@@ -37,20 +37,29 @@ index 5 | song_6
 `error: ...` if there was a index/offset error.
 
 #### Example Request 1
+Add to back of the queue.
 ```bash
-# Add to back of the queue.
+festival-cli queue_add_map_artist --artist TWICE --append back
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"queue_add_map_artist","params":{"artist":"TWICE","append":"back","clear":false}}'
 ```
 
 #### Example Request 2
+Append at queue index 4.
 ```bash
-# Append at queue index 4.
+festival-cli queue_add_map_artist --artist TWICE --append index --index 4
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"queue_add_map_artist","params":{"artist":"TWICE","append":"index","index":4,"clear":false}}'
 ```
 
 #### Example Request 3
+Clear the queue, add all the `Song`'s by this `Artist`, but start at the 5th `Song` (offset 4).
 ```bash
-# Clear the queue, add all the `Song`'s by this `Artist`, but start at the 5th `Song` (offset 4).
+festival-cli queue_add_map_artist --artist TWICE --append front --clear --offset 4
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"queue_add_map_artist","params":{"artist":"TWICE","append":"front","clear":true,"offset":4}}'
 ```
 

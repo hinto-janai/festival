@@ -9,6 +9,9 @@ The output of this method will be a full [`Collection`](../../common-objects/col
 
 #### Example Request
 ```bash
+festival-cli collection_full
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_full"}'
 ```
 

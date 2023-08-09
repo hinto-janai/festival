@@ -9,6 +9,9 @@ Shuffle the current queue, then start playing from the 1st `Song` in the queue.
 
 #### Example Request
 ```bash
+festival-cli shuffle
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"shuffle"}'
 ```
 

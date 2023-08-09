@@ -20,6 +20,9 @@ This method is a subset of the [`collection_full`](collection_full.md) method.
 
 #### Example Request
 ```bash
+festival-cli collection_brief
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_brief"}'
 ```
 

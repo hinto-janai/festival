@@ -14,6 +14,9 @@ Retrieve the current state of a [`Collection`](../../common-objects/collection.m
 
 #### Example Request
 ```bash
+festival-cli search_reset
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"state_reset"}'
 ```
 

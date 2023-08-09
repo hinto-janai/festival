@@ -17,8 +17,11 @@ This method errors if the `playlist` does not exist.
 | existed | boolean | If the `index` existed or not
 
 #### Example Request
+Remove the 1st entry in playlist "Hello"
 ```bash
-# Remove the 1st entry in playlist "Hello"
+festival-cli playlist_remove_entry --playlist Hello --index 0 
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"playlist_remove_entry","params":{"playlist":"Hello","index":0}}'
 ```
 

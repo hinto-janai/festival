@@ -1,86 +1,67 @@
 # JSON-RPC
-`festivald` exposes a [`JSON-RPC 2.0`](https://www.jsonrpc.org/specification) API for general state retrieval & signal control.
+`festival-cli`'s main purpose is to send and receieve [`JSON-RPC 2.0`](https://www.jsonrpc.org/specification) messages from/to a `festivald`.
 
-It can be accessed by sending a POST HTTP request containing a `JSON-RPC 2.0` request in the body, to the root endpoint, `/`.
-
-For a quick start on using it, see the next section: [Quick Start](json-rpc/quick-start.md).
-
-### Missing resource
-If a `JSON-RPC` method is interacting with an underlying resource and that resource is missing from the filesystem, `festivald` will _not_ respond to the client with an error, however, it will log an error message on the machine it is running on.
-
-For example, if a [`add_queue_key_song`](json-rpc/playback/add_queue_key_song.md) method is sent, and _that_ `Song`'s underlying PATH is missing/moved/renamed from when the `Collection` was created:
+The way to send a method to `festival` using `festival-cli` is always the same:
 ```bash
-mv "Artist/Album/Song Title" "Artist/Album/Song_Title"
+festival-cli <METHOD> [--PARAM <VALUE>]
 ```
+The `<METHOD>` will always be a method name as [documented in `festivald`](https://docs.festival.pm/daemon/json-rpc/json-rpc.html), and parameters are represented by `--flags <value>`. If a parameter is _optional_, then not passing the `--flag` would be the same as not including the parameter.
 
-`festivald` will now have a reference to a non-existent PATH and will not be able to find the file, so it will log an error that looks something like:
-```plaintext
-Audio - PATH error: No such file or directory (os error 2) ... /path/to/unknown/song.mp3
-```
-
-You can re-create the `Collection` with [`collection_new`](json-rpc/collection/collection_new.md) to re-link these PATHs.
-
-### Example `JSON-RPC 2.0` _request_:
-```json
-{
-  "jsonrpc": "2.0",   // JSON-RPC version. MUST be exactly "2.0"
-  "method": "method", // A string of the method name
-  "param": null,      // Optional parameters needed by the method
-  "id": 0,            // An ID, MUST be a String, Number, or NULL value if included
-}
-```
-
-### Example Shell script for sending a request:
+For example, to send the [`collection_new`](https://docs.festival.pm/daemon/json-rpc/collection/collection_new.html) method to create a new `Collection`, you would run:
 ```bash
-IP=localhost             # ip of festivald
-PORT=18425               # port of festivald
-METHOD='previous'        # the method to call
-PARAMS='{"threshold":3}' # the parameters of the method
-ID=0                     # the ID of this request
-
-# Send JSON-RPC request to goto the previous song
-# (or reset the current, if more than 3 seconds has passed).
-curl \
-    http://$IP:$PORT \
-    -d '{"jsonrpc":"2.0","id":$ID,"method":"'$METHOD'","params":'$PARAMS'}'
+festival-cli collection_new
 ```
-
-### Example `JSON-RPC 2.0` SUCCESSFUL _response_:
-```json
-{
-  "jsonrpc": "2.0", // JSON-RPC version. Will always be exactly "2.0"
-  "result": {       // The field containing the result of the SUCCESSFUL response
-    // This can contain fields that
-    // are nested arbitrarily deep.
-    // Although, most times they
-    // will be simple "key": value
-    // pairs.
-  },
-  "id": 0, // The ID associated with the client
-}
-```
-
-### Example `JSON-RPC 2.0` FAILED _response_:
-```json
-{
-  "jsonrpc": "2.0", // JSON-RPC version. Will always be exactly "2.0"
-  "error": {        // The field containing the result of the FAILED response
-    "code": -32601, // A number that indicates the error type that occurred
-    "message": "",  // A string providing a short description of the error
-    "data": null,   // An OPTIONAL field containing extra data about the error
-  },
-  "id": 0, // The ID associated with the client
-}
-```
-
-### Parameters
-For methods without parameters, the field can be omitted:
+This method also has an optional parameter, `paths`, which can be specified like this:
 ```bash
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"toggle"}'
+festival-cli collection_new --path /first/path --path /second/path
 ```
+
+Methods without parameters do not need (and don't have) any associated command flags:
+```bash
+festival-cli collection_full
+```
+
+### Pre-flags
+Before specifying a `method`, you can insert some command-lines that alter various things.
+
+For example, to connect to a different `festivald`:
+```bash
+festival-cli --festivald https://festivald.pm:18425 collection_full
+```
+To print the configuration that _would_ have been used, but without connecting to anything:
+```bash
+festival-cli --dry-run collection_full
+```
+To set a connection timeout
+```bash
+festival-cli --timeout 5 collection_full
+```
+
+These pre-flags must come _before_ the method name, because every `--flag` that comes _after_ `<METHOD>` will be assumed to be a `--parameter`.
+
+### Help
+To list all available methods:
+```bash
+festival-cli --methods
+```
+To show the parameters/values needed for a specific method:
+```bash
+festival-cli <METHOD> -h
+```
+
+### Detailed Help
+Running:
+```bash
+festival-cli <METHOD> --help
+```
+will output markdown text equivalent to the `festivald` documentation for that method.
+
+To view the `festivald` documentation proper:
+- View it at [`https://docs.festival.pm/daemon`](https://docs.festival.pm/daemon), or
+- View it locally with `festivald data --docs`, or
+- Serve/view it yourself at `http://localhost:18425` after starting `festivald`
 
 All method documentation will include what inputs it needs, what output to expect, and examples.
 
-All method names, parameter names, and field names are in `lower_case_snake_case`.
-
-The title of the section itself is the method name, for example, [`collection_new`](json-rpc/collection/collection_new.md) _is_ the method name.
+### Examples
+Each method in [`festivald`'s documentation](https://docs.festival.pm/daemon/json-rpc/json-rpc.html) has a `festival-cli` example.

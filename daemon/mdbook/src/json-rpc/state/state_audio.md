@@ -22,6 +22,9 @@ Retrieve audio state.
 
 #### Example Request
 ```bash
+festival-cli state_audio
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"state_audio"}'
 ```
 

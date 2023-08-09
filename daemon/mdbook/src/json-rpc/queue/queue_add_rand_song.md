@@ -1,4 +1,4 @@
-# queue_add_key_song
+# queue_add_rand_song
 Add a random [`Song`](../../common-objects/song.md) to the queue.
 
 #### Inputs
@@ -15,20 +15,29 @@ Add a random [`Song`](../../common-objects/song.md) to the queue.
 | song  | [`Song`](../../common-objects/song.md) object | The `Song` that was added to the queue
 
 #### Example Request 1
+Add to back of the queue.
 ```bash
-# Add to back of the queue.
+festival-cli queue_add_rand_song --append back
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"queue_add_rand_song","params":{"append":"back","clear":false}'
 ```
 
 #### Example Request 2
+Append at queue index 4.
 ```bash
-# Append at queue index 4.
+festival-cli queue_add_rand_song --append index --index 4
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"queue_add_rand_song","params":{"append":"index","index":4,"clear":false}'
 ```
 
 #### Example Request 3
+Clear the queue, add `Song` 123.
 ```bash
-# Clear the queue, add `Song` 123.
+festival-cli queue_add_rand_song --append front --clear --offset 4
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"queue_add_rand_song","params":{"append":"front","clear":true}'
 ```
 

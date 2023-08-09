@@ -8,7 +8,7 @@ For a quick start on using it, see the next section: [Quick Start](json-rpc/quic
 ### Missing resource
 If a `JSON-RPC` method is interacting with an underlying resource and that resource is missing from the filesystem, `festivald` will _not_ respond to the client with an error, however, it will log an error message on the machine it is running on.
 
-For example, if a [`add_queue_key_song`](json-rpc/playback/add_queue_key_song.md) method is sent, and _that_ `Song`'s underlying PATH is missing/moved/renamed from when the `Collection` was created:
+For example, if a [`queue_add_key_song`](json-rpc/playback/queue_add_key_song.md) method is sent, and _that_ `Song`'s underlying PATH is missing/moved/renamed from when the `Collection` was created:
 ```bash
 mv "Artist/Album/Song Title" "Artist/Album/Song_Title"
 ```
@@ -74,9 +74,16 @@ curl \
 ```
 
 ### Parameters
-For methods without parameters, the field can be omitted:
+For methods with optional parameters, the field(s) can be omitted:
 ```bash
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"toggle"}'
+festival-cli queue_add_key_artist --key 0 --append back
+```
+```bash
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"queue_add_key_artist","params":{"key":0,"append":"back","clear":false}}'
+```
+The exception is `collection_new`, since it has a single optional field. You _must_ specify it (even if `null`).
+```bash
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_new","params":{"paths":null}}'
 ```
 
 All method documentation will include what inputs it needs, what output to expect, and examples.

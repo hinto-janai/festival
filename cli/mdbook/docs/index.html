@@ -83,7 +83,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="intro.html" class="active">Intro</a></li><li class="chapter-item expanded "><a href="disk.html"><strong aria-hidden="true">1.</strong> Disk</a></li><li class="chapter-item expanded "><a href="config.html"><strong aria-hidden="true">2.</strong> Config</a></li><li class="chapter-item expanded "><a href="command-line/command-line.html"><strong aria-hidden="true">3.</strong> Command Line</a></li><li class="chapter-item expanded "><a href="json-rpc/json-rpc.html"><strong aria-hidden="true">4.</strong> JSON-RPC</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="intro.html" class="active">Intro</a></li><li class="chapter-item expanded "><a href="disk.html"><strong aria-hidden="true">1.</strong> Disk</a></li><li class="chapter-item expanded "><a href="config.html"><strong aria-hidden="true">2.</strong> Config</a></li><li class="chapter-item expanded "><a href="command-line.html"><strong aria-hidden="true">3.</strong> Command Line</a></li><li class="chapter-item expanded "><a href="authorization.html"><strong aria-hidden="true">4.</strong> Authorization</a></li><li class="chapter-item expanded "><a href="json-rpc.html"><strong aria-hidden="true">5.</strong> JSON-RPC</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -176,7 +176,7 @@
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;collection_new&quot;,&quot;params&quot;:{&quot;paths&quot;:null}}'
 </code></pre>
 <p>You can use:</p>
-<pre><code class="language-bash">festival-cli rpc collection_new
+<pre><code class="language-bash">festival-cli collection_new
 </code></pre>
 <p>The typical invocation of <code>festival-cli</code>:</p>
 <ol>
@@ -186,12 +186,10 @@
 <li>Prints out <code>JSON</code> response</li>
 </ol>
 <p>For a general quick start, see the next section: <a href="quick-start.html">Quick Start</a>.</p>
-<h3 id="json-rpc"><a class="header" href="#json-rpc"><code>JSON-RPC</code></a></h3>
+<h3 id="purpose"><a class="header" href="#purpose">Purpose</a></h3>
 <p><code>festival-cli</code> is solely for connecting to, sending requests, and receiving <code>JSON-RPC 2.0</code> responses from a <code>festivald</code>.</p>
-<p>For more information on <code>festivald</code>'s API, see here:  <a href="https://docs.festival.pm/daemon">https://docs.festival.pm/daemon</a>.</p>
-<h3 id="rest"><a class="header" href="#rest"><code>REST</code></a></h3>
-<p><code>festival-cli</code> doesn't have any options for interacting with <code>festivald</code>'s <code>REST</code> API.</p>
-<p>A generic HTTP client is better suited for this job, like <code>curl</code>, <code>wget</code>, or a web browser.</p>
+<p>For more information on <code>festivald</code>'s API, see here: <a href="https://docs.festival.pm/daemon">https://docs.festival.pm/daemon</a>.</p>
+<p><code>festival-cli</code> doesn't have any options for interacting with <code>festivald</code>'s <code>REST</code> API. A generic HTTP client is better suited for this job, like <code>curl</code>, <code>wget</code>, or a web browser.</p>
 <h3 id="documentation"><a class="header" href="#documentation">Documentation</a></h3>
 <p>To open this documentation locally:</p>
 <pre><code class="language-bash">festival-cli --docs

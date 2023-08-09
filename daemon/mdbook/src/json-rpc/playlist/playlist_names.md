@@ -11,6 +11,9 @@ This method outputs an un-named array of `string`'s.
 
 #### Example Request
 ```bash
+festival-cli playlist_names
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"playlist_names"}'
 ```
 

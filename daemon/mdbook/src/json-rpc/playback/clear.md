@@ -11,6 +11,9 @@ Clear the queue.
 
 #### Example Request
 ```bash
+festival-cli clear
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"clear","params":{"playback":false}}'
 ```
 

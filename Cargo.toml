@@ -57,6 +57,7 @@ serde_bytes  = { version = "0.11.9" }
 serde_json   = { version = "1.0.100", features = ["preserve_order"] }
 seq-macro    = { version = "0.3.3" }
 strum        = { version = "0.25.0", features = ["derive"] }
+termimad     = { version = "0.23.2" }
 zeroize      = { version = "1.6.0", features = ["std", "zeroize_derive"] }
 zip          = { version = "0.6.6" }
 

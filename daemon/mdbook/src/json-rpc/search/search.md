@@ -18,6 +18,9 @@ Input a `string`, retrieve arrays of [`Artist`](../../common-objects/artist.md)'
 
 #### Example Request
 ```bash
+festival-cli search --input twice --kind sim70
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"search","params":{"input":"twice","kind":"sim70"}}'
 ```
 

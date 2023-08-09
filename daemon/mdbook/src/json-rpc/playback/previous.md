@@ -11,6 +11,9 @@ Set the current `Song` to the previous in the queue.
 
 #### Example Request
 ```bash
+festival-cli previous --threshold 0
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"previous","params":{"threshold":0}}'
 ```
 

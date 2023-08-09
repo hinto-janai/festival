@@ -25,15 +25,26 @@ The output is a superset of the [`collection_brief`](collection_brief.md) method
 | count_song   | unsigned integer | How many unique `Song`'s there are in this `Collection`
 | count_art    | unsigned integer | How much unique `Album` art there are in this `Collection`
 
-#### Example Request
+#### Example Request 1
+Use default Music PATH.
 ```bash
-# Use default Music PATH.
+festival-cli collection_new
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_new","params":{"paths":null}}'
-
-# Use the PATH `/home/user/Music/collection` on `festivald`'s filesystem.
+```
+Use the PATH `/home/user/Music/collection` on `festivald`'s filesystem.
+```bash
+festival-cli collection_new --path "/home/user/Music/collection"
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_new","params":{"paths":["/home/user/Music/collection"]}}'
-
-# Windows PATH works too if `\` is escaped (and if `festivald` is running on Windows).
+```
+Windows PATH works too if `\` is escaped (and if `festivald` is running on Windows).
+```bash
+festival-cli collection_new --path "C:\\Users\\User\\Music\\collection"
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_new","params":{"paths":["C:\\Users\\User\\Music\\collection"]}}'
 ```
 

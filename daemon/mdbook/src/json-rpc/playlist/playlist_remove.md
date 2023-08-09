@@ -15,6 +15,9 @@ Does nothing if the `Playlist` did not exist.
 
 #### Example Request
 ```bash
+festival-cli playlist_remove --playlist new
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"playlist_remove","params":{"playlist":"new"}}'
 ```
 

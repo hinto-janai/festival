@@ -17,6 +17,9 @@ Input an `Artist` name, `Album` title, and `Song` title, retrieve a [`Song`](../
 
 #### Example Request
 ```bash
+festival-cli map_song --artist "Rex Orange County" --album RAINBOW --song SUNFLOWER
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"map_song","params":{"artist":"Rex Orange County","album":"RAINBOW","song":"SUNFLOWER"}}'
 ```
 

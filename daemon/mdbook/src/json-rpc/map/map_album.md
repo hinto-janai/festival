@@ -16,6 +16,9 @@ Input an `Artist` name and `Album` title, retrieve an [`Album`](../../common-obj
 
 #### Example Request
 ```bash
+festival-cli map_album --artist "Rex Orange County" --album RAINBOW
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"map_song","params":{"artist":"Rex Orange County","album":"RAINBOW"}}'
 ```
 

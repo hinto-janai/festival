@@ -32,14 +32,20 @@ index 5 | song_6
 | out_of_bounds | boolean | If either `start` or `end` was out-of-bounds
 
 #### Example Request 1
+Remove the 1st `Song` in the queue.
 ```bash
-# Remove the 1st `Song` in the queue.
+festival-cli queue_remove_range --start 0 --end 1 --skip
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"queue_remove_range","params":{"start":0,"end":1,"skip":true}}'
 ```
 
 #### Example Request 2
+Remove 0, 1, 2, 3 from the queue.
 ```bash
-# Remove 0, 1, 2, 3 from the queue.
+festival-cli queue_remove_range --start 0 --end 4 --skip
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"queue_remove_range","params":{"start":0,"end":4,"skip":true}}'
 ```
 

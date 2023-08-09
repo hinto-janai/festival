@@ -3,8 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>festival-cli v0.0.0</title>
-        <meta name="robots" content="noindex" />
+        <title>Command Line - festival-cli v0.0.0</title>
 
 
         <!-- Custom HTML head -->
@@ -84,7 +83,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="intro.html">Intro</a></li><li class="chapter-item expanded "><a href="disk.html"><strong aria-hidden="true">1.</strong> Disk</a></li><li class="chapter-item expanded "><a href="config.html"><strong aria-hidden="true">2.</strong> Config</a></li><li class="chapter-item expanded "><a href="command-line.html"><strong aria-hidden="true">3.</strong> Command Line</a></li><li class="chapter-item expanded "><a href="authorization.html"><strong aria-hidden="true">4.</strong> Authorization</a></li><li class="chapter-item expanded "><a href="json-rpc.html"><strong aria-hidden="true">5.</strong> JSON-RPC</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="intro.html">Intro</a></li><li class="chapter-item expanded "><a href="disk.html"><strong aria-hidden="true">1.</strong> Disk</a></li><li class="chapter-item expanded "><a href="config.html"><strong aria-hidden="true">2.</strong> Config</a></li><li class="chapter-item expanded "><a href="command-line.html" class="active"><strong aria-hidden="true">3.</strong> Command Line</a></li><li class="chapter-item expanded "><a href="authorization.html"><strong aria-hidden="true">4.</strong> Authorization</a></li><li class="chapter-item expanded "><a href="json-rpc.html"><strong aria-hidden="true">5.</strong> JSON-RPC</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -170,174 +169,7 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="intro"><a class="header" href="#intro">Intro</a></h1>
-<p><code>festival-cli</code> is a <code>JSON-RPC</code> client for <a href="https://docs.festival.pm/daemon"><code>festivald</code></a>.</p>
-<p><code>festivald</code> is a music server that plays on the device it is running on, while allowing remote control via clients.</p>
-<p><code>festival-cli</code> is a client that reduces the verbosity of <code>JSON-RPC</code> requests, so instead of:</p>
-<pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;collection_new&quot;,&quot;params&quot;:{&quot;paths&quot;:null}}'
-</code></pre>
-<p>You can use:</p>
-<pre><code class="language-bash">festival-cli collection_new
-</code></pre>
-<p>The typical invocation of <code>festival-cli</code>:</p>
-<ol>
-<li>Reads the config file</li>
-<li>Reads the command-line options</li>
-<li>Connects and sends a request to <code>festivald</code></li>
-<li>Prints out <code>JSON</code> response</li>
-</ol>
-<p>For a general quick start, see the next section: <a href="quick-start.html">Quick Start</a>.</p>
-<h3 id="purpose"><a class="header" href="#purpose">Purpose</a></h3>
-<p><code>festival-cli</code> is solely for connecting to, sending requests, and receiving <code>JSON-RPC 2.0</code> responses from a <code>festivald</code>.</p>
-<p>For more information on <code>festivald</code>'s API, see here: <a href="https://docs.festival.pm/daemon">https://docs.festival.pm/daemon</a>.</p>
-<p><code>festival-cli</code> doesn't have any options for interacting with <code>festivald</code>'s <code>REST</code> API. A generic HTTP client is better suited for this job, like <code>curl</code>, <code>wget</code>, or a web browser.</p>
-<h3 id="documentation"><a class="header" href="#documentation">Documentation</a></h3>
-<p>To open this documentation locally:</p>
-<pre><code class="language-bash">festival-cli --docs
-</code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="disk"><a class="header" href="#disk">Disk</a></h1>
-<p><code>festival-cli</code> saves all of its files within various &quot;OS&quot; directories, owned by the user running it.</p>
-<p>You can list all the PATHs on your system with:</p>
-<pre><code class="language-bash">./festival-cli --path
-</code></pre>
-<p>And delete them with with:</p>
-<pre><code class="language-bash">./festival-cli --delete
-</code></pre>
-<p><code>festival-cli</code> saves everything into <code>cli/</code> because other Festival frontends also use the same <code>festival</code> project directory, e.g:</p>
-<pre><code>~/.local/share/festival/
-  ├─ gui/
-  ├─ daemon/
-  ├─ cli/
-</code></pre>
-<h2 id="config"><a class="header" href="#config">Config</a></h2>
-<p>Where <code>festival-cli</code>'s configuration files are saved.</p>
-<div class="table-wrapper"><table><thead><tr><th>Platform</th><th>Value</th><th>Example</th></tr></thead><tbody>
-<tr><td>Windows</td><td><code>{FOLDERID_RoamingAppData}\Festival\config\cli</code></td><td><code>C:\Users\Alice\AppData\Roaming\Festival\config\cli</code></td></tr>
-<tr><td>macOS</td><td><code>$HOME/Library/Application Support/Festival/cli</code></td><td><code>/Users/Alice/Library/Application Support/Festival/cli</code></td></tr>
-<tr><td>Linux</td><td><code>$HOME/.config/festival/cli</code></td><td><code>/home/alice/.config/festival/cli</code></td></tr>
-</tbody></table>
-</div>
-<p>The <code>Config</code> sub-directories/files, and their purpose:</p>
-<pre><code class="language-plaintext">├─ cli/
-   │
-   ├─ festival-cli.toml # Config file used by `festival-cli`
-</code></pre>
-<h2 id="data"><a class="header" href="#data">Data</a></h2>
-<p>Where <code>festival-cli</code>'s data is saved.</p>
-<div class="table-wrapper"><table><thead><tr><th>Platform</th><th>Value</th><th>Example</th></tr></thead><tbody>
-<tr><td>Windows</td><td><code>{FOLDERID_RoamingAppData}\Festival\data\cli</code></td><td><code>C:\Users\Alice\AppData\Roaming\Festival\data\cli</code></td></tr>
-<tr><td>macOS</td><td><code>$HOME/Library/Application Support/Festival/cli</code></td><td><code>/Users/Alice/Library/Application Support/Festival/cli</code></td></tr>
-<tr><td>Linux</td><td><code>$HOME/.local/share/festival/cli</code></td><td><code>/home/alice/.local/share/festival/cli</code></td></tr>
-</tbody></table>
-</div>
-<p>The <code>Data</code> sub-directories/files, and their purpose:</p>
-<pre><code class="language-plaintext">├─ cli/
-   │
-   ├─ docs/ # The static documentations files used by `festival-cli`
-</code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="config-1"><a class="header" href="#config-1">Config</a></h1>
-<p><code>festival-cli</code> reads and loads its configuration file, <code>festival-cli.toml</code>, on startup. It controls various behaviors of <code>festival-cli</code>.</p>
-<p>Exactly where this file is depends on the OS, more details in the <a href="disk.html"><code>Disk</code></a> section.</p>
-<p><a href="command-line/command-line.html"><code>Command Line</code></a> flags will override any overlapping config values.</p>
-<h2 id="festival-clitoml"><a class="header" href="#festival-clitoml"><code>festival-cli.toml</code></a></h2>
-<p>This is the default configuration file <code>festival-cli</code> creates and uses.</p>
-<p>If <code>festival-cli</code> is started with no <code>--flags</code>, e.g:</p>
-<pre><code class="language-bash">festival-cli &lt;METHOD&gt;
-</code></pre>
-<p>Then it will be equivalent to this config file.</p>
-<pre><code class="language-toml">#===================#
-# festival-cli.toml #
-#================================================================#
-# This is `festival-cli`'s config file.                          #
-# It is in the TOML (https://en.wikipedia.org/wiki/TOML) format. #
-#                                                                #
-# Values will be loaded from this file on startup.               #
-# If overlapping `--command-flags` are provided,                 #
-# they will be used instead.                                     #
-#                                                                #
-# For full documentation on config options, see:                 #
-# &lt;https://docs.festival.pm/cli/config.html&gt;                     #
-#================================================================#
-
-
-#----------------------------------------------------------#
-#                         NETWORK                          #
-#----------------------------------------------------------#
-# The protocol, IPv4 address, and port of the
-# `festivald` that `festival-cli` will connect
-# to by default.
-#
-# Protocol must be:
-#   - http
-#   - https
-#
-# IP address must be IPv4.
-#
-# DEFAULT | &quot;http://127.0.0.1:18425&quot;
-# EXAMPLE | &quot;https://192.168.2.10:8080&quot;, &quot;http://185.199.110.153:80&quot;
-# TYPE    | string
-festivald = &quot;http://127.0.0.1:18425&quot;
-
-
-# Set a timeout for a non-responding `festivald`
-#
-# If the request &amp; response time to/from `festivald`
-# takes up more than this amount of seconds,
-# `festival-cli` will disconnect.
-#
-# 0 means never disconnect.
-#
-# DEFAULT | 0
-# VALUES  | 5, 10, 60
-# TYPE    | unsigned integer
-timeout = 0
-
-
-#----------------------------------------------------------#
-#                        JSON-RPC                          #
-#----------------------------------------------------------#
-# The `JSON-RPC 2.0` ID to send to `festivald`.
-# See below for more info:
-# &lt;https://jsonrpc.org/specification&gt;
-#
-# DEFAULT | &quot;festival-cli&quot;
-# VALUES  | 0, 1, &quot;1&quot;, &quot;Hello&quot;
-# TYPE    | unsigned integer, string, or null (commented out)
-id = &quot;festival-cli&quot;
-
-
-#----------------------------------------------------------#
-#                      AUTHORIZATION                       #
-#----------------------------------------------------------#
-# Authorization sent to `festivald`.
-#
-# This matches the `authorization` config
-# in `festivald`, see here for more info:
-# &lt;https://docs.festival.pm/daemon/authorization/authorization.html&gt;
-#
-# A `festivald` with HTTPS must be used or `festival-cli`
-# will refuse to start.
-#
-# An empty string disables this feature.
-#
-# Alternatively, you can input an absolute PATH to a file
-# `festival-cli` can access, containing the string, e.g:
-# ```
-# authorization = &quot;/path/to/user_and_pass.txt&quot;
-# ```
-#
-# In this case, `festival-cli` will read the file and attempt
-# to parse it with the same syntax, i.e, the file should contain:
-# ```
-# my_user:my_pass
-# ```
-#
-# DEFAULT | &quot;&quot; (disabled)
-# EXAMPLE | &quot;my_username:my_password&quot;, &quot;my_username:aoig2A%^$AWS^%&quot;, &quot;/path/to/file&quot;
-# TYPE    | string or PATH to file
-authorization = &quot;&quot;
-</code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="command-line"><a class="header" href="#command-line">Command Line</a></h1>
+                        <h1 id="command-line"><a class="header" href="#command-line">Command Line</a></h1>
 <p><code>festival-cli</code> takes in <code>--flags</code> for many purposes.</p>
 <p>Arguments passed to <code>festival-cli</code> will always take priority over the same <a href="../config.html">configuration</a> options read from disk.</p>
 <p>See <a href="json-rpc.html"><code>JSON-RPC</code></a> for method command-line syntax.</p>
@@ -505,84 +337,18 @@ Options:
   -h, --help
           Print help (see a summary with '-h')
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="authorization"><a class="header" href="#authorization">Authorization</a></h1>
-<p><code>festivald</code> has a <a href="https://en.wikipedia.org/wiki/Basic_access_authentication"><code>Basic access authentication</code></a> option, with a username + password setup.</p>
-<p>If enabled, <code>festival-cli</code> must also use <code>--authorization</code> or setup the <a href="config.html"><code>authorization</code></a> config option to connect to it.</p>
-<p><code>festival-cli</code> must connect to <code>festivald</code> over <code>HTTPS</code> if authorization is enabled or <code>festival-cli</code> will refuse to start.</p>
-<h2 id="syntax"><a class="header" href="#syntax">Syntax</a></h2>
-<p>The username &amp; password syntax is specified <a href="https://en.wikipedia.org/wiki/Basic_access_authentication">here</a>.</p>
-<p>The &quot;authorization&quot; value must be:</p>
-<ol>
-<li>The username</li>
-<li>Followed by a single colon &quot;:&quot;</li>
-<li>Then the password</li>
-</ol>
-<p>For example:</p>
-<pre><code class="language-plaintext">my_user:my_pass
-</code></pre>
-<p>A request including this information looks like:</p>
-<pre><code class="language-bash">festival-cli --authorization my_user:my_pass &lt;METHOD&gt;
-</code></pre>
-<p>Alternatively, you can input an absolute PATH to a file <code>festival-cli</code> can access, containing the string, e.g:</p>
-<pre><code class="language-bash">festival-cli --authorization /path/to/auth.txt &lt;METHOD&gt;
-</code></pre>
-<p>In this case, <code>festival-cli</code> will read the file and attempt to parse it with the same syntax, i.e, the file should contain:</p>
-<pre><code class="language-plaintext">my_user:my_pass
-</code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="json-rpc"><a class="header" href="#json-rpc">JSON-RPC</a></h1>
-<p><code>festival-cli</code>'s main purpose is to send and receieve <a href="https://www.jsonrpc.org/specification"><code>JSON-RPC 2.0</code></a> messages from/to a <code>festivald</code>.</p>
-<p>The way to send a method to <code>festival</code> using <code>festival-cli</code> is always the same:</p>
-<pre><code class="language-bash">festival-cli &lt;METHOD&gt; [--PARAM &lt;VALUE&gt;]
-</code></pre>
-<p>The <code>&lt;METHOD&gt;</code> will always be a method name as <a href="https://docs.festival.pm/daemon/json-rpc/json-rpc.html">documented in <code>festivald</code></a>, and parameters are represented by <code>--flags &lt;value&gt;</code>. If a parameter is <em>optional</em>, then not passing the <code>--flag</code> would be the same as not including the parameter.</p>
-<p>For example, to send the <a href="https://docs.festival.pm/daemon/json-rpc/collection/collection_new.html"><code>collection_new</code></a> method to create a new <code>Collection</code>, you would run:</p>
-<pre><code class="language-bash">festival-cli collection_new
-</code></pre>
-<p>This method also has an optional parameter, <code>paths</code>, which can be specified like this:</p>
-<pre><code class="language-bash">festival-cli collection_new --path /first/path --path /second/path
-</code></pre>
-<p>Methods without parameters do not need (and don't have) any associated command flags:</p>
-<pre><code class="language-bash">festival-cli collection_full
-</code></pre>
-<h3 id="pre-flags"><a class="header" href="#pre-flags">Pre-flags</a></h3>
-<p>Before specifying a <code>method</code>, you can insert some command-lines that alter various things.</p>
-<p>For example, to connect to a different <code>festivald</code>:</p>
-<pre><code class="language-bash">festival-cli --festivald https://festivald.pm:18425 collection_full
-</code></pre>
-<p>To print the configuration that <em>would</em> have been used, but without connecting to anything:</p>
-<pre><code class="language-bash">festival-cli --dry-run collection_full
-</code></pre>
-<p>To set a connection timeout</p>
-<pre><code class="language-bash">festival-cli --timeout 5 collection_full
-</code></pre>
-<p>These pre-flags must come <em>before</em> the method name, because every <code>--flag</code> that comes <em>after</em> <code>&lt;METHOD&gt;</code> will be assumed to be a <code>--parameter</code>.</p>
-<h3 id="help"><a class="header" href="#help">Help</a></h3>
-<p>To list all available methods:</p>
-<pre><code class="language-bash">festival-cli --methods
-</code></pre>
-<p>To show the parameters/values needed for a specific method:</p>
-<pre><code class="language-bash">festival-cli &lt;METHOD&gt; -h
-</code></pre>
-<h3 id="detailed-help"><a class="header" href="#detailed-help">Detailed Help</a></h3>
-<p>Running:</p>
-<pre><code class="language-bash">festival-cli &lt;METHOD&gt; --help
-</code></pre>
-<p>will output markdown text equivalent to the <code>festivald</code> documentation for that method.</p>
-<p>To view the <code>festivald</code> documentation proper:</p>
-<ul>
-<li>View it at <a href="https://docs.festival.pm/daemon"><code>https://docs.festival.pm/daemon</code></a>, or</li>
-<li>View it locally with <code>festivald data --docs</code>, or</li>
-<li>Serve/view it yourself at <code>http://localhost:18425</code> after starting <code>festivald</code></li>
-</ul>
-<p>All method documentation will include what inputs it needs, what output to expect, and examples.</p>
-<h3 id="examples"><a class="header" href="#examples">Examples</a></h3>
-<p>Each method in <a href="https://docs.festival.pm/daemon/json-rpc/json-rpc.html"><code>festivald</code>'s documentation</a> has a <code>festival-cli</code> example.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="config.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
 
+                            <a rel="next" href="authorization.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -590,7 +356,13 @@ Options:
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="config.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
 
+                    <a rel="next" href="authorization.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
             </nav>
 
         </div>
@@ -613,11 +385,6 @@ Options:
 
         <!-- Custom JS scripts -->
 
-        <script>
-        window.addEventListener('load', function() {
-            window.setTimeout(window.print, 100);
-        });
-        </script>
 
     </div>
     </body>

@@ -13,6 +13,9 @@ Create a new empty [`Playlist`](playlist.md), overwriting an existing one.
 
 #### Example Request
 ```bash
+festival-cli playlist_new --playlist my_new_playlist
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"playlist_new","params":{"playlist":"my_new_playlist"}}'
 ```
 

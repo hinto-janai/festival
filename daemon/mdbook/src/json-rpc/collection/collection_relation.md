@@ -24,6 +24,9 @@ The output is an un-named array containing:
 
 #### Example Request
 ```bash
+festival-cli collection_relation
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_relation"}'
 ```
 

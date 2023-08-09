@@ -11,6 +11,9 @@ Set the playback volume.
 
 #### Example Request
 ```bash
+festival-cli volume --volume 15
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"volume","params":{"volume":15}}'
 ```
 

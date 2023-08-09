@@ -60,21 +60,6 @@ id = "festival-cli"
 
 
 #----------------------------------------------------------#
-#                         LOGGING                          #
-#----------------------------------------------------------#
-# The logging level `festival-cli` will use.
-#
-# "error" will only show critical error messages,
-# "warn" will in addition show warnings,
-# "info" will in addition show info, etc, etc.
-#
-# DEFAULT | "error"
-# VALUES  | "off", "error", "warn", "info", "debug", "trace"
-# TYPE    | string, one of the above
-log_level = "error"
-
-
-#----------------------------------------------------------#
 #                      AUTHORIZATION                       #
 #----------------------------------------------------------#
 # Authorization sent to `festivald`.

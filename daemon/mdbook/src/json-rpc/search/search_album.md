@@ -16,6 +16,9 @@ Input a `string`, retrieve an array of [`Album`](../../common-objects/album.md)'
 
 #### Example Request
 ```bash
+festival-cli search_album --input time --kind sim70
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"search_album","params":{"input":"time","kind":"sim70"}}'
 ```
 

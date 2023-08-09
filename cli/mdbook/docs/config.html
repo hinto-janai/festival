@@ -83,7 +83,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="intro.html">Intro</a></li><li class="chapter-item expanded "><a href="disk.html"><strong aria-hidden="true">1.</strong> Disk</a></li><li class="chapter-item expanded "><a href="config.html" class="active"><strong aria-hidden="true">2.</strong> Config</a></li><li class="chapter-item expanded "><a href="command-line/command-line.html"><strong aria-hidden="true">3.</strong> Command Line</a></li><li class="chapter-item expanded "><a href="json-rpc/json-rpc.html"><strong aria-hidden="true">4.</strong> JSON-RPC</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="intro.html">Intro</a></li><li class="chapter-item expanded "><a href="disk.html"><strong aria-hidden="true">1.</strong> Disk</a></li><li class="chapter-item expanded "><a href="config.html" class="active"><strong aria-hidden="true">2.</strong> Config</a></li><li class="chapter-item expanded "><a href="command-line.html"><strong aria-hidden="true">3.</strong> Command Line</a></li><li class="chapter-item expanded "><a href="authorization.html"><strong aria-hidden="true">4.</strong> Authorization</a></li><li class="chapter-item expanded "><a href="json-rpc.html"><strong aria-hidden="true">5.</strong> JSON-RPC</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -173,10 +173,10 @@
 <p><code>festival-cli</code> reads and loads its configuration file, <code>festival-cli.toml</code>, on startup. It controls various behaviors of <code>festival-cli</code>.</p>
 <p>Exactly where this file is depends on the OS, more details in the <a href="disk.html"><code>Disk</code></a> section.</p>
 <p><a href="command-line/command-line.html"><code>Command Line</code></a> flags will override any overlapping config values.</p>
-<h2 id="festivaldtoml"><a class="header" href="#festivaldtoml"><code>festivald.toml</code></a></h2>
-<p>This is the default configuration file <code>festivald</code> creates and uses.</p>
+<h2 id="festival-clitoml"><a class="header" href="#festival-clitoml"><code>festival-cli.toml</code></a></h2>
+<p>This is the default configuration file <code>festival-cli</code> creates and uses.</p>
 <p>If <code>festival-cli</code> is started with no <code>--flags</code>, e.g:</p>
-<pre><code class="language-bash">./festival-cli &lt;method&gt;
+<pre><code class="language-bash">festival-cli &lt;METHOD&gt;
 </code></pre>
 <p>Then it will be equivalent to this config file.</p>
 <pre><code class="language-toml">#===================#
@@ -241,21 +241,6 @@ id = &quot;festival-cli&quot;
 
 
 #----------------------------------------------------------#
-#                         LOGGING                          #
-#----------------------------------------------------------#
-# The logging level `festival-cli` will use.
-#
-# &quot;error&quot; will only show critical error messages,
-# &quot;warn&quot; will in addition show warnings,
-# &quot;info&quot; will in addition show info, etc, etc.
-#
-# DEFAULT | &quot;error&quot;
-# VALUES  | &quot;off&quot;, &quot;error&quot;, &quot;warn&quot;, &quot;info&quot;, &quot;debug&quot;, &quot;trace&quot;
-# TYPE    | string, one of the above
-log_level = &quot;error&quot;
-
-
-#----------------------------------------------------------#
 #                      AUTHORIZATION                       #
 #----------------------------------------------------------#
 # Authorization sent to `festivald`.
@@ -295,7 +280,7 @@ authorization = &quot;&quot;
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next" href="command-line/command-line.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="command-line.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -309,7 +294,7 @@ authorization = &quot;&quot;
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next" href="command-line/command-line.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="command-line.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

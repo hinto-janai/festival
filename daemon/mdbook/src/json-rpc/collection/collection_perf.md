@@ -15,7 +15,9 @@ View some performance stats about the latest [`Collection`](../../common-objects
 
 #### Example Request
 ```bash
-# Windows PATH works too if `\` is escaped (and if `festivald` is running on Windows).
+festival-cli collection_perf
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_perf"}'
 ```
 

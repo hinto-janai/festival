@@ -11,6 +11,9 @@ After the end of a `Song`, play it again, forever.
 
 #### Example Request
 ```bash
+festival-cli repeat_song
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"repeat_song"}'
 ```
 

@@ -13,6 +13,9 @@ View the size of the current [`Collection`](../../common-objects/collection.md)'
 
 #### Example Request
 ```bash
+festival-cli collection_resource_size
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_resource_size"}'
 ```
 

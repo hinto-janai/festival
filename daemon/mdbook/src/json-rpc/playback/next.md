@@ -13,6 +13,9 @@ Does nothing if the queue is empty.
 
 #### Example Request
 ```bash
+festival-cli next
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"next"}'
 ```
 

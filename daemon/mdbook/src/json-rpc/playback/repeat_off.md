@@ -9,6 +9,9 @@ Turn off repeating.
 
 #### Example Request
 ```bash
+festival-cli repeat_off
+```
+```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"repeat_off"}'
 ```
 

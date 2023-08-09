@@ -12,7 +12,10 @@ Seek forwards/backwards or to an absolute second in the current `Song`.
 
 #### Example Request
 ```bash
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"seek","params":{"absolute":60}}'
+festival-cli seek --seek absolute --second 60
+```
+```bash
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"seek","params":{"seek":"absolute","second":60}}'
 ```
 
 #### Example Response
