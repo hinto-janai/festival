@@ -2407,11 +2407,13 @@ curl \
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;collection_new&quot;,&quot;params&quot;:{&quot;paths&quot;:null}}'
 </code></pre>
+<h4 id="example-request-2"><a class="header" href="#example-request-2">Example Request 2</a></h4>
 <p>Use the PATH <code>/home/user/Music/collection</code> on <code>festivald</code>'s filesystem.</p>
 <pre><code class="language-bash">festival-cli collection_new --path &quot;/home/user/Music/collection&quot;
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;collection_new&quot;,&quot;params&quot;:{&quot;paths&quot;:[&quot;/home/user/Music/collection&quot;]}}'
 </code></pre>
+<h4 id="example-request-3"><a class="header" href="#example-request-3">Example Request 3</a></h4>
 <p>Windows PATH works too if <code>\</code> is escaped (and if <code>festivald</code> is running on Windows).</p>
 <pre><code class="language-bash">festival-cli collection_new --path &quot;C:\\Users\\User\\Music\\collection&quot;
 </code></pre>
@@ -4465,13 +4467,13 @@ index 5 | song_6
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;queue_add_key_artist&quot;,&quot;params&quot;:{&quot;key&quot;:123,&quot;append&quot;:&quot;back&quot;,&quot;clear&quot;:false}}'
 </code></pre>
-<h4 id="example-request-2"><a class="header" href="#example-request-2">Example Request 2</a></h4>
+<h4 id="example-request-2-1"><a class="header" href="#example-request-2-1">Example Request 2</a></h4>
 <p>Append at queue index 4.</p>
 <pre><code class="language-bash">festival-cli queue_add_key_artist --key 123 --append index --index 4
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;queue_add_key_artist&quot;,&quot;params&quot;:{&quot;key&quot;:123,&quot;append&quot;:&quot;index&quot;,&quot;index&quot;:4,&quot;clear&quot;:false}}'
 </code></pre>
-<h4 id="example-request-3"><a class="header" href="#example-request-3">Example Request 3</a></h4>
+<h4 id="example-request-3-1"><a class="header" href="#example-request-3-1">Example Request 3</a></h4>
 <p>Clear the queue, add all the <code>Song</code>'s by this <code>Artist</code>, but start at the 5th <code>Song</code> (offset 4).</p>
 <pre><code class="language-bash">festival-cli queue_add_key_artist --key 123 --append front --clear --offset 4
 </code></pre>
@@ -4517,13 +4519,13 @@ index 5 | song_6
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;queue_add_key_album&quot;,&quot;params&quot;:{&quot;key&quot;:123,&quot;append&quot;:&quot;back&quot;,&quot;clear&quot;:false}}'
 </code></pre>
-<h4 id="example-request-2-1"><a class="header" href="#example-request-2-1">Example Request 2</a></h4>
+<h4 id="example-request-2-2"><a class="header" href="#example-request-2-2">Example Request 2</a></h4>
 <p>Append at queue index 4.</p>
 <pre><code class="language-bash">festival-cli queue_add_key_album --key 123 --append index --index 4
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;queue_add_key_album&quot;,&quot;params&quot;:{&quot;key&quot;:123,&quot;append&quot;:&quot;index&quot;,&quot;index&quot;:4,&quot;clear&quot;:false}}'
 </code></pre>
-<h4 id="example-request-3-1"><a class="header" href="#example-request-3-1">Example Request 3</a></h4>
+<h4 id="example-request-3-2"><a class="header" href="#example-request-3-2">Example Request 3</a></h4>
 <p>Clear the queue, add all the <code>Song</code>'s in this <code>Album</code>, but start at the 5th <code>Song</code> (offset 4).</p>
 <pre><code class="language-bash">festival-cli queue_add_key_album --key 123 --append front --clear --offset 4
 </code></pre>
@@ -4555,13 +4557,13 @@ index 5 | song_6
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;queue_add_key_song&quot;,&quot;params&quot;:{&quot;key&quot;:123,&quot;append&quot;:&quot;back&quot;,&quot;clear&quot;:false}'
 </code></pre>
-<h4 id="example-request-2-2"><a class="header" href="#example-request-2-2">Example Request 2</a></h4>
+<h4 id="example-request-2-3"><a class="header" href="#example-request-2-3">Example Request 2</a></h4>
 <p>Append at queue index 4.</p>
 <pre><code class="language-bash">festival-cli queue_add_key_song --key 123 --append index --index 4
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;queue_add_key_song&quot;,&quot;params&quot;:{&quot;key&quot;:123,&quot;append&quot;:&quot;index&quot;,&quot;index&quot;:4,&quot;clear&quot;:false}'
 </code></pre>
-<h4 id="example-request-3-2"><a class="header" href="#example-request-3-2">Example Request 3</a></h4>
+<h4 id="example-request-3-3"><a class="header" href="#example-request-3-3">Example Request 3</a></h4>
 <p>Clear the queue, add <code>Song</code> 123.</p>
 <pre><code class="language-bash">festival-cli queue_add_key_song --key 123 --append front --clear
 </code></pre>
@@ -4608,13 +4610,13 @@ index 5 | song_6
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;queue_add_map_artist&quot;,&quot;params&quot;:{&quot;artist&quot;:&quot;TWICE&quot;,&quot;append&quot;:&quot;back&quot;,&quot;clear&quot;:false}}'
 </code></pre>
-<h4 id="example-request-2-3"><a class="header" href="#example-request-2-3">Example Request 2</a></h4>
+<h4 id="example-request-2-4"><a class="header" href="#example-request-2-4">Example Request 2</a></h4>
 <p>Append at queue index 4.</p>
 <pre><code class="language-bash">festival-cli queue_add_map_artist --artist TWICE --append index --index 4
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;queue_add_map_artist&quot;,&quot;params&quot;:{&quot;artist&quot;:&quot;TWICE&quot;,&quot;append&quot;:&quot;index&quot;,&quot;index&quot;:4,&quot;clear&quot;:false}}'
 </code></pre>
-<h4 id="example-request-3-3"><a class="header" href="#example-request-3-3">Example Request 3</a></h4>
+<h4 id="example-request-3-4"><a class="header" href="#example-request-3-4">Example Request 3</a></h4>
 <p>Clear the queue, add all the <code>Song</code>'s by this <code>Artist</code>, but start at the 5th <code>Song</code> (offset 4).</p>
 <pre><code class="language-bash">festival-cli queue_add_map_artist --artist TWICE --append front --clear --offset 4
 </code></pre>
@@ -4662,13 +4664,13 @@ index 5 | song_6
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;queue_add_map_album&quot;,&quot;params&quot;:{&quot;artist&quot;:&quot;TWICE&quot;,&quot;album&quot;:&quot;PAGE TWO&quot;,&quot;append&quot;:&quot;back&quot;,&quot;clear&quot;:false}}'
 </code></pre>
-<h4 id="example-request-2-4"><a class="header" href="#example-request-2-4">Example Request 2</a></h4>
+<h4 id="example-request-2-5"><a class="header" href="#example-request-2-5">Example Request 2</a></h4>
 <p>Append at queue index 4.</p>
 <pre><code class="language-bash">festival-cli queue_add_map_album --artist TWICE --album &quot;PAGE TWO&quot; --append index --index 4 
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;queue_add_map_album&quot;,&quot;params&quot;:{&quot;artist&quot;:&quot;TWICE&quot;,&quot;album&quot;:&quot;PAGE TWO&quot;,&quot;append&quot;:&quot;index&quot;,&quot;index&quot;:4,&quot;clear&quot;:false}}'
 </code></pre>
-<h4 id="example-request-3-4"><a class="header" href="#example-request-3-4">Example Request 3</a></h4>
+<h4 id="example-request-3-5"><a class="header" href="#example-request-3-5">Example Request 3</a></h4>
 <p>Clear the queue, add all the <code>Song</code>'s in this <code>Album</code>, but start at the 5th <code>Song</code> (offset 4).</p>
 <pre><code class="language-bash">festival-cli queue_add_map_album --artist TWICE --album &quot;PAGE TWO&quot; --append front --clear --offset 4
 </code></pre>
@@ -4702,13 +4704,13 @@ index 5 | song_6
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;queue_add_key_song&quot;,&quot;params&quot;:{&quot;key&quot;:123,&quot;append&quot;:&quot;back&quot;,&quot;clear&quot;:false}'
 </code></pre>
-<h4 id="example-request-2-5"><a class="header" href="#example-request-2-5">Example Request 2</a></h4>
+<h4 id="example-request-2-6"><a class="header" href="#example-request-2-6">Example Request 2</a></h4>
 <p>Append at index 4, start from <code>Song</code> 3 (offset 2).</p>
 <pre><code class="language-bash">festival-cli queue_add_key_song --key 123 --append index --index 4 --offset 2
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;queue_add_key_song&quot;,&quot;params&quot;:{&quot;key&quot;:123,&quot;append&quot;:&quot;index&quot;,&quot;index&quot;:4,&quot;clear&quot;:false,&quot;offset&quot;:2}'
 </code></pre>
-<h4 id="example-request-3-5"><a class="header" href="#example-request-3-5">Example Request 3</a></h4>
+<h4 id="example-request-3-6"><a class="header" href="#example-request-3-6">Example Request 3</a></h4>
 <p>Clear the queue, add starting from <code>Song</code> 5 (offset 4).</p>
 <pre><code class="language-bash">festival-cli queue_add_key_song --key 123 --append front --clear --offset 4
 </code></pre>
@@ -4756,13 +4758,13 @@ index 5 | song_6
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;queue_add_rand_artist&quot;,&quot;params&quot;:{&quot;append&quot;:&quot;back&quot;,&quot;clear&quot;:false}}'
 </code></pre>
-<h4 id="example-request-2-6"><a class="header" href="#example-request-2-6">Example Request 2</a></h4>
+<h4 id="example-request-2-7"><a class="header" href="#example-request-2-7">Example Request 2</a></h4>
 <p>Append at queue index 4.</p>
 <pre><code class="language-bash">festival-cli queue_add_rand_artist --append index --index 4
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;queue_add_rand_artist&quot;,&quot;params&quot;:{&quot;append&quot;:&quot;index&quot;,&quot;index&quot;:4,&quot;clear&quot;:false}}'
 </code></pre>
-<h4 id="example-request-3-6"><a class="header" href="#example-request-3-6">Example Request 3</a></h4>
+<h4 id="example-request-3-7"><a class="header" href="#example-request-3-7">Example Request 3</a></h4>
 <p>Clear the queue, add all the <code>Song</code>'s by this <code>Artist</code>, but start at the 5th <code>Song</code> (offset 4).</p>
 <pre><code class="language-bash">festival-cli queue_add_rand_artist --append front --clear --offset 4
 </code></pre>
@@ -4824,13 +4826,13 @@ index 5 | song_6
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;queue_add_rand_album&quot;,&quot;params&quot;:{&quot;append&quot;:&quot;back&quot;,&quot;clear&quot;:false}}'
 </code></pre>
-<h4 id="example-request-2-7"><a class="header" href="#example-request-2-7">Example Request 2</a></h4>
+<h4 id="example-request-2-8"><a class="header" href="#example-request-2-8">Example Request 2</a></h4>
 <p>Append at queue index 4.</p>
 <pre><code class="language-bash">festival-cli queue_add_rand_album --append index --index 4
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;queue_add_rand_album&quot;,&quot;params&quot;:{&quot;append&quot;:&quot;index&quot;,&quot;index&quot;:4,&quot;clear&quot;:false}}'
 </code></pre>
-<h4 id="example-request-3-7"><a class="header" href="#example-request-3-7">Example Request 3</a></h4>
+<h4 id="example-request-3-8"><a class="header" href="#example-request-3-8">Example Request 3</a></h4>
 <p>Clear the queue, add all the <code>Song</code>'s in this <code>Album</code>, but start at the 5th <code>Song</code> (offset 4).</p>
 <pre><code class="language-bash">festival-cli queue_add_rand_album --append front --clear --offset 4
 </code></pre>
@@ -4883,13 +4885,13 @@ index 5 | song_6
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;queue_add_rand_song&quot;,&quot;params&quot;:{&quot;append&quot;:&quot;back&quot;,&quot;clear&quot;:false}'
 </code></pre>
-<h4 id="example-request-2-8"><a class="header" href="#example-request-2-8">Example Request 2</a></h4>
+<h4 id="example-request-2-9"><a class="header" href="#example-request-2-9">Example Request 2</a></h4>
 <p>Append at queue index 4.</p>
 <pre><code class="language-bash">festival-cli queue_add_rand_song --append index --index 4
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;queue_add_rand_song&quot;,&quot;params&quot;:{&quot;append&quot;:&quot;index&quot;,&quot;index&quot;:4,&quot;clear&quot;:false}'
 </code></pre>
-<h4 id="example-request-3-8"><a class="header" href="#example-request-3-8">Example Request 3</a></h4>
+<h4 id="example-request-3-9"><a class="header" href="#example-request-3-9">Example Request 3</a></h4>
 <p>Clear the queue, add <code>Song</code> 123.</p>
 <pre><code class="language-bash">festival-cli queue_add_rand_song --append front --clear --offset 4
 </code></pre>
@@ -4933,13 +4935,13 @@ index 5 | song_6
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;queue_add_playlist&quot;,&quot;params&quot;:{&quot;playlist&quot;:&quot;my_playlist&quot;,&quot;append&quot;:&quot;back&quot;,&quot;clear&quot;:false}'
 </code></pre>
-<h4 id="example-request-2-9"><a class="header" href="#example-request-2-9">Example Request 2</a></h4>
+<h4 id="example-request-2-10"><a class="header" href="#example-request-2-10">Example Request 2</a></h4>
 <p>Append at index 4, start from <code>Song</code> 3 (offset 2).</p>
 <pre><code class="language-bash">festival-cli queue_add_playlist --playlist my_playlist --append index --index 4 --offset 2
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;queue_add_playlist&quot;,&quot;params&quot;:{&quot;playlist&quot;:&quot;my_playlist&quot;,&quot;append&quot;:&quot;index&quot;,&quot;index&quot;:4,&quot;clear&quot;:false,&quot;offset&quot;:2}'
 </code></pre>
-<h4 id="example-request-3-9"><a class="header" href="#example-request-3-9">Example Request 3</a></h4>
+<h4 id="example-request-3-10"><a class="header" href="#example-request-3-10">Example Request 3</a></h4>
 <p>Clear the queue, add starting from <code>Song</code> 5 (offset 4).</p>
 <pre><code class="language-bash">festival-cli queue_add_playlist --playlist my_playlist --append front --clear --offset 4
 </code></pre>
@@ -5013,7 +5015,7 @@ index 5 | song_6
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;queue_remove_range&quot;,&quot;params&quot;:{&quot;start&quot;:0,&quot;end&quot;:1,&quot;skip&quot;:true}}'
 </code></pre>
-<h4 id="example-request-2-10"><a class="header" href="#example-request-2-10">Example Request 2</a></h4>
+<h4 id="example-request-2-11"><a class="header" href="#example-request-2-11">Example Request 2</a></h4>
 <p>Remove 0, 1, 2, 3 from the queue.</p>
 <pre><code class="language-bash">festival-cli queue_remove_range --start 0 --end 4 --skip
 </code></pre>
@@ -5251,7 +5253,7 @@ index 5 | song_6
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;playlist_add_key_artist&quot;,&quot;params&quot;:{&quot;playlist&quot;:&quot;Hello&quot;,&quot;key&quot;:0,&quot;append&quot;:&quot;back&quot;}}'
 </code></pre>
-<h4 id="example-request-2-11"><a class="header" href="#example-request-2-11">Example Request 2</a></h4>
+<h4 id="example-request-2-12"><a class="header" href="#example-request-2-12">Example Request 2</a></h4>
 <p>Append at playlist index 4.</p>
 <pre><code class="language-bash">festivali-cli playlist_add_key_artist --playlist Hello --key 0 --append index --index 4
 </code></pre>
@@ -5289,7 +5291,7 @@ index 5 | song_6
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;playlist_add_key_album&quot;,&quot;params&quot;:{&quot;playlist&quot;:&quot;Hello&quot;,&quot;key&quot;:0,&quot;append&quot;:&quot;back&quot;}}'
 </code></pre>
-<h4 id="example-request-2-12"><a class="header" href="#example-request-2-12">Example Request 2</a></h4>
+<h4 id="example-request-2-13"><a class="header" href="#example-request-2-13">Example Request 2</a></h4>
 <p>Append at playlist index 4.</p>
 <pre><code class="language-bash">festival-cli playlist_add_key_album --playlist Hello --key 0 --append index --index 4
 </code></pre>
@@ -5327,7 +5329,7 @@ index 5 | song_6
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;playlist_add_key_song&quot;,&quot;params&quot;:{&quot;playlist&quot;:&quot;Hello&quot;,&quot;key&quot;:0,&quot;append&quot;:&quot;back&quot;}}'
 </code></pre>
-<h4 id="example-request-2-13"><a class="header" href="#example-request-2-13">Example Request 2</a></h4>
+<h4 id="example-request-2-14"><a class="header" href="#example-request-2-14">Example Request 2</a></h4>
 <p>Append at playlist index 4.</p>
 <pre><code class="language-bash">festival-cli playlist_add_key_song --playlist Hello --key 0 --append index --index 4
 </code></pre>
@@ -5365,7 +5367,7 @@ index 5 | song_6
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;playlist_add_map_artist&quot;,&quot;params&quot;:{&quot;playlist&quot;:&quot;Hello&quot;,&quot;artist&quot;:&quot;TWICE&quot;,&quot;append&quot;:&quot;back&quot;}}'
 </code></pre>
-<h4 id="example-request-2-14"><a class="header" href="#example-request-2-14">Example Request 2</a></h4>
+<h4 id="example-request-2-15"><a class="header" href="#example-request-2-15">Example Request 2</a></h4>
 <p>Append at playlist index 4.</p>
 <pre><code class="language-bash">festival-cli playlist_add_map_artist --playlist Hello --artist TWICE --append index --index 4
 </code></pre>
@@ -5404,7 +5406,7 @@ index 5 | song_6
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;playlist_add_map_album&quot;,&quot;params&quot;:{&quot;playlist&quot;:&quot;Hello&quot;,&quot;artist&quot;:&quot;TWICE&quot;,&quot;album&quot;:&quot;PAGE TWO&quot;,&quot;append&quot;:&quot;back&quot;}}'
 </code></pre>
-<h4 id="example-request-2-15"><a class="header" href="#example-request-2-15">Example Request 2</a></h4>
+<h4 id="example-request-2-16"><a class="header" href="#example-request-2-16">Example Request 2</a></h4>
 <p>Append at playlist index 4.</p>
 <pre><code class="language-bash">festival-cli playlist_add_map_album --playlist Hello --artist TWICE --album &quot;PAGE TWO&quot; --append index --index 4
 </code></pre>
@@ -5444,7 +5446,7 @@ index 5 | song_6
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;playlist_add_map_song&quot;,&quot;params&quot;:{&quot;playlist&quot;:&quot;Hello&quot;,&quot;artist&quot;:&quot;TWICE&quot;,&quot;album&quot;:&quot;PAGE TWO&quot;,&quot;song&quot;:&quot;CHEER UP&quot;,&quot;append&quot;:&quot;back&quot;}}'
 </code></pre>
-<h4 id="example-request-2-16"><a class="header" href="#example-request-2-16">Example Request 2</a></h4>
+<h4 id="example-request-2-17"><a class="header" href="#example-request-2-17">Example Request 2</a></h4>
 <p>Append at playlist index 4.</p>
 <pre><code class="language-bash">festival-cli playlist_add_map_song --playlist Hello --artist TWICE --album &quot;PAGE TWO&quot; --song &quot;CHEER UP&quot; --append index --index 4
 </code></pre>
@@ -6121,7 +6123,7 @@ index 5 | song_6
 <h4 id="output-17"><a class="header" href="#output-17">Output</a></h4>
 <p>Archive including:</p>
 <ul>
-<li>A copy of <a href="rest/../json-rpc/state/state_collection_full.html"><code>state_collection_full</code></a> output in <code>JSON</code></li>
+<li>A copy of <a href="rest/../json-rpc/collection/collection_full.html"><code>collection_full</code></a> output in <code>JSON</code></li>
 <li>All <a href="rest/../common-objects/artist.html"><code>Artist</code></a>'s</li>
 <li>All <a href="rest/../common-objects/album.html"><code>Album</code></a>'s (including art if found)</li>
 <li>All <a href="rest/../common-objects/song.html"><code>Song</code></a>'s</li>
@@ -6138,7 +6140,7 @@ index 5 | song_6
 </code></pre>
 <p>Extracted:</p>
 <pre><code class="language-plaintext">Collection - 1690812809/
-  ├─ state_collection_full.json
+  ├─ collection_full.json
   │
   │
   ├─ Artist Name 1/

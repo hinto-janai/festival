@@ -16,7 +16,7 @@ For example, if all your `Song`'s combined are `100GB` in size, `festivald` will
 #### Output
 
 Archive including:
-- A copy of [`state_collection_full`](../json-rpc/state/state_collection_full.md) output in `JSON`
+- A copy of [`collection_full`](../json-rpc/collection/collection_full.md) output in `JSON`
 - All [`Artist`](../common-objects/artist.md)'s
 - All [`Album`](../common-objects/album.md)'s (including art if found)
 - All [`Song`](../common-objects/song.md)'s
@@ -39,7 +39,7 @@ Collection - 1690812809.zip
 Extracted:
 ```plaintext
 Collection - 1690812809/
-  ├─ state_collection_full.json
+  ├─ collection_full.json
   │
   │
   ├─ Artist Name 1/

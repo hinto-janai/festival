@@ -41,7 +41,7 @@ pub struct Cli {
 	#[command(subcommand)]
 	rpc: Option<Rpc>,
 
-	#[arg(long, verbatim_doc_comment, value_name = "URL")]
+	#[arg(short, long, verbatim_doc_comment, value_name = "URL")]
 	/// URL of the `festivald` to connect to
 	///
 	/// The protocol, IPv4 address, and port of the
@@ -57,7 +57,7 @@ pub struct Cli {
 	/// Default is: `http://127.0.0.1:18425`
 	festivald: Option<String>,
 
-	#[arg(long, verbatim_doc_comment, value_name = "SECONDS")]
+	#[arg(short, long, verbatim_doc_comment, value_name = "SECONDS")]
 	/// Set a timeout for a non-responding `festivald`
 	///
 	/// If `festivald` does not respond with _at least_
@@ -65,16 +65,16 @@ pub struct Cli {
 	/// `festival-cli` will disconnect.
 	///
 	/// 0 means never disconnect.
-	timeout: Option<u64>,
+	timeout: Option<f64>,
 
-	#[arg(long, verbatim_doc_comment, value_name = "ID")]
+	#[arg(short, long, verbatim_doc_comment, value_name = "ID")]
 	/// The `JSON-RPC 2.0` ID to send to `festivald`.
 	///
 	/// See below for more info:
 	/// <https://jsonrpc.org/specification>
 	id: Option<String>,
 
-	#[arg(long, verbatim_doc_comment, value_name = "USER:PASS or FILE")]
+	#[arg(short, long, verbatim_doc_comment, value_name = "USER:PASS or FILE")]
 	/// Authorization sent to `festivald`
 	///
 	/// This matches the `authorization` config
@@ -99,26 +99,19 @@ pub struct Cli {
 	/// ```
 	authorization: Option<String>,
 
+	#[arg(short, long, verbatim_doc_comment)]
+	/// Print debug information about the config/request/response
+	debug: bool,
+
 	#[arg(long, verbatim_doc_comment)]
-	/// Print the options that would be used, but don't actually connect to `festivald`
+	/// Print debug information, but don't actually connect to `festivald`
+	///
+	/// This implies `--debug`.
 	dry_run: bool,
 
 	#[arg(long, verbatim_doc_comment)]
 	/// Open `festival-cli` documentation locally in browser
 	docs: bool,
-
-	#[arg(long, verbatim_doc_comment)]
-	/// Print the PATHs used by `festival-cli`
-	///
-	/// All data saved by `festival-cli` is saved in these directories.
-	/// For more information, see: <https://docs.festival.pm/cli/disk.html>
-	path: bool,
-
-	#[arg(long, verbatim_doc_comment)]
-	/// Reset the current `festival-cli.toml` config file to the default
-	///
-	/// Exits with `0` if everything went ok, otherwise shows error.
-	reset_config: bool,
 
 	#[arg(long, verbatim_doc_comment)]
 	/// Delete all `festival-cli` files that are on disk
@@ -127,7 +120,20 @@ pub struct Cli {
 	/// The PATHs deleted will be printed on success.
 	delete: bool,
 
-	#[arg(long, verbatim_doc_comment)]
+	#[arg(short, long, verbatim_doc_comment)]
+	/// Print the PATHs used by `festival-cli`
+	///
+	/// All data saved by `festival-cli` is saved in these directories.
+	/// For more information, see: <https://docs.festival.pm/cli/disk.html>
+	path: bool,
+
+	#[arg(short, long, verbatim_doc_comment)]
+	/// Reset the current `festival-cli.toml` config file to the default
+	///
+	/// Exits with `0` if everything went ok, otherwise shows error.
+	reset_config: bool,
+
+	#[arg(short, long, verbatim_doc_comment)]
 	/// Print all the methods available
 	methods: bool,
 
@@ -138,11 +144,11 @@ pub struct Cli {
 
 //---------------------------------------------------------------------------------------------------- Regular CLI argument handling
 impl Cli {
-	pub fn get() -> (Option<ConfigBuilder>, Option<Rpc>, bool) {
+	pub fn get() -> (Option<ConfigBuilder>, Option<Rpc>, bool, bool) {
 		Self::parse().handle_args()
 	}
 
-	fn handle_args(mut self) -> (Option<ConfigBuilder>, Option<Rpc>, bool) {
+	fn handle_args(mut self) -> (Option<ConfigBuilder>, Option<Rpc>, bool, bool) {
 		// Version.
 		if self.version {
 			eprintln!("{FESTIVAL_CLI_SHUKUSAI_COMMIT}\n{COPYRIGHT}");
@@ -219,7 +225,7 @@ impl Cli {
 		let config = self.handle_config();
 
 		// Return.
-		(config, self.rpc, self.dry_run)
+		(config, self.rpc, self.debug || self.dry_run, self.dry_run)
 	}
 
 	pub fn handle_config(&mut self) -> Option<ConfigBuilder> {

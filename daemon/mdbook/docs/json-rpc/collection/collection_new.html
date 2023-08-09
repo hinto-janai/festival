@@ -196,11 +196,13 @@
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;collection_new&quot;,&quot;params&quot;:{&quot;paths&quot;:null}}'
 </code></pre>
+<h4 id="example-request-2"><a class="header" href="#example-request-2">Example Request 2</a></h4>
 <p>Use the PATH <code>/home/user/Music/collection</code> on <code>festivald</code>'s filesystem.</p>
 <pre><code class="language-bash">festival-cli collection_new --path &quot;/home/user/Music/collection&quot;
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;collection_new&quot;,&quot;params&quot;:{&quot;paths&quot;:[&quot;/home/user/Music/collection&quot;]}}'
 </code></pre>
+<h4 id="example-request-3"><a class="header" href="#example-request-3">Example Request 3</a></h4>
 <p>Windows PATH works too if <code>\</code> is escaped (and if <code>festivald</code> is running on Windows).</p>
 <pre><code class="language-bash">festival-cli collection_new --path &quot;C:\\Users\\User\\Music\\collection&quot;
 </code></pre>

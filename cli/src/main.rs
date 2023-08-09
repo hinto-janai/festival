@@ -8,7 +8,7 @@ mod rpc;
 
 fn main() {
 	// Handle regular CLI arguments (exit if needed).
-	let (config_cmd, rpc, dry_run) = crate::cli::Cli::get();
+	let (config_cmd, rpc, debug, dry_run) = crate::cli::Cli::get();
 
 	// Read config: `festival-cli.toml`.
 	let mut config_builder = crate::config::ConfigBuilder::file_or();
@@ -19,18 +19,12 @@ fn main() {
 	}
 
 	// Build config.
-	let config = config_builder.build();
+	let config = config_builder.build(debug);
 
 	let Some(rpc) = rpc else {
 		crate::exit!("missing method");
 	};
 
-	// Exit early if dry run.
-	if dry_run {
-		eprintln!("{config:#?}\n\nMethod: {rpc:#?}");
-		std::process::exit(0);
-	}
-
 	// Connect to `festivald`, send request, print response.
-	crate::rpc::request(config, rpc);
+	crate::rpc::request(config, debug, dry_run, rpc);
 }

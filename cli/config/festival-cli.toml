@@ -31,7 +31,6 @@
 # TYPE    | string
 festivald = "http://127.0.0.1:18425"
 
-
 # Set a timeout for a non-responding `festivald`
 #
 # If the request & response time to/from `festivald`
@@ -41,8 +40,8 @@ festivald = "http://127.0.0.1:18425"
 # 0 means never disconnect.
 #
 # DEFAULT | 0
-# VALUES  | 5, 10, 60
-# TYPE    | unsigned integer
+# VALUES  | 2.5, 5, 10.111, 60
+# TYPE    | integer or non-negative float
 timeout = 0
 
 

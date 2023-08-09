@@ -1,19 +1,17 @@
 //---------------------------------------------------------------------------------------------------- Use
 use zeroize::{ZeroizeOnDrop,Zeroize};
 use std::pin::Pin;
-
-//---------------------------------------------------------------------------------------------------- Constants
-const LEN: usize = 32;
+use serde::Serialize;
 
 //---------------------------------------------------------------------------------------------------- Hash
-#[derive(Zeroize,ZeroizeOnDrop,PartialEq,Debug)]
+#[derive(Zeroize,ZeroizeOnDrop,PartialEq,Debug,Serialize)]
 // Contains `Basic <original input in base64>`
-pub struct Auth(Pin<String>);
+pub struct Auth(String);
 
 impl Auth {
 	/// Encode input in base64
 	pub fn new(input: String) -> Self {
-		Self(Pin::new(rpc::base64::encode_with_authorization_basic_header(input)))
+		Self(rpc::base64::encode_with_authorization_basic_header(input))
 	}
 
 	pub fn as_str(&self) -> &str {

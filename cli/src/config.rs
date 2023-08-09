@@ -42,10 +42,10 @@ fn default_id() -> json_rpc::Id<'static> {
 /// We can't use this directly, but we can transform it into
 /// the `Config` we will be using for the rest of the program.
 disk::toml!(ConfigBuilder, disk::Dir::Config, FESTIVAL, SUB_DIR, "festival-cli");
-#[derive(Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
+#[derive(Clone,Debug,PartialEq,Serialize,Deserialize)]
 pub struct ConfigBuilder {
 	pub festivald:          Option<String>,
-	pub timeout:            Option<u64>,
+	pub timeout:            Option<f64>,
 	pub id:                 Option<String>,
 	pub authorization:	    Option<String>,
 }
@@ -54,7 +54,7 @@ impl Default for ConfigBuilder {
 	fn default() -> Self {
 		Self {
 			festivald:          Some(DEFAULT_URL.into()),
-			timeout:            Some(0),
+			timeout:            Some(0.0),
 			id:                 Some(DEFAULT_ID.into()),
 			authorization:      None,
 		}
@@ -62,7 +62,7 @@ impl Default for ConfigBuilder {
 }
 
 impl ConfigBuilder {
-	pub fn build(self) -> Config {
+	pub fn build(self, debug: bool) -> Config {
 		let ConfigBuilder {
 			festivald,
 			timeout,
@@ -75,7 +75,9 @@ impl ConfigBuilder {
 				match $option {
 					Some(v) => v,
 					_ => {
-						warn!("missing config [{}], using default [{:?}]", $field, $default);
+						if debug {
+							eprintln!("missing config [{}], using default [{:?}]", $field, $default);
+						}
 						$default
 					},
 				}
@@ -87,7 +89,9 @@ impl ConfigBuilder {
 				match $option {
 					Some(v) => Some(v),
 					_ => {
-						warn!("missing config [{}], using default: [{:?}]", $field, $default);
+						if debug {
+							warn!("missing config [{}], using default: [{:?}]", $field, $default);
+						}
 						$default
 					},
 				}
@@ -99,16 +103,34 @@ impl ConfigBuilder {
 		let id = id.map(|s| json_rpc::Id::from(s));
 
 		let timeout = match timeout {
-			Some(x) if x == 0 => None,
-			Some(x) => Some(std::time::Duration::from_secs(x)),
+			Some(x) if x == 0.0 => None,
+			Some(x) if x < 0.0 => crate::exit!("[timeout] must not be negative: {x}"),
+			Some(x) => Some(std::time::Duration::from_secs_f64(x)),
 			_ => None,
 		};
 
 		let mut c = Config {
-			festivald:          get!(festivald,          "festivald",          default_url()),
-			timeout:            sum!(timeout,            "timeout",            None::<std::time::Duration>),
-			id:                 get!(id,                 "id",                 default_id()),
+			festivald:          get!(festivald, "festivald", default_url()),
+			timeout:            sum!(timeout,   "timeout",   None::<std::time::Duration>),
+			id:                 get!(id,        "id",        default_id()),
 			authorization: None,
+		};
+
+		// `festivald` URL sanity checks.
+		let uri = match http::uri::Uri::from_str(&c.festivald) {
+			Ok(uri) => uri,
+			Err(_)  => crate::exit!("invalid [festivald] URL: {}", c.festivald),
+		};
+		let (festivald, protocol) = {
+			let protocol = match uri.scheme_str() {
+				Some("http")  => "http",
+				Some("https") => "https",
+				Some(x) => crate::exit!("invalid [festivald] URL protocol: {x}, must be HTTP or HTTPS"),
+				None => crate::exit!("missing [festivald] URL protocol"),
+			};
+			let ip = uri.host().unwrap_or_else(|| crate::exit!("missing [festivald] URL IP"));
+			let port = uri.port_u16().unwrap_or_else(|| crate::exit!("missing [festivald] URL Port"));
+			(format!("{protocol}://{ip}:{port}"), protocol)
 		};
 
 		// FIXME TODO: testing.
@@ -134,28 +156,18 @@ impl ConfigBuilder {
 
 			// Skip empty `username:password`.
 			if s.is_empty() {
-				warn!("config [authorization] is empty, skipping");
 			// Look for `:` split.
 			} else if s.split_once(":").is_none() {
 				crate::exit!("[authorization] field is not in `USERNAME:PASSWORD` format");
-			// Reject if TLS is not enabled.
-			// TODO: replace with https check
-//			} else if !c.tls || c.certificate.is_none() || c.key.is_none() {
-//				crate::exit!("[authorization] field was provided but TLS is not enabled, exiting for safety");
 			} else {
 				// Set auth.
 				c.authorization = Some(crate::auth::Auth::new(s));
 			}
-		} else {
-			warn!("missing config [authorization], skipping");
 		}
 
-		info!("{DASH} Configuration");
-		for line in format!("{c:#?}").lines() {
-			info!("{line}");
+		if c.authorization.is_some() && protocol != "https" {
+			crate::exit!("[authorization] is enabled, but HTTPS is not");
 		}
-		info!("Authorization: {}", c.authorization.is_some());
-		info!("{DASH} Configuration");
 
 		c
 	}
@@ -165,7 +177,7 @@ impl ConfigBuilder {
 		use disk::Toml;
 
 		match Self::from_file() {
-			Ok(c)  => { ok!("festival-cli.conf ... from disk"); c },
+			Ok(c)  => c,
 			Err(e) => {
 				// SAFETY: if we can't get the config, panic is ok.
 				let p = ConfigBuilder::absolute_path().unwrap();
@@ -209,7 +221,7 @@ impl ConfigBuilder {
 /// The global immutable copy the whole program will refer
 /// to is the static `CONFIG` in this module. Or, `config()`.
 //disk::toml!(Config, disk::Dir::Config, FESTIVAL, SUB_DIR, "festival-cli");
-#[derive(Debug,PartialEq)]
+#[derive(Debug,PartialEq,Serialize)]
 pub struct Config {
 	pub festivald:        String,
 	pub timeout:          Option<std::time::Duration>,

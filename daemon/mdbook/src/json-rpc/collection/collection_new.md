@@ -33,6 +33,8 @@ festival-cli collection_new
 ```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_new","params":{"paths":null}}'
 ```
+
+#### Example Request 2
 Use the PATH `/home/user/Music/collection` on `festivald`'s filesystem.
 ```bash
 festival-cli collection_new --path "/home/user/Music/collection"
@@ -40,6 +42,8 @@ festival-cli collection_new --path "/home/user/Music/collection"
 ```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_new","params":{"paths":["/home/user/Music/collection"]}}'
 ```
+
+#### Example Request 3
 Windows PATH works too if `\` is escaped (and if `festivald` is running on Windows).
 ```bash
 festival-cli collection_new --path "C:\\Users\\User\\Music\\collection"
