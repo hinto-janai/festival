@@ -105,13 +105,7 @@ pub(super) fn exit(
 		}
 	}
 
-	// FIXME:
-	// This used to be `std::process::exit()` but
-	// it caused some weird segfaults on certain machines
-	// if the main `GUI` thread was not the one calling it.
-	//
-	// So, use this signal so that `main()` can exit instead.
-	atomic_store!(SHOULD_EXIT, true);
+	std::process::exit(0);
 }}
 
 //---------------------------------------------------------------------------------------------------- TESTS
