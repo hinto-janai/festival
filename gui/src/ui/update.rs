@@ -28,7 +28,14 @@ use shukusai::{
 	state::{
 		AUDIO_STATE,
 		RESET_STATE,
+		PLAYLISTS,
+		Entry,
 	},
+	collection::KeyEnum,
+};
+use readable::{
+	Unsigned,
+	Runtime,
 };
 use benri::{
 	log::*,
@@ -40,7 +47,6 @@ use benri::{
 use std::time::{
 	Instant,
 };
-
 use crate::constants::{
 	SLIDER_CIRCLE_INACTIVE,
 	SLIDER_CIRCLE_HOVERED,
@@ -62,6 +68,7 @@ use crate::text::{
 	UI_REPEAT_SONG,UI_REPEAT,REPEAT_SONG,REPEAT_QUEUE,REPEAT_OFF,
 };
 use strum::*;
+use std::sync::Arc;
 
 //---------------------------------------------------------------------------------------------------- `GUI`'s eframe impl.
 impl eframe::App for Gui {
@@ -320,19 +327,42 @@ impl Gui {
 					self.reset_collection();
 				// Check for `Ctrl+S` (Save Settings)
 				} else if input.consume_key(Modifiers::COMMAND, Key::S) {
-					if self.diff_settings() {
+					let settings  = self.diff_settings();
+					let playlists = self.diff_playlists();
+
+					if settings && playlists {
+						match (self.save_settings(), self.save_playlists()) {
+							(Ok(_), Ok(_)) => crate::toast!(self, "Saved settings & playlists"),
+							(Err(e), _)    => crate::toast_err!(self, "Settings save failed: {e}"),
+							(_, Err(e))    => crate::toast_err!(self, "Playlists save failed: {e}"),
+						}
+					} else if settings {
 						match self.save_settings() {
-							Ok(_) => crate::toast!(self, "Saved settings"),
+							Ok(_)  => crate::toast!(self, "Saved settings"),
 							Err(e) => crate::toast_err!(self, "Settings save failed: {e}"),
+						}
+					} else if playlists {
+						match self.save_playlists() {
+							Ok(_)  => crate::toast!(self, "Saved playlists"),
+							Err(e) => crate::toast_err!(self, "Playlists save failed: {e}"),
 						}
 					} else {
 						crate::toast!(self, "No changes to save");
 					}
 				// Check for `Ctrl+Z` (Reset Settings)
 				} else if input.consume_key(Modifiers::COMMAND, Key::Z) {
-					if self.diff_settings() {
+					let settings  = self.diff_settings();
+					let playlists = self.diff_playlists();
+					if settings && playlists {
+						self.reset_settings();
+						self.reset_playlists();
+						crate::toast!(self, "Reset settings & playlists");
+					} else if settings {
 						self.reset_settings();
 						crate::toast!(self, "Reset settings");
+					} else if playlists {
+						self.reset_playlists();
+						crate::toast!(self, "Reset playlists");
 					} else {
 						crate::toast!(self, "No changes to undo");
 					}
@@ -450,9 +480,15 @@ impl Gui {
 			}
 		}
 
-		// Show debug screen if `true`.
+		// Show full-screen debug screen if `true`.
 		if self.debug_screen {
 			self.show_debug_screen(ctx, width, height);
+			return;
+		}
+
+		// Show full-screen playlist screen if `true`.
+		if let Some(key) = self.playlist_add_screen {
+			self.show_playlist_add_screen(ctx, width, height, key);
 			return;
 		}
 
@@ -873,7 +909,83 @@ fn show_collection_spinner(
 	});
 }}
 
-//---------------------------------------------------------------------------------------------------- Debug scren
+//---------------------------------------------------------------------------------------------------- Playlist add
+// This is a fullscreen screen for adding a (Artist|Album|Song)key to a playlist.
+impl Gui {
+#[inline(always)]
+fn show_playlist_add_screen(&mut self, ctx: &egui::Context, width: f32, height: f32, key: KeyEnum) {
+	CentralPanel::default().show(ctx, |ui| {
+		self.set_visuals(ui);
+		ui.vertical_centered(|ui| {
+			let header = height / 25.0;
+
+			// Exit button.
+			ui.add_space(header);
+			if ui.add_sized([width / 1.5, header], Button::new("Exit")).clicked() {
+				self.playlist_add_screen = None;
+			}
+			ui.add_space(header);
+
+			ui.separator();
+			ui.add_space(header);
+
+			let (object, name) = match key {
+				KeyEnum::Artist(k) => ("Artist", &self.collection.artists[k].name),
+				KeyEnum::Album(k) => ("Album", &self.collection.albums[k].title),
+				KeyEnum::Song(k) => ("Song", &self.collection.songs[k].title),
+			};
+
+			let text = RichText::new(format!("Add {object}\n[{name}]\nto playlist..."))
+				.size(header)
+				.color(BONE);
+
+			// Header.
+			ui.add_sized([width, header], Label::new(text));
+
+			ui.add_space(header);
+
+			ScrollArea::both()
+				.id_source("PlaylistsAddScreen")
+				.max_width(width)
+				.max_height(height)
+				.auto_shrink([false; 2])
+				.show_viewport(ui, |ui, _|
+			{
+				let width = ui.available_width() - 10.0;
+
+				for playlist_name in PLAYLISTS.read().keys() {
+					// `Playlist` name.
+					let button = Button::new(
+						RichText::new(&**playlist_name)
+						.text_style(TextStyle::Name("30".into()))
+					);
+
+					if ui.add_sized([width, 35.0], button).clicked() {
+						self.playlist_add_screen_result = Some((Arc::clone(playlist_name), key));
+					}
+
+					ui.add_space(10.0);
+				}
+			});
+
+			if let Some((playlist_name, key)) = self.playlist_add_screen_result.take() {
+				if let Some(playlist) = PLAYLISTS.write().get_mut(&playlist_name) {
+					match key {
+						KeyEnum::Artist(k) => Entry::valid_from_artist(k, &self.collection).into_iter().for_each(|e| playlist.push_back(e)),
+						KeyEnum::Album(k) => Entry::valid_from_album(k, &self.collection).into_iter().for_each(|e| playlist.push_back(e)),
+						KeyEnum::Song(k) => playlist.push_back(Entry::valid_from_song(k, &self.collection)),
+					}
+
+					crate::toast!(self, format!("Added {object} [{name}] to playlist [{playlist_name}]"));
+				}
+
+				self.playlist_add_screen = None;
+			}
+		});
+	});
+}}
+
+//---------------------------------------------------------------------------------------------------- Debug screen
 // This is a fullscreen debug screen, showing
 // a bunch of useful runtime information.
 // Toggled with `CTRL+SHIFT+D`.

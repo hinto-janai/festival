@@ -131,6 +131,67 @@ pub enum Entry {
 	},
 }
 
+impl Entry {
+	/// INVARIANT: assumes key is valid.
+	///
+	/// Returns valid entries of all `Song`'s by an `Artist`.
+	pub fn valid_from_artist(key: ArtistKey, collection: &Arc<Collection>) -> Vec<Self> {
+		let artist = &collection.artists[key];
+		artist.songs
+			.iter()
+			.map(|s| {
+				let song  = &collection.songs[s];
+				let album = &collection.albums[song.album];
+				Self::Valid {
+					key_artist: key,
+					key_album: album.key,
+					key_song: song.key,
+					artist: Arc::clone(&artist.name),
+					album: Arc::clone(&album.title),
+					song: Arc::clone(&song.title),
+				}
+			})
+			.collect()
+	}
+
+	/// INVARIANT: assumes key is valid.
+	///
+	/// Returns valid entries of all `Song`'s in an `Album`.
+	pub fn valid_from_album(key: AlbumKey, collection: &Arc<Collection>) -> Vec<Self> {
+		let album  = &collection.albums[key];
+		let artist = &collection.artists[album.artist];
+		album.songs
+			.iter()
+			.map(|s| {
+				let song = &collection.songs[s];
+				Self::Valid {
+					key_artist: artist.key,
+					key_album: album.key,
+					key_song: song.key,
+					artist: Arc::clone(&artist.name),
+					album: Arc::clone(&album.title),
+					song: Arc::clone(&song.title),
+				}
+			})
+			.collect()
+	}
+
+	/// INVARIANT: assumes key is valid.
+	///
+	/// Returns a valid entry of a `Song`
+	pub fn valid_from_song(key: SongKey, collection: &Arc<Collection>) -> Self {
+		let (artist, album, song) = collection.walk(key);
+		Self::Valid {
+			key_artist: artist.key,
+			key_album: album.key,
+			key_song: song.key,
+			artist: Arc::clone(&artist.name),
+			album: Arc::clone(&album.title),
+			song: Arc::clone(&song.title),
+		}
+	}
+}
+
 impl std::ops::Deref for Playlists {
 	type Target = PlaylistsInner;
 

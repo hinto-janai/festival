@@ -141,8 +141,8 @@ r#"*-------------------------------------------------------*
 |       Key/Mouse | Action                              |
 |-------------------------------------------------------|
 |     [A-Za-z0-9] | Jump to search tab                  |
-|          CTRL+S | Save Settings                       |
-|          CTRL+Z | Reset Settings                      |
+|          CTRL+S | Save Changes                        |
+|          CTRL+Z | Reset Changes                       |
 |          CTRL+C | Reset Collection                    |
 |          CTRL+A | Add Scan Directory                  |
 |          CTRL+W | Rotate Album Sort                   |
@@ -155,31 +155,33 @@ r#"*-------------------------------------------------------*
 |            Left | Last Sub-Tab                        |
 |   Primary Mouse | Set Artist, Album, Song             |
 | Secondary Mouse | Append Artist, Album, Song to Queue |
-|    Middle Mouse | Open Album/Song Directory           |
+|  CTRL+Primary   | Add Artist, Album, Song to Playlist |
+|  CTRL+Secondary | Open Album/Song Directory           |
 *-------------------------------------------------------*"#;
 
 // macOS doesn't have a middle click on the trackpad natively...
 #[cfg(target_os = "macos")]
 pub const HELP: &str =
-r#"*-------------------------------------------------------*
-|       Key/Mouse | Action                              |
-|-------------------------------------------------------|
-|     [A-Za-z0-9] | Jump to search tab                  |
-|       Command+S | Save Settings                       |
-|       Command+Z | Reset Settings                      |
-|       Command+C | Reset Collection                    |
-|       Command+A | Add Scan Directory                  |
-|       Command+W | Rotate Album Sort                   |
-|       Command+E | Rotate Artist Sort                  |
-|       Command+R | Rotate Song Sort                    |
-|       Command+D | Goto Last Tab                       |
-|              Up | Last Tab                            |
-|            Down | Next Tab                            |
-|           Right | Last Sub-Tab                        |
-|            Left | Last Sub-Tab                        |
-|   Primary Mouse | Set Artist, Album, Song             |
-| Secondary Mouse | Append Artist, Album, Song to Queue |
-| Command+Primary | Open Album/Song Directory           |
+r#"*---------------------------------------------------------*
+|       Key/Mouse | Action                                |
+|---------------------------------------------------------|
+|     [A-Za-z0-9]   | Jump to search tab                  |
+|       Command+S   | Save Changes                        |
+|       Command+Z   | Reset Changes                       |
+|       Command+C   | Reset Collection                    |
+|       Command+A   | Add Scan Directory                  |
+|       Command+W   | Rotate Album Sort                   |
+|       Command+E   | Rotate Artist Sort                  |
+|       Command+R   | Rotate Song Sort                    |
+|       Command+D   | Goto Last Tab                       |
+|              Up   | Last Tab                            |
+|            Down   | Next Tab                            |
+|           Right   | Last Sub-Tab                        |
+|            Left   | Last Sub-Tab                        |
+|   Primary Mouse   | Set Artist, Album, Song             |
+| Secondary Mouse   | Add Artist, Album, Song to Queue    |
+| Command+Primary   | Add Artist, Album, Song to Playlist |
+| Command+Secondary | Open Album/Song Directory           |
 *-------------------------------------------------------*"#;
 
 #[cfg(target_os = "windows")]

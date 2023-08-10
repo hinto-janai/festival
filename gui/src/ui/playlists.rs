@@ -59,9 +59,9 @@ pub fn show_tab_playlists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, wid
 
 		{
 			const TAB: PlaylistSubTab = PlaylistSubTab::View;
-			let label = match self.state.artist {
-				Some(key) => {
-					let name = self.collection.artists[key].name.head_dot(18);
+			let label = match &self.state.playlist {
+				Some(name) => {
+					let name = name.head_dot(18);
 					SelectableLabel::new(self.settings.playlist_sub_tab == TAB, name)
 				},
 				None => SelectableLabel::new(self.settings.playlist_sub_tab == TAB, TAB.human())
@@ -181,7 +181,7 @@ pub fn show_tab_playlists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, wid
 								ui.set_enabled(false);
 							}
 
-							let button = Button::new(RichText::new("🗋").size(SIZE));
+							let button = Button::new(RichText::new("🗋").size(SIZE - 5.0));
 							if ui.add_sized([SIZE2, SIZE2], button).on_hover_text(PLAYLIST_EDIT_SAVE).on_disabled_hover_text(PLAYLIST_EXISTS).clicked() {
 								self.state.playlist_edit  = None;
 								let arc_str: Arc<str>     = std::mem::take(&mut self.state.playlist_edit_string).into();
@@ -190,14 +190,14 @@ pub fn show_tab_playlists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, wid
 							}
 						});
 					} else {
-						let button = Button::new(RichText::new("Ａ").size(SIZE));
+						let button = Button::new(RichText::new("Ａ").size(SIZE - 5.0));
 						if ui.add_sized([SIZE2, SIZE2], button).on_hover_text(PLAYLIST_EDIT).clicked() {
 							self.state.playlist_edit        = Some(Arc::clone(&playlist_name));
 							self.state.playlist_edit_string = playlist_name.to_string();
 						}
 					}
 
-					let button = Button::new(RichText::new("🗐").size(SIZE));
+					let button = Button::new(RichText::new("🗐").size(SIZE - 5.0));
 					if ui.add_sized([SIZE2, SIZE2], button).on_hover_text(PLAYLIST_COPY).clicked() {
 						self.playlist_clone = Some(Arc::clone(playlist_name));
 					}

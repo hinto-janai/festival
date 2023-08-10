@@ -296,7 +296,8 @@ macro_rules! clear_stop {
 /// - Lists `track`, `runtime`, `title`
 /// - Primary click: play the song/album/artist
 /// - Secondary click: adds it to the queue
-/// - Middle click: opens its directory in a file explorer
+/// - CTRL + Primary click: adds to playlist
+/// - CTRL + Secondary click: opens its directory in a file explorer
 ///
 /// HACK:
 /// This also takes in a optional `$artist`.
@@ -325,13 +326,12 @@ macro_rules! song_button {
 		let resp = $ui.put(rect, egui::SelectableLabel::new($same, ""));
 
 		let primary   = resp.clicked();
-		let middle    = resp.middle_clicked();
 		let secondary = resp.secondary_clicked();
 
-		if middle || (primary && $self.modifiers.command) {
-			$crate::open!($self, $album);
-		} else if primary {
-			if let Some(queue_index) = $queue_index {
+		if primary {
+			if $self.modifiers.command {
+				$self.playlist_add_screen = Some(shukusai::collection::KeyEnum::Song($key));
+			} else if let Some(queue_index) = $queue_index {
 				crate::play_queue_index!($self, queue_index);
 			} else if let Some(artist_key) = $artist {
 				$crate::play_artist_offset!($self, artist_key, $offset);
@@ -339,7 +339,11 @@ macro_rules! song_button {
 				$crate::play_album_offset!($self, $song.album, $offset);
 			}
 		} else if secondary {
-			$crate::add_song!($self, $song.title, $key);
+			if $self.modifiers.command {
+				$crate::open!($self, $album);
+			} else {
+				$crate::add_song!($self, $song.title, $key);
+			}
 		}
 
 		// FIXME:
@@ -387,7 +391,8 @@ macro_rules! song_button {
 ///
 /// - Primary click: sets it to view
 /// - Secondary click: adds it to the queue
-/// - Middle click: opens its directory in a file explorer
+/// - CTRL + Primary click: adds to playlist
+/// - CTRL + Secondary click: opens its directory in a file explorer
 macro_rules! album_button {
 	($self:ident, $album:expr, $key:expr, $ui:ident, $ctx:ident, $size:expr, $text:expr) => {
 		// ImageButton.
@@ -401,15 +406,20 @@ macro_rules! album_button {
 		};
 
 		let primary   = resp.clicked();
-		let middle    = resp.middle_clicked();
 		let secondary = resp.secondary_clicked();
 
-		if middle || (primary && $self.modifiers.command) {
-			$crate::open!($self, $album);
-		} else if primary {
-			$crate::album!($self, $key);
+		if primary {
+			if $self.modifiers.command {
+				$self.playlist_add_screen = Some(shukusai::collection::KeyEnum::Album($key));
+			} else {
+				$crate::album!($self, $key);
+			}
 		} else if secondary {
-			$crate::add_album!($self, $album.title, $key);
+			if $self.modifiers.command {
+				$crate::open!($self, $album);
+			} else {
+				$crate::add_album!($self, $album.title, $key);
+			}
 		}
 	};
 }
@@ -421,15 +431,20 @@ macro_rules! song_label {
 		let resp = $ui.add($label.sense(Sense::click()));
 
 		let primary   = resp.clicked();
-		let middle    = resp.middle_clicked();
 		let secondary = resp.secondary_clicked();
 
-		if middle || (primary && $self.modifiers.command) {
-			$crate::open!($self, $album);
-		} else if primary {
-			$crate::play_song!($self, $key);
+		if primary {
+			if $self.modifiers.command {
+				$self.playlist_add_screen = Some(shukusai::collection::KeyEnum::Song($key));
+			} else {
+				$crate::play_song!($self, $key);
+			}
 		} else if secondary {
-			$crate::add_song!($self, $song.title, $key);
+			if $self.modifiers.command {
+				$crate::open!($self, $album);
+			} else {
+				$crate::add_song!($self, $song.title, $key);
+			}
 		}
 	}
 }
@@ -441,15 +456,20 @@ macro_rules! album_label {
 		let resp = $ui.add($label.sense(Sense::click()));
 
 		let primary   = resp.clicked();
-		let middle    = resp.middle_clicked();
 		let secondary = resp.secondary_clicked();
 
-		if middle || (primary && $self.modifiers.command) {
-			$crate::open!($self, $album);
-		} else if primary {
-			$crate::album!($self, $key);
+		if primary {
+			if $self.modifiers.command {
+				$self.playlist_add_screen = Some(shukusai::collection::KeyEnum::Album($key));
+			} else {
+				$crate::album!($self, $key);
+			}
 		} else if secondary {
-			$crate::add_album!($self, $album.title, $key);
+			if $self.modifiers.command {
+				$crate::open!($self, $album);
+			} else {
+				$crate::add_album!($self, $album.title, $key);
+			}
 		}
 	}
 }
@@ -458,13 +478,20 @@ macro_rules! album_label {
 /// Add a clickable `Artist` label that:
 /// - Primary click: sets it to `Artists` tab view
 /// - Secondary click: adds all `Album`'s by that `Artist` to the queue
+/// - CTRL + Primary click: adds to playlist
 macro_rules! artist_label {
 	($self:ident, $artist:expr, $key:expr, $ui:ident, $label:expr) => {
-		let resp = $ui.add($label.sense(Sense::click()));
+		let resp      = $ui.add($label.sense(Sense::click()));
+		let primary   = resp.clicked();
+		let secondary = resp.secondary_clicked();
 
-		if resp.clicked() {
-			$crate::artist!($self, $key);
-		} else if resp.secondary_clicked() {
+		if primary {
+			if $self.modifiers.command {
+				$self.playlist_add_screen = Some(shukusai::collection::KeyEnum::Artist($key));
+			} else {
+				$crate::artist!($self, $key);
+			}
+		} else if secondary {
 			$crate::add_artist!($self, $artist, $key);
 		}
 	}

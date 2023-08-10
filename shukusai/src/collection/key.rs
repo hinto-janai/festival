@@ -124,6 +124,18 @@ impl_common!(AlbumKey);
 pub struct SongKey(usize);
 impl_common!(SongKey);
 
+//---------------------------------------------------------------------------------------------------- SongKey
+#[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
+/// Enum over [`ArtistKey`], [`ArtistKey`], and [`SongKey`]
+pub enum KeyEnum {
+	/// [`ArtistKey`]
+	Artist(ArtistKey),
+	/// [`AlbumKey`]
+	Album(AlbumKey),
+	/// [`SongKey`]
+	Song(SongKey),
+}
+
 ////---------------------------------------------------------------------------------------------------- QueueKey
 //#[derive(Copy,Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
 //#[repr(transparent)]

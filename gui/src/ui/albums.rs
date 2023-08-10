@@ -141,7 +141,11 @@ fn paint_albums(
 								// because we need a custom `ui.add_sized()`
 								let resp = ui.add_sized([pixel, 0.0], artist_name).on_hover_text(&*artist.name);
 								if resp.clicked() {
-									crate::artist!(self, album.artist);
+									if self.modifiers.command {
+										self.playlist_add_screen = Some(shukusai::collection::KeyEnum::Artist(artist.key));
+									} else {
+										crate::artist!(self, album.artist);
+									}
 								} else if resp.secondary_clicked() {
 									crate::add_artist!(self, artist, album.artist);
 								}

@@ -21,6 +21,8 @@ use shukusai::{
 	collection::{
 		Collection,
 	},
+	state::PLAYLISTS,
+	constants::PLAYLIST_VERSION,
 };
 use benri::{
 	log::*,
@@ -77,9 +79,11 @@ impl Gui {
 			fail!("GUI - State{STATE_VERSION} validation");
 			self.state = crate::data::State::new();
 		}
+
+		// Update playlist.
+		self.og_playlists = PLAYLISTS.read().clone();
 	}
 
-	#[inline(always)]
 	// Sets the [`egui::Ui`]'s `Visual` from our current `Settings`
 	//
 	// This should be called at the beginning of every major `Ui` frame.
@@ -107,63 +111,83 @@ impl Gui {
 		}
 	}
 
-	#[inline(always)]
+	/// Set the current Playlists to disk.
+	pub fn save_playlists(&mut self) -> Result<(), anyhow::Error> {
+		self.set_playlists();
+		match self.og_playlists.save_atomic() {
+			Ok(md) => { ok_debug!("GUI - Playlists{PLAYLIST_VERSION} save: {md}"); Ok(()) },
+			Err(e) => { error!("GUI - Playlists{PLAYLIST_VERSION} could not be saved to disk: {e}"); Err(e) },
+		}
+	}
+
 	/// Set the original [`Settings`] to reflect live [`Settings`].
 	pub fn set_settings(&mut self) {
 		self.og_settings = self.settings.clone();
 	}
 
-	#[inline(always)]
 	/// Reset [`Settings`] to the original.
 	pub fn reset_settings(&mut self) {
 		self.settings = self.og_settings.clone();
 	}
 
-	#[inline(always)]
 	/// Reset all [`Settings`] to the default.
 	pub fn default_settings(&mut self) {
 		self.settings    = Default::default();
 		self.og_settings = Default::default();
 	}
 
-	#[inline(always)]
 	/// Set the original [`State`] to reflect live [`State`].
 	pub fn set_state(&mut self) {
 		self.og_state = self.state.clone();
 	}
 
-	#[inline(always)]
 	/// Reset [`State`] to the original.
 	pub fn reset_state(&mut self) {
 		self.state = self.og_state.clone();
 	}
 
-	#[inline(always)]
 	/// Reset all [`State`] to the default.
 	pub fn default_state(&mut self) {
 		self.state = Default::default();
 		self.og_state = Default::default();
 	}
 
-	#[inline]
-	/// Returns true if either [`Settings`] or [`State`] have diffs.
-	pub fn diff(&self) -> bool {
-		self.diff_settings() && self.diff_state()
+	/// Set the original [`Playlists`] to reflect live [`Playlists`].
+	pub fn set_playlists(&mut self) {
+		self.og_playlists = PLAYLISTS.read().clone();
 	}
 
-	#[inline(always)]
+	/// Reset [`Playlists`] to the original.
+	pub fn reset_playlists(&mut self) {
+		*PLAYLISTS.write() = self.og_playlists.clone();
+	}
+
+	/// Reset all [`Playlists`] to the default.
+	pub fn default_playlists(&mut self) {
+		*PLAYLISTS.write() = Default::default();
+		self.og_playlists  = Default::default();
+	}
+
+	/// Returns true if either [`Settings`] or [`State`] or Playlists have diffs.
+	pub fn diff(&self) -> bool {
+		self.diff_settings() || self.diff_state() || self.diff_playlists()
+	}
+
 	/// Returns true if [`Settings`] and the old version are not `==`.
 	pub fn diff_settings(&self) -> bool {
 		self.settings != self.og_settings
 	}
 
-	#[inline(always)]
 	/// Returns true if [`State`] and the old version are not `==`.
 	pub fn diff_state(&self) -> bool {
 		self.state != self.og_state
 	}
 
-//	#[inline(always)]
+	/// Returns true if [`shukusai::state::PLAYLISTS`] and the old version are not `==`.
+	pub fn diff_playlists(&self) -> bool {
+		self.og_playlists != *shukusai::state::PLAYLISTS.read()
+	}
+
 //	/// Copies the _audio_ values from [`KernelState`] into `self`.
 //	pub fn copy_kernel_audio(&mut self) {
 //		let k = lockr!(self.kernel_state);
@@ -175,7 +199,6 @@ impl Gui {
 //		self.audio = k.audio;
 //	}
 
-	#[inline(always)]
 	/// Perform all the necessary steps to add a folder
 	/// to add to the Collection (spawns RFD thread).
 	pub fn add_folder(&self) {
@@ -189,7 +212,6 @@ impl Gui {
 		}
 	}
 
-	#[inline(always)]
 	/// Perform all the necessary steps to reset
 	/// the [`Collection`] and enter the proper state.
 	pub fn reset_collection(&mut self) {
@@ -223,7 +245,6 @@ impl Gui {
 
 	}
 
-	#[inline(always)]
 	/// Caches some segments of [`Collection`] for local use
 	/// so don't have to access it all the time.
 	///

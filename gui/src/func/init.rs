@@ -271,10 +271,13 @@ impl crate::data::Gui {
 			searching: false,
 			search_jump: false,
 
+			og_playlists: shukusai::state::Playlists::new(),
 			playlist_clone: None,
 			playlist_remove: None,
 			playlist_from: None,
 			playlist_to: None,
+			playlist_add_screen: None,
+			playlist_add_screen_result: None,
 
 			// Local cache.
 			count_artist: "Artists: 0".to_string(),
