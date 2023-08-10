@@ -330,17 +330,6 @@ pub fn show_tab_playlists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, wid
 			.text_style(TextStyle::Name("25".into()))
 		);
 
-		ui.horizontal(|ui| {
-			crate::playlist_label!(self, arc_str, ui, label_name);
-			ui.add_space(20.0);
-			ui.add(label_count).on_hover_text(PLAYLIST_TOTAL_SONG);
-			ui.add_space(20.0);
-			ui.add(label_runtime).on_hover_text(PLAYLIST_TOTAL_RUNTIME);
-		});
-
-		ui.add_space(10.0);
-		ui.separator();
-
 		// `.show_rows()` is slightly faster than
 		// `.show_viewport()` but we need to know
 		// exactly how many rows we need to paint.
@@ -359,117 +348,130 @@ pub fn show_tab_playlists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, wid
 			.max_height(f32::INFINITY)
 			.auto_shrink([false; 2])
 			.show_rows(ui, ROW_HEIGHT, max_rows, |ui, row_range|
-		{ ui.push_id("PlaylistViewInner", |ui| {
-			// Sizing.
-			let width  = ui.available_width();
-			let height = ui.available_height();
-			const SIZE: f32 = 35.0;
-			// c == Column sizing
-			let c_width   = width / 10.0;
-			let c_buttons = (SIZE * 3.0) + 20.0;
-			let c_runtime = c_width;
-			let c_title   = c_width * 4.0;
-			let c_album   = c_width * 2.0;
-			let c_artist  = c_width * 2.0;
-
-			TableBuilder::new(ui)
-				.striped(true)
-				.cell_layout(egui::Layout::left_to_right(egui::Align::Center))
-				.column(Column::initial(c_buttons).resizable(true).clip(false))
-				.column(Column::initial(c_title).resizable(true).clip(true))
-				.column(Column::initial(c_runtime).resizable(true).clip(true))
-				.column(Column::initial(c_album).resizable(true).clip(true))
-//				.column(Column::initial(c_artist).resizable(true).clip(true))
-				.column(Column::remainder().clip(true))
-				.auto_shrink([false; 2])
-				.max_scroll_height(height)
-				.header(HEADER_HEIGHT, |mut header|
-			{
-				header.col(|ui| { ui.strong(""); });
-				header.col(|ui| { ui.strong("Song"); });
-				header.col(|ui| { ui.strong("Runtime"); });
-				header.col(|ui| { ui.strong("Album"); });
-				header.col(|ui| { ui.strong("Artist"); });
-			})
-			.body(|mut body| {
-				for (offset, entry) in playlist.iter().enumerate() {
-					match entry {
-						Entry::Valid { key_song, .. } => {
-							let key = key_song;
-							body.row(ROW_HEIGHT, |mut row| {
-								let (artist, album, song) = self.collection.walk(key);
-
-								row.col(|ui| {
-									// Buttons.
-									if ui.add_sized([SIZE, SIZE], Button::new(UI_MINUS)).on_hover_text(PLAYLIST_ENTRY_DELETE).clicked() {
-										self.playlist_remove_entry = Some((Arc::clone(&arc_str), offset));
-									} else if ui.add_sized([SIZE, SIZE], Button::new(UI_DOWN)).on_hover_text(PLAYLIST_ENTRY_DOWN).clicked() {
-										let to = offset + 1;
-										if to != playlist.len() {
-											self.playlist_swap_entry = Some((Arc::clone(&arc_str), offset, to));
-										}
-									} else if ui.add_sized([SIZE, SIZE], Button::new(UI_UP)).on_hover_text(PLAYLIST_ENTRY_UP).clicked() {
-										self.playlist_swap_entry = Some((Arc::clone(&arc_str), offset, offset.saturating_sub(1)));
-									}
-								});
-
-								row.col(|ui| {
-									let resp = ui.add(Label::new(&*song.title).sense(Sense::click()));
-									if resp.clicked() {
-										crate::play_playlist_offset!(self, Arc::clone(&arc_str), offset);
-									} else if resp.secondary_clicked() {
-										crate::add_song!(self, &*song.title, *key);
-									}
-								});
-
-								row.col(|ui| { ui.label(song.runtime.as_str()); });
-
-								row.col(|ui| {
-									crate::album_label!(self, album, song.album, ui, Label::new(&*album.title));
-								});
-
-								row.col(|ui| {
-									crate::artist_label!(self, artist, album.artist, ui, Label::new(&*artist.name));
-								});
-							});
-						},
-						Entry::Invalid { artist, album, song } => {
-							body.row(ROW_HEIGHT, |mut row| {
-								row.col(|ui| {
-									// Buttons.
-									if ui.add_sized([SIZE, SIZE], Button::new(UI_MINUS)).on_hover_text(PLAYLIST_ENTRY_DELETE).clicked() {
-										self.playlist_remove_entry = Some((Arc::clone(&arc_str), offset));
-									} else if ui.add_sized([SIZE, SIZE], Button::new(UI_DOWN)).on_hover_text(PLAYLIST_ENTRY_DOWN).clicked() {
-										let to = offset + 1;
-										if to != playlist.len() {
-											self.playlist_swap_entry = Some((Arc::clone(&arc_str), offset, to));
-										}
-									} else if ui.add_sized([SIZE, SIZE], Button::new(UI_UP)).on_hover_text(PLAYLIST_ENTRY_UP).clicked() {
-										self.playlist_swap_entry = Some((Arc::clone(&arc_str), offset, offset.saturating_sub(1)));
-									}
-								});
-
-								row.col(|ui| {
-									ui.add(Label::new(RichText::new(&**song).color(YELLOW))).on_hover_text(PLAYLIST_INVALID);
-								});
-
-								row.col(|ui| {
-									ui.add(Label::new(RichText::new("??:??").color(YELLOW))).on_hover_text(PLAYLIST_INVALID);
-								});
-
-								row.col(|ui| {
-									ui.add(Label::new(RichText::new(&**album).color(YELLOW))).on_hover_text(PLAYLIST_INVALID);
-								});
-
-								row.col(|ui| {
-									ui.add(Label::new(RichText::new(&**artist).color(YELLOW))).on_hover_text(PLAYLIST_INVALID);
-								});
-							});
-						},
-					}
-				}
+		{
+				ui.horizontal(|ui| {
+				crate::playlist_label!(self, arc_str, ui, label_name);
+				ui.add_space(20.0);
+				ui.add(label_count).on_hover_text(PLAYLIST_TOTAL_SONG);
+				ui.add_space(20.0);
+				ui.add(label_runtime).on_hover_text(PLAYLIST_TOTAL_RUNTIME);
 			});
-		})});
+
+			ui.add_space(10.0);
+			ui.separator();
+
+			ui.push_id("PlaylistViewInner", |ui| {
+				// Sizing.
+				let width  = ui.available_width();
+				let height = ui.available_height();
+				const SIZE: f32 = 35.0;
+				// c == Column sizing
+				let c_width   = width / 10.0;
+				let c_buttons = (SIZE * 3.0) + 20.0;
+				let c_runtime = c_width;
+				let c_title   = c_width * 4.0;
+				let c_album   = c_width * 2.0;
+				let c_artist  = c_width * 2.0;
+
+				TableBuilder::new(ui)
+					.striped(true)
+					.cell_layout(egui::Layout::left_to_right(egui::Align::Center))
+					.column(Column::initial(c_buttons).resizable(true).clip(false))
+					.column(Column::initial(c_title).resizable(true).clip(true))
+					.column(Column::initial(c_runtime).resizable(true).clip(true))
+					.column(Column::initial(c_album).resizable(true).clip(true))
+	//				.column(Column::initial(c_artist).resizable(true).clip(true))
+					.column(Column::remainder().clip(true))
+					.auto_shrink([false; 2])
+					.max_scroll_height(height)
+					.header(HEADER_HEIGHT, |mut header|
+				{
+					header.col(|ui| { ui.strong(""); });
+					header.col(|ui| { ui.strong("Song"); });
+					header.col(|ui| { ui.strong("Runtime"); });
+					header.col(|ui| { ui.strong("Album"); });
+					header.col(|ui| { ui.strong("Artist"); });
+				})
+				.body(|mut body| {
+					for (offset, entry) in playlist.iter().enumerate() {
+						match entry {
+							Entry::Valid { key_song, .. } => {
+								let key = key_song;
+								body.row(ROW_HEIGHT, |mut row| {
+									let (artist, album, song) = self.collection.walk(key);
+
+									row.col(|ui| {
+										// Buttons.
+										if ui.add_sized([SIZE, SIZE], Button::new(UI_MINUS)).on_hover_text(PLAYLIST_ENTRY_DELETE).clicked() {
+											self.playlist_remove_entry = Some((Arc::clone(&arc_str), offset));
+										} else if ui.add_sized([SIZE, SIZE], Button::new(UI_DOWN)).on_hover_text(PLAYLIST_ENTRY_DOWN).clicked() {
+											let to = offset + 1;
+											if to != playlist.len() {
+												self.playlist_swap_entry = Some((Arc::clone(&arc_str), offset, to));
+											}
+										} else if ui.add_sized([SIZE, SIZE], Button::new(UI_UP)).on_hover_text(PLAYLIST_ENTRY_UP).clicked() {
+											self.playlist_swap_entry = Some((Arc::clone(&arc_str), offset, offset.saturating_sub(1)));
+										}
+									});
+
+									row.col(|ui| {
+										let resp = ui.add(Label::new(&*song.title).sense(Sense::click()));
+										if resp.clicked() {
+											crate::play_playlist_offset!(self, Arc::clone(&arc_str), offset);
+										} else if resp.secondary_clicked() {
+											crate::add_song!(self, &*song.title, *key);
+										}
+									});
+
+									row.col(|ui| { ui.label(song.runtime.as_str()); });
+
+									row.col(|ui| {
+										crate::album_label!(self, album, song.album, ui, Label::new(&*album.title));
+									});
+
+									row.col(|ui| {
+										crate::artist_label!(self, artist, album.artist, ui, Label::new(&*artist.name));
+									});
+								});
+							},
+							Entry::Invalid { artist, album, song } => {
+								body.row(ROW_HEIGHT, |mut row| {
+									row.col(|ui| {
+										// Buttons.
+										if ui.add_sized([SIZE, SIZE], Button::new(UI_MINUS)).on_hover_text(PLAYLIST_ENTRY_DELETE).clicked() {
+											self.playlist_remove_entry = Some((Arc::clone(&arc_str), offset));
+										} else if ui.add_sized([SIZE, SIZE], Button::new(UI_DOWN)).on_hover_text(PLAYLIST_ENTRY_DOWN).clicked() {
+											let to = offset + 1;
+											if to != playlist.len() {
+												self.playlist_swap_entry = Some((Arc::clone(&arc_str), offset, to));
+											}
+										} else if ui.add_sized([SIZE, SIZE], Button::new(UI_UP)).on_hover_text(PLAYLIST_ENTRY_UP).clicked() {
+											self.playlist_swap_entry = Some((Arc::clone(&arc_str), offset, offset.saturating_sub(1)));
+										}
+									});
+
+									row.col(|ui| {
+										ui.add(Label::new(RichText::new(&**song).color(YELLOW))).on_hover_text(PLAYLIST_INVALID);
+									});
+
+									row.col(|ui| {
+										ui.add(Label::new(RichText::new("??:??").color(YELLOW))).on_hover_text(PLAYLIST_INVALID);
+									});
+
+									row.col(|ui| {
+										ui.add(Label::new(RichText::new(&**album).color(YELLOW))).on_hover_text(PLAYLIST_INVALID);
+									});
+
+									row.col(|ui| {
+										ui.add(Label::new(RichText::new(&**artist).color(YELLOW))).on_hover_text(PLAYLIST_INVALID);
+									});
+								});
+							},
+						}
+					}
+				});
+			});
+		});
 
 		// Remove playlist entry set above.
 		if let Some((playlist_name, index)) = self.playlist_remove_entry.take() {
