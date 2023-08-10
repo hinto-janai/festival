@@ -88,21 +88,21 @@ disk::bincode2!(Playlists, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_D
 ///
 /// Each node in the `BTreeMap` is a `(String, VecDeque)` where
 /// the `String` is the name of the playlist, and the `VecDeque`
-/// contains [`PlaylistEntry`]'s.
+/// contains [`Entry`]'s.
 pub struct Playlists(pub PlaylistsInner);
 
 /// The internal type of [`Playlists`].
 ///
 /// [`Playlists`] is just a wrapper so methods/traits can be implemented on it.
-pub type PlaylistsInner = BTreeMap<Arc<str>, VecDeque<PlaylistEntry>>;
+pub type PlaylistsInner = BTreeMap<Arc<str>, VecDeque<Entry>>;
 
 #[derive(Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize,Encode,Decode)]
 #[serde(rename_all = "snake_case")]
 /// `Option`-like enum for playlist entries.
 ///
-/// Either song exists in the current `Collection` (`PlaylistEntry::Key`)
-/// or it is missing (`PlaylistEntry::Invalid`).
-pub enum PlaylistEntry {
+/// Either song exists in the current `Collection` (`Entry::Key`)
+/// or it is missing (`Entry::Invalid`).
+pub enum Entry {
 	/// This is a valid song in the current `Collection`
 	Valid {
 		/// Artist key
@@ -131,6 +131,67 @@ pub enum PlaylistEntry {
 	},
 }
 
+impl Entry {
+	/// INVARIANT: assumes key is valid.
+	///
+	/// Returns valid entries of all `Song`'s by an `Artist`.
+	pub fn valid_from_artist(key: ArtistKey, collection: &Arc<Collection>) -> Vec<Self> {
+		let artist = &collection.artists[key];
+		artist.songs
+			.iter()
+			.map(|s| {
+				let song  = &collection.songs[s];
+				let album = &collection.albums[song.album];
+				Self::Valid {
+					key_artist: key,
+					key_album: album.key,
+					key_song: song.key,
+					artist: Arc::clone(&artist.name),
+					album: Arc::clone(&album.title),
+					song: Arc::clone(&song.title),
+				}
+			})
+			.collect()
+	}
+
+	/// INVARIANT: assumes key is valid.
+	///
+	/// Returns valid entries of all `Song`'s in an `Album`.
+	pub fn valid_from_album(key: AlbumKey, collection: &Arc<Collection>) -> Vec<Self> {
+		let album  = &collection.albums[key];
+		let artist = &collection.artists[album.artist];
+		album.songs
+			.iter()
+			.map(|s| {
+				let song = &collection.songs[s];
+				Self::Valid {
+					key_artist: artist.key,
+					key_album: album.key,
+					key_song: song.key,
+					artist: Arc::clone(&artist.name),
+					album: Arc::clone(&album.title),
+					song: Arc::clone(&song.title),
+				}
+			})
+			.collect()
+	}
+
+	/// INVARIANT: assumes key is valid.
+	///
+	/// Returns a valid entry of a `Song`
+	pub fn valid_from_song(key: SongKey, collection: &Arc<Collection>) -> Self {
+		let (artist, album, song) = collection.walk(key);
+		Self::Valid {
+			key_artist: artist.key,
+			key_album: album.key,
+			key_song: song.key,
+			artist: Arc::clone(&artist.name),
+			album: Arc::clone(&album.title),
+			song: Arc::clone(&song.title),
+		}
+	}
+}
+
 impl std::ops::Deref for Playlists {
 	type Target = PlaylistsInner;
 
@@ -154,12 +215,12 @@ impl Playlists {
 
 	//-------------------------------------------------- Playlist handling.
 	/// Create a new playlist with this name, overwriting if it already exists.
-	pub fn playlist_new(&mut self, s: &str) -> Option<VecDeque<PlaylistEntry>> {
+	pub fn playlist_new(&mut self, s: &str) -> Option<VecDeque<Entry>> {
 		self.insert(s.into(), VecDeque::with_capacity(8))
 	}
 
 	/// Remove the playlist with this name.
-	pub fn playlist_remove(&mut self, s: Arc<str>) -> Option<VecDeque<PlaylistEntry>> {
+	pub fn playlist_remove(&mut self, s: Arc<str>) -> Option<VecDeque<Entry>> {
 		self.remove(&s)
 	}
 
@@ -168,7 +229,7 @@ impl Playlists {
 	/// `Ok(Some(_))` => from existed, into was overwritten
 	/// `Ok(None)`    => from existed, into was created
 	/// `Err(())`     => from did not exist, nothing was created
-	pub fn playlist_clone(&mut self, from: Arc<str>, into: &str) -> Result<Option<VecDeque<PlaylistEntry>>, ()> {
+	pub fn playlist_clone(&mut self, from: Arc<str>, into: &str) -> Result<Option<VecDeque<Entry>>, ()> {
 		let vec = self.get(&from).map(|v| v.clone());
 		if let Some(vec) = vec {
 			Ok(self.insert(into.into(), vec))
@@ -177,12 +238,12 @@ impl Playlists {
 		}
 	}
 
-	/// Remove the [`PlaylistEntry`] with index `index` within the playlist `playlist`.
+	/// Remove the [`Entry`] with index `index` within the playlist `playlist`.
 	///
 	/// `Ok(Some(_))` => playlist existed, song was removed
 	/// `Ok(None)`    => playlist existed, song did not exist
 	/// `Err(())`     => playlist did not exist, nothing was removed
-	pub fn playlist_remove_entry(&mut self, index: usize, playlist: Arc<str>) -> Result<Option<PlaylistEntry>, ()> {
+	pub fn playlist_remove_entry(&mut self, index: usize, playlist: Arc<str>) -> Result<Option<Entry>, ()> {
 		if let Some(p) = self.get_mut(&playlist) {
 			Ok(p.remove(index))
 		} else {
@@ -216,7 +277,7 @@ impl Playlists {
 		match append {
 			Append::Back => iter.for_each(|k| {
 				let (artist, album, song) = collection.walk(k);
-				let entry = PlaylistEntry::Valid {
+				let entry = Entry::Valid {
 					key_artist: artist.key,
 					key_album: album.key,
 					key_song: *k,
@@ -228,7 +289,7 @@ impl Playlists {
 			}),
 			Append::Front => iter.rev().for_each(|k| {
 				let (artist, album, song) = collection.walk(k);
-				let entry = PlaylistEntry::Valid {
+				let entry = Entry::Valid {
 					key_artist: artist.key,
 					key_album: album.key,
 					key_song: *k,
@@ -240,7 +301,7 @@ impl Playlists {
 			}),
 			Append::Index(mut i) => iter.for_each(|k| {
 				let (artist, album, song) = collection.walk(k);
-				let entry = PlaylistEntry::Valid {
+				let entry = Entry::Valid {
 					key_artist: artist.key,
 					key_album: album.key,
 					key_song: *k,
@@ -284,7 +345,7 @@ impl Playlists {
 
 		match append {
 			Append::Back => iter.for_each(|k| {
-				let entry = PlaylistEntry::Valid {
+				let entry = Entry::Valid {
 					key_artist: artist.key,
 					key_album: album.key,
 					key_song: *k,
@@ -295,7 +356,7 @@ impl Playlists {
 				v.push_back(entry)
 			}),
 			Append::Front => iter.rev().for_each(|k| {
-				let entry = PlaylistEntry::Valid {
+				let entry = Entry::Valid {
 					key_artist: artist.key,
 					key_album: album.key,
 					key_song: *k,
@@ -306,7 +367,7 @@ impl Playlists {
 				v.push_front(entry)
 			}),
 			Append::Index(mut i) => iter.for_each(|k| {
-				let entry = PlaylistEntry::Valid {
+				let entry = Entry::Valid {
 					key_artist: artist.key,
 					key_album: album.key,
 					key_song: *k,
@@ -336,7 +397,7 @@ impl Playlists {
 	pub fn playlist_add_song(&mut self, playlist: Arc<str>, key: SongKey, append: Append, collection: &Arc<Collection>) -> bool {
 		let (artist, album, song) = collection.walk(key);
 
-		let entry = PlaylistEntry::Valid {
+		let entry = Entry::Valid {
 			key_artist: artist.key,
 			key_album: album.key,
 			key_song: song.key,
@@ -378,7 +439,7 @@ impl Playlists {
 		Some(playlist
 			.iter()
 			.filter_map(|e| {
-				if let PlaylistEntry::Valid { key_song, .. } = e {
+				if let Entry::Valid { key_song, .. } = e {
 					Some(*key_song)
 				} else {
 					None
@@ -399,9 +460,9 @@ impl Playlists {
 				.par_iter_mut()
 				.for_each(|entry| {
 					match entry {
-						PlaylistEntry::Valid { artist, album, song, .. } => {
+						Entry::Valid { artist, album, song, .. } => {
 							let Some((s, _)) = collection.song(&artist, &album, &song) else {
-								*entry = PlaylistEntry::Invalid {
+								*entry = Entry::Invalid {
 									artist: Arc::clone(artist),
 									album: Arc::clone(album),
 									song: Arc::clone(song),
@@ -418,7 +479,7 @@ impl Playlists {
 							// so multiple songs with the same name should be supported...
 							// somehow... eventually... SOMEDAY.
 //							if *key != s.key {
-//								*entry = PlaylistEntry::Invalid {
+//								*entry = Entry::Invalid {
 //									artist: Arc::clone(artist),
 //									album: Arc::clone(album),
 //									song: Arc::clone(song),
@@ -427,7 +488,7 @@ impl Playlists {
 //							}
 
 							let (artist, album, song) = collection.walk(s.key);
-							*entry = PlaylistEntry::Valid {
+							*entry = Entry::Valid {
 								key_artist: artist.key,
 								key_album: album.key,
 								key_song: s.key,
@@ -436,10 +497,10 @@ impl Playlists {
 								song: Arc::clone(&song.title),
 							};
 						},
-						PlaylistEntry::Invalid { artist, album, song } => {
+						Entry::Invalid { artist, album, song } => {
 							if let Some((s, _)) = collection.song(&artist, &album, &song) {
 								let (artist, album, song) = collection.walk(s.key);
-								*entry = PlaylistEntry::Valid {
+								*entry = Entry::Valid {
 									key_artist: artist.key,
 									key_album: album.key,
 									key_song: s.key,
@@ -454,7 +515,7 @@ impl Playlists {
 			});
 	}
 
-	/// Convert all inner `PlaylistEntry`'s into the `invalid` variants.
+	/// Convert all inner `Entry`'s into the `invalid` variants.
 	pub fn all_invalid(&mut self) {
 		self.0
 			.par_iter_mut()
@@ -462,8 +523,8 @@ impl Playlists {
 				entry
 				.par_iter_mut()
 				.for_each(|entry| {
-					if let PlaylistEntry::Valid { artist, album, song, .. } = entry {
-						*entry = PlaylistEntry::Invalid {
+					if let Entry::Valid { artist, album, song, .. } = entry {
+						*entry = Entry::Invalid {
 							artist: Arc::clone(artist),
 							album: Arc::clone(album),
 							song: Arc::clone(song),
@@ -473,7 +534,7 @@ impl Playlists {
 			});
 	}
 
-	/// Convert all `PlaylistEntry`'s to `Valid` is possible.
+	/// Convert all `Entry`'s to `Valid` is possible.
 	pub fn convert(&mut self, collection: &Arc<Collection>) {
 		self.0
 			.par_iter_mut()
@@ -481,10 +542,10 @@ impl Playlists {
 				entry
 				.par_iter_mut()
 				.for_each(|entry| {
-					if let PlaylistEntry::Invalid { artist, album, song } = entry {
+					if let Entry::Invalid { artist, album, song } = entry {
 						if let Some((s, _)) = collection.song(&artist, &album, &song) {
 							let (artist, album, song) = collection.walk(s.key);
-							*entry = PlaylistEntry::Valid {
+							*entry = Entry::Valid {
 								key_artist: artist.key,
 								key_album: album.key,
 								key_song: s.key,
@@ -496,6 +557,32 @@ impl Playlists {
 					}
 				});
 			});
+	}
+
+	/// Return the length of valid entries.
+	pub fn valid_len(playlist: &VecDeque<Entry>) -> usize {
+		playlist
+			.iter()
+			.map(|e| {
+				match e {
+					Entry::Valid { .. } => 1,
+					_ => 0,
+				}
+			})
+			.sum()
+	}
+
+	/// Return the length of invalid entries.
+	pub fn invalid_len(playlist: &VecDeque<Entry>) -> usize {
+		playlist
+			.iter()
+			.map(|e| {
+				match e {
+					Entry::Invalid { .. } => 1,
+					_ => 0,
+				}
+			})
+			.sum()
 	}
 
 	/// Returns a `Vec` of (`playlist_name_str`, `entry_count`).
@@ -521,12 +608,12 @@ impl Playlists {
 #[serde(transparent)]
 #[repr(transparent)]
 /// Stable `JSON` representation of [`Playlists`].
-pub struct PlaylistsJson<'a>(#[serde(borrow)] BTreeMap<Cow<'a, str>, VecDeque<PlaylistEntryJson<'a>>>);
+pub struct PlaylistsJson<'a>(#[serde(borrow)] BTreeMap<Cow<'a, str>, VecDeque<EntryJson<'a>>>);
 
 #[derive(Clone,Debug,Hash,PartialEq,Eq,PartialOrd,Ord,Serialize,Deserialize)]
 #[serde(rename_all = "snake_case")]
-/// Stable `JSON` representation of [`PlaylistEntry`].
-pub enum PlaylistEntryJson<'a> {
+/// Stable `JSON` representation of [`Entry`].
+pub enum EntryJson<'a> {
 	/// This is a valid song in the current `Collection`
 	Valid {
 		/// Artist key
@@ -567,3 +654,4 @@ pub enum PlaylistEntryJson<'a> {
 //		fn __TEST__() {
 //	}
 //}
+

@@ -126,10 +126,10 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, widt
 			ui.horizontal(|ui| {
 				let path    = &self.settings.collection_paths[i];
 				let string  = format!("{}", path.display());
-				let width   = width / 20.0;
+				const SIZE: f32 = 40.0;
 
 				// Delete button.
-				if ui.add_sized([width, text], Button::new("-")).on_hover_text(REMOVE_FOLDER).clicked() {
+				if ui.add_sized([SIZE, SIZE], Button::new(RichText::new(UI_MINUS).size(SIZE - 5.0))).on_hover_text(REMOVE_FOLDER).clicked() {
 					self.deleted_paths.push(i);
 				}
 

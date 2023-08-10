@@ -7,7 +7,10 @@ use crate::{
 	constants::{
 		BONE,MEDIUM_GRAY,GRAY,
 	},
-	text::SELECT_ARTIST,
+	text::{
+		SELECT_ARTIST,ARTIST_TOTAL_SONG,
+		ARTIST_TOTAL_ALBUM,ARTIST_TOTAL_RUNTIME,
+	},
 	data::ArtistSubTab,
 };
 use readable::Unsigned;
@@ -30,9 +33,9 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width
 
 		{
 			const TAB: ArtistSubTab = ArtistSubTab::All;
-			let label = SelectableLabel::new(self.settings.artist_sub_tab == TAB, TAB.human());
+			let label = SelectableLabel::new(self.state.artist_sub_tab == TAB, TAB.human());
 			if ui.add_sized([width, 30.0], label).clicked() {
-				self.settings.artist_sub_tab = TAB;
+				self.state.artist_sub_tab = TAB;
 			}
 		}
 
@@ -43,13 +46,13 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width
 			let label = match self.state.artist {
 				Some(key) => {
 					let name = self.collection.artists[key].name.head_dot(18);
-					SelectableLabel::new(self.settings.artist_sub_tab == TAB, name)
+					SelectableLabel::new(self.state.artist_sub_tab == TAB, name)
 				},
-				None => SelectableLabel::new(self.settings.artist_sub_tab == TAB, TAB.human())
+				None => SelectableLabel::new(self.state.artist_sub_tab == TAB, TAB.human())
 			};
 
 			if ui.add_sized([width, 30.0], label).clicked() {
-				self.settings.artist_sub_tab = TAB;
+				self.state.artist_sub_tab = TAB;
 			}
 		}
 	})});
@@ -61,7 +64,7 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width
 	let height = ui.available_height();
 
 	//-------------------------------------------------- All artists
-	match self.settings.artist_sub_tab {
+	match self.state.artist_sub_tab {
 	ArtistSubTab::All => {
 
 	ScrollArea::vertical()
@@ -82,8 +85,15 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width
 			);
 
 			// `Artist` album count.
-			let label_count = Label::new(
+			let label_album = Label::new(
 				RichText::new(Unsigned::from(artist.albums.len()).as_str())
+				.color(MEDIUM_GRAY)
+				.text_style(TextStyle::Name("25".into()))
+			);
+
+			// `Artist` song count.
+			let label_song = Label::new(
+				RichText::new(Unsigned::from(artist.songs.len()).as_str())
 				.color(MEDIUM_GRAY)
 				.text_style(TextStyle::Name("25".into()))
 			);
@@ -98,9 +108,11 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width
 			ui.horizontal(|ui| {
 				crate::artist_label!(self, artist, *key, ui, label_name);
 				ui.add_space(20.0);
-				ui.add(label_count);
+				ui.add(label_album).on_hover_text(ARTIST_TOTAL_ALBUM);
 				ui.add_space(20.0);
-				ui.add(label_runtime);
+				ui.add(label_song).on_hover_text(ARTIST_TOTAL_SONG);
+				ui.add_space(20.0);
+				ui.add(label_runtime).on_hover_text(ARTIST_TOTAL_RUNTIME);
 			});
 
 			ui.add_space(10.0);
@@ -157,8 +169,15 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width
 	);
 
 	// `Artist` album count.
-	let label_count = Label::new(
+	let label_album = Label::new(
 		RichText::new(Unsigned::from(artist.albums.len()).as_str())
+		.color(MEDIUM_GRAY)
+		.text_style(TextStyle::Name("25".into()))
+	);
+
+	// `Artist` song count.
+	let label_song = Label::new(
+		RichText::new(Unsigned::from(artist.songs.len()).as_str())
 		.color(MEDIUM_GRAY)
 		.text_style(TextStyle::Name("25".into()))
 	);
@@ -182,9 +201,11 @@ pub fn show_tab_artists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width
 		ui.horizontal(|ui| {
 			ui.add(label_name);
 			ui.add_space(20.0);
-			ui.add(label_count);
+			ui.add(label_album).on_hover_text(ARTIST_TOTAL_ALBUM);
 			ui.add_space(20.0);
-			ui.add(label_runtime);
+			ui.add(label_song).on_hover_text(ARTIST_TOTAL_SONG);
+			ui.add_space(20.0);
+			ui.add(label_runtime).on_hover_text(ARTIST_TOTAL_RUNTIME);
 		});
 
 		// How many char's before we need

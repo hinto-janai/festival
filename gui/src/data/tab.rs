@@ -43,6 +43,7 @@ pub enum Tab {
 	Artists,
 	Songs,
 	Queue,
+	Playlists,
 	Search,
 	Settings,
 }
@@ -56,6 +57,7 @@ impl Tab {
 			Self::Artists   => ARTISTS,
 			Self::Songs     => SONGS,
 			Self::Queue     => QUEUE,
+			Self::Playlists => PLAYLISTS,
 			Self::Search    => SEARCH,
 			Self::Settings  => SETTINGS,
 		}
@@ -71,7 +73,8 @@ impl Tab {
 			Self::Albums    => Self::Artists,
 			Self::Artists   => Self::Songs,
 			Self::Songs     => Self::Queue,
-			Self::Queue     => Self::Search,
+			Self::Queue     => Self::Playlists,
+			Self::Playlists => Self::Search,
 			Self::Search    => Self::Settings,
 			Self::Settings  => Self::View,
 		}
@@ -88,7 +91,8 @@ impl Tab {
 			Self::Artists   => Self::Albums,
 			Self::Songs     => Self::Artists,
 			Self::Queue     => Self::Songs,
-			Self::Search    => Self::Queue,
+			Self::Playlists => Self::Queue,
+			Self::Search    => Self::Playlists,
 			Self::Settings  => Self::Search,
 		}
 	}

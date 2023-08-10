@@ -155,7 +155,7 @@ CentralPanel::default().show(ctx, |ui| {
 			// the title heights and must not overflow to the bottom bar.
 			const ROW_HEIGHT:    f32 = 35.0;
 			let height     = ui.available_height();
-			let max_rows   = ((height - (HEADER_HEIGHT - 5.0)) / (ROW_HEIGHT + 1.0)) as usize;
+			let max_rows   = ((height - (HEADER_HEIGHT - 5.0)) / (ROW_HEIGHT - 1.0)) as usize;
 			let row_range  = 0..max_rows;
 
 			ScrollArea::horizontal()
@@ -208,15 +208,11 @@ CentralPanel::default().show(ctx, |ui| {
 							let (artist, album, song) = self.collection.walk(key);
 
 							row.col(|ui| {
-								if ui.add(Label::new(&*song.title).sense(Sense::click())).clicked() {
-									crate::play_song!(self, *key);
-								}
+								crate::song_label!(self, song, album, *key, ui, Label::new(&*song.title));
 							});
 
 							row.col(|ui| {
-								if ui.add(Label::new(&*album.title).sense(Sense::click())).clicked() {
-									crate::album!(self, song.album);
-								}
+								crate::album_label!(self, album, song.album, ui, Label::new(&*album.title));
 							});
 
 							row.col(|ui| {

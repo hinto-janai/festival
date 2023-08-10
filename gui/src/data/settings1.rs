@@ -3,7 +3,7 @@
 //use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
-
+use disk::Bincode2;
 use std::path::PathBuf;
 use crate::constants::{
 	GUI,
@@ -28,23 +28,20 @@ use shukusai::{
 	search::SearchKind,
 };
 use crate::data::{
+	Settings,
 	AlbumSizing,
 	SearchSort,
+	ArtistSubTab,
 	WindowTitle,
 };
 use const_format::formatcp;
 use std::marker::PhantomData;
 
 //---------------------------------------------------------------------------------------------------- Settings
-disk::bincode2!(Settings, disk::Dir::Data, FESTIVAL, formatcp!("{GUI}/{STATE_SUB_DIR}"), "settings", HEADER, SETTINGS_VERSION);
+disk::bincode2!(Settings1, disk::Dir::Data, FESTIVAL, formatcp!("{GUI}/{STATE_SUB_DIR}"), "settings", HEADER, 1);
 #[derive(Clone,Debug,PartialEq,Serialize,Deserialize,Encode,Decode)]
-/// `GUI`'s settings.
-///
-/// Holds user-mutable `GUI` settings, e.g:
-/// - Accent color
-/// - Album art size
-/// - etc
-pub struct Settings {
+/// Version 1 of `GUI`'s settings.
+pub struct Settings1 {
 	/// Collection sorting of artist view.
 	pub artist_sort: ArtistSort,
 
@@ -56,6 +53,9 @@ pub struct Settings {
 
 	/// Which search kind to use for `Kernel`
 	pub search_kind: SearchKind,
+
+	/// Which `ArtistSubTab` are we on?
+	pub artist_sub_tab: ArtistSubTab,
 
 	/// To sort by `Song` title or
 	/// `Artist` name in the search tab?
@@ -94,31 +94,52 @@ pub struct Settings {
 	pub pixels_per_point: f32,
 }
 
-impl Settings {
-	pub fn new() -> Self {
-		Self {
-			artist_sort:        Default::default(),
-			album_sort:         Default::default(),
-			song_sort:          Default::default(),
-			search_kind:        Default::default(),
-			search_sort:        Default::default(),
-			window_title:       Default::default(),
-			album_sizing:       Default::default(),
-			album_pixel_size:   ALBUM_ART_SIZE_DEFAULT,
-			albums_per_row:     ALBUMS_PER_ROW_DEFAULT,
-			previous_threshold: PREVIOUS_THRESHOLD_DEFAULT,
-			restore_state:      true,
-			empty_autoplay:     true,
-			accent_color:       ACCENT_COLOR,
-			collection_paths:   vec![],
-			pixels_per_point:   PIXELS_PER_POINT_DEFAULT,
-		}
+impl Settings1 {
+	/// Reads from disk, then calls `.into()` if `Ok`.
+	pub fn disk_into() -> Result<Settings, anyhow::Error> {
+		// SAFETY: memmap is used.
+		unsafe { Self::from_file_memmap().map(Into::into) }
 	}
 }
 
-impl Default for Settings {
-	fn default() -> Self {
-		Self::new()
+impl Into<Settings> for Settings1 {
+	fn into(self) -> Settings {
+		let Settings1 {
+			artist_sort,
+			album_sort,
+			song_sort,
+			search_kind,
+			search_sort,
+			window_title,
+			album_sizing,
+			album_pixel_size,
+			albums_per_row,
+			previous_threshold,
+			restore_state,
+			empty_autoplay,
+			accent_color,
+			collection_paths,
+			pixels_per_point,
+			..
+		} = self;
+
+		Settings {
+			artist_sort,
+			album_sort,
+			song_sort,
+			search_kind,
+			search_sort,
+			window_title,
+			album_sizing,
+			album_pixel_size,
+			albums_per_row,
+			previous_threshold,
+			restore_state,
+			empty_autoplay,
+			accent_color,
+			collection_paths,
+			pixels_per_point,
+		}
 	}
 }
 
@@ -131,9 +152,9 @@ mod test {
 	use disk::Bincode2;
 
 	// Empty.
-	const S1: Lazy<Settings> = Lazy::new(|| Settings::from_path("../assets/festival/gui/state/settings2_new.bin").unwrap());
+	const S1: Lazy<Settings> = Lazy::new(|| Settings::from_path("../assets/festival/gui/state/settings1_new.bin").unwrap());
 	// Filled.
-	const S2: Lazy<Settings> = Lazy::new(|| Settings::from_path("../assets/festival/gui/state/settings2_real.bin").unwrap());
+	const S2: Lazy<Settings> = Lazy::new(|| Settings::from_path("../assets/festival/gui/state/settings1_real.bin").unwrap());
 
 	#[test]
 	// Compares `new()`.
@@ -162,7 +183,6 @@ mod test {
 		assert_eq!(S2.song_sort,          SongSort::Runtime);
 		assert_eq!(S2.search_kind,        SearchKind::All);
 		assert_eq!(S2.artist_sub_tab,     ArtistSubTab::View);
-		assert_eq!(S2.playlist_sub_tab,   PlaylistSubTab::View);
 		assert_eq!(S2.search_sort,        SearchSort::Album);
 		assert_eq!(S2.window_title,       WindowTitle::Queue);
 		assert_eq!(S2.album_sizing,       AlbumSizing::Row);

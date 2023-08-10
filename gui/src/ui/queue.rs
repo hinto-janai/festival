@@ -4,7 +4,7 @@ use crate::constants::{
 	QUEUE_ALBUM_ART_SIZE,
 };
 use crate::text::{
-	UI_QUEUE_CLEAR,UI_QUEUE_SHUFFLE,
+	UI_QUEUE_CLEAR,UI_QUEUE_SHUFFLE,UI_MINUS,
 	QUEUE_CLEAR,QUEUE_SHUFFLE,SELECT_QUEUE,
 };
 use shukusai::kernel::{
@@ -102,7 +102,7 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: 
 				ui.separator();
 				ui.horizontal(|ui| {
 					// Remove button.
-					let button = Button::new(RichText::new("-").size(SIZE));
+					let button = Button::new(RichText::new(UI_MINUS).size(SIZE));
 					if ui.add_sized([SIZE, QUEUE_ALBUM_ART_SIZE], button).clicked() {
 						// HACK:
 						// Iterate until we find a `Song` that doesn't
@@ -148,7 +148,7 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: 
 			//-------------------------------------------------- Song.
 			ui.horizontal(|ui| {
 				// Remove button.
-				if ui.add_sized([SIZE, SIZE,], Button::new("-")).clicked() {
+				if ui.add_sized([SIZE, SIZE], Button::new(UI_MINUS)).clicked() {
 					crate::remove_queue_range!(self, index..index+1);
 				}
 

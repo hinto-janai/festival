@@ -39,17 +39,9 @@ use std::marker::PhantomData;
 use disk::Bincode2;
 
 //---------------------------------------------------------------------------------------------------- Settings
-//#[cfg(debug_assertions)]
-//disk::json!(Settings0, disk::Dir::Data, FESTIVAL, formatcp!("{GUI}/{STATE_SUB_DIR}"), "settings");
-//#[cfg(not(debug_assertions))]
 disk::bincode2!(Settings0, disk::Dir::Data, FESTIVAL, formatcp!("{GUI}/{STATE_SUB_DIR}"), "settings", HEADER, 0);
 #[derive(Clone,Debug,PartialEq,Serialize,Deserialize,Encode,Decode)]
-/// `GUI`'s settings.
-///
-/// Holds user-mutable `GUI` settings, e.g:
-/// - Accent color
-/// - Album art size
-/// - etc
+/// Version 0 of `GUI`'s settings.
 pub struct Settings0 {
 	/// Collection sorting of artist view.
 	pub artist_sort: ArtistSort,
@@ -113,47 +105,10 @@ pub struct Settings0 {
 }
 
 impl Settings0 {
-	pub fn new() -> Self {
-		Self {
-			artist_sort: Default::default(),
-			album_sort: Default::default(),
-			song_sort: Default::default(),
-			search_kind: Default::default(),
-			artist_sub_tab: Default::default(),
-			search_sort: Default::default(),
-			window_title: Default::default(),
-			album_sizing: Default::default(),
-			album_pixel_size: ALBUM_ART_SIZE_DEFAULT,
-			albums_per_row: ALBUMS_PER_ROW_DEFAULT,
-			previous_threshold: PREVIOUS_THRESHOLD_DEFAULT,
-			restore_state: true,
-			empty_autoplay: true,
-			accent_color: ACCENT_COLOR,
-			collection_paths: vec![],
-			_reserved1: PhantomData,
-			_reserved2: PhantomData,
-			_reserved3: PhantomData,
-			_reserved4: PhantomData,
-			_reserved5: PhantomData,
-			_reserved6: PhantomData,
-			_reserved7: PhantomData,
-			_reserved8: PhantomData,
-			_reserved9: PhantomData,
-			_reserved10: PhantomData,
-			_reserved11: PhantomData,
-		}
-	}
-
 	/// Reads from disk, then calls `.into()` if `Ok`.
 	pub fn disk_into() -> Result<Settings, anyhow::Error> {
 		// SAFETY: memmap is used.
 		unsafe { Self::from_file_memmap().map(Into::into) }
-	}
-}
-
-impl Default for Settings0 {
-	fn default() -> Self {
-		Self::new()
 	}
 }
 
@@ -164,7 +119,6 @@ impl Into<Settings> for Settings0 {
 			album_sort,
 			song_sort,
 			search_kind,
-			artist_sub_tab,
 			search_sort,
 			window_title,
 			album_sizing,
@@ -183,7 +137,6 @@ impl Into<Settings> for Settings0 {
 			album_sort,
 			song_sort,
 			search_kind,
-			artist_sub_tab,
 			search_sort,
 			window_title,
 			album_sizing,

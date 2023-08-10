@@ -48,6 +48,12 @@ pub const UI_REPEAT:       &str = "🔁";
 pub const SELECT_ARTIST:   &str = "🗋 Select an artist by clicking any artist name";
 pub const SELECT_ALBUM:    &str = "🗋 Select an album by clicking any album art";
 pub const SELECT_QUEUE:    &str = "🗋 Add any song/album/artist to the queue by right-clicking";
+pub const SELECT_PLAYLIST: &str = "🗋 Select any playlist by clicking any playlist name";
+pub const UI_PLUS:         &str = "➕";
+pub const UI_MINUS:        &str = "➖";
+pub const UI_X:            &str = "❌";
+pub const UI_UP:           &str = "⬆";
+pub const UI_DOWN:         &str = "⬇";
 
 //---------------------------------------------------------------------------------------------------- Left Tab
 pub const INCREMENT_ALBUM_SIZE: &str = "Increase the album art size";
@@ -60,6 +66,11 @@ pub const REPEAT_OFF:           &str = "Repeat is turned off";
 
 //---------------------------------------------------------------------------------------------------- Bottom Bar
 pub const SAVING: &str = "Festival is still saving a recently created Collection";
+
+//---------------------------------------------------------------------------------------------------- Albums tab
+pub const ARTIST_TOTAL_ALBUM:   &str = "Total album count";
+pub const ARTIST_TOTAL_SONG:    &str = "Total song count";
+pub const ARTIST_TOTAL_RUNTIME: &str = "Total runtime";
 
 //---------------------------------------------------------------------------------------------------- Albums tab
 pub const EMPTY_COLLECTION: &str =
@@ -75,6 +86,32 @@ pub const UI_QUEUE_CLEAR:   &str = "⏹";
 pub const UI_QUEUE_SHUFFLE: &str = "🔀";
 pub const QUEUE_CLEAR:      &str = "Clear queue and stop playback";
 pub const QUEUE_SHUFFLE:    &str = "Shuffle the queue and reset to the first song";
+
+//---------------------------------------------------------------------------------------------------- Playlists Tab
+pub const PLAYLIST_TEXT_EMPTY:    &str = "Playlist name is empty";
+pub const PLAYLIST_TEXT:          &str = "Create a playlist with this name";
+pub const PLAYLIST_CREATE:        &str = "Create this playlist";
+pub const PLAYLIST_EXISTS:        &str = "A playlist with this name already exists";
+pub const PLAYLIST_DELETE:        &str = "Delete this playlist";
+pub const PLAYLIST_EDIT:          &str = "Edit this playlist's name";
+pub const PLAYLIST_EDIT_SAVE:     &str = "Save this playlist with the new name";
+pub const PLAYLIST_COPY:          &str = "Create a copy of this playlist";
+pub const PLAYLIST_COUNT:         &str = "Total amount of playlists";
+pub const PLAYLIST_TOTAL_SONG:    &str = "Total playlist song count";
+pub const PLAYLIST_TOTAL_RUNTIME: &str = "Total playlist runtime";
+pub const PLAYLIST_ENTRY_DELETE:  &str = "Delete this entry";
+pub const PLAYLIST_ENTRY_UP:      &str = "Move this entry up";
+pub const PLAYLIST_ENTRY_DOWN:    &str = "Move this entry down";
+pub const PLAYLIST_INVALID: &str =
+r#"This song is invalid (it does not exist within the current Collection).
+
+This song & its runtime do not count towards the playlist's total stats.
+
+If added to the queue, only valid songs will be added.
+
+Festival will continue to hold onto this entry in this playlist indefinitely
+and it will automatically recover to a valid entry if a matching song is found
+after a Collection reset."#;
 
 //---------------------------------------------------------------------------------------------------- Settings Tab
 pub const RESET:             &str = formatcp!("Reset changes ({MOD}+Z)");
@@ -131,8 +168,8 @@ r#"*-------------------------------------------------------*
 |       Key/Mouse | Action                              |
 |-------------------------------------------------------|
 |     [A-Za-z0-9] | Jump to search tab                  |
-|          CTRL+S | Save Settings                       |
-|          CTRL+Z | Reset Settings                      |
+|          CTRL+S | Save Changes                        |
+|          CTRL+Z | Reset Changes                       |
 |          CTRL+C | Reset Collection                    |
 |          CTRL+A | Add Scan Directory                  |
 |          CTRL+W | Rotate Album Sort                   |
@@ -142,45 +179,51 @@ r#"*-------------------------------------------------------*
 |              Up | Last Tab                            |
 |            Down | Next Tab                            |
 |           Right | Last Sub-Tab                        |
-|            Left | Last Sub-Tab                        |
+|            Left | Next Sub-Tab                        |
 |   Primary Mouse | Set Artist, Album, Song             |
-| Secondary Mouse | Append Artist, Album, Song to Queue |
-|    Middle Mouse | Open Album/Song Directory           |
+| Secondary Mouse | Add Artist, Album, Song to Queue    |
+|    CTRL+Primary | Add Artist, Album, Song to Playlist |
+|  CTRL+Secondary | Open Album/Song Directory           |
 *-------------------------------------------------------*"#;
 
 // macOS doesn't have a middle click on the trackpad natively...
 #[cfg(target_os = "macos")]
 pub const HELP: &str =
-r#"*-------------------------------------------------------*
-|       Key/Mouse | Action                              |
-|-------------------------------------------------------|
-|     [A-Za-z0-9] | Jump to search tab                  |
-|       Command+S | Save Settings                       |
-|       Command+Z | Reset Settings                      |
-|       Command+C | Reset Collection                    |
-|       Command+A | Add Scan Directory                  |
-|       Command+W | Rotate Album Sort                   |
-|       Command+E | Rotate Artist Sort                  |
-|       Command+R | Rotate Song Sort                    |
-|       Command+D | Goto Last Tab                       |
-|              Up | Last Tab                            |
-|            Down | Next Tab                            |
-|           Right | Last Sub-Tab                        |
-|            Left | Last Sub-Tab                        |
-|   Primary Mouse | Set Artist, Album, Song             |
-| Secondary Mouse | Append Artist, Album, Song to Queue |
-| Command+Primary | Open Album/Song Directory           |
+r#"*---------------------------------------------------------*
+|         Key/Mouse | Action                              |
+|---------------------------------------------------------|
+|       [A-Za-z0-9] | Jump to search tab                  |
+|         Command+S | Save Changes                        |
+|         Command+Z | Reset Changes                       |
+|         Command+C | Reset Collection                    |
+|         Command+A | Add Scan Directory                  |
+|         Command+W | Rotate Album Sort                   |
+|         Command+E | Rotate Artist Sort                  |
+|         Command+R | Rotate Song Sort                    |
+|         Command+D | Goto Last Tab                       |
+|                Up | Last Tab                            |
+|              Down | Next Tab                            |
+|             Right | Last Sub-Tab                        |
+|              Left | Next Sub-Tab                        |
+|     Primary Mouse | Set Artist, Album, Song             |
+|   Secondary Mouse | Add Artist, Album, Song to Queue    |
+|   Command+Primary | Add Artist, Album, Song to Playlist |
+| Command+Secondary | Open Album/Song Directory           |
 *-------------------------------------------------------*"#;
 
 /// - Festival name + version
-/// - shukusai name + version
 /// - OS + Arch
 /// - Git commit hash
 /// - Binary struct versions
 pub const FESTIVAL_SHUKUSAI_COMMIT: &str = {
+	use crate::constants::FESTIVAL_NAME_VER;
+
+	use shukusai::constants::{
+		COMMIT,
+	};
+
 	formatcp!(
 r#"{FESTIVAL_NAME_VER}
-{SHUKUSAI_NAME_VER}
 {OS_ARCH}
 Collection v{COLLECTION_VERSION}
 Audio v{AUDIO_VERSION}

@@ -33,7 +33,18 @@ macro_rules! artist {
 		$self.state.artist   = Some($key.into());
 		$self.state.last_tab = Some($self.state.tab);
 		$self.state.tab      = $crate::data::Tab::Artists;
-		$self.settings.artist_sub_tab = $crate::data::ArtistSubTab::View;
+		$self.state.artist_sub_tab = $crate::data::ArtistSubTab::View;
+	}
+}
+
+#[macro_export]
+/// Set a `Playlist`, set the last tab, jump to the Artist view sub-tab.
+macro_rules! playlist {
+	($self:ident, $arc_str:expr) => {
+		$self.state.playlist = Some(std::sync::Arc::clone(&$arc_str));
+		$self.state.last_tab = Some($self.state.tab);
+		$self.state.tab      = $crate::data::Tab::Playlists;
+		$self.state.playlist_sub_tab = $crate::data::PlaylistSubTab::View;
 	}
 }
 
@@ -70,7 +81,7 @@ macro_rules! add_song {
 		if $self.settings.empty_autoplay && $self.audio_state.queue.is_empty() {
 			::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
 		}
-		$crate::toast!($self, format!("Added [{}] to queue", $song_title));
+		$crate::toast!($self, format!("Added Song [{}] to queue", $song_title));
 	}
 }
 
@@ -85,7 +96,7 @@ macro_rules! add_album {
 		if $self.settings.empty_autoplay && $self.audio_state.queue.is_empty() {
 			::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
 		}
-		$crate::toast!($self, format!("Added [{}] to queue", $album_title));
+		$crate::toast!($self, format!("Added Album [{}] to queue", $album_title));
 	}
 }
 
@@ -105,7 +116,27 @@ macro_rules! add_artist {
 		if $self.settings.empty_autoplay && $self.audio_state.queue.is_empty() {
 			::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
 		}
-		$crate::toast!($self, format!("Added [{}] to queue", $artist.name));
+		$crate::toast!($self, format!("Added Artist [{}] to queue", $artist.name));
+	}
+}
+
+#[macro_export]
+/// Append this `Playlist` to the end of the queue.
+///
+/// This indicates:
+/// - Queue should be not be cleared
+/// - `Play` signal is sent if queue is empty (and empty_autoplay is true)
+/// - A toast should pop up showing we added the `Playlist` to the queue
+macro_rules! add_playlist {
+	($self:ident, $playlist_name:expr) => {
+		::benri::send!(
+			$self.to_kernel,
+			shukusai::kernel::FrontendToKernel::QueueAddPlaylist((std::sync::Arc::clone(&$playlist_name), shukusai::audio::Append::Back, false, 0))
+		);
+		if $self.settings.empty_autoplay && $self.audio_state.queue.is_empty() {
+			::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
+		}
+		$crate::toast!($self, format!("Added Playlist [{}] to queue", $playlist_name));
 	}
 }
 
@@ -167,6 +198,25 @@ macro_rules! play_artist_offset {
 		::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
 	}
 }
+
+#[macro_export]
+/// Send a `Playlist` to `Kernel` to play, skipping arbitrarily deep into it.
+///
+/// - Queue should be cleared
+/// - The _clicked_ `Song` should be immediate played
+/// - All the `Song`'s in the `Playlist` should be added to the queue
+/// - Going backwards should be possible, even if the clicked `Song`
+///   is not the first, e.g 5/12th track.
+macro_rules! play_playlist_offset {
+	($self:ident, $playlist_name:expr, $offset:expr) => {
+		::benri::send!(
+			$self.to_kernel,
+			shukusai::kernel::FrontendToKernel::QueueAddPlaylist(($playlist_name, shukusai::audio::Append::Front, true, $offset))
+		);
+		::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
+	}
+}
+
 
 #[macro_export]
 /// Play a specific index in the `Queue`.
@@ -265,7 +315,8 @@ macro_rules! clear_stop {
 /// - Lists `track`, `runtime`, `title`
 /// - Primary click: play the song/album/artist
 /// - Secondary click: adds it to the queue
-/// - Middle click: opens its directory in a file explorer
+/// - CTRL + Primary click: adds to playlist
+/// - CTRL + Secondary click: opens its directory in a file explorer
 ///
 /// HACK:
 /// This also takes in a optional `$artist`.
@@ -294,13 +345,12 @@ macro_rules! song_button {
 		let resp = $ui.put(rect, egui::SelectableLabel::new($same, ""));
 
 		let primary   = resp.clicked();
-		let middle    = resp.middle_clicked();
 		let secondary = resp.secondary_clicked();
 
-		if middle || (primary && $self.modifiers.command) {
-			$crate::open!($self, $album);
-		} else if primary {
-			if let Some(queue_index) = $queue_index {
+		if primary {
+			if $self.modifiers.command {
+				$self.playlist_add_screen = Some(shukusai::collection::KeyEnum::Song($key));
+			} else if let Some(queue_index) = $queue_index {
 				crate::play_queue_index!($self, queue_index);
 			} else if let Some(artist_key) = $artist {
 				$crate::play_artist_offset!($self, artist_key, $offset);
@@ -308,7 +358,11 @@ macro_rules! song_button {
 				$crate::play_album_offset!($self, $song.album, $offset);
 			}
 		} else if secondary {
-			$crate::add_song!($self, $song.title, $key);
+			if $self.modifiers.command {
+				$crate::open!($self, $album);
+			} else {
+				$crate::add_song!($self, $song.title, $key);
+			}
 		}
 
 		// FIXME:
@@ -356,7 +410,8 @@ macro_rules! song_button {
 ///
 /// - Primary click: sets it to view
 /// - Secondary click: adds it to the queue
-/// - Middle click: opens its directory in a file explorer
+/// - CTRL + Primary click: adds to playlist
+/// - CTRL + Secondary click: opens its directory in a file explorer
 macro_rules! album_button {
 	($self:ident, $album:expr, $key:expr, $ui:ident, $ctx:ident, $size:expr, $text:expr) => {
 		// ImageButton.
@@ -370,15 +425,20 @@ macro_rules! album_button {
 		};
 
 		let primary   = resp.clicked();
-		let middle    = resp.middle_clicked();
 		let secondary = resp.secondary_clicked();
 
-		if middle || (primary && $self.modifiers.command) {
-			$crate::open!($self, $album);
-		} else if primary {
-			$crate::album!($self, $key);
+		if primary {
+			if $self.modifiers.command {
+				$self.playlist_add_screen = Some(shukusai::collection::KeyEnum::Album($key));
+			} else {
+				$crate::album!($self, $key);
+			}
 		} else if secondary {
-			$crate::add_album!($self, $album.title, $key);
+			if $self.modifiers.command {
+				$crate::open!($self, $album);
+			} else {
+				$crate::add_album!($self, $album.title, $key);
+			}
 		}
 	};
 }
@@ -390,15 +450,20 @@ macro_rules! song_label {
 		let resp = $ui.add($label.sense(Sense::click()));
 
 		let primary   = resp.clicked();
-		let middle    = resp.middle_clicked();
 		let secondary = resp.secondary_clicked();
 
-		if middle || (primary && $self.modifiers.command) {
-			$crate::open!($self, $album);
-		} else if primary {
-			$crate::play_song!($self, $key);
+		if primary {
+			if $self.modifiers.command {
+				$self.playlist_add_screen = Some(shukusai::collection::KeyEnum::Song($key));
+			} else {
+				$crate::play_song!($self, $key);
+			}
 		} else if secondary {
-			$crate::add_song!($self, $song.title, $key);
+			if $self.modifiers.command {
+				$crate::open!($self, $album);
+			} else {
+				$crate::add_song!($self, $song.title, $key);
+			}
 		}
 	}
 }
@@ -410,15 +475,20 @@ macro_rules! album_label {
 		let resp = $ui.add($label.sense(Sense::click()));
 
 		let primary   = resp.clicked();
-		let middle    = resp.middle_clicked();
 		let secondary = resp.secondary_clicked();
 
-		if middle || (primary && $self.modifiers.command) {
-			$crate::open!($self, $album);
-		} else if primary {
-			$crate::album!($self, $key);
+		if primary {
+			if $self.modifiers.command {
+				$self.playlist_add_screen = Some(shukusai::collection::KeyEnum::Album($key));
+			} else {
+				$crate::album!($self, $key);
+			}
 		} else if secondary {
-			$crate::add_album!($self, $album.title, $key);
+			if $self.modifiers.command {
+				$crate::open!($self, $album);
+			} else {
+				$crate::add_album!($self, $album.title, $key);
+			}
 		}
 	}
 }
@@ -427,14 +497,37 @@ macro_rules! album_label {
 /// Add a clickable `Artist` label that:
 /// - Primary click: sets it to `Artists` tab view
 /// - Secondary click: adds all `Album`'s by that `Artist` to the queue
+/// - CTRL + Primary click: adds to playlist
 macro_rules! artist_label {
 	($self:ident, $artist:expr, $key:expr, $ui:ident, $label:expr) => {
+		let resp      = $ui.add($label.sense(Sense::click()));
+		let primary   = resp.clicked();
+		let secondary = resp.secondary_clicked();
+
+		if primary {
+			if $self.modifiers.command {
+				$self.playlist_add_screen = Some(shukusai::collection::KeyEnum::Artist($key));
+			} else {
+				$crate::artist!($self, $key);
+			}
+		} else if secondary {
+			$crate::add_artist!($self, $artist, $key);
+		}
+	}
+}
+
+#[macro_export]
+/// Add a clickable `Playlist` label that:
+/// - Primary click: sets it to `Playlist` tab view
+/// - Secondary click: adds `Playlist` to the queue
+macro_rules! playlist_label {
+	($self:ident, $playlist_name:expr, $ui:ident, $label:expr) => {
 		let resp = $ui.add($label.sense(Sense::click()));
 
 		if resp.clicked() {
-			$crate::artist!($self, $key);
+			$crate::playlist!($self, $playlist_name);
 		} else if resp.secondary_clicked() {
-			$crate::add_artist!($self, $artist, $key);
+			$crate::add_playlist!($self, $playlist_name);
 		}
 	}
 }

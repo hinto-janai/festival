@@ -143,15 +143,19 @@ pub static SPACING: Lazy<Spacing> = Lazy::new(|| {
 /// How many bytes to allow in the search bar before truncating.
 pub const SEARCH_MAX_LEN: usize = u8::MAX as usize;
 
+//---------------------------------------------------------------------------------------------------- Playlist
+/// How many bytes to allow in the playlist bar before truncating.
+pub const PLAYLIST_NAME_MAX_LEN: usize = u8::MAX as usize;
+
 //---------------------------------------------------------------------------------------------------- Disk
 /// "gui", `GUI`'s sub-directory in the `Festival` project folder.
 pub const GUI: &str = "gui";
 
 /// Current major version of `GUI`'s `State`
-pub const STATE_VERSION: u8 = 0;
+pub const STATE_VERSION: u8 = 1;
 
 /// Current major version of `GUI`'s `Settings`
-pub const SETTINGS_VERSION: u8 = 1;
+pub const SETTINGS_VERSION: u8 = 2;
 
 //---------------------------------------------------------------------------------------------------- Resolution
 // 700.0 works on some `Album`'s in view tabs

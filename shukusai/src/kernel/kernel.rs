@@ -28,7 +28,6 @@ use crate::{
 		PLAYLIST_VERSION,
 	},
 	state::{
-		PlaylistEntry,
 		Playlists,
 		PLAYLISTS,
 		Phase,

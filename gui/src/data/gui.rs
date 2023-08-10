@@ -15,7 +15,10 @@ use shukusai::{
 	},
 	collection::{
 		Collection,
+		ArtistKey,
+		AlbumKey,
 		SongKey,
+		KeyEnum,
 	},
 };
 use crossbeam::channel::{
@@ -115,6 +118,30 @@ pub struct Gui {
 	/// `String` and set this [`bool`] so that
 	/// the GUI knows to `request_focus()` the search `TextEdit`.
 	pub search_jump: bool,
+
+	// Playlist state.
+	/// Originl playlist copy.
+	pub og_playlists: shukusai::state::Playlists,
+	/// Clone this playlist ASAP
+	pub playlist_clone: Option<Arc<str>>,
+	/// Remove this playlist ASAP
+	pub playlist_remove: Option<Arc<str>>,
+	/// Edit this name...
+	pub playlist_from: Option<Arc<str>>,
+	/// To this name.
+	pub playlist_to: Option<Arc<str>>,
+	/// Move the position of these entries in this playlist.
+	pub playlist_swap_entry: Option<(Arc<str>, usize, usize)>,
+	/// Remove the entry at this index from this playlist.
+	pub playlist_remove_entry: Option<(Arc<str>, usize)>,
+	/// A playlist name edit had a `\n` enter, so we should save.
+	pub playlist_name_edit_enter: bool,
+	/// Are we adding a `Artist/Album/Song` to a playlist?
+	/// (fullscreen menu)
+	/// This holds the keys that we should add.
+	pub playlist_add_screen: Option<KeyEnum>,
+	/// Add these keys to this playlist ASAP
+	pub playlist_add_screen_result: Option<(Arc<str>, KeyEnum)>,
 
 	// Local cached variables.
 	/// A cached, formatted version of [`Collection::count_artist`]

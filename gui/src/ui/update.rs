@@ -28,7 +28,14 @@ use shukusai::{
 	state::{
 		AUDIO_STATE,
 		RESET_STATE,
+		PLAYLISTS,
+		Entry,
 	},
+	collection::KeyEnum,
+};
+use readable::{
+	Unsigned,
+	Runtime,
 };
 use benri::{
 	log::*,
@@ -40,7 +47,6 @@ use benri::{
 use std::time::{
 	Instant,
 };
-
 use crate::constants::{
 	SLIDER_CIRCLE_INACTIVE,
 	SLIDER_CIRCLE_HOVERED,
@@ -62,6 +68,7 @@ use crate::text::{
 	UI_REPEAT_SONG,UI_REPEAT,REPEAT_SONG,REPEAT_QUEUE,REPEAT_OFF,
 };
 use strum::*;
+use std::sync::Arc;
 
 //---------------------------------------------------------------------------------------------------- `GUI`'s eframe impl.
 impl eframe::App for Gui {
@@ -295,9 +302,10 @@ impl Gui {
 								self.state.album = Some(self.collection.next_album(key));
 							}
 						}
-						Tab::Albums  => self.increment_art_size(),
-						Tab::Artists => self.settings.artist_sub_tab = self.settings.artist_sub_tab.next(),
-						Tab::Search  => self.settings.search_sort = self.settings.search_sort.next(),
+						Tab::Albums    => self.increment_art_size(),
+						Tab::Artists   => self.state.artist_sub_tab = self.state.artist_sub_tab.next(),
+						Tab::Playlists => self.state.playlist_sub_tab = self.state.playlist_sub_tab.next(),
+						Tab::Search    => self.settings.search_sort = self.settings.search_sort.next(),
 						_ => (),
 					}
 				} else if input.consume_key(Modifiers::NONE, Key::ArrowLeft) {
@@ -308,7 +316,8 @@ impl Gui {
 							}
 						}
 						Tab::Albums => self.decrement_art_size(),
-						Tab::Artists => self.settings.artist_sub_tab = self.settings.artist_sub_tab.previous(),
+						Tab::Artists => self.state.artist_sub_tab = self.state.artist_sub_tab.previous(),
+						Tab::Playlists => self.state.playlist_sub_tab = self.state.playlist_sub_tab.previous(),
 						Tab::Search => self.settings.search_sort = self.settings.search_sort.previous(),
 						_ => (),
 					}
@@ -320,19 +329,42 @@ impl Gui {
 					self.reset_collection();
 				// Check for `Ctrl+S` (Save Settings)
 				} else if input.consume_key(Modifiers::COMMAND, Key::S) {
-					if self.diff_settings() {
+					let settings  = self.diff_settings();
+					let playlists = self.diff_playlists();
+
+					if settings && playlists {
+						match (self.save_settings(), self.save_playlists()) {
+							(Ok(_), Ok(_)) => crate::toast!(self, "Saved settings & playlists"),
+							(Err(e), _)    => crate::toast_err!(self, "Settings save failed: {e}"),
+							(_, Err(e))    => crate::toast_err!(self, "Playlists save failed: {e}"),
+						}
+					} else if settings {
 						match self.save_settings() {
-							Ok(_) => crate::toast!(self, "Saved settings"),
+							Ok(_)  => crate::toast!(self, "Saved settings"),
 							Err(e) => crate::toast_err!(self, "Settings save failed: {e}"),
+						}
+					} else if playlists {
+						match self.save_playlists() {
+							Ok(_)  => crate::toast!(self, "Saved playlists"),
+							Err(e) => crate::toast_err!(self, "Playlists save failed: {e}"),
 						}
 					} else {
 						crate::toast!(self, "No changes to save");
 					}
 				// Check for `Ctrl+Z` (Reset Settings)
 				} else if input.consume_key(Modifiers::COMMAND, Key::Z) {
-					if self.diff_settings() {
+					let settings  = self.diff_settings();
+					let playlists = self.diff_playlists();
+					if settings && playlists {
+						self.reset_settings();
+						self.reset_playlists();
+						crate::toast!(self, "Reset settings & playlists");
+					} else if settings {
 						self.reset_settings();
 						crate::toast!(self, "Reset settings");
+					} else if playlists {
+						self.reset_playlists();
+						crate::toast!(self, "Reset playlists");
 					} else {
 						crate::toast!(self, "No changes to undo");
 					}
@@ -347,7 +379,7 @@ impl Gui {
 					self.settings.album_sort = next;
 				// Check for `Ctrl+E` (Next Artist Order)
 				} else if input.consume_key(Modifiers::COMMAND, Key::E) {
-					self.settings.artist_sub_tab = crate::data::ArtistSubTab::All;
+					self.state.artist_sub_tab = crate::data::ArtistSubTab::All;
 					crate::tab!(self, Tab::Artists);
 					let next = self.settings.artist_sort.next();
 					crate::toast!(self, next.human());
@@ -377,6 +409,10 @@ impl Gui {
 					if self.debug_screen {
 						self.update_debug_info();
 					}
+				// Check for [ESC]
+				} else if input.consume_key(Modifiers::NONE, Key::Escape) {
+					self.debug_screen        = false;
+					self.playlist_add_screen = None;
 				// Check for [A-Za-z0-9] (Search)
 				} else {
 					for key in ALPHANUMERIC_KEY {
@@ -450,9 +486,15 @@ impl Gui {
 			}
 		}
 
-		// Show debug screen if `true`.
+		// Show full-screen debug screen if `true`.
 		if self.debug_screen {
 			self.show_debug_screen(ctx, width, height);
+			return;
+		}
+
+		// Show full-screen playlist screen if `true`.
+		if let Some(key) = self.playlist_add_screen {
+			self.show_playlist_add_screen(ctx, width, height, key);
 			return;
 		}
 
@@ -648,7 +690,7 @@ fn show_left(&mut self, ctx: &egui::Context, width: f32, height: f32) {
 
 		// Size definitions of the elements within the left panel.
 		let half_height = height / 2.0;
-		let tab_height  = half_height / 8.0;
+		let tab_height  = half_height / 9.0;
 		let tab_width   = width / 1.2;
 
 		// Main UI
@@ -769,6 +811,7 @@ fn show_central(&mut self, ctx: &egui::Context, width: f32, height: f32, side_pa
 			Tab::Artists   => self.show_tab_artists(ui, ctx, width, height),
 			Tab::Songs     => self.show_tab_songs(ui, ctx, width, height),
 			Tab::Queue     => self.show_tab_queue(ui, ctx, width, height),
+			Tab::Playlists => self.show_tab_playlists(ui, ctx, width, height),
 			Tab::Search    => self.show_tab_search(ui, ctx, width, height),
 			Tab::Settings  => self.show_tab_settings(ui, ctx, width, height),
 		}
@@ -872,7 +915,98 @@ fn show_collection_spinner(
 	});
 }}
 
-//---------------------------------------------------------------------------------------------------- Debug scren
+//---------------------------------------------------------------------------------------------------- Playlist add
+// This is a fullscreen screen for adding a (Artist|Album|Song)key to a playlist.
+impl Gui {
+#[inline(always)]
+fn show_playlist_add_screen(&mut self, ctx: &egui::Context, width: f32, height: f32, key: KeyEnum) {
+	CentralPanel::default().show(ctx, |ui| {
+		self.set_visuals(ui);
+		ui.vertical_centered(|ui| {
+			let header = height / 25.0;
+
+			// Exit button.
+			ui.add_space(header);
+			if ui.add_sized([width / 1.5, header], Button::new("Exit (or press ESC)")).clicked() {
+				self.playlist_add_screen = None;
+			}
+			ui.add_space(header);
+
+			ui.separator();
+			ui.add_space(header);
+
+			let (object, name) = match key {
+				KeyEnum::Artist(k) => ("Artist", &self.collection.artists[k].name),
+				KeyEnum::Album(k) => ("Album", &self.collection.albums[k].title),
+				KeyEnum::Song(k) => ("Song", &self.collection.songs[k].title),
+			};
+
+			let text = RichText::new(format!("[{name}]"))
+				.size(header)
+				.color(BONE);
+
+			// Header.
+			ui.label(format!("Add {object}"));
+			ui.add_sized([width, header], Label::new(text));
+			ui.label("to playlist...");
+
+			ui.add_space(header);
+
+			if PLAYLISTS.read().is_empty() {
+				let button = Button::new(
+					RichText::new("Create a new playlist")
+					.text_style(TextStyle::Name("30".into()))
+				);
+
+				if ui.add_sized([width / 2.0, 35.0], button).clicked() {
+					self.playlist_add_screen = None;
+					self.state.playlist_sub_tab = crate::data::PlaylistSubTab::All;
+					crate::tab!(self, Tab::Playlists);
+				}
+			}
+
+			ScrollArea::both()
+				.id_source("PlaylistsAddScreen")
+				.max_width(width)
+				.max_height(height)
+				.auto_shrink([false; 2])
+				.show_viewport(ui, |ui, _|
+			{
+				let width = ui.available_width() - 10.0;
+
+				for playlist_name in PLAYLISTS.read().keys() {
+					// `Playlist` name.
+					let button = Button::new(
+						RichText::new(&**playlist_name)
+						.text_style(TextStyle::Name("30".into()))
+					);
+
+					if ui.add_sized([width, 35.0], button).clicked() {
+						self.playlist_add_screen_result = Some((Arc::clone(playlist_name), key));
+					}
+
+					ui.add_space(10.0);
+				}
+			});
+
+			if let Some((playlist_name, key)) = self.playlist_add_screen_result.take() {
+				if let Some(playlist) = PLAYLISTS.write().get_mut(&playlist_name) {
+					match key {
+						KeyEnum::Artist(k) => Entry::valid_from_artist(k, &self.collection).into_iter().for_each(|e| playlist.push_back(e)),
+						KeyEnum::Album(k) => Entry::valid_from_album(k, &self.collection).into_iter().for_each(|e| playlist.push_back(e)),
+						KeyEnum::Song(k) => playlist.push_back(Entry::valid_from_song(k, &self.collection)),
+					}
+
+					crate::toast!(self, format!("Added {object} [{name}] to playlist [{playlist_name}]"));
+				}
+
+				self.playlist_add_screen = None;
+			}
+		});
+	});
+}}
+
+//---------------------------------------------------------------------------------------------------- Debug screen
 // This is a fullscreen debug screen, showing
 // a bunch of useful runtime information.
 // Toggled with `CTRL+SHIFT+D`.
