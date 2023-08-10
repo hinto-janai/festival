@@ -44,6 +44,9 @@ pub const UI_REPEAT:       &str = "🔁";
 pub const SELECT_ARTIST:   &str = "🗋 Select an artist by clicking any artist name";
 pub const SELECT_ALBUM:    &str = "🗋 Select an album by clicking any album art";
 pub const SELECT_QUEUE:    &str = "🗋 Add any song/album/artist to the queue by right-clicking";
+pub const UI_PLUS:         &str = "➕";
+pub const UI_MINUS:        &str = "➖";
+pub const UI_X:            &str = "❌";
 
 //---------------------------------------------------------------------------------------------------- Left Tab
 pub const INCREMENT_ALBUM_SIZE: &str = "Increase the album art size";
@@ -71,6 +74,17 @@ pub const UI_QUEUE_CLEAR:   &str = "⏹";
 pub const UI_QUEUE_SHUFFLE: &str = "🔀";
 pub const QUEUE_CLEAR:      &str = "Clear queue and stop playback";
 pub const QUEUE_SHUFFLE:    &str = "Shuffle the queue and reset to the first song";
+
+//---------------------------------------------------------------------------------------------------- Playlists Tab
+pub const PLAYLIST_TEXT_EMPTY: &str = "Playlist name is empty";
+pub const PLAYLIST_TEXT:       &str = "Create a playlist with this name";
+pub const PLAYLIST_CREATE:     &str = "Create this playlist";
+pub const PLAYLIST_EXISTS:     &str = "A playlist with this name already exists";
+pub const PLAYLIST_DELETE:     &str = "Delete this playlist";
+pub const PLAYLIST_EDIT:       &str = "Edit this playlist's name";
+pub const PLAYLIST_EDIT_SAVE:  &str = "Save this playlist with the new name";
+pub const PLAYLIST_COPY:       &str = "Create a copy of this playlist";
+pub const PLAYLIST_COUNT:      &str = "Total amount of playlists";
 
 //---------------------------------------------------------------------------------------------------- Settings Tab
 pub const RESET:             &str = formatcp!("Reset changes ({MOD}+Z)");

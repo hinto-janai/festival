@@ -5,10 +5,18 @@ use egui::{
 };
 use crate::{
 	constants::{
+		YELLOW,GREEN,RED,
 		BONE,MEDIUM_GRAY,GRAY,
 		PLAYLIST_NAME_MAX_LEN,
 	},
-	text::SELECT_ARTIST,
+	text::{
+		SELECT_ARTIST,PLAYLIST_TEXT_EMPTY,
+		PLAYLIST_CREATE,PLAYLIST_EXISTS,
+		PLAYLIST_TEXT,PLAYLIST_DELETE,
+		PLAYLIST_EDIT,PLAYLIST_COPY,
+		PLAYLIST_EDIT_SAVE,PLAYLIST_COUNT,
+		UI_PLUS,UI_MINUS,
+	},
 	data::PlaylistSubTab,
 };
 use readable::{
@@ -23,6 +31,7 @@ use shukusai::state::{
 use egui_extras::{
 	Column,TableBuilder,
 };
+use std::sync::Arc;
 
 //---------------------------------------------------------------------------------------------------- Artists
 impl crate::data::Gui {
@@ -76,45 +85,57 @@ pub fn show_tab_playlists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, wid
 	//-------------------------------------------------- All artists
 	match self.settings.playlist_sub_tab {
 	PlaylistSubTab::All => {
-		ScrollArea::vertical()
+		ScrollArea::both()
 			.id_source("Playlists")
 			.max_width(width)
 			.max_height(height)
 			.auto_shrink([false; 2])
 			.show_viewport(ui, |ui, _|
 		{
+			const SIZE: f32 = 35.0;
+			const SIZE2: f32 = 50.0;
+
 			//-------------------------------------------------- Playlist add/remove text edit.
 			ui.horizontal(|ui| { ui.group(|ui| {
-				const SIZE: f32 = 35.0;
-				const SIZE2: f32 = 50.0;
+				if self.state.playlist_string.is_empty() {
+					ui.scope(|ui| {
+						ui.set_enabled(false);
+						let button = Button::new(RichText::new(UI_PLUS).size(SIZE));
+						ui.add_sized([SIZE2, SIZE2], button).on_disabled_hover_text(PLAYLIST_TEXT_EMPTY);
+					});
+				} else {
+					ui.scope(|ui| {
+						ui.set_enabled(!playlists.contains_key(self.state.playlist_string.as_str()));
 
-				// Add button.
-				let button = Button::new(RichText::new("+").size(SIZE));
-				if ui.add_sized([SIZE2, SIZE2], button).clicked() {
-					// add playlist
+						// Add button.
+						let button = Button::new(RichText::new(UI_PLUS).size(SIZE));
+						if ui.add_sized([SIZE2, SIZE2], button).on_hover_text(PLAYLIST_CREATE).on_disabled_hover_text(PLAYLIST_EXISTS).clicked() {
+							let string = std::mem::take(&mut self.state.playlist_string);
+							playlists.playlist_new(&string);
+						}
+					});
 				}
 
-				// Remove button.
-				let button = Button::new(RichText::new("-").size(SIZE));
-				if ui.add_sized([SIZE2, SIZE2], button).clicked() {
-					// remove playlist
-				}
+				// Playlist count
+				let text = Label::new(
+					RichText::new(format!("[{}]", playlists.len()))
+						.color(BONE)
+						.text_style(TextStyle::Name("30".into()))
+				);
+				ui.add_sized([SIZE2, SIZE2], text).on_hover_text(PLAYLIST_COUNT);
 
 				// Text edit.
 				let width = ui.available_width();
 				let text_edit = TextEdit::singleline(&mut self.state.playlist_string)
 					.char_limit(PLAYLIST_NAME_MAX_LEN);
 				ui.spacing_mut().text_edit_width = width;
-				ui.add_sized([width, SIZE], text_edit).on_hover_text("TODO");
+				ui.add_sized([width, SIZE], text_edit).on_hover_text(PLAYLIST_TEXT);
 			})});
 
 			ui.add_space(10.0);
 
 			// For each `Playlist`...
 			for (playlist_name, playlist) in playlists.iter() {
-				ui.separator();
-				ui.add_space(10.0);
-
 				// `Playlist` name.
 				let label_name = Label::new(
 					RichText::new(&**playlist_name)
@@ -144,16 +165,106 @@ pub fn show_tab_playlists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, wid
 					.text_style(TextStyle::Name("25".into()))
 				);
 
-				ui.horizontal(|ui| {
-					crate::playlist_label!(self, playlist_name, ui, label_name);
-					ui.add_space(20.0);
-					ui.add(label_count);
-					ui.add_space(20.0);
-					ui.add(label_runtime);
-				});
+				let playlist_name_is_being_edited = self.state.playlist_edit.as_ref().is_some_and(|x| x == playlist_name);
 
+				ui.horizontal(|ui| { ui.group(|ui| {
+					let button = Button::new(RichText::new(UI_MINUS).size(SIZE));
+					if ui.add_sized([SIZE2, SIZE2], button).on_hover_text(PLAYLIST_DELETE).clicked() {
+						self.playlist_remove = Some(Arc::clone(&playlist_name));
+					}
+
+					if playlist_name_is_being_edited {
+						ui.scope(|ui| {
+							if self.state.playlist_edit.as_ref().is_some_and(|s| &**s != self.state.playlist_edit_string) &&
+								playlists.get(self.state.playlist_edit_string.as_str()).is_some()
+							{
+								ui.set_enabled(false);
+							}
+
+							let button = Button::new(RichText::new("🗋").size(SIZE));
+							if ui.add_sized([SIZE2, SIZE2], button).on_hover_text(PLAYLIST_EDIT_SAVE).on_disabled_hover_text(PLAYLIST_EXISTS).clicked() {
+								self.state.playlist_edit  = None;
+								let arc_str: Arc<str>     = std::mem::take(&mut self.state.playlist_edit_string).into();
+								self.playlist_from        = Some(Arc::clone(&playlist_name));
+								self.playlist_to          = Some(arc_str);
+							}
+						});
+					} else {
+						let button = Button::new(RichText::new("Ａ").size(SIZE));
+						if ui.add_sized([SIZE2, SIZE2], button).on_hover_text(PLAYLIST_EDIT).clicked() {
+							self.state.playlist_edit        = Some(Arc::clone(&playlist_name));
+							self.state.playlist_edit_string = playlist_name.to_string();
+						}
+					}
+
+					let button = Button::new(RichText::new("🗐").size(SIZE));
+					if ui.add_sized([SIZE2, SIZE2], button).on_hover_text(PLAYLIST_COPY).clicked() {
+						self.playlist_clone = Some(Arc::clone(playlist_name));
+					}
+
+					ui.add_space(15.0);
+
+					if playlist_name_is_being_edited {
+						// Text edit.
+						let width = ui.available_width() - 10.0;
+						let text_edit = TextEdit::singleline(&mut self.state.playlist_edit_string)
+							.char_limit(PLAYLIST_NAME_MAX_LEN);
+						ui.spacing_mut().text_edit_width = width;
+						ui.add_sized([width, SIZE], text_edit).on_hover_text(PLAYLIST_TEXT);
+					} else {
+						crate::playlist_label!(self, playlist_name, ui, label_name);
+						ui.add_space(20.0);
+						ui.add(label_count);
+						ui.add_space(20.0);
+						ui.add(label_runtime);
+					}
+
+					ui.add_space(ui.available_width());
+				})});
 				ui.add_space(10.0);
-				ui.separator();
+			}
+
+			// Clone playlist if set.
+			match self.playlist_clone.take() {
+				None       => (),
+				Some(name) => {
+					// Clone old.
+					let maybe_playlist = playlists.get(&name).map(|v| v.clone());
+
+					// Create new.
+					if let Some(vec) = maybe_playlist {
+						// Prevent overwriting existing playlists.
+						let mut copy = "(Copy)".to_string();
+						let new_name = loop {
+							let new_name = format!("{name} {copy}");
+							if playlists.get(new_name.as_str()).is_none() {
+								break new_name;
+							}
+							copy += " (Copy)";
+						};
+
+						playlists.insert(new_name.into(), vec);
+					}
+				},
+			}
+
+			// Remove playlist if set.
+			match self.playlist_remove.take() {
+				None    => (),
+				Some(p) => { playlists.remove(&p); },
+			}
+
+			// Swap keys if we renamed them above.
+			match (&mut self.playlist_from, &mut self.playlist_to) {
+				(Some(from), Some(to)) => {
+					if let Some(value) = playlists.remove(&**from) {
+						playlists.insert(Arc::clone(to), value);
+					}
+
+					self.playlist_from = None;
+					self.playlist_to   = None;
+				},
+				_ => (),
 			}
 		});
 	},

@@ -72,6 +72,10 @@ pub struct State {
 
 	/// Our current playlist
 	pub playlist: Option<Arc<str>>,
+	/// If we are editing a playlist's name.
+	pub playlist_edit: Option<Arc<str>>,
+	/// The playlist name edit text.
+	pub playlist_edit_string: String,
 	/// Our current playlist name input.
 	pub playlist_string: String,
 }
@@ -91,6 +95,8 @@ impl State {
 			album: Default::default(),
 			artist: Default::default(),
 			playlist: None,
+			playlist_edit: None,
+			playlist_edit_string: Default::default(),
 			playlist_string: Default::default(),
 		}
 	}

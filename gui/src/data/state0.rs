@@ -98,6 +98,8 @@ impl Into<State> for State0 {
 
 			// New fields
 			playlist: None,
+			playlist_edit: None,
+			playlist_edit_string: Default::default(),
 			playlist_string: Default::default(),
 		}
 	}

@@ -271,6 +271,11 @@ impl crate::data::Gui {
 			searching: false,
 			search_jump: false,
 
+			playlist_clone: None,
+			playlist_remove: None,
+			playlist_from: None,
+			playlist_to: None,
+
 			// Local cache.
 			count_artist: "Artists: 0".to_string(),
 			count_album: "Albums: 0".to_string(),

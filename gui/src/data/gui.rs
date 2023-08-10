@@ -116,6 +116,16 @@ pub struct Gui {
 	/// the GUI knows to `request_focus()` the search `TextEdit`.
 	pub search_jump: bool,
 
+	// Playlist edit state.
+	/// Clone this playlist ASAP
+	pub playlist_clone: Option<Arc<str>>,
+	/// Remove this playlist ASAP
+	pub playlist_remove: Option<Arc<str>>,
+	/// Edit this name...
+	pub playlist_from: Option<Arc<str>>,
+	/// To this name.
+	pub playlist_to: Option<Arc<str>>,
+
 	// Local cached variables.
 	/// A cached, formatted version of [`Collection::count_artist`]
 	pub count_artist: String,

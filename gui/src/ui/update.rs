@@ -378,7 +378,7 @@ impl Gui {
 						self.update_debug_info();
 					}
 				// Check for [A-Za-z0-9] (Search)
-				} else {
+				} else if self.state.tab != Tab::Playlists {
 					for key in ALPHANUMERIC_KEY {
 						if input.consume_key(Modifiers::NONE, key) {
 							crate::search!(self, key, false);
