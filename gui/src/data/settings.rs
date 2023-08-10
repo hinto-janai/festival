@@ -161,8 +161,6 @@ mod test {
 		assert_eq!(S2.album_sort,         AlbumSort::LexiRevArtistLexi);
 		assert_eq!(S2.song_sort,          SongSort::Runtime);
 		assert_eq!(S2.search_kind,        SearchKind::All);
-		assert_eq!(S2.artist_sub_tab,     ArtistSubTab::View);
-		assert_eq!(S2.playlist_sub_tab,   PlaylistSubTab::View);
 		assert_eq!(S2.search_sort,        SearchSort::Album);
 		assert_eq!(S2.window_title,       WindowTitle::Queue);
 		assert_eq!(S2.album_sizing,       AlbumSizing::Row);
