@@ -3,8 +3,8 @@
 //use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
-use super::{
-	Tab,
+use crate::data::{
+	Tab,State,
 };
 use crate::constants::{
 	GUI,
@@ -26,20 +26,14 @@ use shukusai::{
 		Keychain,
 	},
 };
-use std::sync::Arc;
+use disk::Bincode2;
 use const_format::formatcp;
 
 //---------------------------------------------------------------------------------------------------- State
-disk::bincode2!(State, disk::Dir::Data, FESTIVAL, formatcp!("{GUI}/{STATE_SUB_DIR}"), "state", HEADER, STATE_VERSION);
+disk::bincode2!(State0, disk::Dir::Data, FESTIVAL, formatcp!("{GUI}/{STATE_SUB_DIR}"), "state", HEADER, 0);
 #[derive(Clone,Debug,PartialEq,PartialOrd,Serialize,Deserialize,Encode,Decode)]
-/// `GUI`'s State.
-///
-/// Holds `copy`-able, user-mutable `GUI` state.
-///
-/// This struct holds an [`AudioState`] which is a local copy of [`KernelState`].
-/// This is so that within the `GUI` loop, [`KernelState`] only needs to be locked _once_,
-/// so its values can be locally cached, then used within the frame.
-pub struct State {
+/// Version 0 of `GUI`'s State.
+pub struct State0 {
 	// Tab.
 	/// Which [`Tab`] are currently on?
 	pub tab: Tab,
@@ -69,36 +63,43 @@ pub struct State {
 
 	/// Which [`Artist`] are we on in the `Artist` tab?
 	pub artist: Option<ArtistKey>,
-
-	/// Our current playlist
-	pub playlist: Option<Arc<str>>,
-	/// Our current playlist name input.
-	pub playlist_string: String,
 }
 
-impl State {
-	#[inline]
-	/// Creates a mostly empty [`State`].
-	pub fn new() -> Self {
-		Self {
-			volume: Volume::default().inner(),
-
-			tab: Default::default(),
-			last_tab: Default::default(),
-			search_string: Default::default(),
-			search_result: Default::default(),
-			repeat: Default::default(),
-			album: Default::default(),
-			artist: Default::default(),
-			playlist: None,
-			playlist_string: Default::default(),
-		}
+impl State0 {
+	/// Reads from disk, then calls `.into()` if `Ok`.
+	pub fn disk_into() -> Result<State, anyhow::Error> {
+		// SAFETY: memmap is used.
+		unsafe { Self::from_file_memmap().map(Into::into) }
 	}
 }
 
-impl Default for State {
-	fn default() -> Self {
-		Self::new()
+impl Into<State> for State0 {
+	fn into(self) -> State {
+		let State0 {
+			volume,
+			tab,
+			last_tab,
+			search_string,
+			search_result,
+			repeat,
+			album,
+			artist,
+		} = self;
+
+		State {
+			volume,
+			tab,
+			last_tab,
+			search_string,
+			search_result,
+			repeat,
+			album,
+			artist,
+
+			// New fields
+			playlist: None,
+			playlist_string: Default::default(),
+		}
 	}
 }
 

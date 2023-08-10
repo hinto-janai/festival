@@ -38,6 +38,17 @@ macro_rules! artist {
 }
 
 #[macro_export]
+/// Set a `Playlist`, set the last tab, jump to the Artist view sub-tab.
+macro_rules! playlist {
+	($self:ident, $arc_str:expr) => {
+		$self.state.playlist = Some(std::sync::Arc::clone(&$arc_str));
+		$self.state.last_tab = Some($self.state.tab);
+		$self.state.tab      = $crate::data::Tab::Playlists;
+		$self.settings.playlist_sub_tab = $crate::data::PlaylistSubTab::View;
+	}
+}
+
+#[macro_export]
 /// Send a single `Song` to `Kernel` to play.
 ///
 /// This indicates:
@@ -70,7 +81,7 @@ macro_rules! add_song {
 		if $self.settings.empty_autoplay && $self.audio_state.queue.is_empty() {
 			::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
 		}
-		$crate::toast!($self, format!("Added [{}] to queue", $song_title));
+		$crate::toast!($self, format!("Added song [{}] to queue", $song_title));
 	}
 }
 
@@ -85,7 +96,7 @@ macro_rules! add_album {
 		if $self.settings.empty_autoplay && $self.audio_state.queue.is_empty() {
 			::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
 		}
-		$crate::toast!($self, format!("Added [{}] to queue", $album_title));
+		$crate::toast!($self, format!("Added album [{}] to queue", $album_title));
 	}
 }
 
@@ -105,7 +116,27 @@ macro_rules! add_artist {
 		if $self.settings.empty_autoplay && $self.audio_state.queue.is_empty() {
 			::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
 		}
-		$crate::toast!($self, format!("Added [{}] to queue", $artist.name));
+		$crate::toast!($self, format!("Added artist [{}] to queue", $artist.name));
+	}
+}
+
+#[macro_export]
+/// Append this `Playlist` to the end of the queue.
+///
+/// This indicates:
+/// - Queue should be not be cleared
+/// - `Play` signal is sent if queue is empty (and empty_autoplay is true)
+/// - A toast should pop up showing we added the `Playlist` to the queue
+macro_rules! add_playlist {
+	($self:ident, $playlist_name:expr) => {
+		::benri::send!(
+			$self.to_kernel,
+			shukusai::kernel::FrontendToKernel::QueueAddPlaylist((std::sync::Arc::clone(&$playlist_name), shukusai::audio::Append::Back, false, 0))
+		);
+		if $self.settings.empty_autoplay && $self.audio_state.queue.is_empty() {
+			::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
+		}
+		$crate::toast!($self, format!("Added playlist [{}] to queue", $playlist_name));
 	}
 }
 
@@ -435,6 +466,22 @@ macro_rules! artist_label {
 			$crate::artist!($self, $key);
 		} else if resp.secondary_clicked() {
 			$crate::add_artist!($self, $artist, $key);
+		}
+	}
+}
+
+#[macro_export]
+/// Add a clickable `Playlist` label that:
+/// - Primary click: sets it to `Playlist` tab view
+/// - Secondary click: adds `Playlist` to the queue
+macro_rules! playlist_label {
+	($self:ident, $playlist_name:expr, $ui:ident, $label:expr) => {
+		let resp = $ui.add($label.sense(Sense::click()));
+
+		if resp.clicked() {
+			$crate::playlist!($self, $playlist_name);
+		} else if resp.secondary_clicked() {
+			$crate::add_playlist!($self, $playlist_name);
 		}
 	}
 }
