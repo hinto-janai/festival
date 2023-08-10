@@ -130,6 +130,12 @@ pub struct Gui {
 	pub playlist_from: Option<Arc<str>>,
 	/// To this name.
 	pub playlist_to: Option<Arc<str>>,
+	/// Move the position of these entries in this playlist.
+	pub playlist_swap_entry: Option<(Arc<str>, usize, usize)>,
+	/// Remove the entry at this index from this playlist.
+	pub playlist_remove_entry: Option<(Arc<str>, usize)>,
+	/// A playlist name edit had a `\n` enter, so we should save.
+	pub playlist_name_edit_enter: bool,
 	/// Are we adding a `Artist/Album/Song` to a playlist?
 	/// (fullscreen menu)
 	/// This holds the keys that we should add.

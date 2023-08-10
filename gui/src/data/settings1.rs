@@ -109,7 +109,6 @@ impl Into<Settings> for Settings1 {
 			album_sort,
 			song_sort,
 			search_kind,
-			artist_sub_tab,
 			search_sort,
 			window_title,
 			album_sizing,
@@ -121,6 +120,7 @@ impl Into<Settings> for Settings1 {
 			accent_color,
 			collection_paths,
 			pixels_per_point,
+			..
 		} = self;
 
 		Settings {
@@ -128,7 +128,6 @@ impl Into<Settings> for Settings1 {
 			album_sort,
 			song_sort,
 			search_kind,
-			artist_sub_tab,
 			search_sort,
 			window_title,
 			album_sizing,
@@ -140,9 +139,6 @@ impl Into<Settings> for Settings1 {
 			accent_color,
 			collection_paths,
 			pixels_per_point,
-
-			// New fields.
-			playlist_sub_tab: Default::default(),
 		}
 	}
 }

@@ -302,9 +302,10 @@ impl Gui {
 								self.state.album = Some(self.collection.next_album(key));
 							}
 						}
-						Tab::Albums  => self.increment_art_size(),
-						Tab::Artists => self.settings.artist_sub_tab = self.settings.artist_sub_tab.next(),
-						Tab::Search  => self.settings.search_sort = self.settings.search_sort.next(),
+						Tab::Albums    => self.increment_art_size(),
+						Tab::Artists   => self.state.artist_sub_tab = self.state.artist_sub_tab.next(),
+						Tab::Playlists => self.state.playlist_sub_tab = self.state.playlist_sub_tab.next(),
+						Tab::Search    => self.settings.search_sort = self.settings.search_sort.next(),
 						_ => (),
 					}
 				} else if input.consume_key(Modifiers::NONE, Key::ArrowLeft) {
@@ -315,7 +316,8 @@ impl Gui {
 							}
 						}
 						Tab::Albums => self.decrement_art_size(),
-						Tab::Artists => self.settings.artist_sub_tab = self.settings.artist_sub_tab.previous(),
+						Tab::Artists => self.state.artist_sub_tab = self.state.artist_sub_tab.previous(),
+						Tab::Playlists => self.state.playlist_sub_tab = self.state.playlist_sub_tab.previous(),
 						Tab::Search => self.settings.search_sort = self.settings.search_sort.previous(),
 						_ => (),
 					}
@@ -377,7 +379,7 @@ impl Gui {
 					self.settings.album_sort = next;
 				// Check for `Ctrl+E` (Next Artist Order)
 				} else if input.consume_key(Modifiers::COMMAND, Key::E) {
-					self.settings.artist_sub_tab = crate::data::ArtistSubTab::All;
+					self.state.artist_sub_tab = crate::data::ArtistSubTab::All;
 					crate::tab!(self, Tab::Artists);
 					let next = self.settings.artist_sort.next();
 					crate::toast!(self, next.human());
@@ -407,8 +409,12 @@ impl Gui {
 					if self.debug_screen {
 						self.update_debug_info();
 					}
+				// Check for [ESC]
+				} else if input.consume_key(Modifiers::NONE, Key::Escape) {
+					self.debug_screen        = false;
+					self.playlist_add_screen = None;
 				// Check for [A-Za-z0-9] (Search)
-				} else if self.state.tab != Tab::Playlists {
+				} else {
 					for key in ALPHANUMERIC_KEY {
 						if input.consume_key(Modifiers::NONE, key) {
 							crate::search!(self, key, false);
@@ -921,7 +927,7 @@ fn show_playlist_add_screen(&mut self, ctx: &egui::Context, width: f32, height: 
 
 			// Exit button.
 			ui.add_space(header);
-			if ui.add_sized([width / 1.5, header], Button::new("Exit")).clicked() {
+			if ui.add_sized([width / 1.5, header], Button::new("Exit (or press ESC)")).clicked() {
 				self.playlist_add_screen = None;
 			}
 			ui.add_space(header);
@@ -935,14 +941,29 @@ fn show_playlist_add_screen(&mut self, ctx: &egui::Context, width: f32, height: 
 				KeyEnum::Song(k) => ("Song", &self.collection.songs[k].title),
 			};
 
-			let text = RichText::new(format!("Add {object}\n[{name}]\nto playlist..."))
+			let text = RichText::new(format!("[{name}]"))
 				.size(header)
 				.color(BONE);
 
 			// Header.
+			ui.label(format!("Add {object}"));
 			ui.add_sized([width, header], Label::new(text));
+			ui.label("to playlist...");
 
 			ui.add_space(header);
+
+			if PLAYLISTS.read().is_empty() {
+				let button = Button::new(
+					RichText::new("Create a new playlist")
+					.text_style(TextStyle::Name("30".into()))
+				);
+
+				if ui.add_sized([width / 2.0, 35.0], button).clicked() {
+					self.playlist_add_screen = None;
+					self.state.playlist_sub_tab = crate::data::PlaylistSubTab::All;
+					crate::tab!(self, Tab::Playlists);
+				}
+			}
 
 			ScrollArea::both()
 				.id_source("PlaylistsAddScreen")

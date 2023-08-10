@@ -559,6 +559,32 @@ impl Playlists {
 			});
 	}
 
+	/// Return the length of valid entries.
+	pub fn valid_len(playlist: &VecDeque<Entry>) -> usize {
+		playlist
+			.iter()
+			.map(|e| {
+				match e {
+					Entry::Valid { .. } => 1,
+					_ => 0,
+				}
+			})
+			.sum()
+	}
+
+	/// Return the length of invalid entries.
+	pub fn invalid_len(playlist: &VecDeque<Entry>) -> usize {
+		playlist
+			.iter()
+			.map(|e| {
+				match e {
+					Entry::Invalid { .. } => 1,
+					_ => 0,
+				}
+			})
+			.sum()
+	}
+
 	/// Returns a `Vec` of (`playlist_name_str`, `entry_count`).
 	pub fn name_count_iter(&self) -> Vec<(&str, usize)> {
 		self.0

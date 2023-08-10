@@ -30,8 +30,6 @@ use shukusai::{
 use crate::data::{
 	AlbumSizing,
 	SearchSort,
-	ArtistSubTab,
-	PlaylistSubTab,
 	WindowTitle,
 };
 use const_format::formatcp;
@@ -58,12 +56,6 @@ pub struct Settings {
 
 	/// Which search kind to use for `Kernel`
 	pub search_kind: SearchKind,
-
-	/// Which `ArtistSubTab` are we on?
-	pub artist_sub_tab: ArtistSubTab,
-
-	/// Which `PlaylistSubTab` are we on?
-	pub playlist_sub_tab: PlaylistSubTab,
 
 	/// To sort by `Song` title or
 	/// `Artist` name in the search tab?
@@ -109,8 +101,6 @@ impl Settings {
 			album_sort:         Default::default(),
 			song_sort:          Default::default(),
 			search_kind:        Default::default(),
-			artist_sub_tab:     Default::default(),
-			playlist_sub_tab:   Default::default(),
 			search_sort:        Default::default(),
 			window_title:       Default::default(),
 			album_sizing:       Default::default(),

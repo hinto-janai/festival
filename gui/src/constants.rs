@@ -152,7 +152,7 @@ pub const PLAYLIST_NAME_MAX_LEN: usize = u8::MAX as usize;
 pub const GUI: &str = "gui";
 
 /// Current major version of `GUI`'s `State`
-pub const STATE_VERSION: u8 = 0;
+pub const STATE_VERSION: u8 = 1;
 
 /// Current major version of `GUI`'s `Settings`
 pub const SETTINGS_VERSION: u8 = 2;

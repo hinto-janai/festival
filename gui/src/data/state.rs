@@ -6,6 +6,10 @@ use bincode::{Encode,Decode};
 use super::{
 	Tab,
 };
+use crate::data::{
+	ArtistSubTab,
+	PlaylistSubTab,
+};
 use crate::constants::{
 	GUI,
 	STATE_VERSION,
@@ -70,6 +74,12 @@ pub struct State {
 	/// Which [`Artist`] are we on in the `Artist` tab?
 	pub artist: Option<ArtistKey>,
 
+	/// Which `ArtistSubTab` are we on?
+	pub artist_sub_tab: ArtistSubTab,
+
+	/// Which `PlaylistSubTab` are we on?
+	pub playlist_sub_tab: PlaylistSubTab,
+
 	/// Our current playlist
 	pub playlist: Option<Arc<str>>,
 	/// If we are editing a playlist's name.
@@ -94,6 +104,8 @@ impl State {
 			repeat: Default::default(),
 			album: Default::default(),
 			artist: Default::default(),
+			artist_sub_tab: Default::default(),
+			playlist_sub_tab: Default::default(),
 			playlist: None,
 			playlist_edit: None,
 			playlist_edit_string: Default::default(),

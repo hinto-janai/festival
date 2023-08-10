@@ -276,6 +276,9 @@ impl crate::data::Gui {
 			playlist_remove: None,
 			playlist_from: None,
 			playlist_to: None,
+			playlist_swap_entry: None,
+			playlist_remove_entry: None,
+			playlist_name_edit_enter: false,
 			playlist_add_screen: None,
 			playlist_add_screen_result: None,
 

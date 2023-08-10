@@ -97,6 +97,8 @@ impl Into<State> for State0 {
 			artist,
 
 			// New fields
+			artist_sub_tab: Default::default(),
+			playlist_sub_tab: Default::default(),
 			playlist: None,
 			playlist_edit: None,
 			playlist_edit_string: Default::default(),
