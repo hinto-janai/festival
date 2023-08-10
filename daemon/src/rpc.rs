@@ -1413,8 +1413,8 @@ async fn playlist_single<'a>(
 
 		for i in v.iter() {
 			match i {
-				shukusai::state::PlaylistEntry::Valid { .. }   => valid +=1,
-				shukusai::state::PlaylistEntry::Invalid { .. } => invalid +=1,
+				shukusai::state::Entry::Valid { .. }   => valid +=1,
+				shukusai::state::Entry::Invalid { .. } => invalid +=1,
 			}
 		}
 
@@ -1446,8 +1446,8 @@ async fn playlist_all<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::
 			entry_len += 1;
 
 			match i {
-				shukusai::state::PlaylistEntry::Valid { .. }   => valid +=1,
-				shukusai::state::PlaylistEntry::Invalid { .. } => invalid +=1,
+				shukusai::state::Entry::Valid { .. }   => valid +=1,
+				shukusai::state::Entry::Invalid { .. } => invalid +=1,
 			}
 		}
 	}

@@ -20,7 +20,7 @@ use shukusai::{
 	search::SearchKind,
 	state::{
 		PlaylistsJson,
-		PlaylistEntryJson,
+		EntryJson,
 	},
 };
 use crate::{
@@ -327,7 +327,7 @@ impl_struct_lt! {
 	valid: usize,
 	invalid: usize,
 	#[serde(borrow)]
-	entries: Cow<'a, [PlaylistEntryJson<'a>]>
+	entries: Cow<'a, [EntryJson<'a>]>
 }
 impl_struct_lt! {
 	PlaylistAll,
