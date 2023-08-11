@@ -19,6 +19,7 @@ Types of changes:
 ## Added
 * Playlists ([#58](https://github.com/hinto-janai/festival/pull/58))
 * Drag-and-drop support for `Collection` folders ([#51](https://github.com/hinto-janai/festival/pull/51))
+* Audio state now recovers (as much as possible) across `Collection` resets ([#59](https://github.com/hinto-janai/festival/pull/59))
 * Key-binding for adding songs/albums/artists to playlists - `CTRL + Primary Mouse`
 
 ## Changed
