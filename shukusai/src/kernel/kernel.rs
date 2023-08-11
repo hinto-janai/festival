@@ -442,24 +442,15 @@ impl Kernel {
 			collection,
 		};
 
-		// `Audio` scheduling.
-		// No `policy` API for Windows.
-		let audio_thread = thread_priority::ThreadBuilder::default()
-			.name("Audio".to_string())
-			.priority(thread_priority::ThreadPriority::Max);
-
-		#[cfg(target_os = "unix")]
-		let audio_thread = audio_thread
-			.policy(thread_priority::unix::ThreadSchedulePolicy::Realtime(thread_priority::unix::RealtimeThreadSchedulePolicy::Fifo));
-
 		// Spawn `Audio`.
 		let collection = Arc::clone(&kernel.collection);
-		match audio_thread.spawn(move |result| {
-			match result {
-				Ok(_) => debug!("Audio ... high priority spawn: OK"),
-				Err(e) => warn!("Audio ... high priority spawn error: {e:?}"),
-			}
-			Audio::init(collection, audio, audio_send, audio_recv, media_controls);
+		match std::thread::Builder::new()
+			.name("Audio".to_string())
+			.spawn(move || {
+				// SAFETY: libc is used to set niceness.
+				let nice = unsafe { libc::nice(-20) };
+				debug!("Audio ... spawned at niceness level: {nice}");
+				Audio::init(collection, audio, audio_send, audio_recv, media_controls);
 		}) {
 			Ok(_)  => debug!("Kernel Init [11/13] ... spawned Audio"),
 			Err(e) => panic!("Kernel Init [11/13] ... failed to spawn Audio: {e}"),

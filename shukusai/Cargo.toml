@@ -51,6 +51,7 @@ crossbeam    = { workspace = true }
 const_format = { workspace = true }
 compact_str  = { workspace = true }
 image        = { workspace = true }
+libc         = { workspace = true }
 log          = { workspace = true }
 once_cell    = { workspace = true }
 paste        = { workspace = true }
@@ -73,7 +74,6 @@ seq-macro         = "0.3.3"
 souvlaki          = "0.6.1"
 symphonia         = { version = "0.5.2", path = "../external/Symphonia/symphonia", features = ["all"] }
 strsim            = "0.10.0"
-thread-priority   = "0.13.1"
 walkdir           = "2.3.3"
 zune-core         = "0.2.14"
 zune-jpeg         = "0.3.17"
