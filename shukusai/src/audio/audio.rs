@@ -1295,11 +1295,6 @@ impl Audio {
 		// Drop pointer.
 		self.collection = Collection::dummy();
 
-		// Clear state.
-		self.current = None;
-		self.state.finish();
-		AUDIO_STATE.write().finish();
-
 		// Hang until we get the new one.
 		debug!("Audio - Dropped Collection, waiting...");
 
@@ -1309,6 +1304,14 @@ impl Audio {
 				KernelToAudio::NewCollection(arc) => {
 					ok_debug!("Audio - New Collection received");
 					self.collection = arc;
+
+					// INVARIANT:
+					// `AUDIO_STATE` _should_ be set valid by `Kernel` at this point.
+					self.state = AUDIO_STATE.read().clone();
+					if self.state.song.is_none() {
+						self.current = None;
+					}
+
 					return;
 				},
 				_ => {

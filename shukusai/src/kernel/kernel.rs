@@ -28,6 +28,7 @@ use crate::{
 		PLAYLIST_VERSION,
 	},
 	state::{
+		AudioStateRestore,
 		Playlists,
 		PLAYLISTS,
 		Phase,
@@ -746,6 +747,9 @@ impl Kernel {
 		// Create `CCD` channel.
 		let (ccd_send, from_ccd) = crossbeam::channel::unbounded::<CcdToKernel>();
 
+		// Convert our current `AudioState` to string keys.
+		let audio_state_restore = AudioStateRestore::from_audio_state(&AUDIO_STATE.read(), &self.collection);
+
 		// Give the last ownership of the
 		// old `Collection` pointer to `CCD`.
 		let old_collection = Arc::clone(&self.collection);
@@ -795,6 +799,14 @@ impl Kernel {
 		};
 
 		self.collection = collection;
+
+		// Attempt to restore audio state.
+		// INVARIANT:
+		// We must set `AUDIO_STATE` in a valid state
+		// before sending the `Collection` to `Audio`, as that
+		// will trigger it to assume keys and `AUDIO_STATE` are valid.
+		let audio_state = audio_state_restore.into_audio_state(&self.collection);
+		*AUDIO_STATE.write() = audio_state;
 
 		// Send new pointers to everyone.
 		send!(self.to_audio,    KernelToAudio::NewCollection(Arc::clone(&self.collection)));

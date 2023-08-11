@@ -21,7 +21,7 @@ use shukusai::{
 	collection::{
 		Collection,
 	},
-	state::PLAYLISTS,
+	state::{AUDIO_STATE,PLAYLISTS},
 	constants::PLAYLIST_VERSION,
 };
 use benri::{
@@ -82,6 +82,9 @@ impl Gui {
 
 		// Update playlist.
 		self.og_playlists = PLAYLISTS.read().clone();
+
+		// Update audio state.
+		self.audio_state = AUDIO_STATE.read().clone();
 	}
 
 	// Sets the [`egui::Ui`]'s `Visual` from our current `Settings`
@@ -242,7 +245,6 @@ impl Gui {
 
 		// Go into collection mode.
 		self.resetting_collection = true;
-
 	}
 
 	/// Caches some segments of [`Collection`] for local use

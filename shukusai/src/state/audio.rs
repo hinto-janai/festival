@@ -2,7 +2,7 @@
 use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
 use crate::collection::{
-	SongKey,MapKey,
+	Collection,SongKey,MapKey,
 };
 use crate::constants::{
 	HEADER,AUDIO_VERSION,
@@ -14,9 +14,11 @@ use crate::audio::{
 	Volume,Repeat,
 };
 use readable::Runtime;
-
 use benri::sync::*;
+use benri::ok;
+use log::warn;
 use std::sync::{
+	Arc,
 	RwLock,
 	RwLockReadGuard,
 	RwLockWriteGuard,
@@ -190,15 +192,108 @@ impl Default for AudioState {
 }
 
 //---------------------------------------------------------------------------------------------------- AudioStateRestore
-pub struct AudioStateRestore {
-	pub queue: VecDeque<MapKey>,
-	pub queue_idx: Option<usize>,
-	pub playing: bool,
-	pub song: Option<MapKey>,
-	pub elapsed: Runtime,
-	pub runtime: Runtime,
-	pub repeat: Repeat,
-	pub volume: Volume,
+#[derive(Debug,Clone)]
+/// An "in-between Collection reset" representation of [`AudioState`].
+///
+/// Keys are replaced with string variants, which are attempted
+/// to be converted after the `Collection` reset.
+///
+/// The _len_ of the queue is not changed at all, to
+/// preserve the index we were on. Keys that don't
+/// exist any more are `None` instead of not existing
+/// so that the `len` is the same.
+pub(crate) struct AudioStateRestore {
+	pub(crate) queue: VecDeque<Option<MapKey>>,
+	pub(crate) queue_idx: Option<usize>,
+	pub(crate) playing: bool,
+	pub(crate) song: Option<MapKey>,
+	pub(crate) elapsed: Runtime,
+	pub(crate) runtime: Runtime,
+	pub(crate) repeat: Repeat,
+	pub(crate) volume: Volume,
+
+	// extra info
+	pub(crate) queue_len: usize,
+}
+
+impl AudioStateRestore {
+	// Attempts to convert all valid string keys into
+	// normal keys, aka, `AudioState`.
+	//
+	// Everything related to a song that was "set",
+	// (`queue_idx`, `song`, etc) will only be restored
+	// IF the original song can be found in the exact
+	// same index.
+	//
+	// So basically, it only makes sense to recover the
+	// "current" song if it actually matches the song
+	// that was set before.
+	pub fn into_audio_state(self, collection: &Arc<Collection>) -> AudioState {
+		let queue: VecDeque<SongKey> = self.queue
+			.into_iter()
+			.map(|o| {
+				match o {
+					Some(m) => m.to_key(collection),
+					None => None,
+				}
+			})
+			.filter_map(|o| o)
+			.collect();
+
+		if queue.len() == self.queue_len {
+			if let Some(m) = self.song {
+				if let Some((song, key)) = collection.song(m.artist, m.album, m.song) {
+					if let Some(i) = self.queue_idx {
+						ok!("AudioState was 100% recovered across Collection reset");
+						return AudioState {
+							queue,
+							queue_idx: self.queue_idx,
+							playing: self.playing,
+							song: Some(song.key),
+							elapsed: self.elapsed,
+							runtime: self.runtime,
+							repeat: self.repeat,
+							volume: self.volume,
+						};
+					}
+				}
+			}
+		}
+
+		warn!("AudioStateRecover failed, AudioState will not be 100% the same");
+		AudioState {
+			queue,
+			queue_idx: None,
+			playing: false,
+			song: None,
+			elapsed: Runtime::zero(),
+			runtime: Runtime::zero(),
+			repeat: self.repeat,
+			volume: self.volume,
+		}
+	}
+
+	pub fn from_audio_state(a: &AudioState, collection: &Arc<Collection>) -> Self {
+		let queue: VecDeque<Option<MapKey>> = a.queue
+			.iter()
+			.map(|k| Some(MapKey::from_song_key(*k, collection)))
+			.collect();
+
+		let song = a.song.map(|k| MapKey::from_song_key(k, collection));
+
+		Self {
+			queue,
+			queue_idx: a.queue_idx,
+			playing: a.playing,
+			song,
+			elapsed: a.elapsed,
+			runtime: a.runtime,
+			repeat: a.repeat,
+			volume: Volume::new(atomic_load!(crate::state::VOLUME)),
+
+			queue_len: a.queue.len(),
+		}
+	}
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
