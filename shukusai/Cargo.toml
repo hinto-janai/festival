@@ -1,6 +1,6 @@
 [package]
 name           = "shukusai"
-version        = "0.0.3"
+version        = "0.0.4"
 edition        = "2021"
 authors        = ["hinto.janai <hinto.janai@protonmail.com>"]
 homepage       = "https://festival.pm"
@@ -52,6 +52,7 @@ compact_str  = { workspace = true }
 dirs         = { workspace = true }
 env_logger   = { workspace = true }
 image        = { workspace = true }
+libc         = { workspace = true }
 log          = { workspace = true }
 memmap2      = { workspace = true }
 once_cell    = { workspace = true }
@@ -73,7 +74,6 @@ rayon             = "1.7.0"
 souvlaki          = "0.6.1"
 symphonia         = { version = "0.5.2", path = "../external/Symphonia/symphonia", features = ["all"] }
 strsim            = "0.10.0"
-thread-priority   = "0.13.1"
 walkdir           = "2.3.3"
 zune-core         = "0.2.14"
 zune-jpeg         = "0.3.17"

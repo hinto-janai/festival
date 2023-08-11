@@ -3,6 +3,7 @@ use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
 use std::collections::HashMap;
 use crate::collection::{
+	Collection,
 	Artist,
 	Album,
 	Song,
@@ -11,6 +12,48 @@ use crate::collection::{
 	SongKey,
 };
 use std::sync::Arc;
+
+//---------------------------------------------------------------------------------------------------- MapEntry
+#[derive(Clone,Debug,PartialEq,Serialize,Deserialize,Encode,Decode)]
+/// An absolute "Key" for the [`Map`].
+pub struct MapKey {
+	/// Artist name
+	pub artist: Arc<str>,
+	/// Album title
+	pub album: Arc<str>,
+	/// Song title
+	pub song: Arc<str>,
+}
+
+impl MapKey {
+	/// Create `self` by walking a `Song`.
+	pub fn from_song(song: &Song, collection: &Arc<Collection>) -> Self {
+		let album  = &collection.albums[song.album];
+		let artist = &collection.artists[album.artist];
+		Self {
+			artist: Arc::clone(&artist.name),
+			album: Arc::clone(&album.title),
+			song: Arc::clone(&song.title),
+		}
+	}
+
+	/// INVARIANT: assumes key is valid
+	///
+	/// Create `self` by walking a `SongKey`.
+	pub fn from_song_key(key: SongKey, collection: &Arc<Collection>) -> Self {
+		let (artist, album, song) = collection.walk(key);
+		Self {
+			artist: Arc::clone(&artist.name),
+			album: Arc::clone(&album.title),
+			song: Arc::clone(&song.title),
+		}
+	}
+
+	/// Attempts to look in the `Collection` for 100% matching `Song`.
+	pub fn to_key(&self, collection: &Arc<Collection>) -> Option<SongKey> {
+		collection.song(&*self.artist, &*self.album, &*self.song).map(|(s, _)| s.key)
+	}
+}
 
 //---------------------------------------------------------------------------------------------------- Map
 #[derive(Clone,Debug,Default,PartialEq,Encode,Decode)]

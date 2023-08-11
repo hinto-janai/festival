@@ -23,7 +23,7 @@ Big thanks to [Rucknium](https://github.com/rucknium) for teaching me `R`.
 ## Comparison
 | Music Player | Version | OS | Open Source | Playlists | Compilations | Sorting | Search | Features vs Minimal |
 |--------------|---------|----|-------------|-----------|--------------|---------|--------|---------------------|
-| [Festival](https://github.com/hinto-janai/festival)       | `1.1.0` (2023-07-12)    | Windows, macOS, Linux | 🟢 | 🔴 | 🔴 | 🟢 | 🟢 | Minimal
+| [Festival](https://github.com/hinto-janai/festival)       | `1.2.0` (2023-08-11)    | Windows, macOS, Linux | 🟢 | 🟢 | 🔴 | 🟢 | 🟢 | Minimal
 | [Lollypop](https://gitlab.gnome.org/World/lollypop)       | `1.437` (2023-01-03)    | Linux (GTK)           | 🟢 | 🟡 | 🟢 | 🟡 | 🟡 | Both
 | [GNOME Music](https://gitlab.gnome.org/GNOME/gnome-music) | `1.42` (2022-04-25)     | Linux (GTK)           | 🟢 | 🟡 | 🟡 | 🔴 | 🟡 | Minimal
 | [MusicBee](https://www.getmusicbee.com)                   | `3.5.8447` (2023-02-19) | Windows               | 🔴 | 🟢 | 🟡 | 🟡 | 🟡 | Features
@@ -32,13 +32,14 @@ Big thanks to [Rucknium](https://github.com/rucknium) for teaching me `R`.
 ### Playlists
 Playlist handling: What happens when you delete the underlying file of a song in an existing playlist? Or worse, reset the whole Collection?
 
-| Music Player                 | Behavior |
-|------------------------------|----------|
-| `Festival`                   | Playlists are not supported
-| `Lollypop` and `GNOME Music` | Silently adds/removes songs from playlists if the underlying file gets added/deleted
-| `MusicBee` and `iTunes`      | Continues displaying the playlist with the correct metadata, shows error when attempting to play missing song
+| Music Player                        | Behavior |
+|-------------------------------------|----------|
+| `Lollypop` and `GNOME Music`        | Silently adds/removes songs from playlists if the underlying file gets added/deleted
+| `Festival`, `MusicBee` and `iTunes` | Continues displaying the playlist with the correct metadata, shows error when attempting to play missing song
 
-I believe `MusicBee` and `iTunes` have the best approach here. If/when `Festival` gets playlist support, their approach will probably be used.
+Starting from `v1.2.0`, `Festival` gained playlist support, adopting the approach `MusicBee` and `iTunes` have.
+
+When the underlying song files in playlists disappear, the playlist entries themselves won't disppear, and will continue to show the metadata, although it will be marked as not playable.
 
 ### Compilations
 Compilations: A single `Album` owned by many artists.
@@ -199,7 +200,6 @@ After basically gloating, it only makes sense to point out _some_ of the _many_ 
 
 In no particular order:
 
-- Doesn't support basic playlists
 - Doesn't support compilations
 - Doesn't support incrementally adding songs/albums
 - Limited playback options (weird shuffle, no gain, etc)

@@ -95,6 +95,27 @@ pub struct Settings1 {
 }
 
 impl Settings1 {
+	pub fn new() -> Self {
+		Self {
+			artist_sort: Default::default(),
+			album_sort: Default::default(),
+			song_sort: Default::default(),
+			search_kind: Default::default(),
+			artist_sub_tab: Default::default(),
+			search_sort: Default::default(),
+			window_title: Default::default(),
+			album_sizing: Default::default(),
+			album_pixel_size: ALBUM_ART_SIZE_DEFAULT,
+			albums_per_row: ALBUMS_PER_ROW_DEFAULT,
+			previous_threshold: PREVIOUS_THRESHOLD_DEFAULT,
+			restore_state: true,
+			empty_autoplay: true,
+			accent_color: ACCENT_COLOR,
+			collection_paths: vec![],
+			pixels_per_point: PIXELS_PER_POINT_DEFAULT,
+		}
+	}
+
 	/// Reads from disk, then calls `.into()` if `Ok`.
 	pub fn disk_into() -> Result<Settings, anyhow::Error> {
 		// SAFETY: memmap is used.
@@ -152,18 +173,18 @@ mod test {
 	use disk::Bincode2;
 
 	// Empty.
-	const S1: Lazy<Settings> = Lazy::new(|| Settings::from_path("../assets/festival/gui/state/settings1_new.bin").unwrap());
+	const S1: Lazy<Settings1> = Lazy::new(|| Settings1::from_path("../assets/festival/gui/state/settings1_new.bin").unwrap());
 	// Filled.
-	const S2: Lazy<Settings> = Lazy::new(|| Settings::from_path("../assets/festival/gui/state/settings1_real.bin").unwrap());
+	const S2: Lazy<Settings1> = Lazy::new(|| Settings1::from_path("../assets/festival/gui/state/settings1_real.bin").unwrap());
 
 	#[test]
 	// Compares `new()`.
 	fn cmp() {
 		#[cfg(not(target_os = "macos"))]
-		assert_eq!(Lazy::force(&S1), &Settings::new());
+		assert_eq!(Lazy::force(&S1), &Settings1::new());
 		#[cfg(target_os = "macos")]
 		{
-			let mut settings = Settings::new();
+			let mut settings = Settings1::new();
 			settings.pixels_per_point = 1.5;
 			assert_eq!(Lazy::force(&S1), &settings);
 		}
@@ -182,7 +203,6 @@ mod test {
 		assert_eq!(S2.album_sort,         AlbumSort::LexiRevArtistLexi);
 		assert_eq!(S2.song_sort,          SongSort::Runtime);
 		assert_eq!(S2.search_kind,        SearchKind::All);
-		assert_eq!(S2.artist_sub_tab,     ArtistSubTab::View);
 		assert_eq!(S2.search_sort,        SearchSort::Album);
 		assert_eq!(S2.window_title,       WindowTitle::Queue);
 		assert_eq!(S2.album_sizing,       AlbumSizing::Row);

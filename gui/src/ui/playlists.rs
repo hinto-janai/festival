@@ -18,7 +18,7 @@ use crate::{
 		PLAYLIST_TOTAL_SONG,PLAYLIST_TOTAL_RUNTIME,
 		PLAYLIST_INVALID,UI_PLUS,UI_MINUS,UI_UP,UI_DOWN,
 		PLAYLIST_ENTRY_DELETE,PLAYLIST_ENTRY_UP,
-		PLAYLIST_ENTRY_DOWN,
+		PLAYLIST_ENTRY_DOWN,PLAYLIST_EMPTY,
 	},
 	data::PlaylistSubTab,
 };
@@ -136,7 +136,7 @@ pub fn show_tab_playlists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, wid
 				let resp = ui.add_sized([width, SIZE], text_edit).on_hover_text(PLAYLIST_TEXT);
 
 				// Check `[enter]` and add.
-				if resp.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter)) {
+				if resp.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter)) && !self.state.playlist_string.is_empty() {
 					if !playlists.contains_key(self.state.playlist_string.as_str()) {
 						let string = std::mem::take(&mut self.state.playlist_string);
 						playlists.playlist_new(&string);
@@ -187,13 +187,15 @@ pub fn show_tab_playlists(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, wid
 
 					if playlist_name_is_being_edited {
 						ui.scope(|ui| {
-							let ok_to_save = self.state.playlist_edit.as_ref().is_some_and(|s| &**s == self.state.playlist_edit_string) ||
-								playlists.get(self.state.playlist_edit_string.as_str()).is_none();
+							let ok_to_save = !self.state.playlist_edit_string.is_empty() &&
+								(self.state.playlist_edit.as_ref().is_some_and(|s| &**s == self.state.playlist_edit_string) ||
+								playlists.get(self.state.playlist_edit_string.as_str()).is_none());
 
 							ui.set_enabled(ok_to_save);
 
 							let button = Button::new(RichText::new("🗋").size(SIZE - 5.0));
-							let resp = ui.add_sized([SIZE2, SIZE2], button).on_hover_text(PLAYLIST_EDIT_SAVE).on_disabled_hover_text(PLAYLIST_EXISTS);
+							let hover = if self.state.playlist_edit_string.is_empty() { PLAYLIST_EMPTY } else { PLAYLIST_EXISTS };
+							let resp = ui.add_sized([SIZE2, SIZE2], button).on_hover_text(PLAYLIST_EDIT_SAVE).on_disabled_hover_text(hover);
 							if resp.clicked() || (self.playlist_name_edit_enter && ok_to_save) {
 								self.playlist_name_edit_enter = false;
 								self.state.playlist_edit      = None;

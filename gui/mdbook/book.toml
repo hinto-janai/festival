@@ -3,7 +3,7 @@ authors      = ["hinto-janai"]
 language     =  "en"
 multilingual = false
 src          = "src"
-title        = "Festival GUI v1.1.0"
+title        = "Festival GUI v1.2.0"
 
 [build]
 build-dir = "docs"
@@ -12,4 +12,4 @@ build-dir = "docs"
 default-theme = "ayu"
 preferred-dark-theme = "ayu"
 git-repository-url = "https://github.com/hinto-janai/festival"
-site-url = "/daemon/"
+site-url = "/gui/"

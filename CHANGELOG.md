@@ -11,14 +11,25 @@ Types of changes:
 - `Fixed` for any bug fixes
 - `Security` in case of vulnerabilities
 
-
 ---
 
 
 # Festival GUI Unreleased
+
+
+---
+
+
+# Festival GUI v1.2.0 - 2023-08-11
 ## Added
 * Playlists ([#58](https://github.com/hinto-janai/festival/pull/58))
 * Drag-and-drop support for `Collection` folders ([#51](https://github.com/hinto-janai/festival/pull/51))
+* Audio state now recovers (as much as possible) across `Collection` resets ([#59](https://github.com/hinto-janai/festival/pull/59))
+* Key-binding for adding songs/albums/artists to playlists - `CTRL + Primary Mouse`
+* Documentation with `festival --docs`
+
+## Changed
+* Key-binding for `Open Album/Song Directory` is now `CTRL + Secondary Mouse`
 
 ## Fixed
 * Audio thread now has high priority, less cutouts during high CPU usage ([#50](https://github.com/hinto-janai/festival/issues/50))

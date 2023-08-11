@@ -129,9 +129,9 @@ mod test {
 	use disk::Bincode2;
 
 	// Empty.
-	const S1: Lazy<State> = Lazy::new(|| State::from_path("../assets/festival/gui/state/state0_new.bin").unwrap());
+	const S1: Lazy<State> = Lazy::new(|| State::from_path("../assets/festival/gui/state/state1_new.bin").unwrap());
 	// Filled.
-	const S2: Lazy<State> = Lazy::new(|| State::from_path("../assets/festival/gui/state/state0_real.bin").unwrap());
+	const S2: Lazy<State> = Lazy::new(|| State::from_path("../assets/festival/gui/state/state1_real.bin").unwrap());
 
 	#[test]
 	// Compares `new()`.
@@ -147,15 +147,21 @@ mod test {
 	#[test]
 	// Attempts to deserialize the non-empty.
 	fn real() {
-		assert_eq!(S2.tab,           Tab::Settings);
-		assert_eq!(S2.last_tab,      Some(Tab::Search));
+		// `Playlists` tab was added, so enum number tag got incremented.
+		assert_eq!(S2.tab,           Tab::Search);
+		assert_eq!(S2.last_tab,      Some(Tab::Playlists));
 		assert_eq!(S2.search_string, "asdf");
-		assert_eq!(S2.volume,        0);
+		assert_eq!(S2.volume,        25);
 		assert_eq!(S2.repeat,        Repeat::Off);
 		assert_eq!(S2.album,         Some(AlbumKey::from(1_u8)));
 		assert_eq!(S2.artist,        Some(ArtistKey::zero()));
 		assert_eq!(S2.search_result.artists.len(), 3);
 		assert_eq!(S2.search_result.albums.len(), 4);
 		assert_eq!(S2.search_result.songs.len(), 7);
+
+		assert_eq!(S2.playlist, None);
+		assert_eq!(S2.playlist_edit, None);
+		assert_eq!(S2.playlist_edit_string, String::new());
+		assert_eq!(S2.playlist_string, String::new());
 	}
 }

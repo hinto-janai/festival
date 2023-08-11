@@ -28,6 +28,7 @@ use crate::{
 		PLAYLIST_VERSION,
 	},
 	state::{
+		AudioStateRestore,
 		Playlists,
 		PLAYLISTS,
 		Phase,
@@ -441,24 +442,19 @@ impl Kernel {
 			collection,
 		};
 
-		// `Audio` scheduling.
-		// No `policy` API for Windows.
-		let audio_thread = thread_priority::ThreadBuilder::default()
-			.name("Audio".to_string())
-			.priority(thread_priority::ThreadPriority::Max);
-
-		#[cfg(target_os = "unix")]
-		let audio_thread = audio_thread
-			.policy(thread_priority::unix::ThreadSchedulePolicy::Realtime(thread_priority::unix::RealtimeThreadSchedulePolicy::Fifo));
-
 		// Spawn `Audio`.
 		let collection = Arc::clone(&kernel.collection);
-		match audio_thread.spawn(move |result| {
-			match result {
-				Ok(_) => debug!("Audio ... high priority spawn: OK"),
-				Err(e) => warn!("Audio ... high priority spawn error: {e:?}"),
-			}
-			Audio::init(collection, audio, audio_send, audio_recv, media_controls);
+		match std::thread::Builder::new()
+			.name("Audio".to_string())
+			.spawn(move || {
+				#[cfg(unix)]
+				{
+					// SAFETY: libc is used to set niceness.
+					let nice = unsafe { libc::nice(-20) };
+					debug!("Audio ... spawned at niceness level: {nice}");
+				}
+
+				Audio::init(collection, audio, audio_send, audio_recv, media_controls);
 		}) {
 			Ok(_)  => debug!("Kernel Init [11/13] ... spawned Audio"),
 			Err(e) => panic!("Kernel Init [11/13] ... failed to spawn Audio: {e}"),
@@ -640,21 +636,24 @@ impl Kernel {
 	#[inline(always)]
 	// The `Frontend` is exiting, save everything.
 	fn exit(&mut self) -> ! {
-		// Set the saved state's volume
-		// to the correct global.
-		let volume    =  Volume::new(atomic_load!(crate::state::VOLUME));
-		let mut state = AUDIO_STATE.write();
-		state.volume  = volume;
-
 		let mut err = None::<String>;
 
-		// Save `AudioState`.
-		match state.save_atomic() {
-			Ok(o)  => ok!("Kernel - AudioState{AUDIO_VERSION} save: {o}"),
-			Err(e) => {
-				fail!("Kernel - AudioState{AUDIO_VERSION} save: {e}");
-				err = Some(e.to_string());
-			},
+		// Set the saved state's volume
+		// to the correct global.
+		let volume = Volume::new(atomic_load!(crate::state::VOLUME));
+
+		{
+			let mut state = AUDIO_STATE.write();
+			state.volume  = volume;
+
+			// Save `AudioState`.
+			match state.save_atomic() {
+				Ok(o)  => ok!("Kernel - AudioState{AUDIO_VERSION} save: {o}"),
+				Err(e) => {
+					fail!("Kernel - AudioState{AUDIO_VERSION} save: {e}");
+					err = Some(e.to_string());
+				},
+			}
 		}
 
 		// Save `Playlists`.
@@ -746,6 +745,9 @@ impl Kernel {
 		// Create `CCD` channel.
 		let (ccd_send, from_ccd) = crossbeam::channel::unbounded::<CcdToKernel>();
 
+		// Convert our current `AudioState` to string keys.
+		let audio_state_restore = AudioStateRestore::from_audio_state(&AUDIO_STATE.read(), &self.collection);
+
 		// Give the last ownership of the
 		// old `Collection` pointer to `CCD`.
 		//
@@ -820,6 +822,14 @@ impl Kernel {
 		};
 
 		self.collection = collection;
+
+		// Attempt to restore audio state.
+		// INVARIANT:
+		// We must set `AUDIO_STATE` in a valid state
+		// before sending the `Collection` to `Audio`, as that
+		// will trigger it to assume keys and `AUDIO_STATE` are valid.
+		let audio_state = audio_state_restore.into_audio_state(&self.collection);
+		*AUDIO_STATE.write() = audio_state;
 
 		// Send new pointers to everyone.
 		send!(self.to_audio,    KernelToAudio::NewCollection(Arc::clone(&self.collection)));

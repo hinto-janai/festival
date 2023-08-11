@@ -66,6 +66,21 @@ pub struct State0 {
 }
 
 impl State0 {
+	#[inline]
+	/// Creates a mostly empty [`State`].
+	pub fn new() -> Self {
+		Self {
+			volume: Volume::default().inner(),
+			tab: Default::default(),
+			last_tab: Default::default(),
+			search_string: Default::default(),
+			search_result: Default::default(),
+			repeat: Default::default(),
+			album: Default::default(),
+			artist: Default::default(),
+		}
+	}
+
 	/// Reads from disk, then calls `.into()` if `Ok`.
 	pub fn disk_into() -> Result<State, anyhow::Error> {
 		// SAFETY: memmap is used.
@@ -116,14 +131,14 @@ mod test {
 	use disk::Bincode2;
 
 	// Empty.
-	const S1: Lazy<State> = Lazy::new(|| State::from_path("../assets/festival/gui/state/state0_new.bin").unwrap());
+	const S1: Lazy<State0> = Lazy::new(|| State0::from_path("../assets/festival/gui/state/state0_new.bin").unwrap());
 	// Filled.
-	const S2: Lazy<State> = Lazy::new(|| State::from_path("../assets/festival/gui/state/state0_real.bin").unwrap());
+	const S2: Lazy<State0> = Lazy::new(|| State0::from_path("../assets/festival/gui/state/state0_real.bin").unwrap());
 
 	#[test]
 	// Compares `new()`.
 	fn cmp() {
-		assert_eq!(Lazy::force(&S1), &State::new());
+		assert_eq!(Lazy::force(&S1), &State0::new());
 		assert_ne!(Lazy::force(&S1), Lazy::force(&S2));
 
 		let b1 = S1.to_bytes().unwrap();
@@ -134,8 +149,9 @@ mod test {
 	#[test]
 	// Attempts to deserialize the non-empty.
 	fn real() {
-		assert_eq!(S2.tab,           Tab::Settings);
-		assert_eq!(S2.last_tab,      Some(Tab::Search));
+		// `Playlists` tab was added, so enum number tag got incremented.
+		assert_eq!(S2.tab,           Tab::Search);
+		assert_eq!(S2.last_tab,      Some(Tab::Playlists));
 		assert_eq!(S2.search_string, "asdf");
 		assert_eq!(S2.volume,        0);
 		assert_eq!(S2.repeat,        Repeat::Off);

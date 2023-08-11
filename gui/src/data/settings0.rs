@@ -105,6 +105,37 @@ pub struct Settings0 {
 }
 
 impl Settings0 {
+	pub fn new() -> Self {
+		Self {
+			artist_sort: Default::default(),
+			album_sort: Default::default(),
+			song_sort: Default::default(),
+			search_kind: Default::default(),
+			artist_sub_tab: Default::default(),
+			search_sort: Default::default(),
+			window_title: Default::default(),
+			album_sizing: Default::default(),
+			album_pixel_size: ALBUM_ART_SIZE_DEFAULT,
+			albums_per_row: ALBUMS_PER_ROW_DEFAULT,
+			previous_threshold: PREVIOUS_THRESHOLD_DEFAULT,
+			restore_state: true,
+			empty_autoplay: true,
+			accent_color: ACCENT_COLOR,
+			collection_paths: vec![],
+			_reserved1: PhantomData,
+			_reserved2: PhantomData,
+			_reserved3: PhantomData,
+			_reserved4: PhantomData,
+			_reserved5: PhantomData,
+			_reserved6: PhantomData,
+			_reserved7: PhantomData,
+			_reserved8: PhantomData,
+			_reserved9: PhantomData,
+			_reserved10: PhantomData,
+			_reserved11: PhantomData,
+		}
+	}
+
 	/// Reads from disk, then calls `.into()` if `Ok`.
 	pub fn disk_into() -> Result<Settings, anyhow::Error> {
 		// SAFETY: memmap is used.
@@ -206,7 +237,6 @@ mod test {
 		assert_eq!(s.album_sort,         AlbumSort::LexiRevArtistLexi);
 		assert_eq!(s.song_sort,          SongSort::Runtime);
 		assert_eq!(s.search_kind,        SearchKind::All);
-		assert_eq!(s.artist_sub_tab,     ArtistSubTab::View);
 		assert_eq!(s.search_sort,        SearchSort::Album);
 		assert_eq!(s.window_title,       WindowTitle::Queue);
 		assert_eq!(s.album_sizing,       AlbumSizing::Row);

@@ -1,6 +1,6 @@
 [package]
 name           = "festival-gui"
-version        = "1.1.0"
+version        = "1.2.0"
 edition        = "2021"
 authors        = ["hinto.janai <hinto.janai@protonmail.com>"]
 homepage       = "https://festival.pm"
@@ -44,6 +44,7 @@ serde        = { workspace = true }
 strum        = { workspace = true }
 once_cell    = { workspace = true }
 open         = { workspace = true }
+zip          = { workspace = true }
 
 ### Regular libraries.
 rfd  = "0.11.4"

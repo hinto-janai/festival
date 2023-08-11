@@ -12,7 +12,7 @@ https://github.com/hinto-janai/festival/assets/101352116/586e37e7-762d-4dc6-a9c4
 </div>
 
 ## Frontends
-All the frontends are built on top of the internals, [`shukusai`](https://github.com/hinto-janai/festival/tree/main/shukusai).
+Festival comes in few different forms.
 
 Currently, the most full frontend implementation is [`festival-gui`](https://github.com/hinto-janai/festival/tree/main/gui) (or just called `Festival`).
 
@@ -123,19 +123,6 @@ Festival is licensed under the [MIT License](https://github.com/hinto-janai/fest
 [Symphonia](https://github.com/pdeljanov/Symphonia), the audio decoding/demuxing/metadata library used by Festival is licensed under MPL-2.0.
 
 ## FAQ
-</details>
-
-<details>
-<summary>Playlists</summary>
-
----
-
-Festival does not support playlists at the moment.
-
----
-
-</details>
-
 <details>
 <summary>Compilations</summary>
 
