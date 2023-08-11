@@ -641,21 +641,24 @@ impl Kernel {
 	#[inline(always)]
 	// The `Frontend` is exiting, save everything.
 	fn exit(&mut self) -> ! {
-		// Set the saved state's volume
-		// to the correct global.
-		let volume    =  Volume::new(atomic_load!(crate::state::VOLUME));
-		let mut state = AUDIO_STATE.write();
-		state.volume  = volume;
-
 		let mut err = None::<String>;
 
-		// Save `AudioState`.
-		match state.save_atomic() {
-			Ok(o)  => ok!("Kernel - AudioState{AUDIO_VERSION} save: {o}"),
-			Err(e) => {
-				fail!("Kernel - AudioState{AUDIO_VERSION} save: {e}");
-				err = Some(e.to_string());
-			},
+		// Set the saved state's volume
+		// to the correct global.
+		let volume = Volume::new(atomic_load!(crate::state::VOLUME));
+
+		{
+			let mut state = AUDIO_STATE.write();
+			state.volume  = volume;
+
+			// Save `AudioState`.
+			match state.save_atomic() {
+				Ok(o)  => ok!("Kernel - AudioState{AUDIO_VERSION} save: {o}"),
+				Err(e) => {
+					fail!("Kernel - AudioState{AUDIO_VERSION} save: {e}");
+					err = Some(e.to_string());
+				},
+			}
 		}
 
 		// Save `Playlists`.
