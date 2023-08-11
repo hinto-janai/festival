@@ -19,6 +19,10 @@ Types of changes:
 ## Added
 * Playlists ([#58](https://github.com/hinto-janai/festival/pull/58))
 * Drag-and-drop support for `Collection` folders ([#51](https://github.com/hinto-janai/festival/pull/51))
+* Key-binding for adding songs/albums/artists to playlists - `CTRL + Primary Mouse`
+
+## Changed
+* Key-binding for `Open Album/Song Directory` is now `CTRL + Secondary Mouse`
 
 ## Fixed
 * Audio thread now has high priority, less cutouts during high CPU usage ([#50](https://github.com/hinto-janai/festival/issues/50))

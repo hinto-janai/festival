@@ -123,19 +123,6 @@ Festival is licensed under the [MIT License](https://github.com/hinto-janai/fest
 [Symphonia](https://github.com/pdeljanov/Symphonia), the audio decoding/demuxing/metadata library used by Festival is licensed under MPL-2.0.
 
 ## FAQ
-</details>
-
-<details>
-<summary>Playlists</summary>
-
----
-
-Festival does not support playlists at the moment.
-
----
-
-</details>
-
 <details>
 <summary>Compilations</summary>
 
