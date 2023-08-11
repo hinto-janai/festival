@@ -23,6 +23,7 @@ const USAGE: &str = "festival [OPTIONS]";
 // of possible args if this isn't set.
 #[command(override_usage = USAGE)]
 pub struct Cli {
+	//--------------------------------------------------------------- Signals
 	#[arg(long)]
 	/// Start playback
 	play: bool,
@@ -110,12 +111,20 @@ pub struct Cli {
 	/// the 1st in the queue.
 	back: Option<usize>,
 
+	//--------------------------------------------------------------- Data related, will return early
+	#[arg(long, verbatim_doc_comment)]
+	/// Open documentation locally in browser
+	///
+	/// This opens `Festival'`s documentation in a web
+	/// browser, and does not start `Festival` itself.
+	docs: bool,
+
 	#[arg(long, verbatim_doc_comment)]
 	/// Print the PATH used by Festival
 	///
 	/// All data saved by Festival is saved here.
 	/// For more information, see:
-	/// https://github.com/hinto-janai/festival/tree/main/gui#Disk
+	/// <https://docs.festival.pm/gui#Disk>
 	path: bool,
 
 	#[arg(long, verbatim_doc_comment)]
@@ -163,10 +172,12 @@ pub struct Cli {
 	///
 	/// This deletes the entire `GUI` Festival folder, which contains:
 	/// - The `Collection`
+	/// - The `Playlists`
 	/// - `GUI` settings (sort methods, color, etc)
 	/// - `GUI` state (currently selected album/artist, etc)
 	/// - Audio state (currently playing song, queue, etc)
 	/// - Cached images for the OS media controls
+	/// - Documentation files
 	///
 	/// The PATH deleted will be printed on success.
 	delete: bool,
@@ -236,6 +247,17 @@ impl Cli {
 		if let Some(index)  = self.index         { handle(Index(index.into()).save()) }
 		if let Some(skip)   = self.skip          { handle(Skip(skip).save())          }
 		if let Some(back)   = self.back          { handle(Back(back).save())          }
+
+		// Docs
+		if self.docs {
+			// Create documentation.
+			if let Err(e) = crate::docs::Docs::create_open() {
+				eprintln!("festival error: Could not create docs: {e}");
+				exit(1);
+			}
+
+			exit(0);
+		}
 
 		// Path.
 		if self.path {

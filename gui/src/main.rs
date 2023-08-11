@@ -10,6 +10,7 @@
 mod cli;
 mod constants;
 mod data;
+mod docs;
 mod func;
 mod text;
 mod ui;

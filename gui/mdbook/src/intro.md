@@ -1,2 +1,7 @@
 # Festival GUI
-`Festival`, the GUI client and the reference implementation.
+`Festival`, the standalone GUI client.
+
+To view this documentation locally, run:
+```bash
+festival --docs
+```

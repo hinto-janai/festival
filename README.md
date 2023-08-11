@@ -12,7 +12,7 @@ https://github.com/hinto-janai/festival/assets/101352116/586e37e7-762d-4dc6-a9c4
 </div>
 
 ## Frontends
-All the frontends are built on top of the internals, [`shukusai`](https://github.com/hinto-janai/festival/tree/main/shukusai).
+Festival comes in few different forms, called frontends.
 
 Currently, the most full frontend implementation is [`festival-gui`](https://github.com/hinto-janai/festival/tree/main/gui) (or just called `Festival`).
 

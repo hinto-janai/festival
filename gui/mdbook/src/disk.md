@@ -25,11 +25,15 @@ Festival saves everything into `gui` because other frontends will use the same `
 The sub-directories and files within `gui/` and their purpose:
 ```
 ├─ gui/
+   ├
    ├─ state/
    ├  ├─ audio.bin      # Audio state, e.g: elapsed time, current song.
    ├  ├─ collection.bin # The main music `Collection`, holds metadata and PATHs to audio files.
+   ├  ├─ playlists.bin  # The `Playlists` database, holds all info about all playlists.
    ├  ├─ settings.bin   # `GUI`-specific settings, e.g: sorting methods, album size.
    ├  ├─ state.bin      # `GUI`-specific state, e.g: current tab, search input.
+   ├
+   ├─ docs/  # Documentation files from `festival --docs`
    ├
    ├─ image/ # These are resized images of the album art.
    ├         # Festival itself does not need these (all images are

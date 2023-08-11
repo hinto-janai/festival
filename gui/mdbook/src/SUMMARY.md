@@ -4,3 +4,4 @@
 - [Key/Mouse shortcuts](key-mouse-shortcuts.md)
 - [Command Line](command-line.md)
 - [Disk](disk.md)
+- [Playlists](playlists.md)

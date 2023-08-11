@@ -44,7 +44,10 @@ pub const UI_REPEAT:       &str = "🔁";
 pub const SELECT_ARTIST:   &str = "🗋 Select an artist by clicking any artist name";
 pub const SELECT_ALBUM:    &str = "🗋 Select an album by clicking any album art";
 pub const SELECT_QUEUE:    &str = "🗋 Add any song/album/artist to the queue by right-clicking";
-pub const SELECT_PLAYLIST: &str = "🗋 Select any playlist by clicking any playlist name";
+pub const SELECT_PLAYLIST: &str =
+formatcp!(r#"🗋 Select any playlist by clicking any playlist name.
+
+Add song/album/artist to a playlist with {MOD}+Primary Mouse click."#);
 pub const UI_PLUS:         &str = "➕";
 pub const UI_MINUS:        &str = "➖";
 pub const UI_X:            &str = "❌";
@@ -88,6 +91,7 @@ pub const PLAYLIST_TEXT_EMPTY:    &str = "Playlist name is empty";
 pub const PLAYLIST_TEXT:          &str = "Create a playlist with this name";
 pub const PLAYLIST_CREATE:        &str = "Create this playlist";
 pub const PLAYLIST_EXISTS:        &str = "A playlist with this name already exists";
+pub const PLAYLIST_EMPTY:        &str = "Playlist name must not be empty";
 pub const PLAYLIST_DELETE:        &str = "Delete this playlist";
 pub const PLAYLIST_EDIT:          &str = "Edit this playlist's name";
 pub const PLAYLIST_EDIT_SAVE:     &str = "Save this playlist with the new name";
@@ -205,7 +209,7 @@ r#"*---------------------------------------------------------*
 |   Secondary Mouse | Add Artist, Album, Song to Queue    |
 |   Command+Primary | Add Artist, Album, Song to Playlist |
 | Command+Secondary | Open Album/Song Directory           |
-*-------------------------------------------------------*"#;
+*---------------------------------------------------------*"#;
 
 #[cfg(target_os = "windows")]
 #[cfg(target_arch = "x86_64")]

@@ -447,9 +447,13 @@ impl Kernel {
 		match std::thread::Builder::new()
 			.name("Audio".to_string())
 			.spawn(move || {
-				// SAFETY: libc is used to set niceness.
-				let nice = unsafe { libc::nice(-20) };
-				debug!("Audio ... spawned at niceness level: {nice}");
+				#[cfg(unix)]
+				{
+					// SAFETY: libc is used to set niceness.
+					let nice = unsafe { libc::nice(-20) };
+					debug!("Audio ... spawned at niceness level: {nice}");
+				}
+
 				Audio::init(collection, audio, audio_send, audio_recv, media_controls);
 		}) {
 			Ok(_)  => debug!("Kernel Init [11/13] ... spawned Audio"),
