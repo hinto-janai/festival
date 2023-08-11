@@ -12,6 +12,15 @@ use crate::collection::{
 };
 use std::sync::Arc;
 
+//---------------------------------------------------------------------------------------------------- MapEntry
+#[derive(Clone,Debug,Default,PartialEq,Encode,Decode)]
+/// An absolute "Key" for the [`Map`].
+pub struct MapKey {
+	pub artist: Arc<str>,
+	pub album: Arc<str>,
+	pub song: Arc<str>,
+}
+
 //---------------------------------------------------------------------------------------------------- Map
 #[derive(Clone,Debug,Default,PartialEq,Encode,Decode)]
 /// A [`HashMap`] that knows all [`Artist`]'s, [`Album`]'s and [`Song`]'s.

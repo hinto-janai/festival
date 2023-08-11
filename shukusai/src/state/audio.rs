@@ -2,7 +2,7 @@
 use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
 use crate::collection::{
-	SongKey,
+	SongKey,MapKey,
 };
 use crate::constants::{
 	HEADER,AUDIO_VERSION,
@@ -187,6 +187,18 @@ impl Default for AudioState {
 	fn default() -> Self {
 		Self::new()
 	}
+}
+
+//---------------------------------------------------------------------------------------------------- AudioStateRestore
+pub struct AudioStateRestore {
+	pub queue: VecDeque<MapKey>,
+	pub queue_idx: Option<usize>,
+	pub playing: bool,
+	pub song: Option<MapKey>,
+	pub elapsed: Runtime,
+	pub runtime: Runtime,
+	pub repeat: Repeat,
+	pub volume: Volume,
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
