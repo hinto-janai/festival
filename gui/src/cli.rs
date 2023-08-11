@@ -115,8 +115,8 @@ pub struct Cli {
 	#[arg(long, verbatim_doc_comment)]
 	/// Open documentation locally in browser
 	///
-	/// This opens `Festival'`s documentation in a web
-	/// browser, and does not start `Festival` itself.
+	/// This opens Festivals documentation in a web
+	/// browser, and does not start Festival itself.
 	docs: bool,
 
 	#[arg(long, verbatim_doc_comment)]

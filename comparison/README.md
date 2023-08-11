@@ -23,7 +23,7 @@ Big thanks to [Rucknium](https://github.com/rucknium) for teaching me `R`.
 ## Comparison
 | Music Player | Version | OS | Open Source | Playlists | Compilations | Sorting | Search | Features vs Minimal |
 |--------------|---------|----|-------------|-----------|--------------|---------|--------|---------------------|
-| [Festival](https://github.com/hinto-janai/festival)       | `1.2.0` (2023-08-14)    | Windows, macOS, Linux | 🟢 | 🟢 | 🔴 | 🟢 | 🟢 | Minimal
+| [Festival](https://github.com/hinto-janai/festival)       | `1.2.0` (2023-08-11)    | Windows, macOS, Linux | 🟢 | 🟢 | 🔴 | 🟢 | 🟢 | Minimal
 | [Lollypop](https://gitlab.gnome.org/World/lollypop)       | `1.437` (2023-01-03)    | Linux (GTK)           | 🟢 | 🟡 | 🟢 | 🟡 | 🟡 | Both
 | [GNOME Music](https://gitlab.gnome.org/GNOME/gnome-music) | `1.42` (2022-04-25)     | Linux (GTK)           | 🟢 | 🟡 | 🟡 | 🔴 | 🟡 | Minimal
 | [MusicBee](https://www.getmusicbee.com)                   | `3.5.8447` (2023-02-19) | Windows               | 🔴 | 🟢 | 🟡 | 🟡 | 🟡 | Features
