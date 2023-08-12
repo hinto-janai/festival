@@ -126,15 +126,21 @@ impl ConfigBuilder {
 			_ => None,
 		};
 
-		let proxy = proxy.map(|string| Proxy {
-			proxy: ureq::Proxy::new(&string).unwrap_or_else(|e| crate::exit!("[proxy] error: {e}")),
-			string,
+		let proxy = proxy.map(|s| {
+			if s.is_empty() {
+				None
+			} else {
+				Some(Proxy {
+					proxy: ureq::Proxy::new(&string).unwrap_or_else(|e| crate::exit!("[proxy] error: {e}")),
+					string,
+				})
+			}
 		});
 
 		let mut c = Config {
 			festivald:           get!(festivald, "festivald", default_url()),
 			timeout:             sum!(timeout,   "timeout",   None::<std::time::Duration>),
-			proxy:               sum!(proxy,     "proxy",     None::<Proxy>),
+			proxy:               get!(proxy,     "proxy",     None::<Proxy>),
 			id:                  get!(id,        "id",        default_id()),
 			confirm_no_tls_auth: get!(confirm_no_tls_auth, "confirm_no_tls_auth", false),
 			authorization: None,

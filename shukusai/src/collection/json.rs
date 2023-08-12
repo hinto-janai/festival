@@ -164,7 +164,9 @@ pub struct SongJson<'a> {
 	pub sample_rate: u32,
 	pub track: Option<u32>,
 	pub disc: Option<u32>,
+	#[serde(borrow)]
 	pub mime: Cow<'a, str>,
+	#[serde(borrow)]
 	pub extension: Cow<'a, str>,
 }
 
