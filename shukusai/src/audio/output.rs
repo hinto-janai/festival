@@ -142,10 +142,7 @@ mod output {
 
 			match pa_result {
 				Ok(pa) => Ok(AudioOutput { pa, sample_buf, spec, duration, }),
-				Err(err) => {
-					fail!("Audio - AudioOutput stream open error: {err}");
-					Err(AudioOutputError::OpenStream(anyhow!(err)))
-				}
+				Err(err) => Err(AudioOutputError::OpenStream(anyhow!("stream open error: {err}"))),
 			}
 		}
 
