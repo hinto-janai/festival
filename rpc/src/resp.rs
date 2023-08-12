@@ -175,6 +175,10 @@ impl_struct_lt! {
 	song:      Option<SongJson<'a>>
 }
 impl_struct! {
+	StateVolume,
+	volume: shukusai::audio::Volume
+}
+impl_struct! {
 	StateReset,
 	resetting: bool,
 	saving:    bool
@@ -285,7 +289,21 @@ impl_struct_lt! {
 //impl_struct_anon!(RepeatSong, ());
 //impl_struct_anon!(RepeatQueue, ());
 //impl_struct_anon!(Previous, ());
-//impl_struct_anon!(Volume, ());
+impl_struct! {
+	Volume,
+	previous: shukusai::audio::Volume,
+	current: shukusai::audio::Volume
+}
+impl_struct! {
+	VolumeUp,
+	previous: shukusai::audio::Volume,
+	current: shukusai::audio::Volume
+}
+impl_struct! {
+	VolumeDown,
+	previous: shukusai::audio::Volume,
+	current: shukusai::audio::Volume
+}
 //impl_struct_anon!(Clear, ());
 //impl_struct_anon!(Seek, ());
 //impl_struct_anon!(Skip, ());

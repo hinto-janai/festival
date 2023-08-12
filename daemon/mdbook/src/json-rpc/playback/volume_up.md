@@ -1,10 +1,10 @@
-# volume
-Set the playback volume.
+# volume_up
+Raise the playback volume.
 
 #### Inputs
-| Field     | Type             | Description |
-|-----------|------------------|-------------|
-| volume    | unsigned integer | The volume % to set. Must be in-between `0..100`. If greater than `100`, it will set the volume to `100`.
+| Field | Type             | Description |
+|-------|------------------|-------------|
+| up    | unsigned integer | The number to raise the volume by. Must be in-between 0..100. If greater than `100`, it will set the volume to `100`.
 
 #### Outputs
 | Field    | Type             | Description |
@@ -14,10 +14,10 @@ Set the playback volume.
 
 #### Example Request
 ```bash
-festival-cli volume --volume 15
+festival-cli volume_up --up 15
 ```
 ```bash
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"volume","params":{"volume":15}}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"volume_up","params":{"up":15}}'
 ```
 
 #### Example Response

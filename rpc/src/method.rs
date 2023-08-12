@@ -62,6 +62,8 @@ pub enum Method {
 	StateDaemon,
 	/// [`crate::resp::StateAudio`]
 	StateAudio,
+	/// [`crate::resp::StateVolume`]
+	StateVolume,
 	/// [`crate::resp::StateReset`]
 	StateReset,
 
@@ -119,18 +121,8 @@ pub enum Method {
 	Next,
 	/// [`crate::resp::Status`]
 	Stop,
-	/// [`crate::resp::Status`]
-	Shuffle,
-	/// [`crate::resp::Status`]
-	RepeatOff,
-	/// [`crate::resp::Status`]
-	RepeatSong,
-	/// [`crate::resp::Status`]
-	RepeatQueue,
 	/// [`crate::resp::Status`] & [`crate::param::Previous`]
 	Previous,
-	/// [`crate::resp::Status`] & [`crate::param::Volume`]
-	Volume,
 	/// [`crate::resp::Status`] & [`crate::param::Clear`]
 	Clear,
 	/// [`crate::resp::Status`] & [`crate::param::Seek`]
@@ -139,6 +131,21 @@ pub enum Method {
 	Skip,
 	/// [`crate::resp::Status`] & [`crate::param::Back`]
 	Back,
+	/// [`crate::resp::Status`]
+	Shuffle,
+	/// [`crate::resp::Status`]
+	RepeatOff,
+	/// [`crate::resp::Status`]
+	RepeatSong,
+	/// [`crate::resp::Status`]
+	RepeatQueue,
+	/// [`crate::resp::Volume`] & [`crate::param::Volume`]
+	Volume,
+	/// [`crate::resp::VolumeUp`] & [`crate::param::VolumeUp`]
+	VolumeUp,
+	/// [`crate::resp::VolumeDown`] & [`crate::param::VolumeDown`]
+	VolumeDown,
+
 	/// [`crate::resp::QueueAddKeyArtist`] & [`crate::param::QueueAddKeyArtist`]
 	QueueAddKeyArtist,
 	/// [`crate::resp::QueueAddKeyAlbum`] & [`crate::param::QueueAddKeyAlbum`]
@@ -223,6 +230,7 @@ pub enum Rpc {
 	StateConfig(crate::param::StateConfig),
 	StateDaemon(crate::param::StateDaemon),
 	StateAudio(crate::param::StateAudio),
+	StateVolume(crate::param::StateVolume),
 	StateReset(crate::param::StateReset),
 
 	KeyArtist(crate::param::KeyArtist),
@@ -251,16 +259,18 @@ pub enum Rpc {
 	Pause(crate::param::Pause),
 	Next(crate::param::Next),
 	Stop(crate::param::Stop),
-	Shuffle(crate::param::Shuffle),
-	RepeatOff(crate::param::RepeatOff),
-	RepeatSong(crate::param::RepeatSong),
-	RepeatQueue(crate::param::RepeatQueue),
 	Previous(crate::param::Previous),
-	Volume(crate::param::Volume),
 	Clear(crate::param::Clear),
 	Seek(crate::param::Seek),
 	Skip(crate::param::Skip),
 	Back(crate::param::Back),
+	Shuffle(crate::param::Shuffle),
+	RepeatOff(crate::param::RepeatOff),
+	RepeatSong(crate::param::RepeatSong),
+	RepeatQueue(crate::param::RepeatQueue),
+	Volume(crate::param::Volume),
+	VolumeUp(crate::param::VolumeUp),
+	VolumeDown(crate::param::VolumeDown),
 
 	QueueAddKeyArtist(crate::param::QueueAddKeyArtist),
 	QueueAddKeyAlbum(crate::param::QueueAddKeyAlbum),

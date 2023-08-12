@@ -126,8 +126,8 @@ impl ConfigBuilder {
 			_ => None,
 		};
 
-		let proxy = proxy.map(|s| {
-			if s.is_empty() {
+		let proxy = proxy.map(|string| {
+			if string.is_empty() {
 				None
 			} else {
 				Some(Proxy {

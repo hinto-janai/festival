@@ -200,6 +200,7 @@ pub async fn handle(
 		StateConfig             => state_config(request.id).await,
 		StateDaemon             => state_daemon(request.id).await,
 		StateAudio              => state_audio(request.id, collection.arc()).await,
+		StateVolume             => state_volume(request.id).await,
 		StateReset              => state_reset(request.id).await,
 
 		//-------------------------------------------------- Key
@@ -234,16 +235,18 @@ pub async fn handle(
 		Pause              => pause(request.id, TO_KERNEL).await,
 		Next               => next(request.id, TO_KERNEL).await,
 		Stop               => stop(request.id, TO_KERNEL).await,
-		RepeatOff          => repeat_off(request.id, TO_KERNEL).await,
-		RepeatSong         => repeat_song(request.id, TO_KERNEL).await,
-		RepeatQueue        => repeat_queue(request.id, TO_KERNEL).await,
-		Shuffle            => shuffle(request.id, TO_KERNEL).await,
 		Previous           => ppacor!(request, previous, rpc::param::Previous, TO_KERNEL).await,
-		Volume             => ppacor!(request, volume, rpc::param::Volume, TO_KERNEL).await,
+		Shuffle            => shuffle(request.id, TO_KERNEL).await,
 		Clear              => ppacor!(request, clear, rpc::param::Clear, TO_KERNEL).await,
 		Seek               => ppacor!(request, seek, rpc::param::Seek, TO_KERNEL).await,
 		Skip               => ppacor!(request, skip, rpc::param::Skip, TO_KERNEL).await,
 		Back               => ppacor!(request, back, rpc::param::Back, TO_KERNEL).await,
+		RepeatOff          => repeat_off(request.id, TO_KERNEL).await,
+		RepeatSong         => repeat_song(request.id, TO_KERNEL).await,
+		RepeatQueue        => repeat_queue(request.id, TO_KERNEL).await,
+		Volume             => ppacor!(request, volume, rpc::param::Volume, TO_KERNEL).await,
+		VolumeUp           => ppacor!(request, volume_up, rpc::param::VolumeUp, TO_KERNEL).await,
+		VolumeDown         => ppacor!(request, volume_down, rpc::param::VolumeDown, TO_KERNEL).await,
 
 		//-------------------------------------------------- Queue
 		QueueAddKeyArtist  => ppacor!(request, queue_add_key_artist, rpc::param::QueueAddKeyArtist, collection.arc(), TO_KERNEL).await,
@@ -591,6 +594,14 @@ async fn state_audio<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Res
 	Ok(resp::result(resp, id))
 }
 
+async fn state_volume<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	let resp = rpc::resp::StateVolume {
+		volume: shukusai::audio::Volume::new(atomic_load!(shukusai::state::VOLUME)),
+	};
+
+	Ok(resp::result(resp, id))
+}
+
 async fn state_reset<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
 	let resp = rpc::resp::StateReset {
 		resetting: crate::statics::resetting(),
@@ -900,20 +911,6 @@ async fn previous<'a>(
 	Ok(resp::result_ok(id))
 }
 
-async fn volume<'a>(
-	params:    rpc::param::Volume,
-	id:        Option<Id<'a>>,
-	TO_KERNEL: &Sender<FrontendToKernel>,
-) -> Result<Response<Body>, anyhow::Error> {
-	if params.volume > 100 {
-		Ok(resp::error(ERR_VOLUME.0, ERR_VOLUME.1, id))
-	} else {
-		let v = shukusai::audio::Volume::new(params.volume);
-		send!(TO_KERNEL, FrontendToKernel::Volume(v));
-		Ok(resp::result_ok(id))
-	}
-}
-
 async fn clear<'a>(
 	params:    rpc::param::Clear,
 	id:        Option<Id<'a>>,
@@ -948,6 +945,52 @@ async fn back<'a>(
 ) -> Result<Response<Body>, anyhow::Error> {
 	send!(TO_KERNEL, FrontendToKernel::Back(params.back));
 	Ok(resp::result_ok(id))
+}
+
+async fn volume<'a>(
+	params:    rpc::param::Volume,
+	id:        Option<Id<'a>>,
+	TO_KERNEL: &Sender<FrontendToKernel>,
+) -> Result<Response<Body>, anyhow::Error> {
+	let current  = shukusai::audio::Volume::new(if params.volume > 100 { 100 } else { params.volume });
+	let previous = shukusai::audio::Volume::new(atomic_load!(shukusai::state::VOLUME));
+	send!(TO_KERNEL, FrontendToKernel::Volume(current));
+	let resp = rpc::resp::Volume {
+		previous,
+		current,
+	};
+	Ok(resp::result(resp, id))
+}
+
+async fn volume_up<'a>(
+	params:    rpc::param::VolumeUp,
+	id:        Option<Id<'a>>,
+	TO_KERNEL: &Sender<FrontendToKernel>,
+) -> Result<Response<Body>, anyhow::Error> {
+	let previous = shukusai::audio::Volume::new(atomic_load!(shukusai::state::VOLUME));
+	let current  = previous.inner() + params.up;
+	let current  = shukusai::audio::Volume::new(if current > 100 { 100 } else { current });
+	send!(TO_KERNEL, FrontendToKernel::Volume(current));
+	let resp = rpc::resp::VolumeUp {
+		previous,
+		current,
+	};
+	Ok(resp::result(resp, id))
+}
+
+async fn volume_down<'a>(
+	params:    rpc::param::VolumeDown,
+	id:        Option<Id<'a>>,
+	TO_KERNEL: &Sender<FrontendToKernel>,
+) -> Result<Response<Body>, anyhow::Error> {
+	let previous = shukusai::audio::Volume::new(atomic_load!(shukusai::state::VOLUME));
+	let current  = shukusai::audio::Volume::new(previous.inner().saturating_sub(params.down));
+	send!(TO_KERNEL, FrontendToKernel::Volume(current));
+	let resp = rpc::resp::VolumeDown {
+		previous,
+		current,
+	};
+	Ok(resp::result(resp, id))
 }
 
 //---------------------------------------------------------------------------------------------------- Queue

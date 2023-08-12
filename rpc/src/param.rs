@@ -71,6 +71,11 @@ impl_rpc! {
 	StateAudio => Method::StateAudio
 }
 impl_rpc! {
+	"Retrieve the volume level",
+	"state/state_volume",
+	StateVolume => Method::StateVolume
+}
+impl_rpc! {
 	"Retrieve the current state of a Collection reset",
 	"state/state_reset",
 	StateReset => Method::StateReset
@@ -283,6 +288,22 @@ impl_rpc_param! {
 	"The volume % to set. Must be in-between 0..100.",
 	#[arg(value_parser = clap::value_parser!(u8).range(0..=100))]
 	volume: u8
+}
+impl_rpc_param! {
+	"Raise the playback volume",
+	"playback/volume_up",
+	VolumeUp => Method::VolumeUp,
+	"The number to raise the volume by. Must be in-between 0..100.",
+	#[arg(value_parser = clap::value_parser!(u8).range(0..=100))]
+	up: u8
+}
+impl_rpc_param! {
+	"Lower the playback volume",
+	"playback/volume_down",
+	VolumeDown => Method::VolumeDown,
+	"The number to lower the volume by. Must be in-between 0..100.",
+	#[arg(value_parser = clap::value_parser!(u8).range(0..=100))]
+	down: u8
 }
 impl_rpc_param! {
 	"Clear the queue",
