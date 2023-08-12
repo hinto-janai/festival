@@ -158,12 +158,25 @@ impl Audio {
 	) {
 		trace!("Audio Init - State:\n{state:#?}");
 
+		// To prevent holding onto this `Collection`
+		// and preventing CCD from continuing in the case
+		// that we continue to `loop` in the next block,
+		// turn this `Arc` into `Weak`.
+		let weak = Arc::downgrade(&collection);
+		drop(collection);
+
 		// Loop until we can connect to an audio device.
+		let mut tries = 0_usize;
 		let output = loop {
 			 match AudioOutput::dummy() {
 				Ok(o) => { debug!("Audio Init [1/2] ... dummy output device"); break o; },
 				Err(e) => {
-					warn!("Audio Init [1/2] ... output device error: {e:?} ... retrying in {RETRY_SECONDS} seconds");
+					if tries == 5 {
+						warn!("Audio Init [1/2] ... output device error: {e:?} ... will continue to retry every {RETRY_SECONDS} seconds, but will only log when we succeed");
+					} else if tries < 5 {
+						warn!("Audio Init [1/2] ... output device error: {e:?} ... retrying in {RETRY_SECONDS} seconds");
+					}
+					tries += 1;
 				},
 			}
 			sleep!(RETRY_SECONDS);
@@ -185,6 +198,12 @@ impl Audio {
 		} else {
 			debug!("Audio Init [2/2] ... skipping media controls");
 			None
+		};
+
+		// We're ready, attempt to turn `Weak` -> `Arc`.
+		let collection = match std::sync::Weak::upgrade(&weak) {
+			Some(arc) => arc,
+			None      => Collection::dummy(),
 		};
 
 		// Init data.
