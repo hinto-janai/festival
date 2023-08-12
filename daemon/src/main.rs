@@ -16,9 +16,9 @@ mod zip;
 
 fn main() {
 	// Handle CLI arguments.
-	let (disable_watch, disable_media_controls, log, config_cmd) = {
+	let (dry_run, disable_watch, disable_media_controls, log, config_cmd) = {
 		if std::env::args_os().len() == 1 {
-			(false, false, None, None)
+			(false, false, false, None, None)
 		} else {
 			crate::cli::Cli::get()
 		}
@@ -30,6 +30,27 @@ fn main() {
 	// Set `umask` (`rwxr-x---`)
 	disk::umask(0o027);
 
+	// We want to read config in dry-run as well but don't want to
+	// start `Kernel` since we're exiting anyway, this de-dups the code.
+	fn set_config(config_cmd: Option<crate::config::ConfigBuilder>) -> &'static crate::config::Config {
+		// Start config construction.
+		let mut config_builder: crate::config::ConfigBuilder = crate::config::ConfigBuilder::file_or();
+
+		// Merge disk config with command-line config.
+		if let Some(mut config_cmd) = config_cmd {
+			config_builder.merge(&mut config_cmd);
+		}
+
+		// INVARIANT: Initialize `CONFIG`. This must be set, and once only.
+		config_builder.build_and_set()
+	}
+
+	// Exit early if `dry_run`.
+	if dry_run {
+		println!("{}", serde_json::to_string_pretty(set_config(config_cmd)).unwrap());
+		std::process::exit(0);
+	}
+
 	// Setup `Kernel` <-> `Frontend` channels.
 	let (to_kernel, from_kernel) = match shukusai::kernel::Kernel::spawn(!disable_watch, !disable_media_controls) {
 		Ok((t, f)) => (t, f),
@@ -39,17 +60,7 @@ fn main() {
 	// These last forever.
 	let TO_KERNEL:   &'static crossbeam::channel::Sender<shukusai::kernel::FrontendToKernel>   = Box::leak(Box::new(to_kernel));
 	let FROM_KERNEL: &'static crossbeam::channel::Receiver<shukusai::kernel::KernelToFrontend> = Box::leak(Box::new(from_kernel));
-
-	// Start config construction.
-	let mut config_builder: crate::config::ConfigBuilder = crate::config::ConfigBuilder::file_or();
-
-	// Merge disk config with command-line config.
-	if let Some(mut config_cmd) = config_cmd {
-		config_builder.merge(&mut config_cmd);
-	}
-
-	// INVARIANT: Initialize `CONFIG`. This must be set, and once only.
-	let CONFIG: &'static crate::config::Config = config_builder.build_and_set();
+	let CONFIG = set_config(config_cmd);
 
 	// Create documentation.
 	if CONFIG.docs {

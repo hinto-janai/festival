@@ -205,7 +205,7 @@ pub struct Cli {
 	no_auth_docs: bool,
 
 	#[arg(long, verbatim_doc_comment, value_name = "MILLI")]
-	/// Sleep before responding to (potentially malicious) failed connections
+	/// Sleep before responding to a (potentially malicious) failed connections
 	///
 	/// Upon a failed, potentially malicious request, instead of
 	/// immediately responding, `festivald` will randomly sleep
@@ -336,6 +336,18 @@ pub struct Cli {
 	log_level: Option<log::LevelFilter>,
 
 	//--------------------------------------------------------------- Data related, will return early
+	#[arg(long, verbatim_doc_comment)]
+	/// Print the configuration `festivald` would have used, but don't actually startup
+	///
+	/// This will go through the regular process of:
+	///   - Reading disk for config
+	///   - Reading command-line
+	///   - Merging options together
+	///   - Validating options
+	///
+	/// and then print them out as JSON, and exit.
+	dry_run: bool,
+
 	#[arg(long, verbatim_doc_comment)]
 	/// Open documentation locally in browser
 	///
@@ -482,11 +494,11 @@ pub struct Signal {
 
 //---------------------------------------------------------------------------------------------------- CLI argument handling
 impl Cli {
-	pub fn get() -> (bool, bool, Option<log::LevelFilter>, Option<ConfigBuilder>) {
+	pub fn get() -> (bool, bool, bool, Option<log::LevelFilter>, Option<ConfigBuilder>) {
 		Self::parse().handle_args()
 	}
 
-	fn handle_args(mut self) -> (bool, bool, Option<log::LevelFilter>, Option<ConfigBuilder>) {
+	fn handle_args(mut self) -> (bool, bool, bool, Option<log::LevelFilter>, Option<ConfigBuilder>) {
 		//-------------------------------------------------- Version.
 		if self.version {
 			println!("{FESTIVALD_SHUKUSAI_COMMIT}\n{COPYRIGHT}");
@@ -582,7 +594,7 @@ impl Cli {
 		let config = self.handle_config();
 
 		//-------------------------------------------------- Return.
-		(self.disable_watch, self.disable_media_controls, self.log_level, config)
+		(self.dry_run, self.disable_watch, self.disable_media_controls, self.log_level, config)
 	}
 
 	fn handle_command(&self) {
