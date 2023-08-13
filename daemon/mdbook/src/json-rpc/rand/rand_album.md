@@ -1,4 +1,9 @@
 # rand_album
+
+{{#include ../../marker/i}}
+
+---
+
 Access a random [`Album`](../../common-objects/album.md).
 
 #### Inputs

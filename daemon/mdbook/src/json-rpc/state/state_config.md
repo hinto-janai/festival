@@ -1,4 +1,9 @@
 # state_config
+
+{{#include ../../marker/i}}
+
+---
+
 Retrieve the active configuration of `festivald`.
 
 The output is almost a mirror of the configuration file.

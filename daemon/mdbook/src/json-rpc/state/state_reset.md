@@ -1,4 +1,9 @@
 # state_reset
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Retrieve the current state of a [`Collection`](../../common-objects/collection.md) reset.
 
 #### Inputs

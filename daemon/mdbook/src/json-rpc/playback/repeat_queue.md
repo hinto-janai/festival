@@ -1,4 +1,9 @@
 # repeat_queue
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Turn on queue repeating.
 
 If at the last `Song` in the queue, it will wrap around and start again at the first `Song` in the queue.

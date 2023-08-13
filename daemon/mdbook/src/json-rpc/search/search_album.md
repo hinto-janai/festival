@@ -1,4 +1,9 @@
 # search_album
+
+{{#include ../../marker/i}}
+
+---
+
 Input a `string`, retrieve an array of [`Album`](../../common-objects/album.md)'s, sorted by how similar their titles are to the input.
 
 #### Inputs

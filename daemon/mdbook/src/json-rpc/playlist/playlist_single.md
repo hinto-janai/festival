@@ -1,4 +1,9 @@
 # playlist_single
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Retrieve a single [`Playlist`](playlist.md).
 
 This method errors if the specified playlist does not exist.

@@ -1,4 +1,9 @@
 # Key
+
+{{#include ../marker/s}} v1.0.0`
+
+---
+
 [`Common Objects`](common-objects.md) all have an unsigned integer associated with them:
 
 - [`Artist`](artist.md)

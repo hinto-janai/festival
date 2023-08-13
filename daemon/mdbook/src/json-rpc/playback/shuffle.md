@@ -1,4 +1,9 @@
 # shuffle
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Shuffle the current queue, then start playing from the 1st `Song` in the queue.
 
 #### Inputs

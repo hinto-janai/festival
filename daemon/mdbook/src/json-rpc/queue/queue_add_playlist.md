@@ -1,4 +1,9 @@
 # queue_add_playlist
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Add a [`playlist`](../playlist/playlist.md) to the queue.
 
 #### Inputs

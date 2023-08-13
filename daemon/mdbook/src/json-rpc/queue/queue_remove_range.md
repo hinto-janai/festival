@@ -1,4 +1,9 @@
 # queue_remove_range
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Remove a range of queue indices.
 
 #### Inputs

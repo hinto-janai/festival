@@ -1,4 +1,9 @@
 # rand_song
+
+{{#include ../../marker/i}}
+
+---
+
 Access a random [`Song`](../../common-objects/song.md).
 
 #### Inputs

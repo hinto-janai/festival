@@ -1,4 +1,9 @@
 # state_daemon
+
+{{#include ../../marker/i}}
+
+---
+
 Retrieve state about the status of `festivald` itself.
 
 #### Inputs

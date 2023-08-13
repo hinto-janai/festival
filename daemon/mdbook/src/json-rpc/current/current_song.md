@@ -1,4 +1,9 @@
 # current_song
+
+{{#include ../../marker/i}}
+
+---
+
 Access the currently set [`Song`](../../common-objects/song.md).
 
 #### Inputs

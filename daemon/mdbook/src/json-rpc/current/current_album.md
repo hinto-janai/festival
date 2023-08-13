@@ -1,4 +1,9 @@
 # current_album
+
+{{#include ../../marker/i}}
+
+---
+
 Access the [`Album`](../../common-objects/album.md) of the currently set `Song`.
 
 #### Inputs

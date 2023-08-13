@@ -1,4 +1,9 @@
 # collection_brief
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Retrieve some brief metadata about the current [`Collection`](../../common-objects/collection.md).
 
 This method is a subset of the [`collection_full`](collection_full.md) method.

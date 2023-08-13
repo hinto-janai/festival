@@ -1,4 +1,9 @@
 # map_album
+
+{{#include ../../marker/i}}
+
+---
+
 Input an `Artist` name and `Album` title, retrieve an [`Album`](../../common-objects/album.md).
 
 #### Inputs

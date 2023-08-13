@@ -1,4 +1,9 @@
 # state_audio
+
+{{#include ../../marker/i}}
+
+---
+
 Retrieve audio state.
 
 #### Inputs

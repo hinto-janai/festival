@@ -1,4 +1,9 @@
 # repeat_song
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Turn on song repeating.
 
 After the end of a `Song`, play it again, forever.

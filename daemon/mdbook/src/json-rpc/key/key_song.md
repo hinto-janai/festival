@@ -1,4 +1,9 @@
 # key_song
+
+{{#include ../../marker/i}}
+
+---
+
 Input a `Song` key, retrieve a [`Song`](../../common-objects/song.md).
 
 #### Inputs

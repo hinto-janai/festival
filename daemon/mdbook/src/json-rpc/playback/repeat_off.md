@@ -1,4 +1,9 @@
 # repeat_off
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Turn off repeating.
 
 #### Inputs

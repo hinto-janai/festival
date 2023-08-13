@@ -1,4 +1,9 @@
 # collection_full_artists
+
+{{#include ../../marker/i}}
+
+---
+
 Retrieve an array of every [`Artist`](../../common-objects/artist.md) object in the current [`Collection`](../../common-objects/collection.md).
 
 The returned array is in incrementing key order, as in:

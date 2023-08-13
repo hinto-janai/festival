@@ -1,4 +1,9 @@
 # Playlist
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 `Playlist`'s are objects where
 - The key _is_ the playlist name (`string`)
 - The value is an array of [`Entry`](../../common-objects/entry.md)-like objects, `Playlist Entries`

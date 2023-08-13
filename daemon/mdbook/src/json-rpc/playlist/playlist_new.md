@@ -1,4 +1,9 @@
 # playlist_new
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Create a new empty [`Playlist`](playlist.md), overwriting an existing one.
 
 #### Inputs

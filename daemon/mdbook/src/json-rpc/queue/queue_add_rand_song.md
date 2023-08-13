@@ -1,4 +1,9 @@
 # queue_add_rand_song
+
+{{#include ../../marker/i}}
+
+---
+
 Add a random [`Song`](../../common-objects/song.md) to the queue.
 
 #### Inputs

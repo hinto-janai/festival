@@ -1,5 +1,9 @@
 # Song
 
+{{#include ../marker/i}}
+
+---
+
 | Field       | Type                                   | Description |
 |-------------|----------------------------------------|-------------|
 | title       | string                                 | The title of this `Song`

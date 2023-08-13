@@ -1,5 +1,9 @@
 # Entry
 
+{{#include ../marker/s}} v1.0.0`
+
+---
+
 | Field      | Type                            | Description |
 |------------|---------------------------------|-------------|
 | path       | string (PATH)                   | The PATH of this `Song` on the filesystem `festivald` is running on

@@ -1,4 +1,9 @@
 # queue_add_rand_artist
+
+{{#include ../../marker/i}}
+
+---
+
 Add a random [`Artist`](../../common-objects/artist.md) to the queue.
 
 #### Inputs

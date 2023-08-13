@@ -1,4 +1,9 @@
 # seek
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Seek forwards/backwards or to an absolute second in the current `Song`.
 
 #### Inputs

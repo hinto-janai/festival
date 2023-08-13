@@ -1,4 +1,9 @@
 # state_volume
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Retrieve the current volume level.
 
 #### Inputs

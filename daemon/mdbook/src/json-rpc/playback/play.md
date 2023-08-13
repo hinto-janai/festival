@@ -1,4 +1,9 @@
 # play
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Start playback.
 
 #### Inputs

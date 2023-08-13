@@ -1,4 +1,9 @@
 # collection_resource_size
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 View the size of the current [`Collection`](../../common-objects/collection.md)'s _underlying_ resources (audio files and art).
 
 #### Inputs

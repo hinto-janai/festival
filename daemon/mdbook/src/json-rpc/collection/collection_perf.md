@@ -1,4 +1,9 @@
 # collection_perf
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 View some performance stats about the latest [`Collection`](../../common-objects/collection.md) construction.
 
 #### Inputs

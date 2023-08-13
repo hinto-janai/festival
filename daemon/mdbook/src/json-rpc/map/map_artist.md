@@ -1,4 +1,9 @@
 # map_artist
+
+{{#include ../../marker/i}}
+
+---
+
 Input an `Artist` name, retrieve an [`Artist`](../../common-objects/artist.md).
 
 #### Inputs

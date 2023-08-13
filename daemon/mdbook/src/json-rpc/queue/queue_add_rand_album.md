@@ -1,4 +1,9 @@
 # queue_add_rand_album
+
+{{#include ../../marker/i}}
+
+---
+
 Add a random [`Album`](../../common-objects/album.md) to the queue.
 
 #### Inputs

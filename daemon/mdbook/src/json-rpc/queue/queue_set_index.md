@@ -1,4 +1,9 @@
 # queue_set_index
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Set the current `Song` to a queue index.
 
 #### Inputs

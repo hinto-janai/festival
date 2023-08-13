@@ -1,4 +1,9 @@
 # collection_health
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Retrieve the health of the current [`Collection`](../../common-objects/collection.md).
 
 This method tells you how many [`Song`](../../common-objects/song.md)'s referenced by the current `Collection` have a _missing_ underlying file, i.e, there is no file at the PATH the `Collection` points to for a particular `Song`.

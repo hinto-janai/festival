@@ -1,4 +1,9 @@
 # search_song
+
+{{#include ../../marker/i}}
+
+---
+
 Input a `string`, retrieve an array of [`Song`](../../common-objects/song.md)'s, sorted by how similar their titles are to the input.
 
 #### Inputs

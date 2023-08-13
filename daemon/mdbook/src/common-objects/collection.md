@@ -1,4 +1,9 @@
 # Collection
+
+{{#include ../marker/i}}
+
+---
+
 This is the main music "library" or "database" that `festivald` creates and uses.
 
 It is _the_ central component, and almost all other methods/endpoints use it in some way.

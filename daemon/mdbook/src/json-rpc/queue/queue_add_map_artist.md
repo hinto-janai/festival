@@ -1,4 +1,9 @@
 # queue_add_map_artist
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Add an [`Artist`](../../common-objects/artist.md) to the queue with an `Artist` name.
 
 #### Inputs

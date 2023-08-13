@@ -1,4 +1,9 @@
 # volume
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Set the playback volume.
 
 #### Inputs

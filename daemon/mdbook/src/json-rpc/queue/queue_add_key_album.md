@@ -1,4 +1,9 @@
 # queue_add_key_album
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Add an [`Album`](../../common-objects/album.md) to the queue with an `Album` [key](../../common-objects/key.md).
 
 #### Inputs

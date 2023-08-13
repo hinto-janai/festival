@@ -1,4 +1,9 @@
 # playlist_remove
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Remove a [`Playlist`](playlist.md).
 
 Does nothing if the `Playlist` did not exist.

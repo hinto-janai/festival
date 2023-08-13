@@ -1,4 +1,9 @@
 # key_album
+
+{{#include ../../marker/i}}
+
+---
+
 Input an `Album` key, retrieve an [`Album`](../../common-objects/album.md).
 
 #### Inputs

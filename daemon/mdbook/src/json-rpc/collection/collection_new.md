@@ -1,4 +1,9 @@
 # collection_new
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Create a new [`Collection`](../../common-objects/collection.md) (and replace the current one).
 
 While this method is in progress, other `JSON-RPC` requests will be rejected.

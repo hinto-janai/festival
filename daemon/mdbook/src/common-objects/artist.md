@@ -1,5 +1,9 @@
 # Artist
 
+{{#include ../marker/i}}
+
+---
+
 | Field   | Type                                      | Description |
 |---------|-------------------------------------------|-------------|
 | name    | string                                    | The `Artist`'s name

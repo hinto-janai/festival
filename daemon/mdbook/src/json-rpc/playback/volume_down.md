@@ -1,4 +1,9 @@
 # volume_down
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Lower the playback volume.
 
 #### Inputs

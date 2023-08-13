@@ -1,4 +1,9 @@
 # collection_full
+
+{{#include ../../marker/i}}
+
+---
+
 Retrieve full metadata about the current [`Collection`](../../common-objects/collection.md).
 
 #### Inputs

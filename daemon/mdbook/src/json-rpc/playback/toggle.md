@@ -1,4 +1,9 @@
 # toggle
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Toggle playback.
 
 #### Inputs

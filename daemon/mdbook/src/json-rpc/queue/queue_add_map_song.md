@@ -1,4 +1,9 @@
 # queue_add_map_song
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Add a [`Song`](../../common-objects/song.md) to the queue with an [`Artist`](../../common-objects/artist.md) name [`Album`](../../common-objects/album.md) title, and `Song` title.
 
 #### Inputs

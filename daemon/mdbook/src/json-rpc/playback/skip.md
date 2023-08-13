@@ -1,4 +1,9 @@
 # skip
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Skip forwards a variable amount of `Song`'s in the current queue.
 
 #### Inputs

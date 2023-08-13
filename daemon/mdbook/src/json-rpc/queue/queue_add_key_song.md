@@ -1,4 +1,9 @@
 # queue_add_key_song
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Add a [`Song`](../../common-objects/song.md) to the queue with a `Song` [key](../../common-objects/key.md).
 
 #### Inputs

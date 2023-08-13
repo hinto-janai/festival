@@ -1,4 +1,9 @@
 # stop
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Clear the queue and stop playback.
 
 #### Inputs

@@ -1,4 +1,9 @@
 # volume_up
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Raise the playback volume.
 
 #### Inputs

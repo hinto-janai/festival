@@ -1,4 +1,9 @@
 # search
+
+{{#include ../../marker/i}}
+
+---
+
 Input a `string`, retrieve arrays of [`Artist`](../../common-objects/artist.md)'s, [`Album`](../../common-objects/album.md)'s, and [`Song`](../../common-objects/song.md)'s, sorted by how similar their names/titles are to the input.
 
 #### Inputs

@@ -1,4 +1,9 @@
 # collection_brief_songs
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Retrieve an array of every [`Song`](../../common-objects/song.md) title in the current [`Collection`](../../common-objects/collection.md).
 
 The returned array of `string`'s is in [`lexicographical`](https://en.wikipedia.org/wiki/Lexicographic_order) order.

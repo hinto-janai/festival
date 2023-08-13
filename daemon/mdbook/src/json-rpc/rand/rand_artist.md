@@ -1,4 +1,9 @@
 # rand_artist
+
+{{#include ../../marker/i}}
+
+---
+
 Access a random [`Artist`](../../common-objects/artist.md).
 
 #### Inputs

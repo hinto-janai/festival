@@ -1,4 +1,9 @@
 # previous
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Set the current `Song` to the previous in the queue.
 
 #### Inputs

@@ -1,4 +1,9 @@
 # playlist_clone
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Clone an existing [`Playlist`](playlist.md) and all it's [`Entry`](playlist.md)'s into a new one.
 
 #### Inputs

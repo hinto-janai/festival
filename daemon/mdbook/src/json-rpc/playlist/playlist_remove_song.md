@@ -1,4 +1,9 @@
 # playlist_remove_entry
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Remove an [`Entry`](playlist.md) from a [`Playlist`](playlist.md).
 
 #### Inputs

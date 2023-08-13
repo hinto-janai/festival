@@ -1,4 +1,9 @@
 # playlist_add_map_artist
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Add an [`Artist`](../../common-objects/artist.md) to a [`Playlist`](playlist.md).
 
 If the specified playlist does not already exist, it will be created.

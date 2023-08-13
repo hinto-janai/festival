@@ -1,4 +1,9 @@
 # current_artist
+
+{{#include ../../marker/i}}
+
+---
+
 Access the [`Artist`](../../common-objects/artist.md) of the currently set `Song`.
 
 #### Inputs

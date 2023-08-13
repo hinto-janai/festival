@@ -1,4 +1,9 @@
 # playlist_full
+
+{{#include ../../marker/s}} v1.0.0`
+
+---
+
 Retrieve full data of _all_ [`Playlist`](playlist.md)'s.
 
 Playlists are sorted by their name's [lexicographical order](https://en.wikipedia.org/wiki/Lexicographic_order).
