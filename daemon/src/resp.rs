@@ -168,7 +168,7 @@ pub fn resetting_rest() -> Response<Body> {
 //---------------------------------------------------------------------------------------------------- JSON-RPC Responses
 pub fn result_ok<'a>(id: Option<json_rpc::Id<'a>>) -> Response<Body> {
 	let r = json_rpc::Response::result(Cow::<rpc::resp::Status>::Owned(rpc::resp::Status(())), id.clone());
-	let r = match serde_json::to_string_pretty(&r) {
+	let r = match serde_json::to_vec_pretty(&r) {
 		Ok(r)  => r,
 		Err(e) => return internal_error(id),
 	};
@@ -189,7 +189,7 @@ where
 	T: Clone + Serialize,
 {
 	let r = json_rpc::Response::result(Cow::Borrowed(&t), id.clone());
-	let r = match serde_json::to_string_pretty(&r) {
+	let r = match serde_json::to_vec_pretty(&r) {
 		Ok(r)  => r,
 		Err(e) => return internal_error(id),
 	};
@@ -212,7 +212,7 @@ pub fn error<'a>(code: i32, msg: &'static str, id: Option<json_rpc::Id<'a>>) -> 
 		data: None,
 	};
 	let r = json_rpc::Response::<()>::error(e, id.clone());
-	let r = match serde_json::to_string_pretty(&r) {
+	let r = match serde_json::to_vec_pretty(&r) {
 		Ok(r)  => r,
 		Err(e) => return internal_error(id),
 	};
@@ -236,10 +236,39 @@ pub fn resetting<'a>(code: i32, msg: &'static str, id: Option<json_rpc::Id<'a>>)
 		data: None,
 	};
 	let r = json_rpc::Response::<()>::error(e, id.clone());
-	let r = match serde_json::to_string_pretty(&r) {
+	let r = match serde_json::to_vec_pretty(&r) {
 		Ok(r)  => r,
 		Err(e) => return internal_error(id),
 	};
+
+	match Builder::new()
+		.status(StatusCode::OK)
+		.header(CONTENT_TYPE, APPLICATION_JSON.essence_str())
+		.header(CONTENT_LENGTH, r.len())
+		.body(Body::from(r))
+	{
+		Ok(r)  => r,
+		Err(_) => internal_error(id),
+	}
+}
+
+pub fn result_cache<'a>(string: &str, id: Option<json_rpc::Id<'a>>) -> Response<Body> {
+	let id_str = match &id {
+		Some(id) => {
+			match id {
+				json_rpc::Id::Null   => r#"  "id": null"#.to_string(),
+				json_rpc::Id::Num(n) => format!(r#"  "id": {n}"#),
+				json_rpc::Id::Str(s) => format!(r#"  "id": "{s}""#),
+			}
+		},
+		None => r#"  "id": null"#.to_string(),
+	};
+
+	// We popped off the `"id": null\n}` off the generic
+	// cache and now we must add back the real ID.
+	let mut r = string.to_string();
+	r += &id_str;
+	r += "\n}";
 
 	match Builder::new()
 		.status(StatusCode::OK)
@@ -256,7 +285,7 @@ pub fn resetting<'a>(code: i32, msg: &'static str, id: Option<json_rpc::Id<'a>>)
 pub fn parse_error<'a>(id: Option<json_rpc::Id<'a>>) -> Response<Body> {
 	// SAFETY: These `.unwraps()` are safe. The content is static.
 
-	let s = serde_json::to_string_pretty(&json_rpc::Response::<()>::parse_error(id)).unwrap();
+	let s = serde_json::to_vec_pretty(&json_rpc::Response::<()>::parse_error(id)).unwrap();
 
 	Builder::new()
 		.status(StatusCode::OK)
@@ -269,7 +298,7 @@ pub fn parse_error<'a>(id: Option<json_rpc::Id<'a>>) -> Response<Body> {
 pub fn invalid_request<'a>(id: Option<json_rpc::Id<'a>>) -> Response<Body> {
 	// SAFETY: These `.unwraps()` are safe. The content is static.
 
-	let s = serde_json::to_string_pretty(&json_rpc::Response::<()>::invalid_request(id)).unwrap();
+	let s = serde_json::to_vec_pretty(&json_rpc::Response::<()>::invalid_request(id)).unwrap();
 
 	Builder::new()
 		.status(StatusCode::OK)
@@ -282,7 +311,7 @@ pub fn invalid_request<'a>(id: Option<json_rpc::Id<'a>>) -> Response<Body> {
 pub fn method_not_found<'a>(id: Option<json_rpc::Id<'a>>) -> Response<Body> {
 	// SAFETY: These `.unwraps()` are safe. The content is static.
 
-	let s = serde_json::to_string_pretty(&json_rpc::Response::<()>::method_not_found(id)).unwrap();
+	let s = serde_json::to_vec_pretty(&json_rpc::Response::<()>::method_not_found(id)).unwrap();
 
 	Builder::new()
 		.status(StatusCode::OK)
@@ -295,7 +324,7 @@ pub fn method_not_found<'a>(id: Option<json_rpc::Id<'a>>) -> Response<Body> {
 pub fn invalid_params<'a>(id: Option<json_rpc::Id<'a>>) -> Response<Body> {
 	// SAFETY: These `.unwraps()` are safe. The content is static.
 
-	let s = serde_json::to_string_pretty(&json_rpc::Response::<()>::invalid_params(id)).unwrap();
+	let s = serde_json::to_vec_pretty(&json_rpc::Response::<()>::invalid_params(id)).unwrap();
 
 	Builder::new()
 		.status(StatusCode::OK)
@@ -308,7 +337,7 @@ pub fn invalid_params<'a>(id: Option<json_rpc::Id<'a>>) -> Response<Body> {
 pub fn internal_error<'a>(id: Option<json_rpc::Id<'a>>) -> Response<Body> {
 	// SAFETY: These `.unwraps()` are safe. The content is static.
 
-	let s = serde_json::to_string_pretty(&json_rpc::Response::<()>::internal_error(id)).unwrap();
+	let s = serde_json::to_vec_pretty(&json_rpc::Response::<()>::internal_error(id)).unwrap();
 
 	Builder::new()
 		.status(StatusCode::OK)
@@ -327,7 +356,7 @@ pub fn unauth_rpc<'a>(code: i32, msg: &'static str, id: Option<json_rpc::Id<'a>>
 	};
 
 	let r = json_rpc::Response::<()>::error(e, id.clone());
-	let r = match serde_json::to_string_pretty(&r) {
+	let r = match serde_json::to_vec_pretty(&r) {
 		Ok(r)  => r,
 		Err(e) => return internal_error(id),
 	};

@@ -101,6 +101,204 @@ impl_err! {
 	ERR_INDEX_PLAYLIST, 18, "Bad index, greater or equal to playlist length"
 }
 
+//---------------------------------------------------------------------------------------------------- Response "Cache"
+// Instead of serializing heavy objects like the `Collection` each
+// request, these mutable globals are so that we only have to do it
+// _once_ per reset, then each request just uses these values.
+//
+// INVARIANT: These must be "updated" on a `Collection` reset.
+pub static CACHE_COLLECTION_FULL:          tokio::sync::RwLock<String> = tokio::sync::RwLock::const_new(String::new());
+pub static CACHE_COLLECTION_BRIEF_ARTISTS: tokio::sync::RwLock<String> = tokio::sync::RwLock::const_new(String::new());
+pub static CACHE_COLLECTION_BRIEF_ALBUMS:  tokio::sync::RwLock<String> = tokio::sync::RwLock::const_new(String::new());
+pub static CACHE_COLLECTION_BRIEF_SONGS:   tokio::sync::RwLock<String> = tokio::sync::RwLock::const_new(String::new());
+pub static CACHE_COLLECTION_FULL_ARTISTS:  tokio::sync::RwLock<String> = tokio::sync::RwLock::const_new(String::new());
+pub static CACHE_COLLECTION_FULL_ALBUMS:   tokio::sync::RwLock<String> = tokio::sync::RwLock::const_new(String::new());
+pub static CACHE_COLLECTION_FULL_SONGS:    tokio::sync::RwLock<String> = tokio::sync::RwLock::const_new(String::new());
+pub static CACHE_COLLECTION_ENTRIES:       tokio::sync::RwLock<String> = tokio::sync::RwLock::const_new(String::new());
+pub static CACHE_PLAYLIST_BRIEF:           tokio::sync::RwLock<String> = tokio::sync::RwLock::const_new(String::new());
+pub static CACHE_PLAYLIST_FULL:            tokio::sync::RwLock<String> = tokio::sync::RwLock::const_new(String::new());
+
+// We pre-serialize the above response, but we
+// need to pop off the `"id": null\n}` at the end.
+// That string is `14` bytes.
+const END_POP: u8 = 14;
+
+// This sets all of the below.
+pub async fn cache_set_all(collection: &Arc<Collection>) {
+	cache_set_collection_full(collection).await;
+	cache_set_collection_brief_artists(collection).await;
+	cache_set_collection_brief_albums(collection).await;
+	cache_set_collection_brief_songs(collection).await;
+	cache_set_collection_full_artists(collection).await;
+	cache_set_collection_full_albums(collection).await;
+	cache_set_collection_full_songs(collection).await;
+	cache_set_collection_entries(collection).await;
+}
+
+pub async fn cache_set_collection_full(collection: &Arc<Collection>) {
+	// Instead of checking if the `Collection` -> `JSON String`
+	// output is correct for every response, only check in debug builds.
+	//
+	// No need to do `Collection` -> `String` -> `CollectionJson` -> `String`
+	// when all that is needed is `Collection` -> `String`
+	#[cfg(debug_assertions)]
+	{
+		let string = serde_json::to_string(&*collection).unwrap();
+		let c: CollectionJson = serde_json::from_str(&string).unwrap();
+		assert_eq!(serde_json::to_string(&c).unwrap(), string);
+	}
+
+	let resp = json_rpc::Response::result(Cow::Borrowed(&collection), None);
+	let mut resp = serde_json::to_string_pretty(&resp).expect(ERR_SERDE.1);
+	for _ in 0..END_POP { resp.pop(); }
+	*CACHE_COLLECTION_FULL.write().await = resp;
+}
+
+pub async fn cache_set_collection_brief_artists(collection: &Arc<Collection>) {
+	let mut resp: Vec<&Arc<str>> = collection.artists
+		.iter()
+		.map(|x| &x.name)
+		.collect();
+
+	resp.sort();
+
+	let resp = serde_json::json!({
+		"len": resp.len(),
+		"artists": resp,
+	});
+
+	let resp = json_rpc::Response::result(Cow::Borrowed(&resp), None);
+	let mut resp = serde_json::to_string_pretty(&resp).expect(ERR_SERDE.1);
+	for _ in 0..END_POP { resp.pop(); }
+	*CACHE_COLLECTION_BRIEF_ARTISTS.write().await = resp;
+}
+
+pub async fn cache_set_collection_brief_albums(collection: &Arc<Collection>) {
+	let mut resp: Vec<&Arc<str>> = collection.albums
+		.iter()
+		.map(|x| &x.title)
+		.collect();
+
+	resp.sort();
+
+	let resp = serde_json::json!({
+		"len": resp.len(),
+		"albums": resp,
+	});
+
+	let resp = json_rpc::Response::result(Cow::Borrowed(&resp), None);
+	let mut resp = serde_json::to_string_pretty(&resp).expect(ERR_SERDE.1);
+	for _ in 0..END_POP { resp.pop(); }
+	*CACHE_COLLECTION_BRIEF_ALBUMS.write().await = resp;
+}
+
+pub async fn cache_set_collection_brief_songs(collection: &Arc<Collection>) {
+	let mut resp: Vec<&Arc<str>> = collection.songs
+		.iter()
+		.map(|x| &x.title)
+		.collect();
+
+	resp.sort();
+
+	let resp = serde_json::json!({
+		"len": resp.len(),
+		"songs": resp,
+	});
+
+	let resp = json_rpc::Response::result(Cow::Borrowed(&resp), None);
+	let mut resp = serde_json::to_string_pretty(&resp).expect(ERR_SERDE.1);
+	for _ in 0..END_POP { resp.pop(); }
+	*CACHE_COLLECTION_BRIEF_SONGS.write().await = resp;
+}
+
+pub async fn cache_set_collection_full_artists(collection: &Arc<Collection>) {
+	let mut resp = Vec::<Value>::with_capacity(collection.artists.len());
+
+	for artist in collection.artists.iter() {
+		let artist = serde_json::to_value(artist).expect(ERR_SERDE.1);
+		resp.push(artist);
+	}
+
+	let resp = serde_json::json!({
+		"len": resp.len(),
+		"artists": resp,
+	});
+
+	let resp = json_rpc::Response::result(Cow::Borrowed(&resp), None);
+	let mut resp = serde_json::to_string_pretty(&resp).expect(ERR_SERDE.1);
+	for _ in 0..END_POP { resp.pop(); }
+	*CACHE_COLLECTION_FULL_ARTISTS.write().await = resp;
+}
+
+pub async fn cache_set_collection_full_albums(collection: &Arc<Collection>) {
+	let mut resp = Vec::<Value>::with_capacity(collection.albums.len());
+
+	for album in collection.albums.iter() {
+		let album = serde_json::to_value(album).expect(ERR_SERDE.1);
+		resp.push(album);
+	}
+
+	let resp = serde_json::json!({
+		"len": resp.len(),
+		"albums": resp,
+	});
+
+	let resp = json_rpc::Response::result(Cow::Borrowed(&resp), None);
+	let mut resp = serde_json::to_string_pretty(&resp).expect(ERR_SERDE.1);
+	for _ in 0..END_POP { resp.pop(); }
+	*CACHE_COLLECTION_FULL_ALBUMS.write().await = resp;
+}
+
+pub async fn cache_set_collection_full_songs(collection: &Arc<Collection>) {
+	let mut resp = Vec::<Value>::with_capacity(collection.songs.len());
+
+	for song in collection.songs.iter() {
+		let song = serde_json::to_value(song).expect(ERR_SERDE.1);
+		resp.push(song);
+	}
+
+	let resp = serde_json::json!({
+		"len": resp.len(),
+		"songs": resp,
+	});
+
+	let resp = json_rpc::Response::result(Cow::Borrowed(&resp), None);
+	let mut resp = serde_json::to_string_pretty(&resp).expect(ERR_SERDE.1);
+	for _ in 0..END_POP { resp.pop(); }
+	*CACHE_COLLECTION_FULL_SONGS.write().await = resp;
+}
+
+pub async fn cache_set_collection_entries(collection: &Arc<Collection>) {
+	let mut vec = Vec::<shukusai::collection::EntryJson>::with_capacity(collection.songs.len());
+
+	for song in collection.songs.iter() {
+		let album  = &collection.albums[song.album];
+		let artist = &collection.artists[album.artist];
+
+		let r = shukusai::collection::EntryJson {
+			artist: Cow::Borrowed(&artist.name),
+			album: Cow::Borrowed(&album.title),
+			song: Cow::Borrowed(&song.title),
+			key_artist: ArtistKey::from(album.artist),
+			key_album: AlbumKey::from(song.album),
+			key_song: SongKey::from(song.key),
+			path: Cow::Borrowed(song.path.as_path()),
+		};
+
+		vec.push(r);
+	}
+
+	let resp = serde_json::json!({
+		"len": vec.len(),
+		"entries": vec,
+	});
+
+	let resp = json_rpc::Response::result(Cow::Borrowed(&resp), None);
+	let mut resp = serde_json::to_string_pretty(&resp).expect(ERR_SERDE.1);
+	for _ in 0..END_POP { resp.pop(); }
+	*CACHE_COLLECTION_ENTRIES.write().await = resp;
+}
+
 //---------------------------------------------------------------------------------------------------- Parse, call func, or return macro.
 // Parse
 // Params
@@ -189,10 +387,16 @@ pub async fn handle(
 		//-------------------------------------------------- Collection
 		CollectionNew          => ppacor!(request, collection_new, rpc::param::CollectionNew, collection.arc(), TO_KERNEL, FROM_KERNEL, TO_ROUTER).await,
 		CollectionBrief        => collection_brief(request.id, collection.arc()).await,
-		CollectionFull         => collection_full(request.id, collection.arc()).await,
-		CollectionRelation     => collection_relation(request.id, collection.arc()).await,
-		CollectionRelationFull => collection_relation_full(request.id, collection.arc()).await,
+		CollectionFull         => collection_full(request.id).await,
+		CollectionBriefArtists => collection_brief_artists(request.id).await,
+		CollectionBriefAlbums  => collection_brief_albums(request.id).await,
+		CollectionBriefSongs   => collection_brief_songs(request.id).await,
+		CollectionFullArtists  => collection_full_artists(request.id).await,
+		CollectionFullAlbums   => collection_full_albums(request.id).await,
+		CollectionFullSongs    => collection_full_songs(request.id).await,
+		CollectionEntries      => collection_entries(request.id).await,
 		CollectionPerf         => collection_perf(request.id).await,
+		CollectionHealth       => collection_health(request.id, collection.arc()).await,
 		CollectionResourceSize => collection_resource_size(request.id, collection.arc()).await,
 
 		//-------------------------------------------------- State
@@ -273,10 +477,9 @@ pub async fn handle(
 		PlaylistAddMapArtist => ppacor!(request, playlist_add_map_artist, rpc::param::PlaylistAddMapArtist, collection.arc(), TO_KERNEL).await,
 		PlaylistAddMapAlbum  => ppacor!(request, playlist_add_map_album, rpc::param::PlaylistAddMapAlbum, collection.arc(), TO_KERNEL).await,
 		PlaylistAddMapSong   => ppacor!(request, playlist_add_map_song, rpc::param::PlaylistAddMapSong, collection.arc(), TO_KERNEL).await,
-		PlaylistNames        => playlist_names(request.id).await,
-		PlaylistCount        => playlist_count(request.id).await,
 		PlaylistSingle       => ppacor!(request, playlist_single, rpc::param::PlaylistSingle, collection.arc(), TO_KERNEL).await,
-		PlaylistAll          => playlist_all(request.id).await,
+		PlaylistBrief        => playlist_brief(request.id).await,
+		PlaylistFull         => playlist_full(request.id).await,
 	}
 }
 
@@ -342,12 +545,15 @@ async fn collection_new<'a>(
 		send!(TO_KERNEL, FrontendToKernel::NewCollection(paths));
 
 		// Wait until `Kernel` has given us `Arc<Collection>`.
-		let mut collection = loop {
+		let collection = loop {
 			match recv!(FROM_KERNEL) {
 				KernelToFrontend::NewCollection(c) => break c,
 				_ => (),
 			}
 		};
+
+		// Set RPC cache.
+		cache_set_all(&collection).await;
 
 		// We're done resetting.
 		atomic_store!(RESETTING, false);
@@ -371,6 +577,51 @@ async fn collection_new<'a>(
 	}).await
 }
 
+async fn collection_brief<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+	let resp = rpc::resp::CollectionBrief {
+		empty: collection.empty,
+		timestamp: collection.timestamp,
+		count_artist: collection.count_artist.inner(),
+		count_album: collection.count_album.inner(),
+		count_song: collection.count_song.inner(),
+		count_art: collection.count_art.inner(),
+	};
+
+	Ok(resp::result(resp, id))
+}
+
+async fn collection_full<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	Ok(resp::result_cache(&*CACHE_COLLECTION_FULL.read().await, id))
+}
+
+async fn collection_brief_artists<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	Ok(resp::result_cache(&*CACHE_COLLECTION_BRIEF_ARTISTS.read().await, id))
+}
+
+async fn collection_brief_albums<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	Ok(resp::result_cache(&*CACHE_COLLECTION_BRIEF_ALBUMS.read().await, id))
+}
+
+async fn collection_brief_songs<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	Ok(resp::result_cache(&*CACHE_COLLECTION_BRIEF_SONGS.read().await, id))
+}
+
+async fn collection_full_artists<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	Ok(resp::result_cache(&*CACHE_COLLECTION_FULL_ARTISTS.read().await, id))
+}
+
+async fn collection_full_albums<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	Ok(resp::result_cache(&*CACHE_COLLECTION_FULL_ALBUMS.read().await, id))
+}
+
+async fn collection_full_songs<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	Ok(resp::result_cache(&*CACHE_COLLECTION_FULL_SONGS.read().await, id))
+}
+
+async fn collection_entries<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	Ok(resp::result_cache(&*CACHE_COLLECTION_ENTRIES.read().await, id))
+}
+
 async fn collection_perf<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
 	use disk::Json;
 
@@ -387,49 +638,35 @@ async fn collection_perf<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyho
 	Ok(resp::result(resp, id))
 }
 
-async fn collection_relation<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
-	let mut vec = Vec::<rpc::resp::CollectionRelationInner>::with_capacity(collection.songs.len());
+async fn collection_health<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+	let mut vec = vec![];
 
 	for song in collection.songs.iter() {
-		let album  = &collection.albums[song.album];
-		let artist = &collection.artists[album.artist];
+		if !song.path.exists() {
+			let album  = &collection.albums[song.album];
+			let artist = &collection.artists[album.artist];
 
-		let r = rpc::resp::CollectionRelationInner {
-			artist: Cow::Borrowed(&artist.name),
-			album: Cow::Borrowed(&album.title),
-			song: Cow::Borrowed(&song.title),
-			key_artist: ArtistKey::from(album.artist),
-			key_album: AlbumKey::from(song.album),
-			key_song: SongKey::from(song.key),
-		};
-
-		vec.push(r);
+			let json = shukusai::collection::EntryJson {
+				artist: Cow::Borrowed(&artist.name),
+				album: Cow::Borrowed(&album.title),
+				song: Cow::Borrowed(&song.title),
+				key_artist: ArtistKey::from(album.artist),
+				key_album: AlbumKey::from(song.album),
+				key_song: SongKey::from(song.key),
+				path: Cow::Borrowed(song.path.as_path()),
+			};
+			vec.push(json);
+		}
 	}
 
-	Ok(resp::result(rpc::resp::CollectionRelation(Cow::Owned(vec)), id))
-}
+	let resp = serde_json::json!({
+		"all_ok": vec.is_empty(),
+		"song_len": collection.songs.len(),
+		"missing_len": vec.len(),
+		"missing": vec,
+	});
 
-async fn collection_relation_full<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
-	let mut vec = Vec::<rpc::resp::CollectionRelationFullInner>::with_capacity(collection.songs.len());
-
-	for song in collection.songs.iter() {
-		let album  = &collection.albums[song.album];
-		let artist = &collection.artists[album.artist];
-
-		let r = rpc::resp::CollectionRelationFullInner {
-			artist: Cow::Borrowed(&artist.name),
-			album: Cow::Borrowed(&album.title),
-			song: Cow::Borrowed(&song.title),
-			key_artist: ArtistKey::from(album.artist),
-			key_album: AlbumKey::from(song.album),
-			key_song: SongKey::from(song.key),
-			path: Cow::Borrowed(song.path.as_path()),
-		};
-
-		vec.push(r);
-	}
-
-	Ok(resp::result(rpc::resp::CollectionRelationFull(Cow::Owned(vec)), id))
+	Ok(resp::result(resp, id))
 }
 
 async fn collection_resource_size<'a>(
@@ -462,35 +699,6 @@ async fn collection_resource_size<'a>(
 
 		Ok(resp::result(resp, id))
 	}).await
-}
-
-async fn collection_brief<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
-	let resp = rpc::resp::CollectionBrief {
-		empty: collection.empty,
-		timestamp: collection.timestamp,
-		count_artist: collection.count_artist.inner(),
-		count_album: collection.count_album.inner(),
-		count_song: collection.count_song.inner(),
-		count_art: collection.count_art.inner(),
-	};
-
-	Ok(resp::result(resp, id))
-}
-
-async fn collection_full<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
-	// Instead of checking if the `Collection` -> `JSON String`
-	// output is correct for every response, only check in debug builds.
-	//
-	// No need to do `Collection` -> `String` -> `CollectionJson` -> `String`
-	// when all that is needed is `Collection` -> `String`
-	#[cfg(debug_assertions)]
-	{
-		let string = serde_json::to_string(&*collection).unwrap();
-		let c: CollectionJson = serde_json::from_str(&string).unwrap();
-		assert_eq!(serde_json::to_string(&c).unwrap(), string);
-	}
-
-	Ok(resp::result(&*collection, id))
 }
 
 //---------------------------------------------------------------------------------------------------- State
@@ -1434,15 +1642,6 @@ async fn playlist_add_map_song<'a>(
 	Ok(resp::result(rpc::resp::PlaylistAddMapSong { existed }, id))
 }
 
-async fn playlist_names<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
-	Ok(resp::result(PLAYLISTS.read().name_arcs(), id))
-}
-
-async fn playlist_count<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
-	let count = PLAYLISTS.read().len();
-	Ok(resp::result(rpc::resp::PlaylistCount { count }, id))
-}
-
 async fn playlist_single<'a>(
 	params:      rpc::param::PlaylistSingle<'a>,
 	id:          Option<Id<'a>>,
@@ -1464,9 +1663,9 @@ async fn playlist_single<'a>(
 		let resp = serde_json::json!({
 			"playlist": Cow::Borrowed(&*params.playlist),
 			"all_valid": invalid == 0,
-			"len": v.len(),
-			"valid": valid,
-			"invalid": invalid,
+			"entry_len": v.len(),
+			"valid_len": valid,
+			"invalid_len": invalid,
 			"entries": v,
 		});
 
@@ -1476,7 +1675,18 @@ async fn playlist_single<'a>(
 	}
 }
 
-async fn playlist_all<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+async fn playlist_brief<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	let playlists: Cow<Vec<Arc<str>>> = Cow::Owned(PLAYLISTS.read().name_arcs());
+
+	let resp = serde_json::json!({
+		"len": playlists.len(),
+		"playlists": playlists,
+	});
+
+	Ok(resp::result(resp, id))
+}
+
+async fn playlist_full<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
 	let playlists = PLAYLISTS.read().clone();
 
 	let playlist_len = playlists.len();
@@ -1499,8 +1709,8 @@ async fn playlist_all<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::
 		"all_valid":    invalid == 0,
 		"playlist_len": playlist_len,
 		"entry_len":    entry_len,
-		"valid":        valid,
-		"invalid":      invalid,
+		"valid_len":        valid,
+		"invalid_len":      invalid,
 		"playlists":    playlists,
 	});
 

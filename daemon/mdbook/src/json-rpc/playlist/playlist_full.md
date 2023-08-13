@@ -1,5 +1,5 @@
-# playlist_all
-Retrieve _all_ [`Playlist`](playlist.md)'s.
+# playlist_full
+Retrieve full data of _all_ [`Playlist`](playlist.md)'s.
 
 Playlists are sorted by their name's [lexicographical order](https://en.wikipedia.org/wiki/Lexicographic_order).
 
@@ -9,19 +9,19 @@ Playlists are sorted by their name's [lexicographical order](https://en.wikipedi
 #### Outputs
 | Field         | Type                                     | Description |
 |---------------|------------------------------------------|-------------|
-| all_valid     | boolean                                  | If every [`Entry`](playlist.md) is valid
+| all_valid     | boolean                                  | If every [`Playlist Entry`](playlist.md) is valid
 | playlist_len  | unsigned integer                         | How many `Playlist`'s there are
-| entry_len     | unsigned integer                         | How many total `Entry`'s there are
-| valid         | unsigned integer                         | How many `Entry`'s are `valid`
-| invalid       | unsigned integer                         | How many `Entry'`s are `invalid`
+| entry_len     | unsigned integer                         | How many total `Playlist Entry`'s there are
+| valid_len     | unsigned integer                         | How many `Playlist Entry`'s are `valid`
+| invalid_len   | unsigned integer                         | How many `Playlist Entry'`s are `invalid`
 | playlists     | map of [`Playlist`](playlist.md) objects | The map's field keys are `string`'s, the playlist names themselves
 
 #### Example Request
 ```bash
-festival-cli playlist_all
+festival-cli playlist_full
 ```
 ```bash
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"playlist_all"}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"playlist_full"}'
 ```
 
 #### Example Response 1
@@ -32,8 +32,8 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"playlist_all"}
     "all_valid": false,
     "playlist_len": 2,
     "entry_len": 3,
-    "valid": 2,
-    "invalid": 1,
+    "valid_len": 2,
+    "invalid_len": 1,
     "playlists": { // <--- Note the '{' not '[' - this is a MAP not an ARRAY
       "hello": [ // <--- This Playlist's name is "hello"
         {

@@ -49,7 +49,7 @@ When the `Collection` is reset, it is not guaranteed that the same key will map 
 
 The main reasons key's exists:
 - Accessing objects via a key is faster than with `string` inputs
-- Storing/sending/parsing integers is faster than `string`'s
+- Storing/sending/parsing integers is faster & cheaper than `string`'s
 - As long as your `Collection` is stable, the key's are stable
 
 ## Example

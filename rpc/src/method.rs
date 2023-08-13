@@ -44,29 +44,40 @@ pub enum Method {
 	CollectionBrief,
 	/// [`crate::resp::CollectionFull`]
 	CollectionFull,
-	/// [`crate::resp::CollectionRelation`] (inner type is [`crate::resp::CollectionRelationInner`])
-	CollectionRelation,
-	/// [`crate::resp::CollectionRelationFull`] (inner type is [`crate::resp::CollectionRelationFullInner`])
-	CollectionRelationFull,
+	/// [`crate::resp::CollectionBriefArtists`]
+	CollectionBriefArtists,
+	/// [`crate::resp::CollectionBriefAlbums`]
+	CollectionBriefAlbums,
+	/// [`crate::resp::CollectionBriefSongs`]
+	CollectionBriefSongs,
+	/// [`crate::resp::CollectionFullArtists`]
+	CollectionFullArtists,
+	/// [`crate::resp::CollectionFullAlbums`]
+	CollectionFullAlbums,
+	/// [`crate::resp::CollectionFullSongs`]
+	CollectionFullSongs,
+	/// [`crate::resp::CollectionEntries`]
+	CollectionEntries,
 	/// [`crate::resp::CollectionPerf`]
 	CollectionPerf,
+	/// [`crate::resp::CollectionHealth`]
+	CollectionHealth,
 	/// [`crate::resp::CollectionResourceSize`]
 	CollectionResourceSize,
 
 	// State retrieval.
-	/// [`crate::resp::StateIp`] (inner type is [`crate::resp::StateIpInner`])
-	StateIp,
+	/// [`crate::resp::StateAudio`]
+	StateAudio,
 	/// [`crate::resp::StateConfig`]
 	StateConfig,
 	/// [`crate::resp::StateDaemon`]
 	StateDaemon,
-	/// [`crate::resp::StateAudio`]
-	StateAudio,
-	/// [`crate::resp::StateVolume`]
-	StateVolume,
+	/// [`crate::resp::StateIp`] (inner type is [`crate::resp::StateIpInner`])
+	StateIp,
 	/// [`crate::resp::StateReset`]
 	StateReset,
-
+	/// [`crate::resp::StateVolume`]
+	StateVolume,
 
 	// Key (exact key)
 	/// [`crate::resp::KeyArtist`] & [`crate::param::KeyArtist`]
@@ -192,14 +203,12 @@ pub enum Method {
 	PlaylistAddMapAlbum,
 	/// [`crate::resp::PlaylistAddMapSong`] & [`crate::param::PlaylistAddMapSong`]
 	PlaylistAddMapSong,
-	/// [`crate::resp::PlaylistNames`] & [`crate::param::PlaylistNames`]
-	PlaylistNames,
-	/// [`crate::resp::PlaylistCount`] & [`crate::param::PlaylistCount`]
-	PlaylistCount,
 	/// [`crate::resp::PlaylistSingle`] & [`crate::param::PlaylistSingle`]
 	PlaylistSingle,
-	/// [`crate::resp::PlaylistAll`] & [`crate::param::PlaylistAll`]
-	PlaylistAll,
+	/// [`crate::resp::PlaylistBrief`] & [`crate::param::PlaylistBrief`]
+	PlaylistBrief,
+	/// [`crate::resp::PlaylistFull`] & [`crate::param::PlaylistFull`]
+	PlaylistFull,
 }
 
 impl Method {
@@ -221,17 +230,23 @@ pub enum Rpc {
 	CollectionNew(crate::param::CollectionNew),
 	CollectionBrief(crate::param::CollectionBrief),
 	CollectionFull(crate::param::CollectionFull),
-	CollectionRelation(crate::param::CollectionRelation),
-	CollectionRelationFull(crate::param::CollectionRelationFull),
+	CollectionBriefArtists(crate::param::CollectionBriefArtists),
+	CollectionBriefAlbums(crate::param::CollectionBriefAlbums),
+	CollectionBriefSongs(crate::param::CollectionBriefSongs),
+	CollectionFullArtists(crate::param::CollectionFullArtists),
+	CollectionFullAlbums(crate::param::CollectionFullAlbums),
+	CollectionFullSongs(crate::param::CollectionFullSongs),
+	CollectionEntries(crate::param::CollectionEntries),
 	CollectionPerf(crate::param::CollectionPerf),
+	CollectionHealth(crate::param::CollectionHealth),
 	CollectionResourceSize(crate::param::CollectionResourceSize),
 
-	StateIp(crate::param::StateIp),
+	StateAudio(crate::param::StateAudio),
 	StateConfig(crate::param::StateConfig),
 	StateDaemon(crate::param::StateDaemon),
-	StateAudio(crate::param::StateAudio),
-	StateVolume(crate::param::StateVolume),
+	StateIp(crate::param::StateIp),
 	StateReset(crate::param::StateReset),
+	StateVolume(crate::param::StateVolume),
 
 	KeyArtist(crate::param::KeyArtist),
 	KeyAlbum(crate::param::KeyAlbum),
@@ -295,10 +310,9 @@ pub enum Rpc {
 	PlaylistAddMapArtist(crate::param::PlaylistAddMapArtistOwned),
 	PlaylistAddMapAlbum(crate::param::PlaylistAddMapAlbumOwned),
 	PlaylistAddMapSong(crate::param::PlaylistAddMapSongOwned),
-	PlaylistNames(crate::param::PlaylistNames),
-	PlaylistCount(crate::param::PlaylistCount),
 	PlaylistSingle(crate::param::PlaylistSingleOwned),
-	PlaylistAll(crate::param::PlaylistAll),
+	PlaylistBrief(crate::param::PlaylistBrief),
+	PlaylistFull(crate::param::PlaylistFull),
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

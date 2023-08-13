@@ -39,19 +39,49 @@ impl_rpc! {
 	CollectionFull => Method::CollectionFull
 }
 impl_rpc! {
-	"Retrieve an array of every Song in the current Collection, with its relational data",
-	"collection/collection_relation",
-	CollectionRelation => Method::CollectionRelation
+	"Retrieve an array of every Artist name in the current Collection",
+	"collection/collection_brief_artists",
+	CollectionBriefArtists => Method::CollectionBriefArtists
+}
+impl_rpc! {
+	"Retrieve an array of every Album title in the current Collection",
+	"collection/collection_brief_albums",
+	CollectionBriefAlbums => Method::CollectionBriefAlbums
+}
+impl_rpc! {
+	"Retrieve an array of every Song title in the current Collection",
+	"collection/collection_brief_songs",
+	CollectionBriefSongs => Method::CollectionBriefSongs
+}
+impl_rpc! {
+	"Retrieve an array of every Artist in the current Collection",
+	"collection/collection_full_artists",
+	CollectionFullArtists => Method::CollectionFullArtists
+}
+impl_rpc! {
+	"Retrieve an array of every Album in the current Collection",
+	"collection/collection_full_albums",
+	CollectionFullAlbums => Method::CollectionFullAlbums
+}
+impl_rpc! {
+	"Retrieve an array of every Song in the current Collection",
+	"collection/collection_full_songs",
+	CollectionFullSongs => Method::CollectionFullSongs
 }
 impl_rpc! {
 	"Retrieve an array of every Song in the current Collection, with its relational data",
-	"collection/collection_relation_full",
-	CollectionRelationFull => Method::CollectionRelationFull
+	"collection/collection_entries",
+	CollectionEntries => Method::CollectionEntries
 }
 impl_rpc! {
 	"View some performance stats about the latest Collection construction",
 	"collection/collection_perf",
 	CollectionPerf => Method::CollectionPerf
+}
+impl_rpc! {
+	"View the health of the Collection (underlying files)",
+	"collection/collection_health",
+	CollectionHealth => Method::CollectionHealth
 }
 impl_rpc! {
 	"View the size of the current Collection's underlying resources (audio files and art)",
@@ -645,16 +675,6 @@ impl_rpc_param! {
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>
 }
-impl_rpc! {
-	"Retrieve all playlist names",
-	"playlist/playlist_names",
-	PlaylistNames => Method::PlaylistNames
-}
-impl_rpc! {
-	"Retrieve how many playlists there are",
-	"playlist/playlist_count",
-	PlaylistCount => Method::PlaylistCount
-}
 impl_struct_lt!(PlaylistSingle, #[serde(borrow)] playlist: Cow<'a, str>);
 impl_rpc_param! {
 	"Retrieve a single playlist",
@@ -664,9 +684,14 @@ impl_rpc_param! {
 	playlist: String
 }
 impl_rpc! {
-	"Retrieve all playlists",
-	"playlist/playlist_all",
-	PlaylistAll => Method::PlaylistAll
+	"Retrieve all playlist names",
+	"playlist/playlist_brief",
+	PlaylistBrief => Method::PlaylistBrief
+}
+impl_rpc! {
+	"Retrieve full data of all playlists",
+	"playlist/playlist_full",
+	PlaylistFull => Method::PlaylistFull
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

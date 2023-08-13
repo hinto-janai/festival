@@ -5,8 +5,6 @@ The output is almost a mirror of the configuration file.
 
 See the [`Config`](../../config.md) section to see the full description of these fields.
 
-This and [`collection_relation_full`](../collection/collection_relation_full.md) are the only methods that expose `festivald`'s local filesystem PATHs.
-
 #### Inputs
 
 `None`

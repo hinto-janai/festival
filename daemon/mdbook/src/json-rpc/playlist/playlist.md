@@ -1,22 +1,23 @@
 # Playlist
 `Playlist`'s are objects where
 - The key _is_ the playlist name (`string`)
-- The value is an array of `Entry` objects
+- The value is an array of [`Entry`](../../common-objects/entry.md)-like objects, `Playlist Entries`
 
 `Playlist`'s are the only object in `festivald` that have a _variable_ key field.
 
-| Field          | Type                     | Description |
-|----------------|--------------------------|-------------|
-| $PLAYLIST_NAME | array of `Entry` objects | The name of the playlist as the key, and the `Song` entries in an array
+| Field          | Type                        | Description |
+|----------------|-----------------------------|-------------|
+| $PLAYLIST_NAME | array of `Playlist Entry`'s | The name of the playlist as the key, and the `Song` entries in an array
 
-An `Entry` object represents a [`Song`](../../common-objects/song.md).
+## Playlist Entry
+The `Entry` object in the context of playlists is similar to [`Entry`](../../common-objects/entry.md), except it does not have the `path` field.
 
-The `Entry` type takes 2 forms: `valid` & `invalid`:
+The `Playlist Entry` takes 2 forms: `valid` & `invalid`:
 
-| `Entry` type | Meaning |
-|--------------|---------|
-| `valid`      | This is a valid `Song`; it exists within the current `Collection`
-| `invalid`    | This `Song` does _NOT_ exist in the `Collection`, although it previously did (it may have been lost in-between `Collection` resets)
+| `Playlist Entry` form | Meaning |
+|-----------------------|---------|
+| `valid`               | This is a valid `Song`; it exists within the current `Collection`
+| `invalid`             | This `Song` does _NOT_ exist in the `Collection`, although it previously did (it may have been lost in-between `Collection` resets)
 
 These objects will appear in playlist-related methods, like [`playlist_all`](playlist_all.md) & [`playlist_single`](playlist_single.md).
 
@@ -49,8 +50,10 @@ Example:
 }
 ```
 
-## `valid`
-The data definition for `valid` entry types.
+### `valid`
+The data definition for `valid` playlist entry types.
+
+Exact same as [`Entry`](../../common-objects/entry.md) but does not have `path`.
 
 | Field      | Type                          | Description |
 |------------|-------------------------------|-------------|
@@ -73,8 +76,8 @@ Example:
 }
 ```
 
-## `invalid`
-The data definition for `invalid` entry types is the same as `valid`, but with no keys.
+### `invalid`
+The data definition for `invalid` playlist entry types is the same as `valid`, but with no keys.
 
 | Field  | Type                          | Description |
 |--------|-------------------------------|-------------|

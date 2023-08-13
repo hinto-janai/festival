@@ -14,7 +14,9 @@ It is located at:
 | Linux    | `/home/USER/.local/share/festival/daemon/festivald.toml`                 |
 
 # `systemd` service
-`festivald.service` is a template to use `festivald` as a `systemd` user-service.
+`festivald.service` is a `systemd` user-service file for `festivald`.
+
+It can be used as is assuming `festivald` is at `/usr/bin/festivald`.
 
 It should be placed at:
 ```

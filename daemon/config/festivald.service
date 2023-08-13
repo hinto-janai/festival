@@ -1,12 +1,11 @@
 #===================#
 # festivald.service #
 #=======================================================#
-# This is a template systemd user                       #
-# service file for `festivald`.                         #
+# This is a systemd user service file for `festivald`.  #
+# It can be used as is, assuming `festivald` is located #
+# at `/usr/bin/festivald`.                              #
 #                                                       #
 # It is relatively hardened for public usage.           #
-#                                                       #
-# The PATHs must be replaced to your specific PATHs.    #
 #                                                       #
 # `festivald` will use whichever audio server the user  #
 # launching this has access to (most likely PulseAudio) #
@@ -30,11 +29,6 @@ KillSignal=SIGTERM
 TimeoutStopSec=35s
 SendSIGKILL=true
 
-#=======================================# EDIT ME #=======================================#
-# Replace the `$USER` and replace the PATHs to your music data.
-BindPaths=/home/$USER/.local/share /home/$USER/.config /home/$USER/.cache /PATH/TO/YOUR/AUDIO/FILES /PATH/TO/YOUR/IMG/FILES
-#=======================================# EDIT ME #=======================================#
-
 ## Hardening
 CapabilityBoundingSet=~CAP_NET_ADMIN CAP_SYS_PTRACE CAP_SYS_ADMIN CAP_KILL CAP_SYS_PACCT CAP_SYS_BOOT CAP_SYS_CHROOT CAP_LEASE CAP_MKNOD CAP_CHOWN CAP_FSETID CAP_SETFCAP CAP_SETUID CAP_SETGID CAP_SETPCAP CAP_SYS_TIME CAP_IPC_LOCK CAP_LINUX_IMMUTABLE CAP_FOWNER CAP_IPC_OWNER CAP_SYS_RESOURCE
 RestrictNamespaces=true
@@ -50,7 +44,6 @@ PrivateUsers=true
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
-ProtectHome=read-only
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target

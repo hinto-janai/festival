@@ -18,6 +18,9 @@ And the number [`key`](key.md) that acts as the identifier for them:
 - `Album` key
 - `Song` key
 
+## Entry
+[`Entry`](entry.md) is an "absolute" key, as it holds all integer `Key`'s and all `string` key's relating to a [`Song`](song.md).
+
 ## Generic Response
 This is the generic "success" response object, just an empty `result`:
 ```json

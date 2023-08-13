@@ -146,8 +146,14 @@ pub async fn handle(
 			return Ok(resp::not_found("Missing endpoint: [artist]"));
 		};
 
-		let album = split.next();
-		let song = split.next();
+		let album = match split.next() {
+			Some(s) if !s.is_empty() => Some(s),
+			_ => None,
+		};
+		let song = match split.next() {
+			Some(s) if !s.is_empty() => Some(s),
+			_ => None,
+		};
 
 		// Return error if more than 3 endpoints.
 		match split.next() {
@@ -191,7 +197,10 @@ pub async fn handle(
 			return Ok(resp::not_found("Missing endpoint: [artist]"));
 		};
 
-		let album = split.next();
+		let album = match split.next() {
+			Some(s) if !s.is_empty() => Some(s),
+			_ => None,
+		};
 
 		// Return error if more than 3 endpoints.
 		match split.next() {

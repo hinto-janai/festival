@@ -12,15 +12,21 @@ These rules will apply until a potential `v2.0.0` breaking release.
 
 `festivald` will be able to (fully) respond to `festival-cli` as long as `festivald`'s:
 - Major version is the same
-- Minor version is the same or greater
+- Minor version is the same
 
 For example, `festivald v1.2.x` is fully compatible with:
 - `festival-cli v1.2.x`
-- `festival-cli v1.1.x`
-- `festival-cli v1.0.x`
 
-but not necessarily with `festival-cli v1.3.x` and beyond.
-Note that an older `festivald` will still be able to communicate with a newer `festival-cli`, however, if the new `festival-cli` is requesting a new method, the old `festivald` won't be able to respond correctly.
+but not necessarily with:
+- `festival-cli v1.0.x`
+- `festival-cli v1.1.x`
+- `festival-cli v1.3.x` and beyond
+
+Note that `festivald` will still be able to communicate with newer/older `festival-cli`'s, however:
+- If a new `festival-cli` is requesting a method unknown to an old `festivald`, or
+- If a new `festivald` has additional output unknown to an old `festival-cli`
+
+there will be communication issues.
 
 ## Config
 - [`config`](config.md) names are stable (`max_connections` will always be named `max_connections`)

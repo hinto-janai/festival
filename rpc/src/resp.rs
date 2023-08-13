@@ -67,50 +67,66 @@ impl_struct_anon_lt! {
 	CollectionFull,
 	CollectionJson<'a>
 }
+impl_struct_lt! {
+	CollectionBriefArtists,
+	len: usize,
+	#[serde(borrow)]
+	artists: Cow<'a, [Cow<'a, str>]>
+}
+impl_struct_lt! {
+	CollectionBriefAlbums,
+	len: usize,
+	#[serde(borrow)]
+	albums: Cow<'a, [Cow<'a, str>]>
+}
+impl_struct_lt! {
+	CollectionBriefSongs,
+	len: usize,
+	#[serde(borrow)]
+	songs: Cow<'a, [Cow<'a, str>]>
+}
+impl_struct_lt! {
+	CollectionFullArtists,
+	len: usize,
+	#[serde(borrow)]
+	artists: Cow<'a, [ArtistJson<'a>]>
+}
+impl_struct_lt! {
+	CollectionFullAlbums,
+	len: usize,
+	#[serde(borrow)]
+	albums: Cow<'a, [AlbumJson<'a>]>
+}
+impl_struct_lt! {
+	CollectionFullSongs,
+	len: usize,
+	#[serde(borrow)]
+	songs: Cow<'a, [SongJson<'a>]>
+}
+impl_struct_lt! {
+	CollectionEntries,
+	len: usize,
+	#[serde(borrow)]
+	entries: Cow<'a, [shukusai::collection::EntryJson<'a>]>
+}
 impl_struct! {
 	CollectionPerf,
 	bytes: u64,
 	user: f32,
 	sys: f32
 }
+impl_struct_lt! {
+	CollectionHealth,
+	all_ok: bool,
+	song_len: usize,
+	missing_len: usize,
+	#[serde(borrow)]
+	missing: Cow<'a, [shukusai::collection::EntryJson<'a>]>
+}
 impl_struct! {
 	CollectionResourceSize,
 	audio: u64,
 	art: usize
-}
-impl_struct_lt! {
-	CollectionRelationInner,
-	#[serde(borrow)]
-	artist: Cow<'a, str>,
-	#[serde(borrow)]
-	album: Cow<'a, str>,
-	#[serde(borrow)]
-	song: Cow<'a, str>,
-	key_artist: ArtistKey,
-	key_album: AlbumKey,
-	key_song: SongKey
-}
-impl_struct_anon_lt! {
-	CollectionRelation,
-	Cow<'a, [CollectionRelationInner<'a>]>
-}
-impl_struct_lt! {
-	CollectionRelationFullInner,
-	#[serde(borrow)]
-	artist: Cow<'a, str>,
-	#[serde(borrow)]
-	album: Cow<'a, str>,
-	#[serde(borrow)]
-	song: Cow<'a, str>,
-	key_artist: ArtistKey,
-	key_album: AlbumKey,
-	key_song: SongKey,
-	#[serde(borrow)]
-	path: Cow<'a, std::path::Path>
-}
-impl_struct_anon_lt! {
-	CollectionRelationFull,
-	Cow<'a, [CollectionRelationFullInner<'a>]>
 }
 
 //---------------------------------------------------------------------------------------------------- State
@@ -125,22 +141,29 @@ impl_struct_lt! {
 	ip:                 std::net::Ipv4Addr,
 	port:               u16,
 	max_connections:    Option<u64>,
+	#[serde(borrow)]
 	exclusive_ips:      Option<Cow<'a, HashSet<Ipv4Addr>>>,
 	sleep_on_fail:      Option<u64>,
+	#[serde(borrow)]
 	collection_paths:   Cow<'a, [PathBuf]>,
 	tls:                bool,
+	#[serde(borrow)]
 	certificate:        Option<Cow<'a, Path>>,
+	#[serde(borrow)]
 	key:                Option<Cow<'a, Path>>,
 	rest:               bool,
 	docs:               bool,
 	direct_download:    bool,
+	#[serde(borrow)]
 	filename_separator: Cow<'a, str>,
 	log_level:          log::LevelFilter,
 	watch:              bool,
 	cache_time:         u64,
 	media_controls:     bool,
 	authorization:      bool,
+	#[serde(borrow)]
 	no_auth_rpc:        Option<Cow<'a, HashSet<crate::method::Method>>>,
+	#[serde(borrow)]
 	no_auth_rest:       Option<Cow<'a, HashSet<crate::resource::Resource>>>
 }
 impl_struct_lt! {
@@ -172,6 +195,7 @@ impl_struct_lt! {
 	runtime:   u32,
 	repeat:    Repeat,
 	volume:    u8,
+	#[serde(borrow)]
 	song:      Option<SongJson<'a>>
 }
 impl_struct! {
@@ -334,26 +358,29 @@ impl_struct!(PlaylistAddKeySong, existed: bool);
 impl_struct!(PlaylistAddMapArtist, existed: bool);
 impl_struct!(PlaylistAddMapAlbum, existed: bool);
 impl_struct!(PlaylistAddMapSong, existed: bool);
-impl_struct_anon_lt!(PlaylistNames, Cow<'a, [Cow<'a, str>]>);
-impl_struct!(PlaylistCount, count: usize);
 impl_struct_lt! {
 	PlaylistSingle,
 	#[serde(borrow)]
 	playlist: Cow<'a, str>,
 	all_valid: bool,
-	len: usize,
-	valid: usize,
-	invalid: usize,
+	entry_len: usize,
+	valid_len: usize,
+	invalid_len: usize,
 	#[serde(borrow)]
 	entries: Cow<'a, [EntryJson<'a>]>
 }
 impl_struct_lt! {
-	PlaylistAll,
+	PlaylistBrief,
+	len: usize,
+	playlists: Cow<'a, [Cow<'a, str>]>
+}
+impl_struct_lt! {
+	PlaylistFull,
 	all_valid: bool,
 	playlist_len: usize,
 	entry_len: usize,
-	valid: usize,
-	invalid: usize,
+	valid_len: usize,
+	invalid_len: usize,
 	#[serde(borrow)]
 	playlists: Cow<'a, PlaylistsJson<'a>>
 }

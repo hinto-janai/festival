@@ -9,14 +9,14 @@ This method errors if the specified playlist does not exist.
 | playlist | string | The name of the `Playlist`
 
 #### Outputs
-| Field     | Type                                    | Description |
-|-----------|-----------------------------------------|-------------|
-| playlist  | string                                  | The name of the `Playlist`
-| all_valid | boolean                                 | If all the `Entry`'s are valid
-| len       | unsigned integer                        | How many `Entry`'s there are in this `Playlist`
-| valid     | unsigned integer                        | How many `Entry`'s are `valid`
-| invalid   | unsigned integer                        | How many `Entry'`s are `invalid`
-| entries   | array of [`Entry`](playlist.md) objects | The `Entry`'s themselves
+| Field       | Type                                             | Description |
+|-------------|--------------------------------------------------|-------------|
+| playlist    | string                                           | The name of the `Playlist`
+| all_valid   | boolean                                          | If all the `Playlist Entry`'s are valid
+| entry_len   | unsigned integer                                 | How many `Playlist Entry`'s there are in this `Playlist`
+| valid_len   | unsigned integer                                 | How many `Playlist Entry`'s are `valid`
+| invalid_len | unsigned integer                                 | How many `Playlist Entry'`s are `invalid`
+| entries     | array of [`Playlist Entry`](playlist.md) objects | The `Playlsit Entry`'s themselves
 
 #### Example Request
 ```bash
@@ -33,9 +33,9 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"playlist_singl
   "result": {
     "playlist": "Hello",
     "all_valid": false,
-    "len": 2,
-    "valid": 1,
-    "invalid": 1,
+    "entry_len": 2,
+    "valid_len": 1,
+    "invalid_len": 1,
     "entries": [
       {
         "invalid": {

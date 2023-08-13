@@ -1,5 +1,6 @@
 mod art;
 mod collection;
+mod entry;
 mod album;
 mod artist;
 mod song;
@@ -8,6 +9,7 @@ mod map;
 mod key;
 mod image;
 pub use collection::*;
+pub use entry::*;
 pub use art::*;
 pub use album::*;
 pub use artist::*;

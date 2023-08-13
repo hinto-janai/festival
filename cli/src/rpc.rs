@@ -103,9 +103,15 @@ pub fn request(config: Config, debug: bool, dry_run: bool, rpc: Rpc) -> ! {
 		CollectionNew(x)          => req_resp!(x, debug, rpc::resp::CollectionNew),
 		CollectionBrief(x)        => req_resp!(x, debug, rpc::resp::CollectionBrief),
 		CollectionFull(x)         => req_resp!(x, debug, rpc::resp::CollectionFull),
-		CollectionRelation(x)     => req_resp!(x, debug, rpc::resp::CollectionRelation),
-		CollectionRelationFull(x) => req_resp!(x, debug, rpc::resp::CollectionRelationFull),
+		CollectionBriefArtists(x) => req_resp!(x, debug, rpc::resp::CollectionBriefArtists),
+		CollectionBriefAlbums(x)  => req_resp!(x, debug, rpc::resp::CollectionBriefAlbums),
+		CollectionBriefSongs(x)   => req_resp!(x, debug, rpc::resp::CollectionBriefSongs),
+		CollectionFullArtists(x)  => req_resp!(x, debug, rpc::resp::CollectionFullArtists),
+		CollectionFullAlbums(x)   => req_resp!(x, debug, rpc::resp::CollectionFullAlbums),
+		CollectionFullSongs(x)    => req_resp!(x, debug, rpc::resp::CollectionFullSongs),
+		CollectionEntries(x)      => req_resp!(x, debug, rpc::resp::CollectionEntries),
 		CollectionPerf(x)         => req_resp!(x, debug, rpc::resp::CollectionPerf),
+		CollectionHealth(x)       => req_resp!(x, debug, rpc::resp::CollectionHealth),
 		CollectionResourceSize(x) => req_resp!(x, debug, rpc::resp::CollectionResourceSize),
 
 		StateIp(x)     => req_resp!(x, debug, rpc::resp::StateIp),
@@ -177,10 +183,9 @@ pub fn request(config: Config, debug: bool, dry_run: bool, rpc: Rpc) -> ! {
 		PlaylistAddMapArtist(x) => req_resp!(x, debug, rpc::resp::PlaylistAddMapArtist),
 		PlaylistAddMapAlbum(x)  => req_resp!(x, debug, rpc::resp::PlaylistAddMapAlbum),
 		PlaylistAddMapSong(x)   => req_resp!(x, debug, rpc::resp::PlaylistAddMapSong),
-		PlaylistNames(x)        => req_resp!(x, debug, rpc::resp::PlaylistNames),
-		PlaylistCount(x)        => req_resp!(x, debug, rpc::resp::PlaylistCount),
 		PlaylistSingle(x)       => req_resp!(x, debug, rpc::resp::PlaylistSingle),
-		PlaylistAll(x)          => req_resp!(x, debug, rpc::resp::PlaylistAll),
+		PlaylistBrief(x)        => req_resp!(x, debug, rpc::resp::PlaylistBrief),
+		PlaylistFull(x)         => req_resp!(x, debug, rpc::resp::PlaylistFull),
 	}
 }
 
