@@ -33,200 +33,131 @@ use std::borrow::Cow;
 ///
 /// It is (de)serialized directly from/into a `lower_snake_case` string.
 ///
-/// Each method is commented with:
-///   - A struct representation of the expected response, found in [`resp`] with exact same name
+/// Each method has:
+///   - A struct representation of the expected response, found in [`resp`] with exact same name (or an `Owned` variant)
 ///   - (Optionally) a struct representation of the associated parameters, found in [`crate::param`]
 pub enum Method {
 	// Collection
-	/// [`crate::resp::CollectionNew`] & [`crate::param::CollectionNew`]
 	CollectionNew,
-	/// [`crate::resp::CollectionBrief`]
 	CollectionBrief,
-	/// [`crate::resp::CollectionFull`]
 	CollectionFull,
-	/// [`crate::resp::CollectionBriefArtists`]
 	CollectionBriefArtists,
-	/// [`crate::resp::CollectionBriefAlbums`]
 	CollectionBriefAlbums,
-	/// [`crate::resp::CollectionBriefSongs`]
 	CollectionBriefSongs,
-	/// [`crate::resp::CollectionFullArtists`]
 	CollectionFullArtists,
-	/// [`crate::resp::CollectionFullAlbums`]
 	CollectionFullAlbums,
-	/// [`crate::resp::CollectionFullSongs`]
 	CollectionFullSongs,
-	/// [`crate::resp::CollectionEntries`]
 	CollectionEntries,
-	/// [`crate::resp::CollectionPerf`]
 	CollectionPerf,
-	/// [`crate::resp::CollectionHealth`]
 	CollectionHealth,
-	/// [`crate::resp::CollectionResourceSize`]
 	CollectionResourceSize,
 
-	/// [`crate::resp::Status`]
-	DiskSave,
-	/// [`crate::resp::DiskRemoveCache`] (inner type is [`crate::resp::DiskRemoveCacheInner`])
-	DiskRemoveCache,
+	DaemonSave,
+	DaemonRemoveCache,
+	DaemonShutdown,
 
 	// State retrieval.
-	/// [`crate::resp::StateAudio`]
 	StateAudio,
-	/// [`crate::resp::StateConfig`]
 	StateConfig,
-	/// [`crate::resp::StateDaemon`]
 	StateDaemon,
-	/// [`crate::resp::StateIp`] (inner type is [`crate::resp::StateIpInner`])
 	StateIp,
-	/// [`crate::resp::StateReset`]
 	StateReset,
-	/// [`crate::resp::StateQueue`]
 	StateQueue,
-	/// [`crate::resp::StateQueueEntry`]
 	StateQueueEntry,
-	/// [`crate::resp::StateVolume`]
 	StateVolume,
 
 	// Key (exact key)
-	/// [`crate::resp::KeyArtist`] & [`crate::param::KeyArtist`]
 	KeyArtist,
-	/// [`crate::resp::KeyAlbum`] & [`crate::param::KeyAlbum`]
 	KeyAlbum,
-	/// [`crate::resp::KeySong`] & [`crate::param::KeySong`]
 	KeySong,
-	/// [`crate::resp::KeyEntry`] & [`crate::param::KeyEntry`]
 	KeyEntry,
+	KeyArtistAlbums,
+	KeyArtistSongs,
+	KeyArtistEntries,
+	KeyAlbumArtist,
+	KeyAlbumSongs,
+	KeyAlbumEntries,
+	KeySongArtist,
+	KeySongAlbum,
+	KeyOtherAlbums,
+	KeyOtherSongs,
+	KeyOtherEntries,
 
 	// Map (exact hashmap)
-	/// [`crate::resp::MapArtist`] & [`crate::param::MapArtist`]
 	MapArtist,
-	/// [`crate::resp::MapAlbum`] & [`crate::param::MapAlbum`]
 	MapAlbum,
-	/// [`crate::resp::MapSong`] & [`crate::param::MapSong`]
 	MapSong,
-	/// [`crate::resp::MapEntry`] & [`crate::param::MapEntry`]
 	MapEntry,
+	MapArtistAlbums,
+	MapArtistSongs,
+	MapArtistEntries,
+	MapAlbumSongs,
+	MapAlbumEntries,
 
 	// Current (audio state)
-	/// [`crate::resp::CurrentArtist`]
 	CurrentArtist,
-	/// [`crate::resp::CurrentAlbum`]
 	CurrentAlbum,
-	/// [`crate::resp::CurrentSong`]
 	CurrentSong,
-	/// [`crate::resp::CurrentEntry`]
 	CurrentEntry,
 
 	// Rand (audio state)
-	/// [`crate::resp::RandArtist`]
 	RandArtist,
-	/// [`crate::resp::RandAlbum`]
 	RandAlbum,
-	/// [`crate::resp::RandSong`]
 	RandSong,
-	/// [`crate::resp::RandEntry`]
 	RandEntry,
 
 	// Search (fuzzy keys)
-	/// [`crate::resp::Search`] & [`crate::param::Search`]
 	Search,
-	/// [`crate::resp::SearchArtist`] &  [`crate::param::SearchArtist`]
 	SearchArtist,
-	/// [`crate::resp::SearchAlbum`] & [`crate::param::SearchAlbum`]
 	SearchAlbum,
-	/// [`crate::resp::SearchSong`] & [`crate::param::SearchSong`]
 	SearchSong,
-	/// [`crate::resp::SearchEntry`] & [`crate::param::SearchEntry`]
 	SearchEntry,
 
 	// Playback control.
-	/// [`crate::resp::Toggle`]
 	Toggle,
-	/// [`crate::resp::Status`]
 	Play,
-	/// [`crate::resp::Status`]
 	Pause,
-	/// [`crate::resp::Status`]
 	Next,
-	/// [`crate::resp::Status`]
 	Stop,
-	/// [`crate::resp::Status`] & [`crate::param::Previous`]
 	Previous,
-	/// [`crate::resp::Status`] & [`crate::param::Clear`]
 	Clear,
-	/// [`crate::resp::Status`] & [`crate::param::Seek`]
 	Seek,
-	/// [`crate::resp::Status`] & [`crate::param::Skip`]
 	Skip,
-	/// [`crate::resp::Status`] & [`crate::param::Back`]
 	Back,
-	/// [`crate::resp::Status`]
 	Shuffle,
-	/// [`crate::resp::Status`]
 	RepeatOff,
-	/// [`crate::resp::Status`]
 	RepeatSong,
-	/// [`crate::resp::Status`]
 	RepeatQueue,
-	/// [`crate::resp::Volume`] & [`crate::param::Volume`]
 	Volume,
-	/// [`crate::resp::VolumeUp`] & [`crate::param::VolumeUp`]
 	VolumeUp,
-	/// [`crate::resp::VolumeDown`] & [`crate::param::VolumeDown`]
 	VolumeDown,
 
-	/// [`crate::resp::QueueAddKeyArtist`] & [`crate::param::QueueAddKeyArtist`]
 	QueueAddKeyArtist,
-	/// [`crate::resp::QueueAddKeyAlbum`] & [`crate::param::QueueAddKeyAlbum`]
 	QueueAddKeyAlbum,
-	/// [`crate::resp::QueueAddKeySong`] & [`crate::param::QueueAddKeySong`]
 	QueueAddKeySong,
-	/// [`crate::resp::QueueAddMapArtist`] & [`crate::param::QueueAddMapArtist`]
 	QueueAddMapArtist,
-	/// [`crate::resp::QueueAddMapAlbum`] & [`crate::param::QueueAddMapAlbum`]
 	QueueAddMapAlbum,
-	/// [`crate::resp::QueueAddMapSong`] & [`crate::param::QueueAddMapSong`]
 	QueueAddMapSong,
-	/// [`crate::resp::QueueAddRandArtist`] & [`crate::param::QueueAddRandArtist`]
 	QueueAddRandArtist,
-	/// [`crate::resp::QueueAddRandAlbum`] & [`crate::param::QueueAddRandAlbum`]
 	QueueAddRandAlbum,
-	/// [`crate::resp::QueueAddRandSong`] & [`crate::param::QueueAddRandSong`]
 	QueueAddRandSong,
-	/// [`crate::resp::QueueAddPlaylist`] & [`crate::param::QueueAddPlaylist`]
 	QueueAddPlaylist,
-	/// [`crate::resp::SetQueueIndex`] & [`crate::param::QueueSetIndex`]
 	QueueSetIndex,
-	/// [`crate::resp::Status`] & [`crate::param::QueueRemoveRange`]
 	QueueRemoveRange,
 
 	// Playlists.
-	/// [`crate::resp::PlaylistNew`] & [`crate::param::PlaylistNew`]
 	PlaylistNew,
-	/// [`crate::resp::PlaylistRemove`] & [`crate::param::PlaylistRemove`]
 	PlaylistRemove,
-	/// [`crate::resp::PlaylistClone`] & [`crate::param::PlaylistClone`]
 	PlaylistClone,
-	/// [`crate::resp::PlaylistRemoveEntry`] & [`crate::param::PlaylistRemoveEntry`]
 	PlaylistRemoveEntry,
-	/// [`crate::resp::PlaylistAddKeyArtist`] & [`crate::param::PlaylistAddKeyArtist`]
 	PlaylistAddKeyArtist,
-	/// [`crate::resp::PlaylistAddKeyAlbum`] & [`crate::param::PlaylistAddKeyAlbum`]
 	PlaylistAddKeyAlbum,
-	/// [`crate::resp::PlaylistAddKeySong`] & [`crate::param::PlaylistAddKeySong`]
 	PlaylistAddKeySong,
-	/// [`crate::resp::PlaylistAddMapArtist`] & [`crate::param::PlaylistAddMapArtist`]
 	PlaylistAddMapArtist,
-	/// [`crate::resp::PlaylistAddMapAlbum`] & [`crate::param::PlaylistAddMapAlbum`]
 	PlaylistAddMapAlbum,
-	/// [`crate::resp::PlaylistAddMapSong`] & [`crate::param::PlaylistAddMapSong`]
 	PlaylistAddMapSong,
-	/// [`crate::resp::PlaylistSingle`] & [`crate::param::PlaylistSingle`]
 	PlaylistSingle,
-	/// [`crate::resp::PlaylistBrief`] & [`crate::param::PlaylistBrief`]
 	PlaylistBrief,
-	/// [`crate::resp::PlaylistFull`] & [`crate::param::PlaylistFull`]
 	PlaylistFull,
 }
 
@@ -260,8 +191,9 @@ pub enum Rpc {
 	CollectionHealth(crate::param::CollectionHealth),
 	CollectionResourceSize(crate::param::CollectionResourceSize),
 
-	DiskSave(crate::param::DiskSave),
-	DiskRemoveCache(crate::param::DiskRemoveCache),
+	DaemonSave(crate::param::DaemonSave),
+	DaemonRemoveCache(crate::param::DaemonRemoveCache),
+	DaemonShutdown(crate::param::DaemonShutdown),
 
 	StateAudio(crate::param::StateAudio),
 	StateConfig(crate::param::StateConfig),
@@ -276,11 +208,27 @@ pub enum Rpc {
 	KeyAlbum(crate::param::KeyAlbum),
 	KeySong(crate::param::KeySong),
 	KeyEntry(crate::param::KeyEntry),
+	KeyArtistAlbums(crate::param::KeyArtistAlbums),
+	KeyArtistSongs(crate::param::KeyArtistSongs),
+	KeyArtistEntries(crate::param::KeyArtistEntries),
+	KeyAlbumArtist(crate::param::KeyAlbumArtist),
+	KeyAlbumSongs(crate::param::KeyAlbumSongs),
+	KeyAlbumEntries(crate::param::KeyAlbumEntries),
+	KeySongArtist(crate::param::KeySongArtist),
+	KeySongAlbum(crate::param::KeySongAlbum),
+	KeyOtherAlbums(crate::param::KeyOtherAlbums),
+	KeyOtherSongs(crate::param::KeyOtherSongs),
+	KeyOtherEntries(crate::param::KeyOtherEntries),
 
 	MapArtist(crate::param::MapArtistOwned),
 	MapAlbum(crate::param::MapAlbumOwned),
 	MapSong(crate::param::MapSongOwned),
 	MapEntry(crate::param::MapEntryOwned),
+	MapArtistAlbums(crate::param::MapArtistAlbumsOwned),
+	MapArtistSongs(crate::param::MapArtistSongsOwned),
+	MapArtistEntries(crate::param::MapArtistEntriesOwned),
+	MapAlbumSongs(crate::param::MapAlbumSongsOwned),
+	MapAlbumEntries(crate::param::MapAlbumEntriesOwned),
 
 	CurrentArtist(crate::param::CurrentArtist),
 	CurrentAlbum(crate::param::CurrentAlbum),

@@ -4,8 +4,7 @@
 This API may have [additions](/api-stability/marker.md) in the future.
 
 ---
-
-Input an `Artist` name, `Album` title, and `Song` title, retrieve a [`Song`](/common-objects/song.md).
+Input an [`Artist`](/common-objects/artist.md) name, [`Album`](/common-objects/album.md) title, and `Song` title, retrieve a [`Song`](/common-objects/song.md) object.
 
 #### Inputs
 

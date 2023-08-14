@@ -129,14 +129,23 @@ impl_struct! {
 	art: usize
 }
 
-//---------------------------------------------------------------------------------------------------- Disk
+//---------------------------------------------------------------------------------------------------- Daemon
 impl_struct_lt! {
-	DiskRemoveCacheInner,
+	DaemonRemoveCacheInner,
 	#[serde(borrow)]
 	path: Cow<'a, Path>,
 	bytes: u64
 }
-impl_struct_anon_lt!(DiskRemoveCache, Cow<'a, [DiskRemoveCacheInner<'a>]>);
+impl_struct_anon_lt!(DaemonRemoveCache, Cow<'a, [DaemonRemoveCacheInner<'a>]>);
+
+impl_struct_lt! {
+	DaemonShutdown,
+	uptime: u64,
+	#[serde(borrow)]
+	uptime_string: Cow<'a, str>,
+	total_requests: u64,
+	total_connections: u64
+}
 
 //---------------------------------------------------------------------------------------------------- State
 impl_struct! {
@@ -178,6 +187,8 @@ impl_struct_lt! {
 impl_struct_lt! {
 	StateDaemon,
 	uptime:              u64,
+	#[serde(borrow)]
+	uptime_string:       Cow<'a, str>,
 	total_requests:      u64,
 	total_connections:   u64,
 	current_connections: u64,
@@ -250,6 +261,69 @@ impl_struct_lt! {
 	#[serde(borrow)]
 	entry: shukusai::collection::EntryJson<'a>
 }
+impl_struct_lt! {
+	KeyArtistAlbums,
+	len: usize,
+	#[serde(borrow)]
+	albums: Cow<'a, [AlbumJson<'a>]>
+}
+impl_struct_lt! {
+	KeyArtistSongs,
+	len: usize,
+	#[serde(borrow)]
+	songs: Cow<'a, [SongJson<'a>]>
+}
+impl_struct_lt! {
+	KeyArtistEntries,
+	len: usize,
+	#[serde(borrow)]
+	entries: Cow<'a, [shukusai::collection::EntryJson<'a>]>
+}
+impl_struct_lt! {
+	KeyAlbumArtist,
+	#[serde(borrow)]
+	artist: ArtistJson<'a>
+}
+impl_struct_lt! {
+	KeyAlbumSongs,
+	len: usize,
+	#[serde(borrow)]
+	songs: Cow<'a, [SongJson<'a>]>
+}
+impl_struct_lt! {
+	KeyAlbumEntries,
+	len: usize,
+	#[serde(borrow)]
+	entries: Cow<'a, [shukusai::collection::EntryJson<'a>]>
+}
+impl_struct_lt! {
+	KeySongArtist,
+	#[serde(borrow)]
+	artist: ArtistJson<'a>
+}
+impl_struct_lt! {
+	KeySongAlbum,
+	#[serde(borrow)]
+	album: AlbumJson<'a>
+}
+impl_struct_lt! {
+	KeyOtherAlbums,
+	len: usize,
+	#[serde(borrow)]
+	albums: Cow<'a, [AlbumJson<'a>]>
+}
+impl_struct_lt! {
+	KeyOtherSongs,
+	len: usize,
+	#[serde(borrow)]
+	songs: Cow<'a, [SongJson<'a>]>
+}
+impl_struct_lt! {
+	KeyOtherEntries,
+	len: usize,
+	#[serde(borrow)]
+	entries: Cow<'a, [shukusai::collection::EntryJson<'a>]>
+}
 
 //---------------------------------------------------------------------------------------------------- Map
 impl_struct_lt! {
@@ -271,6 +345,36 @@ impl_struct_lt! {
 	MapEntry,
 	#[serde(borrow)]
 	entry: shukusai::collection::EntryJson<'a>
+}
+impl_struct_lt! {
+	MapArtistAlbums,
+	len: usize,
+	#[serde(borrow)]
+	albums: Cow<'a, [AlbumJson<'a>]>
+}
+impl_struct_lt! {
+	MapArtistSongs,
+	len: usize,
+	#[serde(borrow)]
+	songs: Cow<'a, [SongJson<'a>]>
+}
+impl_struct_lt! {
+	MapArtistEntries,
+	len: usize,
+	#[serde(borrow)]
+	entries: Cow<'a, [shukusai::collection::EntryJson<'a>]>
+}
+impl_struct_lt! {
+	MapAlbumSongs,
+	len: usize,
+	#[serde(borrow)]
+	songs: Cow<'a, [SongJson<'a>]>
+}
+impl_struct_lt! {
+	MapAlbumEntries,
+	len: usize,
+	#[serde(borrow)]
+	entries: Cow<'a, [shukusai::collection::EntryJson<'a>]>
 }
 
 //---------------------------------------------------------------------------------------------------- Current
@@ -394,10 +498,10 @@ impl_struct!(QueueSetIndex, out_of_bounds: bool);
 impl_struct!(QueueRemoveRange, out_of_bounds: bool);
 
 //---------------------------------------------------------------------------------------------------- Playlist
-impl_struct!(PlaylistNew, existed: bool);
-impl_struct!(PlaylistRemove, existed: bool);
-impl_struct!(PlaylistClone, existed: bool);
-impl_struct!(PlaylistRemoveEntry, existed: bool);
+impl_struct_lt!(PlaylistNew, #[serde(borrow)] entries: Option<Cow<'a, [EntryJson<'a>]>>);
+impl_struct_lt!(PlaylistRemove, #[serde(borrow)] entries: Option<Cow<'a, [EntryJson<'a>]>>);
+impl_struct_lt!(PlaylistClone, #[serde(borrow)] entries: Option<Cow<'a, [EntryJson<'a>]>>);
+impl_struct_lt!(PlaylistRemoveEntry, #[serde(borrow)] entry: Option<Cow<'a, EntryJson<'a>>>);
 impl_struct!(PlaylistAddKeyArtist, existed: bool);
 impl_struct!(PlaylistAddKeyAlbum, existed: bool);
 impl_struct!(PlaylistAddKeySong, existed: bool);

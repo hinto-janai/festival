@@ -5,6 +5,10 @@ This API may have [additions](/api-stability/marker.md) in the future.
 
 ---
 
+The keys inside `albums` is sorted by `Release date`.
+
+The keys inside `songs` is sorted by `Track + Disc order`.
+
 | Field   | Type                                      | Description |
 |---------|-------------------------------------------|-------------|
 | name    | string                                    | The `Artist`'s name

@@ -16,6 +16,7 @@ Retrieve state about the status of `festivald` itself.
 | Field               | Type             | Description |
 |---------------------|------------------|-------------|
 | uptime              | unsigned integer | Uptime of `festivald` in seconds
+| uptime_string       | string           | Uptime of `festivald` in human-readable time (60 is `1 minute`)
 | total_requests      | unsigned integer | Total amount of requests this `festivald` has received since starting
 | total_connections   | unsigned integer | Total amount of connections `festivald` has gotten since starting
 | current_connections | unsigned integer | Amount of open connections `festivald` currently has
@@ -41,6 +42,7 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"state_daemon"}
   "jsonrpc": "2.0",
   "result": {
     "uptime": 43,
+    "uptime_string": "43 seconds",
     "total_requests": 1447,
     "total_connections": 297,
     "current_connections": 3,

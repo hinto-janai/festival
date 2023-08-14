@@ -25,7 +25,7 @@ ONION="http://2gzyxa5ihm7nsggfxnu52rck2vv4rvmdlkiu3zzui5du4xyclen53wid.onion"
 
 festival-cli
 	--proxy socks5://127.0.0.1:9050 \ # The Tor SOCKS5 proxy.
-	$ONION \                          # The onion address mapped to `festivald`
+	--festivald $ONION \              # The onion address mapped to `festivald`
 	state_daemon                      # Method
 
 # or with `torsocks`
@@ -36,7 +36,7 @@ ONION="http://2gzyxa5ihm7nsggfxnu52rck2vv4rvmdlkiu3zzui5du4xyclen53wid.onion"
 
 curl \
 	--socks5-hostname 127.0.0.1:9050 \                    # The Tor SOCKS5 proxy.
-	$ONION \                                              # The onion address mapped to `festivald`
+	--festivald $ONION \                                  # The onion address mapped to `festivald`
 	-d '{"jsonrpc":"2.0","id":0,"method":"state_daemon"}' # Method
 
 # or with `torsocks`

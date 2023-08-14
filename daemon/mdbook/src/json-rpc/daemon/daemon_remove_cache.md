@@ -1,4 +1,4 @@
-# disk_remove_cache
+# daemon_remove_cache
 
 #### 🟢 Stable
 This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
@@ -22,10 +22,10 @@ The output is an un-named array containing:
 
 #### Example Request
 ```bash
-festival-cli disk_remove_cache
+festival-cli daemon_remove_cache
 ```
 ```bash
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"disk_remove_cache"}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"daemon_remove_cache"}'
 ```
 
 #### Example Response

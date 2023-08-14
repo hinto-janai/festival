@@ -23,7 +23,7 @@ The output is a superset of the [`collection_brief`](/json-rpc/collection/collec
 
 | Field        | Type             | Description |
 |--------------|------------------|-------------|
-| time         | float            | How many seconds the reset took
+| time         | float            | How many seconds it took `festivald` to reset AND respond
 | empty        | boolean          | If the `Collection` does NOT have any `Artist`'s, `Album`'s, or `Song`'s
 | timestamp    | unsigned integer | The UNIX timestamp of when this `Collection` was created
 | count_artist | unsigned integer | How many unique `Artist`'s there are in this `Collection`

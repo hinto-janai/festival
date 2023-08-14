@@ -21,7 +21,7 @@ Missing `Song`'s will be returned in [`Entry`](/common-objects/entry.md) form.
 | all_ok      | boolean                  | If the underlying file for every single `Song` exists, this is `true`, else if even 1 is missing, it is `false`
 | song_len    | unsigned integer         | The total count of `Song`'s in the `Collection`
 | missing_len | unsigned integer         | The total count of `Song`'s with missing underlying files
-| missing     | array of `Entry` objects | An array of each `Song` that is missing, in [`Entry`](common-objects/entry.md) object form
+| missing     | array of `Entry` objects | An array of each `Song` that is missing, in [`Entry`](/common-objects/entry.md) object form
 
 #### Example Request
 ```bash

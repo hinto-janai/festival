@@ -91,23 +91,32 @@ pub async fn init(
 		Err(e) => crate::exit!("could not bind to [{addr}]: {e}"),
 	};
 
+	// Create `task` <-> `router` back channel for `sys_*`.
+	let (to_router_sys, mut from_task_sys) = tokio::sync::mpsc::channel::<()>(1);
+
 	// Create `task` <-> `router` back channel
 	// for `Collection` reset results.
-	let (to_router, mut from_task) = tokio::sync::mpsc::channel::<Arc<Collection>>(1);
+	let (to_router_collection, mut from_task_collection) = tokio::sync::mpsc::channel::<Arc<Collection>>(1);
 
 	// These last forever.
 	let (
 		LISTENER,
-		TO_ROUTER,
-		FROM_TASK,
+		TO_ROUTER_SYS,
+		FROM_TASK_SYS,
+		TO_ROUTER_COLLECTION,
+		FROM_TASK_COLLECTION,
 	): (
 		&'static TcpListener,
+		&'static tokio::sync::mpsc::Sender::<()>,
+		&'static mut tokio::sync::mpsc::Receiver::<()>,
 		&'static tokio::sync::mpsc::Sender::<Arc<Collection>>,
 		&'static mut tokio::sync::mpsc::Receiver::<Arc<Collection>>,
 	) = (
 		Box::leak(Box::new(listener)),
-		Box::leak(Box::new(to_router)),
-		Box::leak(Box::new(from_task)),
+		Box::leak(Box::new(to_router_sys)),
+		Box::leak(Box::new(from_task_sys)),
+		Box::leak(Box::new(to_router_collection)),
+		Box::leak(Box::new(from_task_collection)),
 	);
 
 	// Wait until `Kernel` has given us `Arc<Collection>`.
@@ -154,7 +163,7 @@ pub async fn init(
 					},
 
 					// We received a new `Collection` from a `task`.
-					c = FROM_TASK.recv() => {
+					c = FROM_TASK_COLLECTION.recv() => {
 						if let Some(mut c) = c {
 							info!("Router - New Collection received");
 
@@ -178,6 +187,15 @@ pub async fn init(
 
 					// We got `CTRL+C` in terminal.
 					_ = tokio::signal::ctrl_c() => {
+						debug!("Router - received CTRL+C");
+						tokio::task::spawn(async move {
+							crate::shutdown::shutdown(TO_KERNEL, FROM_KERNEL).await;
+						});
+					},
+
+					// We got `sys_shutdown`.
+					_ = FROM_TASK_SYS.recv() => {
+						debug!("Router - received `sys_shutdown`");
 						tokio::task::spawn(async move {
 							crate::shutdown::shutdown(TO_KERNEL, FROM_KERNEL).await;
 						});
@@ -264,7 +282,8 @@ pub async fn init(
 					COLLECTION_PTR,
 					TO_KERNEL,
 					FROM_KERNEL,
-					TO_ROUTER,
+					TO_ROUTER_SYS,
+					TO_ROUTER_COLLECTION,
 				).await;
 			});
 		}
@@ -283,7 +302,8 @@ pub async fn init(
 					COLLECTION_PTR,
 					TO_KERNEL,
 					FROM_KERNEL,
-					TO_ROUTER,
+					TO_ROUTER_SYS,
+					TO_ROUTER_COLLECTION,
 				).await;
 			});
 		}
@@ -299,12 +319,13 @@ async fn http(
 	COLLECTION_PTR: &'static CollectionPtr,
 	TO_KERNEL:      &'static Sender<FrontendToKernel>,
 	FROM_KERNEL:    &'static Receiver<KernelToFrontend>,
-	TO_ROUTER:      &'static tokio::sync::mpsc::Sender::<Arc<Collection>>,
+	TO_ROUTER_S:    &'static tokio::sync::mpsc::Sender::<()>,
+	TO_ROUTER_C:    &'static tokio::sync::mpsc::Sender::<Arc<Collection>>,
 ) {
 	// For why this is `CollectionPtr` instead
 	// of `Arc<Collection>`, see `ptr.rs`.
 	if let Err(e) = Http::new()
-		.serve_connection(stream, service_fn(|r| route(r, addr, COLLECTION_PTR, TO_KERNEL, FROM_KERNEL, TO_ROUTER)))
+		.serve_connection(stream, service_fn(|r| route(r, addr, COLLECTION_PTR, TO_KERNEL, FROM_KERNEL, TO_ROUTER_S, TO_ROUTER_C)))
 		.await
 	{
 		error!("Task - HTTP error for [{}]: {e}", addr.ip());
@@ -321,7 +342,8 @@ async fn https(
 	COLLECTION_PTR: &'static CollectionPtr,
 	TO_KERNEL:      &'static Sender<FrontendToKernel>,
 	FROM_KERNEL:    &'static Receiver<KernelToFrontend>,
-	TO_ROUTER:      &'static tokio::sync::mpsc::Sender::<Arc<Collection>>,
+	TO_ROUTER_S:    &'static tokio::sync::mpsc::Sender::<()>,
+	TO_ROUTER_C:    &'static tokio::sync::mpsc::Sender::<Arc<Collection>>,
 ) {
 	let stream = match acceptor.accept(stream).await {
 		Ok(s)  => s,
@@ -334,7 +356,7 @@ async fn https(
 	// For why this is `CollectionPtr` instead
 	// of `Arc<Collection>`, see `ptr.rs`.
 	if let Err(e) = Http::new()
-		.serve_connection(stream, service_fn(|r| route(r, addr, COLLECTION_PTR, TO_KERNEL, FROM_KERNEL, TO_ROUTER)))
+		.serve_connection(stream, service_fn(|r| route(r, addr, COLLECTION_PTR, TO_KERNEL, FROM_KERNEL, TO_ROUTER_S, TO_ROUTER_C)))
 		.await
 	{
 		error!("Task - HTTPS error for [{}]: {e}", addr.ip());
@@ -349,7 +371,8 @@ async fn route(
 	COLLECTION_PTR: &'static CollectionPtr,
 	TO_KERNEL:      &'static Sender<FrontendToKernel>,
 	FROM_KERNEL:    &'static Receiver<KernelToFrontend>,
-	TO_ROUTER:      &'static tokio::sync::mpsc::Sender::<Arc<Collection>>,
+	TO_ROUTER_S:    &'static tokio::sync::mpsc::Sender::<()>,
+	TO_ROUTER_C:    &'static tokio::sync::mpsc::Sender::<Arc<Collection>>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	atomic_add!(TOTAL_REQUESTS, 1);
 
@@ -381,12 +404,15 @@ async fn route(
 	//-------------------------------------------------- Authorization
 	let (mut parts, body) = req.into_parts();
 
-//	println!("{parts:#?}");
-//	println!("{body:#?}");
+	#[cfg(debug_assertions)]
+	{
+		println!("{parts:#?}");
+		println!("{body:#?}");
+	}
 
 	//-------------------------------------------------- JSON-RPC
 	if parts.method == hyper::Method::POST {
-		crate::rpc::handle(parts, body, addr, COLLECTION_PTR, TO_KERNEL, FROM_KERNEL, TO_ROUTER).await
+		crate::rpc::handle(parts, body, addr, COLLECTION_PTR, TO_KERNEL, FROM_KERNEL, TO_ROUTER_S, TO_ROUTER_C).await
 	//-------------------------------------------------- REST
 	} else if crate::rest::REST_ENDPOINTS.contains({
 		let mut uri = parts.uri.path().split("/");

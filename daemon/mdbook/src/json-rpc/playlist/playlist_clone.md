@@ -18,9 +18,9 @@ If `to` already exists, it will be overwritten.
 #### Outputs
 This method errors if `from` does not exist.
 
-| Field   | Type    | Description |
-|---------|---------|-------------|
-| existed | boolean | If the `to` playlist already existed or not
+| Field   | Type                                                    | Description |
+|---------|---------------------------------------------------------|-------------|
+| entries | optional (maybe-null) array of `Playlist Entry` objects | If the `to` already existed, its [`Playlist Entry`](/common-objects/playlist.md)'s are returned, else if it didn't exist, `null`
 
 #### Example Request
 ```bash
@@ -35,7 +35,18 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"playlist_remov
 {
   "jsonrpc": "2.0",
   "result": {
-    "existed": false
+    "entries": [
+      {
+        "valid": {
+          "key_artist": 65,
+          "key_album": 237,
+          "key_song": 2539,
+          "artist": "Rex Orange County",
+          "album": "RAINBOW",
+          "song": "SUNFLOWER"
+        }
+      }
+    ]
   },
   "id": 0
 }

@@ -7,7 +7,7 @@ This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 Retrieve full data of _all_ [`Playlist`](/common-objects/playlist.md)'s.
 
-Playlists are sorted by their name's [lexicographical order](https://en.wikipedia.org/wiki/Lexicographic_order).
+Playlists are sorted by their names in [lexicographical order](https://en.wikipedia.org/wiki/Lexicographic_order).
 
 #### Inputs
 `None`

@@ -577,6 +577,33 @@ impl Collection {
 		Some((artist, album, song))
 	}
 
+	/// Get all [`Album`]'s by this [`Artist`]
+	pub fn artist_albums<K: Into<ArtistKey>>(&self, key: K) -> Box<[&Album]> {
+		self.artists[key.into()]
+			.albums
+			.iter()
+			.map(|k| &self.albums[*k])
+			.collect()
+	}
+
+	/// Get all [`Song`]'s by this [`Artist`]
+	pub fn artist_songs<K: Into<ArtistKey>>(&self, key: K) -> Box<[&Song]> {
+		self.artists[key.into()]
+			.songs
+			.iter()
+			.map(|k| &self.songs[*k])
+			.collect()
+	}
+
+	/// Get all [`Song`]'s in this [`Album`]
+	pub fn album_songs<K: Into<AlbumKey>>(&self, key: K) -> Box<[&Song]> {
+		self.albums[key.into()]
+			.songs
+			.iter()
+			.map(|k| &self.songs[*k])
+			.collect()
+	}
+
 	//-------------------------------------------------- Key traversal (index).
 	#[inline(always)]
 	/// Obtain an [`Artist`], but from a [`AlbumKey`].

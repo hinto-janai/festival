@@ -1,4 +1,4 @@
-# disk_save
+# daemon_save
 
 #### 🟢 Stable
 This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
@@ -21,10 +21,10 @@ The [`Collection`](/common-objects/collection.md) is always saved after creation
 
 #### Example Request
 ```bash
-festival-cli disk_save
+festival-cli daemon_save
 ```
 ```bash
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"disk_save"}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"daemon_save"}'
 ```
 
 #### Example Response

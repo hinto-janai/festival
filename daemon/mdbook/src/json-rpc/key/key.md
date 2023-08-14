@@ -1,5 +1,5 @@
 # Key
-Use [`key`](/common-objects/key.md)'s to retrieve a [`Song`](/common-objects/song.md), [`Album`](/common-objects/album.md), or [`Artist`](/common-objects/artist.md).
+Use [`key`](/common-objects/key.md)'s to retrieve various [`Common Objects`](/common-objects/common-objects.md).
 
 If the key is invalid, a JSON-RPC [`error`](/json-rpc/json-rpc.md#example-json-rpc-20-failed-response) will be returned.
 

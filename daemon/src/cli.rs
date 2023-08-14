@@ -290,14 +290,14 @@ pub struct Cli {
 	/// Disable watching the filesystem for signals
 	///
 	/// The way a newly launched `festivald` communicates to
-	/// an already existing one (e.g, `festivald --play`) is
+	/// an already existing one (e.g, `festivald signal --play`) is
 	/// by creating a file in `festivald`'s `signal` directory.
 	///
-	/// `festivald --FLAG` just creates a file in that directory,
+	/// `festivald signal --FLAG` just creates a file in that directory,
 	/// which an existing `festivald` will notice and do the appropriate task.
 	///
 	/// Using `--disable-watch` will disable that part of the system so that
-	/// filesystem signals won't work, e.g, `festivald --play` will not work.
+	/// filesystem signals won't work, e.g, `festivald signal --play` will not work.
 	disable_watch: bool,
 
 	#[arg(long, verbatim_doc_comment, default_value_t = false)]

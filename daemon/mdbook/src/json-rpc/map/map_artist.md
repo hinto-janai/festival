@@ -5,7 +5,7 @@ This API may have [additions](/api-stability/marker.md) in the future.
 
 ---
 
-Input an `Artist` name, retrieve an [`Artist`](/common-objects/artist.md).
+Input an [`Artist`](/common-objects/artist.md) name, retrieve an `Artist` object.
 
 #### Inputs
 

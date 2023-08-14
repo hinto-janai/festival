@@ -38,6 +38,10 @@ The `Cache` sub-directories/files, and their purpose:
       │  │
       │  ├─ tmp/ # Temporary, un-finished ZIP files
       │
+      ├─ playlist/ # Cached `Playlist` ZIPs, created by the `/playlist/*` REST endpoints
+      │  │
+      │  ├─ tmp/ # Temporary, un-finished ZIP files
+      │
       ├─ artist/ # Cached `Artist` ZIPs, created by the `*_artist` REST endpoints
       │  │
       │  ├─ tmp/ # Temporary, un-finished ZIP files
@@ -95,6 +99,6 @@ The `Data` sub-directories/files, and their purpose:
    │
    ├─ signal/ # This is how `festivald` communicates with an existing one
               # (e.g `festivald signal --play`), via filesystem-based signals.
-              # `festivald --play` quite literally just creates an empty
+              # `festivald signal --play` quite literally just creates an empty
               # file inside this folder called `play`.
 ```

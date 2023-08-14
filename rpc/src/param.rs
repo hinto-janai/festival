@@ -89,16 +89,21 @@ impl_rpc! {
 	CollectionResourceSize => Method::CollectionResourceSize
 }
 
-//---------------------------------------------------------------------------------------------------- Disk
+//---------------------------------------------------------------------------------------------------- Daemon
 impl_rpc! {
 	"Save `festivald` data to disk",
-	"disk/disk_save",
-	DiskSave => Method::DiskSave
+	"daemon/daemon_save",
+	DaemonSave => Method::DaemonSave
 }
 impl_rpc! {
 	"Remove `festivald` cache from disk",
-	"disk/disk_remove_cache",
-	DiskRemoveCache => Method::DiskRemoveCache
+	"daemon/daemon_remove_cache",
+	DaemonRemoveCache => Method::DaemonRemoveCache
+}
+impl_rpc! {
+	"Shutdown `festivald`",
+	"daemon/daemon_shutdown",
+	DaemonShutdown => Method::DaemonShutdown
 }
 
 //---------------------------------------------------------------------------------------------------- State
@@ -172,6 +177,83 @@ impl_rpc_param! {
 	"Song key (unsigned integer)",
 	key: usize
 }
+impl_rpc_param! {
+	"Input an Artist key, retrieve all their Albums",
+	"key/key_artist_albums",
+	KeyArtistAlbums => Method::KeyArtistAlbums,
+	"Artist key (unsigned integer)",
+	key: usize
+}
+impl_rpc_param! {
+	"Input an Artist key, retrieve all their Songs",
+	"key/key_artist_songs",
+	KeyArtistSongs => Method::KeyArtistSongs,
+	"Artist key (unsigned integer)",
+	key: usize
+}
+impl_rpc_param! {
+	"Input an Artist key, retrieve all their Songs in Entry form",
+	"key/key_artist_entries",
+	KeyArtistEntries => Method::KeyArtistEntries,
+	"Artist key (unsigned integer)",
+	key: usize
+}
+impl_rpc_param! {
+	"Input an Album key, retrieve its Artist",
+	"key/key_album_artist",
+	KeyAlbumArtist => Method::KeyAlbumArtist,
+	"Album key (unsigned integer)",
+	key: usize
+}
+impl_rpc_param! {
+	"Input an Album key, retrieve all its Songs",
+	"key/key_album_songs",
+	KeyAlbumSongs => Method::KeyAlbumSongs,
+	"Album key (unsigned integer)",
+	key: usize
+}
+impl_rpc_param! {
+	"Input an Album key, retrieve all its Songs in Entry form",
+	"key/key_album_entries",
+	KeyAlbumEntries => Method::KeyAlbumEntries,
+	"Album key (unsigned integer)",
+	key: usize
+}
+impl_rpc_param! {
+	"Input an Song key, retrieve its Artist",
+	"key/key_song_artist",
+	KeySongArtist => Method::KeySongArtist,
+	"Song key (unsigned integer)",
+	key: usize
+}
+impl_rpc_param! {
+	"Input an Song key, retrieve its Album",
+	"key/key_song_album",
+	KeySongAlbum => Method::KeySongAlbum,
+	"Song key (unsigned integer)",
+	key: usize
+}
+impl_rpc_param! {
+	"Input an Album key, retrieve all Albums by the same Artist",
+	"key/key_other_albums",
+	KeyOtherAlbums => Method::KeyOtherAlbums,
+	"Album key (unsigned integer)",
+	key: usize
+}
+impl_rpc_param! {
+	"Input an Song key, retrieve all Songs by the same Artist",
+	"key/key_other_songs",
+	KeyOtherSongs => Method::KeyOtherSongs,
+	"Song key (unsigned integer)",
+	key: usize
+}
+impl_rpc_param! {
+	"Input an Song key, retrieve all Songs by the same Artist in Entry form",
+	"key/key_other_entries",
+	KeyOtherEntries => Method::KeyOtherEntries,
+	"Song key (unsigned integer)",
+	key: usize
+}
 
 //---------------------------------------------------------------------------------------------------- Map
 // `clap` + `lifetimes` == super fun macro error hell, so define 2 types, one borrowed (for no-copy deserialization), one owned (for clap).
@@ -217,6 +299,51 @@ impl_rpc_param! {
 	"Song title",
 	song: String
 }
+impl_struct_lt!(MapArtistAlbums, #[serde(borrow)] artist: Cow<'a, str>);
+impl_rpc_param! {
+	"Input an Artist name, retrieve all their Albums",
+	"map/map_artist_albums",
+	MapArtistAlbumsOwned => Method::MapArtistAlbums,
+	"Artist name",
+	artist: String
+}
+impl_struct_lt!(MapArtistSongs, #[serde(borrow)] artist: Cow<'a, str>);
+impl_rpc_param! {
+	"Input an Artist name, retrieve all their Songs",
+	"map/map_artist_songs",
+	MapArtistSongsOwned => Method::MapArtistSongs,
+	"Artist name",
+	artist: String
+}
+impl_struct_lt!(MapArtistEntries, #[serde(borrow)] artist: Cow<'a, str>);
+impl_rpc_param! {
+	"Input an Artist name, retrieve all their Songs in Entry form",
+	"map/map_artist_entries",
+	MapArtistEntriesOwned => Method::MapArtistEntries,
+	"Artist name",
+	artist: String
+}
+impl_struct_lt!(MapAlbumSongs, #[serde(borrow)] artist: Cow<'a, str>, #[serde(borrow)] album: Cow<'a, str>);
+impl_rpc_param! {
+	"Input an Artist name and Album title, retrieve all its Songs",
+	"map/map_album_songs",
+	MapAlbumSongsOwned => Method::MapAlbumSongs,
+	"Artist name",
+	artist: String,
+	"Album title",
+	album: String
+}
+impl_struct_lt!(MapAlbumEntries, #[serde(borrow)] artist: Cow<'a, str>, #[serde(borrow)] album: Cow<'a, str>);
+impl_rpc_param! {
+	"Input an Artist name and Album title, retrieve all its Songs in Entry form",
+	"map/map_album_entries",
+	MapAlbumEntriesOwned => Method::MapAlbumEntries,
+	"Artist name",
+	artist: String,
+	"Album title",
+	album: String
+}
+
 
 //---------------------------------------------------------------------------------------------------- Current
 impl_rpc! {
@@ -636,8 +763,8 @@ impl_rpc_param! {
 }
 impl_struct_lt!(PlaylistRemoveEntry, #[serde(borrow)] playlist: Cow<'a, str>, index: usize);
 impl_rpc_param! {
-	"Remove a song in a playlist",
-	"playlist/playlist_remove_song",
+	"Remove an entry in a playlist",
+	"playlist/playlist_remove_entry",
 	PlaylistRemoveEntryOwned => Method::PlaylistRemoveEntry,
 	"The name of the playlist",
 	playlist: String,

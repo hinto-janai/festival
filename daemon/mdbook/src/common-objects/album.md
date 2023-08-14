@@ -5,6 +5,8 @@ This API may have [additions](/api-stability/marker.md) in the future.
 
 ---
 
+The keys inside `songs` is sorted by `Track + Disc order`.
+
 | Field      | Type                                      | Description |
 |------------|-------------------------------------------|-------------|
 | title      | string                                    | The title of this `Album`

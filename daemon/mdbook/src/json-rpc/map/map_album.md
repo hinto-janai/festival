@@ -5,7 +5,7 @@ This API may have [additions](/api-stability/marker.md) in the future.
 
 ---
 
-Input an `Artist` name and `Album` title, retrieve an [`Album`](/common-objects/album.md).
+Input an [`Artist`](/common-objects/artist.md) name and [`Album`](/common-objects/album.md) title, retrieve an [`Album`](/common-objects/album.md) object.
 
 #### Inputs
 
@@ -25,7 +25,7 @@ Input an `Artist` name and `Album` title, retrieve an [`Album`](/common-objects/
 festival-cli map_album --artist "Rex Orange County" --album RAINBOW
 ```
 ```bash
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"map_song","params":{"artist":"Rex Orange County","album":"RAINBOW"}}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"map_album","params":{"artist":"Rex Orange County","album":"RAINBOW"}}'
 ```
 
 #### Example Response
