@@ -1,10 +1,11 @@
 # queue_add_map_artist
 
-{{#include ../../marker/s}} v1.0.0`
+#### 🟢 Stable
+This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Add an [`Artist`](../../common-objects/artist.md) to the queue with an `Artist` name.
+Add an [`Artist`](/common-objects/artist.md) to the queue with an `Artist` name.
 
 #### Inputs
 
@@ -23,7 +24,7 @@ The `Song`'s before the offset will still be added, but the _current_ `Song` set
 
 If the offset is out of bounds, it will start at the first `Song`.
 
-The exact ordering of the [`Artist`](../../common-objects/artist.md)'s songs and what the offsets are relative to is the same as the [object's](../../common-objects/artist.md) internal ordering: [`Album`](../../common-objects/album.md) in release order, then [`Song`](../../common-objects/song.md) track order.
+The exact ordering of the [`Artist`](/common-objects/artist.md)'s songs and what the offsets are relative to is the same as the [object's/common-objects/artist.md) internal ordering: [`Album`](/common-objects/album.md) in release order, then [`Song`](/common-objects/song.md) track order.
 
 For example, given `"offset": 3`:
 ```plaintext

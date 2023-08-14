@@ -68,6 +68,7 @@ use crossbeam::channel::{
 use json_rpc::{
 	Id,
 };
+use disk::{Bincode2,Empty};
 
 //---------------------------------------------------------------------------------------------------- Custom Method Error Codes/Messages
 macro_rules! impl_err {
@@ -399,39 +400,50 @@ pub async fn handle(
 		CollectionHealth       => collection_health(request.id, collection.arc()).await,
 		CollectionResourceSize => collection_resource_size(request.id, collection.arc()).await,
 
+		//-------------------------------------------------- Disk
+		DiskSave        => disk_save(request.id, TO_KERNEL).await,
+		DiskRemoveCache => disk_remove_cache(request.id).await,
+
 		//-------------------------------------------------- State
-		StateIp                 => state_ip(request.id).await,
-		StateConfig             => state_config(request.id).await,
-		StateDaemon             => state_daemon(request.id).await,
-		StateAudio              => state_audio(request.id, collection.arc()).await,
-		StateVolume             => state_volume(request.id).await,
-		StateReset              => state_reset(request.id).await,
+		StateAudio      => state_audio(request.id, collection.arc()).await,
+		StateConfig     => state_config(request.id).await,
+		StateDaemon     => state_daemon(request.id).await,
+		StateIp         => state_ip(request.id).await,
+		StateReset      => state_reset(request.id).await,
+		StateQueue      => state_queue(request.id, collection.arc()).await,
+		StateQueueEntry => state_queue_entry(request.id, collection.arc()).await,
+		StateVolume     => state_volume(request.id).await,
 
 		//-------------------------------------------------- Key
 		KeyArtist => ppacor!(request, key_artist, rpc::param::KeyArtist, collection.arc()).await,
 		KeyAlbum  => ppacor!(request, key_album, rpc::param::KeyAlbum, collection.arc()).await,
 		KeySong   => ppacor!(request, key_song, rpc::param::KeySong, collection.arc()).await,
+		KeyEntry  => ppacor!(request, key_entry, rpc::param::KeyEntry, collection.arc()).await,
 
 		//-------------------------------------------------- Map
 		MapArtist => ppacor!(request, map_artist, rpc::param::MapArtist, collection.arc()).await,
 		MapAlbum  => ppacor!(request, map_album, rpc::param::MapAlbum, collection.arc()).await,
 		MapSong   => ppacor!(request, map_song, rpc::param::MapSong, collection.arc()).await,
+		MapEntry  => ppacor!(request, map_entry, rpc::param::MapEntry, collection.arc()).await,
 
 		//-------------------------------------------------- Current
 		CurrentArtist => current_artist(request.id, collection.arc()).await,
 		CurrentAlbum  => current_album(request.id, collection.arc()).await,
 		CurrentSong   => current_song(request.id, collection.arc()).await,
+		CurrentEntry  => current_entry(request.id, collection.arc()).await,
 
 		//-------------------------------------------------- Rand
 		RandArtist => rand_artist(request.id, collection.arc()).await,
 		RandAlbum  => rand_album(request.id, collection.arc()).await,
 		RandSong   => rand_song(request.id, collection.arc()).await,
+		RandEntry  => rand_entry(request.id, collection.arc()).await,
 
 		//-------------------------------------------------- Search
 		Search       => ppacor!(request, search, rpc::param::Search, collection.arc(), TO_KERNEL, FROM_KERNEL).await,
 		SearchArtist => ppacor!(request, search_artist, rpc::param::SearchArtist, collection.arc(), TO_KERNEL, FROM_KERNEL).await,
 		SearchAlbum  => ppacor!(request, search_album, rpc::param::SearchAlbum, collection.arc(), TO_KERNEL, FROM_KERNEL).await,
 		SearchSong   => ppacor!(request, search_song, rpc::param::SearchSong, collection.arc(), TO_KERNEL, FROM_KERNEL).await,
+		SearchEntry  => ppacor!(request, search_entry, rpc::param::SearchEntry, collection.arc(), TO_KERNEL, FROM_KERNEL).await,
 
 		//-------------------------------------------------- Playback
 		Toggle             => toggle(request.id, TO_KERNEL).await,
@@ -702,20 +714,37 @@ async fn collection_resource_size<'a>(
 }
 
 //---------------------------------------------------------------------------------------------------- State
-async fn state_ip<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
-	let seen = crate::seen::SEEN_IPS.read().await.clone();
+async fn state_audio<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+	let shukusai::state::AudioState {
+		queue,
+		queue_idx,
+		playing,
+		song,
+		elapsed,
+		runtime,
+		repeat,
+		volume,
+	} = AUDIO_STATE.read().clone();
 
-	let mut vec = Vec::with_capacity(seen.len());
+	let song_key = song;
+	let song = if let Some(key) = song_key {
+		Some(&collection.songs[key])
+	} else {
+		None
+	};
 
-	for (ip, count) in seen.into_iter() {
-		let inner = rpc::resp::StateIpInner {
-			ip,
-			count,
-		};
-		vec.push(inner);
-	}
-
-	let resp = rpc::resp::StateIp(Cow::Owned(vec));
+	let resp = serde_json::json!({
+		"queue": queue,
+		"queue_len": queue.len(),
+		"queue_idx": queue_idx,
+		"playing": playing,
+		"song_key": song_key,
+		"elapsed": elapsed.inner(),
+		"runtime": runtime.inner(),
+		"repeat": repeat,
+		"volume": volume.inner(),
+		"song": song,
+	});
 
 	Ok(resp::result(resp, id))
 }
@@ -767,36 +796,72 @@ async fn state_daemon<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::
 	Ok(resp::result(resp, id))
 }
 
-async fn state_audio<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
-	let shukusai::state::AudioState {
-		queue,
-		queue_idx,
-		playing,
-		song,
-		elapsed,
-		runtime,
-		repeat,
-		volume,
-	} = AUDIO_STATE.read().clone();
+async fn state_ip<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	let seen = crate::seen::SEEN_IPS.read().await.clone();
 
-	let song_key = song;
-	let song = if let Some(key) = song_key {
-		Some(&collection.songs[key])
-	} else {
-		None
+	let mut vec = Vec::with_capacity(seen.len());
+
+	for (ip, count) in seen.into_iter() {
+		let inner = rpc::resp::StateIpInner {
+			ip,
+			count,
+		};
+		vec.push(inner);
+	}
+
+	let resp = rpc::resp::StateIp(Cow::Owned(vec));
+
+	Ok(resp::result(resp, id))
+}
+
+
+async fn state_reset<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	let resp = rpc::resp::StateReset {
+		resetting: crate::statics::resetting(),
+		saving: shukusai::state::saving(),
 	};
 
+	Ok(resp::result(resp, id))
+}
+
+async fn state_queue<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+	let queue = AUDIO_STATE.read().queue.clone();
+
+	let vec: Vec<&Song> = queue
+		.iter()
+		.map(|key| &collection.songs[key])
+		.collect();
+
 	let resp = serde_json::json!({
-		"queue": queue,
-		"queue_len": queue.len(),
-		"queue_idx": queue_idx,
-		"playing": playing,
-		"song_key": song_key,
-		"elapsed": elapsed.inner(),
-		"runtime": runtime.inner(),
-		"repeat": repeat,
-		"volume": volume.inner(),
-		"song": song,
+		"len": vec.len(),
+		"songs": vec,
+	});
+
+	Ok(resp::result(resp, id))
+}
+
+async fn state_queue_entry<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+	let queue = AUDIO_STATE.read().queue.clone();
+
+	let vec: Vec<shukusai::collection::EntryJson> = queue
+		.iter()
+		.map(|key| {
+			let (artist, album, song) = collection.walk(key);
+			shukusai::collection::EntryJson {
+				path: Cow::Borrowed(&song.path),
+				key_artist: artist.key,
+				key_album: album.key,
+				key_song: song.key,
+				artist: Cow::Borrowed(&*artist.name),
+				album: Cow::Borrowed(&*album.title),
+				song: Cow::Borrowed(&*song.title),
+			}
+		})
+		.collect();
+
+	let resp = serde_json::json!({
+		"len": vec.len(),
+		"entries": vec,
 	});
 
 	Ok(resp::result(resp, id))
@@ -810,13 +875,63 @@ async fn state_volume<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::
 	Ok(resp::result(resp, id))
 }
 
-async fn state_reset<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
-	let resp = rpc::resp::StateReset {
-		resetting: crate::statics::resetting(),
-		saving: shukusai::state::saving(),
+//---------------------------------------------------------------------------------------------------- Disk
+async fn disk_save<'a>(
+	id:        Option<Id<'a>>,
+	TO_KERNEL: &'static Sender<FrontendToKernel>
+) -> Result<Response<Body>, anyhow::Error> {
+	let volume = shukusai::audio::Volume::new(atomic_load!(shukusai::state::VOLUME));
+	send!(TO_KERNEL, shukusai::kernel::FrontendToKernel::Volume(volume));
+
+	tokio::task::block_in_place(|| async move {
+		// Save `Playlists`.
+		if PLAYLISTS.read().save_atomic().is_err() {
+			return Ok(resp::error(ERR_FS.0, ERR_FS.1, id));
+		}
+
+		// Save `AudioState`.
+		if AUDIO_STATE.read().save_atomic().is_err() {
+			return Ok(resp::error(ERR_FS.0, ERR_FS.1, id));
+		}
+
+		Ok(resp::result_ok(id))
+	}).await
+}
+
+async fn disk_remove_cache<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	let Ok(project) = crate::zip::CollectionZip::project_dir_path() else {
+		return Ok(resp::error(ERR_FS.0, ERR_FS.1, id));
 	};
 
-	Ok(resp::result(resp, id))
+	let mut vec: Vec::<rpc::resp::DiskRemoveCacheInner> = vec![];
+
+	for entry in walkdir::WalkDir::new(project).into_iter().filter_map(|e| e.ok()) {
+		if !entry.file_type().is_file() {
+			continue;
+		}
+
+		let path = entry.into_path();
+
+		let Ok(metadata) = tokio::fs::metadata(&path).await else {
+			warn!("Task - disk_remove_cache(): metadata error, skipping {}", path.display());
+			continue;
+		};
+
+		let bytes = metadata.len();
+
+		if tokio::fs::remove_file(&path).await.is_err() {
+			warn!("Task - disk_remove_cache(): remove error, skipping {}", path.display());
+		}
+
+		let resp = rpc::resp::DiskRemoveCacheInner {
+			path: Cow::Owned(path),
+			bytes,
+		};
+
+		vec.push(resp);
+	}
+
+	Ok(resp::result(vec, id))
 }
 
 //---------------------------------------------------------------------------------------------------- Key (exact key)
@@ -856,6 +971,19 @@ async fn key_song<'a>(
 	}
 }
 
+async fn key_entry<'a>(
+	params:     rpc::param::KeyEntry,
+	id:         Option<Id<'a>>,
+	collection: Arc<Collection>,
+) -> Result<Response<Body>, anyhow::Error> {
+	if let Some(s) = collection.songs.get(params.key.into()) {
+		let r = shukusai::collection::EntryJson::from_song(s.key, &collection);
+		Ok(resp::result(serde_json::json!({ "entry": r }), id))
+	} else {
+		Ok(resp::error(ERR_KEY_SONG.0, ERR_KEY_SONG.1, id))
+	}
+}
+
 //---------------------------------------------------------------------------------------------------- Map (exact hashmap)
 async fn map_artist<'a>(
 	params:     rpc::param::MapArtist<'a>,
@@ -888,6 +1016,19 @@ async fn map_song<'a>(
 ) -> Result<Response<Body>, anyhow::Error> {
 	if let Some((r, _)) = collection.song(params.artist, params.album, params.song) {
 		Ok(resp::result(serde_json::json!({ "song": r }), id))
+	} else {
+		Ok(resp::error(ERR_MAP_SONG.0, ERR_MAP_SONG.1, id))
+	}
+}
+
+async fn map_entry<'a>(
+	params:     rpc::param::MapEntry<'a>,
+	id:         Option<Id<'a>>,
+	collection: Arc<Collection>,
+) -> Result<Response<Body>, anyhow::Error> {
+	if let Some((r, _)) = collection.song(params.artist, params.album, params.song) {
+		let r = shukusai::collection::EntryJson::from_song(r.key, &collection);
+		Ok(resp::result(serde_json::json!({ "entry": r }), id))
 	} else {
 		Ok(resp::error(ERR_MAP_SONG.0, ERR_MAP_SONG.1, id))
 	}
@@ -936,6 +1077,21 @@ async fn current_song<'a>(
 	}
 }
 
+async fn current_entry<'a>(
+	id:         Option<Id<'a>>,
+	collection: Arc<Collection>,
+) -> Result<Response<Body>, anyhow::Error> {
+	let song = AUDIO_STATE.read().song.clone();
+
+	if let Some(key) = song {
+		let r = &collection.songs[key];
+		let r = shukusai::collection::EntryJson::from_song(r.key, &collection);
+		Ok(resp::result(serde_json::json!({ "entry": r }), id))
+	} else {
+		Ok(resp::error(ERR_CURRENT.0, ERR_CURRENT.1, id))
+	}
+}
+
 //---------------------------------------------------------------------------------------------------- Rand (rng)
 async fn rand_artist<'a>(
 	id:         Option<Id<'a>>,
@@ -968,6 +1124,19 @@ async fn rand_song<'a>(
 	if let Some(key) = collection.rand_song(None) {
 		let r = &collection.songs[key];
 		Ok(resp::result(serde_json::json!({ "song": r }), id))
+	} else {
+		Ok(resp::error(ERR_RAND.0, ERR_RAND.1, id))
+	}
+}
+
+async fn rand_entry<'a>(
+	id:         Option<Id<'a>>,
+	collection: Arc<Collection>,
+) -> Result<Response<Body>, anyhow::Error> {
+	if let Some(key) = collection.rand_song(None) {
+		let r = &collection.songs[key];
+		let r = shukusai::collection::EntryJson::from_song(r.key, &collection);
+		Ok(resp::result(serde_json::json!({ "entry": r }), id))
 	} else {
 		Ok(resp::error(ERR_RAND.0, ERR_RAND.1, id))
 	}
@@ -1078,6 +1247,25 @@ async fn search_song<'a>(
 	let slice: Box<[&Song]> = keychain.songs.iter().map(|k| &collection.songs[k]).collect();
 
 	let resp = serde_json::json!({"songs": slice});
+
+	Ok(resp::result(resp, id))
+}
+
+async fn search_entry<'a>(
+	params:      rpc::param::SearchEntry<'a>,
+	id:          Option<Id<'a>>,
+	collection:  Arc<Collection>,
+	TO_KERNEL:   &'static Sender<FrontendToKernel>,
+	FROM_KERNEL: &'static Receiver<KernelToFrontend>,
+) -> Result<Response<Body>, anyhow::Error> {
+	let keychain = impl_search!(params, id, TO_KERNEL, FROM_KERNEL);
+
+	let entries: Box<[shukusai::collection::EntryJson]> = keychain.songs
+		.iter()
+		.map(|k| shukusai::collection::EntryJson::from_song(*k, &collection))
+		.collect();
+
+	let resp = serde_json::json!({"entries": entries});
 
 	Ok(resp::result(resp, id))
 }

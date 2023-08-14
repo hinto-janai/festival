@@ -1,10 +1,11 @@
 # queue_add_rand_song
 
-{{#include ../../marker/i}}
+#### 🟡 Incomplete
+This API may have [additions](/api-stability/marker.md) in the future.
 
 ---
 
-Add a random [`Song`](../../common-objects/song.md) to the queue.
+Add a random [`Song`](/common-objects/song.md) to the queue.
 
 #### Inputs
 
@@ -17,7 +18,7 @@ Add a random [`Song`](../../common-objects/song.md) to the queue.
 #### Outputs
 | Field | Type                                          | Description |
 |-------|-----------------------------------------------|-------------|
-| song  | [`Song`](../../common-objects/song.md) object | The `Song` that was added to the queue
+| song  | [`Song`](/common-objects/song.md) object | The `Song` that was added to the queue
 
 #### Example Request 1
 Add to back of the queue.

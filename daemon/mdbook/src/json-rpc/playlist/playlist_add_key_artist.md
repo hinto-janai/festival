@@ -1,10 +1,11 @@
 # playlist_add_key_artist
 
-{{#include ../../marker/s}} v1.0.0`
+#### 🟢 Stable
+This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Add an [`Artist`](../../common-objects/artist.md) to a [`Playlist`](playlist.md) with a [`Key`](../../common-objects/key.md).
+Add an [`Artist`](/common-objects/artist.md) to a [`Playlist`](/common-objects/playlist.md) with a [`Key`](/common-objects/key.md).
 
 If the specified playlist does not already exist, it will be created.
 

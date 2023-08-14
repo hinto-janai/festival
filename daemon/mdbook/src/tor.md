@@ -63,7 +63,7 @@ curl --socks5-hostname $SOCKS -JO $ONION/map/Artist%20Name/Artist%20Title/Song%2
 ### Authentication
 Since [Onion Service's](https://community.torproject.org/onion-services/overview/) are end-to-end encrypted, `HTTPS` is not required.
 
-Thus, `festivald` and `festival-cli` can freely pass [`authentication`](config.md) tokens around when used with `onion` addresses.
+Thus, `festivald` and `festival-cli` can freely pass [`authentication`](/config.md) tokens around when used with `onion` addresses.
 
 For `festivald`, since it cannot know if an `onion` address is being mapped to it, you must pass:
 ```bash

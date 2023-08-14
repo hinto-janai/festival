@@ -65,6 +65,11 @@ pub enum Method {
 	/// [`crate::resp::CollectionResourceSize`]
 	CollectionResourceSize,
 
+	/// [`crate::resp::Status`]
+	DiskSave,
+	/// [`crate::resp::DiskRemoveCache`] (inner type is [`crate::resp::DiskRemoveCacheInner`])
+	DiskRemoveCache,
+
 	// State retrieval.
 	/// [`crate::resp::StateAudio`]
 	StateAudio,
@@ -76,6 +81,10 @@ pub enum Method {
 	StateIp,
 	/// [`crate::resp::StateReset`]
 	StateReset,
+	/// [`crate::resp::StateQueue`]
+	StateQueue,
+	/// [`crate::resp::StateQueueEntry`]
+	StateQueueEntry,
 	/// [`crate::resp::StateVolume`]
 	StateVolume,
 
@@ -86,6 +95,8 @@ pub enum Method {
 	KeyAlbum,
 	/// [`crate::resp::KeySong`] & [`crate::param::KeySong`]
 	KeySong,
+	/// [`crate::resp::KeyEntry`] & [`crate::param::KeyEntry`]
+	KeyEntry,
 
 	// Map (exact hashmap)
 	/// [`crate::resp::MapArtist`] & [`crate::param::MapArtist`]
@@ -94,6 +105,8 @@ pub enum Method {
 	MapAlbum,
 	/// [`crate::resp::MapSong`] & [`crate::param::MapSong`]
 	MapSong,
+	/// [`crate::resp::MapEntry`] & [`crate::param::MapEntry`]
+	MapEntry,
 
 	// Current (audio state)
 	/// [`crate::resp::CurrentArtist`]
@@ -102,6 +115,8 @@ pub enum Method {
 	CurrentAlbum,
 	/// [`crate::resp::CurrentSong`]
 	CurrentSong,
+	/// [`crate::resp::CurrentEntry`]
+	CurrentEntry,
 
 	// Rand (audio state)
 	/// [`crate::resp::RandArtist`]
@@ -110,6 +125,8 @@ pub enum Method {
 	RandAlbum,
 	/// [`crate::resp::RandSong`]
 	RandSong,
+	/// [`crate::resp::RandEntry`]
+	RandEntry,
 
 	// Search (fuzzy keys)
 	/// [`crate::resp::Search`] & [`crate::param::Search`]
@@ -120,6 +137,8 @@ pub enum Method {
 	SearchAlbum,
 	/// [`crate::resp::SearchSong`] & [`crate::param::SearchSong`]
 	SearchSong,
+	/// [`crate::resp::SearchEntry`] & [`crate::param::SearchEntry`]
+	SearchEntry,
 
 	// Playback control.
 	/// [`crate::resp::Toggle`]
@@ -241,33 +260,43 @@ pub enum Rpc {
 	CollectionHealth(crate::param::CollectionHealth),
 	CollectionResourceSize(crate::param::CollectionResourceSize),
 
+	DiskSave(crate::param::DiskSave),
+	DiskRemoveCache(crate::param::DiskRemoveCache),
+
 	StateAudio(crate::param::StateAudio),
 	StateConfig(crate::param::StateConfig),
 	StateDaemon(crate::param::StateDaemon),
 	StateIp(crate::param::StateIp),
 	StateReset(crate::param::StateReset),
+	StateQueue(crate::param::StateQueue),
+	StateQueueEntry(crate::param::StateQueueEntry),
 	StateVolume(crate::param::StateVolume),
 
 	KeyArtist(crate::param::KeyArtist),
 	KeyAlbum(crate::param::KeyAlbum),
 	KeySong(crate::param::KeySong),
+	KeyEntry(crate::param::KeyEntry),
 
 	MapArtist(crate::param::MapArtistOwned),
 	MapAlbum(crate::param::MapAlbumOwned),
 	MapSong(crate::param::MapSongOwned),
+	MapEntry(crate::param::MapEntryOwned),
 
 	CurrentArtist(crate::param::CurrentArtist),
 	CurrentAlbum(crate::param::CurrentAlbum),
 	CurrentSong(crate::param::CurrentSong),
+	CurrentEntry(crate::param::CurrentEntry),
 
 	RandArtist(crate::param::RandArtist),
 	RandAlbum(crate::param::RandAlbum),
 	RandSong(crate::param::RandSong),
+	RandEntry(crate::param::RandEntry),
 
 	Search(crate::param::SearchOwned),
 	SearchArtist(crate::param::SearchArtistOwned),
 	SearchAlbum(crate::param::SearchAlbumOwned),
 	SearchSong(crate::param::SearchSongOwned),
+	SearchEntry(crate::param::SearchEntryOwned),
 
 	Toggle(crate::param::Toggle),
 	Play(crate::param::Play),

@@ -1,10 +1,11 @@
 # map_song
 
-{{#include ../../marker/i}}
+#### 🟡 Incomplete
+This API may have [additions](/api-stability/marker.md) in the future.
 
 ---
 
-Input an `Artist` name, `Album` title, and `Song` title, retrieve a [`Song`](../../common-objects/song.md).
+Input an `Artist` name, `Album` title, and `Song` title, retrieve a [`Song`](/common-objects/song.md).
 
 #### Inputs
 
@@ -18,7 +19,7 @@ Input an `Artist` name, `Album` title, and `Song` title, retrieve a [`Song`](../
 
 | Field | Type          | Description |
 |-------|---------------|-------------|
-| song  | `Song` object | See [`Song`](../../common-objects/song.md)
+| song  | `Song` object | See [`Song`](/common-objects/song.md)
 
 #### Example Request
 ```bash
@@ -35,7 +36,7 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"map_song","par
   "result": {
     "song": {
       "title": "SUNFLOWER",
-      "key": 2594,
+      "key": 2539,
       "album": 237,
       "runtime": 252,
       "sample_rate": 44100,

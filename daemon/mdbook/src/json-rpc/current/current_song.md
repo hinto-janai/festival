@@ -1,10 +1,11 @@
 # current_song
 
-{{#include ../../marker/i}}
+#### 🟡 Incomplete
+This API may have [additions](/api-stability/marker.md) in the future.
 
 ---
 
-Access the currently set [`Song`](../../common-objects/song.md).
+Access the currently set [`Song`](/common-objects/song.md).
 
 #### Inputs
 
@@ -14,7 +15,7 @@ Access the currently set [`Song`](../../common-objects/song.md).
 
 | Field | Type          | Description |
 |-------|---------------|-------------|
-| song  | `Song` object | See [`Song`](../../common-objects/song.md)
+| song  | `Song` object | See [`Song`](/common-objects/song.md)
 
 #### Example Request
 ```bash

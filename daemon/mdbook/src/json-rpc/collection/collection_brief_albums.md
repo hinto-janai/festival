@@ -1,10 +1,11 @@
 # collection_brief_albums
 
-{{#include ../../marker/s}} v1.0.0`
+#### 🟢 Stable
+This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Retrieve an array of every [`Album`](../../common-objects/album.md) title in the current [`Collection`](../../common-objects/collection.md).
+Retrieve an array of every [`Album`](/common-objects/album.md) title in the current [`Collection`](/common-objects/collection.md).
 
 The returned array of `string`'s is in [`lexicographical`](https://en.wikipedia.org/wiki/Lexicographic_order) order.
 

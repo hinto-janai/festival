@@ -1,10 +1,11 @@
 # map_album
 
-{{#include ../../marker/i}}
+#### 🟡 Incomplete
+This API may have [additions](/api-stability/marker.md) in the future.
 
 ---
 
-Input an `Artist` name and `Album` title, retrieve an [`Album`](../../common-objects/album.md).
+Input an `Artist` name and `Album` title, retrieve an [`Album`](/common-objects/album.md).
 
 #### Inputs
 
@@ -17,7 +18,7 @@ Input an `Artist` name and `Album` title, retrieve an [`Album`](../../common-obj
 
 | Field | Type            | Description |
 |-------|-----------------|-------------|
-| album | `Album` object | See [`Album`](../../common-objects/album.md)
+| album | `Album` object | See [`Album`](/common-objects/album.md)
 
 #### Example Request
 ```bash

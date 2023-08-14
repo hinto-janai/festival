@@ -135,8 +135,9 @@ Options:
       --no-auth-rest <RESOURCE>
           Allow specified REST resources without authorization
           
-          REST resources, from most expensive to least:
+          REST resources:
             - `collection`
+            - `playlist`
             - `artist`
             - `album`
             - `song`
@@ -161,7 +162,7 @@ Options:
           Allow documentation to be served without authorization
 
       --sleep-on-fail <MILLI>
-          Sleep before responding to (potentially malicious) failed connections
+          Sleep before responding to a (potentially malicious) failed connections
           
           Upon a failed, potentially malicious request, instead of
           immediately responding, `festivald` will randomly sleep
@@ -281,6 +282,17 @@ Options:
       --log-level <OFF|ERROR|INFO|WARN|DEBUG|TRACE>
           Set filter level for console logs
 
+      --dry-run
+          Print the configuration `festivald` would have used, but don't actually startup
+          
+          This will go through the regular process of:
+            - Reading disk for config
+            - Reading command-line
+            - Merging options together
+            - Validating options
+          
+          and then print them out as JSON, and exit.
+
       --docs
           Open documentation locally in browser
           
@@ -303,6 +315,9 @@ Options:
           
           This deletes all `daemon` Festival folders.
           The PATHs deleted will be printed on success.
+
+      --methods
+          Print all the JSON-RPC methods available
 
   -v, --version
           Print version

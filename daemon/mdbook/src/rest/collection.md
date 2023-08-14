@@ -1,8 +1,16 @@
 # /collection
+
+#### 🟢 Stable
+This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+
+(However, the [`collection_full`](/json-rpc/collection/collection_full.md) output is `🟡 Incomplete`).
+
+---
+
 Download _the entire_ [`Collection`](../common-objects/collection.md).
 
 ## Warning
-This is by-far the heaviest `REST` endpoint (it's basically a superset of _all_ endpoints) and will cause `festivald` to use at least the same amount of disk space your `Collection`'s `Song` files take up.
+This is the heaviest `REST` endpoint and will cause `festivald` to use at least the same amount of disk space your `Collection`'s `Song` files take up.
 
 For example, if all your `Song`'s combined are `100GB` in size, `festivald` will use at least `100GB` in disk space when receiving this request. Further same requests will not further disk usage, depending on your [`cache_time`](../config.md) configuration.
 

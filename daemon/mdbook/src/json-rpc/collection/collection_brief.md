@@ -1,12 +1,13 @@
 # collection_brief
 
-{{#include ../../marker/s}} v1.0.0`
+#### 🟢 Stable
+This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Retrieve some brief metadata about the current [`Collection`](../../common-objects/collection.md).
+Retrieve some brief metadata about the current [`Collection`](/common-objects/collection.md).
 
-This method is a subset of the [`collection_full`](collection_full.md) method.
+This method is a subset of the [`collection_full`](/json-rpc/collection/collection_full.md) method.
 
 #### Inputs
 

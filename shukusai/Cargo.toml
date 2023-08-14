@@ -63,6 +63,7 @@ serde_json   = { workspace = true }
 serde        = { workspace = true }
 seq-macro    = { workspace = true }
 strum        = { workspace = true }
+walkdir      = { workspace = true }
 
 ### Regular.
 fast_image_resize = "2.7.3"
@@ -74,7 +75,6 @@ rayon             = "1.7.0"
 souvlaki          = "0.6.1"
 symphonia         = { version = "0.5.2", path = "../external/Symphonia/symphonia", features = ["all"] }
 strsim            = "0.10.0"
-walkdir           = "2.3.3"
 zune-core         = "0.2.14"
 zune-jpeg         = "0.3.17"
 #zune-png          = "0.2.1"

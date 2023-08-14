@@ -1,6 +1,7 @@
 # Collection
 
-{{#include ../marker/i}}
+#### 🟡 Incomplete
+This API may have [additions](/api-stability/marker.md) in the future.
 
 ---
 

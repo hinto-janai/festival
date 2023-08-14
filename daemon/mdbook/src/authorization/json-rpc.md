@@ -1,5 +1,5 @@
 # JSON-RPC
-The [`no_auth_rpc`](../config/config.md) config option or [`--no-auth-rpc`](../command-line/command-line.md) command-line flag will allow specified JSON-RPC calls without authorization, while still requiring authorization for everything else.
+The [`no_auth_rpc`](../conf/config.md) config option or [`--no-auth-rpc`](../command-line/command-line.md) command-line flag will allow specified JSON-RPC calls without authorization, while still requiring authorization for everything else.
 
 If a [JSON-RPC method](../json-rpc/json-rpc.md) is listed in these options `festivald` will allow any client to use it, regardless of authorization.
 

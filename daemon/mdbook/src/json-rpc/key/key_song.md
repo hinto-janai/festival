@@ -1,22 +1,23 @@
 # key_song
 
-{{#include ../../marker/i}}
+#### 🟡 Incomplete
+This API may have [additions](/api-stability/marker.md) in the future.
 
 ---
 
-Input a `Song` key, retrieve a [`Song`](../../common-objects/song.md).
+Input a `Song` key, retrieve a [`Song`](/common-objects/song.md).
 
 #### Inputs
 
 | Field | Type                                           | Description |
 |-------|------------------------------------------------|-------------|
-| key   | `Song` key (unsigned integer)                  | See [`Key`](key.md)
+| key   | `Song` key (unsigned integer)                  | See [`Key`](/json-rpc/key.md)
 
 #### Outputs
 
 | Field | Type          | Description |
 |-------|---------------|-------------|
-| song  | `Song` object | See [`Song`](../../common-objects/song.md)
+| song  | `Song` object | See [`Song`](/common-objects/song.md)
 
 #### Example Request
 ```bash

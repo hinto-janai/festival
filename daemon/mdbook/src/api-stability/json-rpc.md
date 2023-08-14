@@ -1,8 +1,8 @@
 # JSON-RPC
-[`JSON-RPC`](../json-rpc/json-rpc.md)-specific API stability notes.
+[`JSON-RPC`](/json-rpc/json-rpc.md)-specific API stability notes.
 
 ### Ordering
-The _ordering_ of [non-stable](marker.md) output/object fields should not be relied upon.
+The _ordering_ of [non-stable](/api-stability/marker.md) output/object fields should not be relied upon.
 
 Old `v1.0.0` JSON-RPC example:
 ```json

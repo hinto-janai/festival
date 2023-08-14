@@ -1,10 +1,11 @@
 # playlist_clone
 
-{{#include ../../marker/s}} v1.0.0`
+#### 🟢 Stable
+This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Clone an existing [`Playlist`](playlist.md) and all it's [`Entry`](playlist.md)'s into a new one.
+Clone an existing [`Playlist`](/common-objects/playlist.md) and all it's [`Entry`](/common-objects/playlist.md)'s into a new one.
 
 #### Inputs
 If `to` already exists, it will be overwritten.

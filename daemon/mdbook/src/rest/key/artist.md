@@ -1,5 +1,11 @@
 # /key/artist/$ARTIST_KEY
-Download all the `Album`'s owned by this `Artist`, 1 directory per album (including art if found), wrapped in an archive format, using an [`Artist key`](../../common-objects/key.md).
+
+#### 🟢 Stable
+This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+
+---
+
+Download all the `Album`'s owned by this `Artist`, 1 directory per album (including art if found), wrapped in an archive format, using an [`Artist key`/common-objects/key.md).
 
 #### Input
 | Input      | Type             |

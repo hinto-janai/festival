@@ -1,10 +1,11 @@
 # collection_perf
 
-{{#include ../../marker/s}} v1.0.0`
+#### 🟢 Stable
+This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-View some performance stats about the latest [`Collection`](../../common-objects/collection.md) construction.
+View some performance stats about the latest [`Collection`](/common-objects/collection.md) construction.
 
 #### Inputs
 

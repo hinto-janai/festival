@@ -1,10 +1,11 @@
 # search_artist
 
-{{#include ../../marker/i}}
+#### 🟡 Incomplete
+This API may have [additions](/api-stability/marker.md) in the future.
 
 ---
 
-Input a `string`, retrieve an array of [`Artist`](../../common-objects/artist.md)'s, sorted by how similar their names are to the input.
+Input a `string`, retrieve an array of [`Artist`](/common-objects/artist.md)'s, sorted by how similar their names are to the input.
 
 #### Inputs
 

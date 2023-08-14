@@ -39,14 +39,17 @@ use std::{
 use crate::config::AUTH;
 use std::str::FromStr;
 use benri::debug_panic;
+use std::collections::VecDeque;
+use shukusai::state::PLAYLISTS;
 
 //---------------------------------------------------------------------------------------------------- Const
-pub const REST_ENDPOINTS: [&'static str; 6] = [
+pub const REST_ENDPOINTS: [&'static str; 7] = [
 	"key",
 	"map",
 	"art",
 	"current",
 	"rand",
+	"playlist",
 	"collection",
 ];
 
@@ -275,6 +278,34 @@ pub async fn handle(
 				Ok(resp::server_err("Unknown resource"))
 			},
 		}
+	//-------------------------------------------------- `/playlist` endpoint.
+	} else if ep1 == "playlist" {
+		// Auth.
+		if let Some(resp) = rest_auth_ok(&parts, &addr, Resource::Playlist).await {
+			return Ok(resp);
+		}
+
+		let Some(ep2) = split.next() else {
+			return Ok(resp::not_found("Missing endpoint: [unsorted/sorted]"));
+		};
+
+		let playlist_name = match split.next() {
+			Some(s) if s.is_empty() => return Ok(resp::not_found("Missing playlist name")),
+			Some(s) => s,
+			None => return Ok(resp::not_found("Missing playlist name")),
+		};
+
+		// Return error if more than 3 endpoints.
+		match split.next() {
+			Some(s) if !s.is_empty() => return Ok(resp::not_found(ERR_END)),
+			_ => (),
+		}
+
+		match ep2 {
+			"unsorted" => playlist_unsorted(playlist_name, collection.arc()).await,
+			"sorted"   => playlist_sorted(playlist_name, collection.arc()).await,
+			_ => return Ok(resp::not_found(ERR_END)),
+		}
 	//-------------------------------------------------- `/collection` endpoint.
 	} else if ep1 == "collection" {
 		// Auth.
@@ -326,6 +357,7 @@ const ERR_SONG: &str = "Song file not found";
 use tokio_util::codec::{BytesCodec, FramedRead};
 use crate::zip::{
 	CollectionZip,
+	PlaylistZip,
 	ArtistZip,
 	AlbumZip,
 	ArtZip,
@@ -591,6 +623,100 @@ async fn impl_art(album: &Album, collection: &Arc<Collection>) -> Result<Respons
 	Ok(resp::rest_stream(body, &name, mime, len))
 }
 
+async fn impl_playlist(
+	sorted:        bool,
+	playlist_name: &str,
+	collection:    &Arc<Collection>
+) -> Result<Response<Body>, anyhow::Error> {
+	trace!("Task - impl_playlist(): {playlist_name}");
+
+	let playlist = match PLAYLISTS.read().valid_keys(playlist_name, collection) {
+		Some(p) if p.is_empty() => return Ok(resp::server_err("Playlist is empty")),
+		Some(p) => p,
+		None => return Ok(resp::server_err("Playlist was not found")),
+	};
+
+	// Zip name.
+	let zip_name = format!("Playlist{}{}.zip", config().filename_separator, playlist_name);
+
+	// Create temporary `PATH` for a `ZIP`.
+	let Ok(cache) = PlaylistZip::new(&zip_name) else {
+		return Ok(resp::server_err(ERR_ZIP));
+	};
+
+	// If the file exists already, serve it.
+	if cache.exists() {
+		if let Ok(file) = tokio::fs::File::open(&cache.real).await {
+			trace!("Task - PlaylistZip Cache hit: {zip_name}");
+			let len    = file_len(&file).await;
+			let stream = FramedRead::new(file, BytesCodec::new());
+			let body   = Body::wrap_stream(stream);
+			return Ok(resp::rest_zip(body, &zip_name, len));
+		}
+	}
+
+	// Else, create file.
+	let Ok(file) = std::fs::File::create(&cache.tmp) else {
+		return Ok(resp::server_err(ERR_ZIP));
+	};
+
+	// Create `ZIP`.
+	let mut zip = zip::ZipWriter::new(file);
+	let options = zip::write::FileOptions::default().compression_method(zip::CompressionMethod::Stored);
+
+	// Write each valid entry into the `zip`.
+	for (index, key) in playlist.iter().enumerate() {
+		let song = &collection.songs[key];
+
+		trace!("Task - impl_playlist(): {}", song.path.display());
+
+		let bytes = match read_file(&song.path).await {
+			Ok(b)  => b,
+			Err(r) => return Ok(r),
+		};
+
+		let file_path = match sorted {
+			true  => format!("{index}{}{}.{}", config().filename_separator, song.title, song.extension),
+			false => format!("{}.{}", song.title, song.extension),
+		};
+
+		let r = tokio::task::block_in_place(|| {
+			if zip.start_file_from_path(&PathBuf::from(file_path), options).is_err() {
+				return Some(resp::server_err(ERR_SONG));
+			}
+
+			if zip.write(&bytes).is_err() {
+				return Some(resp::server_err(ERR_SONG));
+			}
+
+			None
+		});
+
+		if let Some(r) = r {
+			return Ok(r);
+		}
+	}
+
+	if zip.finish().is_err() {
+		return Ok(resp::server_err(ERR_ZIP));
+	}
+
+	if cache.tmp_to_real().is_err() {
+		return Ok(resp::server_err(ERR_ZIP));
+	};
+
+	// Re-open.
+	let Ok(file) = tokio::fs::File::open(&cache.real).await else {
+		return Ok(resp::server_err(ERR_ZIP));
+	};
+
+	let len    = file_len(&file).await;
+	let stream = FramedRead::new(file, BytesCodec::new());
+	let body   = Body::wrap_stream(stream);
+
+	Ok(resp::rest_zip(body, &zip_name, len))
+}
+
 //---------------------------------------------------------------------------------------------------- `/key`
 pub async fn key_artist(key: usize, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
 	let key = ArtistKey::from(key);
@@ -842,6 +968,21 @@ pub async fn art_album(artist: &str, album: &str, collection: Arc<Collection>) -
 	} else {
 		Ok(resp::not_found("Album was not found"))
 	}
+}
+
+//---------------------------------------------------------------------------------------------------- `/playlist`
+pub async fn playlist_unsorted(
+	playlist_name: &str,
+	collection: Arc<Collection>,
+) -> Result<Response<Body>, anyhow::Error> {
+	impl_playlist(false, playlist_name, &collection).await
+}
+
+pub async fn playlist_sorted(
+	playlist_name: &str,
+	collection: Arc<Collection>,
+) -> Result<Response<Body>, anyhow::Error> {
+	impl_playlist(true, playlist_name, &collection).await
 }
 
 //---------------------------------------------------------------------------------------------------- `/collection`

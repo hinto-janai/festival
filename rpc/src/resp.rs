@@ -129,6 +129,15 @@ impl_struct! {
 	art: usize
 }
 
+//---------------------------------------------------------------------------------------------------- Disk
+impl_struct_lt! {
+	DiskRemoveCacheInner,
+	#[serde(borrow)]
+	path: Cow<'a, Path>,
+	bytes: u64
+}
+impl_struct_anon_lt!(DiskRemoveCache, Cow<'a, [DiskRemoveCacheInner<'a>]>);
+
 //---------------------------------------------------------------------------------------------------- State
 impl_struct! {
 	StateIpInner,
@@ -198,14 +207,26 @@ impl_struct_lt! {
 	#[serde(borrow)]
 	song:      Option<SongJson<'a>>
 }
-impl_struct! {
-	StateVolume,
-	volume: shukusai::audio::Volume
+impl_struct_lt! {
+	StateQueue,
+	len: usize,
+	#[serde(borrow)]
+	songs: Cow<'a, [SongJson<'a>]>
+}
+impl_struct_lt! {
+	StateQueueEntry,
+	len: usize,
+	#[serde(borrow)]
+	entries: Cow<'a, [shukusai::collection::EntryJson<'a>]>
 }
 impl_struct! {
 	StateReset,
 	resetting: bool,
 	saving:    bool
+}
+impl_struct! {
+	StateVolume,
+	volume: shukusai::audio::Volume
 }
 
 //---------------------------------------------------------------------------------------------------- Key
@@ -224,6 +245,11 @@ impl_struct_lt! {
 	#[serde(borrow)]
 	song: SongJson<'a>
 }
+impl_struct_lt! {
+	KeyEntry,
+	#[serde(borrow)]
+	entry: shukusai::collection::EntryJson<'a>
+}
 
 //---------------------------------------------------------------------------------------------------- Map
 impl_struct_lt! {
@@ -240,6 +266,11 @@ impl_struct_lt! {
 	MapSong,
 	#[serde(borrow)]
 	song: SongJson<'a>
+}
+impl_struct_lt! {
+	MapEntry,
+	#[serde(borrow)]
+	entry: shukusai::collection::EntryJson<'a>
 }
 
 //---------------------------------------------------------------------------------------------------- Current
@@ -258,6 +289,11 @@ impl_struct_lt! {
 	#[serde(borrow)]
 	song: SongJson<'a>
 }
+impl_struct_lt! {
+	CurrentEntry,
+	#[serde(borrow)]
+	entry: shukusai::collection::EntryJson<'a>
+}
 
 //---------------------------------------------------------------------------------------------------- Rand
 impl_struct_lt! {
@@ -274,6 +310,11 @@ impl_struct_lt! {
 	RandSong,
 	#[serde(borrow)]
 	song: SongJson<'a>
+}
+impl_struct_lt! {
+	RandEntry,
+	#[serde(borrow)]
+	entry: shukusai::collection::EntryJson<'a>
 }
 
 //---------------------------------------------------------------------------------------------------- Search
@@ -300,6 +341,11 @@ impl_struct_lt! {
 	SearchSong,
 	#[serde(borrow)]
 	songs: Cow<'a, [SongJson<'a>]>
+}
+impl_struct_lt! {
+	SearchEntry,
+	#[serde(borrow)]
+	entries: Cow<'a, [shukusai::collection::EntryJson<'a>]>
 }
 
 //---------------------------------------------------------------------------------------------------- Playback

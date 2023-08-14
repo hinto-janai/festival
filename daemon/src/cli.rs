@@ -177,8 +177,9 @@ pub struct Cli {
 	#[arg(long, verbatim_doc_comment, value_name = "RESOURCE", requires = "authorization")]
 	/// Allow specified REST resources without authorization
 	///
-	/// REST resources, from most expensive to least:
+	/// REST resources:
 	///   - `collection`
+	///   - `playlist`
 	///   - `artist`
 	///   - `album`
 	///   - `song`

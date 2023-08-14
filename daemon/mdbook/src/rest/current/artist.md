@@ -1,4 +1,10 @@
 # /current/artist
+
+#### 🟢 Stable
+This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+
+---
+
 Download all the `Album`'s owned by this `Artist` of the currently set `Song`, 1 directory per album (including art if found), wrapped in an archive format.
 
 #### Input

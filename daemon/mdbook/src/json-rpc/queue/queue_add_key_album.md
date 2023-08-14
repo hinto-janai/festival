@@ -1,10 +1,11 @@
 # queue_add_key_album
 
-{{#include ../../marker/s}} v1.0.0`
+#### 🟢 Stable
+This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Add an [`Album`](../../common-objects/album.md) to the queue with an `Album` [key](../../common-objects/key.md).
+Add an [`Album`](/common-objects/album.md) to the queue with an [`Album` key](/common-objects/key.md).
 
 #### Inputs
 
@@ -21,7 +22,7 @@ If this method also happens to set the current `Song` (added to empty queue, add
 
 The `Song`'s before the offset will still be added, but the _current_ `Song` set will be the one at the offset.
 
-The exact ordering of the [`Album`](../../common-objects/album.md)'s songs and what the offsets are relative to is the same as the internal ordering: [`Song`](../../common-objects/song.md) track order.
+The exact ordering of the [`Album`](/common-objects/album.md)'s songs and what the offsets are relative to is the same as the internal ordering: [`Song`](/common-objects/song.md) track order.
 
 For example, given `"offset": 3`:
 ```plaintext

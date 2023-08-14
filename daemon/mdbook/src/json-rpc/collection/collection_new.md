@@ -1,16 +1,17 @@
 # collection_new
 
-{{#include ../../marker/s}} v1.0.0`
+#### 🟢 Stable
+This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Create a new [`Collection`](../../common-objects/collection.md) (and replace the current one).
+Create a new [`Collection`](/common-objects/collection.md) (and replace the current one).
 
 While this method is in progress, other `JSON-RPC` requests will be rejected.
 
 `festivald` will respond with some stats when the `Collection` reset has finished.
 
-The output is a superset of the [`collection_brief`](collection_brief.md) method.
+The output is a superset of the [`collection_brief`](/json-rpc/collection/collection_brief.md) method.
 
 #### Inputs
 
@@ -40,7 +41,7 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_new
 ```
 
 #### Example Request 2
-Use the PATH `/home/user/Music/collection` on `festivald`'s filesystem.
+Use the `PATH` /home/user/Music/collection on `festivald`'s filesystem.
 ```bash
 festival-cli collection_new --path "/home/user/Music/collection"
 ```

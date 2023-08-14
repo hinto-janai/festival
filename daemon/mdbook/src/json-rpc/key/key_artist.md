@@ -1,22 +1,23 @@
 # key_artist
 
-{{#include ../../marker/i}}
+#### 🟡 Incomplete
+This API may have [additions](/api-stability/marker.md) in the future.
 
 ---
 
-Input an `Artist` key, retrieve an [`Artist`](../../common-objects/artist.md).
+Input an `Artist` key, retrieve an [`Artist`](/common-objects/artist.md).
 
 #### Inputs
 
 | Field | Type                                           | Description |
 |-------|------------------------------------------------|-------------|
-| key   | `Artist` key (unsigned integer)                | See [`Key`](key.md)
+| key   | `Artist` key (unsigned integer)                | See [`Key`](/common-objects/key.md)
 
 #### Outputs
 
 | Field  | Type            | Description |
 |--------|-----------------|-------------|
-| artist | `Artist` object | See [`Artist`](../../common-objects/artist.md)
+| artist | `Artist` object | See [`Artist`](/common-objects/artist.md)
 
 #### Example Request
 ```bash

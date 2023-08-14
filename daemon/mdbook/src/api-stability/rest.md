@@ -1,5 +1,5 @@
 # REST
-[`REST`](../rest/rest.md)-specific API stability notes.
+[`REST`](/rest/rest.md)-specific API stability notes.
 
 ## ZIP File Hierarchy
 The file hierarchy within ZIPs are stable.

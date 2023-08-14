@@ -1,10 +1,11 @@
 # playlist_single
 
-{{#include ../../marker/s}} v1.0.0`
+#### 🟢 Stable
+This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Retrieve a single [`Playlist`](playlist.md).
+Retrieve a single [`Playlist`](/common-objects/playlist.md).
 
 This method errors if the specified playlist does not exist.
 
@@ -14,14 +15,14 @@ This method errors if the specified playlist does not exist.
 | playlist | string | The name of the `Playlist`
 
 #### Outputs
-| Field       | Type                                             | Description |
-|-------------|--------------------------------------------------|-------------|
-| playlist    | string                                           | The name of the `Playlist`
-| all_valid   | boolean                                          | If all the `Playlist Entry`'s are valid
-| entry_len   | unsigned integer                                 | How many `Playlist Entry`'s there are in this `Playlist`
-| valid_len   | unsigned integer                                 | How many `Playlist Entry`'s are `valid`
-| invalid_len | unsigned integer                                 | How many `Playlist Entry'`s are `invalid`
-| entries     | array of [`Playlist Entry`](playlist.md) objects | The `Playlsit Entry`'s themselves
+| Field       | Type                                                             | Description |
+|-------------|------------------------------------------------------------------|-------------|
+| playlist    | string                                                           | The name of the `Playlist`
+| all_valid   | boolean                                                          | If all the `Playlist Entry`'s are valid
+| entry_len   | unsigned integer                                                 | How many `Playlist Entry`'s there are in this `Playlist`
+| valid_len   | unsigned integer                                                 | How many `Playlist Entry`'s are `valid`
+| invalid_len | unsigned integer                                                 | How many `Playlist Entry'`s are `invalid`
+| entries     | array of [`Playlist Entry`](/common-objects/playlist.md) objects | The `Playlsit Entry`'s themselves
 
 #### Example Request
 ```bash

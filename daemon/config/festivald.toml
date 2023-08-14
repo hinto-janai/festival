@@ -356,8 +356,9 @@ no_auth_rpc = []
 # Allow specified REST resources without authorization,
 # while still requiring authorization for everything else.
 #
-# REST resources, from most expensive to least:
+# REST resources:
 #   - `collection`
+#   - `playlist`
 #   - `artist`
 #   - `album`
 #   - `song`

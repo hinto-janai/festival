@@ -1,10 +1,11 @@
 # playlist_add_map_song
 
-{{#include ../../marker/s}} v1.0.0`
+#### 🟢 Stable
+This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Add a [`Song`](../../common-objects/song.md) to a [`Playlist`](playlist.md).
+Add a [`Song`](/common-objects/song.md) to a [`Playlist`](/common-objects/playlist.md).
 
 If the specified playlist does not already exist, it will be created.
 

@@ -1,16 +1,17 @@
 # queue_add_key_artist
 
-{{#include ../../marker/s}} v1.0.0`
+#### 🟢 Stable
+This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Add an [`Artist`](../../common-objects/artist.md) to the queue with an `Artist` [key](../../common-objects/key.md).
+Add an [`Artist`](/common-objects/artist.md) to the queue with an [`Artist` key](/common-objects/key.md).
 
 #### Inputs
 
 | Field  | Type                                        | Description |
 |--------|---------------------------------------------|-------------|
-| key    | `Artist` key (unsigned integer)             | See [`Key`](key.md)
+| key    | `Artist` key (unsigned integer)             | See [`Key`](/common-objects/key.md)
 | append | `string`, one of `front`, `back` or `index` | In which way should we add to the queue? `front` means to the front of the queue. `back` means to the back. `index` means at an exact queue index. Queue index starts at `0`, so to mimic `front`, you would provide `0`.
 | clear  | boolean                                     | Should the queue be cleared before adding?
 | index  | optional (maybe-null) unsigned integer      | If the `index` append is chosen, this will be the index used
@@ -21,7 +22,7 @@ If this method also happens to set the current `Song` (added to empty queue, add
 
 The `Song`'s before the offset will still be added, but the _current_ `Song` set will be the one at the offset.
 
-The exact ordering of the [`Artist`](../../common-objects/artist.md)'s songs and what the offsets are relative to is the same as the [object's](../../common-objects/artist.md) internal ordering: [`Album`](../../common-objects/album.md) in release order, then [`Song`](../../common-objects/song.md) track order.
+The exact ordering of the [`Artist`](/common-objects/artist.md)'s songs and what the offsets are relative to is the same as the [object's/common-objects/artist.md) internal ordering: [`Album`](/common-objects/album.md) in release order, then [`Song`](/common-objects/song.md) track order.
 
 For example, given `"offset": 3`:
 ```plaintext

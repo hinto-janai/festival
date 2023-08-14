@@ -75,6 +75,22 @@ pub struct EntryJson<'a> {
 	pub song: Cow<'a, str>,
 }
 
+impl<'a> EntryJson<'a> {
+	/// INVARIANT: assumes key is valid.
+	pub fn from_song(key: SongKey, collection: &'a Arc<Collection>) -> Self {
+		let (artist, album, song) = collection.walk(key);
+		Self {
+			path: Cow::Borrowed(&song.path),
+			key_artist: artist.key,
+			key_album: album.key,
+			key_song: song.key,
+			artist: Cow::Borrowed(&*artist.name),
+			album: Cow::Borrowed(&*album.title),
+			song: Cow::Borrowed(&*song.title),
+		}
+	}
+}
+
 //---------------------------------------------------------------------------------------------------- TESTS
 //#[cfg(test)]
 //mod tests {

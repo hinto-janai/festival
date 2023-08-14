@@ -19,12 +19,9 @@ use strum::{
 #[strum(serialize_all = "snake_case")]
 #[serde(rename_all = "snake_case")]
 /// Enum of all the the "resources" provided by the REST API.
-///
-/// From heaviest to lightest in bytes size.
-///
-/// (Although, art may be bigger than songs).
 pub enum Resource {
 	Collection,
+	Playlist,
 	Artist,
 	Album,
 	Song,
@@ -34,10 +31,11 @@ pub enum Resource {
 impl Resource {
 	pub fn from_str_not_c(s: &str) -> Option<Self> {
 		match s {
-			"artist" => Some(Self::Artist),
-			"album"  => Some(Self::Album),
-			"song"   => Some(Self::Song),
-			"art"    => Some(Self::Art),
+			"playlist" => Some(Self::Playlist),
+			"artist"   => Some(Self::Artist),
+			"album"    => Some(Self::Album),
+			"song"     => Some(Self::Song),
+			"art"      => Some(Self::Art),
 			_ => None,
 		}
 	}

@@ -633,7 +633,6 @@ impl Kernel {
 	}
 
 	//-------------------------------------------------- Misc message handling.
-	#[inline(always)]
 	// The `Frontend` is exiting, save everything.
 	fn exit(&mut self) -> ! {
 		let mut err = None::<String>;

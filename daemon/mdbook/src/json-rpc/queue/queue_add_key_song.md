@@ -1,16 +1,17 @@
 # queue_add_key_song
 
-{{#include ../../marker/s}} v1.0.0`
+#### 🟢 Stable
+This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Add a [`Song`](../../common-objects/song.md) to the queue with a `Song` [key](../../common-objects/key.md).
+Add a [`Song`](/common-objects/song.md) to the queue with a [`Song` key](/common-objects/key.md).
 
 #### Inputs
 
 | Field  | Type                                        | Description |
 |--------|---------------------------------------------|-------------|
-| key    | `Song` key (unsigned integer  )             | See [`Key`](key.md)
+| key    | `Song` key (unsigned integer  )             | See [`Key`](/common-objects/key.md)
 | append | `string`, one of `front`, `back` or `index` | In which way should we add to the queue? `front` means to the front of the queue. `back` means to the back. `index` means at an exact queue index. Queue index starts at `0`, so to mimic `front`, you would provide `0`.
 | clear  | boolean                                     | Should the queue be cleared before adding?
 | index  | optional (maybe-null) unsigned integer      | If the `index` append is chosen, this will be the index used

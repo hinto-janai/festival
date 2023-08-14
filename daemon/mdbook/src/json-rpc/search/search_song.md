@@ -1,10 +1,11 @@
 # search_song
 
-{{#include ../../marker/i}}
+#### 🟡 Incomplete
+This API may have [additions](/api-stability/marker.md) in the future.
 
 ---
 
-Input a `string`, retrieve an array of [`Song`](../../common-objects/song.md)'s, sorted by how similar their titles are to the input.
+Input a `string`, retrieve an array of [`Song`](/common-objects/song.md)'s, sorted by how similar their titles are to the input.
 
 #### Inputs
 

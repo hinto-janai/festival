@@ -1,10 +1,11 @@
 # playlist_add_key_album
 
-{{#include ../../marker/s}} v1.0.0`
+#### 🟢 Stable
+This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Add an [`Album`](../../common-objects/album.md) to a [`Playlist`](playlist.md) with a [`Key`](../../common-objects/key.md).
+Add an [`Album`](/common-objects/album.md) to a [`Playlist`](/json-rpc/playlist/playlist.md) with a [`Key`](/common-objects/key.md).
 
 If the specified playlist does not already exist, it will be created.
 

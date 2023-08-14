@@ -1,10 +1,11 @@
 # playlist_new
 
-{{#include ../../marker/s}} v1.0.0`
+#### 🟢 Stable
+This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Create a new empty [`Playlist`](playlist.md), overwriting an existing one.
+Create a new empty [`Playlist`](/common-objects/playlist.md), overwriting an existing one.
 
 #### Inputs
 | Field    | Type   | Description |

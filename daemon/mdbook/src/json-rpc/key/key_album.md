@@ -1,22 +1,23 @@
 # key_album
 
-{{#include ../../marker/i}}
+#### 🟡 Incomplete
+This API may have [additions](/api-stability/marker.md) in the future.
 
 ---
 
-Input an `Album` key, retrieve an [`Album`](../../common-objects/album.md).
+Input an `Album` key, retrieve an [`Album`](/common-objects/album.md).
 
 #### Inputs
 
 | Field | Type                                           | Description |
 |-------|------------------------------------------------|-------------|
-| key   | `Album` key (unsigned integer)                 | See [`Key`](key.md)
+| key   | `Album` key (unsigned integer)                 | See [`Key`](/common-objects/key.md)
 
 #### Outputs
 
 | Field | Type           | Description |
 |-------|----------------|-------------|
-| album | `Album` object | See [`Album`](../../common-objects/album.md)
+| album | `Album` object | See [`Album`](/common-objects/album.md)
 
 #### Example Request
 ```bash

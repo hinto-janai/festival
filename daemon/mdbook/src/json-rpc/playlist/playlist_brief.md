@@ -1,10 +1,11 @@
 # playlist_brief
 
-{{#include ../../marker/s}} v1.0.0`
+#### 🟢 Stable
+This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Retrieve the names of all [`Playlist`](playlist.md)'s.
+Retrieve the names of all [`Playlist`](/common-objects/playlist.md)'s.
 
 Names are sorted in [lexicographical order](https://en.wikipedia.org/wiki/Lexicographic_order).
 

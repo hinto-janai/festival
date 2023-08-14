@@ -1,10 +1,11 @@
 # queue_add_rand_album
 
-{{#include ../../marker/i}}
+#### 🟡 Incomplete
+This API may have [additions](/api-stability/marker.md) in the future.
 
 ---
 
-Add a random [`Album`](../../common-objects/album.md) to the queue.
+Add a random [`Album`](/common-objects/album.md) to the queue.
 
 #### Inputs
 
@@ -22,7 +23,7 @@ The `Song`'s before the offset will still be added, but the _current_ `Song` set
 
 If the offset is out of bounds, it will start at the first `Song`.
 
-The exact ordering of the [`Album`](../../common-objects/album.md)'s songs and what the offsets are relative to is the same as the internal ordering: [`Song`](../../common-objects/song.md) track order.
+The exact ordering of the [`Album`](/common-objects/album.md)'s songs and what the offsets are relative to is the same as the internal ordering: [`Song`](/common-objects/song.md) track order.
 
 For example, given `"offset": 3`:
 ```plaintext
@@ -36,9 +37,9 @@ index 5 | song_6
 ```
 
 #### Outputs
-| Field         | Type                                            | Description |
-|---------------|-------------------------------------------------|-------------|
-| album         | [`Album`](../../common-objects/album.md) object | The `Album` that was added to the queue
+| Field         | Type                                       | Description |
+|---------------|--------------------------------------------|-------------|
+| album         | [`Album`](/common-objects/album.md) object | The `Album` that was added to the queue
 
 #### Example Request 1
 Add to back of the queue.

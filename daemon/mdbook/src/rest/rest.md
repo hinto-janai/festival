@@ -1,5 +1,5 @@
 # REST
-`festivald` (by default) exposes REST endpoints for `Collection`-related resources that can be accessed via GET HTTP requests.
+`festivald` (by default) exposes `REST` endpoints for [`Collection`](/common-objects/collection.md)-related resources that can be accessed via GET HTTP requests.
 
 A simple way to access these files is via a browser, e.g, opening this link:
 
@@ -37,7 +37,7 @@ http://localhost:18425/map/Artist
 ```
 And _any_ underlying PATH is missing/moved/renamed from when the `Collection` was created:
 ```bash
-mv "Artist/Album/Song Title" "Artist/Album/Song_Title"
+mv "Song Title" "Song_Title"
 ```
 `festivald` will now have a reference to a non-existent PATH and will not be able to find the file(s), so it will respond with:
 ```plaintext

@@ -1,6 +1,7 @@
 # state_config
 
-{{#include ../../marker/i}}
+#### 🟡 Incomplete
+This API may have [additions](/api-stability/marker.md) in the future.
 
 ---
 
@@ -8,7 +9,7 @@ Retrieve the active configuration of `festivald`.
 
 The output is almost a mirror of the configuration file.
 
-See the [`Config`](../../config.md) section to see the full description of these fields.
+See the [`Config`](/config.md) section to see the full description of these fields.
 
 #### Inputs
 

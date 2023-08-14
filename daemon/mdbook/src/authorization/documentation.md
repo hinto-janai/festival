@@ -1,5 +1,5 @@
 # Documentation
-The [`no_auth_docs`](../config/config.md) config option or [`--no-auth-docs`](../command-line/command-line.md) command-line flag will allow documentation to be served without authorization, while still requiring authorization for everything else.
+The [`no_auth_docs`](../conf/config.md) config option or [`--no-auth-docs`](../command-line/command-line.md) command-line flag will allow documentation to be served without authorization, while still requiring authorization for everything else.
 
 ## Example
 `festivald.toml`:

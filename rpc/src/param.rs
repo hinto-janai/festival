@@ -89,26 +89,23 @@ impl_rpc! {
 	CollectionResourceSize => Method::CollectionResourceSize
 }
 
-//---------------------------------------------------------------------------------------------------- State
+//---------------------------------------------------------------------------------------------------- Disk
 impl_rpc! {
-	"Retrieve state about the status of festivald itself",
-	"state/state_daemon",
-	StateDaemon => Method::StateDaemon
+	"Save `festivald` data to disk",
+	"disk/disk_save",
+	DiskSave => Method::DiskSave
 }
+impl_rpc! {
+	"Remove `festivald` cache from disk",
+	"disk/disk_remove_cache",
+	DiskRemoveCache => Method::DiskRemoveCache
+}
+
+//---------------------------------------------------------------------------------------------------- State
 impl_rpc! {
 	"Retrieve audio state",
 	"state/state_audio",
 	StateAudio => Method::StateAudio
-}
-impl_rpc! {
-	"Retrieve the volume level",
-	"state/state_volume",
-	StateVolume => Method::StateVolume
-}
-impl_rpc! {
-	"Retrieve the current state of a Collection reset",
-	"state/state_reset",
-	StateReset => Method::StateReset
 }
 impl_rpc! {
 	"Retrieve the active configuration of festivald",
@@ -116,9 +113,34 @@ impl_rpc! {
 	StateConfig => Method::StateConfig
 }
 impl_rpc! {
+	"Retrieve state about the status of festivald itself",
+	"state/state_daemon",
+	StateDaemon => Method::StateDaemon
+}
+impl_rpc! {
 	"Retrieve an array of the IP addresses festivald has seen",
 	"state/state_ip",
 	StateIp => Method::StateIp
+}
+impl_rpc! {
+	"Retrieve state of the queue",
+	"state/state_queue",
+	StateQueue => Method::StateQueue
+}
+impl_rpc! {
+	"Retrieve state of the queue as entries",
+	"state/state_queue_entry",
+	StateQueueEntry => Method::StateQueueEntry
+}
+impl_rpc! {
+	"Retrieve the current state of a Collection reset",
+	"state/state_reset",
+	StateReset => Method::StateReset
+}
+impl_rpc! {
+	"Retrieve the volume level",
+	"state/state_volume",
+	StateVolume => Method::StateVolume
 }
 
 //---------------------------------------------------------------------------------------------------- Key
@@ -137,9 +159,16 @@ impl_rpc_param! {
 	key: usize
 }
 impl_rpc_param! {
-	"Input a Song key, retrieve an Song",
+	"Input a Song key, retrieve a Song",
 	"key/key_song",
 	KeySong => Method::KeySong,
+	"Song key (unsigned integer)",
+	key: usize
+}
+impl_rpc_param! {
+	"Input a Song key, retrieve an Entry",
+	"key/key_entry",
+	KeyEntry => Method::KeyEntry,
 	"Song key (unsigned integer)",
 	key: usize
 }
@@ -176,6 +205,18 @@ impl_rpc_param! {
 	"Song title",
 	song: String
 }
+impl_struct_lt!(MapEntry, #[serde(borrow)] artist: Cow<'a, str>, #[serde(borrow)] album: Cow<'a, str>, #[serde(borrow)] song: Cow<'a, str>);
+impl_rpc_param! {
+	"Input an Artist name, Album title, and Song title, retrieve an Entry",
+	"map/map_entry",
+	MapEntryOwned => Method::MapEntry,
+	"Artist name",
+	artist: String,
+	"Album title",
+	album: String,
+	"Song title",
+	song: String
+}
 
 //---------------------------------------------------------------------------------------------------- Current
 impl_rpc! {
@@ -193,6 +234,11 @@ impl_rpc! {
 	"current/current_song",
 	CurrentSong => Method::CurrentSong
 }
+impl_rpc! {
+	"Access the currently set Song, as an Entry",
+	"current/current_entry",
+	CurrentEntry => Method::CurrentEntry
+}
 
 //---------------------------------------------------------------------------------------------------- Rand
 impl_rpc! {
@@ -209,6 +255,11 @@ impl_rpc! {
 	"Access a random Song",
 	"rand/rand_song",
 	RandSong => Method::RandSong
+}
+impl_rpc! {
+	"Access a random Song, as an Entry",
+	"rand/rand_entry",
+	RandEntry => Method::RandEntry
 }
 
 //---------------------------------------------------------------------------------------------------- Search
@@ -250,6 +301,17 @@ impl_rpc_param! {
 	"Input a string, retrieve an array of Song's, sorted by how similar their titles are to the input",
 	"search/search_song",
 	SearchSongOwned => Method::SearchSong,
+	"The string to match against, to use as input",
+	input: String,
+	"Type of search",
+	#[arg(value_name = "ALL|SIM70|TOP25|TOP1")]
+	kind: SearchKind
+}
+impl_struct_lt!(SearchEntry, #[serde(borrow)] input: Cow<'a, str>, kind: SearchKind);
+impl_rpc_param! {
+	"Input a string, retrieve an array of Song's (in Entry form), sorted by how similar their titles are to the input",
+	"search/search_entry",
+	SearchEntryOwned => Method::SearchEntry,
 	"The string to match against, to use as input",
 	input: String,
 	"Type of search",

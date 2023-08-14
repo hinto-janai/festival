@@ -2068,6 +2068,7 @@ dependencies = [
  "tokio-native-tls",
  "tokio-util",
  "urlencoding",
+ "walkdir",
  "zeroize",
  "zip",
 ]

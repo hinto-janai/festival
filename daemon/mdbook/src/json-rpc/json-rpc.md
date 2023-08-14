@@ -3,12 +3,12 @@
 
 It can be accessed by sending a POST HTTP request containing a `JSON-RPC 2.0` request in the body, to the root endpoint, `/`.
 
-For a quick start on using it, see the next section: [Quick Start](json-rpc/quick-start.md).
+For a quick start on using it, see the next section: [Quick Start](/json-rpc/quick-start.md).
 
 ### Missing resource
 If a `JSON-RPC` method is interacting with an underlying resource and that resource is missing from the filesystem, `festivald` will _not_ respond to the client with an error, however, it will log an error message on the machine it is running on.
 
-For example, if a [`queue_add_key_song`](json-rpc/playback/queue_add_key_song.md) method is sent, and _that_ `Song`'s underlying PATH is missing/moved/renamed from when the `Collection` was created:
+For example, if a [`queue_add_key_song`](/json-rpc/playback/queue_add_key_song.md) method is sent, and _that_ `Song`'s underlying PATH is missing/moved/renamed from when the `Collection` was created:
 ```bash
 mv "Artist/Album/Song Title" "Artist/Album/Song_Title"
 ```
@@ -18,7 +18,7 @@ mv "Artist/Album/Song Title" "Artist/Album/Song_Title"
 Audio - PATH error: No such file or directory (os error 2) ... /path/to/unknown/song.mp3
 ```
 
-You can re-create the `Collection` with [`collection_new`](json-rpc/collection/collection_new.md) to re-link these PATHs.
+You can re-create the `Collection` with [`collection_new`](/json-rpc/collection/collection_new.md) to re-link these PATHs.
 
 ### Example `JSON-RPC 2.0` _request_:
 ```json
@@ -90,4 +90,4 @@ All method documentation will include what inputs it needs, what output to expec
 
 All method names, parameter names, and field names are in `lower_case_snake_case`.
 
-The title of the section itself is the method name, for example, [`collection_new`](json-rpc/collection/collection_new.md) _is_ the method name.
+The title of the section itself is the method name, for example, [`collection_new`](/json-rpc/collection/collection_new.md) _is_ the method name.

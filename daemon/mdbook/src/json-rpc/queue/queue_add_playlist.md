@@ -1,10 +1,11 @@
 # queue_add_playlist
 
-{{#include ../../marker/s}} v1.0.0`
+#### 🟢 Stable
+This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Add a [`playlist`](../playlist/playlist.md) to the queue.
+Add a [`Playlist`](/common-objects/playlist.md) to the queue.
 
 #### Inputs
 

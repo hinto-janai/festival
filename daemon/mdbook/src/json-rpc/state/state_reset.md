@@ -1,10 +1,11 @@
 # state_reset
 
-{{#include ../../marker/s}} v1.0.0`
+#### 🟢 Stable
+This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Retrieve the current state of a [`Collection`](../../common-objects/collection.md) reset.
+Retrieve the current state of a [`Collection`](/common-objects/collection.md) reset.
 
 #### Inputs
 

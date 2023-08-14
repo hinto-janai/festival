@@ -1,10 +1,11 @@
 # rand_song
 
-{{#include ../../marker/i}}
+#### 🟡 Incomplete
+This API may have [additions](/api-stability/marker.md) in the future.
 
 ---
 
-Access a random [`Song`](../../common-objects/song.md).
+Access a random [`Song`](/common-objects/song.md).
 
 #### Inputs
 
@@ -14,14 +15,14 @@ Access a random [`Song`](../../common-objects/song.md).
 
 | Field | Type          | Description |
 |-------|---------------|-------------|
-| song  | `Song` object | See [`Song`](../../common-objects/song.md)
+| song  | `Song` object | See [`Song`](/common-objects/song.md)
 
 #### Example Request
 ```bash
-festival-cli current_song
+festival-cli rand_song
 ```
 ```bash
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"current_song"}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"rand_song"}'
 ```
 
 #### Example Response

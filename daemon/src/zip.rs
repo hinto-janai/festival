@@ -89,6 +89,7 @@ macro_rules! impl_zip {
 }
 
 impl_zip!(CollectionZip, "collection");
+impl_zip!(PlaylistZip,   "playlist");
 impl_zip!(ArtistZip,     "artist");
 impl_zip!(AlbumZip,      "album");
 impl_zip!(ArtZip,        "art");

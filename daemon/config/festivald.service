@@ -21,9 +21,6 @@ StartLimitBurst=5
 Type=simple
 ExecStart=/usr/bin/festivald
 
-## Open file limit
-LimitNOFILE=16384
-
 ## Wait 35 seconds before sending SIGTERM on exit
 KillSignal=SIGTERM
 TimeoutStopSec=35s

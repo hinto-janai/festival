@@ -1,10 +1,11 @@
 # rand_album
 
-{{#include ../../marker/i}}
+#### 🟡 Incomplete
+This API may have [additions](/api-stability/marker.md) in the future.
 
 ---
 
-Access a random [`Album`](../../common-objects/album.md).
+Access a random [`Album`](/common-objects/album.md).
 
 #### Inputs
 
@@ -14,7 +15,7 @@ Access a random [`Album`](../../common-objects/album.md).
 
 | Field | Type           | Description |
 |-------|----------------|-------------|
-| album | `Album` object | See [`Album`](../../common-objects/album.md)
+| album | `Album` object | See [`Album`](/common-objects/album.md)
 
 #### Example Request
 ```bash

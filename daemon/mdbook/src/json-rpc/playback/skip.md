@@ -1,6 +1,7 @@
 # skip
 
-{{#include ../../marker/s}} v1.0.0`
+#### 🟢 Stable
+This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
@@ -9,7 +10,7 @@ Skip forwards a variable amount of `Song`'s in the current queue.
 #### Inputs
 | Field | Type             | Description |
 |-------|------------------|-------------|
-| skip  | unsigned integer | How many `Song`'s to skip. If greater than the rest of the `Song`'s in the queue, the queue will end (else a [`repeat`](repeat_queue.md) mode is on).
+| skip  | unsigned integer | How many `Song`'s to skip. If greater than the rest of the `Song`'s in the queue, the queue will end (else a [`repeat`](/json-rpc/playback/repeat_queue.md) mode is on).
 
 
 #### Outputs
