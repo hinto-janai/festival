@@ -377,7 +377,7 @@ async fn impl_artist_inner(
 	for album_key in &artist.albums {
 		let album = &collection.albums[album_key];
 
-		if let Some(r) = impl_album_inner(zip, options, album, &collection, &format!("{folder}/{}/{}", artist.name, album.title)).await {
+		if let Some(r) = impl_album_inner(zip, options, album, &collection, &format!("{folder}/{}", album.title)).await {
 			return Some(r);
 		}
 	}
@@ -520,8 +520,10 @@ async fn impl_album(album: &Album, collection: &Arc<Collection>) -> Result<Respo
 
 	let artist = &collection.artists[album.artist];
 
+	let artist_album = format!("{}{}{}", artist.name, config().filename_separator, album.title);
+
 	// Zip name.
-	let zip_name = format!("{}{}{}.zip", artist.name, config().filename_separator, album.title);
+	let zip_name = format!("{artist_album}.zip");
 
 	// Create temporary `PATH` for a `ZIP`.
 	let Ok(cache) = AlbumZip::new(&zip_name) else {
@@ -548,7 +550,7 @@ async fn impl_album(album: &Album, collection: &Arc<Collection>) -> Result<Respo
 	let mut zip = zip::ZipWriter::new(file);
 	let options = zip::write::FileOptions::default().compression_method(zip::CompressionMethod::Stored);
 
-	if let Some(r) = impl_album_inner(&mut zip, options, album, collection, &album.title).await {
+	if let Some(r) = impl_album_inner(&mut zip, options, album, collection, &artist_album).await {
 		return Ok(r);
 	}
 
@@ -1011,7 +1013,8 @@ pub async fn collection_fn(collection: Arc<Collection>) -> Result<Response<Body>
 	let options = zip::write::FileOptions::default().compression_method(zip::CompressionMethod::Stored);
 
 	for artist in collection.artists.iter() {
-		if let Some(r) = impl_artist_inner(&mut zip, options, artist, &collection, &file_path).await {
+		let fp = format!("{file_path}/{}", artist.name);
+		if let Some(r) = impl_artist_inner(&mut zip, options, artist, &collection, &fp).await {
 			return Ok(r);
 		}
 	}
