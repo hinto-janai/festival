@@ -26,14 +26,12 @@ pub const FESTIVALD_NAME_VER: &str = {
 };
 
 /// - festivald name + version
-/// - shukusai name + version
 /// - OS + Arch
 /// - Git commit hash
 /// - Binary struct versions
 pub const FESTIVALD_SHUKUSAI_COMMIT: &str = {
 	formatcp!(
 r#"{FESTIVALD_NAME_VER}
-{SHUKUSAI_NAME_VER}
 {OS_ARCH}
 Collection v{COLLECTION_VERSION}
 Audio v{AUDIO_VERSION}

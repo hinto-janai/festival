@@ -28,7 +28,7 @@ For `REST` endpoints that serve large collections of files, the `ZIP` format wil
 
 There is no compression applied to the files, they are stored as-is.
 
-## Missing resource
+## Missing Resource
 If the underlying file for a resource is missing from the filesystem, `festivald` will respond to `REST` requests with an error.
 
 For example, if an `Artist` is requested:
@@ -45,3 +45,14 @@ File not found
 ```
 
 You can re-create the `Collection` with [`collection_new`](json-rpc/collection/collection_new.md) to re-link these PATHs.
+
+## Duplicate Files
+Within an `Album`, if there a multiple `Song`'s with the same name and an additional one is found, it will be suffixed with an incrementing number in parentheses starting from `1`.
+
+For example:
+```plaintext
+My Song.flac
+My Song (1).flac
+My Song (2).flac
+My Song (3).flac
+```

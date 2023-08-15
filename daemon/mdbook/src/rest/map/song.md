@@ -5,7 +5,7 @@ This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Download this `Song` in the original format, using the [`Artist`/common-objects/artist.md)'s name, [`Album`/common-objects/album.md) title, and [`Song`/common-objects/song.md) title.
+Download this `Song` in the original format, using the [`Artist`](/common-objects/artist.md)'s name, [`Album`](/common-objects/album.md) title, and [`Song`](/common-objects/song.md) title.
 
 #### Input
 | Input       | Type   |

@@ -5,7 +5,7 @@ This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Download this `Song` in the original format, using a [`Song key`/common-objects/key.md).
+Download this `Song` in the original format, using a [`Song key`](/common-objects/key.md).
 
 #### Input
 | Input    | Type             |

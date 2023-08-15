@@ -36,23 +36,23 @@ The `Cache` sub-directories/files, and their purpose:
       │
       ├─ collection/ # Cached `Collection` ZIPs, created by the `/collection` REST endpoint
       │  │
-      │  ├─ tmp/ # Temporary, un-finished ZIP files
+      │  ├─ tmp/     # Temporary, un-finished ZIP files
       │
-      ├─ playlist/ # Cached `Playlist` ZIPs, created by the `/playlist/*` REST endpoints
+      ├─ playlist/   # Cached `Playlist` ZIPs, created by the `/playlist/*` REST endpoints
       │  │
-      │  ├─ tmp/ # Temporary, un-finished ZIP files
+      │  ├─ tmp/
       │
-      ├─ artist/ # Cached `Artist` ZIPs, created by the `*_artist` REST endpoints
+      ├─ artist/     # Cached `Artist` ZIPs, created by the `*_artist` REST endpoints
       │  │
-      │  ├─ tmp/ # Temporary, un-finished ZIP files
+      │  ├─ tmp/
       │
-      ├─ album/ # # Cached `Artist` ZIPs, created by the `*_album` REST endpoints
+      ├─ album/      # Cached `Artist` ZIPs, created by the `*_album` REST endpoints
       │  │
-      │  ├─ tmp/ # Temporary, un-finished ZIP files
+      │  ├─ tmp/
       │
-      ├─ art/ # # Cached `Artist` ZIPs, created by the `art_*` REST endpoints
+      ├─ art/        # Cached `Artist` ZIPs, created by the `art_*` REST endpoints
       │  │
-      │  ├─ tmp/ # Temporary, un-finished ZIP files
+      │  ├─ tmp/
 ```
 
 ## Config

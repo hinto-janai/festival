@@ -5,7 +5,7 @@ This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Download all the `Album`'s owned by this `Artist`, 1 directory per album (including art if found), wrapped in an archive format, using the [`Artist`/common-objects/artist.md)'s name.
+Download all the `Album`'s owned by this `Artist`, 1 directory per album (including art if found), wrapped in an archive format, using the [`Artist`](/common-objects/artist.md)'s name.
 
 #### Input
 | Input       | Type   |

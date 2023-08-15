@@ -5,7 +5,7 @@ This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Download an `Album` (including art if found), wrapped in an archive format, using an [`Album key`/common-objects/key.md).
+Download an `Album` (including art if found), wrapped in an archive format, using an [`Album key`](/common-objects/key.md).
 
 #### Input
 | Input     | Type             |

@@ -167,7 +167,5 @@
 	- [/art](rest/art/art.md)
 		- [/art/$ARTIST_NAME](rest/art/artist.md)
 		- [/art/$ARTIST_NAME/$ALBUM_TITLE](rest/art/album.md)
-	- [/playlist](rest/playlist/playlist.md)
-		- [/playlist/unsorted/$PLAYLIST_NAME](rest/playlist/unsorted.md)
-		- [/playlist/sorted/$PLAYLIST_NAME](rest/playlist/sorted.md)
+	- [/playlist/$PLAYLIST_NAME](rest/playlist.md)
 	- [/collection](rest/collection.md)

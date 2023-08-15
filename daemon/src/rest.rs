@@ -41,6 +41,7 @@ use std::str::FromStr;
 use benri::debug_panic;
 use std::collections::VecDeque;
 use shukusai::state::PLAYLISTS;
+use std::collections::btree_set::BTreeSet;
 
 //---------------------------------------------------------------------------------------------------- Const
 pub const REST_ENDPOINTS: [&'static str; 7] = [
@@ -285,27 +286,19 @@ pub async fn handle(
 			return Ok(resp);
 		}
 
-		let Some(ep2) = split.next() else {
-			return Ok(resp::not_found("Missing endpoint: [unsorted/sorted]"));
-		};
-
 		let playlist_name = match split.next() {
 			Some(s) if s.is_empty() => return Ok(resp::not_found("Missing playlist name")),
 			Some(s) => s,
 			None => return Ok(resp::not_found("Missing playlist name")),
 		};
 
-		// Return error if more than 3 endpoints.
+		// Return error if more than 2 endpoints.
 		match split.next() {
 			Some(s) if !s.is_empty() => return Ok(resp::not_found(ERR_END)),
 			_ => (),
 		}
 
-		match ep2 {
-			"unsorted" => playlist_unsorted(playlist_name, collection.arc()).await,
-			"sorted"   => playlist_sorted(playlist_name, collection.arc()).await,
-			_ => return Ok(resp::not_found(ERR_END)),
-		}
+		playlist_fn(playlist_name, collection.arc()).await
 	//-------------------------------------------------- `/collection` endpoint.
 	} else if ep1 == "collection" {
 		// Auth.
@@ -401,6 +394,11 @@ async fn impl_album_inner(
 	collection: &Arc<Collection>,
 	folder:     &str,
 ) -> Option<Response<Body>> {
+	// To allow `Song`'s with the same title (but actually
+	// different songs) in the same ZIP, note if we've seen
+	// it before.
+	let mut seen: BTreeSet<Arc<str>> = BTreeSet::new();
+
 	// Write each `Song` into the `zip`.
 	for song_key in &album.songs {
 		let song = &collection.songs[song_key];
@@ -412,10 +410,16 @@ async fn impl_album_inner(
 			Err(r) => return Some(r),
 		};
 
-		let file_path = format!("{folder}/{}.{}", song.title, song.extension);
+		// Keep adding to PATH if we've seen this file.
+		let mut attempt = 1_usize;
+		let mut file_path: Arc<str> = format!("{folder}/{}.{}", song.title, song.extension).into();
+		while !seen.insert(Arc::clone(&file_path)) {
+			file_path = format!("{folder}/{} ({attempt}).{}", song.title, song.extension).into();
+			attempt += 1;
+		};
 
 		let r = tokio::task::block_in_place(|| {
-			if zip.start_file_from_path(&PathBuf::from(file_path), options).is_err() {
+			if zip.start_file_from_path(&PathBuf::from(&*file_path), options).is_err() {
 				return Some(resp::server_err(ERR_SONG));
 			}
 
@@ -624,7 +628,6 @@ async fn impl_art(album: &Album, collection: &Arc<Collection>) -> Result<Respons
 }
 
 async fn impl_playlist(
-	sorted:        bool,
 	playlist_name: &str,
 	collection:    &Arc<Collection>
 ) -> Result<Response<Body>, anyhow::Error> {
@@ -666,7 +669,7 @@ async fn impl_playlist(
 
 	// Write each valid entry into the `zip`.
 	for (index, key) in playlist.iter().enumerate() {
-		let song = &collection.songs[key];
+		let (artist, album, song) = &collection.walk(key);
 
 		trace!("Task - impl_playlist(): {}", song.path.display());
 
@@ -675,13 +678,11 @@ async fn impl_playlist(
 			Err(r) => return Ok(r),
 		};
 
-		let file_path = match sorted {
-			true  => format!("{index}{}{}.{}", config().filename_separator, song.title, song.extension),
-			false => format!("{}.{}", song.title, song.extension),
-		};
+		let s = config().filename_separator.as_str();
+		let file_path = format!("{index}{}{s}{}{s}{}{s}.{}", artist.name, album.title, song.title, song.extension);
 
 		let r = tokio::task::block_in_place(|| {
-			if zip.start_file_from_path(&PathBuf::from(file_path), options).is_err() {
+			if zip.start_file_from_path(&PathBuf::from(&file_path), options).is_err() {
 				return Some(resp::server_err(ERR_SONG));
 			}
 
@@ -971,18 +972,11 @@ pub async fn art_album(artist: &str, album: &str, collection: Arc<Collection>) -
 }
 
 //---------------------------------------------------------------------------------------------------- `/playlist`
-pub async fn playlist_unsorted(
+pub async fn playlist_fn(
 	playlist_name: &str,
 	collection: Arc<Collection>,
 ) -> Result<Response<Body>, anyhow::Error> {
-	impl_playlist(false, playlist_name, &collection).await
-}
-
-pub async fn playlist_sorted(
-	playlist_name: &str,
-	collection: Arc<Collection>,
-) -> Result<Response<Body>, anyhow::Error> {
-	impl_playlist(true, playlist_name, &collection).await
+	impl_playlist(playlist_name, &collection).await
 }
 
 //---------------------------------------------------------------------------------------------------- `/collection`
