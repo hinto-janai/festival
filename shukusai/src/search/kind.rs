@@ -16,8 +16,12 @@ use strum::{
 pub const ALL:    &str = "View all the results, sorted from most similar to least";
 /// [`SearchKind::Sim70`]
 pub const SIM_70: &str = "View only the results that are at least 70% similar";
+/// [`SearchKind::Sim90`]
+pub const SIM_90: &str = "View only the results that are at least 90% similar";
 /// [`SearchKind::Top25`]
 pub const TOP_25: &str = "View only the top 25 similar results";
+/// [`SearchKind::Top5`]
+pub const TOP_5: &str = "View only the top 5 similar results";
 /// [`SearchKind::Top1`]
 pub const TOP_1: &str = "View only the top 1 similar results";
 
@@ -34,8 +38,12 @@ pub enum SearchKind {
 	#[default]
 	/// [`Self::All`], but only returns the results that are at least 70% similar
 	Sim70,
+	/// [`Self::All`], but only returns the results that are at least 90% similar
+	Sim90,
 	/// [`Self::All`], but only returns the top 25 results
 	Top25,
+	/// [`Self::All`], but only returns the top 5 results
+	Top5,
 	/// [`Self::All`], but only returns the top 1 results
 	Top1,
 }
@@ -46,7 +54,9 @@ impl SearchKind {
 	pub const fn human(&self) -> &'static str {
 		match self {
 			Self::Sim70 => SIM_70,
+			Self::Sim90 => SIM_90,
 			Self::Top25 => TOP_25,
+			Self::Top5  => TOP_5,
 			Self::Top1  => TOP_1,
 			Self::All   => ALL,
 		}
@@ -58,8 +68,10 @@ impl SearchKind {
 	pub fn next(&self) -> Self {
 		match self {
 			Self::All   => Self::Sim70,
-			Self::Sim70 => Self::Top25,
-			Self::Top25 => Self::Top1,
+			Self::Sim70 => Self::Sim90,
+			Self::Sim90 => Self::Top25,
+			Self::Top25 => Self::Top5,
+			Self::Top5  => Self::Top1,
 			Self::Top1  => Self::All,
 		}
 	}
@@ -71,8 +83,10 @@ impl SearchKind {
 		match self {
 			Self::All   => Self::Top1,
 			Self::Sim70 => Self::All,
-			Self::Top25 => Self::Sim70,
-			Self::Top1  => Self::Top25,
+			Self::Sim90 => Self::Sim70,
+			Self::Top25 => Self::Sim90,
+			Self::Top5  => Self::Top25,
+			Self::Top1  => Self::Top5,
 		}
 	}
 }

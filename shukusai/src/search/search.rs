@@ -40,9 +40,11 @@ const DEFAULT_CACHE_SIZE: usize = 1000;
 // This represents the `Search` thread.
 pub(crate) struct Search {
 	cache:       HashMap<String, Keychain>, // Search index cache
-	cache_t25:   HashMap<String, Keychain>, // Search index cache (Top25),
 	cache_t1:    HashMap<String, Keychain>, // Search index cache (Top1),
+	cache_t5:    HashMap<String, Keychain>, // Search index cache (Top5),
+	cache_t25:   HashMap<String, Keychain>, // Search index cache (Top25),
 	cache_s70:   HashMap<String, Keychain>, // Search index cache (Sim70),
+	cache_s90:   HashMap<String, Keychain>, // Search index cache (Sim90),
 	collection:  Arc<Collection>,           // Pointer to `Collection`
 	total_count: usize,                     // Local cache of all total `Collection` objects
 	to_kernel:   Sender<SearchToKernel>,    // Channel TO `Kernel`
@@ -60,9 +62,11 @@ impl Search {
 		// Init data.
 		let search = Self {
 			cache: HashMap::with_capacity(DEFAULT_CACHE_SIZE),
-			cache_t25: HashMap::with_capacity(DEFAULT_CACHE_SIZE),
 			cache_t1:  HashMap::with_capacity(DEFAULT_CACHE_SIZE),
+			cache_t5:  HashMap::with_capacity(DEFAULT_CACHE_SIZE),
+			cache_t25: HashMap::with_capacity(DEFAULT_CACHE_SIZE),
 			cache_s70: HashMap::with_capacity(DEFAULT_CACHE_SIZE),
+			cache_s90: HashMap::with_capacity(DEFAULT_CACHE_SIZE),
 			collection,
 			total_count: DEFAULT_CACHE_SIZE,
 			to_kernel,
@@ -74,90 +78,45 @@ impl Search {
 	}
 
 	#[inline]
-	fn search_sim70(&self, input: &str) -> Keychain {
+	fn search_sim(&self, input: &str, sim: f64) -> Keychain {
 		let mut artists: Vec<(f64, ArtistKey)> = self.collection.artists.0
 			.par_iter().enumerate()
 			.map(|(i, x)| (strsim::jaro(&x.name_lowercase, input), ArtistKey::from(i)))
-			.filter(|(f, _)| *f >= 0.7)
+			.filter(|(f, _)| *f >= sim)
 			.collect();
 		let mut albums:  Vec<(f64, AlbumKey)> = self.collection.albums.0
 			.par_iter().enumerate()
 			.map(|(i, x)| (strsim::jaro(&x.title_lowercase, input), AlbumKey::from(i)))
-			.filter(|(f, _)| *f >= 0.7)
+			.filter(|(f, _)| *f >= sim)
 			.collect();
 		let mut songs:   Vec<(f64, SongKey)>  = self.collection.songs.0
 			.par_iter().enumerate()
 			.map(|(i, x)| (strsim::jaro(&x.title_lowercase, input), SongKey::from(i)))
-			.filter(|(f, _)| *f >= 0.7)
+			.filter(|(f, _)| *f >= sim)
 			.collect();
 
-		// Sort by lowest-to-highest similarity value first.
-		artists.par_sort_by(|a, b| Self::cmp_f64(a.0, b.0));
-		albums.par_sort_by(|a, b| Self::cmp_f64(a.0, b.0));
-		songs.par_sort_by(|a, b| Self::cmp_f64(a.0, b.0));
+		// Sort by highest-to-lowest similarity value.
+		artists.par_sort_by(|a, b| Self::cmp_f64(b.0, a.0));
+		albums.par_sort_by(|a, b| Self::cmp_f64(b.0, a.0));
+		songs.par_sort_by(|a, b| Self::cmp_f64(b.0, a.0));
 
-		// Collect just the Keys (reverse, highest sim first).
-		let artists: Vec<ArtistKey> = artists.into_par_iter().rev().map(|tuple| tuple.1).collect();
-		let albums:  Vec<AlbumKey>  = albums.into_par_iter().rev().map(|tuple| tuple.1).collect();
-		let songs:   Vec<SongKey>   = songs.into_par_iter().rev().map(|tuple| tuple.1).collect();
+		// Collect just the Keys
+		let artists: Vec<ArtistKey> = artists.into_par_iter().map(|tuple| tuple.1).collect();
+		let albums:  Vec<AlbumKey>  = albums.into_par_iter().map(|tuple| tuple.1).collect();
+		let songs:   Vec<SongKey>   = songs.into_par_iter().map(|tuple| tuple.1).collect();
 
 		// Return keychain.
 		Keychain::from_vecs(artists, albums, songs)
 	}
 
 	#[inline]
-	fn search_top25(&self, input: &str) -> Keychain {
-		let mut artists: Vec<(f64, ArtistKey)> = self.collection.artists.0
-			.par_iter().enumerate()
-			.map(|(i, x)| (strsim::jaro(&x.name_lowercase, input), ArtistKey::from(i)))
-			.collect();
-		let mut albums:  Vec<(f64, AlbumKey)> = self.collection.albums.0
-			.par_iter().enumerate()
-			.map(|(i, x)| (strsim::jaro(&x.title_lowercase, input), AlbumKey::from(i)))
-			.collect();
-		let mut songs:   Vec<(f64, SongKey)>  = self.collection.songs.0
-			.iter().enumerate()
-			.map(|(i, x)| (strsim::jaro(&x.title_lowercase, input), SongKey::from(i)))
-			.collect();
+	fn search_top<const N: usize>(&self, input: &str) -> Keychain {
+		let (artists, albums, songs) = self.search_base(input);
 
-		// Sort by lowest-to-highest similarity value first.
-		artists.par_sort_by(|a, b| Self::cmp_f64(a.0, b.0));
-		albums.par_sort_by(|a, b| Self::cmp_f64(a.0, b.0));
-		songs.par_sort_by(|a, b| Self::cmp_f64(a.0, b.0));
-
-		// Collect just the Keys (reverse, highest sim first).
-		let artists: Vec<ArtistKey> = artists.into_par_iter().rev().map(|tuple| tuple.1).take(25).collect();
-		let albums:  Vec<AlbumKey>  = albums.into_par_iter().rev().map(|tuple| tuple.1).take(25).collect();
-		let songs:   Vec<SongKey>   = songs.into_par_iter().rev().map(|tuple| tuple.1).take(25).collect();
-
-		// Return keychain.
-		Keychain::from_vecs(artists, albums, songs)
-	}
-
-	#[inline]
-	fn search_top1(&self, input: &str) -> Keychain {
-		let mut artists: Vec<(f64, ArtistKey)> = self.collection.artists.0
-			.par_iter().enumerate()
-			.map(|(i, x)| (strsim::jaro(&x.name_lowercase, input), ArtistKey::from(i)))
-			.collect();
-		let mut albums:  Vec<(f64, AlbumKey)> = self.collection.albums.0
-			.par_iter().enumerate()
-			.map(|(i, x)| (strsim::jaro(&x.title_lowercase, input), AlbumKey::from(i)))
-			.collect();
-		let mut songs:   Vec<(f64, SongKey)>  = self.collection.songs.0
-			.iter().enumerate()
-			.map(|(i, x)| (strsim::jaro(&x.title_lowercase, input), SongKey::from(i)))
-			.collect();
-
-		// Sort by lowest-to-highest similarity value first.
-		artists.par_sort_by(|a, b| Self::cmp_f64(a.0, b.0));
-		albums.par_sort_by(|a, b| Self::cmp_f64(a.0, b.0));
-		songs.par_sort_by(|a, b| Self::cmp_f64(a.0, b.0));
-
-		// Collect just the Keys (reverse, highest sim first).
-		let artists: Vec<ArtistKey> = artists.into_par_iter().rev().map(|tuple| tuple.1).take(1).collect();
-		let albums:  Vec<AlbumKey>  = albums.into_par_iter().rev().map(|tuple| tuple.1).take(1).collect();
-		let songs:   Vec<SongKey>   = songs.into_par_iter().rev().map(|tuple| tuple.1).take(1).collect();
+		// Sort by highest-to-lowest similarity value.
+		let artists: Vec<ArtistKey> = artists.into_par_iter().map(|tuple| tuple.1).take(N).collect();
+		let albums:  Vec<AlbumKey>  = albums.into_par_iter().map(|tuple| tuple.1).take(N).collect();
+		let songs:   Vec<SongKey>   = songs.into_par_iter().map(|tuple| tuple.1).take(N).collect();
 
 		// Return keychain.
 		Keychain::from_vecs(artists, albums, songs)
@@ -165,6 +124,19 @@ impl Search {
 
 	#[inline]
 	fn search_all(&self, input: &str) -> Keychain {
+		let (artists, albums, songs) = self.search_base(input);
+
+		// Sort by highest-to-lowest similarity value.
+		let artists: Vec<ArtistKey> = artists.into_par_iter().map(|tuple| tuple.1).collect();
+		let albums:  Vec<AlbumKey>  = albums.into_par_iter().map(|tuple| tuple.1).collect();
+		let songs:   Vec<SongKey>   = songs.into_par_iter().map(|tuple| tuple.1).collect();
+
+		// Return keychain.
+		Keychain::from_vecs(artists, albums, songs)
+	}
+
+	#[inline]
+	fn search_base(&self, input: &str) -> (Vec<(f64, ArtistKey)>, Vec<(f64, AlbumKey)>, Vec<(f64, SongKey)>) {
 		let mut artists: Vec<(f64, ArtistKey)> = self.collection.artists.0
 			.par_iter().enumerate()
 			.map(|(i, x)| (strsim::jaro(&x.name_lowercase, input), ArtistKey::from(i)))
@@ -178,18 +150,12 @@ impl Search {
 			.map(|(i, x)| (strsim::jaro(&x.title_lowercase, input), SongKey::from(i)))
 			.collect();
 
-		// Sort by lowest-to-highest similarity value first.
-		artists.par_sort_by(|a, b| Self::cmp_f64(a.0, b.0));
-		albums.par_sort_by(|a, b| Self::cmp_f64(a.0, b.0));
-		songs.par_sort_by(|a, b| Self::cmp_f64(a.0, b.0));
+		// Sort by highest-to-lowest similarity value.
+		artists.par_sort_by(|a, b| Self::cmp_f64(b.0, a.0));
+		albums.par_sort_by(|a, b| Self::cmp_f64(b.0, a.0));
+		songs.par_sort_by(|a, b| Self::cmp_f64(b.0, a.0));
 
-		// Collect just the Keys (reverse, highest sim first).
-		let artists: Vec<ArtistKey> = artists.into_par_iter().rev().map(|tuple| tuple.1).collect();
-		let albums:  Vec<AlbumKey>  = albums.into_par_iter().rev().map(|tuple| tuple.1).collect();
-		let songs:   Vec<SongKey>   = songs.into_par_iter().rev().map(|tuple| tuple.1).collect();
-
-		// Return keychain.
-		Keychain::from_vecs(artists, albums, songs)
+		(artists, albums, songs)
 	}
 
 	#[inline]
@@ -248,7 +214,9 @@ impl Search {
 	fn check_cache(&mut self, kind: SearchKind) {
 		let cache = match kind {
 			SearchKind::Sim70 => &mut self.cache_s70,
+			SearchKind::Sim90 => &mut self.cache_s90,
 			SearchKind::Top25 => &mut self.cache_t25,
+			SearchKind::Top5  => &mut self.cache_t5,
 			SearchKind::Top1  => &mut self.cache_t1,
 			SearchKind::All   => &mut self.cache,
 		};
@@ -264,7 +232,9 @@ impl Search {
 	fn get_cache(&self, input: &str, kind: SearchKind) -> Option<Keychain> {
 		match kind {
 			SearchKind::Sim70 => &self.cache_s70,
+			SearchKind::Sim90 => &self.cache_s90,
 			SearchKind::Top25 => &self.cache_t25,
+			SearchKind::Top5  => &self.cache_t5,
 			SearchKind::Top1  => &self.cache_t1,
 			SearchKind::All   => &self.cache,
 		}.get(input).map(Clone::clone)
@@ -274,7 +244,9 @@ impl Search {
 	fn insert_cache(&mut self, input: String, keychain: Keychain, kind: SearchKind) {
 		match kind {
 			SearchKind::Sim70 => self.cache_s70.insert(input, keychain),
+			SearchKind::Sim90 => self.cache_s90.insert(input, keychain),
 			SearchKind::Top25 => self.cache_t25.insert(input, keychain),
+			SearchKind::Top5  => self.cache_t5.insert(input, keychain),
 			SearchKind::Top1  => self.cache_t1.insert(input, keychain),
 			SearchKind::All   => self.cache.insert(input, keychain),
 		};
@@ -292,9 +264,11 @@ impl Search {
 			},
 			None => {
 				let k = match kind {
-					SearchKind::Sim70 => self.search_sim70(&input),
-					SearchKind::Top25 => self.search_top25(&input),
-					SearchKind::Top1  => self.search_top1(&input),
+					SearchKind::Sim70 => self.search_sim(&input, 0.7),
+					SearchKind::Sim90 => self.search_sim(&input, 0.9),
+					SearchKind::Top25 => self.search_top::<25>(&input),
+					SearchKind::Top5  => self.search_top::<5>(&input),
+					SearchKind::Top1  => self.search_top::<1>(&input),
 					SearchKind::All   => self.search_all(&input),
 				};
 				self.check_cache(kind);
