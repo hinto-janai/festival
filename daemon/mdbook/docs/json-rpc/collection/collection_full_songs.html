@@ -174,7 +174,7 @@
 <p>This API may have <a href="/api-stability/marker.html">additions</a> in the future.</p>
 <hr />
 <p>Retrieve an array of every <a href="/common-objects/song.html"><code>Song</code></a> object in the current <a href="/common-objects/collection.html"><code>Collection</code></a>.</p>
-<p>The returned array is in incrementing key order, as in:</p>
+<p>The returned array is in incrementing <a href="/common-objects/key.html">key</a> order, as in:</p>
 <pre><code>Song 0,
 Song 1,
 Song 2,
@@ -257,6 +257,22 @@ Song 2,
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 

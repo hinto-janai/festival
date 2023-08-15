@@ -12,7 +12,7 @@ Input a `string`, retrieve arrays of [`Artist`](/common-objects/artist.md)'s, [`
 | Field | Type                                           | Description |
 |-------|------------------------------------------------|-------------|
 | input | string                                         | The string to match against, to use as input
-| kind  | string, one of `all`, `sim70`, `top25`, `top1` | This dictates how many objects back you will receive. `all` means ALL objects in the `Collection` will be returned. `sim70` means only objects that are `70%` similar will be returned. `top25` means only the top 25 results will be returned (per object group, so total 75). `top1` means only the top result will be returned.
+| kind  | string, one of `all`, `sim90`, `sim70`, `top25`, `top5`, `top1` | This dictates how many objects back you will receive. `all` means ALL objects in the `Collection` will be returned. `sim70` means only objects that are `70%` similar will be returned. `top25` means only the top 25 results will be returned (per object group, so total 75). `top25` means only the top 25 results will be returned (per object group, so total 15). `top1` means only the top result will be returned.
 
 #### Outputs
 

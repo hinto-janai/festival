@@ -1,7 +1,7 @@
 # collection_health
 
-#### 🟡 Incomplete
-This API may have [additions](/api-stability/marker.md) in the future.
+#### 🟢 Stable
+This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
@@ -10,6 +10,16 @@ Retrieve the health of the current [`Collection`](/common-objects/collection.md)
 This method tells you how many [`Song`](/common-objects/song.md)'s referenced by the current `Collection` have a _missing_ underlying file, i.e, there is no file at the PATH the `Collection` points to for a particular `Song`.
 
 Missing `Song`'s will be returned in [`Entry`](/common-objects/entry.md) form.
+
+The returned array of missing `Entry`'s is in incrementing `Song` [key](/common-objects/key.md) order, as in:
+```
+Entry 10 (Song key 10),
+Entry 13 (Song key 13),
+Entry 75 (Song key 75),
+Entry 76 (Song key 76),
+
+[... etc ...]
+```
 
 #### Inputs
 `None`

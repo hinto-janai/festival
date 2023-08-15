@@ -170,12 +170,20 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="collection_health"><a class="header" href="#collection_health">collection_health</a></h1>
-<h4 id="-incomplete"><a class="header" href="#-incomplete">🟡 Incomplete</a></h4>
-<p>This API may have <a href="/api-stability/marker.html">additions</a> in the future.</p>
+<h4 id="-stable"><a class="header" href="#-stable">🟢 Stable</a></h4>
+<p>This API is <a href="/api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Retrieve the health of the current <a href="/common-objects/collection.html"><code>Collection</code></a>.</p>
 <p>This method tells you how many <a href="/common-objects/song.html"><code>Song</code></a>'s referenced by the current <code>Collection</code> have a <em>missing</em> underlying file, i.e, there is no file at the PATH the <code>Collection</code> points to for a particular <code>Song</code>.</p>
 <p>Missing <code>Song</code>'s will be returned in <a href="/common-objects/entry.html"><code>Entry</code></a> form.</p>
+<p>The returned array of missing <code>Entry</code>'s is in incrementing <code>Song</code> <a href="/common-objects/key.html">key</a> order, as in:</p>
+<pre><code>Entry 10 (Song key 10),
+Entry 13 (Song key 13),
+Entry 75 (Song key 75),
+Entry 76 (Song key 76),
+
+[... etc ...]
+</code></pre>
 <h4 id="inputs"><a class="header" href="#inputs">Inputs</a></h4>
 <p><code>None</code></p>
 <h4 id="outputs"><a class="header" href="#outputs">Outputs</a></h4>
@@ -252,6 +260,22 @@
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 

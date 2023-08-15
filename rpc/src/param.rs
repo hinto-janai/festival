@@ -398,7 +398,7 @@ impl_rpc_param! {
 	"The string to match against, to use as input",
 	input: String,
 	"Type of search",
-	#[arg(value_name = "ALL|SIM70|TOP25|TOP1")]
+	#[arg(value_name = "all|sim70|sim90|top25|top5|top1")]
 	kind: SearchKind
 }
 impl_struct_lt!(SearchArtist, #[serde(borrow)] input: Cow<'a, str>, kind: SearchKind);
@@ -409,7 +409,7 @@ impl_rpc_param! {
 	"The string to match against, to use as input",
 	input: String,
 	"Type of search",
-	#[arg(value_name = "ALL|SIM70|TOP25|TOP1")]
+	#[arg(value_name = "all|sim70|sim90|top25|top5|top1")]
 	kind: SearchKind
 }
 impl_struct_lt!(SearchAlbum, #[serde(borrow)] input: Cow<'a, str>, kind: SearchKind);
@@ -420,7 +420,7 @@ impl_rpc_param! {
 	"The string to match against, to use as input",
 	input: String,
 	"Type of search",
-	#[arg(value_name = "ALL|SIM70|TOP25|TOP1")]
+	#[arg(value_name = "all|sim70|sim90|top25|top5|top1")]
 	kind: SearchKind
 }
 impl_struct_lt!(SearchSong, #[serde(borrow)] input: Cow<'a, str>, kind: SearchKind);
@@ -431,7 +431,7 @@ impl_rpc_param! {
 	"The string to match against, to use as input",
 	input: String,
 	"Type of search",
-	#[arg(value_name = "ALL|SIM70|TOP25|TOP1")]
+	#[arg(value_name = "all|sim70|sim90|top25|top5|top1")]
 	kind: SearchKind
 }
 impl_struct_lt!(SearchEntry, #[serde(borrow)] input: Cow<'a, str>, kind: SearchKind);
@@ -442,7 +442,7 @@ impl_rpc_param! {
 	"The string to match against, to use as input",
 	input: String,
 	"Type of search",
-	#[arg(value_name = "ALL|SIM70|TOP25|TOP1")]
+	#[arg(value_name = "all|sim70|sim90|top25|top5|top1")]
 	kind: SearchKind
 }
 

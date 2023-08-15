@@ -174,7 +174,13 @@
 <p>This API is <a href="/api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Retrieve an array of <a href="/common-objects/entry.html"><code>Entry</code></a>'s of every <code>Song</code> in the current <a href="/common-objects/collection.html"><code>Collection</code></a>.</p>
-<p>This will return an empty array (<code>&quot;result&quot;: []</code>) if the <code>Collection</code> is empty.</p>
+<p>The returned array is in incrementing <a href="/common-objects/key.html">key</a> order, as in:</p>
+<pre><code>Entry 0 (Song key 0),
+Entry 1 (Song key 1),
+Entry 2 (Song key 2),
+
+[... etc ...]
+</code></pre>
 <h4 id="inputs"><a class="header" href="#inputs">Inputs</a></h4>
 <p><code>None</code></p>
 <h4 id="outputs"><a class="header" href="#outputs">Outputs</a></h4>
@@ -289,6 +295,22 @@
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 
