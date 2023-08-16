@@ -556,14 +556,13 @@ impl Audio {
 
 	// Convert a `SongKey` to a playable object.
 	fn to_reader(&self, key: SongKey) -> Option<Box<dyn FormatReader>> {
-		// Get `Song` PATH.
-		let path = &self.collection.songs[key].path;
+		// Get `Song`.
+		let song = &self.collection.songs[key];
+		let path = &song.path;
 
-		// Try to the extension hint.
+		// Extension hint.
 		let mut hint = Hint::new();
-		if let Some(ext) = path.extension().and_then(|s| s.to_str()) {
-			hint.with_extension(ext);
-		}
+		hint.with_extension(&*song.extension);
 
 		// Some misc `symphonia` options.
 		let format_opts = FormatOptions {
