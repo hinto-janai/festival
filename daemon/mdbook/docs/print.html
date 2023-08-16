@@ -2281,14 +2281,17 @@ Collection - ${CREATION_UNIX_TIMESTAMP}/
 <h4 id="-incomplete-2"><a class="header" href="#-incomplete-2">🟡 Incomplete</a></h4>
 <p>This API may have <a href="common-objects//api-stability/marker.html">additions</a> in the future.</p>
 <hr />
-<p>The <a href="common-objects//common-objects/key.html">keys</a> inside <code>albums</code> is sorted by <code>Release date</code>.</p>
+<p>A unique &quot;artist&quot; inside your <a href="common-objects//common-objects/collection.html"><code>Collection</code></a>.</p>
+<p>Uniqueness is defined by the <code>Artist</code>'s <code>name</code>.</p>
+<p><code>Artist</code> objects hold <a href="common-objects//common-objects/key.html">keys</a> to all of their <a href="common-objects//common-object/album.html"><code>Album</code></a>'s and <a href="common-objects//common-object/song.html"><code>Song</code></a>'s, acting as a relation link.</p>
+<p>The keys inside <code>albums</code> is sorted by <code>Release date</code>.</p>
 <p>The keys inside <code>songs</code> is sorted by <code>Track + Disc order</code>.</p>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>name</td><td>string</td><td>The <code>Artist</code>'s name</td></tr>
 <tr><td>key</td><td><code>Artist</code> key (unsigned integer)</td><td>The <code>Artist</code> key associated with this <code>Artist</code></td></tr>
 <tr><td>runtime</td><td>unsigned integer</td><td>The total runtime of all songs owned by this <code>Artist</code> in seconds</td></tr>
-<tr><td>albums</td><td>array of <a href="common-objects//common-objects/album.html"><code>Album</code></a> keys (unsigned integers)</td><td>Keys to all <code>Album</code>'s owned by this <code>Artist</code>, in release order</td></tr>
-<tr><td>songs</td><td>array of <a href="common-objects//common-objects/song.html"><code>Song</code></a> keys (unsigned integers)</td><td>Keys to all <code>Songs</code>'s owned by this <code>Artist</code>, in <code>Album</code> release order, then <code>Song</code> track order</td></tr>
+<tr><td>albums</td><td>array of <code>Album</code> keys (unsigned integers)</td><td>Keys to all <code>Album</code>'s owned by this <code>Artist</code>, in release order</td></tr>
+<tr><td>songs</td><td>array of <code>Song</code> keys (unsigned integers)</td><td>Keys to all <code>Songs</code>'s owned by this <code>Artist</code>, in <code>Album</code> release order, then <code>Song</code> track order</td></tr>
 </tbody></table>
 </div>
 <h4 id="example-4"><a class="header" href="#example-4">Example</a></h4>
@@ -2312,14 +2315,17 @@ Collection - ${CREATION_UNIX_TIMESTAMP}/
 <h4 id="-incomplete-3"><a class="header" href="#-incomplete-3">🟡 Incomplete</a></h4>
 <p>This API may have <a href="common-objects//api-stability/marker.html">additions</a> in the future.</p>
 <hr />
-<p>The <a href="common-objects//common-objects/key.html">keys</a> inside <code>songs</code> is sorted by <code>Track + Disc order</code>.</p>
+<p>A unique <code>Album</code> owned by an <a href="common-objects//common-objects/artist.html"><code>Artist</code></a>.</p>
+<p>Uniqueness is defined by the <code>Album</code>'s <code>title</code>.</p>
+<p><code>Album</code> objects hold <a href="common-objects//common-objects/key.html">keys</a> to all of its <a href="common-objects//common-object/song.html"><code>Song</code></a>'s, acting as a relation link.</p>
+<p>The keys inside <code>songs</code> is sorted by <code>Track + Disc order</code>.</p>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>title</td><td>string</td><td>The title of this <code>Album</code></td></tr>
 <tr><td>key</td><td><code>Album</code> key (unsigned integer)</td><td>The <code>Album</code> key associated with this <code>Album</code></td></tr>
-<tr><td>artist</td><td><a href="common-objects//common-objects/artist.html"><code>Artist</code></a> key (unsigned integer)</td><td>The <code>Artist</code> key of the <code>Artist</code> that owns this <code>Album</code></td></tr>
+<tr><td>artist</td><td><code>Artist</code> key (unsigned integer)</td><td>The <code>Artist</code> key of the <code>Artist</code> that owns this <code>Album</code></td></tr>
 <tr><td>release</td><td>string</td><td>Release date of this <code>Album</code> in <code>YYYY-MM-DD</code>/<code>YYYY-MM</code>/<code>YYYY</code> format, <code>????-??-??</code> if unknown</td></tr>
 <tr><td>runtime</td><td>unsigned integer</td><td>The total runtime of this <code>Album</code> in seconds</td></tr>
-<tr><td>song_count</td><td>unsigned integer</td><td>How many <a href="common-objects//common-objects/song.html"><code>Song</code></a>'s are in this <code>Album</code></td></tr>
+<tr><td>song_count</td><td>unsigned integer</td><td>How many <code>Song</code>'s are in this <code>Album</code></td></tr>
 <tr><td>songs</td><td>array of <code>Song</code> keys (unsigned integers)</td><td>Keys to all of the <code>Song</code>'s in this <code>Album</code>, in track order</td></tr>
 <tr><td>discs</td><td>unsigned integer</td><td>Count of how many &quot;discs&quot; are in this <code>Album</code>, most will be <code>0</code></td></tr>
 <tr><td>art</td><td>optional (maybe null) unsigned integer</td><td>Size of this <code>Album</code>'s art in bytes, <code>null</code> if not found</td></tr>
@@ -2348,10 +2354,12 @@ Collection - ${CREATION_UNIX_TIMESTAMP}/
 <h4 id="-incomplete-4"><a class="header" href="#-incomplete-4">🟡 Incomplete</a></h4>
 <p>This API may have <a href="common-objects//api-stability/marker.html">additions</a> in the future.</p>
 <hr />
+<p>A <code>Song</code> inside an <a href="common-objects//common-objects/album.html"><code>Album</code></a>, owned by an <a href="common-objects//common-objects/artist.html"><code>Artist</code></a>.</p>
+<p><code>Song</code> objects hold <a href="common-objects//common-objects/key.html">keys</a> to the <code>Album</code> it is in, acting as a relation link.</p>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>title</td><td>string</td><td>The title of this <code>Song</code></td></tr>
-<tr><td>key</td><td><code>Song</code> <a href="common-objects//common-objects/key.html">key</a> (unsigned integer)</td><td>The <code>Song</code> key associated with this <code>Song</code></td></tr>
-<tr><td>album</td><td><a href="common-objects//common-objects/album.html"><code>Album</code></a> key (unsigned integer)</td><td>The <code>Album</code> key of the <code>Album</code> this <code>Song</code> is from</td></tr>
+<tr><td>key</td><td><code>Song</code> key (unsigned integer)</td><td>The <code>Song</code> key associated with this <code>Song</code></td></tr>
+<tr><td>album</td><td><code>Album</code> key (unsigned integer)</td><td>The <code>Album</code> key of the <code>Album</code> this <code>Song</code> is from</td></tr>
 <tr><td>runtime</td><td>unsigned integer</td><td>The total runtime of this <code>Song</code> in seconds</td></tr>
 <tr><td>sample_rate</td><td>unsigned integer</td><td>The sample rate of this <code>Song</code> in hertz, e.g: <code>44100</code></td></tr>
 <tr><td>track</td><td>optional (maybe null) unsigned integer</td><td>Track number of this <code>Song</code>, <code>null</code> if not found</td></tr>
@@ -2497,6 +2505,13 @@ Collection - ${CREATION_UNIX_TIMESTAMP}/
 <h4 id="-stable-2"><a class="header" href="#-stable-2">🟢 Stable</a></h4>
 <p>This API is <a href="common-objects//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
+<p>An &quot;absolute&quot; key to:</p>
+<ul>
+<li>a particular <a href="common-objects//common-object/song.html"><code>Song</code></a></li>
+<li>in a particular <a href="common-objects//common-object/album.html"><code>Album</code></a></li>
+<li>by a particular <a href="common-objects//common-object/artist.html"><code>Artist</code></a></li>
+</ul>
+<p>This object contains all the relational data of a <code>Song</code>, along with its filesystem PATH.</p>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>path</td><td>string (PATH)</td><td>The PATH of this <code>Song</code> on the filesystem <code>festivald</code> is running on</td></tr>
 <tr><td>key_artist</td><td><code>Artist</code> key (unsigned integer)</td><td>The <code>Artist</code> key</td></tr>
@@ -5112,13 +5127,13 @@ Entry 76 (Song key 76),
 </ul>
 <p><code>strings</code> to lookup <a href="json-rpc/map//common-objects/common-objects.html"><code>Common Objects</code></a>.</p>
 <p>So instead of:</p>
-<pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;key_artist&quot;,&quot;params&quot;:{&quot;key&quot;:100}}'
+<pre><code class="language-bash">festival-cli key_artist --key 100
 </code></pre>
 <p>you can use:</p>
-<pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;map_artist&quot;,&quot;params&quot;:{&quot;artist&quot;:&quot;カネコアヤノ&quot;}}'
+<pre><code class="language-bash">festival-cli map_artist --artist 'カネコアヤノ'
 </code></pre>
 <p>If the input is invalid, a JSON-RPC <a href="json-rpc/map//json-rpc/json-rpc.html#example-json-rpc-20-failed-response"><code>error</code></a> will be returned.</p>
-<h2 id="warning"><a class="header" href="#warning">Warning</a></h2>
+<h3 id="warning"><a class="header" href="#warning">Warning</a></h3>
 <p>Inputs are case-sensitive and must be exactly correct.</p>
 <p>If you have an <code>Album</code> called <code>Hello World</code>, none of these inputs will work:</p>
 <ul>
@@ -5129,21 +5144,47 @@ Entry 76 (Song key 76),
 <li><code>H3ll0 W0rld</code></li>
 </ul>
 <p>The input must be <em>exactly</em> <code>Hello World</code>.</p>
-<h2 id="collisions"><a class="header" href="#collisions">Collisions</a></h2>
-<p>When using <code>map_album</code> you must specify:</p>
+<h3 id="collisions"><a class="header" href="#collisions">Collisions</a></h3>
+<p>When using <a href="json-rpc/map//json-rpc/map/map_album.html"><code>map_album</code></a> you must specify:</p>
 <ul>
 <li><code>Artist</code> name</li>
 <li><code>Album</code> title</li>
 </ul>
-<p>and when using <code>map_song</code> you must specify:</p>
+<p>and when using <a href="json-rpc/map//json-rpc/map/map_song.html"><code>map_song</code></a> you must specify:</p>
 <ul>
 <li><code>Artist</code> name</li>
 <li><code>Album</code> title</li>
 <li><code>Song</code> title</li>
 </ul>
 <p>The reason these have to be specified is to prevent collisions.</p>
-<p>If there's 2 songs in your <code>Collection</code> called: <code>Hello World</code>, which one should <code>festivald</code> return?</p>
+<p>If there's 2 <code>Song</code>'s in your <a href="json-rpc/map//common-objects/collection.html"><code>Collection</code></a> called: <code>Hello World</code>, <code>festivald</code> cannot know which one you want.</p>
 <p>Since <code>Artist</code> names are unique, and <code>Album</code> titles within <code>Artist</code>'s are unique, they serve as an identifier.</p>
+<h3 id="duplicate-song-names"><a class="header" href="#duplicate-song-names">Duplicate <code>Song</code> Names</a></h3>
+<p>An uncommon &quot;bug&quot; you may encounter when using:</p>
+<ul>
+<li><code>Artist</code> names</li>
+<li><code>Album</code> titles</li>
+<li><code>Song</code> titles</li>
+</ul>
+<p>as the key for searching objects is that:</p>
+<ol>
+<li>if multiple <code>Song</code>'s with the same name exist</li>
+<li>in the same <code>Album</code></li>
+<li>by the same <code>Artist</code></li>
+</ol>
+<p>it is impossible to specify which one you want.</p>
+<p>This may occur in <code>Album</code>'s that have &quot;interlude&quot; tracks, which may be different, but have the same name, e.g:</p>
+<pre><code class="language-bash">Artist Name/
+  │
+  ├─ Album Name/
+      │
+      ├─ Song 1
+      ├─ Interlude # &lt;------------- same name
+      ├─ Song 3.flac
+      ├─ Interlude # &lt;------------- same name
+      ├─ Song 5.flac
+</code></pre>
+<p>The workaround is by using <a href="json-rpc/map//common-objects/key.html"><code>Song key</code></a>'s to retrieve these instead, as they are unique per <em>file</em>, regardless of metadata.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="map_artist"><a class="header" href="#map_artist">map_artist</a></h1>
 <h4 id="-incomplete-24"><a class="header" href="#-incomplete-24">🟡 Incomplete</a></h4>
 <p>This API may have <a href="json-rpc/map//api-stability/marker.html">additions</a> in the future.</p>
@@ -5237,7 +5278,7 @@ Entry 76 (Song key 76),
 <h4 id="-incomplete-26"><a class="header" href="#-incomplete-26">🟡 Incomplete</a></h4>
 <p>This API may have <a href="json-rpc/map//api-stability/marker.html">additions</a> in the future.</p>
 <hr />
-<p>Input an <a href="json-rpc/map//common-objects/artist.html"><code>Artist</code></a> name, <a href="json-rpc/map//common-objects/album.html"><code>Album</code></a> title, and <code>Song</code> title, retrieve a <a href="json-rpc/map//common-objects/song.html"><code>Song</code></a> object.</p>
+<p>Input an <a href="json-rpc/map//common-objects/artist.html"><code>Artist</code></a> name, <a href="json-rpc/map//common-objects/album.html"><code>Album</code></a> title, and <a href="json-rpc/map//common-objects/song.html"><code>Song</code></a> title, retrieve a <code>Song</code> object.</p>
 <h4 id="inputs-40"><a class="header" href="#inputs-40">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>artist</td><td>string</td><td><code>Artist</code> name</td></tr>
@@ -5278,7 +5319,7 @@ Entry 76 (Song key 76),
 <h4 id="-stable-23"><a class="header" href="#-stable-23">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/map//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
-<p>Input an <code>Artist</code> name, <code>Album</code> title, and <code>Song</code> title, retrieve an <a href="json-rpc/map//common-objects/entry.html"><code>Entry</code></a>.</p>
+<p>Input an <a href="json-rpc/map//common-objects/artist.html"><code>Artist</code></a> name, <a href="json-rpc/map//common-objects/album.html"><code>Album</code></a> title, and <a href="json-rpc/map//common-objects/song.html"><code>Song</code></a> title, retrieve an <a href="json-rpc/map//common-objects/entry.html"><code>Entry</code></a> object.</p>
 <h4 id="inputs-41"><a class="header" href="#inputs-41">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>artist</td><td>string</td><td><code>Artist</code> name</td></tr>
@@ -5420,7 +5461,7 @@ Entry 76 (Song key 76),
 <h4 id="-incomplete-28"><a class="header" href="#-incomplete-28">🟡 Incomplete</a></h4>
 <p>This API may have <a href="json-rpc/map//api-stability/marker.html">additions</a> in the future.</p>
 <hr />
-<p>Input an <a href="json-rpc/map//common-objects/artist.html"><code>Artist</code></a>, retrieve all their <a href="json-rpc/map//common-objects/song.html"><code>Song</code></a>'s.</p>
+<p>Input an <a href="json-rpc/map//common-objects/artist.html"><code>Artist</code></a> name, retrieve all their <a href="json-rpc/map//common-objects/song.html"><code>Song</code></a>'s.</p>
 <p>The <code>Song</code>'s are sorted by <code>Album release date</code>, then <code>Track + Disc order</code>.</p>
 <h4 id="inputs-43"><a class="header" href="#inputs-43">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
@@ -5472,10 +5513,10 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="map_artist_entries"><a class="header" href="#map_artist_entries">map_artist_entries</a></h1>
-<h4 id="-incomplete-29"><a class="header" href="#-incomplete-29">🟡 Incomplete</a></h4>
-<p>This API may have <a href="json-rpc/map//api-stability/marker.html">additions</a> in the future.</p>
+<h4 id="-stable-24"><a class="header" href="#-stable-24">🟢 Stable</a></h4>
+<p>This API is <a href="json-rpc/map//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
-<p>Input an <a href="json-rpc/map//common-objects/artist.html"><code>Artist</code></a>, retrieve all their <a href="json-rpc/map//common-objects/song.html"><code>Song</code></a>'s in <a href="json-rpc/map//common-objects/entry.html"><code>Entry</code></a> form.</p>
+<p>Input an <a href="json-rpc/map//common-objects/artist.html"><code>Artist</code></a> name, retrieve all their <a href="json-rpc/map//common-objects/song.html"><code>Song</code></a>'s in <a href="json-rpc/map//common-objects/entry.html"><code>Entry</code></a> form.</p>
 <p>The <code>Entry</code>'s are sorted by <code>Album release date</code>, then <code>Track + Disc order</code>.</p>
 <h4 id="inputs-44"><a class="header" href="#inputs-44">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
@@ -5523,7 +5564,7 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="map_album_songs"><a class="header" href="#map_album_songs">map_album_songs</a></h1>
-<h4 id="-incomplete-30"><a class="header" href="#-incomplete-30">🟡 Incomplete</a></h4>
+<h4 id="-incomplete-29"><a class="header" href="#-incomplete-29">🟡 Incomplete</a></h4>
 <p>This API may have <a href="json-rpc/map//api-stability/marker.html">additions</a> in the future.</p>
 <hr />
 <p>Input an <a href="json-rpc/map//common-objects/artist.html"><code>Artist</code></a> name and <a href="json-rpc/map//common-objects/album.html"><code>Album</code></a> title, retrieve all the <a href="json-rpc/map//common-objects/song.html"><code>Song</code></a>'s in that <code>Album</code>.</p>
@@ -5579,8 +5620,8 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="map_album_entries"><a class="header" href="#map_album_entries">map_album_entries</a></h1>
-<h4 id="-incomplete-31"><a class="header" href="#-incomplete-31">🟡 Incomplete</a></h4>
-<p>This API may have <a href="json-rpc/map//api-stability/marker.html">additions</a> in the future.</p>
+<h4 id="-stable-25"><a class="header" href="#-stable-25">🟢 Stable</a></h4>
+<p>This API is <a href="json-rpc/map//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Input an <a href="json-rpc/map//common-objects/artist.html"><code>Artist</code></a> name and <a href="json-rpc/map//common-objects/album.html"><code>Album</code></a> title, retrieve all the <a href="json-rpc/map//common-objects/song.html"><code>Song</code></a>'s in that <code>Album</code> in <a href="json-rpc/map//common-objects/entry.html"><code>Entry</code></a> form.</p>
 <p>The <code>Entry</code>'s are sorted by <code>Track + Disc order</code>.</p>
@@ -5634,7 +5675,7 @@ Entry 76 (Song key 76),
 <p>Access the <em>currently</em> set <a href="json-rpc/current//common-objects/song.html"><code>Song</code></a>, its <a href="json-rpc/current//common-objects/album.html"><code>Album</code></a>, or its <a href="json-rpc/current//common-objects/artist.html"><code>Artist</code></a>.</p>
 <p>If no <code>Song</code> is set, a JSON-RPC <a href="json-rpc/current//json-rpc/json-rpc.html#example-json-rpc-20-failed-response"><code>error</code></a> will be returned.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="current_artist"><a class="header" href="#current_artist">current_artist</a></h1>
-<h4 id="-incomplete-32"><a class="header" href="#-incomplete-32">🟡 Incomplete</a></h4>
+<h4 id="-incomplete-30"><a class="header" href="#-incomplete-30">🟡 Incomplete</a></h4>
 <p>This API may have <a href="json-rpc/current//api-stability/marker.html">additions</a> in the future.</p>
 <hr />
 <p>Access the <a href="json-rpc/current//common-objects/artist.html"><code>Artist</code></a> of the currently set <code>Song</code>.</p>
@@ -5672,7 +5713,7 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="current_album"><a class="header" href="#current_album">current_album</a></h1>
-<h4 id="-incomplete-33"><a class="header" href="#-incomplete-33">🟡 Incomplete</a></h4>
+<h4 id="-incomplete-31"><a class="header" href="#-incomplete-31">🟡 Incomplete</a></h4>
 <p>This API may have <a href="json-rpc/current//api-stability/marker.html">additions</a> in the future.</p>
 <hr />
 <p>Access the <a href="json-rpc/current//common-objects/album.html"><code>Album</code></a> of the currently set <code>Song</code>.</p>
@@ -5716,7 +5757,7 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="current_song"><a class="header" href="#current_song">current_song</a></h1>
-<h4 id="-incomplete-34"><a class="header" href="#-incomplete-34">🟡 Incomplete</a></h4>
+<h4 id="-incomplete-32"><a class="header" href="#-incomplete-32">🟡 Incomplete</a></h4>
 <p>This API may have <a href="json-rpc/current//api-stability/marker.html">additions</a> in the future.</p>
 <hr />
 <p>Access the currently set <a href="json-rpc/current//common-objects/song.html"><code>Song</code></a>.</p>
@@ -5752,7 +5793,7 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="current_entry"><a class="header" href="#current_entry">current_entry</a></h1>
-<h4 id="-stable-24"><a class="header" href="#-stable-24">🟢 Stable</a></h4>
+<h4 id="-stable-26"><a class="header" href="#-stable-26">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/current//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Access the currently set <a href="json-rpc/current//common-objects/song.html"><code>Song</code></a>, in <a href="json-rpc/current//common-objects/entry.html"><code>Entry</code></a> form.</p>
@@ -5789,7 +5830,7 @@ Entry 76 (Song key 76),
 <p>Access a random <a href="json-rpc/rand//common-objects/song.html"><code>Song</code></a>, <a href="json-rpc/rand//common-objects/album.html"><code>Album</code></a>, or <a href="json-rpc/rand//common-objects/artist.html"><code>Artist</code></a>.</p>
 <p>If the <a href="json-rpc/rand//common-objects/collection.html"><code>Collection</code></a> is empty, a JSON-RPC <a href="json-rpc/rand//json-rpc/json-rpc.html#example-json-rpc-20-failed-response"><code>error</code></a> will be returned.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="rand_artist"><a class="header" href="#rand_artist">rand_artist</a></h1>
-<h4 id="-incomplete-35"><a class="header" href="#-incomplete-35">🟡 Incomplete</a></h4>
+<h4 id="-incomplete-33"><a class="header" href="#-incomplete-33">🟡 Incomplete</a></h4>
 <p>This API may have <a href="json-rpc/rand//api-stability/marker.html">additions</a> in the future.</p>
 <hr />
 <p>Access a random <a href="json-rpc/rand//common-objects/artist.html"><code>Artist</code></a>.</p>
@@ -5827,7 +5868,7 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="rand_album"><a class="header" href="#rand_album">rand_album</a></h1>
-<h4 id="-incomplete-36"><a class="header" href="#-incomplete-36">🟡 Incomplete</a></h4>
+<h4 id="-incomplete-34"><a class="header" href="#-incomplete-34">🟡 Incomplete</a></h4>
 <p>This API may have <a href="json-rpc/rand//api-stability/marker.html">additions</a> in the future.</p>
 <hr />
 <p>Access a random <a href="json-rpc/rand//common-objects/album.html"><code>Album</code></a>.</p>
@@ -5871,7 +5912,7 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="rand_song"><a class="header" href="#rand_song">rand_song</a></h1>
-<h4 id="-incomplete-37"><a class="header" href="#-incomplete-37">🟡 Incomplete</a></h4>
+<h4 id="-incomplete-35"><a class="header" href="#-incomplete-35">🟡 Incomplete</a></h4>
 <p>This API may have <a href="json-rpc/rand//api-stability/marker.html">additions</a> in the future.</p>
 <hr />
 <p>Access a random <a href="json-rpc/rand//common-objects/song.html"><code>Song</code></a>.</p>
@@ -5907,7 +5948,7 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="rand_entry"><a class="header" href="#rand_entry">rand_entry</a></h1>
-<h4 id="-stable-25"><a class="header" href="#-stable-25">🟢 Stable</a></h4>
+<h4 id="-stable-27"><a class="header" href="#-stable-27">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/rand//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Access a random <a href="json-rpc/rand//common-objects/entry.html"><code>Entry</code></a>.</p>
@@ -5955,7 +5996,7 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="search-1"><a class="header" href="#search-1">search</a></h1>
-<h4 id="-incomplete-38"><a class="header" href="#-incomplete-38">🟡 Incomplete</a></h4>
+<h4 id="-incomplete-36"><a class="header" href="#-incomplete-36">🟡 Incomplete</a></h4>
 <p>This API may have <a href="json-rpc/search//api-stability/marker.html">additions</a> in the future.</p>
 <hr />
 <p>Input a <code>string</code>, retrieve arrays of <a href="json-rpc/search//common-objects/artist.html"><code>Artist</code></a>'s, <a href="json-rpc/search//common-objects/album.html"><code>Album</code></a>'s, and <a href="json-rpc/search//common-objects/song.html"><code>Song</code></a>'s, sorted by how similar their names/titles are to the input.</p>
@@ -6030,7 +6071,7 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="search_artist"><a class="header" href="#search_artist">search_artist</a></h1>
-<h4 id="-incomplete-39"><a class="header" href="#-incomplete-39">🟡 Incomplete</a></h4>
+<h4 id="-incomplete-37"><a class="header" href="#-incomplete-37">🟡 Incomplete</a></h4>
 <p>This API may have <a href="json-rpc/search//api-stability/marker.html">additions</a> in the future.</p>
 <hr />
 <p>Input a <code>string</code>, retrieve an array of <a href="json-rpc/search//common-objects/artist.html"><code>Artist</code></a>'s, sorted by how similar their names are to the input.</p>
@@ -6072,7 +6113,7 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="search_album"><a class="header" href="#search_album">search_album</a></h1>
-<h4 id="-incomplete-40"><a class="header" href="#-incomplete-40">🟡 Incomplete</a></h4>
+<h4 id="-incomplete-38"><a class="header" href="#-incomplete-38">🟡 Incomplete</a></h4>
 <p>This API may have <a href="json-rpc/search//api-stability/marker.html">additions</a> in the future.</p>
 <hr />
 <p>Input a <code>string</code>, retrieve an array of <a href="json-rpc/search//common-objects/album.html"><code>Album</code></a>'s, sorted by how similar their titles are to the input.</p>
@@ -6119,7 +6160,7 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="search_song"><a class="header" href="#search_song">search_song</a></h1>
-<h4 id="-incomplete-41"><a class="header" href="#-incomplete-41">🟡 Incomplete</a></h4>
+<h4 id="-incomplete-39"><a class="header" href="#-incomplete-39">🟡 Incomplete</a></h4>
 <p>This API may have <a href="json-rpc/search//api-stability/marker.html">additions</a> in the future.</p>
 <hr />
 <p>Input a <code>string</code>, retrieve an array of <a href="json-rpc/search//common-objects/song.html"><code>Song</code></a>'s, sorted by how similar their titles are to the input.</p>
@@ -6161,7 +6202,7 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="search_entry"><a class="header" href="#search_entry">search_entry</a></h1>
-<h4 id="-stable-26"><a class="header" href="#-stable-26">🟢 Stable</a></h4>
+<h4 id="-stable-28"><a class="header" href="#-stable-28">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/search//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Input a <code>string</code>, retrieve an array of <a href="json-rpc/search//common-objects/song.html"><code>Song</code></a>'s (in <a href="json-rpc/search//common-objects/entry.html"><code>Entry</code></a> form), sorted by how similar their titles are to the input.</p>
@@ -6206,7 +6247,7 @@ Entry 76 (Song key 76),
 <p>See <a href="json-rpc/playback//common-objects/common-objects.html#generic-response"><code>Common Objects # Generic Response</code></a> for more info.</p>
 <p>See <a href="json-rpc/playback//json-rpc/queue/queue.html"><code>Queue</code></a> for appending/deleting <code>Song</code>'s from the queue.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="toggle"><a class="header" href="#toggle">toggle</a></h1>
-<h4 id="-stable-27"><a class="header" href="#-stable-27">🟢 Stable</a></h4>
+<h4 id="-stable-29"><a class="header" href="#-stable-29">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/playback//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Toggle playback.</p>
@@ -6227,7 +6268,7 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="play"><a class="header" href="#play">play</a></h1>
-<h4 id="-stable-28"><a class="header" href="#-stable-28">🟢 Stable</a></h4>
+<h4 id="-stable-30"><a class="header" href="#-stable-30">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/playback//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Start playback.</p>
@@ -6248,7 +6289,7 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="pause"><a class="header" href="#pause">pause</a></h1>
-<h4 id="-stable-29"><a class="header" href="#-stable-29">🟢 Stable</a></h4>
+<h4 id="-stable-31"><a class="header" href="#-stable-31">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/playback//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Pause playback.</p>
@@ -6269,7 +6310,7 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="next"><a class="header" href="#next">next</a></h1>
-<h4 id="-stable-30"><a class="header" href="#-stable-30">🟢 Stable</a></h4>
+<h4 id="-stable-32"><a class="header" href="#-stable-32">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/playback//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Skip to the next song in the queue.</p>
@@ -6292,7 +6333,7 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="stop"><a class="header" href="#stop">stop</a></h1>
-<h4 id="-stable-31"><a class="header" href="#-stable-31">🟢 Stable</a></h4>
+<h4 id="-stable-33"><a class="header" href="#-stable-33">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/playback//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Clear the queue and stop playback.</p>
@@ -6313,7 +6354,7 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="previous"><a class="header" href="#previous">previous</a></h1>
-<h4 id="-stable-32"><a class="header" href="#-stable-32">🟢 Stable</a></h4>
+<h4 id="-stable-34"><a class="header" href="#-stable-34">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/playback//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Set the current <code>Song</code> to the previous in the queue.</p>
@@ -6337,7 +6378,7 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="clear"><a class="header" href="#clear">clear</a></h1>
-<h4 id="-stable-33"><a class="header" href="#-stable-33">🟢 Stable</a></h4>
+<h4 id="-stable-35"><a class="header" href="#-stable-35">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/playback//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Clear the queue.</p>
@@ -6361,7 +6402,7 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="seek"><a class="header" href="#seek">seek</a></h1>
-<h4 id="-stable-34"><a class="header" href="#-stable-34">🟢 Stable</a></h4>
+<h4 id="-stable-36"><a class="header" href="#-stable-36">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/playback//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Seek forwards/backwards or to an absolute second in the current <code>Song</code>.</p>
@@ -6386,7 +6427,7 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="skip"><a class="header" href="#skip">skip</a></h1>
-<h4 id="-stable-35"><a class="header" href="#-stable-35">🟢 Stable</a></h4>
+<h4 id="-stable-37"><a class="header" href="#-stable-37">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/playback//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Skip forwards a variable amount of <code>Song</code>'s in the current queue.</p>
@@ -6410,7 +6451,7 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="back"><a class="header" href="#back">back</a></h1>
-<h4 id="-stable-36"><a class="header" href="#-stable-36">🟢 Stable</a></h4>
+<h4 id="-stable-38"><a class="header" href="#-stable-38">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/playback//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Go backwards a variable amount of <code>Song</code>'s in the current queue.</p>
@@ -6434,7 +6475,7 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="shuffle"><a class="header" href="#shuffle">shuffle</a></h1>
-<h4 id="-stable-37"><a class="header" href="#-stable-37">🟢 Stable</a></h4>
+<h4 id="-stable-39"><a class="header" href="#-stable-39">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/playback//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Shuffle the current queue, then start playing from the 1st <code>Song</code> in the queue.</p>
@@ -6455,7 +6496,7 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="repeat_off"><a class="header" href="#repeat_off">repeat_off</a></h1>
-<h4 id="-stable-38"><a class="header" href="#-stable-38">🟢 Stable</a></h4>
+<h4 id="-stable-40"><a class="header" href="#-stable-40">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/playback//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Turn off repeating.</p>
@@ -6476,7 +6517,7 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="repeat_song"><a class="header" href="#repeat_song">repeat_song</a></h1>
-<h4 id="-stable-39"><a class="header" href="#-stable-39">🟢 Stable</a></h4>
+<h4 id="-stable-41"><a class="header" href="#-stable-41">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/playback//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Turn on song repeating.</p>
@@ -6498,7 +6539,7 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="repeat_queue"><a class="header" href="#repeat_queue">repeat_queue</a></h1>
-<h4 id="-stable-40"><a class="header" href="#-stable-40">🟢 Stable</a></h4>
+<h4 id="-stable-42"><a class="header" href="#-stable-42">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/playback//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Turn on queue repeating.</p>
@@ -6520,7 +6561,7 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="volume"><a class="header" href="#volume">volume</a></h1>
-<h4 id="-stable-41"><a class="header" href="#-stable-41">🟢 Stable</a></h4>
+<h4 id="-stable-43"><a class="header" href="#-stable-43">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/playback//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Set the playback volume.</p>
@@ -6551,7 +6592,7 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="volume_up"><a class="header" href="#volume_up">volume_up</a></h1>
-<h4 id="-stable-42"><a class="header" href="#-stable-42">🟢 Stable</a></h4>
+<h4 id="-stable-44"><a class="header" href="#-stable-44">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/playback//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Raise the playback volume.</p>
@@ -6582,7 +6623,7 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="volume_down"><a class="header" href="#volume_down">volume_down</a></h1>
-<h4 id="-stable-43"><a class="header" href="#-stable-43">🟢 Stable</a></h4>
+<h4 id="-stable-45"><a class="header" href="#-stable-45">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/playback//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Lower the playback volume.</p>
@@ -6615,7 +6656,7 @@ Entry 76 (Song key 76),
 <div style="break-before: page; page-break-before: always;"></div><h1 id="queue"><a class="header" href="#queue">Queue</a></h1>
 <p>Methods for append and removing songs from the <code>Song</code> queue.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="queue_add_key_artist"><a class="header" href="#queue_add_key_artist">queue_add_key_artist</a></h1>
-<h4 id="-stable-44"><a class="header" href="#-stable-44">🟢 Stable</a></h4>
+<h4 id="-stable-46"><a class="header" href="#-stable-46">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/queue//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Add an <a href="json-rpc/queue//common-objects/artist.html"><code>Artist</code></a> to the queue with an <a href="json-rpc/queue//common-objects/key.html"><code>Artist</code> key</a>.</p>
@@ -6670,7 +6711,7 @@ index 5 | song_6
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="queue_add_key_album"><a class="header" href="#queue_add_key_album">queue_add_key_album</a></h1>
-<h4 id="-stable-45"><a class="header" href="#-stable-45">🟢 Stable</a></h4>
+<h4 id="-stable-47"><a class="header" href="#-stable-47">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/queue//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Add an <a href="json-rpc/queue//common-objects/album.html"><code>Album</code></a> to the queue with an <a href="json-rpc/queue//common-objects/key.html"><code>Album</code> key</a>.</p>
@@ -6725,7 +6766,7 @@ index 5 | song_6
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="queue_add_key_song"><a class="header" href="#queue_add_key_song">queue_add_key_song</a></h1>
-<h4 id="-stable-46"><a class="header" href="#-stable-46">🟢 Stable</a></h4>
+<h4 id="-stable-48"><a class="header" href="#-stable-48">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/queue//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Add a <a href="json-rpc/queue//common-objects/song.html"><code>Song</code></a> to the queue with a <a href="json-rpc/queue//common-objects/key.html"><code>Song</code> key</a>.</p>
@@ -6766,7 +6807,7 @@ index 5 | song_6
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="queue_add_map_artist"><a class="header" href="#queue_add_map_artist">queue_add_map_artist</a></h1>
-<h4 id="-stable-47"><a class="header" href="#-stable-47">🟢 Stable</a></h4>
+<h4 id="-stable-49"><a class="header" href="#-stable-49">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/queue//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Add an <a href="json-rpc/queue//common-objects/artist.html"><code>Artist</code></a> to the queue with an <code>Artist</code> name.</p>
@@ -6822,7 +6863,7 @@ index 5 | song_6
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="queue_add_map_album"><a class="header" href="#queue_add_map_album">queue_add_map_album</a></h1>
-<h4 id="-stable-48"><a class="header" href="#-stable-48">🟢 Stable</a></h4>
+<h4 id="-stable-50"><a class="header" href="#-stable-50">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/queue//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Add an <a href="json-rpc/queue//common-objects/album.html"><code>Album</code></a> to the queue with an <a href="json-rpc/queue//common-objects/artist.html"><code>Artist</code></a> name and <code>Album</code> title.</p>
@@ -6879,7 +6920,7 @@ index 5 | song_6
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="queue_add_map_song"><a class="header" href="#queue_add_map_song">queue_add_map_song</a></h1>
-<h4 id="-stable-49"><a class="header" href="#-stable-49">🟢 Stable</a></h4>
+<h4 id="-stable-51"><a class="header" href="#-stable-51">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/queue//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Add a <a href="json-rpc/queue//common-objects/song.html"><code>Song</code></a> to the queue with an <a href="json-rpc/queue//common-objects/artist.html"><code>Artist</code></a> name <a href="json-rpc/queue//common-objects/album.html"><code>Album</code></a> title, and <code>Song</code> title.</p>
@@ -6922,7 +6963,7 @@ index 5 | song_6
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="queue_add_rand_artist"><a class="header" href="#queue_add_rand_artist">queue_add_rand_artist</a></h1>
-<h4 id="-incomplete-42"><a class="header" href="#-incomplete-42">🟡 Incomplete</a></h4>
+<h4 id="-incomplete-40"><a class="header" href="#-incomplete-40">🟡 Incomplete</a></h4>
 <p>This API may have <a href="json-rpc/queue//api-stability/marker.html">additions</a> in the future.</p>
 <hr />
 <p>Add a random <a href="json-rpc/queue//common-objects/artist.html"><code>Artist</code></a> to the queue.</p>
@@ -6993,7 +7034,7 @@ index 5 | song_6
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="queue_add_rand_album"><a class="header" href="#queue_add_rand_album">queue_add_rand_album</a></h1>
-<h4 id="-incomplete-43"><a class="header" href="#-incomplete-43">🟡 Incomplete</a></h4>
+<h4 id="-incomplete-41"><a class="header" href="#-incomplete-41">🟡 Incomplete</a></h4>
 <p>This API may have <a href="json-rpc/queue//api-stability/marker.html">additions</a> in the future.</p>
 <hr />
 <p>Add a random <a href="json-rpc/queue//common-objects/album.html"><code>Album</code></a> to the queue.</p>
@@ -7070,7 +7111,7 @@ index 5 | song_6
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="queue_add_rand_song"><a class="header" href="#queue_add_rand_song">queue_add_rand_song</a></h1>
-<h4 id="-incomplete-44"><a class="header" href="#-incomplete-44">🟡 Incomplete</a></h4>
+<h4 id="-incomplete-42"><a class="header" href="#-incomplete-42">🟡 Incomplete</a></h4>
 <p>This API may have <a href="json-rpc/queue//api-stability/marker.html">additions</a> in the future.</p>
 <hr />
 <p>Add a random <a href="json-rpc/queue//common-objects/song.html"><code>Song</code></a> to the queue.</p>
@@ -7124,7 +7165,7 @@ index 5 | song_6
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="queue_add_playlist"><a class="header" href="#queue_add_playlist">queue_add_playlist</a></h1>
-<h4 id="-stable-50"><a class="header" href="#-stable-50">🟢 Stable</a></h4>
+<h4 id="-stable-52"><a class="header" href="#-stable-52">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/queue//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Add a <a href="json-rpc/queue//common-objects/playlist.html"><code>Playlist</code></a> to the queue.</p>
@@ -7165,7 +7206,7 @@ index 5 | song_6
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="queue_set_index"><a class="header" href="#queue_set_index">queue_set_index</a></h1>
-<h4 id="-stable-51"><a class="header" href="#-stable-51">🟢 Stable</a></h4>
+<h4 id="-stable-53"><a class="header" href="#-stable-53">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/queue//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Set the current <code>Song</code> to a queue index.</p>
@@ -7196,7 +7237,7 @@ index 5 | song_6
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="queue_remove_range"><a class="header" href="#queue_remove_range">queue_remove_range</a></h1>
-<h4 id="-stable-52"><a class="header" href="#-stable-52">🟢 Stable</a></h4>
+<h4 id="-stable-54"><a class="header" href="#-stable-54">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/queue//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Remove a range of queue indices.</p>
@@ -7249,7 +7290,7 @@ index 5 | song_6
 <div style="break-before: page; page-break-before: always;"></div><h1 id="playlist-2"><a class="header" href="#playlist-2">Playlist</a></h1>
 <p>Methods related for creating/modifying/viewing various info about <a href="json-rpc/playlist//common-objects/playlist.html"><code>Playlist</code></a>'s.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="playlist_new"><a class="header" href="#playlist_new">playlist_new</a></h1>
-<h4 id="-stable-53"><a class="header" href="#-stable-53">🟢 Stable</a></h4>
+<h4 id="-stable-55"><a class="header" href="#-stable-55">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/playlist//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Create a new empty <a href="json-rpc/playlist//common-objects/playlist.html"><code>Playlist</code></a>, overwriting an existing one.</p>
@@ -7278,7 +7319,7 @@ index 5 | song_6
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="playlist_remove"><a class="header" href="#playlist_remove">playlist_remove</a></h1>
-<h4 id="-stable-54"><a class="header" href="#-stable-54">🟢 Stable</a></h4>
+<h4 id="-stable-56"><a class="header" href="#-stable-56">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/playlist//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Remove a <a href="json-rpc/playlist//common-objects/playlist.html"><code>Playlist</code></a>.</p>
@@ -7319,7 +7360,7 @@ index 5 | song_6
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="playlist_clone"><a class="header" href="#playlist_clone">playlist_clone</a></h1>
-<h4 id="-stable-55"><a class="header" href="#-stable-55">🟢 Stable</a></h4>
+<h4 id="-stable-57"><a class="header" href="#-stable-57">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/playlist//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Clone an existing <a href="json-rpc/playlist//common-objects/playlist.html"><code>Playlist</code></a> and all it's <a href="json-rpc/playlist//common-objects/playlist.html"><code>Entry</code></a>'s into a new one.</p>
@@ -7362,7 +7403,7 @@ index 5 | song_6
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="playlist_remove_entry"><a class="header" href="#playlist_remove_entry">playlist_remove_entry</a></h1>
-<h4 id="-stable-56"><a class="header" href="#-stable-56">🟢 Stable</a></h4>
+<h4 id="-stable-58"><a class="header" href="#-stable-58">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/playlist//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Remove an <a href="json-rpc/playlist//common-objects/playlist.html"><code>Entry</code></a> from a <a href="json-rpc/playlist//common-objects/playlist.html"><code>Playlist</code></a>.</p>
@@ -7403,7 +7444,7 @@ index 5 | song_6
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="playlist_add_key_artist"><a class="header" href="#playlist_add_key_artist">playlist_add_key_artist</a></h1>
-<h4 id="-stable-57"><a class="header" href="#-stable-57">🟢 Stable</a></h4>
+<h4 id="-stable-59"><a class="header" href="#-stable-59">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/playlist//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Add an <a href="json-rpc/playlist//common-objects/artist.html"><code>Artist</code></a> to a <a href="json-rpc/playlist//common-objects/playlist.html"><code>Playlist</code></a> with a <a href="json-rpc/playlist//common-objects/key.html"><code>Key</code></a>.</p>
@@ -7444,7 +7485,7 @@ index 5 | song_6
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="playlist_add_key_album"><a class="header" href="#playlist_add_key_album">playlist_add_key_album</a></h1>
-<h4 id="-stable-58"><a class="header" href="#-stable-58">🟢 Stable</a></h4>
+<h4 id="-stable-60"><a class="header" href="#-stable-60">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/playlist//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Add an <a href="json-rpc/playlist//common-objects/album.html"><code>Album</code></a> to a <a href="json-rpc/playlist//json-rpc/playlist/playlist.html"><code>Playlist</code></a> with a <a href="json-rpc/playlist//common-objects/key.html"><code>Key</code></a>.</p>
@@ -7485,7 +7526,7 @@ index 5 | song_6
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="playlist_add_key_song"><a class="header" href="#playlist_add_key_song">playlist_add_key_song</a></h1>
-<h4 id="-stable-59"><a class="header" href="#-stable-59">🟢 Stable</a></h4>
+<h4 id="-stable-61"><a class="header" href="#-stable-61">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/playlist//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Add a <a href="json-rpc/playlist//common-objects/song.html"><code>Song</code></a> to a <a href="json-rpc/playlist//common-objects/playlist.html"><code>Playlist</code></a> with a <a href="json-rpc/playlist//common-objects/key.html"><code>Key</code></a>.</p>
@@ -7526,7 +7567,7 @@ index 5 | song_6
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="playlist_add_map_artist"><a class="header" href="#playlist_add_map_artist">playlist_add_map_artist</a></h1>
-<h4 id="-stable-60"><a class="header" href="#-stable-60">🟢 Stable</a></h4>
+<h4 id="-stable-62"><a class="header" href="#-stable-62">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/playlist//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Add an <a href="json-rpc/playlist//common-objects/artist.html"><code>Artist</code></a> to a <a href="json-rpc/playlist//common-objects/playlist.html"><code>Playlist</code></a>.</p>
@@ -7567,7 +7608,7 @@ index 5 | song_6
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="playlist_add_map_album"><a class="header" href="#playlist_add_map_album">playlist_add_map_album</a></h1>
-<h4 id="-stable-61"><a class="header" href="#-stable-61">🟢 Stable</a></h4>
+<h4 id="-stable-63"><a class="header" href="#-stable-63">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/playlist//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Add an <a href="json-rpc/playlist//common-objects/album.html"><code>Album</code></a> to a <a href="json-rpc/playlist//common-objects/playlist.html"><code>Playlist</code></a>.</p>
@@ -7609,7 +7650,7 @@ index 5 | song_6
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="playlist_add_map_song"><a class="header" href="#playlist_add_map_song">playlist_add_map_song</a></h1>
-<h4 id="-stable-62"><a class="header" href="#-stable-62">🟢 Stable</a></h4>
+<h4 id="-stable-64"><a class="header" href="#-stable-64">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/playlist//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Add a <a href="json-rpc/playlist//common-objects/song.html"><code>Song</code></a> to a <a href="json-rpc/playlist//common-objects/playlist.html"><code>Playlist</code></a>.</p>
@@ -7652,7 +7693,7 @@ index 5 | song_6
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="playlist_single"><a class="header" href="#playlist_single">playlist_single</a></h1>
-<h4 id="-stable-63"><a class="header" href="#-stable-63">🟢 Stable</a></h4>
+<h4 id="-stable-65"><a class="header" href="#-stable-65">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/playlist//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Retrieve a single <a href="json-rpc/playlist//common-objects/playlist.html"><code>Playlist</code></a>.</p>
@@ -7710,7 +7751,7 @@ index 5 | song_6
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="playlist_brief"><a class="header" href="#playlist_brief">playlist_brief</a></h1>
-<h4 id="-stable-64"><a class="header" href="#-stable-64">🟢 Stable</a></h4>
+<h4 id="-stable-66"><a class="header" href="#-stable-66">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/playlist//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Retrieve the names of all <a href="json-rpc/playlist//common-objects/playlist.html"><code>Playlist</code></a>'s.</p>
@@ -7743,7 +7784,7 @@ index 5 | song_6
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="playlist_full"><a class="header" href="#playlist_full">playlist_full</a></h1>
-<h4 id="-stable-65"><a class="header" href="#-stable-65">🟢 Stable</a></h4>
+<h4 id="-stable-67"><a class="header" href="#-stable-67">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/playlist//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Retrieve full data of <em>all</em> <a href="json-rpc/playlist//common-objects/playlist.html"><code>Playlist</code></a>'s.</p>
@@ -7919,7 +7960,7 @@ My Song (3).flac
 <p>The <code>key</code> must be the key number associated with the object.</p>
 <p>See <a href="rest/key//common-objects/key.html"><code>Common Objects/Key</code></a> for more information on keys.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="keyartistartist_key"><a class="header" href="#keyartistartist_key">/key/artist/$ARTIST_KEY</a></h1>
-<h4 id="-stable-66"><a class="header" href="#-stable-66">🟢 Stable</a></h4>
+<h4 id="-stable-68"><a class="header" href="#-stable-68">🟢 Stable</a></h4>
 <p>This API is <a href="rest/key//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Download all the <code>Album</code>'s owned by this <code>Artist</code>, 1 directory per album (including art if found), wrapped in an archive format, using an <a href="rest/key//common-objects/key.html"><code>Artist key</code></a>.</p>
@@ -7957,7 +7998,7 @@ My Song (3).flac
          ├─ Song Name 9.ogg
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="keyalbumalbum_key"><a class="header" href="#keyalbumalbum_key">/key/album/$ALBUM_KEY</a></h1>
-<h4 id="-stable-67"><a class="header" href="#-stable-67">🟢 Stable</a></h4>
+<h4 id="-stable-69"><a class="header" href="#-stable-69">🟢 Stable</a></h4>
 <p>This API is <a href="rest/key//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Download an <code>Album</code> (including art if found), wrapped in an archive format, using an <a href="rest/key//common-objects/key.html"><code>Album key</code></a>.</p>
@@ -7983,7 +8024,7 @@ My Song (3).flac
   ├─ Song Name 3.ogg
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="keysongsong_key"><a class="header" href="#keysongsong_key">/key/song/$SONG_KEY</a></h1>
-<h4 id="-stable-68"><a class="header" href="#-stable-68">🟢 Stable</a></h4>
+<h4 id="-stable-70"><a class="header" href="#-stable-70">🟢 Stable</a></h4>
 <p>This API is <a href="rest/key//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Download this <code>Song</code> in the original format, using a <a href="rest/key//common-objects/key.html"><code>Song key</code></a>.</p>
@@ -8001,7 +8042,7 @@ My Song (3).flac
 <pre><code class="language-plaintext">Artist Name - Album Title - Song Title.flac
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="keyartalbum_key"><a class="header" href="#keyartalbum_key">/key/art/$ALBUM_KEY</a></h1>
-<h4 id="-stable-69"><a class="header" href="#-stable-69">🟢 Stable</a></h4>
+<h4 id="-stable-71"><a class="header" href="#-stable-71">🟢 Stable</a></h4>
 <p>This API is <a href="rest/key//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Download this <code>Album</code>'s art in the image's original format, using an <a href="rest/key//common-objects/key.html"><code>Album key</code></a>.</p>
@@ -8052,7 +8093,7 @@ My Song (3).flac
 </ul>
 <p>The input must <em>exactly</em> be <code>Hello World</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="mapartist_name"><a class="header" href="#mapartist_name">/map/$ARTIST_NAME</a></h1>
-<h4 id="-stable-70"><a class="header" href="#-stable-70">🟢 Stable</a></h4>
+<h4 id="-stable-72"><a class="header" href="#-stable-72">🟢 Stable</a></h4>
 <p>This API is <a href="rest/map//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Download all the <code>Album</code>'s owned by this <code>Artist</code>, 1 directory per album (including art if found), wrapped in an archive format, using the <a href="rest/map//common-objects/artist.html"><code>Artist</code></a>'s name.</p>
@@ -8090,7 +8131,7 @@ My Song (3).flac
          ├─ Song Name 9.ogg
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="mapartist_namealbum_title"><a class="header" href="#mapartist_namealbum_title">/map/$ARTIST_NAME/$ALBUM_TITLE</a></h1>
-<h4 id="-stable-71"><a class="header" href="#-stable-71">🟢 Stable</a></h4>
+<h4 id="-stable-73"><a class="header" href="#-stable-73">🟢 Stable</a></h4>
 <p>This API is <a href="rest/map//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Download an <code>Album</code> (including art if found), wrapped in an archive format, using the <a href="rest/map//common-objects/artist.html"><code>Artist</code></a>'s name, and <a href="rest/map//common-objects/album.html"><code>Album</code></a> title.</p>
@@ -8117,7 +8158,7 @@ My Song (3).flac
   ├─ Song Name 3.ogg
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="mapartist_namealbum_titlesong_title"><a class="header" href="#mapartist_namealbum_titlesong_title">/map/$ARTIST_NAME/$ALBUM_TITLE/$SONG_TITLE</a></h1>
-<h4 id="-stable-72"><a class="header" href="#-stable-72">🟢 Stable</a></h4>
+<h4 id="-stable-74"><a class="header" href="#-stable-74">🟢 Stable</a></h4>
 <p>This API is <a href="rest/map//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Download this <code>Song</code> in the original format, using the <a href="rest/map//common-objects/artist.html"><code>Artist</code></a>'s name, <a href="rest/map//common-objects/album.html"><code>Album</code></a> title, and <a href="rest/map//common-objects/song.html"><code>Song</code></a> title.</p>
@@ -8143,7 +8184,7 @@ My Song (3).flac
 <p>Download the currently set <code>Artist</code>, <code>Album</code>, <code>Song</code>, or art.</p>
 <p>Returns a 404 error if no <a href="rest/current//common-objects/song.html"><code>Song</code></a> is currently set.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="currentartist"><a class="header" href="#currentartist">/current/artist</a></h1>
-<h4 id="-stable-73"><a class="header" href="#-stable-73">🟢 Stable</a></h4>
+<h4 id="-stable-75"><a class="header" href="#-stable-75">🟢 Stable</a></h4>
 <p>This API is <a href="rest/current//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Download all the <code>Album</code>'s owned by this <code>Artist</code> of the currently set <code>Song</code>, 1 directory per album (including art if found), wrapped in an archive format.</p>
@@ -8178,7 +8219,7 @@ My Song (3).flac
          ├─ Song Name 9.ogg
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="currentalbum"><a class="header" href="#currentalbum">/current/album</a></h1>
-<h4 id="-stable-74"><a class="header" href="#-stable-74">🟢 Stable</a></h4>
+<h4 id="-stable-76"><a class="header" href="#-stable-76">🟢 Stable</a></h4>
 <p>This API is <a href="rest/current//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Download the <code>Album</code> of the currently set <code>Song</code> (including art if found), wrapped in an archive format.</p>
@@ -8201,7 +8242,7 @@ My Song (3).flac
   ├─ Song Name 3.ogg
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="currentsong"><a class="header" href="#currentsong">/current/song</a></h1>
-<h4 id="-stable-75"><a class="header" href="#-stable-75">🟢 Stable</a></h4>
+<h4 id="-stable-77"><a class="header" href="#-stable-77">🟢 Stable</a></h4>
 <p>This API is <a href="rest/current//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Download the currently set <code>Song</code> in the original format.</p>
@@ -8216,7 +8257,7 @@ My Song (3).flac
 <pre><code class="language-plaintext">Artist Name - Album Title - Song Title.flac
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="currentart"><a class="header" href="#currentart">/current/art</a></h1>
-<h4 id="-stable-76"><a class="header" href="#-stable-76">🟢 Stable</a></h4>
+<h4 id="-stable-78"><a class="header" href="#-stable-78">🟢 Stable</a></h4>
 <p>This API is <a href="rest/current//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Download the <code>Album</code> art of the currently set <code>Song</code>, in the original format.</p>
@@ -8236,7 +8277,7 @@ My Song (3).flac
 <p>This will return a 404 error if the <a href="rest/rand//common-objects/collection.html"><code>Collection</code></a> is empty.</p>
 <p>Repeating is allowed, so you may encounter the same object multiple times in a row.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="randartist"><a class="header" href="#randartist">/rand/artist</a></h1>
-<h4 id="-stable-77"><a class="header" href="#-stable-77">🟢 Stable</a></h4>
+<h4 id="-stable-79"><a class="header" href="#-stable-79">🟢 Stable</a></h4>
 <p>This API is <a href="rest/rand//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Download all the <code>Album</code>'s by a random <code>Artist</code>, 1 directory per album (including art if found), wrapped in an archive format.</p>
@@ -8271,7 +8312,7 @@ My Song (3).flac
          ├─ Song Name 9.ogg
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="randalbum"><a class="header" href="#randalbum">/rand/album</a></h1>
-<h4 id="-stable-78"><a class="header" href="#-stable-78">🟢 Stable</a></h4>
+<h4 id="-stable-80"><a class="header" href="#-stable-80">🟢 Stable</a></h4>
 <p>This API is <a href="rest/rand//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Download a random <code>Album</code> (including art if found), wrapped in an archive format.</p>
@@ -8294,7 +8335,7 @@ My Song (3).flac
   ├─ Song Name 3.ogg
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="randsong"><a class="header" href="#randsong">/rand/song</a></h1>
-<h4 id="-stable-79"><a class="header" href="#-stable-79">🟢 Stable</a></h4>
+<h4 id="-stable-81"><a class="header" href="#-stable-81">🟢 Stable</a></h4>
 <p>This API is <a href="rest/rand//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Download a random <code>Song</code> in the original format.</p>
@@ -8309,7 +8350,7 @@ My Song (3).flac
 <pre><code class="language-plaintext">Artist Name - Album Title - Song Title.flac
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="randart"><a class="header" href="#randart">/rand/art</a></h1>
-<h4 id="-stable-80"><a class="header" href="#-stable-80">🟢 Stable</a></h4>
+<h4 id="-stable-82"><a class="header" href="#-stable-82">🟢 Stable</a></h4>
 <p>This API is <a href="rest/rand//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Download a random <code>Album</code> art, in the original format.</p>
@@ -8327,7 +8368,7 @@ My Song (3).flac
 <div style="break-before: page; page-break-before: always;"></div><h1 id="art"><a class="header" href="#art">/art</a></h1>
 <p>This is the same as the <a href="rest/art/../map/map.html"><code>/map</code></a> endpoint, but only for downloading <code>Album</code> art.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="artartist_name"><a class="header" href="#artartist_name">/art/$ARTIST_NAME</a></h1>
-<h4 id="-stable-81"><a class="header" href="#-stable-81">🟢 Stable</a></h4>
+<h4 id="-stable-83"><a class="header" href="#-stable-83">🟢 Stable</a></h4>
 <p>This API is <a href="rest/art//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Download all the <code>Album</code> art owned by this <code>Artist</code>, wrapped in an archive format, using the <a href="rest/art//common-objects/artist.html"><code>Artist</code></a>'s name.</p>
@@ -8352,7 +8393,7 @@ My Song (3).flac
     ├─ Album Name 3.webp
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="artartist_namealbum_title"><a class="header" href="#artartist_namealbum_title">/art/$ARTIST_NAME/$ALBUM_TITLE</a></h1>
-<h4 id="-stable-82"><a class="header" href="#-stable-82">🟢 Stable</a></h4>
+<h4 id="-stable-84"><a class="header" href="#-stable-84">🟢 Stable</a></h4>
 <p>This API is <a href="rest/art//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Download an <code>Album</code>'s art, using the <a href="rest/art//common-objects/artist.html"><code>Artist</code></a>'s name, and <a href="rest/art//common-objects/album.html"><code>Album</code></a> title</p>
@@ -8371,7 +8412,7 @@ My Song (3).flac
 <pre><code class="language-plaintext">Art - Artist Name - Album Title.png
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="playlistplaylist_name"><a class="header" href="#playlistplaylist_name">/playlist/$PLAYLIST_NAME</a></h1>
-<h4 id="-stable-83"><a class="header" href="#-stable-83">🟢 Stable</a></h4>
+<h4 id="-stable-85"><a class="header" href="#-stable-85">🟢 Stable</a></h4>
 <p>This API is <a href="rest//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Download all the <a href="rest//common-objects/song.html"><code>Song</code></a>'s from a <a href="rest//common-objects/playlist.html"><code>Playlist</code></a>.</p>
@@ -8405,7 +8446,7 @@ My Song (3).flac
   ├─ 2 - Artist Name - Album Title - Song Name.ogg
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="collection-3"><a class="header" href="#collection-3">/collection</a></h1>
-<h4 id="-stable-84"><a class="header" href="#-stable-84">🟢 Stable</a></h4>
+<h4 id="-stable-86"><a class="header" href="#-stable-86">🟢 Stable</a></h4>
 <p>This API is <a href="rest//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <p>(However, the <a href="rest//json-rpc/collection/collection_full.html"><code>collection_full</code></a> output is <code>🟡 Incomplete</code>).</p>
 <hr />

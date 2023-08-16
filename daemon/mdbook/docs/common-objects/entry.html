@@ -173,6 +173,13 @@
 <h4 id="-stable"><a class="header" href="#-stable">🟢 Stable</a></h4>
 <p>This API is <a href="/api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
+<p>An &quot;absolute&quot; key to:</p>
+<ul>
+<li>a particular <a href="/common-object/song.html"><code>Song</code></a></li>
+<li>in a particular <a href="/common-object/album.html"><code>Album</code></a></li>
+<li>by a particular <a href="/common-object/artist.html"><code>Artist</code></a></li>
+</ul>
+<p>This object contains all the relational data of a <code>Song</code>, along with its filesystem PATH.</p>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>path</td><td>string (PATH)</td><td>The PATH of this <code>Song</code> on the filesystem <code>festivald</code> is running on</td></tr>
 <tr><td>key_artist</td><td><code>Artist</code> key (unsigned integer)</td><td>The <code>Artist</code> key</td></tr>

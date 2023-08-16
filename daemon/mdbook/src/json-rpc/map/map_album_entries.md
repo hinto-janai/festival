@@ -1,7 +1,7 @@
 # map_album_entries
 
-#### 🟡 Incomplete
-This API may have [additions](/api-stability/marker.md) in the future.
+#### 🟢 Stable
+This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 

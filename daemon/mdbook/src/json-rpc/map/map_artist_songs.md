@@ -5,7 +5,7 @@ This API may have [additions](/api-stability/marker.md) in the future.
 
 ---
 
-Input an [`Artist`](/common-objects/artist.md), retrieve all their [`Song`](/common-objects/song.md)'s.
+Input an [`Artist`](/common-objects/artist.md) name, retrieve all their [`Song`](/common-objects/song.md)'s.
 
 The `Song`'s are sorted by `Album release date`, then `Track + Disc order`.
 

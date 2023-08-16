@@ -173,14 +173,17 @@
 <h4 id="-incomplete"><a class="header" href="#-incomplete">🟡 Incomplete</a></h4>
 <p>This API may have <a href="/api-stability/marker.html">additions</a> in the future.</p>
 <hr />
-<p>The <a href="/common-objects/key.html">keys</a> inside <code>songs</code> is sorted by <code>Track + Disc order</code>.</p>
+<p>A unique <code>Album</code> owned by an <a href="/common-objects/artist.html"><code>Artist</code></a>.</p>
+<p>Uniqueness is defined by the <code>Album</code>'s <code>title</code>.</p>
+<p><code>Album</code> objects hold <a href="/common-objects/key.html">keys</a> to all of its <a href="/common-object/song.html"><code>Song</code></a>'s, acting as a relation link.</p>
+<p>The keys inside <code>songs</code> is sorted by <code>Track + Disc order</code>.</p>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>title</td><td>string</td><td>The title of this <code>Album</code></td></tr>
 <tr><td>key</td><td><code>Album</code> key (unsigned integer)</td><td>The <code>Album</code> key associated with this <code>Album</code></td></tr>
-<tr><td>artist</td><td><a href="/common-objects/artist.html"><code>Artist</code></a> key (unsigned integer)</td><td>The <code>Artist</code> key of the <code>Artist</code> that owns this <code>Album</code></td></tr>
+<tr><td>artist</td><td><code>Artist</code> key (unsigned integer)</td><td>The <code>Artist</code> key of the <code>Artist</code> that owns this <code>Album</code></td></tr>
 <tr><td>release</td><td>string</td><td>Release date of this <code>Album</code> in <code>YYYY-MM-DD</code>/<code>YYYY-MM</code>/<code>YYYY</code> format, <code>????-??-??</code> if unknown</td></tr>
 <tr><td>runtime</td><td>unsigned integer</td><td>The total runtime of this <code>Album</code> in seconds</td></tr>
-<tr><td>song_count</td><td>unsigned integer</td><td>How many <a href="/common-objects/song.html"><code>Song</code></a>'s are in this <code>Album</code></td></tr>
+<tr><td>song_count</td><td>unsigned integer</td><td>How many <code>Song</code>'s are in this <code>Album</code></td></tr>
 <tr><td>songs</td><td>array of <code>Song</code> keys (unsigned integers)</td><td>Keys to all of the <code>Song</code>'s in this <code>Album</code>, in track order</td></tr>
 <tr><td>discs</td><td>unsigned integer</td><td>Count of how many &quot;discs&quot; are in this <code>Album</code>, most will be <code>0</code></td></tr>
 <tr><td>art</td><td>optional (maybe null) unsigned integer</td><td>Size of this <code>Album</code>'s art in bytes, <code>null</code> if not found</td></tr>

@@ -173,14 +173,17 @@
 <h4 id="-incomplete"><a class="header" href="#-incomplete">🟡 Incomplete</a></h4>
 <p>This API may have <a href="/api-stability/marker.html">additions</a> in the future.</p>
 <hr />
-<p>The <a href="/common-objects/key.html">keys</a> inside <code>albums</code> is sorted by <code>Release date</code>.</p>
+<p>A unique &quot;artist&quot; inside your <a href="/common-objects/collection.html"><code>Collection</code></a>.</p>
+<p>Uniqueness is defined by the <code>Artist</code>'s <code>name</code>.</p>
+<p><code>Artist</code> objects hold <a href="/common-objects/key.html">keys</a> to all of their <a href="/common-object/album.html"><code>Album</code></a>'s and <a href="/common-object/song.html"><code>Song</code></a>'s, acting as a relation link.</p>
+<p>The keys inside <code>albums</code> is sorted by <code>Release date</code>.</p>
 <p>The keys inside <code>songs</code> is sorted by <code>Track + Disc order</code>.</p>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>name</td><td>string</td><td>The <code>Artist</code>'s name</td></tr>
 <tr><td>key</td><td><code>Artist</code> key (unsigned integer)</td><td>The <code>Artist</code> key associated with this <code>Artist</code></td></tr>
 <tr><td>runtime</td><td>unsigned integer</td><td>The total runtime of all songs owned by this <code>Artist</code> in seconds</td></tr>
-<tr><td>albums</td><td>array of <a href="/common-objects/album.html"><code>Album</code></a> keys (unsigned integers)</td><td>Keys to all <code>Album</code>'s owned by this <code>Artist</code>, in release order</td></tr>
-<tr><td>songs</td><td>array of <a href="/common-objects/song.html"><code>Song</code></a> keys (unsigned integers)</td><td>Keys to all <code>Songs</code>'s owned by this <code>Artist</code>, in <code>Album</code> release order, then <code>Song</code> track order</td></tr>
+<tr><td>albums</td><td>array of <code>Album</code> keys (unsigned integers)</td><td>Keys to all <code>Album</code>'s owned by this <code>Artist</code>, in release order</td></tr>
+<tr><td>songs</td><td>array of <code>Song</code> keys (unsigned integers)</td><td>Keys to all <code>Songs</code>'s owned by this <code>Artist</code>, in <code>Album</code> release order, then <code>Song</code> track order</td></tr>
 </tbody></table>
 </div>
 <h4 id="example"><a class="header" href="#example">Example</a></h4>
