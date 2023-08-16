@@ -9,7 +9,7 @@ Send a shutdown signal to `festivald`.
 
 `festivald` will:
 - Reject future connections
-- Wait for a [`Collection`](/common-objects/collection.md) [reset](/json-rpc/collection/collection_new.md) to finish if occuring
+- Wait for a [`Collection`](/common-objects/collection.md) [reset](/json-rpc/collection/collection_new.md) to finish if occurring
 - [Clean cache](/json-rpc/daemon/daemon_remove_cache.md)
 - [Save](/json-rpc/daemon/daemon_save.md) state to disk
 

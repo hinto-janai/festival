@@ -405,6 +405,18 @@ pub async fn handle(
 	use rpc::Method::*;
 	match method {
 		//-------------------------------------------------- Collection
+		//                               method
+		//                        (in-scope) variable
+		//                                  |
+		//                                  |     request
+		//                                  | (in-scope) variable
+		//                                  |        |
+		//                                  |        |    function to call if
+		//                                  |        |   the parameters are ok
+		//                                  |        | (defined somewhere below)     expected                     additional function arguments
+		//                                  |        |          |                 parameter type                               |
+		//                                  |        |          |                       |             |------------------------|--------------------------|
+		//                                  v        v          v                       v             v                                                   v
 		CollectionNew          => ppacor!(method, request, collection_new, rpc::param::CollectionNew, collection.arc(), TO_KERNEL, FROM_KERNEL, TO_ROUTER_C).await,
 		CollectionBrief        => lac!(method, request, collection_brief, collection.arc()).await,
 		CollectionFull         => lac!(method, request, collection_full).await,
@@ -514,17 +526,17 @@ pub async fn handle(
 		QueueRemoveRange   => ppacor!(method, request, queue_remove_range, rpc::param::QueueRemoveRange, TO_KERNEL).await,
 
 		//-------------------------------------------------- Playlist
-		PlaylistNew          => ppacor!(method, request, playlist_new, rpc::param::PlaylistNew, collection.arc(), TO_KERNEL).await,
-		PlaylistRemove       => ppacor!(method, request, playlist_remove, rpc::param::PlaylistRemove, collection.arc(), TO_KERNEL).await,
-		PlaylistClone        => ppacor!(method, request, playlist_clone, rpc::param::PlaylistClone, collection.arc(), TO_KERNEL).await,
-		PlaylistRemoveEntry  => ppacor!(method, request, playlist_remove_entry, rpc::param::PlaylistRemoveEntry, collection.arc(), TO_KERNEL).await,
-		PlaylistAddKeyArtist => ppacor!(method, request, playlist_add_key_artist, rpc::param::PlaylistAddKeyArtist, collection.arc(), TO_KERNEL).await,
-		PlaylistAddKeyAlbum  => ppacor!(method, request, playlist_add_key_album, rpc::param::PlaylistAddKeyAlbum, collection.arc(), TO_KERNEL).await,
-		PlaylistAddKeySong   => ppacor!(method, request, playlist_add_key_song, rpc::param::PlaylistAddKeySong, collection.arc(), TO_KERNEL).await,
-		PlaylistAddMapArtist => ppacor!(method, request, playlist_add_map_artist, rpc::param::PlaylistAddMapArtist, collection.arc(), TO_KERNEL).await,
-		PlaylistAddMapAlbum  => ppacor!(method, request, playlist_add_map_album, rpc::param::PlaylistAddMapAlbum, collection.arc(), TO_KERNEL).await,
-		PlaylistAddMapSong   => ppacor!(method, request, playlist_add_map_song, rpc::param::PlaylistAddMapSong, collection.arc(), TO_KERNEL).await,
-		PlaylistSingle       => ppacor!(method, request, playlist_single, rpc::param::PlaylistSingle, collection.arc(), TO_KERNEL).await,
+		PlaylistNew          => ppacor!(method, request, playlist_new, rpc::param::PlaylistNew, collection.arc()).await,
+		PlaylistRemove       => ppacor!(method, request, playlist_remove, rpc::param::PlaylistRemove, collection.arc()).await,
+		PlaylistClone        => ppacor!(method, request, playlist_clone, rpc::param::PlaylistClone, collection.arc()).await,
+		PlaylistRemoveEntry  => ppacor!(method, request, playlist_remove_entry, rpc::param::PlaylistRemoveEntry, collection.arc()).await,
+		PlaylistAddKeyArtist => ppacor!(method, request, playlist_add_key_artist, rpc::param::PlaylistAddKeyArtist, collection.arc()).await,
+		PlaylistAddKeyAlbum  => ppacor!(method, request, playlist_add_key_album, rpc::param::PlaylistAddKeyAlbum, collection.arc()).await,
+		PlaylistAddKeySong   => ppacor!(method, request, playlist_add_key_song, rpc::param::PlaylistAddKeySong, collection.arc()).await,
+		PlaylistAddMapArtist => ppacor!(method, request, playlist_add_map_artist, rpc::param::PlaylistAddMapArtist, collection.arc()).await,
+		PlaylistAddMapAlbum  => ppacor!(method, request, playlist_add_map_album, rpc::param::PlaylistAddMapAlbum, collection.arc()).await,
+		PlaylistAddMapSong   => ppacor!(method, request, playlist_add_map_song, rpc::param::PlaylistAddMapSong, collection.arc()).await,
+		PlaylistSingle       => ppacor!(method, request, playlist_single, rpc::param::PlaylistSingle, collection.arc()).await,
 		PlaylistBrief        => lac!(method, request, playlist_brief).await,
 		PlaylistFull         => lac!(method, request, playlist_full).await,
 	}
@@ -1945,7 +1957,6 @@ async fn playlist_new<'a>(
 	params:      rpc::param::PlaylistNew<'a>,
 	id:          Option<Id<'a>>,
 	collection:  Arc<Collection>,
-	TO_KERNEL:   &'static Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	match PLAYLISTS.write().playlist_new(&params.playlist) {
 		Some(v) => Ok(resp::result(serde_json::json!({ "entries": v }), id)),
@@ -1957,7 +1968,6 @@ async fn playlist_remove<'a>(
 	params:      rpc::param::PlaylistRemove<'a>,
 	id:          Option<Id<'a>>,
 	collection:  Arc<Collection>,
-	TO_KERNEL:   &'static Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	match PLAYLISTS.write().playlist_remove(params.playlist.into()) {
 		Some(v) => Ok(resp::result(serde_json::json!({ "entries": v }), id)),
@@ -1969,7 +1979,6 @@ async fn playlist_clone<'a>(
 	params:      rpc::param::PlaylistClone<'a>,
 	id:          Option<Id<'a>>,
 	collection:  Arc<Collection>,
-	TO_KERNEL:   &'static Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	match PLAYLISTS.write().playlist_clone(params.from.into(), &params.to) {
 		Ok(Some(v)) => Ok(resp::result(serde_json::json!({ "entries": v }), id)),
@@ -1982,7 +1991,6 @@ async fn playlist_remove_entry<'a>(
 	params:      rpc::param::PlaylistRemoveEntry<'a>,
 	id:          Option<Id<'a>>,
 	collection:  Arc<Collection>,
-	TO_KERNEL:   &'static Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	match PLAYLISTS.write().playlist_remove_entry(params.index, params.playlist.into()) {
 		Ok(Some(v)) => Ok(resp::result(serde_json::json!({ "entry": v }), id)),
@@ -2017,7 +2025,6 @@ async fn playlist_add_key_artist<'a>(
 	params:      rpc::param::PlaylistAddKeyArtist,
 	id:          Option<Id<'a>>,
 	collection:  Arc<Collection>,
-	TO_KERNEL:   &'static Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	let key = ArtistKey::from(params.key);
 	if collection.artists.get(key).is_none() {
@@ -2037,7 +2044,6 @@ async fn playlist_add_key_album<'a>(
 	params:      rpc::param::PlaylistAddKeyAlbum,
 	id:          Option<Id<'a>>,
 	collection:  Arc<Collection>,
-	TO_KERNEL:   &'static Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	let key = AlbumKey::from(params.key);
 	if collection.albums.get(key).is_none() {
@@ -2057,7 +2063,6 @@ async fn playlist_add_key_song<'a>(
 	params:      rpc::param::PlaylistAddKeySong,
 	id:          Option<Id<'a>>,
 	collection:  Arc<Collection>,
-	TO_KERNEL:   &'static Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	let key = SongKey::from(params.key);
 	if collection.songs.get(key).is_none() {
@@ -2077,7 +2082,6 @@ async fn playlist_add_map_artist<'a>(
 	params:      rpc::param::PlaylistAddMapArtist<'a>,
 	id:          Option<Id<'a>>,
 	collection:  Arc<Collection>,
-	TO_KERNEL:   &'static Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	let Some((_, key)) = collection.artist(&params.artist) else {
 		return Ok(resp::error(ERR_MAP_ARTIST.0, ERR_MAP_ARTIST.1, id));
@@ -2096,7 +2100,6 @@ async fn playlist_add_map_album<'a>(
 	params:      rpc::param::PlaylistAddMapAlbum<'a>,
 	id:          Option<Id<'a>>,
 	collection:  Arc<Collection>,
-	TO_KERNEL:   &'static Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	let Some((_, key)) = collection.album(&params.artist, &params.album) else {
 		return Ok(resp::error(ERR_MAP_ALBUM.0, ERR_MAP_ALBUM.1, id));
@@ -2115,7 +2118,6 @@ async fn playlist_add_map_song<'a>(
 	params:      rpc::param::PlaylistAddMapSong<'a>,
 	id:          Option<Id<'a>>,
 	collection:  Arc<Collection>,
-	TO_KERNEL:   &'static Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	let Some((song, _)) = collection.song(&params.artist, &params.album, &params.song) else {
 		return Ok(resp::error(ERR_MAP_SONG.0, ERR_MAP_SONG.1, id));
@@ -2134,7 +2136,6 @@ async fn playlist_single<'a>(
 	params:      rpc::param::PlaylistSingle<'a>,
 	id:          Option<Id<'a>>,
 	collection:  Arc<Collection>,
-	TO_KERNEL:   &'static Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	let v = PLAYLISTS.read().get(&*params.playlist).map(|v| v.clone());
 	if let Some(v) = v {

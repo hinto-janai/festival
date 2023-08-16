@@ -5,12 +5,12 @@ This API may have [additions](/api-stability/marker.md) in the future.
 
 ---
 
-Input a [`Song` key](/common-objects/key.dm), retrieve its [`Artist`](/common-objects/artist.md).
+Input a [`Song`](/common-objects/song.md) [key](/common-objects/key.md), retrieve its [`Artist`](/common-objects/artist.md).
 
 #### Inputs
 
-| Field | Type                                           | Description |
-|-------|------------------------------------------------|-------------|
+| Field | Type                                         | Description |
+|-------|----------------------------------------------|-------------|
 | key   | `Song` key (unsigned integer)                | See [`Key`](/common-objects/key.md)
 
 #### Outputs

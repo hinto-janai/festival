@@ -1,11 +1,11 @@
 # key_album_entries
 
-#### 🟡 Incomplete
-This API may have [additions](/api-stability/marker.md) in the future.
+#### 🟢 Stable
+This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Input an [`Album` key](/common-objects/key.dm), retrieve all of its [`Song`](/common-objects/song.md)'s in [`Entry`](/common-objects/entry.md) form.
+Input an [`Album`](/common-objects/album.md) [key](/common-objects/key.md), retrieve all of its [`Song`](/common-objects/song.md)'s in [`Entry`](/common-objects/entry.md) form.
 
 The `Entry`'s are sorted by `Track + Disc order`.
 

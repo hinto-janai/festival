@@ -173,7 +173,7 @@
 <h4 id="-incomplete"><a class="header" href="#-incomplete">🟡 Incomplete</a></h4>
 <p>This API may have <a href="/api-stability/marker.html">additions</a> in the future.</p>
 <hr />
-<p>Input an <a href="/common-objects/key.dm"><code>Album</code> key</a>, retrieve its <a href="/common-objects/artist.html"><code>Artist</code></a>.</p>
+<p>Input an <a href="/common-objects/album.html"><code>Album</code></a> <a href="/common-objects/key.html">key</a>, retrieve its <a href="/common-objects/artist.html"><code>Artist</code></a>.</p>
 <h4 id="inputs"><a class="header" href="#inputs">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>key</td><td><code>Album</code> key (unsigned integer)</td><td>See <a href="/common-objects/key.html"><code>Key</code></a></td></tr>
@@ -240,6 +240,22 @@
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 

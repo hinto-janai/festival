@@ -1,11 +1,11 @@
 # key_artist_entries
 
-#### 🟡 Incomplete
-This API may have [additions](/api-stability/marker.md) in the future.
+#### 🟢 Stable
+This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Input an [`Artist` key](/common-objects/key.dm), retrieve all their [`Song`](/common-objects/song.md)'s in [`Entry`](/common-objects/entry.md) form.
+Input an [`Artist`](/common-objects/artist.md) [key](/common-objects/key.md), retrieve all their [`Song`](/common-objects/song.md)'s in [`Entry`](/common-objects/entry.md) form.
 
 The `Entry`'s are sorted by `Album release date`, then `Track + Disc order`.
 

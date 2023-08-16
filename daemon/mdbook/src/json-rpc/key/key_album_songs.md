@@ -5,7 +5,7 @@ This API may have [additions](/api-stability/marker.md) in the future.
 
 ---
 
-Input an [`Album` key](/common-objects/key.dm), retrieve all of its [`Song`](/common-objects/song.md)'s.
+Input an [`Album`](/common-objects/album.md) [key](/common-objects/key.md), retrieve all of its [`Song`](/common-objects/song.md)'s.
 
 The `Song`'s are sorted by `Track + Disc order`.
 

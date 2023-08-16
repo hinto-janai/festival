@@ -161,7 +161,7 @@ pub enum Method {
 }
 
 impl Method {
-	/// Print each method, seperated by a newline.
+	/// Print each method, separated by a newline.
 	pub fn println_all() {
 		use strum::IntoEnumIterator;
 		for i in Self::iter() {

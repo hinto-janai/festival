@@ -170,10 +170,10 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="key_artist_entries"><a class="header" href="#key_artist_entries">key_artist_entries</a></h1>
-<h4 id="-incomplete"><a class="header" href="#-incomplete">🟡 Incomplete</a></h4>
-<p>This API may have <a href="/api-stability/marker.html">additions</a> in the future.</p>
+<h4 id="-stable"><a class="header" href="#-stable">🟢 Stable</a></h4>
+<p>This API is <a href="/api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
-<p>Input an <a href="/common-objects/key.dm"><code>Artist</code> key</a>, retrieve all their <a href="/common-objects/song.html"><code>Song</code></a>'s in <a href="/common-objects/entry.html"><code>Entry</code></a> form.</p>
+<p>Input an <a href="/common-objects/artist.html"><code>Artist</code></a> <a href="/common-objects/key.html">key</a>, retrieve all their <a href="/common-objects/song.html"><code>Song</code></a>'s in <a href="/common-objects/entry.html"><code>Entry</code></a> form.</p>
 <p>The <code>Entry</code>'s are sorted by <code>Album release date</code>, then <code>Track + Disc order</code>.</p>
 <h4 id="inputs"><a class="header" href="#inputs">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
@@ -250,6 +250,22 @@
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 

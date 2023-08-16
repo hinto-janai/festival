@@ -177,7 +177,7 @@
 <p><code>festivald</code> will:</p>
 <ul>
 <li>Reject future connections</li>
-<li>Wait for a <a href="/common-objects/collection.html"><code>Collection</code></a> <a href="/json-rpc/collection/collection_new.html">reset</a> to finish if occuring</li>
+<li>Wait for a <a href="/common-objects/collection.html"><code>Collection</code></a> <a href="/json-rpc/collection/collection_new.html">reset</a> to finish if occurring</li>
 <li><a href="/json-rpc/daemon/daemon_remove_cache.html">Clean cache</a></li>
 <li><a href="/json-rpc/daemon/daemon_save.html">Save</a> state to disk</li>
 </ul>
@@ -239,6 +239,22 @@
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 

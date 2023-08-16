@@ -5,7 +5,7 @@ This API may have [additions](/api-stability/marker.md) in the future.
 
 ---
 
-Input an [`Album` key](/common-objects/key.dm), retrieve its [`Artist`](/common-objects/artist.md).
+Input an [`Album`](/common-objects/album.md) [key](/common-objects/key.md), retrieve its [`Artist`](/common-objects/artist.md).
 
 #### Inputs
 
