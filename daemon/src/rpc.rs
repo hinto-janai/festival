@@ -504,9 +504,7 @@ pub async fn handle(
 		Seek               => ppacor!(method, request, seek, rpc::param::Seek, TO_KERNEL).await,
 		Skip               => ppacor!(method, request, skip, rpc::param::Skip, TO_KERNEL).await,
 		Back               => ppacor!(method, request, back, rpc::param::Back, TO_KERNEL).await,
-		RepeatOff          => lac!(method, request, repeat_off, TO_KERNEL).await,
-		RepeatSong         => lac!(method, request, repeat_song, TO_KERNEL).await,
-		RepeatQueue        => lac!(method, request, repeat_queue, TO_KERNEL).await,
+		Repeat             => ppacor!(method, request, repeat, rpc::param::Repeat, TO_KERNEL).await,
 		Volume             => ppacor!(method, request, volume, rpc::param::Volume, TO_KERNEL).await,
 		VolumeUp           => ppacor!(method, request, volume_up, rpc::param::VolumeUp, TO_KERNEL).await,
 		VolumeDown         => ppacor!(method, request, volume_down, rpc::param::VolumeDown, TO_KERNEL).await,
@@ -1603,11 +1601,7 @@ impl_signal! {
 	play,         FrontendToKernel::Play,
 	pause,        FrontendToKernel::Pause,
 	next,         FrontendToKernel::Next,
-	stop,         FrontendToKernel::Stop,
-	shuffle,      FrontendToKernel::Shuffle,
-	repeat_off,   FrontendToKernel::Repeat(shukusai::audio::Repeat::Off),
-	repeat_song,  FrontendToKernel::Repeat(shukusai::audio::Repeat::Song),
-	repeat_queue, FrontendToKernel::Repeat(shukusai::audio::Repeat::Queue)
+	shuffle,      FrontendToKernel::Shuffle
 }
 
 async fn previous<'a>(
@@ -1624,8 +1618,24 @@ async fn clear<'a>(
 	id:        Option<Id<'a>>,
 	TO_KERNEL: &Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
-	send!(TO_KERNEL, FrontendToKernel::Clear(params.playback));
-	Ok(resp::result_ok(id))
+	let len = AUDIO_STATE.read().queue.len();
+	let resp = rpc::resp::Clear { len };
+	if len != 0 {
+		send!(TO_KERNEL, FrontendToKernel::Clear(params.playback));
+	}
+	Ok(resp::result(resp, id))
+}
+
+async fn stop<'a>(
+	id:        Option<Id<'a>>,
+	TO_KERNEL: &Sender<FrontendToKernel>,
+) -> Result<Response<Body>, anyhow::Error> {
+	let len = AUDIO_STATE.read().queue.len();
+	let resp = rpc::resp::Stop { len };
+	if len != 0 {
+		send!(TO_KERNEL, FrontendToKernel::Stop);
+	}
+	Ok(resp::result(resp, id))
 }
 
 async fn seek<'a>(
@@ -1633,7 +1643,7 @@ async fn seek<'a>(
 	id:        Option<Id<'a>>,
 	TO_KERNEL: &Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
-	send!(TO_KERNEL, FrontendToKernel::Seek((params.seek, params.second)));
+	send!(TO_KERNEL, FrontendToKernel::Seek((params.kind, params.second)));
 	Ok(resp::result_ok(id))
 }
 
@@ -1653,6 +1663,23 @@ async fn back<'a>(
 ) -> Result<Response<Body>, anyhow::Error> {
 	send!(TO_KERNEL, FrontendToKernel::Back(params.back));
 	Ok(resp::result_ok(id))
+}
+
+async fn repeat<'a>(
+	params:    rpc::param::Repeat,
+	id:        Option<Id<'a>>,
+	TO_KERNEL: &Sender<FrontendToKernel>
+) -> Result<Response<Body>, anyhow::Error> {
+	let current  = params.mode;
+	let previous = AUDIO_STATE.read().repeat;
+	let resp = rpc::resp::Repeat {
+		previous,
+		current,
+	};
+	if previous != current {
+		send!(TO_KERNEL, FrontendToKernel::Repeat(current));
+	}
+	Ok(resp::result(resp, id))
 }
 
 async fn volume<'a>(

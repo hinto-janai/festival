@@ -472,20 +472,13 @@ impl_rpc! {
 	"playback/shuffle",
 	Shuffle => Method::Shuffle
 }
-impl_rpc! {
-	"Turn off repeating",
-	"playback/repeat_off",
-	RepeatOff => Method::RepeatOff
-}
-impl_rpc! {
-	"Turn on song repeating",
-	"playback/repeat_song",
-	RepeatSong => Method::RepeatSong
-}
-impl_rpc! {
-	"Turn on queue repeating",
-	"playback/repeat_queue",
-	RepeatQueue => Method::RepeatQueue
+impl_rpc_param! {
+	"Set a repeat mode",
+	"playback/repeat",
+	Repeat => Method::Repeat,
+	"The repeat mode to set.",
+	#[arg(value_name = "off|song|queue")]
+	mode: shukusai::audio::Repeat
 }
 impl_rpc_param! {
 	"Set the current Song to the previous in the queue",
@@ -531,8 +524,8 @@ impl_rpc_param! {
 	"playback/seek",
 	Seek => Method::Seek,
 	r#"The "type" of seeking we should do"#,
-	#[arg(value_name = "FORWARD|BACKWARD|ABSOLUTE")]
-	seek: shukusai::audio::Seek,
+	#[arg(value_name = "forward|backward|absolute")]
+	kind: shukusai::audio::Seek,
 	"The second to seek forward/backwards/to",
 	second: u64
 }
@@ -559,7 +552,7 @@ impl_rpc_param! {
 	"Artist key",
 	key: usize,
 	"In which way should we add to the queue?",
-	#[arg(value_name = "FRONT|BACK|INDEX")]
+	#[arg(value_name = "front|back|index")]
 	append: Append2,
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>,
@@ -575,7 +568,7 @@ impl_rpc_param! {
 	"Album key",
 	key: usize,
 	"In which way should we add to the queue?",
-	#[arg(value_name = "FRONT|BACK|INDEX")]
+	#[arg(value_name = "front|back|index")]
 	append: Append2,
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>,
@@ -591,7 +584,7 @@ impl_rpc_param! {
 	"Song key",
 	key: usize,
 	"In which way should we add to the queue?",
-	#[arg(value_name = "FRONT|BACK|INDEX")]
+	#[arg(value_name = "front|back|index")]
 	append: Append2,
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>,
@@ -608,7 +601,7 @@ impl_rpc_param! {
 	"Artist name",
 	artist: String,
 	"In which way should we add to the queue?",
-	#[arg(value_name = "FRONT|BACK|INDEX")]
+	#[arg(value_name = "front|back|index")]
 	append: Append2,
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>,
@@ -626,7 +619,7 @@ impl_rpc_param! {
 	"Album title",
 	album: String,
 	"In which way should we add to the queue?",
-	#[arg(value_name = "FRONT|BACK|INDEX")]
+	#[arg(value_name = "front|back|index")]
 	append: Append2,
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>,
@@ -646,7 +639,7 @@ impl_rpc_param! {
 	"Song title",
 	song: String,
 	"In which way should we add to the queue?",
-	#[arg(value_name = "FRONT|BACK|INDEX")]
+	#[arg(value_name = "front|back|index")]
 	append: Append2,
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>,
@@ -658,7 +651,7 @@ impl_rpc_param! {
 	"queue/queue_add_rand_artist",
 	QueueAddRandArtist => Method::QueueAddRandArtist,
 	"In which way should we add to the queue?",
-	#[arg(value_name = "FRONT|BACK|INDEX")]
+	#[arg(value_name = "front|back|index")]
 	append: Append2,
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>,
@@ -672,7 +665,7 @@ impl_rpc_param! {
 	"queue/queue_add_rand_album",
 	QueueAddRandAlbum => Method::QueueAddRandAlbum,
 	"In which way should we add to the queue?",
-	#[arg(value_name = "FRONT|BACK|INDEX")]
+	#[arg(value_name = "front|back|index")]
 	append: Append2,
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>,
@@ -686,7 +679,7 @@ impl_rpc_param! {
 	"queue/queue_add_rand_song",
 	QueueAddRandSong => Method::QueueAddRandSong,
 	"In which way should we add to the queue?",
-	#[arg(value_name = "FRONT|BACK|INDEX")]
+	#[arg(value_name = "front|back|index")]
 	append: Append2,
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>,
@@ -701,7 +694,7 @@ impl_rpc_param! {
 	"The name of the playlist",
 	playlist: String,
 	"In which way should we add to the queue?",
-	#[arg(value_name = "FRONT|BACK|INDEX")]
+	#[arg(value_name = "front|back|index")]
 	append: Append2,
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>,
@@ -775,7 +768,7 @@ impl_rpc_param! {
 	"The artist key",
 	key: usize,
 	"In which way should we add to the queue?",
-	#[arg(value_name = "FRONT|BACK|INDEX")]
+	#[arg(value_name = "front|back|index")]
 	append: Append2,
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>
@@ -789,7 +782,7 @@ impl_rpc_param! {
 	"The album key",
 	key: usize,
 	"In which way should we add to the queue?",
-	#[arg(value_name = "FRONT|BACK|INDEX")]
+	#[arg(value_name = "front|back|index")]
 	append: Append2,
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>
@@ -803,7 +796,7 @@ impl_rpc_param! {
 	"The song key",
 	key: usize,
 	"In which way should we add to the queue?",
-	#[arg(value_name = "FRONT|BACK|INDEX")]
+	#[arg(value_name = "front|back|index")]
 	append: Append2,
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>
@@ -818,7 +811,7 @@ impl_rpc_param! {
 	"The name of the artist",
 	artist: String,
 	"In which way should we add to the queue?",
-	#[arg(value_name = "FRONT|BACK|INDEX")]
+	#[arg(value_name = "front|back|index")]
 	append: Append2,
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>
@@ -835,7 +828,7 @@ impl_rpc_param! {
 	"The name of the album",
 	album: String,
 	"In which way should we add to the queue?",
-	#[arg(value_name = "FRONT|BACK|INDEX")]
+	#[arg(value_name = "front|back|index")]
 	append: Append2,
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>
@@ -854,7 +847,7 @@ impl_rpc_param! {
 	"The name of the song",
 	song: String,
 	"In which way should we add to the queue?",
-	#[arg(value_name = "FRONT|BACK|INDEX")]
+	#[arg(value_name = "front|back|index")]
 	append: Append2,
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>

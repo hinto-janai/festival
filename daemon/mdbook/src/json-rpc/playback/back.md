@@ -5,12 +5,12 @@ This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Go backwards a variable amount of `Song`'s in the current queue.
+Go backwards a variable amount of [`Song`](/common-objects/song.md)'s in the [queue](/json-rpc/queue/queue.md).
 
 #### Inputs
 | Field | Type             | Description |
 |-------|------------------|-------------|
-| back  | unsigned integer | How many `Song`'s to go backwards. This will _not_ wrap around if we hit the 1st `Song`.
+| back  | unsigned integer | How many `Song`'s to go backwards. This will _not_ wrap around if we hit the 1st `Song` in the queue.
 
 #### Outputs
 `null` if everything went ok.

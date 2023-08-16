@@ -10,7 +10,7 @@ Lower the playback volume.
 #### Inputs
 | Field | Type             | Description |
 |-------|------------------|-------------|
-| down  | unsigned integer | The number to lower the volume by. Must be in-between 0..100.
+| down  | unsigned integer | The number to lower the volume by. Must be in-between `0..100`. Volume cannot go lower than `0`.
 
 #### Outputs
 | Field    | Type             | Description |

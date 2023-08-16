@@ -16,7 +16,6 @@ use shukusai::{
 		AlbumKey,
 		ArtistKey,
 	},
-	audio::Repeat,
 	search::SearchKind,
 	state::{
 		PlaylistsJson,
@@ -216,7 +215,7 @@ impl_struct_lt! {
 	song_key:  Option<SongKey>,
 	elapsed:   u32,
 	runtime:   u32,
-	repeat:    Repeat,
+	repeat:    shukusai::audio::Repeat,
 	volume:    u8,
 	#[serde(borrow)]
 	song:      Option<SongJson<'a>>
@@ -454,12 +453,22 @@ impl_struct_lt! {
 //impl_struct_anon!(Toggle, ());
 //impl_struct_anon!(Play, ());
 //impl_struct_anon!(Pause, ());
+impl_struct! {
+	Clear,
+	len: usize
+}
+impl_struct! {
+	Stop,
+	len: usize
+}
 //impl_struct_anon!(Next, ());
 //impl_struct_anon!(Stop, ());
 //impl_struct_anon!(Shuffle, ());
-//impl_struct_anon!(RepeatOff, ());
-//impl_struct_anon!(RepeatSong, ());
-//impl_struct_anon!(RepeatQueue, ());
+impl_struct! {
+	Repeat,
+	previous: shukusai::audio::Repeat,
+	current: shukusai::audio::Repeat
+}
 //impl_struct_anon!(Previous, ());
 impl_struct! {
 	Volume,

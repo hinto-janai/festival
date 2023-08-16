@@ -10,7 +10,7 @@ Raise the playback volume.
 #### Inputs
 | Field | Type             | Description |
 |-------|------------------|-------------|
-| up    | unsigned integer | The number to raise the volume by. Must be in-between 0..100. If greater than `100`, it will set the volume to `100`.
+| up    | unsigned integer | The number to raise the volume by. Must be in-between `0..100`. If greater than `100`, it will set the volume to `100`. Volume cannot go higher than `100`.
 
 #### Outputs
 | Field    | Type             | Description |
