@@ -138,11 +138,6 @@ impl_rpc! {
 	StateQueueEntry => Method::StateQueueEntry
 }
 impl_rpc! {
-	"Retrieve the current state of a Collection reset",
-	"state/state_reset",
-	StateReset => Method::StateReset
-}
-impl_rpc! {
 	"Retrieve the volume level",
 	"state/state_volume",
 	StateVolume => Method::StateVolume

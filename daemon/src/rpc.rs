@@ -411,7 +411,6 @@ pub async fn handle(
 		StateConfig     => state_config(request.id).await,
 		StateDaemon     => state_daemon(request.id).await,
 		StateIp         => state_ip(request.id).await,
-		StateReset      => state_reset(request.id).await,
 		StateQueue      => state_queue(request.id, collection.arc()).await,
 		StateQueueEntry => state_queue_entry(request.id, collection.arc()).await,
 		StateVolume     => state_volume(request.id).await,
@@ -772,26 +771,28 @@ async fn state_config<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::
 	let c = config();
 
 	let resp = rpc::resp::StateConfig {
-		ip:                 c.ip,
-		port:               c.port,
-		max_connections:    c.max_connections,
-		exclusive_ips:      c.exclusive_ips.as_ref().map(|h| Cow::Borrowed(h)),
-		sleep_on_fail:      c.sleep_on_fail.clone(),
-		collection_paths:   Cow::Borrowed(&c.collection_paths),
-		tls:                c.tls,
-		certificate:        c.certificate.as_ref().map(|p| Cow::Borrowed(p.as_path())),
-		key:                c.key.as_ref().map(|p| Cow::Borrowed(p.as_path())),
-		rest:               c.rest,
-		docs:               c.docs,
-		direct_download:    c.direct_download,
-		filename_separator: Cow::Borrowed(&c.filename_separator),
-		log_level:          c.log_level.clone(),
-		watch:              c.watch,
-		cache_time:         c.cache_time,
-		media_controls:     c.media_controls,
-		authorization:      AUTH.get().is_some(),
-		no_auth_rpc:        c.no_auth_rpc.as_ref().map(|h| Cow::Borrowed(h)),
-		no_auth_rest:       c.no_auth_rest.as_ref().map(|h| Cow::Borrowed(h)),
+		ip:                  c.ip,
+		port:                c.port,
+		max_connections:     c.max_connections,
+		exclusive_ips:       c.exclusive_ips.as_ref().map(|h| Cow::Borrowed(h)),
+		sleep_on_fail:       c.sleep_on_fail.clone(),
+		collection_paths:    Cow::Borrowed(&c.collection_paths),
+		tls:                 c.tls,
+		certificate:         c.certificate.as_ref().map(|p| Cow::Borrowed(p.as_path())),
+		key:                 c.key.as_ref().map(|p| Cow::Borrowed(p.as_path())),
+		rest:                c.rest,
+		docs:                c.docs,
+		direct_download:     c.direct_download,
+		filename_separator:  Cow::Borrowed(&c.filename_separator),
+		log_level:           c.log_level.clone(),
+		watch:               c.watch,
+		cache_time:          c.cache_time,
+		media_controls:      c.media_controls,
+		authorization:       AUTH.get().is_some(),
+		confirm_no_tls_auth: c.confirm_no_tls_auth,
+		no_auth_rpc:         c.no_auth_rpc.as_ref().map(|h| Cow::Borrowed(h)),
+		no_auth_rest:        c.no_auth_rest.as_ref().map(|h| Cow::Borrowed(h)),
+		no_auth_docs:        c.no_auth_docs,
 	};
 
 	Ok(resp::result(resp, id))
@@ -800,7 +801,8 @@ async fn state_config<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::
 async fn state_daemon<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
 	let resp = rpc::resp::StateDaemon {
 		uptime:              shukusai::logger::uptime(),
-		uptime_string:       Cow::Owned(readable::Time::from(shukusai::logger::uptime()).into_string()),
+		uptime_readable:     Cow::Owned(readable::Time::from(shukusai::logger::uptime()).into_string()),
+		saving:              shukusai::state::saving(),
 		total_requests:      atomic_load!(TOTAL_REQUESTS),
 		total_connections:   atomic_load!(TOTAL_CONNECTIONS),
 		current_connections: crate::statics::connections(),
@@ -830,16 +832,6 @@ async fn state_ip<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Erro
 	}
 
 	let resp = rpc::resp::StateIp(Cow::Owned(vec));
-
-	Ok(resp::result(resp, id))
-}
-
-
-async fn state_reset<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
-	let resp = rpc::resp::StateReset {
-		resetting: crate::statics::resetting(),
-		saving: shukusai::state::saving(),
-	};
 
 	Ok(resp::result(resp, id))
 }

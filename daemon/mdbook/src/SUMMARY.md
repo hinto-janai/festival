@@ -52,7 +52,6 @@
 		- [state_config](json-rpc/state/state_config.md)
 		- [state_daemon](json-rpc/state/state_daemon.md)
 		- [state_ip](json-rpc/state/state_ip.md)
-		- [state_reset](json-rpc/state/state_reset.md)
 		- [state_queue](json-rpc/state/state_queue.md)
 		- [state_queue_entry](json-rpc/state/state_queue_entry.md)
 		- [state_volume](json-rpc/state/state_volume.md)

@@ -124,7 +124,6 @@ pub fn request(config: Config, debug: bool, dry_run: bool, rpc: Rpc) -> ! {
 		StateIp(x)         => req_resp!(x, debug, rpc::resp::StateIp),
 		StateQueue(x)      => req_resp!(x, debug, rpc::resp::StateQueue),
 		StateQueueEntry(x) => req_resp!(x, debug, rpc::resp::StateQueueEntry),
-		StateReset(x)      => req_resp!(x, debug, rpc::resp::StateReset),
 		StateVolume(x)     => req_resp!(x, debug, rpc::resp::StateVolume),
 
 		KeyArtist(x)        => req_resp!(x, debug, rpc::resp::KeyArtist),

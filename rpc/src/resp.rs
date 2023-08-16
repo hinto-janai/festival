@@ -156,39 +156,42 @@ impl_struct! {
 impl_struct_anon_lt!(StateIp, Cow<'a, [StateIpInner]>);
 impl_struct_lt! {
 	StateConfig,
-	ip:                 std::net::Ipv4Addr,
-	port:               u16,
-	max_connections:    Option<u64>,
+	ip:                  std::net::Ipv4Addr,
+	port:                u16,
+	max_connections:     Option<u64>,
 	#[serde(borrow)]
-	exclusive_ips:      Option<Cow<'a, HashSet<Ipv4Addr>>>,
-	sleep_on_fail:      Option<u64>,
+	exclusive_ips:       Option<Cow<'a, HashSet<Ipv4Addr>>>,
+	sleep_on_fail:       Option<u64>,
 	#[serde(borrow)]
-	collection_paths:   Cow<'a, [PathBuf]>,
-	tls:                bool,
+	collection_paths:    Cow<'a, [PathBuf]>,
+	tls:                 bool,
 	#[serde(borrow)]
-	certificate:        Option<Cow<'a, Path>>,
+	certificate:         Option<Cow<'a, Path>>,
 	#[serde(borrow)]
-	key:                Option<Cow<'a, Path>>,
-	rest:               bool,
-	docs:               bool,
-	direct_download:    bool,
+	key:                 Option<Cow<'a, Path>>,
+	rest:                bool,
+	docs:                bool,
+	direct_download:     bool,
 	#[serde(borrow)]
-	filename_separator: Cow<'a, str>,
-	log_level:          log::LevelFilter,
-	watch:              bool,
-	cache_time:         u64,
-	media_controls:     bool,
-	authorization:      bool,
+	filename_separator:  Cow<'a, str>,
+	log_level:           log::LevelFilter,
+	watch:               bool,
+	cache_time:          u64,
+	media_controls:      bool,
+	authorization:       bool,
+	confirm_no_tls_auth: bool,
 	#[serde(borrow)]
-	no_auth_rpc:        Option<Cow<'a, HashSet<crate::method::Method>>>,
+	no_auth_rpc:         Option<Cow<'a, HashSet<crate::method::Method>>>,
 	#[serde(borrow)]
-	no_auth_rest:       Option<Cow<'a, HashSet<crate::resource::Resource>>>
+	no_auth_rest:        Option<Cow<'a, HashSet<crate::resource::Resource>>>,
+	no_auth_docs:        bool
 }
 impl_struct_lt! {
 	StateDaemon,
 	uptime:              u64,
 	#[serde(borrow)]
-	uptime_string:       Cow<'a, str>,
+	uptime_readable:     Cow<'a, str>,
+	saving:              bool,
 	total_requests:      u64,
 	total_connections:   u64,
 	current_connections: u64,
@@ -229,11 +232,6 @@ impl_struct_lt! {
 	len: usize,
 	#[serde(borrow)]
 	entries: Cow<'a, [shukusai::collection::EntryJson<'a>]>
-}
-impl_struct! {
-	StateReset,
-	resetting: bool,
-	saving:    bool
 }
 impl_struct! {
 	StateVolume,

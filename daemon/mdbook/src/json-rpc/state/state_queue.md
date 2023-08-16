@@ -9,6 +9,8 @@ Retrieve state about the queue.
 
 This returns the queue as full [`Song`](/common-objects/song.md) objects.
 
+Returned `Song`'s are in order of what will be played next.
+
 #### Inputs
 
 `None`

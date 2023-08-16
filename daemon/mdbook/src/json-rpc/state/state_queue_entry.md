@@ -9,6 +9,8 @@ Retrieve state about the queue.
 
 This is the same as [`state_queue`](/json-rpc/state/state_queue.md) except it returns [`Entry`](/common-objects/entry.md)'s instead of [`Song`](/common-objects/song.md)'s.
 
+Returned `Entry`'s are in order of what will be played next.
+
 #### Inputs
 `None`
 
