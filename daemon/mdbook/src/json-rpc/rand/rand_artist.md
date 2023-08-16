@@ -5,7 +5,7 @@ This API may have [additions](/api-stability/marker.md) in the future.
 
 ---
 
-Access a random [`Artist`](/common-objects/artist.md).
+Access a random [`Artist`](/common-objects/artist.md) in your [`Collection`](/common-objects/collection.md).
 
 #### Inputs
 
@@ -31,16 +31,24 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"rand_artist"}'
   "jsonrpc": "2.0",
   "result": {
     "artist": {
-      "name": "Rex Orange County",
+      "name": "カネコアヤノ",
       "key": 65,
-      "runtime": 7583,
+      "runtime": 4709,
       "albums": [
-        237
+        276,
+        256
       ],
       "songs": [
-        2800,
-        2803,
-        2809
+        2883,
+        2504,
+        2859,
+        2863,
+        2866,
+        2869,
+        2873,
+        2874,
+        2693,
+        2694
       ]
     }
   },

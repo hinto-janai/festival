@@ -5,7 +5,7 @@ This API may have [additions](/api-stability/marker.md) in the future.
 
 ---
 
-Access the [`Album`](/common-objects/album.md) of the currently set `Song`.
+Access the [`Album`](/common-objects/album.md) of the currently set [`Song`](/common-objects/song.md).
 
 #### Inputs
 

@@ -5,7 +5,7 @@ This API may have [additions](/api-stability/marker.md) in the future.
 
 ---
 
-Access a random [`Song`](/common-objects/song.md).
+Access a random [`Song`](/common-objects/song.md) in your [`Collection`](/common-objects/collection.md).
 
 #### Inputs
 
@@ -31,15 +31,15 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"rand_song"}'
   "jsonrpc": "2.0",
   "result": {
     "song": {
-      "title": "SUNFLOWER",
-      "key": 2594,
-      "album": 237,
-      "runtime": 252,
-      "sample_rate": 44100,
+      "title": "Home Alone",
+      "key": 2825,
+      "album": 269,
+      "runtime": 182,
+      "sample_rate": 48000,
       "track": 1,
-      "disc": null,
-      "mime": "audio/mpeg",
-      "extension": "mp3"
+      "disc": 1,
+      "mime": "audio/x-flac",
+      "extension": "flac"
     }
   },
   "id": 0

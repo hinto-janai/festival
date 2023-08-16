@@ -5672,13 +5672,13 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="current"><a class="header" href="#current">Current</a></h1>
-<p>Access the <em>currently</em> set <a href="json-rpc/current//common-objects/song.html"><code>Song</code></a>, its <a href="json-rpc/current//common-objects/album.html"><code>Album</code></a>, or its <a href="json-rpc/current//common-objects/artist.html"><code>Artist</code></a>.</p>
+<p>Access the <em>currently</em> set <a href="json-rpc/current//common-objects/song.html"><code>Song</code></a>, its <a href="json-rpc/current//common-objects/album.html"><code>Album</code></a>, or its <a href="json-rpc/current//common-objects/artist.html"><code>Artist</code></a>, or in <a href="json-rpc/current//common-objects/entry.html"><code>Entry</code></a> form.</p>
 <p>If no <code>Song</code> is set, a JSON-RPC <a href="json-rpc/current//json-rpc/json-rpc.html#example-json-rpc-20-failed-response"><code>error</code></a> will be returned.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="current_artist"><a class="header" href="#current_artist">current_artist</a></h1>
 <h4 id="-incomplete-30"><a class="header" href="#-incomplete-30">🟡 Incomplete</a></h4>
 <p>This API may have <a href="json-rpc/current//api-stability/marker.html">additions</a> in the future.</p>
 <hr />
-<p>Access the <a href="json-rpc/current//common-objects/artist.html"><code>Artist</code></a> of the currently set <code>Song</code>.</p>
+<p>Access the <a href="json-rpc/current//common-objects/artist.html"><code>Artist</code></a> of the currently set <a href="json-rpc/current//common-objects/song.html"><code>Song</code></a>.</p>
 <h4 id="inputs-47"><a class="header" href="#inputs-47">Inputs</a></h4>
 <p><code>None</code></p>
 <h4 id="outputs-47"><a class="header" href="#outputs-47">Outputs</a></h4>
@@ -5716,7 +5716,7 @@ Entry 76 (Song key 76),
 <h4 id="-incomplete-31"><a class="header" href="#-incomplete-31">🟡 Incomplete</a></h4>
 <p>This API may have <a href="json-rpc/current//api-stability/marker.html">additions</a> in the future.</p>
 <hr />
-<p>Access the <a href="json-rpc/current//common-objects/album.html"><code>Album</code></a> of the currently set <code>Song</code>.</p>
+<p>Access the <a href="json-rpc/current//common-objects/album.html"><code>Album</code></a> of the currently set <a href="json-rpc/current//common-objects/song.html"><code>Song</code></a>.</p>
 <h4 id="inputs-48"><a class="header" href="#inputs-48">Inputs</a></h4>
 <p><code>None</code></p>
 <h4 id="outputs-48"><a class="header" href="#outputs-48">Outputs</a></h4>
@@ -5827,13 +5827,14 @@ Entry 76 (Song key 76),
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="rand"><a class="header" href="#rand">Rand</a></h1>
-<p>Access a random <a href="json-rpc/rand//common-objects/song.html"><code>Song</code></a>, <a href="json-rpc/rand//common-objects/album.html"><code>Album</code></a>, or <a href="json-rpc/rand//common-objects/artist.html"><code>Artist</code></a>.</p>
+<p>Access a random <a href="json-rpc/rand//common-objects/song.html"><code>Song</code></a>, <a href="json-rpc/rand//common-objects/album.html"><code>Album</code></a>, or <a href="json-rpc/rand//common-objects/artist.html"><code>Artist</code></a>, or in <a href="json-rpc/rand//common-objects/entry.html"><code>Entry</code></a> form.</p>
 <p>If the <a href="json-rpc/rand//common-objects/collection.html"><code>Collection</code></a> is empty, a JSON-RPC <a href="json-rpc/rand//json-rpc/json-rpc.html#example-json-rpc-20-failed-response"><code>error</code></a> will be returned.</p>
+<p>Repeating is not prevented, so there is nothing preventing you from retrieving the same object multiple times in a row.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="rand_artist"><a class="header" href="#rand_artist">rand_artist</a></h1>
 <h4 id="-incomplete-33"><a class="header" href="#-incomplete-33">🟡 Incomplete</a></h4>
 <p>This API may have <a href="json-rpc/rand//api-stability/marker.html">additions</a> in the future.</p>
 <hr />
-<p>Access a random <a href="json-rpc/rand//common-objects/artist.html"><code>Artist</code></a>.</p>
+<p>Access a random <a href="json-rpc/rand//common-objects/artist.html"><code>Artist</code></a> in your <a href="json-rpc/rand//common-objects/collection.html"><code>Collection</code></a>.</p>
 <h4 id="inputs-51"><a class="header" href="#inputs-51">Inputs</a></h4>
 <p><code>None</code></p>
 <h4 id="outputs-51"><a class="header" href="#outputs-51">Outputs</a></h4>
@@ -5851,16 +5852,24 @@ Entry 76 (Song key 76),
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {
     &quot;artist&quot;: {
-      &quot;name&quot;: &quot;Rex Orange County&quot;,
+      &quot;name&quot;: &quot;カネコアヤノ&quot;,
       &quot;key&quot;: 65,
-      &quot;runtime&quot;: 7583,
+      &quot;runtime&quot;: 4709,
       &quot;albums&quot;: [
-        237
+        276,
+        256
       ],
       &quot;songs&quot;: [
-        2800,
-        2803,
-        2809
+        2883,
+        2504,
+        2859,
+        2863,
+        2866,
+        2869,
+        2873,
+        2874,
+        2693,
+        2694
       ]
     }
   },
@@ -5871,7 +5880,7 @@ Entry 76 (Song key 76),
 <h4 id="-incomplete-34"><a class="header" href="#-incomplete-34">🟡 Incomplete</a></h4>
 <p>This API may have <a href="json-rpc/rand//api-stability/marker.html">additions</a> in the future.</p>
 <hr />
-<p>Access a random <a href="json-rpc/rand//common-objects/album.html"><code>Album</code></a>.</p>
+<p>Access a random <a href="json-rpc/rand//common-objects/album.html"><code>Album</code></a> in your <a href="json-rpc/rand//common-objects/collection.html"><code>Collection</code></a>.</p>
 <h4 id="inputs-52"><a class="header" href="#inputs-52">Inputs</a></h4>
 <p><code>None</code></p>
 <h4 id="outputs-52"><a class="header" href="#outputs-52">Outputs</a></h4>
@@ -5889,22 +5898,21 @@ Entry 76 (Song key 76),
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {
     &quot;album&quot;: {
-      &quot;title&quot;: &quot;RAINBOW&quot;,
-      &quot;key&quot;: 237,
+      &quot;title&quot;: &quot;hug&quot;,
+      &quot;key&quot;: 243,
       &quot;artist&quot;: 65,
-      &quot;release&quot;: &quot;????-??-??&quot;,
-      &quot;runtime&quot;: 1090,
-      &quot;song_count&quot;: 6,
+      &quot;release&quot;: &quot;2016&quot;,
+      &quot;runtime&quot;: 1276,
+      &quot;song_count&quot;: 5,
       &quot;songs&quot;: [
-        2594,
-        2540,
-        2600,
-        2496,
-        2557,
-        2500
+        2541,
+        2546,
+        2550,
+        2554,
+        2556
       ],
       &quot;discs&quot;: 0,
-      &quot;art&quot;: 7753,
+      &quot;art&quot;: 220954,
       &quot;genre&quot;: null
     }
   },
@@ -5915,7 +5923,7 @@ Entry 76 (Song key 76),
 <h4 id="-incomplete-35"><a class="header" href="#-incomplete-35">🟡 Incomplete</a></h4>
 <p>This API may have <a href="json-rpc/rand//api-stability/marker.html">additions</a> in the future.</p>
 <hr />
-<p>Access a random <a href="json-rpc/rand//common-objects/song.html"><code>Song</code></a>.</p>
+<p>Access a random <a href="json-rpc/rand//common-objects/song.html"><code>Song</code></a> in your <a href="json-rpc/rand//common-objects/collection.html"><code>Collection</code></a>.</p>
 <h4 id="inputs-53"><a class="header" href="#inputs-53">Inputs</a></h4>
 <p><code>None</code></p>
 <h4 id="outputs-53"><a class="header" href="#outputs-53">Outputs</a></h4>
@@ -5933,15 +5941,15 @@ Entry 76 (Song key 76),
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {
     &quot;song&quot;: {
-      &quot;title&quot;: &quot;SUNFLOWER&quot;,
-      &quot;key&quot;: 2594,
-      &quot;album&quot;: 237,
-      &quot;runtime&quot;: 252,
-      &quot;sample_rate&quot;: 44100,
+      &quot;title&quot;: &quot;Home Alone&quot;,
+      &quot;key&quot;: 2825,
+      &quot;album&quot;: 269,
+      &quot;runtime&quot;: 182,
+      &quot;sample_rate&quot;: 48000,
       &quot;track&quot;: 1,
-      &quot;disc&quot;: null,
-      &quot;mime&quot;: &quot;audio/mpeg&quot;,
-      &quot;extension&quot;: &quot;mp3&quot;
+      &quot;disc&quot;: 1,
+      &quot;mime&quot;: &quot;audio/x-flac&quot;,
+      &quot;extension&quot;: &quot;flac&quot;
     }
   },
   &quot;id&quot;: 0
@@ -5951,7 +5959,7 @@ Entry 76 (Song key 76),
 <h4 id="-stable-27"><a class="header" href="#-stable-27">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/rand//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
-<p>Access a random <a href="json-rpc/rand//common-objects/entry.html"><code>Entry</code></a>.</p>
+<p>Access a random <a href="json-rpc/rand//common-objects/entry.html"><code>Entry</code></a> in your <a href="json-rpc/rand//common-objects/collection.html"><code>Collection</code></a>.</p>
 <h4 id="inputs-54"><a class="header" href="#inputs-54">Inputs</a></h4>
 <p><code>None</code></p>
 <h4 id="outputs-54"><a class="header" href="#outputs-54">Outputs</a></h4>
@@ -5969,24 +5977,38 @@ Entry 76 (Song key 76),
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {
     &quot;entry&quot;: {
-      &quot;path&quot;: &quot;/home/hinto/Music/Rex Orange County/RAINBOW/SUNFLOWER.mp3&quot;,
+      &quot;path&quot;: &quot;/home/hinto/Music/カネコアヤノ/祝祭/Home Alone.flac&quot;,
       &quot;key_artist&quot;: 65,
-      &quot;key_album&quot;: 237,
-      &quot;key_song&quot;: 2539,
-      &quot;artist&quot;: &quot;Rex Orange County&quot;,
-      &quot;album&quot;: &quot;RAINBOW&quot;,
-      &quot;song&quot;: &quot;SUNFLOWER&quot;
+      &quot;key_album&quot;: 269,
+      &quot;key_song&quot;: 2825,
+      &quot;artist&quot;: &quot;カネコアヤノ&quot;,
+      &quot;album&quot;: &quot;祝祭&quot;,
+      &quot;song&quot;: &quot;Home Alone&quot;
     }
   },
   &quot;id&quot;: 0
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="search"><a class="header" href="#search">Search</a></h1>
-<p>Fuzzy similarity searches for <a href="json-rpc/search//common-objects/song.html"><code>Song</code></a>'s, <a href="json-rpc/search//common-objects/album.html"><code>Album</code></a>'s, and <a href="json-rpc/search//common-objects/artist.html"><code>Artist</code></a>'s.</p>
-<p>In general: input a <code>string</code>, receive some <a href="json-rpc/search//common-objects/artist.html"><code>Artist</code></a>/<a href="json-rpc/search//common-objects/album.html"><code>Album</code></a>/<a href="json-rpc/search//common-objects/song.html"><code>Song</code></a> objects that are similar to the input.</p>
-<p>If you know the <em>exact</em> <code>string</code> for a <code>Song</code>, <code>Album</code>, or <code>Artist</code>, consider using the <a href="json-rpc/search/json-rpc/map/map.html"><code>Map</code></a> methods instead.</p>
-<h2 id="warning-1"><a class="header" href="#warning-1">Warning</a></h2>
-<p>The output array may return empty given no matches or an empty <code>Collection</code>:</p>
+<p>Fuzzy similarity searches for <a href="json-rpc/search//common-objects/song.html"><code>Song</code></a>'s, <a href="json-rpc/search//common-objects/album.html"><code>Album</code></a>'s, <a href="json-rpc/search//common-objects/artist.html"><code>Artist</code></a>'s, and <a href="json-rpc/search//common-objects/entry.html"><code>Entry</code></a>'s.</p>
+<p>In general: input a <code>string</code>, receive some objects that are similar to the input.</p>
+<p>If you know the <em>exact</em> <code>string</code> for a <code>Song</code>, <code>Album</code>, or <code>Artist</code>, consider using the <a href="json-rpc/search//json-rpc/map/map.html"><code>Map</code></a> methods instead for a direct lookup.</p>
+<p>If you know the <em>exact</em> <a href="json-rpc/search//common-objects/key.html"><code>key</code></a>, use the <a href="json-rpc/search//json-rpc/key/key.html"><code>Key</code></a> methods instead.</p>
+<h3 id="kind"><a class="header" href="#kind">Kind</a></h3>
+<p>These are different &quot;kinds&quot; of searchs you can do, affecting the result output.</p>
+<p>Each <code>search</code> method requires one of these as input.</p>
+<p>All of these return objects sorted from most-to-least similar.</p>
+<div class="table-wrapper"><table><thead><tr><th>Kind</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>all</code></td><td>ALL objects will be returned</td></tr>
+<tr><td><code>sim70</code></td><td>Only objects <code>70%</code> similar</td></tr>
+<tr><td><code>sim90</code></td><td>Only objects <code>90%</code> similar</td></tr>
+<tr><td><code>top25</code></td><td>Only the top 25 results</td></tr>
+<tr><td><code>top5</code></td><td>Only the top 5 results</td></tr>
+<tr><td><code>top1</code></td><td>Only the top result</td></tr>
+</tbody></table>
+</div>
+<h3 id="warning-1"><a class="header" href="#warning-1">Warning</a></h3>
+<p>The output array may return empty given no matches or an empty <a href="json-rpc/search//common-objects/collection.html"><code>Collection</code></a>:</p>
 <pre><code class="language-json">{
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {
@@ -6003,7 +6025,7 @@ Entry 76 (Song key 76),
 <h4 id="inputs-55"><a class="header" href="#inputs-55">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>input</td><td>string</td><td>The string to match against, to use as input</td></tr>
-<tr><td>kind</td><td>string, one of <code>all</code>, <code>sim90</code>, <code>sim70</code>, <code>top25</code>, <code>top5</code>, <code>top1</code></td><td>This dictates how many objects back you will receive. <code>all</code> means ALL objects in the <code>Collection</code> will be returned. <code>sim70</code> means only objects that are <code>70%</code> similar will be returned. <code>top25</code> means only the top 25 results will be returned (per object group, so total 75). <code>top25</code> means only the top 25 results will be returned (per object group, so total 15). <code>top1</code> means only the top result will be returned.</td></tr>
+<tr><td>kind</td><td>string, one of <code>all</code>, <code>sim70</code>, <code>sim90</code>, <code>top25</code>, <code>top5</code>, <code>top1</code></td><td>See <a href="json-rpc/search//json-rpc/search/index.html#Kind"><code>Search/Kind</code></a></td></tr>
 </tbody></table>
 </div>
 <h4 id="outputs-55"><a class="header" href="#outputs-55">Outputs</a></h4>
@@ -6078,7 +6100,7 @@ Entry 76 (Song key 76),
 <h4 id="inputs-56"><a class="header" href="#inputs-56">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>input</td><td>string</td><td>The string to match against, to use as input</td></tr>
-<tr><td>kind</td><td>string, one of <code>all</code>, <code>sim70</code>, <code>sim90</code>, <code>top25</code>, <code>top5</code>, <code>top1</code></td><td>This dictates how many objects back you will receive. <code>all</code> means ALL <code>Artist</code>'s will be returned. <code>sim70</code> means only <code>Artist</code>'s that are <code>70%</code> similar will be returned. <code>sim90</code> means only <code>Artist</code>'s that are <code>90%</code> similar will be returned. <code>top25</code> means only the top 25 results will be returned. <code>top5</code> means only the top 5 results will be returned. <code>top1</code> means only the top result will be returned.</td></tr>
+<tr><td>kind</td><td>string, one of <code>all</code>, <code>sim70</code>, <code>sim90</code>, <code>top25</code>, <code>top5</code>, <code>top1</code></td><td>See <a href="json-rpc/search//json-rpc/search/index.html#Kind"><code>Search/Kind</code></a></td></tr>
 </tbody></table>
 </div>
 <h4 id="outputs-56"><a class="header" href="#outputs-56">Outputs</a></h4>
@@ -6120,7 +6142,7 @@ Entry 76 (Song key 76),
 <h4 id="inputs-57"><a class="header" href="#inputs-57">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>input</td><td>string</td><td>The string to match against, to use as input</td></tr>
-<tr><td>kind</td><td>string, one of <code>all</code>, <code>sim70</code>, <code>sim90</code>, <code>top25</code>, <code>top5</code>, <code>top1</code></td><td>This dictates how many objects back you will receive. <code>all</code> means ALL <code>Album</code>'s will be returned. <code>sim70</code> means only <code>Album</code>'s that are <code>70%</code> similar will be returned. <code>sim90</code> means only <code>Album</code>'s that are <code>90%</code> similar will be returned. <code>top25</code> means only the top 25 results will be returned. <code>top5</code> means only the top 5 results will be returned. <code>top1</code> means only the top result will be returned.</td></tr>
+<tr><td>kind</td><td>string, one of <code>all</code>, <code>sim70</code>, <code>sim90</code>, <code>top25</code>, <code>top5</code>, <code>top1</code></td><td>See <a href="json-rpc/search//json-rpc/search/index.html#Kind"><code>Search/Kind</code></a></td></tr>
 </tbody></table>
 </div>
 <h4 id="outputs-57"><a class="header" href="#outputs-57">Outputs</a></h4>
@@ -6167,7 +6189,7 @@ Entry 76 (Song key 76),
 <h4 id="inputs-58"><a class="header" href="#inputs-58">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>input</td><td>string</td><td>The string to match against, to use as input</td></tr>
-<tr><td>kind</td><td>string, one of <code>all</code>, <code>sim70</code>, <code>sim90</code>, <code>top25</code>, <code>top5</code>, <code>top1</code></td><td>This dictates how many objects back you will receive. <code>all</code> means ALL <code>Song</code>'s will be returned. <code>sim70</code> means only <code>Song</code>'s that are <code>70%</code> similar will be returned. <code>sim90</code> means only <code>Song</code>'s that are <code>90%</code> similar will be returned. <code>top25</code> means only the top 25 results will be returned. <code>top1</code> means only the top result will be returned.</td></tr>
+<tr><td>kind</td><td>string, one of <code>all</code>, <code>sim70</code>, <code>sim90</code>, <code>top25</code>, <code>top5</code>, <code>top1</code></td><td>See <a href="json-rpc/search//json-rpc/search/index.html#Kind"><code>Search/Kind</code></a></td></tr>
 </tbody></table>
 </div>
 <h4 id="outputs-58"><a class="header" href="#outputs-58">Outputs</a></h4>
@@ -6209,7 +6231,7 @@ Entry 76 (Song key 76),
 <h4 id="inputs-59"><a class="header" href="#inputs-59">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>input</td><td>string</td><td>The string to match against, to use as input</td></tr>
-<tr><td>kind</td><td>string, one of <code>all</code>, <code>sim70</code>, <code>sim90</code>, <code>top25</code>, <code>top5</code>, <code>top1</code></td><td>This dictates how many objects back you will receive. <code>all</code> means ALL <code>Song</code>'s will be returned. <code>sim70</code> means only <code>Song</code>'s that are <code>70%</code> similar will be returned. <code>sim90</code> means only <code>Song</code>'s that are <code>90%</code> similar will be returned. <code>top25</code> means only the top 25 results will be returned. <code>top5</code> means only the top 5 results will be returned. <code>top1</code> means only the top result will be returned.</td></tr>
+<tr><td>kind</td><td>string, one of <code>all</code>, <code>sim70</code>, <code>sim90</code>, <code>top25</code>, <code>top5</code>, <code>top1</code></td><td>See <a href="json-rpc/search//json-rpc/search/index.html#Kind"><code>Search/Kind</code></a></td></tr>
 </tbody></table>
 </div>
 <h4 id="outputs-59"><a class="header" href="#outputs-59">Outputs</a></h4>

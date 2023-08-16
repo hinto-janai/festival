@@ -9,10 +9,10 @@ Input a `string`, retrieve an array of [`Song`](/common-objects/song.md)'s (in [
 
 #### Inputs
 
-| Field | Type                                           | Description |
-|-------|------------------------------------------------|-------------|
-| input | string                                         | The string to match against, to use as input
-| kind  | string, one of `all`, `sim70`, `sim90`, `top25`, `top5`, `top1` | This dictates how many objects back you will receive. `all` means ALL `Song`'s will be returned. `sim70` means only `Song`'s that are `70%` similar will be returned. `sim90` means only `Song`'s that are `90%` similar will be returned. `top25` means only the top 25 results will be returned. `top5` means only the top 5 results will be returned. `top1` means only the top result will be returned.
+| Field | Type                                                            | Description |
+|-------|-----------------------------------------------------------------|-------------|
+| input | string                                                          | The string to match against, to use as input
+| kind  | string, one of `all`, `sim70`, `sim90`, `top25`, `top5`, `top1` | See [`Search/Kind`](/json-rpc/search/index.md#Kind)
 
 #### Outputs
 

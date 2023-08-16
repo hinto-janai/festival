@@ -5,7 +5,7 @@ This API may have [additions](/api-stability/marker.md) in the future.
 
 ---
 
-Access the [`Artist`](/common-objects/artist.md) of the currently set `Song`.
+Access the [`Artist`](/common-objects/artist.md) of the currently set [`Song`](/common-objects/song.md).
 
 #### Inputs
 
