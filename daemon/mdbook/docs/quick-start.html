@@ -170,7 +170,7 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="quick-start"><a class="header" href="#quick-start">Quick Start</a></h1>
-<p>A quick start to using <code>festivald</code> and its <code>JSON-RPC 2.0</code> &amp; <code>REST</code> APIs.</p>
+<p>A quick start to using <code>festivald</code> and its <a href="/json-rpc/json-rpc.html"><code>JSON-RPC 2.0</code></a> &amp; <a href="/rest/rest.html"><code>REST</code></a> APIs.</p>
 <p>More JSON-RPC specific examples <a href="/json-rpc/quick-start.html">here</a>, and more REST specific examples <a href="/rest/quick-start.html">here</a>.</p>
 <p>Important things to know:</p>
 <ol>
@@ -179,7 +179,7 @@
 <li>Everything revolves around the <code>Collection</code>, you should create one before doing anything</li>
 <li>In <code>festivald</code>, there are &quot;objects&quot; that appear often, see <a href="/common-objects/common-objects.html"><code>Common Objects</code></a> for more info</li>
 </ol>
-<h2 id="launch-festivald"><a class="header" href="#launch-festivald">Launch <code>festivald</code></a></h2>
+<h3 id="launch-festivald"><a class="header" href="#launch-festivald">Launch <code>festivald</code></a></h3>
 <p>Start <code>festivald</code> with no options:</p>
 <pre><code class="language-bash">./festivald
 </code></pre>
@@ -190,16 +190,22 @@
 <p>Or you can open the files locally with:</p>
 <pre><code class="language-bash">./festivald --docs
 </code></pre>
-<h2 id="create-a-collection-with-the-json-rpc-method-collection_new"><a class="header" href="#create-a-collection-with-the-json-rpc-method-collection_new">Create a <code>Collection</code> with the <code>JSON-RPC</code> method <a href="/json-rpc/collection/collection_new.html"><code>collection_new</code></a></a></h2>
+<h3 id="create-a-collection-with-the-json-rpc-method-collection_new"><a class="header" href="#create-a-collection-with-the-json-rpc-method-collection_new">Create a <code>Collection</code> with the <code>JSON-RPC</code> method <a href="/json-rpc/collection/collection_new.html"><code>collection_new</code></a></a></h3>
 <p>This scans the default <code>Music</code> directory on <code>festivald</code>'s filesystem and creates a <code>Collection</code> from it.</p>
+<pre><code class="language-bash">festival-cli collection_new
+</code></pre>
+<p>OR</p>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;collection_new&quot;,&quot;params&quot;:{&quot;paths&quot;:null}}'
 </code></pre>
-<h2 id="download-a-random-artist-with-the-rest-endpoint-randartist"><a class="header" href="#download-a-random-artist-with-the-rest-endpoint-randartist">Download a random <code>Artist</code> with the <code>REST</code> endpoint <a href="/rest/rand/artist.html"><code>/rand/artist</code></a></a></h2>
+<h3 id="download-a-random-artist-with-the-rest-endpoint-randartist"><a class="header" href="#download-a-random-artist-with-the-rest-endpoint-randartist">Download a random <code>Artist</code> with the <code>REST</code> endpoint <a href="/rest/rand/artist.html"><code>/rand/artist</code></a></a></h3>
 <p>Opening this link in a web browser will cause <code>festivald</code> to collect, organize, and archive all the <code>Album</code>'s of a random <code>Artist</code>, and send it over.</p>
 <pre><code class="language-http">http://localhost:18425/rand/artist
 </code></pre>
-<h2 id="view-metadata-about-an-album-with-the-json-rpc-method-map_artist"><a class="header" href="#view-metadata-about-an-album-with-the-json-rpc-method-map_artist">View metadata about an <code>Album</code> with the <code>JSON-RPC</code> method <a href="/json-rpc/map/map_artist.html"><code>map_artist</code></a></a></h2>
-<p>This will lookup the <code>Album</code> &quot;Cigarette &amp; Alcohol&quot; by the <code>Artist</code> &quot;LUCKY TAPES&quot;.</p>
+<h3 id="view-metadata-about-an-album-with-the-json-rpc-method-map_artist"><a class="header" href="#view-metadata-about-an-album-with-the-json-rpc-method-map_artist">View metadata about an <code>Album</code> with the <code>JSON-RPC</code> method <a href="/json-rpc/map/map_artist.html"><code>map_artist</code></a></a></h3>
+<p>This will retrieve the <code>Album</code> &quot;Cigarette &amp; Alcohol&quot; by the <code>Artist</code> &quot;LUCKY TAPES&quot;.</p>
+<pre><code class="language-bash">festival-cli map_album --artist &quot;LUCKY TAPES&quot; --album &quot;Cigarette &amp; Alcohol&quot;
+</code></pre>
+<p>OR</p>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;map_album&quot;,&quot;params&quot;:{&quot;artist&quot;:&quot;LUCKY TAPES&quot;,&quot;album&quot;:&quot;Cigarette &amp; Alcohol&quot;}}'
 </code></pre>
 <p>The response looks like:</p>
@@ -231,8 +237,11 @@
   &quot;id&quot;: 0
 }
 </code></pre>
-<h2 id="search-for-an-artist-with-the-json-rpc-method-search_artist"><a class="header" href="#search-for-an-artist-with-the-json-rpc-method-search_artist">Search for an <code>Artist</code> with the <code>JSON-RPC</code> method <a href="/json-rpc/search/search_artist.html"><code>search_artist</code></a></a></h2>
+<h3 id="search-for-an-artist-with-the-json-rpc-method-search_artist"><a class="header" href="#search-for-an-artist-with-the-json-rpc-method-search_artist">Search for an <code>Artist</code> with the <code>JSON-RPC</code> method <a href="/json-rpc/search/search_artist.html"><code>search_artist</code></a></a></h3>
 <p>This will look up <em>all</em> <code>Artist</code>'s in the <code>Collection</code>, and return the one that is the most similar (lexicographically) to the input &quot;lUcKee TaPeZ&quot;:</p>
+<pre><code class="language-bash">festival-cli search_artist --input &quot;lUcKee TaPeZ&quot; --kind top1
+</code></pre>
+<p>OR</p>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;search_artist&quot;,&quot;params&quot;:{&quot;input&quot;:&quot;lUcKee TaPeZ&quot;,&quot;kind&quot;:&quot;top1&quot;}}'
 </code></pre>
 <p>We found &quot;LUCKY TAPES&quot;:</p>

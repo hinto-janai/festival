@@ -314,7 +314,7 @@ pub async fn cache_set_collection_entries(collection: &Arc<Collection>) {
 //
 // This must be `.await`'ed.
 macro_rules! ppacor {
-	($request:expr, $call:expr, $param:ty, $($extra_arg:expr),*) => {{
+	($method:expr, $request:expr, $call:expr, $param:ty, $($extra_arg:expr),*) => {{
 		let Some(value) = $request.params else {
 			return Ok(crate::resp::invalid_params($request.id));
 		};
@@ -322,10 +322,12 @@ macro_rules! ppacor {
 		let Ok(param) = serde_json::from_str::<$param>(value.get()) else {
 			return Ok(crate::resp::invalid_params($request.id));
 		};
+
+		debug!("RPC - Method: {}, Params: {:?}", $method, param);
 
 		$call(param, $request.id, $($extra_arg),*)
 	}};
-	($request:expr, $call:expr, $param:ty) => {{
+	($method:expr, $request:expr, $call:expr, $param:ty) => {{
 		let Some(value) = $request.params else {
 			return Ok(crate::resp::invalid_params($request.id));
 		};
@@ -334,7 +336,23 @@ macro_rules! ppacor {
 			return Ok(crate::resp::invalid_params($request.id));
 		};
 
+		debug!("RPC - Method: {}, Params: {:?}", $method, param);
+
 		$call(param, $request.id)
+	}};
+}
+
+// Log
+// And
+// Call
+//
+// Log a method before calling the function (without params).
+//
+// This must be `.await`'ed.
+macro_rules! lac {
+	($method:expr, $request:expr, $call:expr $(,$extra_arg:expr),*) => {{
+		debug!("RPC - Method: {}", $method);
+		$call($request.id, $($extra_arg),*)
 	}};
 }
 
@@ -387,128 +405,128 @@ pub async fn handle(
 	use rpc::Method::*;
 	match method {
 		//-------------------------------------------------- Collection
-		CollectionNew          => ppacor!(request, collection_new, rpc::param::CollectionNew, collection.arc(), TO_KERNEL, FROM_KERNEL, TO_ROUTER_C).await,
-		CollectionBrief        => collection_brief(request.id, collection.arc()).await,
-		CollectionFull         => collection_full(request.id).await,
-		CollectionBriefArtists => collection_brief_artists(request.id).await,
-		CollectionBriefAlbums  => collection_brief_albums(request.id).await,
-		CollectionBriefSongs   => collection_brief_songs(request.id).await,
-		CollectionFullArtists  => collection_full_artists(request.id).await,
-		CollectionFullAlbums   => collection_full_albums(request.id).await,
-		CollectionFullSongs    => collection_full_songs(request.id).await,
-		CollectionEntries      => collection_entries(request.id).await,
-		CollectionPerf         => collection_perf(request.id).await,
-		CollectionHealth       => collection_health(request.id, collection.arc()).await,
-		CollectionResourceSize => collection_resource_size(request.id, collection.arc()).await,
+		CollectionNew          => ppacor!(method, request, collection_new, rpc::param::CollectionNew, collection.arc(), TO_KERNEL, FROM_KERNEL, TO_ROUTER_C).await,
+		CollectionBrief        => lac!(method, request, collection_brief, collection.arc()).await,
+		CollectionFull         => lac!(method, request, collection_full).await,
+		CollectionBriefArtists => lac!(method, request, collection_brief_artists).await,
+		CollectionBriefAlbums  => lac!(method, request, collection_brief_albums).await,
+		CollectionBriefSongs   => lac!(method, request, collection_brief_songs).await,
+		CollectionFullArtists  => lac!(method, request, collection_full_artists).await,
+		CollectionFullAlbums   => lac!(method, request, collection_full_albums).await,
+		CollectionFullSongs    => lac!(method, request, collection_full_songs).await,
+		CollectionEntries      => lac!(method, request, collection_entries).await,
+		CollectionPerf         => lac!(method, request, collection_perf).await,
+		CollectionHealth       => lac!(method, request, collection_health, collection.arc()).await,
+		CollectionResourceSize => lac!(method, request, collection_resource_size, collection.arc()).await,
 
 		//-------------------------------------------------- Daemon
-		DaemonSave        => daemon_save(request.id, TO_KERNEL).await,
-		DaemonRemoveCache => daemon_remove_cache(request.id).await,
-		DaemonShutdown    => daemon_shutdown(request.id, TO_ROUTER_S).await,
+		DaemonSave        => lac!(method, request, daemon_save, TO_KERNEL).await,
+		DaemonRemoveCache => lac!(method, request, daemon_remove_cache).await,
+		DaemonShutdown    => lac!(method, request, daemon_shutdown, TO_ROUTER_S).await,
 
 		//-------------------------------------------------- State
-		StateAudio      => state_audio(request.id, collection.arc()).await,
-		StateConfig     => state_config(request.id).await,
-		StateDaemon     => state_daemon(request.id).await,
-		StateIp         => state_ip(request.id).await,
-		StateQueue      => state_queue(request.id, collection.arc()).await,
-		StateQueueEntry => state_queue_entry(request.id, collection.arc()).await,
-		StateVolume     => state_volume(request.id).await,
+		StateAudio      => lac!(method, request, state_audio, collection.arc()).await,
+		StateConfig     => lac!(method, request, state_config).await,
+		StateDaemon     => lac!(method, request, state_daemon).await,
+		StateIp         => lac!(method, request, state_ip).await,
+		StateQueue      => lac!(method, request, state_queue, collection.arc()).await,
+		StateQueueEntry => lac!(method, request, state_queue_entry, collection.arc()).await,
+		StateVolume     => lac!(method, request, state_volume).await,
 
 		//-------------------------------------------------- Key
-		KeyArtist        => ppacor!(request, key_artist, rpc::param::KeyArtist, collection.arc()).await,
-		KeyAlbum         => ppacor!(request, key_album, rpc::param::KeyAlbum, collection.arc()).await,
-		KeySong          => ppacor!(request, key_song, rpc::param::KeySong, collection.arc()).await,
-		KeyEntry         => ppacor!(request, key_entry, rpc::param::KeyEntry, collection.arc()).await,
-		KeyArtistAlbums  => ppacor!(request, key_artist_albums, rpc::param::KeyArtistAlbums, collection.arc()).await,
-		KeyArtistSongs   => ppacor!(request, key_artist_songs, rpc::param::KeyArtistSongs, collection.arc()).await,
-		KeyArtistEntries => ppacor!(request, key_artist_entries, rpc::param::KeyArtistEntries, collection.arc()).await,
-		KeyAlbumArtist   => ppacor!(request, key_album_artist, rpc::param::KeyAlbumArtist, collection.arc()).await,
-		KeyAlbumSongs    => ppacor!(request, key_album_songs, rpc::param::KeyAlbumSongs, collection.arc()).await,
-		KeyAlbumEntries  => ppacor!(request, key_album_entries, rpc::param::KeyAlbumEntries, collection.arc()).await,
-		KeySongArtist    => ppacor!(request, key_song_artist, rpc::param::KeySongArtist, collection.arc()).await,
-		KeySongAlbum     => ppacor!(request, key_song_album, rpc::param::KeySongAlbum, collection.arc()).await,
-		KeyOtherAlbums   => ppacor!(request, key_other_albums, rpc::param::KeyOtherAlbums, collection.arc()).await,
-		KeyOtherSongs    => ppacor!(request, key_other_songs, rpc::param::KeyOtherSongs, collection.arc()).await,
-		KeyOtherEntries  => ppacor!(request, key_other_entries, rpc::param::KeyOtherEntries, collection.arc()).await,
+		KeyArtist        => ppacor!(method, request, key_artist, rpc::param::KeyArtist, collection.arc()).await,
+		KeyAlbum         => ppacor!(method, request, key_album, rpc::param::KeyAlbum, collection.arc()).await,
+		KeySong          => ppacor!(method, request, key_song, rpc::param::KeySong, collection.arc()).await,
+		KeyEntry         => ppacor!(method, request, key_entry, rpc::param::KeyEntry, collection.arc()).await,
+		KeyArtistAlbums  => ppacor!(method, request, key_artist_albums, rpc::param::KeyArtistAlbums, collection.arc()).await,
+		KeyArtistSongs   => ppacor!(method, request, key_artist_songs, rpc::param::KeyArtistSongs, collection.arc()).await,
+		KeyArtistEntries => ppacor!(method, request, key_artist_entries, rpc::param::KeyArtistEntries, collection.arc()).await,
+		KeyAlbumArtist   => ppacor!(method, request, key_album_artist, rpc::param::KeyAlbumArtist, collection.arc()).await,
+		KeyAlbumSongs    => ppacor!(method, request, key_album_songs, rpc::param::KeyAlbumSongs, collection.arc()).await,
+		KeyAlbumEntries  => ppacor!(method, request, key_album_entries, rpc::param::KeyAlbumEntries, collection.arc()).await,
+		KeySongArtist    => ppacor!(method, request, key_song_artist, rpc::param::KeySongArtist, collection.arc()).await,
+		KeySongAlbum     => ppacor!(method, request, key_song_album, rpc::param::KeySongAlbum, collection.arc()).await,
+		KeyOtherAlbums   => ppacor!(method, request, key_other_albums, rpc::param::KeyOtherAlbums, collection.arc()).await,
+		KeyOtherSongs    => ppacor!(method, request, key_other_songs, rpc::param::KeyOtherSongs, collection.arc()).await,
+		KeyOtherEntries  => ppacor!(method, request, key_other_entries, rpc::param::KeyOtherEntries, collection.arc()).await,
 
 		//-------------------------------------------------- Map
-		MapArtist        => ppacor!(request, map_artist, rpc::param::MapArtist, collection.arc()).await,
-		MapAlbum         => ppacor!(request, map_album, rpc::param::MapAlbum, collection.arc()).await,
-		MapSong          => ppacor!(request, map_song, rpc::param::MapSong, collection.arc()).await,
-		MapEntry         => ppacor!(request, map_entry, rpc::param::MapEntry, collection.arc()).await,
-		MapArtistAlbums  => ppacor!(request, map_artist_albums, rpc::param::MapArtistAlbums, collection.arc()).await,
-		MapArtistSongs   => ppacor!(request, map_artist_songs, rpc::param::MapArtistSongs, collection.arc()).await,
-		MapArtistEntries => ppacor!(request, map_artist_entries, rpc::param::MapArtistEntries, collection.arc()).await,
-		MapAlbumSongs    => ppacor!(request, map_album_songs, rpc::param::MapAlbumSongs, collection.arc()).await,
-		MapAlbumEntries  => ppacor!(request, map_album_entries, rpc::param::MapAlbumEntries, collection.arc()).await,
+		MapArtist        => ppacor!(method, request, map_artist, rpc::param::MapArtist, collection.arc()).await,
+		MapAlbum         => ppacor!(method, request, map_album, rpc::param::MapAlbum, collection.arc()).await,
+		MapSong          => ppacor!(method, request, map_song, rpc::param::MapSong, collection.arc()).await,
+		MapEntry         => ppacor!(method, request, map_entry, rpc::param::MapEntry, collection.arc()).await,
+		MapArtistAlbums  => ppacor!(method, request, map_artist_albums, rpc::param::MapArtistAlbums, collection.arc()).await,
+		MapArtistSongs   => ppacor!(method, request, map_artist_songs, rpc::param::MapArtistSongs, collection.arc()).await,
+		MapArtistEntries => ppacor!(method, request, map_artist_entries, rpc::param::MapArtistEntries, collection.arc()).await,
+		MapAlbumSongs    => ppacor!(method, request, map_album_songs, rpc::param::MapAlbumSongs, collection.arc()).await,
+		MapAlbumEntries  => ppacor!(method, request, map_album_entries, rpc::param::MapAlbumEntries, collection.arc()).await,
 
 		//-------------------------------------------------- Current
-		CurrentArtist => current_artist(request.id, collection.arc()).await,
-		CurrentAlbum  => current_album(request.id, collection.arc()).await,
-		CurrentSong   => current_song(request.id, collection.arc()).await,
-		CurrentEntry  => current_entry(request.id, collection.arc()).await,
+		CurrentArtist => lac!(method, request, current_artist, collection.arc()).await,
+		CurrentAlbum  => lac!(method, request, current_album, collection.arc()).await,
+		CurrentSong   => lac!(method, request, current_song, collection.arc()).await,
+		CurrentEntry  => lac!(method, request, current_entry, collection.arc()).await,
 
 		//-------------------------------------------------- Rand
-		RandArtist => rand_artist(request.id, collection.arc()).await,
-		RandAlbum  => rand_album(request.id, collection.arc()).await,
-		RandSong   => rand_song(request.id, collection.arc()).await,
-		RandEntry  => rand_entry(request.id, collection.arc()).await,
+		RandArtist => lac!(method, request, rand_artist, collection.arc()).await,
+		RandAlbum  => lac!(method, request, rand_album, collection.arc()).await,
+		RandSong   => lac!(method, request, rand_song, collection.arc()).await,
+		RandEntry  => lac!(method, request, rand_entry, collection.arc()).await,
 
 		//-------------------------------------------------- Search
-		Search       => ppacor!(request, search, rpc::param::Search, collection.arc(), TO_KERNEL, FROM_KERNEL).await,
-		SearchArtist => ppacor!(request, search_artist, rpc::param::SearchArtist, collection.arc(), TO_KERNEL, FROM_KERNEL).await,
-		SearchAlbum  => ppacor!(request, search_album, rpc::param::SearchAlbum, collection.arc(), TO_KERNEL, FROM_KERNEL).await,
-		SearchSong   => ppacor!(request, search_song, rpc::param::SearchSong, collection.arc(), TO_KERNEL, FROM_KERNEL).await,
-		SearchEntry  => ppacor!(request, search_entry, rpc::param::SearchEntry, collection.arc(), TO_KERNEL, FROM_KERNEL).await,
+		Search       => ppacor!(method, request, search, rpc::param::Search, collection.arc(), TO_KERNEL, FROM_KERNEL).await,
+		SearchArtist => ppacor!(method, request, search_artist, rpc::param::SearchArtist, collection.arc(), TO_KERNEL, FROM_KERNEL).await,
+		SearchAlbum  => ppacor!(method, request, search_album, rpc::param::SearchAlbum, collection.arc(), TO_KERNEL, FROM_KERNEL).await,
+		SearchSong   => ppacor!(method, request, search_song, rpc::param::SearchSong, collection.arc(), TO_KERNEL, FROM_KERNEL).await,
+		SearchEntry  => ppacor!(method, request, search_entry, rpc::param::SearchEntry, collection.arc(), TO_KERNEL, FROM_KERNEL).await,
 
 		//-------------------------------------------------- Playback
-		Toggle             => toggle(request.id, TO_KERNEL).await,
-		Play               => play(request.id, TO_KERNEL).await,
-		Pause              => pause(request.id, TO_KERNEL).await,
-		Next               => next(request.id, TO_KERNEL).await,
-		Stop               => stop(request.id, TO_KERNEL).await,
-		Previous           => ppacor!(request, previous, rpc::param::Previous, TO_KERNEL).await,
-		Shuffle            => shuffle(request.id, TO_KERNEL).await,
-		Clear              => ppacor!(request, clear, rpc::param::Clear, TO_KERNEL).await,
-		Seek               => ppacor!(request, seek, rpc::param::Seek, TO_KERNEL).await,
-		Skip               => ppacor!(request, skip, rpc::param::Skip, TO_KERNEL).await,
-		Back               => ppacor!(request, back, rpc::param::Back, TO_KERNEL).await,
-		RepeatOff          => repeat_off(request.id, TO_KERNEL).await,
-		RepeatSong         => repeat_song(request.id, TO_KERNEL).await,
-		RepeatQueue        => repeat_queue(request.id, TO_KERNEL).await,
-		Volume             => ppacor!(request, volume, rpc::param::Volume, TO_KERNEL).await,
-		VolumeUp           => ppacor!(request, volume_up, rpc::param::VolumeUp, TO_KERNEL).await,
-		VolumeDown         => ppacor!(request, volume_down, rpc::param::VolumeDown, TO_KERNEL).await,
+		Toggle             => lac!(method, request, toggle, TO_KERNEL).await,
+		Play               => lac!(method, request, play, TO_KERNEL).await,
+		Pause              => lac!(method, request, pause, TO_KERNEL).await,
+		Next               => lac!(method, request, next, TO_KERNEL).await,
+		Stop               => lac!(method, request, stop, TO_KERNEL).await,
+		Previous           => ppacor!(method, request, previous, rpc::param::Previous, TO_KERNEL).await,
+		Shuffle            => lac!(method, request, shuffle, TO_KERNEL).await,
+		Clear              => ppacor!(method, request, clear, rpc::param::Clear, TO_KERNEL).await,
+		Seek               => ppacor!(method, request, seek, rpc::param::Seek, TO_KERNEL).await,
+		Skip               => ppacor!(method, request, skip, rpc::param::Skip, TO_KERNEL).await,
+		Back               => ppacor!(method, request, back, rpc::param::Back, TO_KERNEL).await,
+		RepeatOff          => lac!(method, request, repeat_off, TO_KERNEL).await,
+		RepeatSong         => lac!(method, request, repeat_song, TO_KERNEL).await,
+		RepeatQueue        => lac!(method, request, repeat_queue, TO_KERNEL).await,
+		Volume             => ppacor!(method, request, volume, rpc::param::Volume, TO_KERNEL).await,
+		VolumeUp           => ppacor!(method, request, volume_up, rpc::param::VolumeUp, TO_KERNEL).await,
+		VolumeDown         => ppacor!(method, request, volume_down, rpc::param::VolumeDown, TO_KERNEL).await,
 
 		//-------------------------------------------------- Queue
-		QueueAddKeyArtist  => ppacor!(request, queue_add_key_artist, rpc::param::QueueAddKeyArtist, collection.arc(), TO_KERNEL).await,
-		QueueAddKeyAlbum   => ppacor!(request, queue_add_key_album, rpc::param::QueueAddKeyAlbum, collection.arc(), TO_KERNEL).await,
-		QueueAddKeySong    => ppacor!(request, queue_add_key_song, rpc::param::QueueAddKeySong, collection.arc(), TO_KERNEL).await,
-		QueueAddMapArtist  => ppacor!(request, queue_add_map_artist, rpc::param::QueueAddMapArtist, collection.arc(), TO_KERNEL).await,
-		QueueAddMapAlbum   => ppacor!(request, queue_add_map_album, rpc::param::QueueAddMapAlbum, collection.arc(), TO_KERNEL).await,
-		QueueAddMapSong    => ppacor!(request, queue_add_map_song, rpc::param::QueueAddMapSong, collection.arc(), TO_KERNEL).await,
-		QueueAddRandArtist => ppacor!(request, queue_add_rand_artist, rpc::param::QueueAddRandArtist, collection.arc(), TO_KERNEL).await,
-		QueueAddRandAlbum  => ppacor!(request, queue_add_rand_album, rpc::param::QueueAddRandAlbum, collection.arc(), TO_KERNEL).await,
-		QueueAddRandSong   => ppacor!(request, queue_add_rand_song, rpc::param::QueueAddRandSong, collection.arc(), TO_KERNEL).await,
-		QueueAddPlaylist   => ppacor!(request, queue_add_playlist, rpc::param::QueueAddPlaylist, collection.arc(), TO_KERNEL).await,
-		QueueSetIndex      => ppacor!(request, queue_set_index, rpc::param::QueueSetIndex, TO_KERNEL).await,
-		QueueRemoveRange   => ppacor!(request, queue_remove_range, rpc::param::QueueRemoveRange, TO_KERNEL).await,
+		QueueAddKeyArtist  => ppacor!(method, request, queue_add_key_artist, rpc::param::QueueAddKeyArtist, collection.arc(), TO_KERNEL).await,
+		QueueAddKeyAlbum   => ppacor!(method, request, queue_add_key_album, rpc::param::QueueAddKeyAlbum, collection.arc(), TO_KERNEL).await,
+		QueueAddKeySong    => ppacor!(method, request, queue_add_key_song, rpc::param::QueueAddKeySong, collection.arc(), TO_KERNEL).await,
+		QueueAddMapArtist  => ppacor!(method, request, queue_add_map_artist, rpc::param::QueueAddMapArtist, collection.arc(), TO_KERNEL).await,
+		QueueAddMapAlbum   => ppacor!(method, request, queue_add_map_album, rpc::param::QueueAddMapAlbum, collection.arc(), TO_KERNEL).await,
+		QueueAddMapSong    => ppacor!(method, request, queue_add_map_song, rpc::param::QueueAddMapSong, collection.arc(), TO_KERNEL).await,
+		QueueAddRandArtist => ppacor!(method, request, queue_add_rand_artist, rpc::param::QueueAddRandArtist, collection.arc(), TO_KERNEL).await,
+		QueueAddRandAlbum  => ppacor!(method, request, queue_add_rand_album, rpc::param::QueueAddRandAlbum, collection.arc(), TO_KERNEL).await,
+		QueueAddRandSong   => ppacor!(method, request, queue_add_rand_song, rpc::param::QueueAddRandSong, collection.arc(), TO_KERNEL).await,
+		QueueAddPlaylist   => ppacor!(method, request, queue_add_playlist, rpc::param::QueueAddPlaylist, collection.arc(), TO_KERNEL).await,
+		QueueSetIndex      => ppacor!(method, request, queue_set_index, rpc::param::QueueSetIndex, TO_KERNEL).await,
+		QueueRemoveRange   => ppacor!(method, request, queue_remove_range, rpc::param::QueueRemoveRange, TO_KERNEL).await,
 
 		//-------------------------------------------------- Playlist
-		PlaylistNew          => ppacor!(request, playlist_new, rpc::param::PlaylistNew, collection.arc(), TO_KERNEL).await,
-		PlaylistRemove       => ppacor!(request, playlist_remove, rpc::param::PlaylistRemove, collection.arc(), TO_KERNEL).await,
-		PlaylistClone        => ppacor!(request, playlist_clone, rpc::param::PlaylistClone, collection.arc(), TO_KERNEL).await,
-		PlaylistRemoveEntry  => ppacor!(request, playlist_remove_entry, rpc::param::PlaylistRemoveEntry, collection.arc(), TO_KERNEL).await,
-		PlaylistAddKeyArtist => ppacor!(request, playlist_add_key_artist, rpc::param::PlaylistAddKeyArtist, collection.arc(), TO_KERNEL).await,
-		PlaylistAddKeyAlbum  => ppacor!(request, playlist_add_key_album, rpc::param::PlaylistAddKeyAlbum, collection.arc(), TO_KERNEL).await,
-		PlaylistAddKeySong   => ppacor!(request, playlist_add_key_song, rpc::param::PlaylistAddKeySong, collection.arc(), TO_KERNEL).await,
-		PlaylistAddMapArtist => ppacor!(request, playlist_add_map_artist, rpc::param::PlaylistAddMapArtist, collection.arc(), TO_KERNEL).await,
-		PlaylistAddMapAlbum  => ppacor!(request, playlist_add_map_album, rpc::param::PlaylistAddMapAlbum, collection.arc(), TO_KERNEL).await,
-		PlaylistAddMapSong   => ppacor!(request, playlist_add_map_song, rpc::param::PlaylistAddMapSong, collection.arc(), TO_KERNEL).await,
-		PlaylistSingle       => ppacor!(request, playlist_single, rpc::param::PlaylistSingle, collection.arc(), TO_KERNEL).await,
-		PlaylistBrief        => playlist_brief(request.id).await,
-		PlaylistFull         => playlist_full(request.id).await,
+		PlaylistNew          => ppacor!(method, request, playlist_new, rpc::param::PlaylistNew, collection.arc(), TO_KERNEL).await,
+		PlaylistRemove       => ppacor!(method, request, playlist_remove, rpc::param::PlaylistRemove, collection.arc(), TO_KERNEL).await,
+		PlaylistClone        => ppacor!(method, request, playlist_clone, rpc::param::PlaylistClone, collection.arc(), TO_KERNEL).await,
+		PlaylistRemoveEntry  => ppacor!(method, request, playlist_remove_entry, rpc::param::PlaylistRemoveEntry, collection.arc(), TO_KERNEL).await,
+		PlaylistAddKeyArtist => ppacor!(method, request, playlist_add_key_artist, rpc::param::PlaylistAddKeyArtist, collection.arc(), TO_KERNEL).await,
+		PlaylistAddKeyAlbum  => ppacor!(method, request, playlist_add_key_album, rpc::param::PlaylistAddKeyAlbum, collection.arc(), TO_KERNEL).await,
+		PlaylistAddKeySong   => ppacor!(method, request, playlist_add_key_song, rpc::param::PlaylistAddKeySong, collection.arc(), TO_KERNEL).await,
+		PlaylistAddMapArtist => ppacor!(method, request, playlist_add_map_artist, rpc::param::PlaylistAddMapArtist, collection.arc(), TO_KERNEL).await,
+		PlaylistAddMapAlbum  => ppacor!(method, request, playlist_add_map_album, rpc::param::PlaylistAddMapAlbum, collection.arc(), TO_KERNEL).await,
+		PlaylistAddMapSong   => ppacor!(method, request, playlist_add_map_song, rpc::param::PlaylistAddMapSong, collection.arc(), TO_KERNEL).await,
+		PlaylistSingle       => ppacor!(method, request, playlist_single, rpc::param::PlaylistSingle, collection.arc(), TO_KERNEL).await,
+		PlaylistBrief        => lac!(method, request, playlist_brief).await,
+		PlaylistFull         => lac!(method, request, playlist_full).await,
 	}
 }
 
@@ -553,7 +571,7 @@ async fn collection_new<'a>(
 			let sc = Arc::strong_count(&collection);
 
 			if sc > 5 {
-				debug!("Task - collection_new(): strong count == {sc}, waiting...");
+				debug!("RPC - collection_new(): strong count == {sc}, waiting...");
 				tokio::time::sleep(Duration::from_millis(10)).await;
 			} else {
 				break;
@@ -568,7 +586,7 @@ async fn collection_new<'a>(
 		};
 
 		for p in paths.iter() {
-			debug!("Task - Collection Reset Path: {}", p.display());
+			debug!("RPC - Collection Reset Path: {}", p.display());
 		}
 
 		send!(TO_KERNEL, FrontendToKernel::NewCollection(paths));
@@ -925,14 +943,14 @@ async fn daemon_remove_cache<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, a
 		let path = entry.into_path();
 
 		let Ok(metadata) = tokio::fs::metadata(&path).await else {
-			warn!("Task - disk_remove_cache(): metadata error, skipping {}", path.display());
+			warn!("RPC - disk_remove_cache(): metadata error, skipping {}", path.display());
 			continue;
 		};
 
 		let bytes = metadata.len();
 
 		if tokio::fs::remove_file(&path).await.is_err() {
-			warn!("Task - disk_remove_cache(): remove error, skipping {}", path.display());
+			warn!("RPC - disk_remove_cache(): remove error, skipping {}", path.display());
 		}
 
 		let resp = rpc::resp::DaemonRemoveCacheInner {

@@ -1,26 +1,27 @@
 # Intro
 `Festival` daemon.
 
-`festivald` is a music server that plays on the device it is running on, while allowing remote access via clients. It can also serve music resources, such as song files, album art, and organized archives of whole artists.
+`festivald` is a music server that plays on the device it is running on, and is remotely controlled via clients.
+
+It can also serve music resources, such as song files, album art, and organized archives of whole artists.
 
 The 3 APIs `festivald` exposes:
-- [`JSON-RPC 2.0`](https://www.jsonrpc.org/specification) for state retrieval & signal control
+- [`JSON-RPC 2.0`](https://www.jsonrpc.org/specification) for state retrieval & control
 - [`REST`](https://en.wikipedia.org/wiki/Representational_state_transfer) endpoints for serving large resources (audio, art, etc)
-- [`Documentation`](https://docs.festival.pm/daemon): `festivald` serves the very docs you are reading
+- [`Docs`](https://docs.festival.pm/daemon) - `festivald` serves the very docs you are reading
 
 The transport used is `HTTP(s)`.
 
 For a general quick start, see the next section: [Quick Start](/quick-start.md).
 
 ### Clients
-To interact with `festivald`, you need a client. The reference `JSON-RPC` client is [`festival-cli`](https://github.com/hinto-janai/festival/tree/main/cli).
+To interact with `festivald`, you need a client.
 
-`HTTP` clients like `curl`, `wget` or a web browser will also do.
+The reference (and recommended) `JSON-RPC` client is [`festival-cli`](https://docs.festival.pm/cli).
+
+General purpose `HTTP` clients like [`curl`](https://en.wikipedia.org/wiki/CURL), [`wget`](https://en.wikipedia.org/wiki/Wget) or a web browser will also do.
 
 The documentation will use `festival-cli` & `curl` on the default `http://localhost:18425` for examples.
-
-To see documentation for the more user-friendly `festival-cli`, see here:  
-[https://docs.festival.pm/cli](https://docs.festival.pm/cli).
 
 ### JSON-RPC
 For the `JSON-RPC` API, anything that can transmit `JSON-RPC` over `HTTP(s)` can be a client, like `curl`:
@@ -39,7 +40,7 @@ The equivalent `festival-cli` command:
 festival-cli toggle
 ```
 
-For a quick start on the `JSON-RPC` API, see [here](/json-rpc/quick-start.md).
+For a quick start on the `JSON-RPC` API, see [`JSON-RPC/Quick Start`](/json-rpc/quick-start.md).
 
 ### REST
 For the `REST` API, you could use anything that can handle `HTTP(s)`, like a web browser:
@@ -58,7 +59,7 @@ The equivalent `wget` command:
 wget --content-disposition "http://localhost:18425/map/Artist Name/Artist Title/Song Title"
 ```
 
-For a quick start on the `REST` API, see [here](/rest/quick-start.md).
+For a quick start on the `REST` API, see [`REST/Quick Start`](/rest/quick-start.md).
 
 To disable the `REST` API, set the [config](/config.md) option `rest` to `false` OR pass `--disable-rest` via [command line](/command-line/command-line.md) on start up.
 

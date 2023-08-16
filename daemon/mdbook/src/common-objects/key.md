@@ -18,18 +18,24 @@ In the case of `Album` art, the `Album` key doubles as the key (since art belong
 http://localhost:18425/key/art/123
 ```
 
+`Key`'s start at `0` and are unique _per_ object group, meaning there is an `Artist` 0 key AND `Album` 0 key AND `Song` 0 key.
+
+The actual number value of `Key`'s aren't significant, and should be treated as random.
+
+Thus, the `songs` field in [`Album`](/common-objects/album.md) won't necessarily be incrementing by 1, e.g, `[0, 1, 2, ...]`. It could be `[0, 6, 112, 3, ...]`. Same with `Album` keys within `Artist`'s.
+
 ## Where
 `Key`'s can be found in multiple `JSON-RPC` methods, such as [`map_artist`](../json-rpc/map/map_artist.md), [`search_album`](../json-rpc/search/search_album.md), etc.
 
 Each object contains its own key within itself as well, and there are links in-between them:
 ```plaintext
-                 Artist_1                       Artist_2
+                 Artist_0                       Artist_1
               ______|______                  ______|_________________
              /             \                /             \          \
-          Album_1        Album_5         Album_34        Album_4    Album_8
+          Album_13       Album_5         Album_0         Album_4    Album_8
           __|__           __|__           __|__          __|__         \___        
          /     \         /     \         /     \        /     \            \
-[Song_1, Song_6, ...] [Song_3, ...]  [Song_76, ...] [Song_45, ...]   [Song_41, ...]
+[Song_5, Song_0, ...] [Song_3, ...]  [Song_76, ...] [Song_45, ...]   [Song_41, ...]
 ```
 1. An `Artist` contains keys leading to `Album`'s
 2. `Album`'s have a key pointing back to the owning `Artist`, and keys leading to `Song`'s
@@ -37,26 +43,21 @@ Each object contains its own key within itself as well, and there are links in-b
 
 For convenience, all `Artist`'s also have an array of all their `Song`'s.
 
-`Key`' are unique _per_ object group, meaning there is an `Artist` 0 key AND `Album` 0 key AND `Song` 0 key.
-
-The actual number value of `Key`'s aren't significant, and should be treated as random. A `Song` key array within an `Album` won't necessarily be incrementing by 1, e.g, `[0, 1, 2, ...]`. It could be `[0, 6, 112, 3, ...]`. Same with `Album` keys within `Artist`'s.
-
 ## Why
 `Key`'s are a number that represent direct access to a unique `Artist`/`Album`/`Song`.
 
 Think of it as an index into an array (that's what they really are, implemented).
 
-The `key_*` variants of `JSON-RPC` methods and `REST` endpoints are usually faster than the `string` variants as well, since there is no lookup, we directly index with the `Key`.
-
-## Why NOT
-`Key`'s can only be relied upon as long as the `Collection` has not been reset.
-
-When the `Collection` is reset, it is not guaranteed that the same key will map to the same object. Using `map_*` and `search_*` methods as the main way to retrieve information may be more convenient so that `Artist` names, `Album` and `Song` titles can be used as inputs instead.
-
-The main reasons key's exists:
+Reasons why key's exist:
 - Accessing objects via a key is faster than with `string` inputs
 - Storing/sending/parsing integers is faster & cheaper than `string`'s
 - As long as your `Collection` is stable, the key's are stable
+- Accessing `Song`'s with the _same_ title in the same `Album` by the same `Artist` is impossible with `string`'s, however, each one of those `Song`'s will have a unique `Key`, which it makes it possible to access them that way
+
+## Why NOT
+`Key`'s can only be relied upon as long as the [`Collection`](/common-objects/collection.md) has not been [reset](/json-rpc/collection/collection_new.md).
+
+When the `Collection` is reset, it is not guaranteed that the same key will map to the same object. Using [`map_*`](/json-rpc/map/map.md) and [`search_*`](/json-rpc/search/index.md) methods as the main way to retrieve information may be more convenient so that `Artist` names, `Album` and `Song` titles can be used as inputs instead.
 
 ## Example
 Let's search for a song that has a title similar to: "hello"

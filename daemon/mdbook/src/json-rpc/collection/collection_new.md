@@ -7,24 +7,22 @@ This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 Create a new [`Collection`](/common-objects/collection.md) (and replace the current one).
 
-While this method is in progress, other `JSON-RPC` requests will be rejected.
+While this method is in progress, other `JSON-RPC/REST` requests will be rejected.
 
 `festivald` will respond with some stats when the `Collection` reset has finished.
-
-The output is a superset of the [`collection_brief`](/json-rpc/collection/collection_brief.md) method.
 
 #### Inputs
 
 | Field | Type                                 | Description |
 |-------|--------------------------------------|-------------|
-| paths | optional (maybe null) array of PATHs | An array of filesystem PATHs to scan for the new `Collection`. These must be absolute PATHs **on the system `festivald` is running on**, not PATHs on the client. If `null` is provided, the default `Music` directory will be used.
+| paths | optional (maybe-null) array of PATHs | An array of filesystem PATHs to scan for the new `Collection`. These must be absolute PATHs **on the system `festivald` is running on**, not PATHs on the client. If `null` is provided, the default `Music` directory will be used.
 
 #### Outputs
 
 | Field        | Type             | Description |
 |--------------|------------------|-------------|
 | time         | float            | How many seconds it took `festivald` to reset AND respond
-| empty        | boolean          | If the `Collection` does NOT have any `Artist`'s, `Album`'s, or `Song`'s
+| empty        | boolean          | If the `Collection` does NOT have any [`Artist`](/common-objects/artist.md)'s, [`Album`](/common-objects/album.md)'s, or [`Song`](/common-objects/song.md)'s
 | timestamp    | unsigned integer | The UNIX timestamp of when this `Collection` was created
 | count_artist | unsigned integer | How many unique `Artist`'s there are in this `Collection`
 | count_album  | unsigned integer | How many unique `Album`'s there are in this `Collection`
@@ -43,7 +41,7 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_new
 #### Example Request 2
 Use the `PATH` /home/user/Music/collection on `festivald`'s filesystem.
 ```bash
-festival-cli collection_new --path "/home/user/Music/collection"
+festival-cli collection_new --paths "/home/user/Music/collection"
 ```
 ```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_new","params":{"paths":["/home/user/Music/collection"]}}'
@@ -52,7 +50,7 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_new
 #### Example Request 3
 Windows PATH works too if `\` is escaped (and if `festivald` is running on Windows).
 ```bash
-festival-cli collection_new --path "C:\\Users\\User\\Music\\collection"
+festival-cli collection_new --paths "C:\\Users\\User\\Music\\collection"
 ```
 ```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_new","params":{"paths":["C:\\Users\\User\\Music\\collection"]}}'

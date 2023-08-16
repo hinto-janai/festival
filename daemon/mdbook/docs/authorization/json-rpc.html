@@ -183,7 +183,7 @@
 </ul>
 <p>If a specified method name is incorrect, <code>festivald</code> will not start.</p>
 <h2 id="example"><a class="header" href="#example">Example</a></h2>
-<p>For example, if only <code>toggle</code> is listed, then clients WITHOUT authorization will only be allowed to use the <code>toggle</code> method, for every other method, they must authenticate.</p>
+<p>For example, if <code>toggle</code> is listed, then ALL clients will be allowed to use the <code>toggle</code> method, for every other method, they must authenticate.</p>
 <p><code>festivald.toml</code>:</p>
 <pre><code class="language-toml">authorization = &quot;user:pass&quot;
 no_auth_rpc   = [&quot;toggle&quot;]

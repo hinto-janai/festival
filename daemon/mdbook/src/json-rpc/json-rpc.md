@@ -3,14 +3,23 @@
 
 It can be accessed by sending a POST HTTP request containing a `JSON-RPC 2.0` request in the body, to the root endpoint, `/`.
 
-For a quick start on using it, see the next section: [Quick Start](/json-rpc/quick-start.md).
+All method documentation will include:
+- What inputs it needs
+- What output to expect
+- Examples
+
+The title of the section itself is the method name, for example, [`collection_new`](/json-rpc/collection/collection_new.md) _is_ the method name.
+
+All method names, parameter names, and field names are in `lower_case_snake_case`.
+
+For a quick start on using the `JSON-RPC` API, see the next section: [Quick Start](/json-rpc/quick-start.md).
 
 ### Missing resource
 If a `JSON-RPC` method is interacting with an underlying resource and that resource is missing from the filesystem, `festivald` will _not_ respond to the client with an error, however, it will log an error message on the machine it is running on.
 
-For example, if a [`queue_add_key_song`](/json-rpc/playback/queue_add_key_song.md) method is sent, and _that_ `Song`'s underlying PATH is missing/moved/renamed from when the `Collection` was created:
+For example, if a [`queue_add_key_song`](/json-rpc/queue/queue_add_key_song.md) method is sent, and _that_ `Song`'s underlying PATH is missing/moved/renamed from when the `Collection` was created:
 ```bash
-mv "Artist/Album/Song Title" "Artist/Album/Song_Title"
+mv "Song Title" "Song_Title"
 ```
 
 `festivald` will now have a reference to a non-existent PATH and will not be able to find the file, so it will log an error that looks something like:
@@ -85,9 +94,3 @@ The exception is `collection_new`, since it has a single optional field. You _mu
 ```bash
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_new","params":{"paths":null}}'
 ```
-
-All method documentation will include what inputs it needs, what output to expect, and examples.
-
-All method names, parameter names, and field names are in `lower_case_snake_case`.
-
-The title of the section itself is the method name, for example, [`collection_new`](/json-rpc/collection/collection_new.md) _is_ the method name.

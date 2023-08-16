@@ -174,18 +174,17 @@
 <p>This API is <a href="/api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Create a new <a href="/common-objects/collection.html"><code>Collection</code></a> (and replace the current one).</p>
-<p>While this method is in progress, other <code>JSON-RPC</code> requests will be rejected.</p>
+<p>While this method is in progress, other <code>JSON-RPC/REST</code> requests will be rejected.</p>
 <p><code>festivald</code> will respond with some stats when the <code>Collection</code> reset has finished.</p>
-<p>The output is a superset of the <a href="/json-rpc/collection/collection_brief.html"><code>collection_brief</code></a> method.</p>
 <h4 id="inputs"><a class="header" href="#inputs">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td>paths</td><td>optional (maybe null) array of PATHs</td><td>An array of filesystem PATHs to scan for the new <code>Collection</code>. These must be absolute PATHs <strong>on the system <code>festivald</code> is running on</strong>, not PATHs on the client. If <code>null</code> is provided, the default <code>Music</code> directory will be used.</td></tr>
+<tr><td>paths</td><td>optional (maybe-null) array of PATHs</td><td>An array of filesystem PATHs to scan for the new <code>Collection</code>. These must be absolute PATHs <strong>on the system <code>festivald</code> is running on</strong>, not PATHs on the client. If <code>null</code> is provided, the default <code>Music</code> directory will be used.</td></tr>
 </tbody></table>
 </div>
 <h4 id="outputs"><a class="header" href="#outputs">Outputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>time</td><td>float</td><td>How many seconds it took <code>festivald</code> to reset AND respond</td></tr>
-<tr><td>empty</td><td>boolean</td><td>If the <code>Collection</code> does NOT have any <code>Artist</code>'s, <code>Album</code>'s, or <code>Song</code>'s</td></tr>
+<tr><td>empty</td><td>boolean</td><td>If the <code>Collection</code> does NOT have any <a href="/common-objects/artist.html"><code>Artist</code></a>'s, <a href="/common-objects/album.html"><code>Album</code></a>'s, or <a href="/common-objects/song.html"><code>Song</code></a>'s</td></tr>
 <tr><td>timestamp</td><td>unsigned integer</td><td>The UNIX timestamp of when this <code>Collection</code> was created</td></tr>
 <tr><td>count_artist</td><td>unsigned integer</td><td>How many unique <code>Artist</code>'s there are in this <code>Collection</code></td></tr>
 <tr><td>count_album</td><td>unsigned integer</td><td>How many unique <code>Album</code>'s there are in this <code>Collection</code></td></tr>
@@ -201,13 +200,13 @@
 </code></pre>
 <h4 id="example-request-2"><a class="header" href="#example-request-2">Example Request 2</a></h4>
 <p>Use the <code>PATH</code> /home/user/Music/collection on <code>festivald</code>'s filesystem.</p>
-<pre><code class="language-bash">festival-cli collection_new --path &quot;/home/user/Music/collection&quot;
+<pre><code class="language-bash">festival-cli collection_new --paths &quot;/home/user/Music/collection&quot;
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;collection_new&quot;,&quot;params&quot;:{&quot;paths&quot;:[&quot;/home/user/Music/collection&quot;]}}'
 </code></pre>
 <h4 id="example-request-3"><a class="header" href="#example-request-3">Example Request 3</a></h4>
 <p>Windows PATH works too if <code>\</code> is escaped (and if <code>festivald</code> is running on Windows).</p>
-<pre><code class="language-bash">festival-cli collection_new --path &quot;C:\\Users\\User\\Music\\collection&quot;
+<pre><code class="language-bash">festival-cli collection_new --paths &quot;C:\\Users\\User\\Music\\collection&quot;
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;collection_new&quot;,&quot;params&quot;:{&quot;paths&quot;:[&quot;C:\\Users\\User\\Music\\collection&quot;]}}'
 </code></pre>

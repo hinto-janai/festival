@@ -11,7 +11,7 @@ festival-cli collection_new
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_new","params":{"paths":null}}'
 ```
 
-2. Add the `Artist` "LUCKY TAPES" to the queue with [`queue_add_map_artist`](/json-rpc/playback/queue_add_map_artist.md):
+2. Add the `Artist` "LUCKY TAPES" to the queue with [`queue_add_map_artist`](/json-rpc/queue/queue_add_map_artist.md):
 ```bash
 festival-cli queue_add_map_artist --artist "LUCKY TAPES"
 ```

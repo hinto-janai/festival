@@ -172,11 +172,19 @@
                         <h1 id="json-rpc"><a class="header" href="#json-rpc">JSON-RPC</a></h1>
 <p><code>festivald</code> exposes a <a href="https://www.jsonrpc.org/specification"><code>JSON-RPC 2.0</code></a> API for general state retrieval &amp; signal control.</p>
 <p>It can be accessed by sending a POST HTTP request containing a <code>JSON-RPC 2.0</code> request in the body, to the root endpoint, <code>/</code>.</p>
-<p>For a quick start on using it, see the next section: <a href="/json-rpc/quick-start.html">Quick Start</a>.</p>
+<p>All method documentation will include:</p>
+<ul>
+<li>What inputs it needs</li>
+<li>What output to expect</li>
+<li>Examples</li>
+</ul>
+<p>The title of the section itself is the method name, for example, <a href="/json-rpc/collection/collection_new.html"><code>collection_new</code></a> <em>is</em> the method name.</p>
+<p>All method names, parameter names, and field names are in <code>lower_case_snake_case</code>.</p>
+<p>For a quick start on using the <code>JSON-RPC</code> API, see the next section: <a href="/json-rpc/quick-start.html">Quick Start</a>.</p>
 <h3 id="missing-resource"><a class="header" href="#missing-resource">Missing resource</a></h3>
 <p>If a <code>JSON-RPC</code> method is interacting with an underlying resource and that resource is missing from the filesystem, <code>festivald</code> will <em>not</em> respond to the client with an error, however, it will log an error message on the machine it is running on.</p>
-<p>For example, if a <a href="/json-rpc/playback/queue_add_key_song.html"><code>queue_add_key_song</code></a> method is sent, and <em>that</em> <code>Song</code>'s underlying PATH is missing/moved/renamed from when the <code>Collection</code> was created:</p>
-<pre><code class="language-bash">mv &quot;Artist/Album/Song Title&quot; &quot;Artist/Album/Song_Title&quot;
+<p>For example, if a <a href="/json-rpc/queue/queue_add_key_song.html"><code>queue_add_key_song</code></a> method is sent, and <em>that</em> <code>Song</code>'s underlying PATH is missing/moved/renamed from when the <code>Collection</code> was created:</p>
+<pre><code class="language-bash">mv &quot;Song Title&quot; &quot;Song_Title&quot;
 </code></pre>
 <p><code>festivald</code> will now have a reference to a non-existent PATH and will not be able to find the file, so it will log an error that looks something like:</p>
 <pre><code class="language-plaintext">Audio - PATH error: No such file or directory (os error 2) ... /path/to/unknown/song.mp3
@@ -236,9 +244,6 @@ curl \
 <p>The exception is <code>collection_new</code>, since it has a single optional field. You <em>must</em> specify it (even if <code>null</code>).</p>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;collection_new&quot;,&quot;params&quot;:{&quot;paths&quot;:null}}'
 </code></pre>
-<p>All method documentation will include what inputs it needs, what output to expect, and examples.</p>
-<p>All method names, parameter names, and field names are in <code>lower_case_snake_case</code>.</p>
-<p>The title of the section itself is the method name, for example, <a href="/json-rpc/collection/collection_new.html"><code>collection_new</code></a> <em>is</em> the method name.</p>
 
                     </main>
 

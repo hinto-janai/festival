@@ -170,26 +170,23 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="systemd"><a class="header" href="#systemd"><code>systemd</code></a></h1>
-<p>This is a relatively hardened <a href="https://en.wikipedia.org/wiki/Systemd"><code>systemd</code></a> user-service file for <code>festivald</code>.</p>
-<p>It can be used as is, assuming <code>festivald</code> is at <code>/usr/bin/festivald</code>.</p>
+<p>This is a relatively hardened <a href="https://en.wikipedia.org/wiki/Systemd"><code>systemd</code></a> service file for <code>festivald</code>.</p>
+<p><code>${USER}</code> should be replaced by a user that has access to an audio server (like PulseAudio).</p>
 <p>It should be placed at:</p>
-<pre><code>/home/$USER/.config/systemd/user/festivald.service
+<pre><code>/etc/systemd/system/festivald.service
 </code></pre>
 <p>and launched with:</p>
-<pre><code class="language-bash">systemctl --user start festivald
+<pre><code class="language-bash">sudo systemctl --user start festivald
 </code></pre>
 <h2 id="festivaldservice"><a class="header" href="#festivaldservice"><code>festivald.service</code></a></h2>
 <pre><code class="language-toml">#===================#
 # festivald.service #
 #=======================================================#
 # This is a systemd user service file for `festivald`.  #
-# It can be used as is, assuming `festivald` is located #
-# at `/usr/bin/festivald`.                              #
-#                                                       #
 # It is relatively hardened for public usage.           #
 #                                                       #
-# `festivald` will use whichever audio server the user  #
-# launching this has access to (most likely PulseAudio) #
+# ${USER} should be replaced by a user that has         #
+# access to an audio server (like PulseAudio).          #
 #=======================================================#
 
 [Unit]
@@ -199,6 +196,7 @@ StartLimitIntervalSec=300
 StartLimitBurst=5
 
 [Service]
+User=${USER} # &lt;- Replace Me
 Type=simple
 ExecStart=/usr/bin/festivald
 

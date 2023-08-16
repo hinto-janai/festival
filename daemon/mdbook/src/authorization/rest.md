@@ -6,12 +6,12 @@ If a [REST resource](/rest/rest.md) is listed in these options `festivald` will 
 This allows you to have `authorization` enabled across the board, but allow specific `REST` resources for public usage.
 
 ## Usage
-The specified `REST` resources must be one of these `string`'s, from most expensive to least:
+The specified `REST` resources must be one of these `string`'s:
 
 | `REST` resource | Allows                                       | Example endpoint |
 |-----------------|----------------------------------------------|------------------|
 | `collection`    | Access to downloading the whole `Collection` | [`/collection`](/rest/collection.md)
-| `playlist`      | Access to downloading `Playlist` ZIPs        | [`/playlist/sorted/`](/rest/playlist/sorted.md)
+| `playlist`      | Access to downloading `Playlist` ZIPs        | [`/playlist`](/rest/playlist.md)
 | `artist`        | Access to downloading `Artist` ZIPs          | [`/current/artist`](/rest/current/artist.md), [`/map/artist`](/rest/map/artist.md)
 | `album`         | Access to downloading `Album` ZIPs           | [`/current/album`](/rest/current/album.md), [`/map/album`](/rest/map/album.md)
 | `song`          | Access to downloading `Song` files           | [`/current/song`](/rest/current/song.md), [`/map/song`](/rest/map/song.md)
@@ -20,7 +20,7 @@ The specified `REST` resources must be one of these `string`'s, from most expens
 If a specified `REST` resource name is incorrect, `festivald` will not start.
 
 ## Example
-For example, if only `["art", "song"]` is listed, then clients WITHOUT authorization will only be allowed to use the `art` and `song`-related endpoints, for all other endpoints, they must authenticate.
+For example, if the value is `["art", "song"]`, ALL clients will be allowed to use the `art` and `song`-related endpoints, for all other endpoints, they must authenticate.
 
 `festivald.toml`:
 ```toml

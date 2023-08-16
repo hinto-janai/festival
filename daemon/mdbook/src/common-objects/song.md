@@ -8,8 +8,8 @@ This API may have [additions](/api-stability/marker.md) in the future.
 | Field       | Type                                   | Description |
 |-------------|----------------------------------------|-------------|
 | title       | string                                 | The title of this `Song`
-| key         | `Song` key (unsigned integer)          | The `Song` key associated with this `Song`
-| album       | `Album` key (unsigned integer)         | The `Album` key of the `Album` this `Song` is from
+| key         | `Song` [key](/common-objects/key.md) (unsigned integer)          | The `Song` key associated with this `Song`
+| album       | [`Album`](/common-objects/album.md) key (unsigned integer)         | The `Album` key of the `Album` this `Song` is from
 | runtime     | unsigned integer                       | The total runtime of this `Song` in seconds
 | sample_rate | unsigned integer                       | The sample rate of this `Song` in hertz, e.g: `44100`
 | track       | optional (maybe null) unsigned integer | Track number of this `Song`, `null` if not found

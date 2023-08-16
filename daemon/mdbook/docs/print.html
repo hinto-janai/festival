@@ -172,21 +172,21 @@
                     <main>
                         <h1 id="intro"><a class="header" href="#intro">Intro</a></h1>
 <p><code>Festival</code> daemon.</p>
-<p><code>festivald</code> is a music server that plays on the device it is running on, while allowing remote access via clients. It can also serve music resources, such as song files, album art, and organized archives of whole artists.</p>
+<p><code>festivald</code> is a music server that plays on the device it is running on, and is remotely controlled via clients.</p>
+<p>It can also serve music resources, such as song files, album art, and organized archives of whole artists.</p>
 <p>The 3 APIs <code>festivald</code> exposes:</p>
 <ul>
-<li><a href="https://www.jsonrpc.org/specification"><code>JSON-RPC 2.0</code></a> for state retrieval &amp; signal control</li>
+<li><a href="https://www.jsonrpc.org/specification"><code>JSON-RPC 2.0</code></a> for state retrieval &amp; control</li>
 <li><a href="https://en.wikipedia.org/wiki/Representational_state_transfer"><code>REST</code></a> endpoints for serving large resources (audio, art, etc)</li>
-<li><a href="https://docs.festival.pm/daemon"><code>Documentation</code></a>: <code>festivald</code> serves the very docs you are reading</li>
+<li><a href="https://docs.festival.pm/daemon"><code>Docs</code></a> - <code>festivald</code> serves the very docs you are reading</li>
 </ul>
 <p>The transport used is <code>HTTP(s)</code>.</p>
 <p>For a general quick start, see the next section: <a href="/quick-start.html">Quick Start</a>.</p>
 <h3 id="clients"><a class="header" href="#clients">Clients</a></h3>
-<p>To interact with <code>festivald</code>, you need a client. The reference <code>JSON-RPC</code> client is <a href="https://github.com/hinto-janai/festival/tree/main/cli"><code>festival-cli</code></a>.</p>
-<p><code>HTTP</code> clients like <code>curl</code>, <code>wget</code> or a web browser will also do.</p>
+<p>To interact with <code>festivald</code>, you need a client.</p>
+<p>The reference (and recommended) <code>JSON-RPC</code> client is <a href="https://docs.festival.pm/cli"><code>festival-cli</code></a>.</p>
+<p>General purpose <code>HTTP</code> clients like <a href="https://en.wikipedia.org/wiki/CURL"><code>curl</code></a>, <a href="https://en.wikipedia.org/wiki/Wget"><code>wget</code></a> or a web browser will also do.</p>
 <p>The documentation will use <code>festival-cli</code> &amp; <code>curl</code> on the default <code>http://localhost:18425</code> for examples.</p>
-<p>To see documentation for the more user-friendly <code>festival-cli</code>, see here:<br />
-<a href="https://docs.festival.pm/cli">https://docs.festival.pm/cli</a>.</p>
 <h3 id="json-rpc"><a class="header" href="#json-rpc">JSON-RPC</a></h3>
 <p>For the <code>JSON-RPC</code> API, anything that can transmit <code>JSON-RPC</code> over <code>HTTP(s)</code> can be a client, like <code>curl</code>:</p>
 <pre><code class="language-bash"># Toggle playback.
@@ -198,7 +198,7 @@ curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&qu
 <p>The equivalent <code>festival-cli</code> command:</p>
 <pre><code class="language-bash">festival-cli toggle
 </code></pre>
-<p>For a quick start on the <code>JSON-RPC</code> API, see <a href="/json-rpc/quick-start.html">here</a>.</p>
+<p>For a quick start on the <code>JSON-RPC</code> API, see <a href="/json-rpc/quick-start.html"><code>JSON-RPC/Quick Start</code></a>.</p>
 <h3 id="rest"><a class="header" href="#rest">REST</a></h3>
 <p>For the <code>REST</code> API, you could use anything that can handle <code>HTTP(s)</code>, like a web browser:</p>
 <pre><code class="language-http"># Opening this link in a browser will show a small player for this song.
@@ -210,7 +210,7 @@ http://localhost:18425/map/Artist Name/Artist Title/Song Title
 <p>The equivalent <code>wget</code> command:</p>
 <pre><code class="language-bash">wget --content-disposition &quot;http://localhost:18425/map/Artist Name/Artist Title/Song Title&quot;
 </code></pre>
-<p>For a quick start on the <code>REST</code> API, see <a href="/rest/quick-start.html">here</a>.</p>
+<p>For a quick start on the <code>REST</code> API, see <a href="/rest/quick-start.html"><code>REST/Quick Start</code></a>.</p>
 <p>To disable the <code>REST</code> API, set the <a href="/config.html">config</a> option <code>rest</code> to <code>false</code> OR pass <code>--disable-rest</code> via <a href="/command-line/command-line.html">command line</a> on start up.</p>
 <h3 id="documentation"><a class="header" href="#documentation">Documentation</a></h3>
 <p><code>festivald</code> will also serve <em>this</em> documentation.</p>
@@ -222,7 +222,7 @@ http://localhost:18425/map/Artist Name/Artist Title/Song Title
 </code></pre>
 <p>To disable serving documentation, set the <a href="/config.html">config</a> option <code>docs</code> to <code>false</code> OR pass <code>--disable-docs</code> via <a href="/command-line/command-line.html">command line</a> on start up.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="quick-start"><a class="header" href="#quick-start">Quick Start</a></h1>
-<p>A quick start to using <code>festivald</code> and its <code>JSON-RPC 2.0</code> &amp; <code>REST</code> APIs.</p>
+<p>A quick start to using <code>festivald</code> and its <a href="/json-rpc/json-rpc.html"><code>JSON-RPC 2.0</code></a> &amp; <a href="/rest/rest.html"><code>REST</code></a> APIs.</p>
 <p>More JSON-RPC specific examples <a href="/json-rpc/quick-start.html">here</a>, and more REST specific examples <a href="/rest/quick-start.html">here</a>.</p>
 <p>Important things to know:</p>
 <ol>
@@ -231,7 +231,7 @@ http://localhost:18425/map/Artist Name/Artist Title/Song Title
 <li>Everything revolves around the <code>Collection</code>, you should create one before doing anything</li>
 <li>In <code>festivald</code>, there are &quot;objects&quot; that appear often, see <a href="/common-objects/common-objects.html"><code>Common Objects</code></a> for more info</li>
 </ol>
-<h2 id="launch-festivald"><a class="header" href="#launch-festivald">Launch <code>festivald</code></a></h2>
+<h3 id="launch-festivald"><a class="header" href="#launch-festivald">Launch <code>festivald</code></a></h3>
 <p>Start <code>festivald</code> with no options:</p>
 <pre><code class="language-bash">./festivald
 </code></pre>
@@ -242,16 +242,22 @@ http://localhost:18425/map/Artist Name/Artist Title/Song Title
 <p>Or you can open the files locally with:</p>
 <pre><code class="language-bash">./festivald --docs
 </code></pre>
-<h2 id="create-a-collection-with-the-json-rpc-method-collection_new"><a class="header" href="#create-a-collection-with-the-json-rpc-method-collection_new">Create a <code>Collection</code> with the <code>JSON-RPC</code> method <a href="/json-rpc/collection/collection_new.html"><code>collection_new</code></a></a></h2>
+<h3 id="create-a-collection-with-the-json-rpc-method-collection_new"><a class="header" href="#create-a-collection-with-the-json-rpc-method-collection_new">Create a <code>Collection</code> with the <code>JSON-RPC</code> method <a href="/json-rpc/collection/collection_new.html"><code>collection_new</code></a></a></h3>
 <p>This scans the default <code>Music</code> directory on <code>festivald</code>'s filesystem and creates a <code>Collection</code> from it.</p>
+<pre><code class="language-bash">festival-cli collection_new
+</code></pre>
+<p>OR</p>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;collection_new&quot;,&quot;params&quot;:{&quot;paths&quot;:null}}'
 </code></pre>
-<h2 id="download-a-random-artist-with-the-rest-endpoint-randartist"><a class="header" href="#download-a-random-artist-with-the-rest-endpoint-randartist">Download a random <code>Artist</code> with the <code>REST</code> endpoint <a href="/rest/rand/artist.html"><code>/rand/artist</code></a></a></h2>
+<h3 id="download-a-random-artist-with-the-rest-endpoint-randartist"><a class="header" href="#download-a-random-artist-with-the-rest-endpoint-randartist">Download a random <code>Artist</code> with the <code>REST</code> endpoint <a href="/rest/rand/artist.html"><code>/rand/artist</code></a></a></h3>
 <p>Opening this link in a web browser will cause <code>festivald</code> to collect, organize, and archive all the <code>Album</code>'s of a random <code>Artist</code>, and send it over.</p>
 <pre><code class="language-http">http://localhost:18425/rand/artist
 </code></pre>
-<h2 id="view-metadata-about-an-album-with-the-json-rpc-method-map_artist"><a class="header" href="#view-metadata-about-an-album-with-the-json-rpc-method-map_artist">View metadata about an <code>Album</code> with the <code>JSON-RPC</code> method <a href="/json-rpc/map/map_artist.html"><code>map_artist</code></a></a></h2>
-<p>This will lookup the <code>Album</code> &quot;Cigarette &amp; Alcohol&quot; by the <code>Artist</code> &quot;LUCKY TAPES&quot;.</p>
+<h3 id="view-metadata-about-an-album-with-the-json-rpc-method-map_artist"><a class="header" href="#view-metadata-about-an-album-with-the-json-rpc-method-map_artist">View metadata about an <code>Album</code> with the <code>JSON-RPC</code> method <a href="/json-rpc/map/map_artist.html"><code>map_artist</code></a></a></h3>
+<p>This will retrieve the <code>Album</code> &quot;Cigarette &amp; Alcohol&quot; by the <code>Artist</code> &quot;LUCKY TAPES&quot;.</p>
+<pre><code class="language-bash">festival-cli map_album --artist &quot;LUCKY TAPES&quot; --album &quot;Cigarette &amp; Alcohol&quot;
+</code></pre>
+<p>OR</p>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;map_album&quot;,&quot;params&quot;:{&quot;artist&quot;:&quot;LUCKY TAPES&quot;,&quot;album&quot;:&quot;Cigarette &amp; Alcohol&quot;}}'
 </code></pre>
 <p>The response looks like:</p>
@@ -283,8 +289,11 @@ http://localhost:18425/map/Artist Name/Artist Title/Song Title
   &quot;id&quot;: 0
 }
 </code></pre>
-<h2 id="search-for-an-artist-with-the-json-rpc-method-search_artist"><a class="header" href="#search-for-an-artist-with-the-json-rpc-method-search_artist">Search for an <code>Artist</code> with the <code>JSON-RPC</code> method <a href="/json-rpc/search/search_artist.html"><code>search_artist</code></a></a></h2>
+<h3 id="search-for-an-artist-with-the-json-rpc-method-search_artist"><a class="header" href="#search-for-an-artist-with-the-json-rpc-method-search_artist">Search for an <code>Artist</code> with the <code>JSON-RPC</code> method <a href="/json-rpc/search/search_artist.html"><code>search_artist</code></a></a></h3>
 <p>This will look up <em>all</em> <code>Artist</code>'s in the <code>Collection</code>, and return the one that is the most similar (lexicographically) to the input &quot;lUcKee TaPeZ&quot;:</p>
+<pre><code class="language-bash">festival-cli search_artist --input &quot;lUcKee TaPeZ&quot; --kind top1
+</code></pre>
+<p>OR</p>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;search_artist&quot;,&quot;params&quot;:{&quot;input&quot;:&quot;lUcKee TaPeZ&quot;,&quot;kind&quot;:&quot;top1&quot;}}'
 </code></pre>
 <p>We found &quot;LUCKY TAPES&quot;:</p>
@@ -718,26 +727,23 @@ no_auth_rest = []
 no_auth_docs = false
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="systemd"><a class="header" href="#systemd"><code>systemd</code></a></h1>
-<p>This is a relatively hardened <a href="https://en.wikipedia.org/wiki/Systemd"><code>systemd</code></a> user-service file for <code>festivald</code>.</p>
-<p>It can be used as is, assuming <code>festivald</code> is at <code>/usr/bin/festivald</code>.</p>
+<p>This is a relatively hardened <a href="https://en.wikipedia.org/wiki/Systemd"><code>systemd</code></a> service file for <code>festivald</code>.</p>
+<p><code>${USER}</code> should be replaced by a user that has access to an audio server (like PulseAudio).</p>
 <p>It should be placed at:</p>
-<pre><code>/home/$USER/.config/systemd/user/festivald.service
+<pre><code>/etc/systemd/system/festivald.service
 </code></pre>
 <p>and launched with:</p>
-<pre><code class="language-bash">systemctl --user start festivald
+<pre><code class="language-bash">sudo systemctl --user start festivald
 </code></pre>
 <h2 id="festivaldservice"><a class="header" href="#festivaldservice"><code>festivald.service</code></a></h2>
 <pre><code class="language-toml">#===================#
 # festivald.service #
 #=======================================================#
 # This is a systemd user service file for `festivald`.  #
-# It can be used as is, assuming `festivald` is located #
-# at `/usr/bin/festivald`.                              #
-#                                                       #
 # It is relatively hardened for public usage.           #
 #                                                       #
-# `festivald` will use whichever audio server the user  #
-# launching this has access to (most likely PulseAudio) #
+# ${USER} should be replaced by a user that has         #
+# access to an audio server (like PulseAudio).          #
 #=======================================================#
 
 [Unit]
@@ -747,6 +753,7 @@ StartLimitIntervalSec=300
 StartLimitBurst=5
 
 [Service]
+User=${USER} # &lt;- Replace Me
 Type=simple
 ExecStart=/usr/bin/festivald
 
@@ -866,7 +873,7 @@ WantedBy=default.target
 <div style="break-before: page; page-break-before: always;"></div><h1 id="tor"><a class="header" href="#tor">Tor</a></h1>
 <p>Like other web services, <code>festivald</code> can be set-up &amp; accessed via <a href="https://torproject.org">Tor</a>.</p>
 <h3 id="onion-service"><a class="header" href="#onion-service">Onion Service</a></h3>
-<p><code>festivald</code> doesn't have special integration with Tor, but it can easily be turned into a <a href="https://community.torproject.org/onion-services/">Tor Onion Service</a>.</p>
+<p><code>festivald</code> doesn't have special integration with Tor, but it can easily be turned into an <a href="https://community.torproject.org/onion-services/">Onion Service</a>.</p>
 <p>After getting <code>festivald</code> setup normally, follow the <code>Onion Service</code> instructions <a href="https://community.torproject.org/onion-services/setup/">here</a>.</p>
 <p>Your <code>torrc</code> should look something like:</p>
 <pre><code class="language-plaintext">HiddenServiceDir /var/lib/tor/festivald
@@ -894,9 +901,6 @@ curl \
 	--socks5-hostname 127.0.0.1:9050 \                    # The Tor SOCKS5 proxy.
 	--festivald $ONION \                                  # The onion address mapped to `festivald`
 	-d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;state_daemon&quot;}' # Method
-
-# or with `torsocks`
-torsocks curl $ONION -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;state_daemon&quot;}'
 </code></pre>
 <h3 id="rest-1"><a class="header" href="#rest-1">REST</a></h3>
 <p>For the <code>REST</code> API, it is the same: your HTTP client must connect over Tor.</p>
@@ -912,11 +916,11 @@ curl --socks5-hostname $SOCKS -JO $ONION/map/Artist%20Name/Artist%20Title/Song%2
 </code></pre>
 <h3 id="authentication"><a class="header" href="#authentication">Authentication</a></h3>
 <p>Since <a href="https://community.torproject.org/onion-services/overview/">Onion Service's</a> are end-to-end encrypted, <code>HTTPS</code> is not required.</p>
-<p>Thus, <code>festivald</code> and <code>festival-cli</code> can freely pass <a href="/config.html"><code>authentication</code></a> tokens around when used with <code>onion</code> addresses.</p>
-<p>For <code>festivald</code>, since it cannot know if an <code>onion</code> address is being mapped to it, you must pass:</p>
+<p>Thus, <code>festivald</code> can freely pass <a href="/config.html"><code>authentication</code></a> tokens around when used as an <code>Onion Service</code>.</p>
+<p>Although, since <code>festivald</code> cannot know if an <code>onion</code> address is being mapped to it, you must pass:</p>
 <pre><code class="language-bash">festivald --confirm-no-tls-auth
 </code></pre>
-<p>to confirm that you allow authentication without TLS.</p>
+<p>or set the <a href="/config.html"><code>confirm_no_tls_auth</code></a> configuration to confirm that you allow authentication without TLS.</p>
 <p>For <code>festival-cli</code>, it will automatically detect if you're connecting to an onion address and will allow authentication.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="command-line"><a class="header" href="#command-line">Command Line</a></h1>
 <p><code>festivald</code> takes in <code>--flags</code> for many purposes.</p>
@@ -1356,9 +1360,10 @@ Options:
 <p>An optional bypass is available on specified <a href="authorization/json-rpc.html"><code>JSON-RPC</code> methods</a>, <a href="authorization/../rest/rest.html"><code>REST</code> resources</a>, and documentation.</p>
 <p>If <code>authorization</code> is enabled, <code>festivald</code> will only process connections to it that have the &quot;authorization&quot; HTTP header with this username and password (unless specified in the bypass options).</p>
 <p>TLS must be enabled for this feature to work or <code>festivald</code> will refuse to start.</p>
-<p>The option can either be set in the <a href="authorization//config.html">config</a> file or passed via a <a href="authorization/../command-line/command-line.html">command-line flag</a>.</p>
+<p>However, there are cases where <code>authorization</code> without TLS is okay (reverse proxy, <a href="authorization//tor.html"><code>Tor Onion Service</code></a>, etc). In these cases, the <a href="authorization//config.html"><code>confirm_no_tls_auth</code></a> option will allow <code>authorization</code> without TLS.</p>
+<p><code>authorization</code> can either be set in the <a href="authorization//config.html">config</a> file or passed via a <a href="authorization/../command-line/command-line.html">command-line flag</a>.</p>
 <h2 id="syntax"><a class="header" href="#syntax">Syntax</a></h2>
-<p>The username &amp; password syntax is specified <a href="https://en.wikipedia.org/wiki/Basic_access_authentication">here</a>.</p>
+<p>The username &amp; password syntax is specified in <a href="https://en.wikipedia.org/wiki/Basic_access_authentication">RFC 7617</a>.</p>
 <p>The &quot;authorization&quot; value must be:</p>
 <ol>
 <li>The username</li>
@@ -1418,7 +1423,7 @@ festival-cli -u user:pass https://localhost:18425
 </ul>
 <p>If a specified method name is incorrect, <code>festivald</code> will not start.</p>
 <h2 id="example"><a class="header" href="#example">Example</a></h2>
-<p>For example, if only <code>toggle</code> is listed, then clients WITHOUT authorization will only be allowed to use the <code>toggle</code> method, for every other method, they must authenticate.</p>
+<p>For example, if <code>toggle</code> is listed, then ALL clients will be allowed to use the <code>toggle</code> method, for every other method, they must authenticate.</p>
 <p><code>festivald.toml</code>:</p>
 <pre><code class="language-toml">authorization = &quot;user:pass&quot;
 no_auth_rpc   = [&quot;toggle&quot;]
@@ -1441,10 +1446,10 @@ curl https://localhost:18425 -u user:pass -d '{&quot;jsonrpc&quot;:&quot;2.0&quo
 <p>If a <a href="authorization//rest/rest.html">REST resource</a> is listed in these options <code>festivald</code> will allow any client to access it, regardless of authorization.</p>
 <p>This allows you to have <code>authorization</code> enabled across the board, but allow specific <code>REST</code> resources for public usage.</p>
 <h2 id="usage-1"><a class="header" href="#usage-1">Usage</a></h2>
-<p>The specified <code>REST</code> resources must be one of these <code>string</code>'s, from most expensive to least:</p>
+<p>The specified <code>REST</code> resources must be one of these <code>string</code>'s:</p>
 <div class="table-wrapper"><table><thead><tr><th><code>REST</code> resource</th><th>Allows</th><th>Example endpoint</th></tr></thead><tbody>
 <tr><td><code>collection</code></td><td>Access to downloading the whole <code>Collection</code></td><td><a href="authorization//rest/collection.html"><code>/collection</code></a></td></tr>
-<tr><td><code>playlist</code></td><td>Access to downloading <code>Playlist</code> ZIPs</td><td><a href="authorization//rest/playlist/sorted.html"><code>/playlist/sorted/</code></a></td></tr>
+<tr><td><code>playlist</code></td><td>Access to downloading <code>Playlist</code> ZIPs</td><td><a href="authorization//rest/playlist.html"><code>/playlist</code></a></td></tr>
 <tr><td><code>artist</code></td><td>Access to downloading <code>Artist</code> ZIPs</td><td><a href="authorization//rest/current/artist.html"><code>/current/artist</code></a>, <a href="authorization//rest/map/artist.html"><code>/map/artist</code></a></td></tr>
 <tr><td><code>album</code></td><td>Access to downloading <code>Album</code> ZIPs</td><td><a href="authorization//rest/current/album.html"><code>/current/album</code></a>, <a href="authorization//rest/map/album.html"><code>/map/album</code></a></td></tr>
 <tr><td><code>song</code></td><td>Access to downloading <code>Song</code> files</td><td><a href="authorization//rest/current/song.html"><code>/current/song</code></a>, <a href="authorization//rest/map/song.html"><code>/map/song</code></a></td></tr>
@@ -1453,7 +1458,7 @@ curl https://localhost:18425 -u user:pass -d '{&quot;jsonrpc&quot;:&quot;2.0&quo
 </div>
 <p>If a specified <code>REST</code> resource name is incorrect, <code>festivald</code> will not start.</p>
 <h2 id="example-1"><a class="header" href="#example-1">Example</a></h2>
-<p>For example, if only <code>[&quot;art&quot;, &quot;song&quot;]</code> is listed, then clients WITHOUT authorization will only be allowed to use the <code>art</code> and <code>song</code>-related endpoints, for all other endpoints, they must authenticate.</p>
+<p>For example, if the value is <code>[&quot;art&quot;, &quot;song&quot;]</code>, ALL clients will be allowed to use the <code>art</code> and <code>song</code>-related endpoints, for all other endpoints, they must authenticate.</p>
 <p><code>festivald.toml</code>:</p>
 <pre><code class="language-toml">authorization = &quot;user:pass&quot;
 no_auth_rest  = [&quot;art&quot;, &quot;song&quot;]
@@ -1528,17 +1533,7 @@ curl https://localhost:18425/rand/album -u user:pass
 <h3 id="ordering"><a class="header" href="#ordering">Ordering</a></h3>
 <p>The <em>ordering</em> of <a href="api-stability//api-stability/marker.html">non-stable</a> output/object fields should not be relied upon.</p>
 <p>Old <code>v1.0.0</code> JSON-RPC example:</p>
-<pre><code class="language-json">// Request
-{
-  &quot;jsonrpc&quot;: &quot;2.0&quot;,
-  &quot;method&quot;: &quot;method_name&quot;,
-  &quot;param&quot;: {
-    &quot;param_field&quot;: &quot;param_input&quot;
-  },
-  &quot;id&quot;: 0,
-}
-
-// Response
+<pre><code class="language-json">// Response
 {
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {
@@ -1548,18 +1543,8 @@ curl https://localhost:18425/rand/album -u user:pass
   &quot;id&quot;: 0,
 }
 </code></pre>
-<p>New <code>v1.x.x</code> JSON-RPC example:</p>
-<pre><code class="language-json">// Request
-{
-  &quot;jsonrpc&quot;: &quot;2.0&quot;,
-  &quot;method&quot;: &quot;method_name&quot;,
-  &quot;param&quot;: {
-    &quot;param_field&quot;: &quot;param_input&quot;
-  },
-  &quot;id&quot;: 0,
-}
-
-// Response
+<p>New <code>v1.1.0</code> JSON-RPC example:</p>
+<pre><code class="language-json">// Response
 {
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {
@@ -1573,24 +1558,48 @@ curl https://localhost:18425/rand/album -u user:pass
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="rest-3"><a class="header" href="#rest-3">REST</a></h1>
 <p><a href="api-stability//rest/rest.html"><code>REST</code></a>-specific API stability notes.</p>
+<h2 id="file-format--names"><a class="header" href="#file-format--names">File Format &amp; Names</a></h2>
+<p>The file format type and names of those files<sup class="footnote-reference"><a href="#1">1</a></sup> in the <code>REST</code> API are both <a href="api-stability//api-stability/marker.html"><code>🟢 Stable</code></a>.</p>
+<p>(<sup class="footnote-reference"><a href="#1">1</a></sup> The filenames depend on the user-specified <a href="api-stability//config.html"><code>filename_separator</code></a>, but the general formatting of them is stable)</p>
+<p>The below example uses the default <code>-</code> as the <code>filename_separator</code>.</p>
+<div class="table-wrapper"><table><thead><tr><th><code>REST</code> resource</th><th>File Format Type</th><th>Filename Formatting</th></tr></thead><tbody>
+<tr><td><code>collection</code></td><td><code>zip</code></td><td><code>Collection - ${CREATION_UNIX_TIMESTAMP}.zip</code></td></tr>
+<tr><td><code>playlist</code></td><td><code>zip</code></td><td><code>Playlist - ${PLAYLIST_NAME}.zip</code></td></tr>
+<tr><td><code>artist</code></td><td><code>zip</code></td><td><code>${ARTIST_NAME}.zip</code></td></tr>
+<tr><td><code>album</code></td><td><code>zip</code></td><td><code>${ARTIST_NAME} - ${ALBUM_TITLE}.zip</code></td></tr>
+<tr><td><code>song</code></td><td>Original audio format (<code>flac</code>, <code>mp3</code>, etc)</td><td><code>${ARTIST_NAME} - ${ALBUM_TITLE} - ${SONG_TITLE}.${AUDIO_FORMAT}</code></td></tr>
+<tr><td><code>art</code></td><td>Original image format (<code>png</code>, <code>jpg</code>, etc)</td><td><code>${ARTIST_NAME} - ${ALBUM_TITLE}.${IMAGE_FORMAT}</code></td></tr>
+</tbody></table>
+</div>
 <h2 id="zip-file-hierarchy"><a class="header" href="#zip-file-hierarchy">ZIP File Hierarchy</a></h2>
-<p>The file hierarchy within ZIPs are stable.</p>
+<p>The file hierarchy within ZIPs, and the internal file/folder names are both <a href="api-stability//api-stability/marker.html"><code>🟢 Stable</code></a>.</p>
 <p>This below example will be the same for the rest of <code>festivald v1.x.x</code>:</p>
 <pre><code class="language-plaintext"># Input
-https://localhost:18425/map/My Artist
+https://localhost:18425/collection
 
 # Output
-My Artist.zip
+Collection - ${CREATION_UNIX_TIMESTAMP}.zip
 
 # Extracted
-My Artist/
-    ├─ Album Name 1/
-    │    ├─ Album Name 1.jpg
-    │    ├─ Song Name 1.mp3
+Collection - ${CREATION_UNIX_TIMESTAMP}/
     │
-    │─ Album Name 2/
-    │    ├─ Album Name 2.png
-    │    ├─ Song Name 2.mp3
+    ├─ ${ARTIST_NAME}/
+    │    │
+    │    ├─ ${ALBUM_TITLE}/
+    │         │
+    │         ├─ ${ALBUM_TITLE}.${IMAGE_FORMAT}
+    │         ├─ ${SONG_TITLE}.${AUDIO_FORMAT}
+    │
+    │
+    ├─ ${ARTIST_NAME}/
+    │    │
+    │    ├─ ${ALBUM_TITLE}/
+    │         │
+    │         ├─ ${ALBUM_TITLE}.${IMAGE_FORMAT}
+    │         ├─ ${SONG_TITLE}.${AUDIO_FORMAT}
+    │
+    │
+	[ ... etc ... ]
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="misc"><a class="header" href="#misc">Misc</a></h1>
 <p>Miscellaneous parts of <code>festivald</code> that <em>can</em> or <em>cannot</em> be relied on.</p>
@@ -1653,12 +1662,12 @@ My Artist/
 <li><code>REST</code> and documentation will always require <code>GET HTTP</code> requests</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="common-objects"><a class="header" href="#common-objects">Common Objects</a></h1>
-<p>These often appear in many JSON-RPC call outputs.</p>
-<p>The definitions of these object's key/value pairs will be here, instead of everywhere they appear in the documentation.</p>
+<p>These objects often appear in many JSON-RPC call outputs.</p>
+<p>The definitions of these objects will be here, instead of everywhere they appear in the documentation.</p>
 <h2 id="collection"><a class="header" href="#collection">Collection</a></h2>
 <p>The <a href="common-objects//common-objects/collection.html"><code>Collection</code></a> is the main music library/database in <code>festivald</code>.</p>
 <h2 id="the-3-common-objects"><a class="header" href="#the-3-common-objects">The 3 Common Objects</a></h2>
-<p>The 3 common &quot;objects&quot; that have a set structure are:</p>
+<p>The 3 common &quot;objects&quot; that appear almost everywhere are:</p>
 <ul>
 <li><a href="common-objects//common-objects/artist.html"><code>Artist</code></a></li>
 <li><a href="common-objects//common-objects/album.html"><code>Album</code></a></li>
@@ -1702,7 +1711,7 @@ My Artist/
 <p>This is the main music &quot;library&quot; or &quot;database&quot; that <code>festivald</code> creates and uses.</p>
 <p>It is <em>the</em> central component, and almost all other methods/endpoints use it in some way.</p>
 <p>It does not contain actual audio/image data, but rather metadata and links to where those resources can be found.</p>
-<p>The <code>Collection</code> contains many nested objects, including the common 3:</p>
+<p>The <code>Collection</code> contains many nested objects, including the <a href="common-objects//common-objects/common-objects.html">common 3</a>:</p>
 <ul>
 <li><a href="common-objects/artist.html"><code>Artist</code></a></li>
 <li><a href="common-objects/album.html"><code>Album</code></a></li>
@@ -2254,14 +2263,14 @@ My Artist/
 <h4 id="-incomplete-2"><a class="header" href="#-incomplete-2">🟡 Incomplete</a></h4>
 <p>This API may have <a href="common-objects//api-stability/marker.html">additions</a> in the future.</p>
 <hr />
-<p>The keys inside <code>albums</code> is sorted by <code>Release date</code>.</p>
+<p>The <a href="common-objects//common-objects/key.html">keys</a> inside <code>albums</code> is sorted by <code>Release date</code>.</p>
 <p>The keys inside <code>songs</code> is sorted by <code>Track + Disc order</code>.</p>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>name</td><td>string</td><td>The <code>Artist</code>'s name</td></tr>
 <tr><td>key</td><td><code>Artist</code> key (unsigned integer)</td><td>The <code>Artist</code> key associated with this <code>Artist</code></td></tr>
 <tr><td>runtime</td><td>unsigned integer</td><td>The total runtime of all songs owned by this <code>Artist</code> in seconds</td></tr>
-<tr><td>albums</td><td>array of <code>Album</code> keys (unsigned integers)</td><td>Keys to all <code>Album</code>'s owned by this <code>Artist</code>, in release order</td></tr>
-<tr><td>songs</td><td>array of <code>Song</code> keys (unsigned integers)</td><td>Keys to all <code>Songs</code>'s owned by this <code>Artist</code>, in <code>Album</code> release order, then <code>Song</code> track order</td></tr>
+<tr><td>albums</td><td>array of <a href="common-objects//common-objects/album.html"><code>Album</code></a> keys (unsigned integers)</td><td>Keys to all <code>Album</code>'s owned by this <code>Artist</code>, in release order</td></tr>
+<tr><td>songs</td><td>array of <a href="common-objects//common-objects/song.html"><code>Song</code></a> keys (unsigned integers)</td><td>Keys to all <code>Songs</code>'s owned by this <code>Artist</code>, in <code>Album</code> release order, then <code>Song</code> track order</td></tr>
 </tbody></table>
 </div>
 <h4 id="example-4"><a class="header" href="#example-4">Example</a></h4>
@@ -2285,14 +2294,14 @@ My Artist/
 <h4 id="-incomplete-3"><a class="header" href="#-incomplete-3">🟡 Incomplete</a></h4>
 <p>This API may have <a href="common-objects//api-stability/marker.html">additions</a> in the future.</p>
 <hr />
-<p>The keys inside <code>songs</code> is sorted by <code>Track + Disc order</code>.</p>
+<p>The <a href="common-objects//common-objects/key.html">keys</a> inside <code>songs</code> is sorted by <code>Track + Disc order</code>.</p>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>title</td><td>string</td><td>The title of this <code>Album</code></td></tr>
 <tr><td>key</td><td><code>Album</code> key (unsigned integer)</td><td>The <code>Album</code> key associated with this <code>Album</code></td></tr>
-<tr><td>artist</td><td><code>Artist</code> key (unsigned integer)</td><td>The <code>Artist</code> key of the <code>Artist</code> that owns this <code>Album</code></td></tr>
+<tr><td>artist</td><td><a href="common-objects//common-objects/artist.html"><code>Artist</code></a> key (unsigned integer)</td><td>The <code>Artist</code> key of the <code>Artist</code> that owns this <code>Album</code></td></tr>
 <tr><td>release</td><td>string</td><td>Release date of this <code>Album</code> in <code>YYYY-MM-DD</code>/<code>YYYY-MM</code>/<code>YYYY</code> format, <code>????-??-??</code> if unknown</td></tr>
 <tr><td>runtime</td><td>unsigned integer</td><td>The total runtime of this <code>Album</code> in seconds</td></tr>
-<tr><td>song_count</td><td>unsigned integer</td><td>How many <code>Song</code>'s are in this <code>Album</code></td></tr>
+<tr><td>song_count</td><td>unsigned integer</td><td>How many <a href="common-objects//common-objects/song.html"><code>Song</code></a>'s are in this <code>Album</code></td></tr>
 <tr><td>songs</td><td>array of <code>Song</code> keys (unsigned integers)</td><td>Keys to all of the <code>Song</code>'s in this <code>Album</code>, in track order</td></tr>
 <tr><td>discs</td><td>unsigned integer</td><td>Count of how many &quot;discs&quot; are in this <code>Album</code>, most will be <code>0</code></td></tr>
 <tr><td>art</td><td>optional (maybe null) unsigned integer</td><td>Size of this <code>Album</code>'s art in bytes, <code>null</code> if not found</td></tr>
@@ -2323,8 +2332,8 @@ My Artist/
 <hr />
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>title</td><td>string</td><td>The title of this <code>Song</code></td></tr>
-<tr><td>key</td><td><code>Song</code> key (unsigned integer)</td><td>The <code>Song</code> key associated with this <code>Song</code></td></tr>
-<tr><td>album</td><td><code>Album</code> key (unsigned integer)</td><td>The <code>Album</code> key of the <code>Album</code> this <code>Song</code> is from</td></tr>
+<tr><td>key</td><td><code>Song</code> <a href="common-objects//common-objects/key.html">key</a> (unsigned integer)</td><td>The <code>Song</code> key associated with this <code>Song</code></td></tr>
+<tr><td>album</td><td><a href="common-objects//common-objects/album.html"><code>Album</code></a> key (unsigned integer)</td><td>The <code>Album</code> key of the <code>Album</code> this <code>Song</code> is from</td></tr>
 <tr><td>runtime</td><td>unsigned integer</td><td>The total runtime of this <code>Song</code> in seconds</td></tr>
 <tr><td>sample_rate</td><td>unsigned integer</td><td>The sample rate of this <code>Song</code> in hertz, e.g: <code>44100</code></td></tr>
 <tr><td>track</td><td>optional (maybe null) unsigned integer</td><td>Track number of this <code>Song</code>, <code>null</code> if not found</td></tr>
@@ -2360,16 +2369,19 @@ My Artist/
 <p>In the case of <code>Album</code> art, the <code>Album</code> key doubles as the key (since art belongs to an album), so to access the art of <code>Album</code> 123 in the <code>REST</code> API, you would use:</p>
 <pre><code class="language-http">http://localhost:18425/key/art/123
 </code></pre>
+<p><code>Key</code>'s start at <code>0</code> and are unique <em>per</em> object group, meaning there is an <code>Artist</code> 0 key AND <code>Album</code> 0 key AND <code>Song</code> 0 key.</p>
+<p>The actual number value of <code>Key</code>'s aren't significant, and should be treated as random.</p>
+<p>Thus, the <code>songs</code> field in <a href="common-objects//common-objects/album.html"><code>Album</code></a> won't necessarily be incrementing by 1, e.g, <code>[0, 1, 2, ...]</code>. It could be <code>[0, 6, 112, 3, ...]</code>. Same with <code>Album</code> keys within <code>Artist</code>'s.</p>
 <h2 id="where"><a class="header" href="#where">Where</a></h2>
 <p><code>Key</code>'s can be found in multiple <code>JSON-RPC</code> methods, such as <a href="common-objects/../json-rpc/map/map_artist.html"><code>map_artist</code></a>, <a href="common-objects/../json-rpc/search/search_album.html"><code>search_album</code></a>, etc.</p>
 <p>Each object contains its own key within itself as well, and there are links in-between them:</p>
-<pre><code class="language-plaintext">                 Artist_1                       Artist_2
+<pre><code class="language-plaintext">                 Artist_0                       Artist_1
               ______|______                  ______|_________________
              /             \                /             \          \
-          Album_1        Album_5         Album_34        Album_4    Album_8
+          Album_13       Album_5         Album_0         Album_4    Album_8
           __|__           __|__           __|__          __|__         \___        
          /     \         /     \         /     \        /     \            \
-[Song_1, Song_6, ...] [Song_3, ...]  [Song_76, ...] [Song_45, ...]   [Song_41, ...]
+[Song_5, Song_0, ...] [Song_3, ...]  [Song_76, ...] [Song_45, ...]   [Song_41, ...]
 </code></pre>
 <ol>
 <li>An <code>Artist</code> contains keys leading to <code>Album</code>'s</li>
@@ -2377,21 +2389,19 @@ My Artist/
 <li><code>Song</code>'s have a key pointing back to the owning <code>Album</code></li>
 </ol>
 <p>For convenience, all <code>Artist</code>'s also have an array of all their <code>Song</code>'s.</p>
-<p><code>Key</code>' are unique <em>per</em> object group, meaning there is an <code>Artist</code> 0 key AND <code>Album</code> 0 key AND <code>Song</code> 0 key.</p>
-<p>The actual number value of <code>Key</code>'s aren't significant, and should be treated as random. A <code>Song</code> key array within an <code>Album</code> won't necessarily be incrementing by 1, e.g, <code>[0, 1, 2, ...]</code>. It could be <code>[0, 6, 112, 3, ...]</code>. Same with <code>Album</code> keys within <code>Artist</code>'s.</p>
 <h2 id="why"><a class="header" href="#why">Why</a></h2>
 <p><code>Key</code>'s are a number that represent direct access to a unique <code>Artist</code>/<code>Album</code>/<code>Song</code>.</p>
 <p>Think of it as an index into an array (that's what they really are, implemented).</p>
-<p>The <code>key_*</code> variants of <code>JSON-RPC</code> methods and <code>REST</code> endpoints are usually faster than the <code>string</code> variants as well, since there is no lookup, we directly index with the <code>Key</code>.</p>
-<h2 id="why-not"><a class="header" href="#why-not">Why NOT</a></h2>
-<p><code>Key</code>'s can only be relied upon as long as the <code>Collection</code> has not been reset.</p>
-<p>When the <code>Collection</code> is reset, it is not guaranteed that the same key will map to the same object. Using <code>map_*</code> and <code>search_*</code> methods as the main way to retrieve information may be more convenient so that <code>Artist</code> names, <code>Album</code> and <code>Song</code> titles can be used as inputs instead.</p>
-<p>The main reasons key's exists:</p>
+<p>Reasons why key's exist:</p>
 <ul>
 <li>Accessing objects via a key is faster than with <code>string</code> inputs</li>
 <li>Storing/sending/parsing integers is faster &amp; cheaper than <code>string</code>'s</li>
 <li>As long as your <code>Collection</code> is stable, the key's are stable</li>
+<li>Accessing <code>Song</code>'s with the <em>same</em> title in the same <code>Album</code> by the same <code>Artist</code> is impossible with <code>string</code>'s, however, each one of those <code>Song</code>'s will have a unique <code>Key</code>, which it makes it possible to access them that way</li>
 </ul>
+<h2 id="why-not"><a class="header" href="#why-not">Why NOT</a></h2>
+<p><code>Key</code>'s can only be relied upon as long as the <a href="common-objects//common-objects/collection.html"><code>Collection</code></a> has not been <a href="common-objects//json-rpc/collection/collection_new.html">reset</a>.</p>
+<p>When the <code>Collection</code> is reset, it is not guaranteed that the same key will map to the same object. Using <a href="common-objects//json-rpc/map/map.html"><code>map_*</code></a> and <a href="common-objects//json-rpc/search/index.html"><code>search_*</code></a> methods as the main way to retrieve information may be more convenient so that <code>Artist</code> names, <code>Album</code> and <code>Song</code> titles can be used as inputs instead.</p>
 <h2 id="example-7"><a class="header" href="#example-7">Example</a></h2>
 <p>Let's search for a song that has a title similar to: &quot;hello&quot;</p>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;search_song&quot;,&quot;params&quot;:{&quot;input&quot;:&quot;hello&quot;,&quot;kind&quot;:&quot;top1&quot;}}'
@@ -2499,7 +2509,6 @@ My Artist/
 <li>The key <em>is</em> the playlist name (<code>string</code>)</li>
 <li>The value is an array of <a href="common-objects//common-objects/entry.html"><code>Entry</code></a>-like objects, <code>Playlist Entries</code></li>
 </ul>
-<p><code>Playlist</code>'s are the only object in <code>festivald</code> that have a <em>variable</em> key field.</p>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>$PLAYLIST_NAME</td><td>array of <code>Playlist Entry</code>'s</td><td>The name of the playlist as the key, and the <code>Song</code> entries in an array</td></tr>
 </tbody></table>
@@ -2509,10 +2518,10 @@ My Artist/
 <p>The <code>Playlist Entry</code> takes 2 forms: <code>valid</code> &amp; <code>invalid</code>:</p>
 <div class="table-wrapper"><table><thead><tr><th><code>Playlist Entry</code> form</th><th>Meaning</th></tr></thead><tbody>
 <tr><td><code>valid</code></td><td>This is a valid <code>Song</code>; it exists within the current <code>Collection</code></td></tr>
-<tr><td><code>invalid</code></td><td>This <code>Song</code> does <em>NOT</em> exist in the <code>Collection</code>, although it previously did (it may have been lost in-between <code>Collection</code> resets)</td></tr>
+<tr><td><code>invalid</code></td><td>This <code>Song</code> does <em>NOT</em> exist in the current <code>Collection</code>, although it did in a previous one (it may have been lost in-between <code>Collection</code> resets)</td></tr>
 </tbody></table>
 </div>
-<p>These objects will appear in playlist-related methods, like <a href="common-objects//json-rpc/playlist/playlist_all.html"><code>playlist_all</code></a> &amp; <a href="common-objects//json-rpc/playlist/playlist_single.html"><code>playlist_single</code></a>.</p>
+<p>These objects will appear in playlist-related methods, like <a href="common-objects//json-rpc/playlist/playlist_full.html"><code>playlist_full</code></a> &amp; <a href="common-objects//json-rpc/playlist/playlist_single.html"><code>playlist_single</code></a>.</p>
 <p>Example:</p>
 <pre><code class="language-json">{
   &quot;hello&quot;: [ // &lt;--- the playlist name is &quot;hello&quot;
@@ -2586,11 +2595,19 @@ My Artist/
 <div style="break-before: page; page-break-before: always;"></div><h1 id="json-rpc-4"><a class="header" href="#json-rpc-4">JSON-RPC</a></h1>
 <p><code>festivald</code> exposes a <a href="https://www.jsonrpc.org/specification"><code>JSON-RPC 2.0</code></a> API for general state retrieval &amp; signal control.</p>
 <p>It can be accessed by sending a POST HTTP request containing a <code>JSON-RPC 2.0</code> request in the body, to the root endpoint, <code>/</code>.</p>
-<p>For a quick start on using it, see the next section: <a href="json-rpc//json-rpc/quick-start.html">Quick Start</a>.</p>
+<p>All method documentation will include:</p>
+<ul>
+<li>What inputs it needs</li>
+<li>What output to expect</li>
+<li>Examples</li>
+</ul>
+<p>The title of the section itself is the method name, for example, <a href="json-rpc//json-rpc/collection/collection_new.html"><code>collection_new</code></a> <em>is</em> the method name.</p>
+<p>All method names, parameter names, and field names are in <code>lower_case_snake_case</code>.</p>
+<p>For a quick start on using the <code>JSON-RPC</code> API, see the next section: <a href="json-rpc//json-rpc/quick-start.html">Quick Start</a>.</p>
 <h3 id="missing-resource"><a class="header" href="#missing-resource">Missing resource</a></h3>
 <p>If a <code>JSON-RPC</code> method is interacting with an underlying resource and that resource is missing from the filesystem, <code>festivald</code> will <em>not</em> respond to the client with an error, however, it will log an error message on the machine it is running on.</p>
-<p>For example, if a <a href="json-rpc//json-rpc/playback/queue_add_key_song.html"><code>queue_add_key_song</code></a> method is sent, and <em>that</em> <code>Song</code>'s underlying PATH is missing/moved/renamed from when the <code>Collection</code> was created:</p>
-<pre><code class="language-bash">mv &quot;Artist/Album/Song Title&quot; &quot;Artist/Album/Song_Title&quot;
+<p>For example, if a <a href="json-rpc//json-rpc/queue/queue_add_key_song.html"><code>queue_add_key_song</code></a> method is sent, and <em>that</em> <code>Song</code>'s underlying PATH is missing/moved/renamed from when the <code>Collection</code> was created:</p>
+<pre><code class="language-bash">mv &quot;Song Title&quot; &quot;Song_Title&quot;
 </code></pre>
 <p><code>festivald</code> will now have a reference to a non-existent PATH and will not be able to find the file, so it will log an error that looks something like:</p>
 <pre><code class="language-plaintext">Audio - PATH error: No such file or directory (os error 2) ... /path/to/unknown/song.mp3
@@ -2650,9 +2667,6 @@ curl \
 <p>The exception is <code>collection_new</code>, since it has a single optional field. You <em>must</em> specify it (even if <code>null</code>).</p>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;collection_new&quot;,&quot;params&quot;:{&quot;paths&quot;:null}}'
 </code></pre>
-<p>All method documentation will include what inputs it needs, what output to expect, and examples.</p>
-<p>All method names, parameter names, and field names are in <code>lower_case_snake_case</code>.</p>
-<p>The title of the section itself is the method name, for example, <a href="json-rpc//json-rpc/collection/collection_new.html"><code>collection_new</code></a> <em>is</em> the method name.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="json-rpc-quick-start"><a class="header" href="#json-rpc-quick-start"><code>JSON-RPC</code> Quick Start</a></h1>
 <p>A quick start to using <code>festivald</code>'s <code>JSON-RPC 2.0</code> API.</p>
 <h2 id="create-the-collection-and-start-playing-an-artist"><a class="header" href="#create-the-collection-and-start-playing-an-artist">Create the <code>Collection</code> and start playing an <code>Artist</code></a></h2>
@@ -2664,7 +2678,7 @@ curl \
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;collection_new&quot;,&quot;params&quot;:{&quot;paths&quot;:null}}'
 </code></pre>
 <ol start="2">
-<li>Add the <code>Artist</code> &quot;LUCKY TAPES&quot; to the queue with <a href="json-rpc//json-rpc/playback/queue_add_map_artist.html"><code>queue_add_map_artist</code></a>:</li>
+<li>Add the <code>Artist</code> &quot;LUCKY TAPES&quot; to the queue with <a href="json-rpc//json-rpc/queue/queue_add_map_artist.html"><code>queue_add_map_artist</code></a>:</li>
 </ol>
 <pre><code class="language-bash">festival-cli queue_add_map_artist --artist &quot;LUCKY TAPES&quot;
 </code></pre>
@@ -2709,18 +2723,17 @@ curl \
 <p>This API is <a href="json-rpc/collection//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Create a new <a href="json-rpc/collection//common-objects/collection.html"><code>Collection</code></a> (and replace the current one).</p>
-<p>While this method is in progress, other <code>JSON-RPC</code> requests will be rejected.</p>
+<p>While this method is in progress, other <code>JSON-RPC/REST</code> requests will be rejected.</p>
 <p><code>festivald</code> will respond with some stats when the <code>Collection</code> reset has finished.</p>
-<p>The output is a superset of the <a href="json-rpc/collection//json-rpc/collection/collection_brief.html"><code>collection_brief</code></a> method.</p>
 <h4 id="inputs"><a class="header" href="#inputs">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td>paths</td><td>optional (maybe null) array of PATHs</td><td>An array of filesystem PATHs to scan for the new <code>Collection</code>. These must be absolute PATHs <strong>on the system <code>festivald</code> is running on</strong>, not PATHs on the client. If <code>null</code> is provided, the default <code>Music</code> directory will be used.</td></tr>
+<tr><td>paths</td><td>optional (maybe-null) array of PATHs</td><td>An array of filesystem PATHs to scan for the new <code>Collection</code>. These must be absolute PATHs <strong>on the system <code>festivald</code> is running on</strong>, not PATHs on the client. If <code>null</code> is provided, the default <code>Music</code> directory will be used.</td></tr>
 </tbody></table>
 </div>
 <h4 id="outputs"><a class="header" href="#outputs">Outputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>time</td><td>float</td><td>How many seconds it took <code>festivald</code> to reset AND respond</td></tr>
-<tr><td>empty</td><td>boolean</td><td>If the <code>Collection</code> does NOT have any <code>Artist</code>'s, <code>Album</code>'s, or <code>Song</code>'s</td></tr>
+<tr><td>empty</td><td>boolean</td><td>If the <code>Collection</code> does NOT have any <a href="json-rpc/collection//common-objects/artist.html"><code>Artist</code></a>'s, <a href="json-rpc/collection//common-objects/album.html"><code>Album</code></a>'s, or <a href="json-rpc/collection//common-objects/song.html"><code>Song</code></a>'s</td></tr>
 <tr><td>timestamp</td><td>unsigned integer</td><td>The UNIX timestamp of when this <code>Collection</code> was created</td></tr>
 <tr><td>count_artist</td><td>unsigned integer</td><td>How many unique <code>Artist</code>'s there are in this <code>Collection</code></td></tr>
 <tr><td>count_album</td><td>unsigned integer</td><td>How many unique <code>Album</code>'s there are in this <code>Collection</code></td></tr>
@@ -2736,13 +2749,13 @@ curl \
 </code></pre>
 <h4 id="example-request-2"><a class="header" href="#example-request-2">Example Request 2</a></h4>
 <p>Use the <code>PATH</code> /home/user/Music/collection on <code>festivald</code>'s filesystem.</p>
-<pre><code class="language-bash">festival-cli collection_new --path &quot;/home/user/Music/collection&quot;
+<pre><code class="language-bash">festival-cli collection_new --paths &quot;/home/user/Music/collection&quot;
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;collection_new&quot;,&quot;params&quot;:{&quot;paths&quot;:[&quot;/home/user/Music/collection&quot;]}}'
 </code></pre>
 <h4 id="example-request-3"><a class="header" href="#example-request-3">Example Request 3</a></h4>
 <p>Windows PATH works too if <code>\</code> is escaped (and if <code>festivald</code> is running on Windows).</p>
-<pre><code class="language-bash">festival-cli collection_new --path &quot;C:\\Users\\User\\Music\\collection&quot;
+<pre><code class="language-bash">festival-cli collection_new --paths &quot;C:\\Users\\User\\Music\\collection&quot;
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;collection_new&quot;,&quot;params&quot;:{&quot;paths&quot;:[&quot;C:\\Users\\User\\Music\\collection&quot;]}}'
 </code></pre>
@@ -2771,7 +2784,7 @@ curl \
 <p><code>None</code></p>
 <h4 id="outputs-1"><a class="header" href="#outputs-1">Outputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td>empty</td><td>boolean</td><td>If the <code>Collection</code> does NOT have any <code>Artist</code>'s, <code>Album</code>'s, or <code>Song</code>'s</td></tr>
+<tr><td>empty</td><td>boolean</td><td>If the <code>Collection</code> does NOT have any <a href="json-rpc/collection//common-objects/artist.html"><code>Artist</code></a>'s, <a href="json-rpc/collection//common-objects/album.html"><code>Album</code></a>'s, or <a href="json-rpc/collection//common-objects/song.html"><code>Song</code></a>'s</td></tr>
 <tr><td>timestamp</td><td>unsigned integer</td><td>The UNIX timestamp of when this <code>Collection</code> was created</td></tr>
 <tr><td>count_artist</td><td>unsigned integer</td><td>How many unique <code>Artist</code>'s there are in this <code>Collection</code></td></tr>
 <tr><td>count_album</td><td>unsigned integer</td><td>How many unique <code>Album</code>'s there are in this <code>Collection</code></td></tr>

@@ -2,13 +2,10 @@
 # festivald.service #
 #=======================================================#
 # This is a systemd user service file for `festivald`.  #
-# It can be used as is, assuming `festivald` is located #
-# at `/usr/bin/festivald`.                              #
-#                                                       #
 # It is relatively hardened for public usage.           #
 #                                                       #
-# `festivald` will use whichever audio server the user  #
-# launching this has access to (most likely PulseAudio) #
+# ${USER} should be replaced by a user that has         #
+# access to an audio server (like PulseAudio).          #
 #=======================================================#
 
 [Unit]
@@ -18,6 +15,7 @@ StartLimitIntervalSec=300
 StartLimitBurst=5
 
 [Service]
+User=${USER} # <- Replace Me
 Type=simple
 ExecStart=/usr/bin/festivald
 

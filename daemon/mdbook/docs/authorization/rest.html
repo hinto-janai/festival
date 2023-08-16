@@ -174,10 +174,10 @@
 <p>If a <a href="/rest/rest.html">REST resource</a> is listed in these options <code>festivald</code> will allow any client to access it, regardless of authorization.</p>
 <p>This allows you to have <code>authorization</code> enabled across the board, but allow specific <code>REST</code> resources for public usage.</p>
 <h2 id="usage"><a class="header" href="#usage">Usage</a></h2>
-<p>The specified <code>REST</code> resources must be one of these <code>string</code>'s, from most expensive to least:</p>
+<p>The specified <code>REST</code> resources must be one of these <code>string</code>'s:</p>
 <div class="table-wrapper"><table><thead><tr><th><code>REST</code> resource</th><th>Allows</th><th>Example endpoint</th></tr></thead><tbody>
 <tr><td><code>collection</code></td><td>Access to downloading the whole <code>Collection</code></td><td><a href="/rest/collection.html"><code>/collection</code></a></td></tr>
-<tr><td><code>playlist</code></td><td>Access to downloading <code>Playlist</code> ZIPs</td><td><a href="/rest/playlist/sorted.html"><code>/playlist/sorted/</code></a></td></tr>
+<tr><td><code>playlist</code></td><td>Access to downloading <code>Playlist</code> ZIPs</td><td><a href="/rest/playlist.html"><code>/playlist</code></a></td></tr>
 <tr><td><code>artist</code></td><td>Access to downloading <code>Artist</code> ZIPs</td><td><a href="/rest/current/artist.html"><code>/current/artist</code></a>, <a href="/rest/map/artist.html"><code>/map/artist</code></a></td></tr>
 <tr><td><code>album</code></td><td>Access to downloading <code>Album</code> ZIPs</td><td><a href="/rest/current/album.html"><code>/current/album</code></a>, <a href="/rest/map/album.html"><code>/map/album</code></a></td></tr>
 <tr><td><code>song</code></td><td>Access to downloading <code>Song</code> files</td><td><a href="/rest/current/song.html"><code>/current/song</code></a>, <a href="/rest/map/song.html"><code>/map/song</code></a></td></tr>
@@ -186,7 +186,7 @@
 </div>
 <p>If a specified <code>REST</code> resource name is incorrect, <code>festivald</code> will not start.</p>
 <h2 id="example"><a class="header" href="#example">Example</a></h2>
-<p>For example, if only <code>[&quot;art&quot;, &quot;song&quot;]</code> is listed, then clients WITHOUT authorization will only be allowed to use the <code>art</code> and <code>song</code>-related endpoints, for all other endpoints, they must authenticate.</p>
+<p>For example, if the value is <code>[&quot;art&quot;, &quot;song&quot;]</code>, ALL clients will be allowed to use the <code>art</code> and <code>song</code>-related endpoints, for all other endpoints, they must authenticate.</p>
 <p><code>festivald.toml</code>:</p>
 <pre><code class="language-toml">authorization = &quot;user:pass&quot;
 no_auth_rest  = [&quot;art&quot;, &quot;song&quot;]

@@ -183,16 +183,19 @@
 <p>In the case of <code>Album</code> art, the <code>Album</code> key doubles as the key (since art belongs to an album), so to access the art of <code>Album</code> 123 in the <code>REST</code> API, you would use:</p>
 <pre><code class="language-http">http://localhost:18425/key/art/123
 </code></pre>
+<p><code>Key</code>'s start at <code>0</code> and are unique <em>per</em> object group, meaning there is an <code>Artist</code> 0 key AND <code>Album</code> 0 key AND <code>Song</code> 0 key.</p>
+<p>The actual number value of <code>Key</code>'s aren't significant, and should be treated as random.</p>
+<p>Thus, the <code>songs</code> field in <a href="/common-objects/album.html"><code>Album</code></a> won't necessarily be incrementing by 1, e.g, <code>[0, 1, 2, ...]</code>. It could be <code>[0, 6, 112, 3, ...]</code>. Same with <code>Album</code> keys within <code>Artist</code>'s.</p>
 <h2 id="where"><a class="header" href="#where">Where</a></h2>
 <p><code>Key</code>'s can be found in multiple <code>JSON-RPC</code> methods, such as <a href="../json-rpc/map/map_artist.html"><code>map_artist</code></a>, <a href="../json-rpc/search/search_album.html"><code>search_album</code></a>, etc.</p>
 <p>Each object contains its own key within itself as well, and there are links in-between them:</p>
-<pre><code class="language-plaintext">                 Artist_1                       Artist_2
+<pre><code class="language-plaintext">                 Artist_0                       Artist_1
               ______|______                  ______|_________________
              /             \                /             \          \
-          Album_1        Album_5         Album_34        Album_4    Album_8
+          Album_13       Album_5         Album_0         Album_4    Album_8
           __|__           __|__           __|__          __|__         \___        
          /     \         /     \         /     \        /     \            \
-[Song_1, Song_6, ...] [Song_3, ...]  [Song_76, ...] [Song_45, ...]   [Song_41, ...]
+[Song_5, Song_0, ...] [Song_3, ...]  [Song_76, ...] [Song_45, ...]   [Song_41, ...]
 </code></pre>
 <ol>
 <li>An <code>Artist</code> contains keys leading to <code>Album</code>'s</li>
@@ -200,21 +203,19 @@
 <li><code>Song</code>'s have a key pointing back to the owning <code>Album</code></li>
 </ol>
 <p>For convenience, all <code>Artist</code>'s also have an array of all their <code>Song</code>'s.</p>
-<p><code>Key</code>' are unique <em>per</em> object group, meaning there is an <code>Artist</code> 0 key AND <code>Album</code> 0 key AND <code>Song</code> 0 key.</p>
-<p>The actual number value of <code>Key</code>'s aren't significant, and should be treated as random. A <code>Song</code> key array within an <code>Album</code> won't necessarily be incrementing by 1, e.g, <code>[0, 1, 2, ...]</code>. It could be <code>[0, 6, 112, 3, ...]</code>. Same with <code>Album</code> keys within <code>Artist</code>'s.</p>
 <h2 id="why"><a class="header" href="#why">Why</a></h2>
 <p><code>Key</code>'s are a number that represent direct access to a unique <code>Artist</code>/<code>Album</code>/<code>Song</code>.</p>
 <p>Think of it as an index into an array (that's what they really are, implemented).</p>
-<p>The <code>key_*</code> variants of <code>JSON-RPC</code> methods and <code>REST</code> endpoints are usually faster than the <code>string</code> variants as well, since there is no lookup, we directly index with the <code>Key</code>.</p>
-<h2 id="why-not"><a class="header" href="#why-not">Why NOT</a></h2>
-<p><code>Key</code>'s can only be relied upon as long as the <code>Collection</code> has not been reset.</p>
-<p>When the <code>Collection</code> is reset, it is not guaranteed that the same key will map to the same object. Using <code>map_*</code> and <code>search_*</code> methods as the main way to retrieve information may be more convenient so that <code>Artist</code> names, <code>Album</code> and <code>Song</code> titles can be used as inputs instead.</p>
-<p>The main reasons key's exists:</p>
+<p>Reasons why key's exist:</p>
 <ul>
 <li>Accessing objects via a key is faster than with <code>string</code> inputs</li>
 <li>Storing/sending/parsing integers is faster &amp; cheaper than <code>string</code>'s</li>
 <li>As long as your <code>Collection</code> is stable, the key's are stable</li>
+<li>Accessing <code>Song</code>'s with the <em>same</em> title in the same <code>Album</code> by the same <code>Artist</code> is impossible with <code>string</code>'s, however, each one of those <code>Song</code>'s will have a unique <code>Key</code>, which it makes it possible to access them that way</li>
 </ul>
+<h2 id="why-not"><a class="header" href="#why-not">Why NOT</a></h2>
+<p><code>Key</code>'s can only be relied upon as long as the <a href="/common-objects/collection.html"><code>Collection</code></a> has not been <a href="/json-rpc/collection/collection_new.html">reset</a>.</p>
+<p>When the <code>Collection</code> is reset, it is not guaranteed that the same key will map to the same object. Using <a href="/json-rpc/map/map.html"><code>map_*</code></a> and <a href="/json-rpc/search/index.html"><code>search_*</code></a> methods as the main way to retrieve information may be more convenient so that <code>Artist</code> names, <code>Album</code> and <code>Song</code> titles can be used as inputs instead.</p>
 <h2 id="example"><a class="header" href="#example">Example</a></h2>
 <p>Let's search for a song that has a title similar to: &quot;hello&quot;</p>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;search_song&quot;,&quot;params&quot;:{&quot;input&quot;:&quot;hello&quot;,&quot;kind&quot;:&quot;top1&quot;}}'

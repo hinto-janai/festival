@@ -11,7 +11,7 @@ It is _the_ central component, and almost all other methods/endpoints use it in 
 
 It does not contain actual audio/image data, but rather metadata and links to where those resources can be found.
 
-The `Collection` contains many nested objects, including the common 3:
+The `Collection` contains many nested objects, including the [common 3](/common-objects/common-objects.md):
 - [`Artist`](artist.md)
 - [`Album`](album.md)
 - [`Song`](song.md)

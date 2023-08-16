@@ -9,8 +9,6 @@ This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 - The key _is_ the playlist name (`string`)
 - The value is an array of [`Entry`](/common-objects/entry.md)-like objects, `Playlist Entries`
 
-`Playlist`'s are the only object in `festivald` that have a _variable_ key field.
-
 | Field          | Type                        | Description |
 |----------------|-----------------------------|-------------|
 | $PLAYLIST_NAME | array of `Playlist Entry`'s | The name of the playlist as the key, and the `Song` entries in an array
@@ -23,9 +21,9 @@ The `Playlist Entry` takes 2 forms: `valid` & `invalid`:
 | `Playlist Entry` form | Meaning |
 |-----------------------|---------|
 | `valid`               | This is a valid `Song`; it exists within the current `Collection`
-| `invalid`             | This `Song` does _NOT_ exist in the `Collection`, although it previously did (it may have been lost in-between `Collection` resets)
+| `invalid`             | This `Song` does _NOT_ exist in the current `Collection`, although it did in a previous one (it may have been lost in-between `Collection` resets)
 
-These objects will appear in playlist-related methods, like [`playlist_all`](/json-rpc/playlist/playlist_all.md) & [`playlist_single`](/json-rpc/playlist/playlist_single.md).
+These objects will appear in playlist-related methods, like [`playlist_full`](/json-rpc/playlist/playlist_full.md) & [`playlist_single`](/json-rpc/playlist/playlist_single.md).
 
 Example:
 ```json

@@ -178,7 +178,6 @@
 <li>The key <em>is</em> the playlist name (<code>string</code>)</li>
 <li>The value is an array of <a href="/common-objects/entry.html"><code>Entry</code></a>-like objects, <code>Playlist Entries</code></li>
 </ul>
-<p><code>Playlist</code>'s are the only object in <code>festivald</code> that have a <em>variable</em> key field.</p>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>$PLAYLIST_NAME</td><td>array of <code>Playlist Entry</code>'s</td><td>The name of the playlist as the key, and the <code>Song</code> entries in an array</td></tr>
 </tbody></table>
@@ -188,10 +187,10 @@
 <p>The <code>Playlist Entry</code> takes 2 forms: <code>valid</code> &amp; <code>invalid</code>:</p>
 <div class="table-wrapper"><table><thead><tr><th><code>Playlist Entry</code> form</th><th>Meaning</th></tr></thead><tbody>
 <tr><td><code>valid</code></td><td>This is a valid <code>Song</code>; it exists within the current <code>Collection</code></td></tr>
-<tr><td><code>invalid</code></td><td>This <code>Song</code> does <em>NOT</em> exist in the <code>Collection</code>, although it previously did (it may have been lost in-between <code>Collection</code> resets)</td></tr>
+<tr><td><code>invalid</code></td><td>This <code>Song</code> does <em>NOT</em> exist in the current <code>Collection</code>, although it did in a previous one (it may have been lost in-between <code>Collection</code> resets)</td></tr>
 </tbody></table>
 </div>
-<p>These objects will appear in playlist-related methods, like <a href="/json-rpc/playlist/playlist_all.html"><code>playlist_all</code></a> &amp; <a href="/json-rpc/playlist/playlist_single.html"><code>playlist_single</code></a>.</p>
+<p>These objects will appear in playlist-related methods, like <a href="/json-rpc/playlist/playlist_full.html"><code>playlist_full</code></a> &amp; <a href="/json-rpc/playlist/playlist_single.html"><code>playlist_single</code></a>.</p>
 <p>Example:</p>
 <pre><code class="language-json">{
   &quot;hello&quot;: [ // &lt;--- the playlist name is &quot;hello&quot;

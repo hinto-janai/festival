@@ -6,16 +6,6 @@ The _ordering_ of [non-stable](/api-stability/marker.md) output/object fields sh
 
 Old `v1.0.0` JSON-RPC example:
 ```json
-// Request
-{
-  "jsonrpc": "2.0",
-  "method": "method_name",
-  "param": {
-    "param_field": "param_input"
-  },
-  "id": 0,
-}
-
 // Response
 {
   "jsonrpc": "2.0",
@@ -27,18 +17,8 @@ Old `v1.0.0` JSON-RPC example:
 }
 ```
 
-New `v1.x.x` JSON-RPC example:
+New `v1.1.0` JSON-RPC example:
 ```json
-// Request
-{
-  "jsonrpc": "2.0",
-  "method": "method_name",
-  "param": {
-    "param_field": "param_input"
-  },
-  "id": 0,
-}
-
 // Response
 {
   "jsonrpc": "2.0",

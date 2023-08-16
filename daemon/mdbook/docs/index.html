@@ -171,21 +171,21 @@
                     <main>
                         <h1 id="intro"><a class="header" href="#intro">Intro</a></h1>
 <p><code>Festival</code> daemon.</p>
-<p><code>festivald</code> is a music server that plays on the device it is running on, while allowing remote access via clients. It can also serve music resources, such as song files, album art, and organized archives of whole artists.</p>
+<p><code>festivald</code> is a music server that plays on the device it is running on, and is remotely controlled via clients.</p>
+<p>It can also serve music resources, such as song files, album art, and organized archives of whole artists.</p>
 <p>The 3 APIs <code>festivald</code> exposes:</p>
 <ul>
-<li><a href="https://www.jsonrpc.org/specification"><code>JSON-RPC 2.0</code></a> for state retrieval &amp; signal control</li>
+<li><a href="https://www.jsonrpc.org/specification"><code>JSON-RPC 2.0</code></a> for state retrieval &amp; control</li>
 <li><a href="https://en.wikipedia.org/wiki/Representational_state_transfer"><code>REST</code></a> endpoints for serving large resources (audio, art, etc)</li>
-<li><a href="https://docs.festival.pm/daemon"><code>Documentation</code></a>: <code>festivald</code> serves the very docs you are reading</li>
+<li><a href="https://docs.festival.pm/daemon"><code>Docs</code></a> - <code>festivald</code> serves the very docs you are reading</li>
 </ul>
 <p>The transport used is <code>HTTP(s)</code>.</p>
 <p>For a general quick start, see the next section: <a href="/quick-start.html">Quick Start</a>.</p>
 <h3 id="clients"><a class="header" href="#clients">Clients</a></h3>
-<p>To interact with <code>festivald</code>, you need a client. The reference <code>JSON-RPC</code> client is <a href="https://github.com/hinto-janai/festival/tree/main/cli"><code>festival-cli</code></a>.</p>
-<p><code>HTTP</code> clients like <code>curl</code>, <code>wget</code> or a web browser will also do.</p>
+<p>To interact with <code>festivald</code>, you need a client.</p>
+<p>The reference (and recommended) <code>JSON-RPC</code> client is <a href="https://docs.festival.pm/cli"><code>festival-cli</code></a>.</p>
+<p>General purpose <code>HTTP</code> clients like <a href="https://en.wikipedia.org/wiki/CURL"><code>curl</code></a>, <a href="https://en.wikipedia.org/wiki/Wget"><code>wget</code></a> or a web browser will also do.</p>
 <p>The documentation will use <code>festival-cli</code> &amp; <code>curl</code> on the default <code>http://localhost:18425</code> for examples.</p>
-<p>To see documentation for the more user-friendly <code>festival-cli</code>, see here:<br />
-<a href="https://docs.festival.pm/cli">https://docs.festival.pm/cli</a>.</p>
 <h3 id="json-rpc"><a class="header" href="#json-rpc">JSON-RPC</a></h3>
 <p>For the <code>JSON-RPC</code> API, anything that can transmit <code>JSON-RPC</code> over <code>HTTP(s)</code> can be a client, like <code>curl</code>:</p>
 <pre><code class="language-bash"># Toggle playback.
@@ -197,7 +197,7 @@ curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&qu
 <p>The equivalent <code>festival-cli</code> command:</p>
 <pre><code class="language-bash">festival-cli toggle
 </code></pre>
-<p>For a quick start on the <code>JSON-RPC</code> API, see <a href="/json-rpc/quick-start.html">here</a>.</p>
+<p>For a quick start on the <code>JSON-RPC</code> API, see <a href="/json-rpc/quick-start.html"><code>JSON-RPC/Quick Start</code></a>.</p>
 <h3 id="rest"><a class="header" href="#rest">REST</a></h3>
 <p>For the <code>REST</code> API, you could use anything that can handle <code>HTTP(s)</code>, like a web browser:</p>
 <pre><code class="language-http"># Opening this link in a browser will show a small player for this song.
@@ -209,7 +209,7 @@ http://localhost:18425/map/Artist Name/Artist Title/Song Title
 <p>The equivalent <code>wget</code> command:</p>
 <pre><code class="language-bash">wget --content-disposition &quot;http://localhost:18425/map/Artist Name/Artist Title/Song Title&quot;
 </code></pre>
-<p>For a quick start on the <code>REST</code> API, see <a href="/rest/quick-start.html">here</a>.</p>
+<p>For a quick start on the <code>REST</code> API, see <a href="/rest/quick-start.html"><code>REST/Quick Start</code></a>.</p>
 <p>To disable the <code>REST</code> API, set the <a href="/config.html">config</a> option <code>rest</code> to <code>false</code> OR pass <code>--disable-rest</code> via <a href="/command-line/command-line.html">command line</a> on start up.</p>
 <h3 id="documentation"><a class="header" href="#documentation">Documentation</a></h3>
 <p><code>festivald</code> will also serve <em>this</em> documentation.</p>

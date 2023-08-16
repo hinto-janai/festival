@@ -17,7 +17,7 @@ This method is a subset of the [`collection_full`](/json-rpc/collection/collecti
 
 | Field        | Type             | Description |
 |--------------|------------------|-------------|
-| empty        | boolean          | If the `Collection` does NOT have any `Artist`'s, `Album`'s, or `Song`'s
+| empty        | boolean          | If the `Collection` does NOT have any [`Artist`](/common-objects/artist.md)'s, [`Album`](/common-objects/album.md)'s, or [`Song`](/common-objects/song.md)'s
 | timestamp    | unsigned integer | The UNIX timestamp of when this `Collection` was created
 | count_artist | unsigned integer | How many unique `Artist`'s there are in this `Collection`
 | count_album  | unsigned integer | How many unique `Album`'s there are in this `Collection`

@@ -174,17 +174,7 @@
 <h3 id="ordering"><a class="header" href="#ordering">Ordering</a></h3>
 <p>The <em>ordering</em> of <a href="/api-stability/marker.html">non-stable</a> output/object fields should not be relied upon.</p>
 <p>Old <code>v1.0.0</code> JSON-RPC example:</p>
-<pre><code class="language-json">// Request
-{
-  &quot;jsonrpc&quot;: &quot;2.0&quot;,
-  &quot;method&quot;: &quot;method_name&quot;,
-  &quot;param&quot;: {
-    &quot;param_field&quot;: &quot;param_input&quot;
-  },
-  &quot;id&quot;: 0,
-}
-
-// Response
+<pre><code class="language-json">// Response
 {
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {
@@ -194,18 +184,8 @@
   &quot;id&quot;: 0,
 }
 </code></pre>
-<p>New <code>v1.x.x</code> JSON-RPC example:</p>
-<pre><code class="language-json">// Request
-{
-  &quot;jsonrpc&quot;: &quot;2.0&quot;,
-  &quot;method&quot;: &quot;method_name&quot;,
-  &quot;param&quot;: {
-    &quot;param_field&quot;: &quot;param_input&quot;
-  },
-  &quot;id&quot;: 0,
-}
-
-// Response
+<p>New <code>v1.1.0</code> JSON-RPC example:</p>
+<pre><code class="language-json">// Response
 {
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {

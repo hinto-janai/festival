@@ -1,13 +1,13 @@
 # Common Objects
-These often appear in many JSON-RPC call outputs.
+These objects often appear in many JSON-RPC call outputs.
 
-The definitions of these object's key/value pairs will be here, instead of everywhere they appear in the documentation.
+The definitions of these objects will be here, instead of everywhere they appear in the documentation.
 
 ## Collection
 The [`Collection`](/common-objects/collection.md) is the main music library/database in `festivald`.
 
 ## The 3 Common Objects
-The 3 common "objects" that have a set structure are:
+The 3 common "objects" that appear almost everywhere are:
 - [`Artist`](/common-objects/artist.md)
 - [`Album`](/common-objects/album.md)
 - [`Song`](/common-objects/song.md)

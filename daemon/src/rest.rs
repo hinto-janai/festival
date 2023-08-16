@@ -92,9 +92,9 @@ pub async fn handle(
 		return Ok(resp::server_err("URI parse failure"));
 	};
 
-	trace!("Task - REST URI Full: {uri}");
+	debug!("REST - REST URI Full: {uri}");
 	for (i, s) in uri.split('/').enumerate() {
-		trace!("Task - REST URI Split [{i}]: {s}");
+		trace!("REST - REST URI Split [{i}]: {s}");
 	}
 
 	let mut split = uri.split('/');
@@ -403,7 +403,7 @@ async fn impl_album_inner(
 	for song_key in &album.songs {
 		let song = &collection.songs[song_key];
 
-		trace!("Task - impl_album_inner() song: {}", song.path.display());
+		trace!("REST - impl_album_inner() song: {}", song.path.display());
 
 		let bytes = match read_file(&song.path).await {
 			Ok(b)  => b,
@@ -439,7 +439,7 @@ async fn impl_album_inner(
 
 	// Write `Art` if it exists.
 	if let Art::Known { path, mime, len, extension } = &album.art {
-		trace!("Task - impl_album_inner() art: {}", path.display());
+		trace!("REST - impl_album_inner() art: {}", path.display());
 
 		let bytes = match read_file(&path).await {
 			Ok(b)  => b,
@@ -461,7 +461,7 @@ async fn impl_album_inner(
 }
 
 async fn impl_artist(artist: &Artist, collection: &Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
-	trace!("Task - impl_artist(): {}", artist.name);
+	trace!("REST - impl_artist(): {}", artist.name);
 
 	// Zip name.
 	let zip_name = format!("{}.zip", artist.name);
@@ -474,7 +474,7 @@ async fn impl_artist(artist: &Artist, collection: &Arc<Collection>) -> Result<Re
 	// If the file exists already, serve it.
 	if cache.exists() {
 		if let Ok(file) = tokio::fs::File::open(&cache.real).await {
-			trace!("Task - ArtistZip Cache hit: {zip_name}");
+			trace!("REST - ArtistZip Cache hit: {zip_name}");
 			let len    = file_len(&file).await;
 			let stream = FramedRead::new(file, BytesCodec::new());
 			let body   = Body::wrap_stream(stream);
@@ -516,7 +516,7 @@ async fn impl_artist(artist: &Artist, collection: &Arc<Collection>) -> Result<Re
 }
 
 async fn impl_album(album: &Album, collection: &Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
-	trace!("Task - impl_album(): {}", album.title);
+	trace!("REST - impl_album(): {}", album.title);
 
 	let artist = &collection.artists[album.artist];
 
@@ -533,7 +533,7 @@ async fn impl_album(album: &Album, collection: &Arc<Collection>) -> Result<Respo
 	// If the file exists already, serve it.
 	if cache.exists() {
 		if let Ok(file) = tokio::fs::File::open(&cache.real).await {
-			trace!("Task - AlbumZip Cache hit: {zip_name}");
+			trace!("REST - AlbumZip Cache hit: {zip_name}");
 			let len    = file_len(&file).await;
 			let stream = FramedRead::new(file, BytesCodec::new());
 			let body   = Body::wrap_stream(stream);
@@ -575,7 +575,7 @@ async fn impl_album(album: &Album, collection: &Arc<Collection>) -> Result<Respo
 }
 
 async fn impl_song(song: &Song, collection: &Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
-	trace!("Task - impl_song(): {}", song.title);
+	trace!("REST - impl_song(): {}", song.title);
 
 	// Open the file.
 	let Ok(file) = tokio::fs::File::open(&song.path).await else {
@@ -633,7 +633,7 @@ async fn impl_playlist(
 	playlist_name: &str,
 	collection:    &Arc<Collection>
 ) -> Result<Response<Body>, anyhow::Error> {
-	trace!("Task - impl_playlist(): {playlist_name}");
+	trace!("REST - impl_playlist(): {playlist_name}");
 
 	let playlist = match PLAYLISTS.read().valid_keys(playlist_name, collection) {
 		Some(p) if p.is_empty() => return Ok(resp::server_err("Playlist is empty")),
@@ -652,7 +652,7 @@ async fn impl_playlist(
 	// If the file exists already, serve it.
 	if cache.exists() {
 		if let Ok(file) = tokio::fs::File::open(&cache.real).await {
-			trace!("Task - PlaylistZip Cache hit: {zip_name}");
+			trace!("REST - PlaylistZip Cache hit: {zip_name}");
 			let len    = file_len(&file).await;
 			let stream = FramedRead::new(file, BytesCodec::new());
 			let body   = Body::wrap_stream(stream);
@@ -673,7 +673,7 @@ async fn impl_playlist(
 	for (index, key) in playlist.iter().enumerate() {
 		let (artist, album, song) = &collection.walk(key);
 
-		trace!("Task - impl_playlist(): {}", song.path.display());
+		trace!("REST - impl_playlist(): {}", song.path.display());
 
 		let bytes = match read_file(&song.path).await {
 			Ok(b)  => b,
@@ -895,7 +895,7 @@ pub async fn art_artist(artist: &str, collection: Arc<Collection>) -> Result<Res
 	// If the file exists already, serve it.
 	if cache.exists() {
 		if let Ok(file) = tokio::fs::File::open(&cache.real).await {
-			trace!("Task - ArtZip Cache hit: {zip_name}");
+			trace!("REST - ArtZip Cache hit: {zip_name}");
 			let len    = file_len(&file).await;
 			let stream = FramedRead::new(file, BytesCodec::new());
 			let body   = Body::wrap_stream(stream);
@@ -917,7 +917,7 @@ pub async fn art_artist(artist: &str, collection: Arc<Collection>) -> Result<Res
 
 		// Write `Art` if it exists.
 		if let Art::Known { path, mime, len, extension } = &album.art {
-			trace!("Task - art_artist() art: {}", path.display());
+			trace!("REST - art_artist() art: {}", path.display());
 
 			let bytes = match read_file(&path).await {
 				Ok(b)  => b,
@@ -995,7 +995,7 @@ pub async fn collection_fn(collection: Arc<Collection>) -> Result<Response<Body>
 	// If the file exists already, serve it.
 	if cache.exists() {
 		if let Ok(file) = tokio::fs::File::open(&cache.real).await {
-			trace!("Task - CollectionZip Cache hit: {zip_name}");
+			trace!("REST - CollectionZip Cache hit: {zip_name}");
 			let len    = file_len(&file).await;
 			let stream = FramedRead::new(file, BytesCodec::new());
 			let body   = Body::wrap_stream(stream);

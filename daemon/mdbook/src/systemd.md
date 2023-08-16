@@ -1,15 +1,15 @@
 # `systemd`
-This is a relatively hardened [`systemd`](https://en.wikipedia.org/wiki/Systemd) user-service file for `festivald`.
+This is a relatively hardened [`systemd`](https://en.wikipedia.org/wiki/Systemd) service file for `festivald`.
 
-It can be used as is, assuming `festivald` is at `/usr/bin/festivald`.
+`${USER}` should be replaced by a user that has access to an audio server (like PulseAudio).
 
 It should be placed at:
 ```
-/home/$USER/.config/systemd/user/festivald.service
+/etc/systemd/system/festivald.service
 ```
 and launched with:
 ```bash
-systemctl --user start festivald
+sudo systemctl --user start festivald
 ```
 
 ## `festivald.service`

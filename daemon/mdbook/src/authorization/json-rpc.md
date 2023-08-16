@@ -16,7 +16,7 @@ For example:
 If a specified method name is incorrect, `festivald` will not start.
 
 ## Example
-For example, if only `toggle` is listed, then clients WITHOUT authorization will only be allowed to use the `toggle` method, for every other method, they must authenticate.
+For example, if `toggle` is listed, then ALL clients will be allowed to use the `toggle` method, for every other method, they must authenticate.
 
 `festivald.toml`:
 ```toml
