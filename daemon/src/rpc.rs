@@ -962,7 +962,7 @@ async fn daemon_shutdown<'a>(
 		Ok(_) => {
 			let resp = rpc::resp::DaemonShutdown {
 				uptime:            shukusai::logger::uptime(),
-				uptime_string:     Cow::Owned(readable::Time::from(shukusai::logger::uptime()).into_string()),
+				uptime_readable:   Cow::Owned(readable::Time::from(shukusai::logger::uptime()).into_string()),
 				total_requests:    atomic_load!(TOTAL_REQUESTS),
 				total_connections: atomic_load!(TOTAL_CONNECTIONS),
 			};

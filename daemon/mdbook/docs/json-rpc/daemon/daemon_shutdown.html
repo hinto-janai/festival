@@ -177,9 +177,9 @@
 <p><code>festivald</code> will:</p>
 <ul>
 <li>Reject future connections</li>
-<li>Wait for a <a href="/json-rpc/collection/collection_new.html"><code>Collection</code></a> reset to finish if occuring</li>
-<li>Clean cache</li>
-<li>Save state to disk</li>
+<li>Wait for a <a href="/common-objects/collection.html"><code>Collection</code></a> <a href="/json-rpc/collection/collection_new.html">reset</a> to finish if occuring</li>
+<li><a href="/json-rpc/daemon/daemon_remove_cache.html">Clean cache</a></li>
+<li><a href="/json-rpc/daemon/daemon_save.html">Save</a> state to disk</li>
 </ul>
 <p>Then shutdown.</p>
 <h4 id="inputs"><a class="header" href="#inputs">Inputs</a></h4>
@@ -187,9 +187,9 @@
 <h4 id="outputs"><a class="header" href="#outputs">Outputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>uptime</td><td>unsigned integer</td><td>Uptime of <code>festivald</code> in seconds</td></tr>
-<tr><td>uptime_string</td><td>string</td><td>Uptime of <code>festivald</code> in human-readable time (60 is <code>1 minute</code>)</td></tr>
-<tr><td>total_requests</td><td>unsigned integer</td><td>Total amount of requests this <code>festivald</code> has received since starting</td></tr>
-<tr><td>total_connections</td><td>unsigned integer</td><td>Total amount of connections <code>festivald</code> has gotten since starting</td></tr>
+<tr><td>uptime_readable</td><td>string</td><td>Uptime of <code>festivald</code> in human-readable time (60 is <code>1 minute</code>)</td></tr>
+<tr><td>total_requests</td><td>unsigned integer</td><td>Total amount of requests <code>festivald</code> has received since starting</td></tr>
+<tr><td>total_connections</td><td>unsigned integer</td><td>Total amount of connections <code>festivald</code> has received since starting</td></tr>
 </tbody></table>
 </div>
 <h4 id="example-request"><a class="header" href="#example-request">Example Request</a></h4>
@@ -202,7 +202,7 @@
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {
     &quot;uptime&quot;: 4,
-    &quot;uptime_string&quot;: &quot;4 seconds&quot;,
+    &quot;uptime_readable&quot;: &quot;4 seconds&quot;,
     &quot;total_requests&quot;: 1,
     &quot;total_connections&quot;: 1
   },

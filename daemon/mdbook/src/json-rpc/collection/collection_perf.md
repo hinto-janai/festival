@@ -5,7 +5,7 @@ This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-View some performance stats about the latest [`Collection`](/common-objects/collection.md) construction.
+View some performance stats about the latest [`Collection`](/common-objects/collection.md) [reset](/json-rpc/collection/collection_new.md).
 
 #### Inputs
 
@@ -32,9 +32,9 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"collection_per
 {
   "jsonrpc": "2.0",
   "result": {
-    "bytes": 2649405,
-    "user": 0.3863234519958496,
-    "sys": 0.4135190546512604
+    "bytes": 2554823,
+    "user": 0.45682073,
+    "sys": 0.48661286
   },
   "id": 0
 }

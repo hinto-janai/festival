@@ -142,7 +142,7 @@ impl_struct_lt! {
 	DaemonShutdown,
 	uptime: u64,
 	#[serde(borrow)]
-	uptime_string: Cow<'a, str>,
+	uptime_readable: Cow<'a, str>,
 	total_requests: u64,
 	total_connections: u64
 }

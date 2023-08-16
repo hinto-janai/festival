@@ -7,6 +7,14 @@ This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 View the size of the current [`Collection`](/common-objects/collection.md)'s _underlying_ resources (audio files and art).
 
+The output of this method reflects the live audio file size, not the one at the time of the `Collection` creation. For example, if an underlying audio file is changed:
+```
+my_song_file.flac (5MB) -> my_song_file.flac (33MB)
+```
+Then this method will reflect that change.
+
+However, `Art` is cached by `festivald` and only updated upon a `Collection` [reset](/json-rpc/collection/collection_new.md).
+
 #### Inputs
 `None`
 

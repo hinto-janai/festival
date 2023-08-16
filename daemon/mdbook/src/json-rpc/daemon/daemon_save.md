@@ -11,7 +11,7 @@ Currently this saves:
 - [Audio state](/json-rpc/state/state_audio.md)
 - [Playlists](/common-objects/playlist.md)
 
-The [`Collection`](/common-objects/collection.md) is always saved after creation.
+The [`Collection`](/common-objects/collection.md) is always saved automatically after creation.
 
 #### Inputs
 `None`

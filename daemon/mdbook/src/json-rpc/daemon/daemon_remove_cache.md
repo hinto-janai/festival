@@ -17,8 +17,8 @@ The output is an un-named array containing:
 
 | Field | Type             | Description |
 |-------|------------------|-------------|
-| path  | string (PATH)    | The file that was removed
-| bytes | unsigned integer | How many bytes were removed
+| path  | string (PATH)    | A file that was removed
+| bytes | unsigned integer | How many bytes that file was
 
 #### Example Request
 ```bash

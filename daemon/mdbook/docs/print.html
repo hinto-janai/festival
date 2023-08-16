@@ -3737,7 +3737,7 @@ Entry 76 (Song key 76),
 <h4 id="-stable-11"><a class="header" href="#-stable-11">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/collection//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
-<p>View some performance stats about the latest <a href="json-rpc/collection//common-objects/collection.html"><code>Collection</code></a> construction.</p>
+<p>View some performance stats about the latest <a href="json-rpc/collection//common-objects/collection.html"><code>Collection</code></a> <a href="json-rpc/collection//json-rpc/collection/collection_new.html">reset</a>.</p>
 <h4 id="inputs-11"><a class="header" href="#inputs-11">Inputs</a></h4>
 <p><code>None</code></p>
 <h4 id="outputs-11"><a class="header" href="#outputs-11">Outputs</a></h4>
@@ -3756,9 +3756,9 @@ Entry 76 (Song key 76),
 <pre><code class="language-json">{
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {
-    &quot;bytes&quot;: 2649405,
-    &quot;user&quot;: 0.3863234519958496,
-    &quot;sys&quot;: 0.4135190546512604
+    &quot;bytes&quot;: 2554823,
+    &quot;user&quot;: 0.45682073,
+    &quot;sys&quot;: 0.48661286
   },
   &quot;id&quot;: 0
 }
@@ -3768,6 +3768,11 @@ Entry 76 (Song key 76),
 <p>This API is <a href="json-rpc/collection//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>View the size of the current <a href="json-rpc/collection//common-objects/collection.html"><code>Collection</code></a>'s <em>underlying</em> resources (audio files and art).</p>
+<p>The output of this method reflects the live audio file size, not the one at the time of the <code>Collection</code> creation. For example, if an underlying audio file is changed:</p>
+<pre><code>my_song_file.flac (5MB) -&gt; my_song_file.flac (33MB)
+</code></pre>
+<p>Then this method will reflect that change.</p>
+<p>However, <code>Art</code> is cached by <code>festivald</code> and only updated upon a <code>Collection</code> <a href="json-rpc/collection//json-rpc/collection/collection_new.html">reset</a>.</p>
 <h4 id="inputs-12"><a class="header" href="#inputs-12">Inputs</a></h4>
 <p><code>None</code></p>
 <h4 id="outputs-12"><a class="header" href="#outputs-12">Outputs</a></h4>
@@ -3803,7 +3808,7 @@ Entry 76 (Song key 76),
 <li><a href="json-rpc/daemon//json-rpc/state/state_audio.html">Audio state</a></li>
 <li><a href="json-rpc/daemon//common-objects/playlist.html">Playlists</a></li>
 </ul>
-<p>The <a href="json-rpc/daemon//common-objects/collection.html"><code>Collection</code></a> is always saved after creation.</p>
+<p>The <a href="json-rpc/daemon//common-objects/collection.html"><code>Collection</code></a> is always saved automatically after creation.</p>
 <h4 id="inputs-13"><a class="header" href="#inputs-13">Inputs</a></h4>
 <p><code>None</code></p>
 <h4 id="outputs-13"><a class="header" href="#outputs-13">Outputs</a></h4>
@@ -3831,8 +3836,8 @@ Entry 76 (Song key 76),
 <h4 id="outputs-14"><a class="header" href="#outputs-14">Outputs</a></h4>
 <p>The output is an un-named array containing:</p>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td>path</td><td>string (PATH)</td><td>The file that was removed</td></tr>
-<tr><td>bytes</td><td>unsigned integer</td><td>How many bytes were removed</td></tr>
+<tr><td>path</td><td>string (PATH)</td><td>A file that was removed</td></tr>
+<tr><td>bytes</td><td>unsigned integer</td><td>How many bytes that file was</td></tr>
 </tbody></table>
 </div>
 <h4 id="example-request-13"><a class="header" href="#example-request-13">Example Request</a></h4>
@@ -3864,9 +3869,9 @@ Entry 76 (Song key 76),
 <p><code>festivald</code> will:</p>
 <ul>
 <li>Reject future connections</li>
-<li>Wait for a <a href="json-rpc/daemon//json-rpc/collection/collection_new.html"><code>Collection</code></a> reset to finish if occuring</li>
-<li>Clean cache</li>
-<li>Save state to disk</li>
+<li>Wait for a <a href="json-rpc/daemon//common-objects/collection.html"><code>Collection</code></a> <a href="json-rpc/daemon//json-rpc/collection/collection_new.html">reset</a> to finish if occuring</li>
+<li><a href="json-rpc/daemon//json-rpc/daemon/daemon_remove_cache.html">Clean cache</a></li>
+<li><a href="json-rpc/daemon//json-rpc/daemon/daemon_save.html">Save</a> state to disk</li>
 </ul>
 <p>Then shutdown.</p>
 <h4 id="inputs-15"><a class="header" href="#inputs-15">Inputs</a></h4>
@@ -3874,9 +3879,9 @@ Entry 76 (Song key 76),
 <h4 id="outputs-15"><a class="header" href="#outputs-15">Outputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>uptime</td><td>unsigned integer</td><td>Uptime of <code>festivald</code> in seconds</td></tr>
-<tr><td>uptime_string</td><td>string</td><td>Uptime of <code>festivald</code> in human-readable time (60 is <code>1 minute</code>)</td></tr>
-<tr><td>total_requests</td><td>unsigned integer</td><td>Total amount of requests this <code>festivald</code> has received since starting</td></tr>
-<tr><td>total_connections</td><td>unsigned integer</td><td>Total amount of connections <code>festivald</code> has gotten since starting</td></tr>
+<tr><td>uptime_readable</td><td>string</td><td>Uptime of <code>festivald</code> in human-readable time (60 is <code>1 minute</code>)</td></tr>
+<tr><td>total_requests</td><td>unsigned integer</td><td>Total amount of requests <code>festivald</code> has received since starting</td></tr>
+<tr><td>total_connections</td><td>unsigned integer</td><td>Total amount of connections <code>festivald</code> has received since starting</td></tr>
 </tbody></table>
 </div>
 <h4 id="example-request-14"><a class="header" href="#example-request-14">Example Request</a></h4>
@@ -3889,7 +3894,7 @@ Entry 76 (Song key 76),
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {
     &quot;uptime&quot;: 4,
-    &quot;uptime_string&quot;: &quot;4 seconds&quot;,
+    &quot;uptime_readable&quot;: &quot;4 seconds&quot;,
     &quot;total_requests&quot;: 1,
     &quot;total_connections&quot;: 1
   },
