@@ -80,9 +80,13 @@ fn main() {
 	benri::send!(TO_KERNEL, shukusai::kernel::FrontendToKernel::CachePath(CONFIG.collection_paths.clone()));
 
 	// Cleanup cache.
-	match crate::zip::clean_cache() {
-		Ok(_)  => benri::ok!("festivald ... Cache clean"),
-		Err(e) => log::warn!("festivald ... Could not clean cache: {e}"),
+	if CONFIG.cache_clean {
+		match crate::zip::clean_cache() {
+			Ok(_)  => benri::ok!("festivald ... Cache clean"),
+			Err(e) => log::warn!("festivald ... Could not clean cache: {e}"),
+		}
+	} else {
+		log::info!("festivald ... Skipping cache clean");
 	}
 
 	// Start HTTP router.

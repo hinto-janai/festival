@@ -60,5 +60,5 @@ Do not rely on the log output of `festivald`.
 ## Protocol
 - HTTP(s) will always be the transport
 - Version [`2.0`](https://jsonrpc.org/specification) of `JSON-RPC` will always be used
-- `JSON-RPC` will always require `POST HTTP` requests
-- `REST` and documentation will always require `GET HTTP` requests
+- `JSON-RPC` will always require `HTTP POST` requests
+- `REST` and documentation will always require `HTTP GET` requests

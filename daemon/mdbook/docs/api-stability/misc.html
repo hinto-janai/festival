@@ -226,8 +226,8 @@
 <ul>
 <li>HTTP(s) will always be the transport</li>
 <li>Version <a href="https://jsonrpc.org/specification"><code>2.0</code></a> of <code>JSON-RPC</code> will always be used</li>
-<li><code>JSON-RPC</code> will always require <code>POST HTTP</code> requests</li>
-<li><code>REST</code> and documentation will always require <code>GET HTTP</code> requests</li>
+<li><code>JSON-RPC</code> will always require <code>HTTP POST</code> requests</li>
+<li><code>REST</code> and documentation will always require <code>HTTP GET</code> requests</li>
 </ul>
 
                     </main>
@@ -259,22 +259,6 @@
 
         </div>
 
-        <!-- Livereload script (if served using the cli tool) -->
-        <script>
-            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
-            const socket = new WebSocket(wsAddress);
-            socket.onmessage = function (event) {
-                if (event.data === "reload") {
-                    socket.close();
-                    location.reload();
-                }
-            };
-
-            window.onbeforeunload = function() {
-                socket.close();
-            }
-        </script>
 
 
 

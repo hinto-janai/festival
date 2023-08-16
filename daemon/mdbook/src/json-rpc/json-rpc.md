@@ -1,7 +1,7 @@
 # JSON-RPC
 `festivald` exposes a [`JSON-RPC 2.0`](https://www.jsonrpc.org/specification) API for general state retrieval & signal control.
 
-It can be accessed by sending a POST HTTP request containing a `JSON-RPC 2.0` request in the body, to the root endpoint, `/`.
+It can be accessed by sending a `HTTP POST` request containing a `JSON-RPC 2.0` request in the body, to the root endpoint, `/`.
 
 All method documentation will include:
 - What inputs it needs

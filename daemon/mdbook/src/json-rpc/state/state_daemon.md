@@ -17,7 +17,7 @@ Retrieve state about the status of `festivald` itself.
 |---------------------|------------------|-------------|
 | uptime              | unsigned integer | Uptime of `festivald` in seconds
 | uptime_readable     | string           | Uptime of `festivald` in human-readable time (60 is `1 minute`)
-| saving              | boolean          | If `festivald` is currently saving anything to disk
+| saving              | boolean          | If `festivald` is currently saving a recently created [`Collection`](/common-objects/collection.md) to disk
 | total_requests      | unsigned integer | Total amount of requests `festivald` has received since starting
 | total_connections   | unsigned integer | Total amount of connections `festivald` has received since starting
 | current_connections | unsigned integer | Amount of open connections `festivald` currently has

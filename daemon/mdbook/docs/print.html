@@ -566,16 +566,34 @@ log_level = &quot;error&quot;
 # TYPE    | boolean
 watch = true
 
+# Enable/disable cleaning up cache
+#
 # When serving `ZIP` files via the REST API, `festivald`
 # will first write them to disk, then serve those files
 # instead of directly storing everything in memory,
 # as to not get OOM-killed on more than a few requests.
+#
+# Setting this to `false` will make `festivald`
+# never clean those files up, ever.
+#
+# This will make `cache_time` not do anything and will
+# also prevent `festivald` from the usual startup/shutdown
+# cache cleaning that it does.
+#
+# DEFAULT | true
+# VALUES  | true, false
+# TYPE    | boolean
+cache_clean = true
+
+# Set the REST API cache time limit
 #
 # This option sets the time limit on how many seconds
 # `festivald` will hold onto this cache for.
 #
 # Once the time limit is up, `festivald` will remove the
 # file. This cache is also reset on startup and shutdown.
+#
+# This does nothing if `cache_clean` is `false`.
 #
 # DEFAULT | 3600 (1 hour)
 # EXAMPLE | 60 (1 minute), 600 (10 minutes), 1800 (30 minutes), 14400 (4 hours)
@@ -1658,8 +1676,8 @@ Collection - ${CREATION_UNIX_TIMESTAMP}/
 <ul>
 <li>HTTP(s) will always be the transport</li>
 <li>Version <a href="https://jsonrpc.org/specification"><code>2.0</code></a> of <code>JSON-RPC</code> will always be used</li>
-<li><code>JSON-RPC</code> will always require <code>POST HTTP</code> requests</li>
-<li><code>REST</code> and documentation will always require <code>GET HTTP</code> requests</li>
+<li><code>JSON-RPC</code> will always require <code>HTTP POST</code> requests</li>
+<li><code>REST</code> and documentation will always require <code>HTTP GET</code> requests</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="common-objects"><a class="header" href="#common-objects">Common Objects</a></h1>
 <p>These objects often appear in many JSON-RPC call outputs.</p>
@@ -2594,7 +2612,7 @@ Collection - ${CREATION_UNIX_TIMESTAMP}/
 <p>Upon every future <code>Collection</code> reset, if an <code>invalid</code> entry is able to recover (a matching <code>Song</code> file is found with the correct metadata), it will turn back into a <code>valid</code> entry automatically.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="json-rpc-4"><a class="header" href="#json-rpc-4">JSON-RPC</a></h1>
 <p><code>festivald</code> exposes a <a href="https://www.jsonrpc.org/specification"><code>JSON-RPC 2.0</code></a> API for general state retrieval &amp; signal control.</p>
-<p>It can be accessed by sending a POST HTTP request containing a <code>JSON-RPC 2.0</code> request in the body, to the root endpoint, <code>/</code>.</p>
+<p>It can be accessed by sending a <code>HTTP POST</code> request containing a <code>JSON-RPC 2.0</code> request in the body, to the root endpoint, <code>/</code>.</p>
 <p>All method documentation will include:</p>
 <ul>
 <li>What inputs it needs</li>
@@ -4058,7 +4076,7 @@ Entry 76 (Song key 76),
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>uptime</td><td>unsigned integer</td><td>Uptime of <code>festivald</code> in seconds</td></tr>
 <tr><td>uptime_readable</td><td>string</td><td>Uptime of <code>festivald</code> in human-readable time (60 is <code>1 minute</code>)</td></tr>
-<tr><td>saving</td><td>boolean</td><td>If <code>festivald</code> is currently saving anything to disk</td></tr>
+<tr><td>saving</td><td>boolean</td><td>If <code>festivald</code> is currently saving a recently created <a href="json-rpc/state//common-objects/collection.html"><code>Collection</code></a> to disk</td></tr>
 <tr><td>total_requests</td><td>unsigned integer</td><td>Total amount of requests <code>festivald</code> has received since starting</td></tr>
 <tr><td>total_connections</td><td>unsigned integer</td><td>Total amount of connections <code>festivald</code> has received since starting</td></tr>
 <tr><td>current_connections</td><td>unsigned integer</td><td>Amount of open connections <code>festivald</code> currently has</td></tr>
@@ -8463,22 +8481,6 @@ My Song (3).flac
 
         </div>
 
-        <!-- Livereload script (if served using the cli tool) -->
-        <script>
-            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
-            const socket = new WebSocket(wsAddress);
-            socket.onmessage = function (event) {
-                if (event.data === "reload") {
-                    socket.close();
-                    location.reload();
-                }
-            };
-
-            window.onbeforeunload = function() {
-                socket.close();
-            }
-        </script>
 
 
 

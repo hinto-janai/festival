@@ -68,9 +68,14 @@ macro_rules! impl_zip {
 				tokio::task::spawn(async move {
 					if tmp.exists() {
 						match tokio::fs::remove_file(&tmp).await {
-							Ok(_)  => debug!("Task - Removed tmp: {}", tmp.display()),
-							Err(e) => warn!("Task - Failed to remove tmp: {e} ... {}", tmp.display()),
+							Ok(_)  => debug!("REST - Removed tmp: {}", tmp.display()),
+							Err(e) => warn!("REST - Failed to remove tmp: {e} ... {}", tmp.display()),
 						}
+					}
+
+					if !crate::config::config().cache_clean {
+						debug!("REST - Skipping cache removal: {}", real.display());
+						return;
 					}
 
 					// Removes the created cached ZIPs `x` seconds _after_ creation.
@@ -78,8 +83,8 @@ macro_rules! impl_zip {
 
 					if real.exists() {
 						match tokio::fs::remove_file(&real).await {
-							Ok(_)  => debug!("Task - Removed cache: {}", real.display()),
-							Err(e) => warn!("Task - Failed to remove cache: {e} ... {}", real.display()),
+							Ok(_)  => debug!("REST - Removed cache: {}", real.display()),
+							Err(e) => warn!("REST - Failed to remove cache: {e} ... {}", real.display()),
 						}
 					}
 				});

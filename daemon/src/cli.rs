@@ -269,13 +269,24 @@ pub struct Cli {
 	/// or left empty "" for no separator at all.
 	filename_separator: Option<String>,
 
-	#[arg(long, verbatim_doc_comment, value_name = "SECONDS")]
-	/// Set the `REST` API cache time limit
+	#[arg(long, verbatim_doc_comment, default_value_t = false)]
+	/// Enable/disable cleaning up cache
 	///
 	/// When serving `ZIP` files via the REST API, `festivald`
 	/// will first write them to disk, then serve those files
 	/// instead of directly storing everything in memory,
 	/// as to not get OOM-killed on more than a few requests.
+	///
+	/// Setting this to `false` will make `festivald`
+	/// never clean those files up, ever.
+	///
+	/// This will make `cache_time` not do anything and will
+	/// also prevent `festivald` from the usual startup/shutdown
+	/// cache cleaning that it does.
+	disable_cache_clean: bool,
+
+	#[arg(long, verbatim_doc_comment, value_name = "SECONDS")]
+	/// Set the REST API cache time limit
 	///
 	/// This option sets the time limit on how many seconds
 	/// `festivald` will hold onto this cache for.
@@ -283,7 +294,7 @@ pub struct Cli {
 	/// Once the time limit is up, `festivald` will remove the
 	/// file. This cache is also reset on startup and shutdown.
 	///
-	/// Default is 3600 seconds (1 hour).
+	/// This does nothing if `--disable-cache-clean` is passed.
 	cache_time: Option<u64>,
 
 	#[arg(long, verbatim_doc_comment, default_value_t = false)]
@@ -368,6 +379,12 @@ pub struct Cli {
 	///
 	/// Exits with `0` if everything went ok, otherwise shows error.
 	reset_config: bool,
+
+	#[arg(long, verbatim_doc_comment)]
+	/// Reset the `festivald` cache folder
+	///
+	/// This deletes all currently existing `REST` resource cache.
+	reset_cache: bool,
 
 	#[arg(long, verbatim_doc_comment)]
 	/// Delete all `festivald` files that are on disk
@@ -534,6 +551,15 @@ impl Cli {
 			exit(0);
 		}
 
+		//-------------------------------------------------- `reset_cache`
+		if self.reset_cache {
+			let p = crate::zip::CollectionZip::sub_dir_parent_path().unwrap();
+			match std::fs::remove_dir_all(&p) {
+				Ok(_)  => { eprintln!("{}", p.display()); exit(0); },
+				Err(e) => { eprintln!("festivald: Reset Cache failed: {e}"); exit(1); },
+			}
+		}
+
 		//-------------------------------------------------- Docs.
 		if self.docs {
 			// Create documentation.
@@ -674,6 +700,7 @@ impl Cli {
 		let mut media_controls = if_true_negate_some(self.disable_media_controls);
 		let mut rest           = if_true_negate_some(self.disable_rest);
 		let mut watch          = if_true_negate_some(self.disable_watch);
+		let mut cache_clean    = if_true_negate_some(self.disable_cache_clean);
 
 		// Special-case conversions.
 		macro_rules! vec_to_some_hashset {
@@ -731,6 +758,7 @@ impl Cli {
 			self.filename_separator => cb.filename_separator,
 			log_level               => cb.log_level,
 			watch                   => cb.watch,
+			cache_clean             => cb.cache_clean,
 			self.cache_time         => cb.cache_time,
 			media_controls          => cb.media_controls,
 			self.authorization      => cb.authorization,

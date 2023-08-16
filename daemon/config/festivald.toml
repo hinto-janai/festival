@@ -228,16 +228,34 @@ log_level = "error"
 # TYPE    | boolean
 watch = true
 
+# Enable/disable cleaning up cache
+#
 # When serving `ZIP` files via the REST API, `festivald`
 # will first write them to disk, then serve those files
 # instead of directly storing everything in memory,
 # as to not get OOM-killed on more than a few requests.
+#
+# Setting this to `false` will make `festivald`
+# never clean those files up, ever.
+#
+# This will make `cache_time` not do anything and will
+# also prevent `festivald` from the usual startup/shutdown
+# cache cleaning that it does.
+#
+# DEFAULT | true
+# VALUES  | true, false
+# TYPE    | boolean
+cache_clean = true
+
+# Set the REST API cache time limit
 #
 # This option sets the time limit on how many seconds
 # `festivald` will hold onto this cache for.
 #
 # Once the time limit is up, `festivald` will remove the
 # file. This cache is also reset on startup and shutdown.
+#
+# This does nothing if `cache_clean` is `false`.
 #
 # DEFAULT | 3600 (1 hour)
 # EXAMPLE | 60 (1 minute), 600 (10 minutes), 1800 (30 minutes), 14400 (4 hours)

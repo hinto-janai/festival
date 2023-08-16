@@ -39,10 +39,10 @@ r#"
 | Shutdown signal received, starting shutdown routine... |
 =========================================================="#);
 
-	//-------------------------------------------------- Wait up to 30 seconds for a potential `Collection` reset.
-	for i in 1..=30 {
+	//-------------------------------------------------- Wait up to 120 seconds for a potential `Collection` reset.
+	for i in 1..=120 {
 		if crate::statics::resetting() {
-			println!("[....] Waiting for Collection reset to finish [{i}/30]");
+			println!("[....] Waiting for Collection reset to finish [{i}/120]");
 			tokio::time::sleep(Duration::from_secs(1)).await;
 		} else {
 			break;
@@ -60,9 +60,13 @@ r#"
 	send!(TO_KERNEL, FrontendToKernel::Exit);
 
 	//-------------------------------------------------- Cleanup cache.
-	match crate::zip::clean_cache() {
-		Ok(_)  => println!("[ OK ] Clean cache"),
-		Err(e) => println!("[FAIL] Clean cache ... {e}"),
+	if crate::config::config().cache_clean {
+		match crate::zip::clean_cache() {
+			Ok(_)  => println!("[ OK ] Clean cache"),
+			Err(e) => println!("[FAIL] Clean cache ... {e}"),
+		}
+	} else {
+		println!("[SKIP] Clean cache");
 	}
 
 	//-------------------------------------------------- Kernel check.
