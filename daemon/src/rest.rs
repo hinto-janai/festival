@@ -322,25 +322,46 @@ pub async fn handle(
 const ERR_FILE: &str = "File not found";
 const ERR_BYTE: &str = "Failed to read file bytes";
 
-async fn read_file(path: &Path) -> Result<Vec<u8>, Response<Body>> {
+// The primary way files are "read".
+//
+// Instead of reading files into a buffer, they are memmapped
+// then `*deref`'ed into `&[u8]`, which are written into ZIPs.
+fn mmap_file(path: &Path) -> Result<memmap2::Mmap, Response<Body>> {
 	// Open the file.
-	let Ok(mut file) = tokio::fs::File::open(&path).await else {
+	let Ok(file) = std::fs::File::open(&path) else {
 		return Err(resp::not_found(ERR_FILE));
 	};
 
-	let cap = match file.metadata().await {
-		Ok(m) => m.len() as usize,
-		_ => 1_000_000 // 1 megabyte,
-	};
-
-	// Copy the bytes into owned buffer.
-	let mut dst: Vec<u8> = Vec::with_capacity(cap);
-	if file.read_to_end(&mut dst).await.is_err() {
-		return Err(resp::server_err(ERR_BYTE));
-	};
-
-	Ok(dst)
+	// SAFETY: memmap is used.
+	match unsafe { memmap2::Mmap::map(&file) } {
+		Ok(mmap) => Ok(mmap),
+		Err(_)   => return Err(resp::not_found(ERR_FILE)),
+	}
 }
+
+// This is the old (safe) method.
+//
+// Regular `async` read into `Vec<u8>`
+//
+//async fn read_file(path: &Path) -> Result<Vec<u8>, Response<Body>> {
+//	// Open the file.
+//	let Ok(mut file) = tokio::fs::File::open(&path).await else {
+//		return Err(resp::not_found(ERR_FILE));
+//	};
+//
+//	let cap = match file.metadata().await {
+//		Ok(m) => m.len() as usize,
+//		_ => 1_000_000 // 1 megabyte,
+//	};
+//
+//	// Copy the bytes into owned buffer.
+//	let mut dst: Vec<u8> = Vec::with_capacity(cap);
+//	if file.read_to_end(&mut dst).await.is_err() {
+//		return Err(resp::server_err(ERR_BYTE));
+//	};
+//
+//	Ok(dst)
+//}
 
 //---------------------------------------------------------------------------------------------------- The inner "impl", re-used in all other endpoints.
 const MIME_ZIP: &str = "application/zip";
@@ -405,8 +426,12 @@ async fn impl_album_inner(
 
 		trace!("REST - impl_album_inner() song: {}", song.path.display());
 
-		let bytes = match read_file(&song.path).await {
-			Ok(b)  => b,
+//		let bytes = match read_file(&song.path).await {
+//			Ok(b)  => b,
+//			Err(r) => return Some(r),
+//		};
+		let mmap = match mmap_file(&song.path) {
+			Ok(m)  => m,
 			Err(r) => return Some(r),
 		};
 
@@ -423,7 +448,7 @@ async fn impl_album_inner(
 				return Some(resp::server_err(ERR_SONG));
 			}
 
-			if zip.write(&bytes).is_err() {
+			if zip.write(&*mmap).is_err() {
 				return Some(resp::server_err(ERR_SONG));
 			}
 
@@ -441,8 +466,12 @@ async fn impl_album_inner(
 	if let Art::Known { path, mime, len, extension } = &album.art {
 		trace!("REST - impl_album_inner() art: {}", path.display());
 
-		let bytes = match read_file(&path).await {
-			Ok(b)  => b,
+//		let bytes = match read_file(&path).await {
+//			Ok(b)  => b,
+//			Err(r) => return Some(r),
+//		};
+		let mmap = match mmap_file(&path) {
+			Ok(m)  => m,
 			Err(r) => return Some(r),
 		};
 
@@ -452,7 +481,7 @@ async fn impl_album_inner(
 			return Some(resp::server_err(ERR_SONG));
 		}
 
-		if zip.write(&bytes).is_err() {
+		if zip.write(&*mmap).is_err() {
 			return Some(resp::server_err(ERR_SONG));
 		}
 	}
@@ -675,8 +704,12 @@ async fn impl_playlist(
 
 		trace!("REST - impl_playlist(): {}", song.path.display());
 
-		let bytes = match read_file(&song.path).await {
-			Ok(b)  => b,
+//		let bytes = match read_file(&song.path).await {
+//			Ok(b)  => b,
+//			Err(r) => return Ok(r),
+//		};
+		let mmap = match mmap_file(&song.path) {
+			Ok(m)  => m,
 			Err(r) => return Ok(r),
 		};
 
@@ -688,7 +721,7 @@ async fn impl_playlist(
 				return Some(resp::server_err(ERR_SONG));
 			}
 
-			if zip.write(&bytes).is_err() {
+			if zip.write(&*mmap).is_err() {
 				return Some(resp::server_err(ERR_SONG));
 			}
 
@@ -919,8 +952,12 @@ pub async fn art_artist(artist: &str, collection: Arc<Collection>) -> Result<Res
 		if let Art::Known { path, mime, len, extension } = &album.art {
 			trace!("REST - art_artist() art: {}", path.display());
 
-			let bytes = match read_file(&path).await {
-				Ok(b)  => b,
+//			let bytes = match read_file(&path).await {
+//				Ok(b)  => b,
+//				Err(r) => return Ok(resp::not_found("Album art was not found")),
+//			};
+			let mmap = match mmap_file(&path) {
+				Ok(m)  => m,
 				Err(r) => return Ok(resp::not_found("Album art was not found")),
 			};
 
@@ -931,7 +968,7 @@ pub async fn art_artist(artist: &str, collection: Arc<Collection>) -> Result<Res
 					return Some(resp::server_err(ERR_SONG));
 				}
 
-				if zip.write(&bytes).is_err() {
+				if zip.write(&*mmap).is_err() {
 					return Some(resp::server_err(ERR_SONG));
 				}
 

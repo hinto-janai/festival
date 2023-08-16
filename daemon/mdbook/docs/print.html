@@ -171,7 +171,7 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="intro"><a class="header" href="#intro">Intro</a></h1>
-<p><code>Festival</code> daemon.</p>
+<p><a href="https://festival.pm"><code>Festival</code></a> <a href="https://en.wikipedia.org/wiki/Daemon_(computing)">daemon</a>.</p>
 <p><code>festivald</code> is a music server that plays on the device it is running on, and is remotely controlled via clients.</p>
 <p>It can also serve music resources, such as song files, album art, and organized archives of whole artists.</p>
 <p>The 3 APIs <code>festivald</code> exposes:</p>
@@ -7839,9 +7839,18 @@ index 5 | song_6
 <p>If a file is downloaded that is nested, the <code>filename_separator</code> <a href="rest/config.html">config</a> option will control what the separator will be. By default, this is <code>-</code>, so the filename of an archive of an artist will look like:</p>
 <pre><code class="language-plaintext">Artist Name - Album Title.zip
 </code></pre>
-<h2 id="zip"><a class="header" href="#zip">ZIP</a></h2>
-<p>For <code>REST</code> endpoints that serve large collections of files, the <code>ZIP</code> format will be used.</p>
-<p>There is no compression applied to the files, they are stored as-is.</p>
+<h2 id="resource"><a class="header" href="#resource">Resource</a></h2>
+<p>The <code>REST</code> endpoint resources are in loosely grouped based on what type of data they are and what format they are outputted as.</p>
+<p>These &quot;groups&quot; are referenced in <a href="rest//authorization/rest.html"><code>authorization</code></a> &amp; <a href="rest//api-stability/rest.html"><code>API Stability</code></a>.</p>
+<div class="table-wrapper"><table><thead><tr><th><code>REST</code> resource</th><th>File Format Type</th><th>Description</th><th>Example Endpoint</th><th>Filename Formatting</th></tr></thead><tbody>
+<tr><td><code>collection</code></td><td><code>zip</code></td><td>The whole <code>Collection</code></td><td><a href="rest//rest/collection.html"><code>/collection</code></a></td><td><code>Collection - ${CREATION_UNIX_TIMESTAMP}.zip</code></td></tr>
+<tr><td><code>playlist</code></td><td><code>zip</code></td><td>Individual <code>Playlist</code>'s</td><td><a href="rest//rest/playlist.html"><code>/playlist</code></a></td><td><code>Playlist - ${PLAYLIST_NAME}.zip</code></td></tr>
+<tr><td><code>artist</code></td><td><code>zip</code></td><td>Individual <code>Artist</code>'s</td><td><a href="rest//rest/map/artist.html"><code>/map/artist</code></a></td><td><code>${ARTIST_NAME}.zip</code></td></tr>
+<tr><td><code>album</code></td><td><code>zip</code></td><td>Individual <code>Album</code>'s</td><td><a href="rest//rest/current/album.html"><code>/current/album</code></a></td><td><code>${ARTIST_NAME} - ${ALBUM_TITLE}.zip</code></td></tr>
+<tr><td><code>song</code></td><td>Original audio format (<code>flac</code>, <code>mp3</code>, etc)</td><td>Individual <code>Song</code>'s</td><td><a href="rest//rest/rand/song.html"><code>/rand/song</code></a></td><td><code>${ARTIST_NAME} - ${ALBUM_TITLE} - ${SONG_TITLE}.${AUDIO_FORMAT}</code></td></tr>
+<tr><td><code>art</code></td><td>Original image format (<code>png</code>, <code>jpg</code>, etc)</td><td>Individual <code>Album</code> art</td><td><a href="rest//rest/current/art.html"><code>/current/art</code></a></td><td><code>${ARTIST_NAME} - ${ALBUM_TITLE}.${IMAGE_FORMAT}</code></td></tr>
+</tbody></table>
+</div>
 <h2 id="missing-resource-1"><a class="header" href="#missing-resource-1">Missing Resource</a></h2>
 <p>If the underlying file for a resource is missing from the filesystem, <code>festivald</code> will respond to <code>REST</code> requests with an error.</p>
 <p>For example, if an <code>Artist</code> is requested:</p>
@@ -7862,6 +7871,14 @@ My Song (1).flac
 My Song (2).flac
 My Song (3).flac
 </code></pre>
+<h2 id="zip"><a class="header" href="#zip">ZIP</a></h2>
+<p>For <code>REST</code> endpoints that serve large collections of files, the <code>ZIP</code> format will be used.</p>
+<p>There is no compression applied to the files, they are stored as-is.</p>
+<h2 id="disk-cache"><a class="header" href="#disk-cache">Disk Cache</a></h2>
+<p><code>festivald</code> exclusively uses the <a href="rest//disk.html"><code>Disk</code></a> when operating with potentially heavy data.</p>
+<p>All heavy files are both streamed and <a href="https://en.wikipedia.org/wiki/Mmap"><code>memory-mapped</code></a> from disk, so none of them take up full space in physical memory.</p>
+<p>Practically, what this means is that when serving files, <code>festivald</code> can get by with very little memory, although the <a href="rest//disk.html"><code>Cache</code></a> folder may get quite heavy.</p>
+<p>The cache behavior can be configured in the <a href="rest//config.html"><code>config</code></a> or via <a href="rest//command-line/command-line.html"><code>command-line</code></a> options.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="rest-quick-start"><a class="header" href="#rest-quick-start"><code>REST</code> Quick Start</a></h1>
 <p>A quick start to using <code>festivald</code>'s <code>REST</code> API.</p>
 <h3 id="view-random-album-art-in-a-web-browser-with-randart"><a class="header" href="#view-random-album-art-in-a-web-browser-with-randart">View random <a href="rest/../common-objects/album.html"><code>Album</code></a> art in a web browser with <a href="rest/rand/art.html"><code>/rand/art</code></a></a></h3>

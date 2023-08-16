@@ -1,5 +1,5 @@
 # Intro
-`Festival` daemon.
+[`Festival`](https://festival.pm) [daemon](https://en.wikipedia.org/wiki/Daemon_(computing)).
 
 `festivald` is a music server that plays on the device it is running on, and is remotely controlled via clients.
 

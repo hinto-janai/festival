@@ -23,10 +23,19 @@ If a file is downloaded that is nested, the `filename_separator` [config](config
 Artist Name - Album Title.zip
 ```
 
-## ZIP
-For `REST` endpoints that serve large collections of files, the `ZIP` format will be used.
+## Resource
+The `REST` endpoint resources are in loosely grouped based on what type of data they are and what format they are outputted as.
 
-There is no compression applied to the files, they are stored as-is.
+These "groups" are referenced in [`authorization`](/authorization/rest.md) & [`API Stability`](/api-stability/rest.md).
+
+| `REST` resource | File Format Type                           | Description             | Example Endpoint                           | Filename Formatting |
+|-----------------|--------------------------------------------|-------------------------|--------------------------------------------|---------------------|
+| `collection`    | `zip`                                      | The whole `Collection`  | [`/collection`](/rest/collection.md)       | `Collection - ${CREATION_UNIX_TIMESTAMP}.zip`
+| `playlist`      | `zip`                                      | Individual `Playlist`'s | [`/playlist`](/rest/playlist.md)           | `Playlist - ${PLAYLIST_NAME}.zip`
+| `artist`        | `zip`                                      | Individual `Artist`'s   | [`/map/artist`](/rest/map/artist.md)       | `${ARTIST_NAME}.zip`
+| `album`         | `zip`                                      | Individual `Album`'s    | [`/current/album`](/rest/current/album.md) | `${ARTIST_NAME} - ${ALBUM_TITLE}.zip`
+| `song`          | Original audio format (`flac`, `mp3`, etc) | Individual `Song`'s     | [`/rand/song`](/rest/rand/song.md)         | `${ARTIST_NAME} - ${ALBUM_TITLE} - ${SONG_TITLE}.${AUDIO_FORMAT}`
+| `art`           | Original image format (`png`, `jpg`, etc)  | Individual `Album` art  | [`/current/art`](/rest/current/art.md)     | `${ARTIST_NAME} - ${ALBUM_TITLE}.${IMAGE_FORMAT}`
 
 ## Missing Resource
 If the underlying file for a resource is missing from the filesystem, `festivald` will respond to `REST` requests with an error.
@@ -56,3 +65,17 @@ My Song (1).flac
 My Song (2).flac
 My Song (3).flac
 ```
+
+## ZIP
+For `REST` endpoints that serve large collections of files, the `ZIP` format will be used.
+
+There is no compression applied to the files, they are stored as-is.
+
+## Disk Cache
+`festivald` exclusively uses the [`Disk`](/disk.md) when operating with potentially heavy data.
+
+All heavy files are both streamed and [`memory-mapped`](https://en.wikipedia.org/wiki/Mmap) from disk, so none of them take up full space in physical memory.
+
+Practically, what this means is that when serving files, `festivald` can get by with very little memory, although the [`Cache`](/disk.md) folder may get quite heavy.
+
+The cache behavior can be configured in the [`config`](/config.md) or via [`command-line`](/command-line/command-line.md) options.
