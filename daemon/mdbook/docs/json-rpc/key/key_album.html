@@ -173,7 +173,7 @@
 <h4 id="-incomplete"><a class="header" href="#-incomplete">🟡 Incomplete</a></h4>
 <p>This API may have <a href="/api-stability/marker.html">additions</a> in the future.</p>
 <hr />
-<p>Input an <code>Album</code> key, retrieve an <a href="/common-objects/album.html"><code>Album</code></a>.</p>
+<p>Input an <code>Album</code> <a href="/common-objects/key.html">key</a>, retrieve an <a href="/common-objects/album.html"><code>Album</code></a>.</p>
 <h4 id="inputs"><a class="header" href="#inputs">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>key</td><td><code>Album</code> key (unsigned integer)</td><td>See <a href="/common-objects/key.html"><code>Key</code></a></td></tr>
@@ -185,9 +185,9 @@
 </tbody></table>
 </div>
 <h4 id="example-request"><a class="header" href="#example-request">Example Request</a></h4>
-<pre><code class="language-bash">festival-cli key_album --key 123
+<pre><code class="language-bash">festival-cli key_album --key 237
 </code></pre>
-<pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;key_album&quot;,&quot;params&quot;:{&quot;key&quot;:123}}'
+<pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;key_album&quot;,&quot;params&quot;:{&quot;key&quot;:237}}'
 </code></pre>
 <h4 id="example-response"><a class="header" href="#example-response">Example Response</a></h4>
 <pre><code class="language-json">{

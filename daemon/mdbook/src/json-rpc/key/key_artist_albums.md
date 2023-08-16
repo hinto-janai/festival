@@ -5,7 +5,7 @@ This API may have [additions](/api-stability/marker.md) in the future.
 
 ---
 
-Input an [`Artist` key](/common-objects/key.dm), retrieve all their [`Album`](/common-objects/album.md)'s.
+Input an [`Artist`](/common-objects/artist.md) [key](/common-objects/key.md), retrieve all their [`Album`](/common-objects/album.md)'s.
 
 The `Album`'s are sorted by `Release date`.
 

@@ -3,4 +3,4 @@ Use [`key`](/common-objects/key.md)'s to retrieve various [`Common Objects`](/co
 
 If the key is invalid, a JSON-RPC [`error`](/json-rpc/json-rpc.md#example-json-rpc-20-failed-response) will be returned.
 
-To use regular `string`'s as input instead, see [`Map`](/json-rpc/map/map.md).
+To use regular `string`'s as input instead (`Artist` name, `Album` title, `Song` title, etc), see [`Map`](/json-rpc/map/map.md).

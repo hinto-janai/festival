@@ -7,9 +7,9 @@ This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 [`Common Objects`](common-objects.md) all have an unsigned integer associated with them:
 
-- [`Artist`](artist.md)
-- [`Album`](album.md)
-- [`Song`](song.md)
+- [`Artist`](artist.md) key
+- [`Album`](album.md) key 
+- [`Song`](song.md) key
 
 These keys directly map to a given object, and can be used to retrieve them.
 

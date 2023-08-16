@@ -2352,9 +2352,9 @@ My Artist/
 <hr />
 <p><a href="common-objects/common-objects.html"><code>Common Objects</code></a> all have an unsigned integer associated with them:</p>
 <ul>
-<li><a href="common-objects/artist.html"><code>Artist</code></a></li>
-<li><a href="common-objects/album.html"><code>Album</code></a></li>
-<li><a href="common-objects/song.html"><code>Song</code></a></li>
+<li><a href="common-objects/artist.html"><code>Artist</code></a> key</li>
+<li><a href="common-objects/album.html"><code>Album</code></a> key </li>
+<li><a href="common-objects/song.html"><code>Song</code></a> key</li>
 </ul>
 <p>These keys directly map to a given object, and can be used to retrieve them.</p>
 <p>In the case of <code>Album</code> art, the <code>Album</code> key doubles as the key (since art belongs to an album), so to access the art of <code>Album</code> 123 in the <code>REST</code> API, you would use:</p>
@@ -4250,12 +4250,12 @@ Entry 76 (Song key 76),
 <div style="break-before: page; page-break-before: always;"></div><h1 id="key-1"><a class="header" href="#key-1">Key</a></h1>
 <p>Use <a href="json-rpc/key//common-objects/key.html"><code>key</code></a>'s to retrieve various <a href="json-rpc/key//common-objects/common-objects.html"><code>Common Objects</code></a>.</p>
 <p>If the key is invalid, a JSON-RPC <a href="json-rpc/key//json-rpc/json-rpc.html#example-json-rpc-20-failed-response"><code>error</code></a> will be returned.</p>
-<p>To use regular <code>string</code>'s as input instead, see <a href="json-rpc/key//json-rpc/map/map.html"><code>Map</code></a>.</p>
+<p>To use regular <code>string</code>'s as input instead (<code>Artist</code> name, <code>Album</code> title, <code>Song</code> title, etc), see <a href="json-rpc/key//json-rpc/map/map.html"><code>Map</code></a>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="key_artist"><a class="header" href="#key_artist">key_artist</a></h1>
 <h4 id="-incomplete-13"><a class="header" href="#-incomplete-13">🟡 Incomplete</a></h4>
 <p>This API may have <a href="json-rpc/key//api-stability/marker.html">additions</a> in the future.</p>
 <hr />
-<p>Input an <code>Artist</code> key, retrieve an <a href="json-rpc/key//common-objects/artist.html"><code>Artist</code></a>.</p>
+<p>Input an <code>Artist</code> <a href="json-rpc/key//common-objects/key.html">key</a>, retrieve an <a href="json-rpc/key//common-objects/artist.html"><code>Artist</code></a>.</p>
 <h4 id="inputs-23"><a class="header" href="#inputs-23">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>key</td><td><code>Artist</code> key (unsigned integer)</td><td>See <a href="json-rpc/key//common-objects/key.html"><code>Key</code></a></td></tr>
@@ -4267,9 +4267,9 @@ Entry 76 (Song key 76),
 </tbody></table>
 </div>
 <h4 id="example-request-22"><a class="header" href="#example-request-22">Example Request</a></h4>
-<pre><code class="language-bash">festival-cli key_artist --key 123
+<pre><code class="language-bash">festival-cli key_artist --key 65
 </code></pre>
-<pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;key_artist&quot;,&quot;params&quot;:{&quot;key&quot;:123}}'
+<pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;key_artist&quot;,&quot;params&quot;:{&quot;key&quot;:65}}'
 </code></pre>
 <h4 id="example-response-23"><a class="header" href="#example-response-23">Example Response</a></h4>
 <pre><code class="language-json">{
@@ -4296,7 +4296,7 @@ Entry 76 (Song key 76),
 <h4 id="-incomplete-14"><a class="header" href="#-incomplete-14">🟡 Incomplete</a></h4>
 <p>This API may have <a href="json-rpc/key//api-stability/marker.html">additions</a> in the future.</p>
 <hr />
-<p>Input an <code>Album</code> key, retrieve an <a href="json-rpc/key//common-objects/album.html"><code>Album</code></a>.</p>
+<p>Input an <code>Album</code> <a href="json-rpc/key//common-objects/key.html">key</a>, retrieve an <a href="json-rpc/key//common-objects/album.html"><code>Album</code></a>.</p>
 <h4 id="inputs-24"><a class="header" href="#inputs-24">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>key</td><td><code>Album</code> key (unsigned integer)</td><td>See <a href="json-rpc/key//common-objects/key.html"><code>Key</code></a></td></tr>
@@ -4308,9 +4308,9 @@ Entry 76 (Song key 76),
 </tbody></table>
 </div>
 <h4 id="example-request-23"><a class="header" href="#example-request-23">Example Request</a></h4>
-<pre><code class="language-bash">festival-cli key_album --key 123
+<pre><code class="language-bash">festival-cli key_album --key 237
 </code></pre>
-<pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;key_album&quot;,&quot;params&quot;:{&quot;key&quot;:123}}'
+<pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;key_album&quot;,&quot;params&quot;:{&quot;key&quot;:237}}'
 </code></pre>
 <h4 id="example-response-24"><a class="header" href="#example-response-24">Example Response</a></h4>
 <pre><code class="language-json">{
@@ -4343,7 +4343,7 @@ Entry 76 (Song key 76),
 <h4 id="-incomplete-15"><a class="header" href="#-incomplete-15">🟡 Incomplete</a></h4>
 <p>This API may have <a href="json-rpc/key//api-stability/marker.html">additions</a> in the future.</p>
 <hr />
-<p>Input a <code>Song</code> key, retrieve a <a href="json-rpc/key//common-objects/song.html"><code>Song</code></a>.</p>
+<p>Input a <code>Song</code> <a href="json-rpc/key//common-objects/key.html">key</a>, retrieve a <a href="json-rpc/key//common-objects/song.html"><code>Song</code></a>.</p>
 <h4 id="inputs-25"><a class="header" href="#inputs-25">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>key</td><td><code>Song</code> key (unsigned integer)</td><td>See <a href="json-rpc/key//json-rpc/key.html"><code>Key</code></a></td></tr>
@@ -4355,9 +4355,9 @@ Entry 76 (Song key 76),
 </tbody></table>
 </div>
 <h4 id="example-request-24"><a class="header" href="#example-request-24">Example Request</a></h4>
-<pre><code class="language-bash">festival-cli key_song --key 123
+<pre><code class="language-bash">festival-cli key_song --key 2594
 </code></pre>
-<pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;key_song&quot;,&quot;params&quot;:{&quot;key&quot;:123}}'
+<pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;key_song&quot;,&quot;params&quot;:{&quot;key&quot;:2594}}'
 </code></pre>
 <h4 id="example-response-25"><a class="header" href="#example-response-25">Example Response</a></h4>
 <pre><code class="language-json">{
@@ -4382,7 +4382,7 @@ Entry 76 (Song key 76),
 <h4 id="-stable-19"><a class="header" href="#-stable-19">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/key//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
-<p>Input a <code>Song</code> key, retrieve an <a href="json-rpc/key//common-objects/entry.html"><code>Entry</code></a>.</p>
+<p>Input a <code>Song</code> <a href="json-rpc/key//common-objects/key.html">key</a>, retrieve an <a href="json-rpc/key//common-objects/entry.html"><code>Entry</code></a>.</p>
 <h4 id="inputs-26"><a class="header" href="#inputs-26">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>key</td><td><code>Song</code> key (unsigned integer)</td><td>See <a href="json-rpc/key//json-rpc/key.html"><code>Key</code></a></td></tr>
@@ -4394,9 +4394,9 @@ Entry 76 (Song key 76),
 </tbody></table>
 </div>
 <h4 id="example-request-25"><a class="header" href="#example-request-25">Example Request</a></h4>
-<pre><code class="language-bash">festival-cli key_entry --key 123
+<pre><code class="language-bash">festival-cli key_entry --key 5151
 </code></pre>
-<pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;key_entry&quot;,&quot;params&quot;:{&quot;key&quot;:123}}'
+<pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;key_entry&quot;,&quot;params&quot;:{&quot;key&quot;:5151}}'
 </code></pre>
 <h4 id="example-response-26"><a class="header" href="#example-response-26">Example Response</a></h4>
 <pre><code class="language-json">{
@@ -4419,7 +4419,7 @@ Entry 76 (Song key 76),
 <h4 id="-incomplete-16"><a class="header" href="#-incomplete-16">🟡 Incomplete</a></h4>
 <p>This API may have <a href="json-rpc/key//api-stability/marker.html">additions</a> in the future.</p>
 <hr />
-<p>Input an <a href="json-rpc/key//common-objects/key.dm"><code>Artist</code> key</a>, retrieve all their <a href="json-rpc/key//common-objects/album.html"><code>Album</code></a>'s.</p>
+<p>Input an <a href="json-rpc/key//common-objects/artist.html"><code>Artist</code></a> <a href="json-rpc/key//common-objects/key.html">key</a>, retrieve all their <a href="json-rpc/key//common-objects/album.html"><code>Album</code></a>'s.</p>
 <p>The <code>Album</code>'s are sorted by <code>Release date</code>.</p>
 <h4 id="inputs-27"><a class="header" href="#inputs-27">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
@@ -4522,7 +4522,7 @@ Entry 76 (Song key 76),
 <h4 id="-incomplete-17"><a class="header" href="#-incomplete-17">🟡 Incomplete</a></h4>
 <p>This API may have <a href="json-rpc/key//api-stability/marker.html">additions</a> in the future.</p>
 <hr />
-<p>Input an <a href="json-rpc/key//common-objects/key.dm"><code>Artist</code> key</a>, retrieve all their <a href="json-rpc/key//common-objects/song.html"><code>Song</code></a>'s.</p>
+<p>Input an <a href="json-rpc/key//common-objects/artist.html"><code>Artist</code></a> <a href="json-rpc/key//common-objects/key.html">key</a>, retrieve all their <a href="json-rpc/key//common-objects/song.html"><code>Song</code></a>'s.</p>
 <p>The <code>Song</code>'s are sorted by <code>Album release date</code>, then <code>Track + Disc order</code>.</p>
 <h4 id="inputs-28"><a class="header" href="#inputs-28">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>

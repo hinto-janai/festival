@@ -5,7 +5,7 @@ This API may have [additions](/api-stability/marker.md) in the future.
 
 ---
 
-Input an `Artist` key, retrieve an [`Artist`](/common-objects/artist.md).
+Input an `Artist` [key](/common-objects/key.md), retrieve an [`Artist`](/common-objects/artist.md).
 
 #### Inputs
 
@@ -21,10 +21,10 @@ Input an `Artist` key, retrieve an [`Artist`](/common-objects/artist.md).
 
 #### Example Request
 ```bash
-festival-cli key_artist --key 123
+festival-cli key_artist --key 65
 ```
 ```bash
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"key_artist","params":{"key":123}}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"key_artist","params":{"key":65}}'
 ```
 
 #### Example Response

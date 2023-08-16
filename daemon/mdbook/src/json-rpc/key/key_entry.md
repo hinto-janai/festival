@@ -5,7 +5,7 @@ This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Input a `Song` key, retrieve an [`Entry`](/common-objects/entry.md).
+Input a `Song` [key](/common-objects/key.md), retrieve an [`Entry`](/common-objects/entry.md).
 
 #### Inputs
 
@@ -21,10 +21,10 @@ Input a `Song` key, retrieve an [`Entry`](/common-objects/entry.md).
 
 #### Example Request
 ```bash
-festival-cli key_entry --key 123
+festival-cli key_entry --key 5151
 ```
 ```bash
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"key_entry","params":{"key":123}}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"key_entry","params":{"key":5151}}'
 ```
 
 #### Example Response
