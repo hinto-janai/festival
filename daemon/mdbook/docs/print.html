@@ -1387,6 +1387,7 @@ Options:
 <p>If <code>authorization</code> is enabled, <code>festivald</code> will only process connections to it that have the &quot;authorization&quot; HTTP header with this username and password (unless specified in the bypass options).</p>
 <p>TLS must be enabled for this feature to work or <code>festivald</code> will refuse to start.</p>
 <p>However, there are cases where <code>authorization</code> without TLS is okay (reverse proxy, <a href="authorization//tor.html"><code>Tor Onion Service</code></a>, etc). In these cases, the <a href="authorization//config.html"><code>confirm_no_tls_auth</code></a> option will allow <code>authorization</code> without TLS.</p>
+<p>If <code>festivald</code> is started on <code>localhost</code> (<code>127.0.0.1</code>), it will allow <code>authorization</code> without TLS as well.</p>
 <p><code>authorization</code> can either be set in the <a href="authorization//config.html">config</a> file or passed via a <a href="authorization/../command-line/command-line.html">command-line flag</a>.</p>
 <h2 id="syntax"><a class="header" href="#syntax">Syntax</a></h2>
 <p>The username &amp; password syntax is specified in <a href="https://en.wikipedia.org/wiki/Basic_access_authentication">RFC 7617</a>.</p>

@@ -25,6 +25,12 @@ pub const FESTIVALD_NAME_VER: &str = {
 	concat!("festivald v", env!("CARGO_PKG_VERSION"))
 };
 
+/// `festivald` version `Server` HTTP header form
+pub const FESTIVALD_SERVER: &str = {
+	assertcp!(env!("CARGO_PKG_VERSION").len() != 0, "CARGO_PKG_VERSION is 0 length");
+	concat!("festivald/v", env!("CARGO_PKG_VERSION"))
+};
+
 /// - festivald name + version
 /// - OS + Arch
 /// - Git commit hash

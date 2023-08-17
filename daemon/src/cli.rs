@@ -103,8 +103,9 @@ pub struct Cli {
 	/// used, then every RPC call/REST endpoint _NOT_ in those lists
 	/// will require this authorization.
 	///
-	/// TLS must be enabled for this feature to work
-	/// or `festivald` will refuse to start.
+	/// TLS must be enabled or `festivald` must be started
+	/// on `localhost` for this feature to work or `festivald`
+	/// will refuse to start.
 	///
 	/// To set authorization EVEN IF TLS IS DISABLED,
 	/// See `--confirm-no-tls-auth`.
