@@ -171,20 +171,25 @@
                     <main>
                         <h1 id="tor"><a class="header" href="#tor">Tor</a></h1>
 <p>Like other web services, <code>festivald</code> can be set-up &amp; accessed via <a href="https://torproject.org">Tor</a>.</p>
+<p>A public instance of <code>festivald</code> with <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/"><code>Creative Commons</code></a> licensed music is available at:</p>
+<pre><code class="language-http">https://daemon.festival.pm
+</code></pre>
+<p>and its <a href="https://community.torproject.org/onion-services"><code>Onion Service</code></a> is available at:</p>
+<pre><code class="language-http">http://omjo63yjj66ga7jlvhqib4z4qgx6y6oigjcpjcr5ehhfdugfuami3did.onion
+</code></pre>
 <h3 id="onion-service"><a class="header" href="#onion-service">Onion Service</a></h3>
-<p><code>festivald</code> doesn't have special integration with Tor, but it can easily be turned into an <a href="https://community.torproject.org/onion-services/">Onion Service</a>.</p>
-<p>After getting <code>festivald</code> setup normally, follow the <code>Onion Service</code> instructions <a href="https://community.torproject.org/onion-services/setup/">here</a>.</p>
+<p><code>festivald</code> doesn't have special integration with Tor, but it can easily be turned into an <a href="https://community.torproject.org/onion-services">Onion Service</a>.</p>
+<p>After getting <code>festivald</code> setup normally, follow the <code>Onion Service</code> instructions <a href="https://community.torproject.org/onion-services/setup">here</a>.</p>
 <p>Your <code>torrc</code> should look something like:</p>
 <pre><code class="language-plaintext">HiddenServiceDir /var/lib/tor/festivald
+HiddenServicePort 18425 127.0.0.1:18425
 HiddenServicePort 80 127.0.0.1:18425
 </code></pre>
 <p>And in <code>/var/lib/tor/festivald</code>, you should have your onion service hostname, keys, etc.</p>
 <p>This onion service will allow you to interact with <code>festivald</code> in all the normal ways, although, you must connect to it via <code>Tor</code>.</p>
-<pre><code class="language-http">http://2gzyxa5ihm7nsggfxnu52rck2vv4rvmdlkiu3zzui5du4xyclen53wid.onion
-</code></pre>
 <h3 id="json-rpc"><a class="header" href="#json-rpc">JSON-RPC</a></h3>
 <p>To use <code>festivald</code>'s <code>JSON-RPC</code> API over Tor, your HTTP client must either use a proxy, or be wrapped with <a href="https://support.torproject.org/glossary/torsocks"><code>torsocks</code></a>.</p>
-<pre><code class="language-bash">ONION=&quot;http://2gzyxa5ihm7nsggfxnu52rck2vv4rvmdlkiu3zzui5du4xyclen53wid.onion&quot;
+<pre><code class="language-bash">ONION=&quot;http://omjo63yjj66ga7jlvhqib4z4qgx6y6oigjcpjcr5ehhfdugfuami3did.onion&quot;
 
 festival-cli
 	--proxy socks5://127.0.0.1:9050 \ # The Tor SOCKS5 proxy.
@@ -194,7 +199,7 @@ festival-cli
 # or with `torsocks`
 torsocks festival-cli $ONION state_daemon
 </code></pre>
-<pre><code class="language-bash">ONION=&quot;http://2gzyxa5ihm7nsggfxnu52rck2vv4rvmdlkiu3zzui5du4xyclen53wid.onion&quot;
+<pre><code class="language-bash">ONION=&quot;http://omjo63yjj66ga7jlvhqib4z4qgx6y6oigjcpjcr5ehhfdugfuami3did.onion&quot;
 
 curl \
 	--socks5-hostname 127.0.0.1:9050 \                    # The Tor SOCKS5 proxy.
@@ -205,10 +210,10 @@ curl \
 <p>For the <code>REST</code> API, it is the same: your HTTP client must connect over Tor.</p>
 <p>Although you could just use <a href="https://www.torproject.org/download/"><code>Tor Browser</code></a>.</p>
 <pre><code class="language-http"># Opening this link in Tor Browser will show a small player for this song.
-http://2gzyxa5ihm7nsggfxnu52rck2vv4rvmdlkiu3zzui5du4xyclen53wid.onion/map/Artist Name/Artist Title/Song Title
+http://omjo63yjj66ga7jlvhqib4z4qgx6y6oigjcpjcr5ehhfdugfuami3did.onion/map/Ludwig van Beethoven/Moonlight Sonata 1/Moonlight Sonata Op. 27, No. 2 In C Sharp Minor: Allegretto
 </code></pre>
 <p>The equivalent <code>curl</code> command:</p>
-<pre><code class="language-bash">ONION=&quot;http://2gzyxa5ihm7nsggfxnu52rck2vv4rvmdlkiu3zzui5du4xyclen53wid.onion&quot;
+<pre><code class="language-bash">ONION=&quot;http://omjo63yjj66ga7jlvhqib4z4qgx6y6oigjcpjcr5ehhfdugfuami3did.onion&quot;
 SOCKS=&quot;127.0.0.1:9050&quot;
 
 curl --socks5-hostname $SOCKS -JO $ONION/map/Artist%20Name/Artist%20Title/Song%20Title

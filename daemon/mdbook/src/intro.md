@@ -12,12 +12,17 @@ The 3 APIs `festivald` exposes:
 
 The transport used is `HTTP(s)`.
 
-For a general quick start, see the next section: [Quick Start](/quick-start.md).
+A public instance of `festivald` with [`Creative Commons`](https://creativecommons.org/licenses/by-nc-nd/4.0/) licensed music is available at:
+```http
+https://daemon.festival.pm
+```
+
+For a general quick start, see the next chapter: [Quick Start](/quick-start.md).
 
 ### Clients
 To interact with `festivald`, you need a client.
 
-The reference (and recommended) `JSON-RPC` client is [`festival-cli`](https://docs.festival.pm/cli).
+The reference `JSON-RPC` client is [`festival-cli`](https://docs.festival.pm/cli).
 
 General purpose `HTTP` clients like [`curl`](https://en.wikipedia.org/wiki/CURL), [`wget`](https://en.wikipedia.org/wiki/Wget) or a web browser will also do.
 
