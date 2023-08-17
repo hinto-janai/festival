@@ -519,6 +519,7 @@ pub async fn handle(
 		QueueAddRandArtist => ppacor!(method, request, queue_add_rand_artist, rpc::param::QueueAddRandArtist, collection.arc(), TO_KERNEL).await,
 		QueueAddRandAlbum  => ppacor!(method, request, queue_add_rand_album, rpc::param::QueueAddRandAlbum, collection.arc(), TO_KERNEL).await,
 		QueueAddRandSong   => ppacor!(method, request, queue_add_rand_song, rpc::param::QueueAddRandSong, collection.arc(), TO_KERNEL).await,
+		QueueAddRandEntry  => ppacor!(method, request, queue_add_rand_entry, rpc::param::QueueAddRandEntry, collection.arc(), TO_KERNEL).await,
 		QueueAddPlaylist   => ppacor!(method, request, queue_add_playlist, rpc::param::QueueAddPlaylist, collection.arc(), TO_KERNEL).await,
 		QueueSetIndex      => ppacor!(method, request, queue_set_index, rpc::param::QueueSetIndex, TO_KERNEL).await,
 		QueueRemoveRange   => ppacor!(method, request, queue_remove_range, rpc::param::QueueRemoveRange, TO_KERNEL).await,
@@ -1763,6 +1764,15 @@ macro_rules! get_offset {
 	}
 }
 
+// Some
+// Or
+// False
+//
+// Unwrap a `Option<bool>`, else `false`.
+fn sof(o: Option<bool>) -> bool {
+	o.unwrap_or_else(|| false)
+}
+
 async fn queue_add_key_artist<'a>(
 	params:     rpc::param::QueueAddKeyArtist,
 	id:         Option<Id<'a>>,
@@ -1774,7 +1784,7 @@ async fn queue_add_key_artist<'a>(
 		let append = get_append!(params, id);
 		let offset = get_offset!(params.offset, x.songs.len(), id);
 
-		send!(TO_KERNEL, FrontendToKernel::QueueAddArtist((key, append, params.clear, params.play, offset)));
+		send!(TO_KERNEL, FrontendToKernel::QueueAddArtist((key, append, sof(params.clear), sof(params.play), offset)));
 
 		Ok(resp::result_ok(id))
 	} else {
@@ -1793,7 +1803,7 @@ async fn queue_add_key_album<'a>(
 		let append = get_append!(params, id);
 		let offset = get_offset!(params.offset, x.songs.len(), id);
 
-		send!(TO_KERNEL, FrontendToKernel::QueueAddAlbum((key, append, params.clear, params.play, offset)));
+		send!(TO_KERNEL, FrontendToKernel::QueueAddAlbum((key, append, sof(params.clear), sof(params.play), offset)));
 
 		Ok(resp::result_ok(id))
 	} else {
@@ -1811,7 +1821,7 @@ async fn queue_add_key_song<'a>(
 	if let Some(x) = collection.songs.get(key) {
 		let append = get_append!(params, id);
 
-		send!(TO_KERNEL, FrontendToKernel::QueueAddSong((key, append, params.clear, params.play)));
+		send!(TO_KERNEL, FrontendToKernel::QueueAddSong((key, append, sof(params.clear), sof(params.play))));
 
 		Ok(resp::result_ok(id))
 	} else {
@@ -1829,7 +1839,7 @@ async fn queue_add_map_artist<'a>(
 		let append = get_append!(params, id);
 		let offset = get_offset!(params.offset, x.songs.len(), id);
 
-		send!(TO_KERNEL, FrontendToKernel::QueueAddArtist((key, append, params.clear, params.play, offset)));
+		send!(TO_KERNEL, FrontendToKernel::QueueAddArtist((key, append, sof(params.clear), sof(params.play), offset)));
 
 		Ok(resp::result_ok(id))
 	} else {
@@ -1847,7 +1857,7 @@ async fn queue_add_map_album<'a>(
 		let append = get_append!(params, id);
 		let offset = get_offset!(params.offset, x.songs.len(), id);
 
-		send!(TO_KERNEL, FrontendToKernel::QueueAddAlbum((key, append, params.clear, params.play, offset)));
+		send!(TO_KERNEL, FrontendToKernel::QueueAddAlbum((key, append, sof(params.clear), sof(params.play), offset)));
 
 		Ok(resp::result_ok(id))
 	} else {
@@ -1864,7 +1874,7 @@ async fn queue_add_map_song<'a>(
 	if let Some((_, key)) = collection.song(params.artist, params.album, params.song) {
 		let append = get_append!(params, id);
 
-		send!(TO_KERNEL, FrontendToKernel::QueueAddSong((key, append, params.clear, params.play)));
+		send!(TO_KERNEL, FrontendToKernel::QueueAddSong((key, append, sof(params.clear), sof(params.play))));
 
 		Ok(resp::result_ok(id))
 	} else {
@@ -1884,7 +1894,7 @@ async fn queue_add_rand_artist<'a>(
 		let append = get_append!(params, id);
 		let offset = get_offset!(params.offset, x.songs.len(), id);
 
-		send!(TO_KERNEL, FrontendToKernel::QueueAddArtist((key, append, params.clear, params.play, offset)));
+		send!(TO_KERNEL, FrontendToKernel::QueueAddArtist((key, append, sof(params.clear), sof(params.play), offset)));
 
 		Ok(resp::result(serde_json::json!({ "artist": x }), id))
 	} else {
@@ -1904,7 +1914,7 @@ async fn queue_add_rand_album<'a>(
 		let append = get_append!(params, id);
 		let offset = get_offset!(params.offset, x.songs.len(), id);
 
-		send!(TO_KERNEL, FrontendToKernel::QueueAddAlbum((key, append, params.clear, params.play, offset)));
+		send!(TO_KERNEL, FrontendToKernel::QueueAddAlbum((key, append, sof(params.clear), sof(params.play), offset)));
 
 		Ok(resp::result(serde_json::json!({ "album": x }), id))
 	} else {
@@ -1923,9 +1933,28 @@ async fn queue_add_rand_song<'a>(
 
 		let append = get_append!(params, id);
 
-		send!(TO_KERNEL, FrontendToKernel::QueueAddSong((key, append, params.clear, params.play)));
+		send!(TO_KERNEL, FrontendToKernel::QueueAddSong((key, append, sof(params.clear), sof(params.play))));
 
 		Ok(resp::result(serde_json::json!({ "song": x }), id))
+	} else {
+		Ok(resp::error(ERR_RAND.0, ERR_RAND.1, id))
+	}
+}
+
+async fn queue_add_rand_entry<'a>(
+	params: rpc::param::QueueAddRandEntry,
+	id: Option<Id<'a>>,
+	collection: Arc<Collection>,
+	TO_KERNEL:  &Sender<FrontendToKernel>
+) -> Result<Response<Body>, anyhow::Error> {
+	if let Some(key) = collection.rand_song(None) {
+		let x = &collection.songs[key];
+
+		let append = get_append!(params, id);
+
+		send!(TO_KERNEL, FrontendToKernel::QueueAddSong((key, append, sof(params.clear), sof(params.play))));
+
+		Ok(resp::result(serde_json::json!({ "entry": shukusai::collection::EntryJson::from_song(key, &collection) }), id))
 	} else {
 		Ok(resp::error(ERR_RAND.0, ERR_RAND.1, id))
 	}
@@ -1943,7 +1972,7 @@ async fn queue_add_playlist<'a>(
 
 		let playlist: Arc<str> = params.playlist.into();
 
-		send!(TO_KERNEL, FrontendToKernel::QueueAddPlaylist((playlist, append, params.clear, params.play, offset)));
+		send!(TO_KERNEL, FrontendToKernel::QueueAddPlaylist((playlist, append, sof(params.clear), sof(params.play), offset)));
 
 		Ok(resp::result_ok(id))
 	} else {
@@ -1956,11 +1985,13 @@ async fn queue_set_index<'a>(
 	id:        Option<Id<'a>>,
 	TO_KERNEL: &Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
-	if params.index >= AUDIO_STATE.read().queue.len() {
-		Ok(resp::result(rpc::resp::QueueSetIndex { out_of_bounds: true }, id))
+	let queue_len = AUDIO_STATE.read().queue.len();
+
+	if params.index >= queue_len {
+		Ok(resp::result(rpc::resp::QueueSetIndex { out_of_bounds: true, index: params.index, queue_len, }, id))
 	} else {
 		send!(TO_KERNEL, FrontendToKernel::QueueSetIndex(params.index));
-		Ok(resp::result(rpc::resp::QueueSetIndex { out_of_bounds: false }, id))
+		Ok(resp::result(rpc::resp::QueueSetIndex { out_of_bounds: false, index: params.index, queue_len, }, id))
 	}
 }
 
@@ -1969,13 +2000,13 @@ async fn queue_remove_range<'a>(
 	id:        Option<Id<'a>>,
 	TO_KERNEL: &Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
-	let len = AUDIO_STATE.read().queue.len();
+	let queue_len = AUDIO_STATE.read().queue.len();
 
-	if params.start > params.end ||  params.start >= len || params.end > len {
-		Ok(resp::result(rpc::resp::QueueRemoveRange { out_of_bounds: true }, id))
+	if params.start > params.end ||  params.start >= queue_len || params.end > queue_len {
+		Ok(resp::result(rpc::resp::QueueRemoveRange { out_of_bounds: true, start: params.start, end: params.end, queue_len }, id))
 	} else {
 		send!(TO_KERNEL, FrontendToKernel::QueueRemoveRange((params.start..params.end, params.skip)));
-		Ok(resp::result(rpc::resp::QueueRemoveRange { out_of_bounds: false }, id))
+		Ok(resp::result(rpc::resp::QueueRemoveRange { out_of_bounds: false, start: params.start, end: params.end, queue_len }, id))
 	}
 }
 

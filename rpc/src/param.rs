@@ -559,9 +559,9 @@ impl_rpc_param! {
 	"Should we start at an offset within the Artist?",
 	offset: Option<usize>,
 	"Should the queue be cleared before adding?",
-	clear: bool,
+	clear: Option<bool>,
 	"Should we start playing?",
-	play: bool
+	play: Option<bool>
 }
 impl_rpc_param! {
 	"Add an Album to the queue with an Album key",
@@ -577,9 +577,9 @@ impl_rpc_param! {
 	"Should we start at an offset within the Album?",
 	offset: Option<usize>,
 	"Should the queue be cleared before adding?",
-	clear: bool,
+	clear: Option<bool>,
 	"Should we start playing?",
-	play: bool
+	play: Option<bool>
 }
 impl_rpc_param! {
 	"Add an Song to the queue with an Song key",
@@ -593,13 +593,13 @@ impl_rpc_param! {
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>,
 	"Should the queue be cleared before adding?",
-	clear: bool,
+	clear: Option<bool>,
 	"Should we start playing?",
-	play: bool
+	play: Option<bool>
 }
-impl_struct_lt!(QueueAddMapArtist, #[serde(borrow)] artist: Cow<'a, str>, append: Append2, index: Option<usize>, offset: Option<usize>, clear: bool, play: bool);
-impl_struct_lt!(QueueAddMapAlbum, #[serde(borrow)] artist: Cow<'a, str>, #[serde(borrow)] album: Cow<'a, str>, append: Append2, index: Option<usize>, offset: Option<usize>, clear: bool, play: bool);
-impl_struct_lt!(QueueAddMapSong, #[serde(borrow)] artist: Cow<'a, str>, #[serde(borrow)] album: Cow<'a, str>, #[serde(borrow)] song: Cow<'a, str>, append: Append2, index: Option<usize>, clear: bool, play: bool);
+impl_struct_lt!(QueueAddMapArtist, #[serde(borrow)] artist: Cow<'a, str>, append: Append2, index: Option<usize>, offset: Option<usize>, clear: Option<bool>, play: Option<bool>);
+impl_struct_lt!(QueueAddMapAlbum, #[serde(borrow)] artist: Cow<'a, str>, #[serde(borrow)] album: Cow<'a, str>, append: Append2, index: Option<usize>, offset: Option<usize>, clear: Option<bool>, play: Option<bool>);
+impl_struct_lt!(QueueAddMapSong, #[serde(borrow)] artist: Cow<'a, str>, #[serde(borrow)] album: Cow<'a, str>, #[serde(borrow)] song: Cow<'a, str>, append: Append2, index: Option<usize>, clear: Option<bool>, play: Option<bool>);
 impl_rpc_param! {
 	"Add an Artist to the queue with an Artist name",
 	"queue/queue_add_map_artist",
@@ -614,9 +614,9 @@ impl_rpc_param! {
 	"Should we start at an offset within the Artist?",
 	offset: Option<usize>,
 	"Should the queue be cleared before adding?",
-	clear: bool,
+	clear: Option<bool>,
 	"Should we start playing?",
-	play: bool
+	play: Option<bool>
 }
 impl_rpc_param! {
 	"Add an Album to the queue with an Artist name and Album title",
@@ -634,9 +634,9 @@ impl_rpc_param! {
 	"Should we start at an offset within the Album?",
 	offset: Option<usize>,
 	"Should the queue be cleared before adding?",
-	clear: bool,
+	clear: Option<bool>,
 	"Should we start playing?",
-	play: bool
+	play: Option<bool>
 }
 impl_rpc_param! {
 	"Add a Song to the queue with an Artist name Album title, and Song title",
@@ -654,9 +654,9 @@ impl_rpc_param! {
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>,
 	"Should the queue be cleared before adding?",
-	clear: bool,
+	clear: Option<bool>,
 	"Should we start playing?",
-	play: bool
+	play: Option<bool>
 }
 impl_rpc_param! {
 	"Add a random Artist to the queue",
@@ -670,9 +670,9 @@ impl_rpc_param! {
 	"Should we start at an offset within the Artist?",
 	offset: Option<usize>,
 	"Should the queue be cleared before adding?",
-	clear: bool,
+	clear: Option<bool>,
 	"Should we start playing?",
-	play: bool
+	play: Option<bool>
 }
 impl_rpc_param! {
 	"Add a random Album to the queue",
@@ -686,9 +686,9 @@ impl_rpc_param! {
 	"Should we start at an offset within the Album?",
 	offset: Option<usize>,
 	"Should the queue be cleared before adding?",
-	clear: bool,
+	clear: Option<bool>,
 	"Should we start playing?",
-	play: bool
+	play: Option<bool>
 }
 impl_rpc_param! {
 	"Add a random Song to the queue",
@@ -700,11 +700,25 @@ impl_rpc_param! {
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>,
 	"Should the queue be cleared before adding?",
-	clear: bool,
+	clear: Option<bool>,
 	"Should we start playing?",
-	play: bool
+	play: Option<bool>
 }
-impl_struct_lt!(QueueAddPlaylist, #[serde(borrow)] playlist: Cow<'a, str>, append: Append2, index: Option<usize>, offset: Option<usize>, clear: bool, play: bool);
+impl_rpc_param! {
+	"Add a random Song to the queue, receive it back in Entry form",
+	"queue/queue_add_rand_entry",
+	QueueAddRandEntry => Method::QueueAddRandEntry,
+	"In which way should we add to the queue?",
+	#[arg(value_name = "front|back|index")]
+	append: Append2,
+	"If the `index` append option was picked, this will be index used",
+	index: Option<usize>,
+	"Should the queue be cleared before adding?",
+	clear: Option<bool>,
+	"Should we start playing?",
+	play: Option<bool>
+}
+impl_struct_lt!(QueueAddPlaylist, #[serde(borrow)] playlist: Cow<'a, str>, append: Append2, index: Option<usize>, offset: Option<usize>, clear: Option<bool>, play: Option<bool>);
 impl_rpc_param! {
 	"Add a playlist to the queue",
 	"queue/queue_add_playlist",
@@ -719,9 +733,9 @@ impl_rpc_param! {
 	"Should we start at an offset within the playlist?",
 	offset: Option<usize>,
 	"Should the queue be cleared before adding?",
-	clear: bool,
+	clear: Option<bool>,
 	"Should we start playing?",
-	play: bool
+	play: Option<bool>
 }
 impl_rpc_param! {
 	"Set the current Song to a queue index",

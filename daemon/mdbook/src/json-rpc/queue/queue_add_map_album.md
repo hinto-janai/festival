@@ -14,8 +14,8 @@ Add an [`Album`](/common-objects/album.md) to the queue with an [`Artist`](/comm
 | artist | `string`                                    | `Artist` name
 | album  | `string`                                    | `Album` title
 | append | `string`, one of `front`, `back` or `index` | See [`Queue/Append`](/json-rpc/queue/queue.md#append)
-| clear  | boolean                                     | Should the queue be cleared before adding?
-| play   | boolean                                     | Should we start playing?
+| clear  | optional (maybe-null) boolean               | Should the queue be cleared before adding? `null` or no field at all is equal to `false`.
+| play   | optional (maybe-null) boolean               | Should we start playing? `null` or no field at all is equal to `false`.
 | index  | optional (maybe-null) unsigned integer      | If the `index` append is chosen, this will be the index used
 | offset | optional (maybe-null) unsigned integer      | See [`Queue/offset`](/json-rpc/queue/queue.md#offset)
 
@@ -30,16 +30,16 @@ Add to back of the queue.
 festival-cli queue_add_map_album --artist TWICE --album "PAGE TWO" --append back
 ```
 ```bash
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"queue_add_map_album","params":{"artist":"TWICE","album":"PAGE TWO","append":"back","clear":false}}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"queue_add_map_album","params":{"artist":"TWICE","album":"PAGE TWO","append":"back"}}'
 ```
 
 #### Example Request 2
-Append at queue index 4.
+Insert at queue index 4.
 ```bash
 festival-cli queue_add_map_album --artist TWICE --album "PAGE TWO" --append index --index 4 
 ```
 ```bash
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"queue_add_map_album","params":{"artist":"TWICE","album":"PAGE TWO","append":"index","index":4,"clear":false}}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"queue_add_map_album","params":{"artist":"TWICE","album":"PAGE TWO","append":"index","index":4}}'
 ```
 
 #### Example Request 3

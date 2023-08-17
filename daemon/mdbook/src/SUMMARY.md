@@ -123,6 +123,7 @@
 		- [queue_add_rand_artist](json-rpc/queue/queue_add_rand_artist.md)
 		- [queue_add_rand_album](json-rpc/queue/queue_add_rand_album.md)
 		- [queue_add_rand_song](json-rpc/queue/queue_add_rand_song.md)
+		- [queue_add_rand_entry](json-rpc/queue/queue_add_rand_entry.md)
 		- [queue_add_playlist](json-rpc/queue/queue_add_playlist.md)
 		- [queue_set_index](json-rpc/queue/queue_set_index.md)
 		- [queue_remove_range](json-rpc/queue/queue_remove_range.md)

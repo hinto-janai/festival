@@ -428,7 +428,7 @@ impl Audio {
 			Volume(v)  => self.volume(v),
 
 			// Queue.
-			QueueAddSong((s_key,    append, clear, play))         => self.queue_add_song(s_key, append, play, clear),
+			QueueAddSong((s_key,    append, clear, play))         => self.queue_add_song(s_key, append, clear, play),
 			QueueAddAlbum((al_key,  append, clear, play, offset)) => self.queue_add_album(al_key, append, clear, play, offset),
 			QueueAddArtist((ar_key, append, clear, play, offset)) => self.queue_add_artist(ar_key, append, clear, play, offset),
 			QueueAddPlaylist((p, append, clear, play, offset))    => self.queue_add_playlist(p, append, clear, play, offset),

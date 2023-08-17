@@ -12,8 +12,8 @@ Add a random [`Song`](/common-objects/song.md) to the queue.
 | Field  | Type                                        | Description |
 |--------|---------------------------------------------|-------------|
 | append | `string`, one of `front`, `back` or `index` | See [`Queue/Append`](/json-rpc/queue/queue.md#append)
-| clear  | boolean                                     | Should the queue be cleared before adding?
-| play   | boolean                                     | Should we start playing?
+| clear  | optional (maybe-null) boolean               | Should the queue be cleared before adding? `null` or no field at all is equal to `false`.
+| play   | optional (maybe-null) boolean               | Should we start playing? `null` or no field at all is equal to `false`.
 | index  | optional (maybe-null) unsigned integer      | If the `index` append is chosen, this will be the index used
 
 #### Outputs
@@ -27,25 +27,25 @@ Add to back of the queue.
 festival-cli queue_add_rand_song --append back
 ```
 ```bash
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"queue_add_rand_song","params":{"append":"back","clear":false}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"queue_add_rand_song","params":{"append":"back"}}'
 ```
 
 #### Example Request 2
-Append at queue index 4.
+Insert at queue index 4.
 ```bash
 festival-cli queue_add_rand_song --append index --index 4
 ```
 ```bash
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"queue_add_rand_song","params":{"append":"index","index":4,"clear":false}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"queue_add_rand_song","params":{"append":"index","index":4}}'
 ```
 
 #### Example Request 3
-Clear the queue, add `Song` 123.
+Clear the queue, add to front of queue.
 ```bash
-festival-cli queue_add_rand_song --append front --clear --offset 4
+festival-cli queue_add_rand_song --append front --clear
 ```
 ```bash
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"queue_add_rand_song","params":{"append":"front","clear":true}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"queue_add_rand_song","params":{"append":"front","clear":true}}'
 ```
 
 #### Example Response

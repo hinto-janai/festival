@@ -193,6 +193,7 @@ pub fn request(config: Config, debug: bool, dry_run: bool, rpc: Rpc) -> ! {
 		QueueAddRandArtist(x) => req_resp!(x, debug, rpc::resp::QueueAddRandArtist),
 		QueueAddRandAlbum(x)  => req_resp!(x, debug, rpc::resp::QueueAddRandAlbum),
 		QueueAddRandSong(x)   => req_resp!(x, debug, rpc::resp::QueueAddRandSong),
+		QueueAddRandEntry(x)  => req_resp!(x, debug, rpc::resp::QueueAddRandEntry),
 		QueueAddPlaylist(x)   => req_resp!(x, debug, rpc::resp::Status),
 		QueueSetIndex(x)      => req_resp!(x, debug, rpc::resp::QueueSetIndex),
 		QueueRemoveRange(x)   => req_resp!(x, debug, rpc::resp::QueueRemoveRange),

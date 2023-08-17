@@ -500,9 +500,9 @@ impl_struct! {
 impl_struct_lt!(QueueAddRandArtist, #[serde(borrow)] artist: Cow<'a, ArtistJson<'a>>);
 impl_struct_lt!(QueueAddRandAlbum, #[serde(borrow)] album: Cow<'a, AlbumJson<'a>>);
 impl_struct_lt!(QueueAddRandSong, #[serde(borrow)] song: Cow<'a, SongJson<'a>>);
-//impl_struct_anon!(QueueAddPlaylist, ());
-impl_struct!(QueueSetIndex, out_of_bounds: bool);
-impl_struct!(QueueRemoveRange, out_of_bounds: bool);
+impl_struct_lt!(QueueAddRandEntry, #[serde(borrow)] entry: Cow<'a, shukusai::collection::EntryJson<'a>>);
+impl_struct!(QueueSetIndex, out_of_bounds: bool, index: usize, queue_len: usize);
+impl_struct!(QueueRemoveRange, out_of_bounds: bool, start: usize, end: usize, queue_len: usize);
 
 //---------------------------------------------------------------------------------------------------- Playlist
 impl_struct_lt!(PlaylistNew, #[serde(borrow)] entries: Option<Cow<'a, [EntryJson<'a>]>>);
