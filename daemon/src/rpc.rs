@@ -1774,7 +1774,7 @@ async fn queue_add_key_artist<'a>(
 		let append = get_append!(params, id);
 		let offset = get_offset!(params.offset, x.songs.len(), id);
 
-		send!(TO_KERNEL, FrontendToKernel::QueueAddArtist((key, append, params.clear, offset)));
+		send!(TO_KERNEL, FrontendToKernel::QueueAddArtist((key, append, params.clear, params.play, offset)));
 
 		Ok(resp::result_ok(id))
 	} else {
@@ -1793,7 +1793,7 @@ async fn queue_add_key_album<'a>(
 		let append = get_append!(params, id);
 		let offset = get_offset!(params.offset, x.songs.len(), id);
 
-		send!(TO_KERNEL, FrontendToKernel::QueueAddAlbum((key, append, params.clear, offset)));
+		send!(TO_KERNEL, FrontendToKernel::QueueAddAlbum((key, append, params.clear, params.play, offset)));
 
 		Ok(resp::result_ok(id))
 	} else {
@@ -1811,7 +1811,7 @@ async fn queue_add_key_song<'a>(
 	if let Some(x) = collection.songs.get(key) {
 		let append = get_append!(params, id);
 
-		send!(TO_KERNEL, FrontendToKernel::QueueAddSong((key, append, params.clear)));
+		send!(TO_KERNEL, FrontendToKernel::QueueAddSong((key, append, params.clear, params.play)));
 
 		Ok(resp::result_ok(id))
 	} else {
@@ -1829,7 +1829,7 @@ async fn queue_add_map_artist<'a>(
 		let append = get_append!(params, id);
 		let offset = get_offset!(params.offset, x.songs.len(), id);
 
-		send!(TO_KERNEL, FrontendToKernel::QueueAddArtist((key, append, params.clear, offset)));
+		send!(TO_KERNEL, FrontendToKernel::QueueAddArtist((key, append, params.clear, params.play, offset)));
 
 		Ok(resp::result_ok(id))
 	} else {
@@ -1847,7 +1847,7 @@ async fn queue_add_map_album<'a>(
 		let append = get_append!(params, id);
 		let offset = get_offset!(params.offset, x.songs.len(), id);
 
-		send!(TO_KERNEL, FrontendToKernel::QueueAddAlbum((key, append, params.clear, offset)));
+		send!(TO_KERNEL, FrontendToKernel::QueueAddAlbum((key, append, params.clear, params.play, offset)));
 
 		Ok(resp::result_ok(id))
 	} else {
@@ -1864,7 +1864,7 @@ async fn queue_add_map_song<'a>(
 	if let Some((_, key)) = collection.song(params.artist, params.album, params.song) {
 		let append = get_append!(params, id);
 
-		send!(TO_KERNEL, FrontendToKernel::QueueAddSong((key, append, params.clear)));
+		send!(TO_KERNEL, FrontendToKernel::QueueAddSong((key, append, params.clear, params.play)));
 
 		Ok(resp::result_ok(id))
 	} else {
@@ -1884,7 +1884,7 @@ async fn queue_add_rand_artist<'a>(
 		let append = get_append!(params, id);
 		let offset = get_offset!(params.offset, x.songs.len(), id);
 
-		send!(TO_KERNEL, FrontendToKernel::QueueAddArtist((key, append, params.clear, offset)));
+		send!(TO_KERNEL, FrontendToKernel::QueueAddArtist((key, append, params.clear, params.play, offset)));
 
 		Ok(resp::result(serde_json::json!({ "artist": x }), id))
 	} else {
@@ -1904,7 +1904,7 @@ async fn queue_add_rand_album<'a>(
 		let append = get_append!(params, id);
 		let offset = get_offset!(params.offset, x.songs.len(), id);
 
-		send!(TO_KERNEL, FrontendToKernel::QueueAddAlbum((key, append, params.clear, offset)));
+		send!(TO_KERNEL, FrontendToKernel::QueueAddAlbum((key, append, params.clear, params.play, offset)));
 
 		Ok(resp::result(serde_json::json!({ "album": x }), id))
 	} else {
@@ -1923,7 +1923,7 @@ async fn queue_add_rand_song<'a>(
 
 		let append = get_append!(params, id);
 
-		send!(TO_KERNEL, FrontendToKernel::QueueAddSong((key, append, params.clear)));
+		send!(TO_KERNEL, FrontendToKernel::QueueAddSong((key, append, params.clear, params.play)));
 
 		Ok(resp::result(serde_json::json!({ "song": x }), id))
 	} else {
@@ -1943,7 +1943,7 @@ async fn queue_add_playlist<'a>(
 
 		let playlist: Arc<str> = params.playlist.into();
 
-		send!(TO_KERNEL, FrontendToKernel::QueueAddPlaylist((playlist, append, params.clear, offset)));
+		send!(TO_KERNEL, FrontendToKernel::QueueAddPlaylist((playlist, append, params.clear, params.play, offset)));
 
 		Ok(resp::result_ok(id))
 	} else {

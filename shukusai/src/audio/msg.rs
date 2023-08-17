@@ -35,10 +35,10 @@ pub(crate) enum KernelToAudio {
 	Volume(Volume),
 
 	// Queue.
-	QueueAddSong((SongKey, Append, bool)),
-	QueueAddAlbum((AlbumKey, Append, bool, usize)),
-	QueueAddArtist((ArtistKey, Append, bool, usize)),
-	QueueAddPlaylist((Arc<str>, Append, bool, usize)),
+	QueueAddSong((SongKey, Append, bool, bool)),
+	QueueAddAlbum((AlbumKey, Append, bool, bool, usize)),
+	QueueAddArtist((ArtistKey, Append, bool, bool, usize)),
+	QueueAddPlaylist((Arc<str>, Append, bool, bool, usize)),
 	Shuffle,
 	Clear(bool),
 	Seek((Seek, u64)),

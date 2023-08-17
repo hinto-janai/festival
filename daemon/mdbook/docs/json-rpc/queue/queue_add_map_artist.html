@@ -177,29 +177,16 @@
 <h4 id="inputs"><a class="header" href="#inputs">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>artist</td><td><code>string</code></td><td><code>Artist</code> name</td></tr>
-<tr><td>append</td><td><code>string</code>, one of <code>front</code>, <code>back</code> or <code>index</code></td><td>In which way should we add to the queue? <code>front</code> means to the front of the queue. <code>back</code> means to the back. <code>index</code> means at an exact queue index. Queue index starts at <code>0</code>, so to mimic <code>front</code>, you would provide <code>0</code>.</td></tr>
+<tr><td>append</td><td><code>string</code>, one of <code>front</code>, <code>back</code> or <code>index</code></td><td>See <a href="/json-rpc/queue/queue.html#append"><code>Queue/Append</code></a></td></tr>
 <tr><td>clear</td><td>boolean</td><td>Should the queue be cleared before adding?</td></tr>
+<tr><td>play</td><td>boolean</td><td>Should we start playing?</td></tr>
 <tr><td>index</td><td>optional (maybe-null) unsigned integer</td><td>If the <code>index</code> append is chosen, this will be the index used</td></tr>
-<tr><td>offset</td><td>optional (maybe_null) unsigned integer</td><td>If this method is responsible for setting the current <code>Song</code>, should we start at an offset within the <code>Artist</code>? e.g, starting at the first <code>Song</code> would be offset <code>0</code>, starting at the 3rd <code>Song</code> would be offset <code>2</code>, etc.</td></tr>
+<tr><td>offset</td><td>optional (maybe-null) unsigned integer</td><td>See <a href="/json-rpc/queue/queue.html#offset"><code>Queue/offset</code></a></td></tr>
 </tbody></table>
 </div>
-<h4 id="offset"><a class="header" href="#offset"><code>offset</code></a></h4>
-<p>If this method also happens to set the current <code>Song</code> (added to empty queue, added to front, etc), this field lets you <em>start</em> at a particular <code>Song</code> offset.</p>
-<p>The <code>Song</code>'s before the offset will still be added, but the <em>current</em> <code>Song</code> set will be the one at the offset.</p>
-<p>If the offset is out of bounds, it will start at the first <code>Song</code>.</p>
-<p>The exact ordering of the <a href="/common-objects/artist.html"><code>Artist</code></a>'s songs and what the offsets are relative to is the same as the [object's/common-objects/artist.md) internal ordering: <a href="/common-objects/album.html"><code>Album</code></a> in release order, then <a href="/common-objects/song.html"><code>Song</code></a> track order.</p>
-<p>For example, given <code>&quot;offset&quot;: 3</code>:</p>
-<pre><code class="language-plaintext"># Artist's songs.
-index 0 | song_1 &lt;---/ These are still added to the queue, but..
-index 1 | song_2 &lt;--/
-index 2 | song_3 &lt;-/
-index 3 | song_4 &lt;--- We will start playing from this `Song`.
-index 4 | song_5
-index 5 | song_6
-</code></pre>
 <h4 id="outputs"><a class="header" href="#outputs">Outputs</a></h4>
 <p><code>result: null</code> if everything went ok.</p>
-<p><code>error: ...</code> if there was a index/offset error.</p>
+<p><code>error: ...</code> if there was an index/offset error.</p>
 <h4 id="example-request-1"><a class="header" href="#example-request-1">Example Request 1</a></h4>
 <p>Add to back of the queue.</p>
 <pre><code class="language-bash">festival-cli queue_add_map_artist --artist TWICE --append back

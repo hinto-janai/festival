@@ -54,18 +54,21 @@ pub enum FrontendToKernel {
 	/// - [`SongKey`]: add this `Song` to the queue.
 	/// - [`Append`]: in which way should we append to the queue?
 	/// - [`bool`]: should we clear the queue before appending?
-	QueueAddSong((SongKey, Append, bool)),
+	/// - [`bool`]: start playing?
+	QueueAddSong((SongKey, Append, bool, bool)),
 	/// - [`AlbumKey`]: add all the songs in this `Album` to the queue.
 	/// - [`Append`]: in which way should we append to the queue?
 	/// - [`bool`]: should we clear the queue before appending?
+	/// - [`bool`]: start playing?
 	/// - [`usize`]: Within this `Album`, should we start at an offset?
 	///   e.g, starting at the first `Song` would be 0, starting at the 3rd
 	///   `Song` would be offset 2, etc.
 	///
 	/// If the offset is out of bounds, we will start at the first `Song`.
-	QueueAddAlbum((AlbumKey, Append, bool, usize)),
+	QueueAddAlbum((AlbumKey, Append, bool, bool, usize)),
 	/// - [`ArtistKey`]: add all the songs by this `Artist` to the queue.
 	/// - [`Append`]: in which way should we append to the queue?
+	/// - [`bool`]: start playing?
 	/// - [`bool`]: should we clear the queue before appending?
 	/// - [`usize`]: Within this `Artist`, should we start at an offset?
 	///   e.g, starting at the first `Song` would be 0, starting at the 3rd
@@ -84,9 +87,9 @@ pub enum FrontendToKernel {
 	/// 2022-01-01, album_2, song_1 // <- Offset of 2 would start at this song.
 	/// 2042-01-01, album_3, song_1
 	/// ```
-	QueueAddArtist((ArtistKey, Append, bool, usize)),
+	QueueAddArtist((ArtistKey, Append, bool, bool, usize)),
 	/// Add the playlist with this name to the queue.
-	QueueAddPlaylist((Arc<str>, Append, bool, usize)),
+	QueueAddPlaylist((Arc<str>, Append, bool, bool, usize)),
 	/// Shuffle the _current_ queue.
 	Shuffle,
 	/// Clear the entire queue.

@@ -428,10 +428,10 @@ impl Audio {
 			Volume(v)  => self.volume(v),
 
 			// Queue.
-			QueueAddSong((s_key,    append, clear))         => self.queue_add_song(s_key, append, clear),
-			QueueAddAlbum((al_key,  append, clear, offset)) => self.queue_add_album(al_key, append, clear, offset),
-			QueueAddArtist((ar_key, append, clear, offset)) => self.queue_add_artist(ar_key, append, clear, offset),
-			QueueAddPlaylist((p, append, clear, offset))    => self.queue_add_playlist(p, append, clear, offset),
+			QueueAddSong((s_key,    append, clear, play))         => self.queue_add_song(s_key, append, play, clear),
+			QueueAddAlbum((al_key,  append, clear, play, offset)) => self.queue_add_album(al_key, append, clear, play, offset),
+			QueueAddArtist((ar_key, append, clear, play, offset)) => self.queue_add_artist(ar_key, append, clear, play, offset),
+			QueueAddPlaylist((p, append, clear, play, offset))    => self.queue_add_playlist(p, append, clear, play, offset),
 			Shuffle     => self.shuffle(),
 			Clear(play) => {
 				self.clear(play, &mut AUDIO_STATE.write());
@@ -671,8 +671,8 @@ impl Audio {
 
 		state.queue.clear();
 		state.playing = keep_playing;
-
 		self.state.playing = keep_playing;
+
 		if !keep_playing {
 			state.queue_idx = None;
 			state.song      = None;
@@ -684,6 +684,15 @@ impl Audio {
 				}
 			}
 		}
+	}
+
+	fn inner_play(
+		&mut self,
+		state: &mut std::sync::RwLockWriteGuard<'_, AudioState>,
+	) {
+		self.state.playing = true;
+		state.playing = true;
+		self.set_media_controls_progress(state);
 	}
 
 	//-------------------------------------------------- Audio playback.
@@ -705,11 +714,7 @@ impl Audio {
 	fn play(&mut self) {
 		trace!("Audio - play()");
 		if self.current.is_some() {
-			self.state.playing = true;
-
-			let mut state = AUDIO_STATE.write();
-			state.playing = true;
-			self.set_media_controls_progress(&mut state);
+			self.inner_play(&mut AUDIO_STATE.write());
 
 			#[cfg(feature = "gui")]
 			gui_request_update();
@@ -950,13 +955,14 @@ impl Audio {
 		key: SongKey,
 		append: Append,
 		clear: bool,
+		play: bool,
 	) {
-		trace!("Audio - queue_add_song({key:?}, {append:?}, {clear})");
+		trace!("Audio - queue_add_song({key:?}, {append:?}, {clear}, {play})");
 
 		let mut state = AUDIO_STATE.write();
 
 		if clear {
-			self.clear(clear, &mut state)
+			self.clear(play, &mut state)
 		}
 
 		match append {
@@ -980,6 +986,10 @@ impl Audio {
 				state.queue.insert(i, key);
 			}
 		}
+
+		if !clear && play {
+			self.inner_play(&mut state);
+		}
 	}
 
 	fn queue_add_album(
@@ -987,14 +997,15 @@ impl Audio {
 		key: AlbumKey,
 		append: Append,
 		clear: bool,
+		play: bool,
 		offset: usize,
 	) {
-		trace!("Audio - queue_add_album({key:?}, {append:?}, {clear}, {offset})");
+		trace!("Audio - queue_add_album({key:?}, {append:?}, {clear}, {play}, {offset})");
 
 		let mut state = AUDIO_STATE.write();
 
 		if clear {
-			self.clear(clear, &mut state)
+			self.clear(play, &mut state)
 		}
 
 		// Prevent bad offsets panicking.
@@ -1036,6 +1047,10 @@ impl Audio {
 				}
 			}
 		}
+
+		if !clear && play {
+			self.inner_play(&mut state);
+		}
 	}
 
 	fn queue_add_artist(
@@ -1043,16 +1058,17 @@ impl Audio {
 		key: ArtistKey,
 		append: Append,
 		clear: bool,
+		play: bool,
 		offset: usize,
 	) {
-		trace!("Audio - queue_add_artist({key:?}, {append:?}, {clear}, {offset}");
+		trace!("Audio - queue_add_artist({key:?}, {append:?}, {clear}, {play}, {offset}");
 
 		let keys: Box<[SongKey]> = self.collection.all_songs(key);
 
 		let mut state = AUDIO_STATE.write();
 
 		if clear {
-			self.clear(clear, &mut state)
+			self.clear(play, &mut state)
 		}
 
 		// Prevent bad offsets panicking.
@@ -1091,6 +1107,10 @@ impl Audio {
 				});
 			}
 		}
+
+		if !clear && play {
+			self.inner_play(&mut state);
+		}
 	}
 
 	fn queue_add_playlist(
@@ -1098,9 +1118,10 @@ impl Audio {
 		playlist: Arc<str>,
 		append: Append,
 		clear: bool,
+		play: bool,
 		offset: usize,
 	) {
-		trace!("Audio - queue_add_playlist({playlist}, {append:?}, {clear}, {offset}");
+		trace!("Audio - queue_add_playlist({playlist}, {append:?}, {clear}, {play}, {offset}");
 
 		let Some(keys) = crate::state::PLAYLISTS.read().valid_keys(&playlist, &self.collection) else {
 			trace!("Audio - {playlist} doesn't exist, skipping");
@@ -1115,7 +1136,7 @@ impl Audio {
 		let mut state = AUDIO_STATE.write();
 
 		if clear {
-			self.clear(clear, &mut state)
+			self.clear(play, &mut state)
 		}
 
 		// Prevent bad offsets panicking.
@@ -1153,6 +1174,10 @@ impl Audio {
 					self.set(keys[offset], &mut state);
 				}
 			}
+		}
+
+		if !clear && play {
+			self.inner_play(&mut state);
 		}
 	}
 

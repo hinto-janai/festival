@@ -12,33 +12,16 @@ Add an [`Artist`](/common-objects/artist.md) to the queue with an [`Artist` key]
 | Field  | Type                                        | Description |
 |--------|---------------------------------------------|-------------|
 | key    | `Artist` key (unsigned integer)             | See [`Key`](/common-objects/key.md)
-| append | `string`, one of `front`, `back` or `index` | In which way should we add to the queue? `front` means to the front of the queue. `back` means to the back. `index` means at an exact queue index. Queue index starts at `0`, so to mimic `front`, you would provide `0`.
+| append | `string`, one of `front`, `back` or `index` | See [`Queue/Append`](/json-rpc/queue/queue.md#append)
 | clear  | boolean                                     | Should the queue be cleared before adding?
+| play   | boolean                                     | Should we start playing?
 | index  | optional (maybe-null) unsigned integer      | If the `index` append is chosen, this will be the index used
-| offset | optional (maybe_null) unsigned integer      | If this method is responsible for setting the current `Song`, should we start at an offset within the `Artist`? e.g, starting at the first `Song` would be offset `0`, starting at the 3rd `Song` would be offset `2`, etc.
-
-#### `offset`
-If this method also happens to set the current `Song` (added to empty queue, added to front, etc), this field lets you _start_ at a particular `Song` offset.
-
-The `Song`'s before the offset will still be added, but the _current_ `Song` set will be the one at the offset.
-
-The exact ordering of the [`Artist`](/common-objects/artist.md)'s songs and what the offsets are relative to is the same as the [object's/common-objects/artist.md) internal ordering: [`Album`](/common-objects/album.md) in release order, then [`Song`](/common-objects/song.md) track order.
-
-For example, given `"offset": 3`:
-```plaintext
-# Artist's songs.
-index 0 | song_1 <---/ These are still added to the queue, but..
-index 1 | song_2 <--/
-index 2 | song_3 <-/
-index 3 | song_4 <--- We will start playing from this `Song`.
-index 4 | song_5
-index 5 | song_6
-```
+| offset | optional (maybe-null) unsigned integer      | See [`Queue/offset`](/json-rpc/queue/queue.md#offset)
 
 #### Outputs
 `result: null` if everything went ok.
 
-`error: ...` if there was a index/offset error.
+`error: ...` if there was an index/offset error.
 
 #### Example Request 1
 Add to back of the queue.

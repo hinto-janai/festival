@@ -176,15 +176,16 @@
 <p>Add a <a href="/common-objects/song.html"><code>Song</code></a> to the queue with a <a href="/common-objects/key.html"><code>Song</code> key</a>.</p>
 <h4 id="inputs"><a class="header" href="#inputs">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td>key</td><td><code>Song</code> key (unsigned integer  )</td><td>See <a href="/common-objects/key.html"><code>Key</code></a></td></tr>
-<tr><td>append</td><td><code>string</code>, one of <code>front</code>, <code>back</code> or <code>index</code></td><td>In which way should we add to the queue? <code>front</code> means to the front of the queue. <code>back</code> means to the back. <code>index</code> means at an exact queue index. Queue index starts at <code>0</code>, so to mimic <code>front</code>, you would provide <code>0</code>.</td></tr>
+<tr><td>key</td><td><code>Song</code> key (unsigned integer)</td><td>See <a href="/common-objects/key.html"><code>Key</code></a></td></tr>
+<tr><td>append</td><td><code>string</code>, one of <code>front</code>, <code>back</code> or <code>index</code></td><td>See <a href="/json-rpc/queue/queue.html#append"><code>Queue/Append</code></a></td></tr>
 <tr><td>clear</td><td>boolean</td><td>Should the queue be cleared before adding?</td></tr>
+<tr><td>play</td><td>boolean</td><td>Should we start playing?</td></tr>
 <tr><td>index</td><td>optional (maybe-null) unsigned integer</td><td>If the <code>index</code> append is chosen, this will be the index used</td></tr>
 </tbody></table>
 </div>
 <h4 id="outputs"><a class="header" href="#outputs">Outputs</a></h4>
 <p><code>result: null</code> if everything went ok.</p>
-<p><code>error: ...</code> if there was a index/offset error.</p>
+<p><code>error: ...</code> if there was an index/offset error.</p>
 <h4 id="example-request-1"><a class="header" href="#example-request-1">Example Request 1</a></h4>
 <p>Add to back of the queue.</p>
 <pre><code class="language-bash">festival-cli queue_add_key_song --key 123 --append back

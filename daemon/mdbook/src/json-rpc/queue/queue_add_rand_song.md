@@ -11,8 +11,9 @@ Add a random [`Song`](/common-objects/song.md) to the queue.
 
 | Field  | Type                                        | Description |
 |--------|---------------------------------------------|-------------|
-| append | `string`, one of `front`, `back` or `index` | In which way should we add to the queue? `front` means to the front of the queue. `back` means to the back. `index` means at an exact queue index. Queue index starts at `0`, so to mimic `front`, you would provide `0`.
+| append | `string`, one of `front`, `back` or `index` | See [`Queue/Append`](/json-rpc/queue/queue.md#append)
 | clear  | boolean                                     | Should the queue be cleared before adding?
+| play   | boolean                                     | Should we start playing?
 | index  | optional (maybe-null) unsigned integer      | If the `index` append is chosen, this will be the index used
 
 #### Outputs
