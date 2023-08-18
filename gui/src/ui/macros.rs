@@ -53,14 +53,13 @@ macro_rules! playlist {
 ///
 /// This indicates:
 /// - Queue should be cleared
-/// - `Song` clicked should be immediate played
+/// - `Song` clicked should be immediately played
 macro_rules! play_song {
 	($self:ident, $key:expr) => {
 		::benri::send!(
 			$self.to_kernel,
-			shukusai::kernel::FrontendToKernel::QueueAddSong(($key, shukusai::audio::Append::Front, true))
+			shukusai::kernel::FrontendToKernel::QueueAddSong(($key, shukusai::audio::Append::Front, true, true))
 		);
-		::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
 	}
 }
 
@@ -74,13 +73,11 @@ macro_rules! play_song {
 /// - A toast should pop up showing we added the song to the queue
 macro_rules! add_song {
 	($self:ident, $song_title:expr, $key:expr) => {
+		let play = $self.settings.empty_autoplay && $self.audio_state.queue.is_empty();
 		::benri::send!(
 			$self.to_kernel,
-			shukusai::kernel::FrontendToKernel::QueueAddSong(($key, shukusai::audio::Append::Back, false))
+			shukusai::kernel::FrontendToKernel::QueueAddSong(($key, shukusai::audio::Append::Back, true, false))
 		);
-		if $self.settings.empty_autoplay && $self.audio_state.queue.is_empty() {
-			::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
-		}
 		$crate::toast!($self, format!("Added Song [{}] to queue", $song_title));
 	}
 }
@@ -89,13 +86,11 @@ macro_rules! add_song {
 /// Append an `Album` to the end of the queue.
 macro_rules! add_album {
 	($self:ident, $album_title:expr, $key:expr) => {
+		let play = $self.settings.empty_autoplay && $self.audio_state.queue.is_empty();
 		::benri::send!(
 			$self.to_kernel,
-			shukusai::kernel::FrontendToKernel::QueueAddAlbum(($key, shukusai::audio::Append::Back, false, 0))
+			shukusai::kernel::FrontendToKernel::QueueAddAlbum(($key, shukusai::audio::Append::Back, play, false, 0))
 		);
-		if $self.settings.empty_autoplay && $self.audio_state.queue.is_empty() {
-			::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
-		}
 		$crate::toast!($self, format!("Added Album [{}] to queue", $album_title));
 	}
 }
@@ -109,13 +104,11 @@ macro_rules! add_album {
 /// - A toast should pop up showing we added the `Artist` to the queue
 macro_rules! add_artist {
 	($self:ident, $artist:expr, $key:expr) => {
+		let play = $self.settings.empty_autoplay && $self.audio_state.queue.is_empty();
 		::benri::send!(
 			$self.to_kernel,
-			shukusai::kernel::FrontendToKernel::QueueAddArtist(($key, shukusai::audio::Append::Back, false, 0))
+			shukusai::kernel::FrontendToKernel::QueueAddArtist(($key, shukusai::audio::Append::Back, play, false, 0))
 		);
-		if $self.settings.empty_autoplay && $self.audio_state.queue.is_empty() {
-			::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
-		}
 		$crate::toast!($self, format!("Added Artist [{}] to queue", $artist.name));
 	}
 }
@@ -129,13 +122,11 @@ macro_rules! add_artist {
 /// - A toast should pop up showing we added the `Playlist` to the queue
 macro_rules! add_playlist {
 	($self:ident, $playlist_name:expr) => {
+		let play = $self.settings.empty_autoplay && $self.audio_state.queue.is_empty();
 		::benri::send!(
 			$self.to_kernel,
-			shukusai::kernel::FrontendToKernel::QueueAddPlaylist((std::sync::Arc::clone(&$playlist_name), shukusai::audio::Append::Back, false, 0))
+			shukusai::kernel::FrontendToKernel::QueueAddPlaylist((std::sync::Arc::clone(&$playlist_name), shukusai::audio::Append::Back, play, false, 0))
 		);
-		if $self.settings.empty_autoplay && $self.audio_state.queue.is_empty() {
-			::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
-		}
 		$crate::toast!($self, format!("Added Playlist [{}] to queue", $playlist_name));
 	}
 }
@@ -151,9 +142,8 @@ macro_rules! play_album {
 	($self:ident, $key:expr) => {
 		::benri::send!(
 			$self.to_kernel,
-			shukusai::kernel::FrontendToKernel::QueueAddAlbum(($key, shukusai::audio::Append::Front, true, 0))
+			shukusai::kernel::FrontendToKernel::QueueAddAlbum(($key, shukusai::audio::Append::Front, true, true, 0))
 		);
-		::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
 	}
 }
 
@@ -175,9 +165,8 @@ macro_rules! play_album_offset {
 	($self:ident, $key:expr, $offset:expr) => {
 		::benri::send!(
 			$self.to_kernel,
-			shukusai::kernel::FrontendToKernel::QueueAddAlbum(($key, shukusai::audio::Append::Front, true, $offset))
+			shukusai::kernel::FrontendToKernel::QueueAddAlbum(($key, shukusai::audio::Append::Front, true, true, $offset))
 		);
-		::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
 	}
 }
 
@@ -193,9 +182,8 @@ macro_rules! play_artist_offset {
 	($self:ident, $key:expr, $offset:expr) => {
 		::benri::send!(
 			$self.to_kernel,
-			shukusai::kernel::FrontendToKernel::QueueAddArtist(($key, shukusai::audio::Append::Front, true, $offset))
+			shukusai::kernel::FrontendToKernel::QueueAddArtist(($key, shukusai::audio::Append::Front, true, true, $offset))
 		);
-		::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
 	}
 }
 
@@ -211,9 +199,8 @@ macro_rules! play_playlist_offset {
 	($self:ident, $playlist_name:expr, $offset:expr) => {
 		::benri::send!(
 			$self.to_kernel,
-			shukusai::kernel::FrontendToKernel::QueueAddPlaylist(($playlist_name, shukusai::audio::Append::Front, true, $offset))
+			shukusai::kernel::FrontendToKernel::QueueAddPlaylist(($playlist_name, shukusai::audio::Append::Front, true, true, $offset))
 		);
-		::benri::send!($self.to_kernel, shukusai::kernel::FrontendToKernel::Play);
 	}
 }
 
