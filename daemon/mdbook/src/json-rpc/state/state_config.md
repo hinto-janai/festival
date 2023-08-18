@@ -36,7 +36,9 @@ The reason why this method is `🔴 Unstable` is because it will output _all_ `J
 | filename_separator  | string
 | log_level           | string, one of `OFF`, `ERROR`, `WARN`, `INFO`, `DEBUG`, `ERROR`
 | watch               | boolean
+| cache_clean         | boolean
 | cache_time          | unsigned integer
+| restore_audio_state | boolean
 | media_controls      | boolean
 | authorization       | boolean
 | confirm_no_tls_auth | boolean
@@ -74,7 +76,9 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"state_config"}
     "filename_separator": " - ",
     "log_level": "TRACE",
     "watch": true,
+    "cache_clean": true,
     "cache_time": 3600,
+    "restore_audio_state": true,
     "media_controls": true,
     "authorization": true,
     "confirm_no_tls_auth": false,

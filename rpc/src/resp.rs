@@ -195,6 +195,7 @@ impl_struct_lt! {
 	log_level:           log::LevelFilter,
 	watch:               bool,
 	cache_time:          u64,
+	restore_audio_state: bool,
 	media_controls:      bool,
 	authorization:       bool,
 	confirm_no_tls_auth: bool,

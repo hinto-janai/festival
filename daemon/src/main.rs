@@ -74,6 +74,10 @@ fn main() {
 
 	// Tell `Kernel` to cache directories.
 	benri::send!(TO_KERNEL, shukusai::kernel::FrontendToKernel::CachePath(CONFIG.collection_paths.clone()));
+	// Tell `Kernel` to restore audio state.
+	if CONFIG.restore_audio_state {
+		benri::send!(TO_KERNEL, shukusai::kernel::FrontendToKernel::RestoreAudioState);
+	}
 
 	// Cleanup cache.
 	if CONFIG.cache_clean {

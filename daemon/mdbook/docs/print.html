@@ -608,8 +608,19 @@ cache_time = 3600
 
 
 #----------------------------------------------------------#
-#                      MEDIA CONTROLS                      #
+#                           AUDIO                          #
 #----------------------------------------------------------#
+# Enable/disable audio state restoration
+#
+# Upon startup, `festivald` will recover audio state
+# (volume, exact position in song, queue, etc) if this
+# setting is `true`.
+#
+# DEFAULT | true
+# VALUES  | true, false
+# TYPE    | boolean
+restore_audio_state = true
+
 # Enable/disable OS media controls
 #
 # `festivald` plugs into the native OS's media controls so that signals
@@ -4337,7 +4348,9 @@ Entry 76 (Song key 76),
 <tr><td>filename_separator</td><td>string</td></tr>
 <tr><td>log_level</td><td>string, one of <code>OFF</code>, <code>ERROR</code>, <code>WARN</code>, <code>INFO</code>, <code>DEBUG</code>, <code>ERROR</code></td></tr>
 <tr><td>watch</td><td>boolean</td></tr>
+<tr><td>cache_clean</td><td>boolean</td></tr>
 <tr><td>cache_time</td><td>unsigned integer</td></tr>
+<tr><td>restore_audio_state</td><td>boolean</td></tr>
 <tr><td>media_controls</td><td>boolean</td></tr>
 <tr><td>authorization</td><td>boolean</td></tr>
 <tr><td>confirm_no_tls_auth</td><td>boolean</td></tr>
@@ -4372,7 +4385,9 @@ Entry 76 (Song key 76),
     &quot;filename_separator&quot;: &quot; - &quot;,
     &quot;log_level&quot;: &quot;TRACE&quot;,
     &quot;watch&quot;: true,
+    &quot;cache_clean&quot;: true,
     &quot;cache_time&quot;: 3600,
+    &quot;restore_audio_state&quot;: true,
     &quot;media_controls&quot;: true,
     &quot;authorization&quot;: true,
     &quot;confirm_no_tls_auth&quot;: false,

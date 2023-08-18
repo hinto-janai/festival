@@ -267,8 +267,19 @@ cache_time = 3600
 
 
 #----------------------------------------------------------#
-#                      MEDIA CONTROLS                      #
+#                           AUDIO                          #
 #----------------------------------------------------------#
+# Enable/disable audio state restoration
+#
+# Upon startup, `festivald` will recover audio state
+# (volume, exact position in song, queue, etc) if this
+# setting is `true`.
+#
+# DEFAULT | true
+# VALUES  | true, false
+# TYPE    | boolean
+restore_audio_state = true
+
 # Enable/disable OS media controls
 #
 # `festivald` plugs into the native OS's media controls so that signals

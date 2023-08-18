@@ -302,6 +302,15 @@ pub struct Cli {
 	cache_time: Option<u64>,
 
 	#[arg(long, verbatim_doc_comment, default_value_t = false)]
+	/// Disable audio state restoration
+	///
+	/// Upon startup, `festivald` (by default) will recover
+	/// audio state (volume, exact position in song, queue, etc).
+	///
+	/// Using this option disables this.
+	disable_restore_audio_state: bool,
+
+	#[arg(long, verbatim_doc_comment, default_value_t = false)]
 	/// Disable watching the filesystem for signals
 	///
 	/// The way a newly launched `festivald` communicates to
@@ -701,6 +710,7 @@ impl Cli {
 
 		// `disable_*` negation.
 		let mut docs           = if_true_negate_some(self.disable_docs);
+		let mut restore_audio_state = if_true_negate_some(self.disable_restore_audio_state);
 		let mut media_controls = if_true_negate_some(self.disable_media_controls);
 		let mut rest           = if_true_negate_some(self.disable_rest);
 		let mut watch          = if_true_negate_some(self.disable_watch);
@@ -775,6 +785,7 @@ impl Cli {
 			watch                   => cb.watch,
 			cache_clean             => cb.cache_clean,
 			self.cache_time         => cb.cache_time,
+			restore_audio_state     => cb.restore_audio_state,
 			media_controls          => cb.media_controls,
 			self.authorization      => cb.authorization,
 			confirm_no_tls_auth     => cb.confirm_no_tls_auth,
