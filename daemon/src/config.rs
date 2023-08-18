@@ -43,6 +43,9 @@ pub fn config() -> &'static Config {
 // This is okay because we will only ever use `.get()`.
 pub static AUTH: OnceCell<rpc::hash::Hash> = OnceCell::new();
 
+//---------------------------------------------------------------------------------------------------- Constants
+const LOG_DEFAULT: log::LevelFilter = log::LevelFilter::Error;
+
 //---------------------------------------------------------------------------------------------------- ConfigBuilder
 /// The `struct` that maps value directly from the disk.
 ///
@@ -92,7 +95,7 @@ impl Default for ConfigBuilder {
 			docs:                Some(true),
 			direct_download:     Some(false),
 			filename_separator:  Some(" - ".to_string()),
-			log_level:           Some(log::LevelFilter::Error),
+			log_level:           Some(LOG_DEFAULT),
 			watch:               Some(true),
 			cache_clean:         Some(true),
 			cache_time:          Some(3600),
@@ -174,7 +177,7 @@ impl ConfigBuilder {
 			docs:                get!(docs,                "docs",                true),
 			direct_download:     get!(direct_download,     "direct_download",     false),
 			filename_separator:  get!(filename_separator,  "filename_separator",  " - ".to_string()),
-			log_level:           get!(log_level,           "log_level",           log::LevelFilter::Error),
+			log_level:           get!(log_level,           "log_level",           LOG_DEFAULT),
 			watch:               get!(watch,               "watch",               true),
 			cache_clean:         get!(cache_clean,         "cache_clean",         true),
 			cache_time:          get!(cache_time,          "cache_time",          3600),
@@ -288,11 +291,25 @@ impl ConfigBuilder {
 	}
 
 	// Read from disk, or create a default.
-	pub fn file_or() -> Self {
+	pub fn file_or_and_init_logger(log_cmd: Option<log::LevelFilter>) -> Self {
 		use disk::Toml;
 
 		match Self::from_file() {
-			Ok(c)  => { ok!("festivald.conf ... from disk"); c },
+			Ok(c)  => {
+				// Set logger, favor command-line.
+				let log = match (log_cmd, c.log_level) {
+					(Some(l), _) => l,
+					(_, Some(l)) => l,
+					_ => LOG_DEFAULT,
+				};
+
+				// Init logger.
+				shukusai::logger::init_logger(log);
+
+				ok!("festivald.conf ... from disk");
+
+				c
+			},
 			Err(e) => {
 				// SAFETY: if we can't get the config, panic is ok.
 				let p = Config::absolute_path().unwrap();
@@ -303,6 +320,9 @@ impl ConfigBuilder {
 					Config::mkdir().unwrap();
 					std::fs::write(&p, FESTIVALD_CONFIG).unwrap();
 				}
+
+				// Set logger, favor command-line.
+				shukusai::logger::init_logger(log_cmd.unwrap_or_else(|| LOG_DEFAULT));
 
 				Self::default()
 			},

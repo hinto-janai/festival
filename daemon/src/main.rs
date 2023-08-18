@@ -24,17 +24,14 @@ fn main() {
 		}
 	};
 
-	// Init logger.
-	shukusai::logger::init_logger(log.unwrap_or_else(|| log::LevelFilter::Error));
-
 	// Set `umask` (`rwxr-x---`)
 	disk::umask(0o027);
 
-	// We want to read config in dry-run as well but don't want to
-	// start `Kernel` since we're exiting anyway, this de-dups the code.
-	fn set_config(config_cmd: Option<crate::config::ConfigBuilder>) -> &'static crate::config::Config {
+	// Init config.
+	let CONFIG: &'static crate::config::Config = {
 		// Start config construction.
-		let mut config_builder: crate::config::ConfigBuilder = crate::config::ConfigBuilder::file_or();
+		// INVARIANT: Logger gets set here.
+		let mut config_builder: crate::config::ConfigBuilder = crate::config::ConfigBuilder::file_or_and_init_logger(log);
 
 		// Merge disk config with command-line config.
 		if let Some(mut config_cmd) = config_cmd {
@@ -43,11 +40,11 @@ fn main() {
 
 		// INVARIANT: Initialize `CONFIG`. This must be set, and once only.
 		config_builder.build_and_set()
-	}
+	};
 
 	// Exit early if `dry_run`.
 	if dry_run {
-		println!("{}", serde_json::to_string_pretty(set_config(config_cmd)).unwrap());
+		println!("{}", serde_json::to_string_pretty(CONFIG).unwrap());
 		std::process::exit(0);
 	}
 
@@ -60,7 +57,6 @@ fn main() {
 	// These last forever.
 	let TO_KERNEL:   &'static crossbeam::channel::Sender<shukusai::kernel::FrontendToKernel>   = Box::leak(Box::new(to_kernel));
 	let FROM_KERNEL: &'static crossbeam::channel::Receiver<shukusai::kernel::KernelToFrontend> = Box::leak(Box::new(from_kernel));
-	let CONFIG = set_config(config_cmd);
 
 	// Create documentation.
 	if CONFIG.docs {
