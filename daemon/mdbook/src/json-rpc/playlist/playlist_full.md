@@ -5,7 +5,7 @@ This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Retrieve full data of _all_ [`Playlist`](/common-objects/playlist.md)'s.
+Retrieve full data of all [`Playlist`](/common-objects/playlist.md)'s.
 
 Playlists are sorted by their names in [lexicographical order](https://en.wikipedia.org/wiki/Lexicographic_order).
 
@@ -90,6 +90,25 @@ If there are no playlists at all:
     "valid": 0,
     "invalid": 0,
     "playlists": {} // Empty MAP, not array `[]`
+  },
+  "id": 0
+}
+```
+
+#### Example Response 3
+If there is 1 empty playlist:
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "all_valid": true,
+    "playlist_len": 1,
+    "entry_len": 0,
+    "valid_len": 0,
+    "invalid_len": 0,
+    "playlists": {
+      "hello": [] // <--- One empty playlist named "hello"
+    }
   },
   "id": 0
 }

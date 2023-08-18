@@ -174,7 +174,7 @@
 <p>This API is <a href="/api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Remove a <a href="/common-objects/playlist.html"><code>Playlist</code></a>.</p>
-<p>Does nothing if the <code>Playlist</code> did not exist.</p>
+<p>This method errors if <code>playlist</code> does not exist.</p>
 <h4 id="inputs"><a class="header" href="#inputs">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>playlist</td><td>string</td><td>The name of the <code>Playlist</code> to remove</td></tr>
@@ -182,8 +182,8 @@
 </div>
 <h4 id="outputs"><a class="header" href="#outputs">Outputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td>len</td><td>optional (maybe-null) unsigned integer</td><td>If the <code>Playlist</code> existed (and thus, overwritten), the amount of <a href="/common-objects/playlist.html"><code>Playlist Entry</code></a>'s it had is returned, else if it didn't exist, <code>null</code></td></tr>
-<tr><td>entries</td><td>optional (maybe-null) array of <code>Playlist Entry</code> objects</td><td>If the <code>Playlist</code> existed, its <a href="/common-objects/playlist.html"><code>Playlist Entry</code></a>'s are returned, else if it didn't exist, <code>null</code></td></tr>
+<tr><td>len</td><td>unsigned integer</td><td>The amount of <a href="/common-objects/playlist.html"><code>Playlist Entry</code></a>'s this removed <code>Playlist</code> had</td></tr>
+<tr><td>entries</td><td>array of <code>Playlist Entry</code> objects</td><td>The <a href="/common-objects/playlist.html"><code>Playlist Entry</code></a>'s of the remove <code>Playlist</code></td></tr>
 </tbody></table>
 </div>
 <h4 id="example-request"><a class="header" href="#example-request">Example Request</a></h4>
@@ -192,18 +192,7 @@
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;playlist_remove&quot;,&quot;params&quot;:{&quot;playlist&quot;:&quot;Playlist 1&quot;}}'
 </code></pre>
 <h4 id="example-response-1"><a class="header" href="#example-response-1">Example Response 1</a></h4>
-<p>The playlist did not previously exist:</p>
-<pre><code class="language-json">{
-  &quot;jsonrpc&quot;: &quot;2.0&quot;,
-  &quot;result&quot;: {
-    &quot;len&quot;: null
-    &quot;entries&quot;: null
-  },
-  &quot;id&quot;: 0
-}
-</code></pre>
-<h4 id="example-response-2"><a class="header" href="#example-response-2">Example Response 2</a></h4>
-<p>The playlist previously existed, it was empty, and was removed:</p>
+<p>The playlist existed, it was empty, and was removed:</p>
 <pre><code class="language-json">{
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {
@@ -213,8 +202,8 @@
   &quot;id&quot;: 0
 }
 </code></pre>
-<h4 id="example-response-3"><a class="header" href="#example-response-3">Example Response 3</a></h4>
-<p>The playlist previously existed, it contained this 1 <code>Playlist Entry</code>, and was removed:</p>
+<h4 id="example-response-2"><a class="header" href="#example-response-2">Example Response 2</a></h4>
+<p>The playlist existed, it contained this 1 <code>Playlist Entry</code>, and was removed:</p>
 <pre><code class="language-json">{
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {

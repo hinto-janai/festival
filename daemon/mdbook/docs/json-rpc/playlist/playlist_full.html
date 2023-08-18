@@ -173,7 +173,7 @@
 <h4 id="-stable"><a class="header" href="#-stable">🟢 Stable</a></h4>
 <p>This API is <a href="/api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
-<p>Retrieve full data of <em>all</em> <a href="/common-objects/playlist.html"><code>Playlist</code></a>'s.</p>
+<p>Retrieve full data of all <a href="/common-objects/playlist.html"><code>Playlist</code></a>'s.</p>
 <p>Playlists are sorted by their names in <a href="https://en.wikipedia.org/wiki/Lexicographic_order">lexicographical order</a>.</p>
 <h4 id="inputs"><a class="header" href="#inputs">Inputs</a></h4>
 <p><code>None</code></p>
@@ -249,6 +249,23 @@
     &quot;valid&quot;: 0,
     &quot;invalid&quot;: 0,
     &quot;playlists&quot;: {} // Empty MAP, not array `[]`
+  },
+  &quot;id&quot;: 0
+}
+</code></pre>
+<h4 id="example-response-3"><a class="header" href="#example-response-3">Example Response 3</a></h4>
+<p>If there is 1 empty playlist:</p>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;result&quot;: {
+    &quot;all_valid&quot;: true,
+    &quot;playlist_len&quot;: 1,
+    &quot;entry_len&quot;: 0,
+    &quot;valid_len&quot;: 0,
+    &quot;invalid_len&quot;: 0,
+    &quot;playlists&quot;: {
+      &quot;hello&quot;: [] // &lt;--- One empty playlist named &quot;hello&quot;
+    }
   },
   &quot;id&quot;: 0
 }

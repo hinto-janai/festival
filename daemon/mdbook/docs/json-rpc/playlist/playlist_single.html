@@ -174,7 +174,7 @@
 <p>This API is <a href="/api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Retrieve a single <a href="/common-objects/playlist.html"><code>Playlist</code></a>.</p>
-<p>This method errors if the specified playlist does not exist.</p>
+<p>This method errors if <code>playlist</code> does not exist.</p>
 <h4 id="inputs"><a class="header" href="#inputs">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>playlist</td><td>string</td><td>The name of the <code>Playlist</code></td></tr>
@@ -187,7 +187,7 @@
 <tr><td>entry_len</td><td>unsigned integer</td><td>How many <code>Playlist Entry</code>'s there are in this <code>Playlist</code></td></tr>
 <tr><td>valid_len</td><td>unsigned integer</td><td>How many <code>Playlist Entry</code>'s are <code>valid</code></td></tr>
 <tr><td>invalid_len</td><td>unsigned integer</td><td>How many <code>Playlist Entry'</code>s are <code>invalid</code></td></tr>
-<tr><td>entries</td><td>array of <a href="/common-objects/playlist.html"><code>Playlist Entry</code></a> objects</td><td>The <code>Playlsit Entry</code>'s themselves</td></tr>
+<tr><td>entries</td><td>array of <a href="/common-objects/playlist.html"><code>Playlist Entry</code></a> objects</td><td>The <code>Playlist Entry</code>'s of the <code>Playlist</code></td></tr>
 </tbody></table>
 </div>
 <h4 id="example-request"><a class="header" href="#example-request">Example Request</a></h4>

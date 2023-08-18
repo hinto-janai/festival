@@ -506,7 +506,7 @@ impl_struct!(QueueRemoveRange, out_of_bounds: bool, start: usize, end: usize, qu
 
 //---------------------------------------------------------------------------------------------------- Playlist
 impl_struct_lt!(PlaylistNew, len: Option<usize>, #[serde(borrow)] entries: Option<Cow<'a, [EntryJson<'a>]>>);
-impl_struct_lt!(PlaylistRemove, len: Option<usize>, #[serde(borrow)] entries: Option<Cow<'a, [EntryJson<'a>]>>);
+impl_struct_lt!(PlaylistRemove, len: usize, #[serde(borrow)] entries: Cow<'a, [EntryJson<'a>]>);
 impl_struct_lt!(PlaylistClone, len: Option<usize>, #[serde(borrow)] entries: Option<Cow<'a, [EntryJson<'a>]>>);
 impl_struct_lt!(PlaylistGetIndex, #[serde(borrow)] entry: Option<Cow<'a, EntryJson<'a>>>);
 impl_struct_lt!(PlaylistRemoveIndex, #[serde(borrow)] entry: Option<Cow<'a, EntryJson<'a>>>);

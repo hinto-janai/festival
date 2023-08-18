@@ -14,8 +14,8 @@ This method errors if there was an `index` error.
 #### Inputs
 | Field    | Type                                        | Description |
 |----------|---------------------------------------------|-------------|
+| key      | `Song` key (unsigned integer)               | `Song` key of the `Song` to add
 | playlist | string                                      | The name of the `Playlist`
-| key      | `Song` key (unsigned integer)               | `Song` key
 | append   | string, one of `front`, `back` or `index`   | See [`Playlist/Append`](/json-rpc/playlist/playlist.md#append)
 | index    | optional (maybe-null) unsigned integer      | If the `index` append is chosen, this will be the index used
 
@@ -24,6 +24,8 @@ This method errors if there was an `index` error.
 | Field   | Type    | Description |
 |---------|---------|-------------|
 | existed | boolean | If `playlist` already existed or not
+| old_len | unsigned integer | The old length of `playlist`
+| new_len | unsigned integer | The new length of `playlist`
 
 #### Example Request 1
 Add to back of the playlist "Hello".
@@ -48,7 +50,9 @@ curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"playlist_add_k
 {
   "jsonrpc": "2.0",
   "result": {
-    "existed": true
+    "existed": false,
+    "old_len": 0,
+    "new_len": 187
   },
   "id": 0
 }

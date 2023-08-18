@@ -7413,7 +7413,7 @@ index 5 | song_6
 <p>This API is <a href="json-rpc/playlist//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Remove a <a href="json-rpc/playlist//common-objects/playlist.html"><code>Playlist</code></a>.</p>
-<p>Does nothing if the <code>Playlist</code> did not exist.</p>
+<p>This method errors if <code>playlist</code> does not exist.</p>
 <h4 id="inputs-89"><a class="header" href="#inputs-89">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>playlist</td><td>string</td><td>The name of the <code>Playlist</code> to remove</td></tr>
@@ -7421,8 +7421,8 @@ index 5 | song_6
 </div>
 <h4 id="outputs-89"><a class="header" href="#outputs-89">Outputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td>len</td><td>optional (maybe-null) unsigned integer</td><td>If the <code>Playlist</code> existed (and thus, overwritten), the amount of <a href="json-rpc/playlist//common-objects/playlist.html"><code>Playlist Entry</code></a>'s it had is returned, else if it didn't exist, <code>null</code></td></tr>
-<tr><td>entries</td><td>optional (maybe-null) array of <code>Playlist Entry</code> objects</td><td>If the <code>Playlist</code> existed, its <a href="json-rpc/playlist//common-objects/playlist.html"><code>Playlist Entry</code></a>'s are returned, else if it didn't exist, <code>null</code></td></tr>
+<tr><td>len</td><td>unsigned integer</td><td>The amount of <a href="json-rpc/playlist//common-objects/playlist.html"><code>Playlist Entry</code></a>'s this removed <code>Playlist</code> had</td></tr>
+<tr><td>entries</td><td>array of <code>Playlist Entry</code> objects</td><td>The <a href="json-rpc/playlist//common-objects/playlist.html"><code>Playlist Entry</code></a>'s of the remove <code>Playlist</code></td></tr>
 </tbody></table>
 </div>
 <h4 id="example-request-76"><a class="header" href="#example-request-76">Example Request</a></h4>
@@ -7431,18 +7431,7 @@ index 5 | song_6
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;playlist_remove&quot;,&quot;params&quot;:{&quot;playlist&quot;:&quot;Playlist 1&quot;}}'
 </code></pre>
 <h4 id="example-response-1-1"><a class="header" href="#example-response-1-1">Example Response 1</a></h4>
-<p>The playlist did not previously exist:</p>
-<pre><code class="language-json">{
-  &quot;jsonrpc&quot;: &quot;2.0&quot;,
-  &quot;result&quot;: {
-    &quot;len&quot;: null
-    &quot;entries&quot;: null
-  },
-  &quot;id&quot;: 0
-}
-</code></pre>
-<h4 id="example-response-2-1"><a class="header" href="#example-response-2-1">Example Response 2</a></h4>
-<p>The playlist previously existed, it was empty, and was removed:</p>
+<p>The playlist existed, it was empty, and was removed:</p>
 <pre><code class="language-json">{
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {
@@ -7452,8 +7441,8 @@ index 5 | song_6
   &quot;id&quot;: 0
 }
 </code></pre>
-<h4 id="example-response-3-1"><a class="header" href="#example-response-3-1">Example Response 3</a></h4>
-<p>The playlist previously existed, it contained this 1 <code>Playlist Entry</code>, and was removed:</p>
+<h4 id="example-response-2-1"><a class="header" href="#example-response-2-1">Example Response 2</a></h4>
+<p>The playlist existed, it contained this 1 <code>Playlist Entry</code>, and was removed:</p>
 <pre><code class="language-json">{
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {
@@ -7520,7 +7509,7 @@ index 5 | song_6
   &quot;id&quot;: 0
 }
 </code></pre>
-<h4 id="example-response-3-2"><a class="header" href="#example-response-3-2">Example Response 3</a></h4>
+<h4 id="example-response-3-1"><a class="header" href="#example-response-3-1">Example Response 3</a></h4>
 <p>The playlist previously existed, it contained this 1 <code>Playlist Entry</code>, and was overwritten:</p>
 <pre><code class="language-json">{
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
@@ -7633,8 +7622,8 @@ index 5 | song_6
 <p>This method errors if there was an <code>index</code> error.</p>
 <h4 id="inputs-93"><a class="header" href="#inputs-93">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td>key</td><td><code>Artist</code> key (unsigned integer)</td><td><code>Artist</code> key of the <code>Artist</code> to add</td></tr>
 <tr><td>playlist</td><td>string</td><td>The name of the <code>Playlist</code></td></tr>
-<tr><td>key</td><td><code>Artist</code> key (unsigned integer)</td><td><code>Artist</code> key</td></tr>
 <tr><td>append</td><td>string, one of <code>front</code>, <code>back</code> or <code>index</code></td><td>See <a href="json-rpc/playlist//json-rpc/playlist/playlist.html#append"><code>Playlist/Append</code></a></td></tr>
 <tr><td>index</td><td>optional (maybe-null) unsigned integer</td><td>If the <code>index</code> append is chosen, this will be the index used</td></tr>
 </tbody></table>
@@ -7642,6 +7631,8 @@ index 5 | song_6
 <h4 id="outputs-93"><a class="header" href="#outputs-93">Outputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>existed</td><td>boolean</td><td>If <code>playlist</code> already existed or not</td></tr>
+<tr><td>old_len</td><td>unsigned integer</td><td>The old length of <code>playlist</code></td></tr>
+<tr><td>new_len</td><td>unsigned integer</td><td>The new length of <code>playlist</code></td></tr>
 </tbody></table>
 </div>
 <h4 id="example-request-1-13"><a class="header" href="#example-request-1-13">Example Request 1</a></h4>
@@ -7660,7 +7651,9 @@ index 5 | song_6
 <pre><code class="language-json">{
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {
-    &quot;existed&quot;: true
+    &quot;existed&quot;: false,
+    &quot;old_len&quot;: 0,
+    &quot;new_len&quot;: 15
   },
   &quot;id&quot;: 0
 }
@@ -7674,8 +7667,8 @@ index 5 | song_6
 <p>This method errors if there was an <code>index</code> error.</p>
 <h4 id="inputs-94"><a class="header" href="#inputs-94">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td>key</td><td><code>Album</code> key (unsigned integer)</td><td><code>Album</code> key of the <code>Album</code> to add</td></tr>
 <tr><td>playlist</td><td>string</td><td>The name of the <code>Playlist</code></td></tr>
-<tr><td>key</td><td><code>Album</code> key (unsigned integer)</td><td><code>Album</code> key</td></tr>
 <tr><td>append</td><td>string, one of <code>front</code>, <code>back</code> or <code>index</code></td><td>See <a href="json-rpc/playlist//json-rpc/playlist/playlist.html#append"><code>Playlist/Append</code></a></td></tr>
 <tr><td>index</td><td>optional (maybe-null) unsigned integer</td><td>If the <code>index</code> append is chosen, this will be the index used</td></tr>
 </tbody></table>
@@ -7683,6 +7676,8 @@ index 5 | song_6
 <h4 id="outputs-94"><a class="header" href="#outputs-94">Outputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>existed</td><td>boolean</td><td>If <code>playlist</code> already existed or not</td></tr>
+<tr><td>old_len</td><td>unsigned integer</td><td>The old length of <code>playlist</code></td></tr>
+<tr><td>new_len</td><td>unsigned integer</td><td>The new length of <code>playlist</code></td></tr>
 </tbody></table>
 </div>
 <h4 id="example-request-1-14"><a class="header" href="#example-request-1-14">Example Request 1</a></h4>
@@ -7701,7 +7696,9 @@ index 5 | song_6
 <pre><code class="language-json">{
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {
-    &quot;existed&quot;: true
+    &quot;existed&quot;: true,
+    &quot;old_len&quot;: 115,
+    &quot;new_len&quot;: 125
   },
   &quot;id&quot;: 0
 }
@@ -7715,8 +7712,8 @@ index 5 | song_6
 <p>This method errors if there was an <code>index</code> error.</p>
 <h4 id="inputs-95"><a class="header" href="#inputs-95">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td>key</td><td><code>Song</code> key (unsigned integer)</td><td><code>Song</code> key of the <code>Song</code> to add</td></tr>
 <tr><td>playlist</td><td>string</td><td>The name of the <code>Playlist</code></td></tr>
-<tr><td>key</td><td><code>Song</code> key (unsigned integer)</td><td><code>Song</code> key</td></tr>
 <tr><td>append</td><td>string, one of <code>front</code>, <code>back</code> or <code>index</code></td><td>See <a href="json-rpc/playlist//json-rpc/playlist/playlist.html#append"><code>Playlist/Append</code></a></td></tr>
 <tr><td>index</td><td>optional (maybe-null) unsigned integer</td><td>If the <code>index</code> append is chosen, this will be the index used</td></tr>
 </tbody></table>
@@ -7724,6 +7721,8 @@ index 5 | song_6
 <h4 id="outputs-95"><a class="header" href="#outputs-95">Outputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>existed</td><td>boolean</td><td>If <code>playlist</code> already existed or not</td></tr>
+<tr><td>old_len</td><td>unsigned integer</td><td>The old length of <code>playlist</code></td></tr>
+<tr><td>new_len</td><td>unsigned integer</td><td>The new length of <code>playlist</code></td></tr>
 </tbody></table>
 </div>
 <h4 id="example-request-1-15"><a class="header" href="#example-request-1-15">Example Request 1</a></h4>
@@ -7742,7 +7741,9 @@ index 5 | song_6
 <pre><code class="language-json">{
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {
-    &quot;existed&quot;: true
+    &quot;existed&quot;: false,
+    &quot;old_len&quot;: 0,
+    &quot;new_len&quot;: 187
   },
   &quot;id&quot;: 0
 }
@@ -7756,8 +7757,8 @@ index 5 | song_6
 <p>This method errors if there was an <code>index</code> error.</p>
 <h4 id="inputs-96"><a class="header" href="#inputs-96">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td>playlist</td><td>string</td><td>The name of the <code>Playlist</code></td></tr>
 <tr><td>artist</td><td>string</td><td><code>Artist</code> name</td></tr>
+<tr><td>playlist</td><td>string</td><td>The name of the <code>Playlist</code></td></tr>
 <tr><td>append</td><td>string, one of <code>front</code>, <code>back</code> or <code>index</code></td><td>See <a href="json-rpc/playlist//json-rpc/playlist/playlist.html#append"><code>Playlist/Append</code></a></td></tr>
 <tr><td>index</td><td>optional (maybe-null) unsigned integer</td><td>If the <code>index</code> append is chosen, this will be the index used</td></tr>
 </tbody></table>
@@ -7765,6 +7766,8 @@ index 5 | song_6
 <h4 id="outputs-96"><a class="header" href="#outputs-96">Outputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>existed</td><td>boolean</td><td>If <code>playlist</code> already existed or not</td></tr>
+<tr><td>old_len</td><td>unsigned integer</td><td>The old length of <code>playlist</code></td></tr>
+<tr><td>new_len</td><td>unsigned integer</td><td>The new length of <code>playlist</code></td></tr>
 </tbody></table>
 </div>
 <h4 id="example-request-1-16"><a class="header" href="#example-request-1-16">Example Request 1</a></h4>
@@ -7783,7 +7786,9 @@ index 5 | song_6
 <pre><code class="language-json">{
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {
-    &quot;existed&quot;: true
+    &quot;existed&quot;: true,
+    &quot;old_len&quot;: 10,
+    &quot;new_len&quot;: 187
   },
   &quot;id&quot;: 0
 }
@@ -7797,9 +7802,9 @@ index 5 | song_6
 <p>This method errors if there was an <code>index</code> error.</p>
 <h4 id="inputs-97"><a class="header" href="#inputs-97">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td>playlist</td><td>string</td><td>The name of the <code>Playlist</code></td></tr>
 <tr><td>artist</td><td>string</td><td><code>Artist</code> name</td></tr>
 <tr><td>album</td><td>string</td><td><code>Album</code> title</td></tr>
+<tr><td>playlist</td><td>string</td><td>The name of the <code>Playlist</code></td></tr>
 <tr><td>append</td><td>string, one of <code>front</code>, <code>back</code> or <code>index</code></td><td>See <a href="json-rpc/playlist//json-rpc/playlist/playlist.html#append"><code>Playlist/Append</code></a></td></tr>
 <tr><td>index</td><td>optional (maybe-null) unsigned integer</td><td>If the <code>index</code> append is chosen, this will be the index used</td></tr>
 </tbody></table>
@@ -7807,6 +7812,8 @@ index 5 | song_6
 <h4 id="outputs-97"><a class="header" href="#outputs-97">Outputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>existed</td><td>boolean</td><td>If <code>playlist</code> already existed or not</td></tr>
+<tr><td>old_len</td><td>unsigned integer</td><td>The old length of <code>playlist</code></td></tr>
+<tr><td>new_len</td><td>unsigned integer</td><td>The new length of <code>playlist</code></td></tr>
 </tbody></table>
 </div>
 <h4 id="example-request-1-17"><a class="header" href="#example-request-1-17">Example Request 1</a></h4>
@@ -7825,7 +7832,9 @@ index 5 | song_6
 <pre><code class="language-json">{
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {
-    &quot;existed&quot;: true
+    &quot;existed&quot;: true,
+    &quot;old_len&quot;: 0,
+    &quot;new_len&quot;: 187
   },
   &quot;id&quot;: 0
 }
@@ -7839,10 +7848,10 @@ index 5 | song_6
 <p>This method errors if there was an <code>index</code> error.</p>
 <h4 id="inputs-98"><a class="header" href="#inputs-98">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td>playlist</td><td>string</td><td>The name of the <code>Playlist</code></td></tr>
 <tr><td>artist</td><td>string</td><td><code>Artist</code> name</td></tr>
 <tr><td>album</td><td>string</td><td><code>Album</code> title</td></tr>
 <tr><td>song</td><td>string</td><td><code>Song</code> title</td></tr>
+<tr><td>playlist</td><td>string</td><td>The name of the <code>Playlist</code></td></tr>
 <tr><td>append</td><td>string, one of <code>front</code>, <code>back</code> or <code>index</code></td><td>See <a href="json-rpc/playlist//json-rpc/playlist/playlist.html#append"><code>Playlist/Append</code></a></td></tr>
 <tr><td>index</td><td>optional (maybe-null) unsigned integer</td><td>If the <code>index</code> append is chosen, this will be the index used</td></tr>
 </tbody></table>
@@ -7850,6 +7859,8 @@ index 5 | song_6
 <h4 id="outputs-98"><a class="header" href="#outputs-98">Outputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>existed</td><td>boolean</td><td>If <code>playlist</code> already existed or not</td></tr>
+<tr><td>old_len</td><td>unsigned integer</td><td>The old length of <code>playlist</code></td></tr>
+<tr><td>new_len</td><td>unsigned integer</td><td>The new length of <code>playlist</code></td></tr>
 </tbody></table>
 </div>
 <h4 id="example-request-1-18"><a class="header" href="#example-request-1-18">Example Request 1</a></h4>
@@ -7868,7 +7879,9 @@ index 5 | song_6
 <pre><code class="language-json">{
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {
-    &quot;existed&quot;: true
+    &quot;existed&quot;: false,
+    &quot;old_len&quot;: 0,
+    &quot;new_len&quot;: 17
   },
   &quot;id&quot;: 0
 }
@@ -7878,7 +7891,7 @@ index 5 | song_6
 <p>This API is <a href="json-rpc/playlist//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p>Retrieve a single <a href="json-rpc/playlist//common-objects/playlist.html"><code>Playlist</code></a>.</p>
-<p>This method errors if the specified playlist does not exist.</p>
+<p>This method errors if <code>playlist</code> does not exist.</p>
 <h4 id="inputs-99"><a class="header" href="#inputs-99">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>playlist</td><td>string</td><td>The name of the <code>Playlist</code></td></tr>
@@ -7891,7 +7904,7 @@ index 5 | song_6
 <tr><td>entry_len</td><td>unsigned integer</td><td>How many <code>Playlist Entry</code>'s there are in this <code>Playlist</code></td></tr>
 <tr><td>valid_len</td><td>unsigned integer</td><td>How many <code>Playlist Entry</code>'s are <code>valid</code></td></tr>
 <tr><td>invalid_len</td><td>unsigned integer</td><td>How many <code>Playlist Entry'</code>s are <code>invalid</code></td></tr>
-<tr><td>entries</td><td>array of <a href="json-rpc/playlist//common-objects/playlist.html"><code>Playlist Entry</code></a> objects</td><td>The <code>Playlsit Entry</code>'s themselves</td></tr>
+<tr><td>entries</td><td>array of <a href="json-rpc/playlist//common-objects/playlist.html"><code>Playlist Entry</code></a> objects</td><td>The <code>Playlist Entry</code>'s of the <code>Playlist</code></td></tr>
 </tbody></table>
 </div>
 <h4 id="example-request-80"><a class="header" href="#example-request-80">Example Request</a></h4>
@@ -7968,7 +7981,7 @@ index 5 | song_6
 <h4 id="-stable-67"><a class="header" href="#-stable-67">🟢 Stable</a></h4>
 <p>This API is <a href="json-rpc/playlist//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
-<p>Retrieve full data of <em>all</em> <a href="json-rpc/playlist//common-objects/playlist.html"><code>Playlist</code></a>'s.</p>
+<p>Retrieve full data of all <a href="json-rpc/playlist//common-objects/playlist.html"><code>Playlist</code></a>'s.</p>
 <p>Playlists are sorted by their names in <a href="https://en.wikipedia.org/wiki/Lexicographic_order">lexicographical order</a>.</p>
 <h4 id="inputs-101"><a class="header" href="#inputs-101">Inputs</a></h4>
 <p><code>None</code></p>
@@ -8044,6 +8057,23 @@ index 5 | song_6
     &quot;valid&quot;: 0,
     &quot;invalid&quot;: 0,
     &quot;playlists&quot;: {} // Empty MAP, not array `[]`
+  },
+  &quot;id&quot;: 0
+}
+</code></pre>
+<h4 id="example-response-3-2"><a class="header" href="#example-response-3-2">Example Response 3</a></h4>
+<p>If there is 1 empty playlist:</p>
+<pre><code class="language-json">{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;result&quot;: {
+    &quot;all_valid&quot;: true,
+    &quot;playlist_len&quot;: 1,
+    &quot;entry_len&quot;: 0,
+    &quot;valid_len&quot;: 0,
+    &quot;invalid_len&quot;: 0,
+    &quot;playlists&quot;: {
+      &quot;hello&quot;: [] // &lt;--- One empty playlist named &quot;hello&quot;
+    }
   },
   &quot;id&quot;: 0
 }

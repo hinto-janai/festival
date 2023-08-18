@@ -2030,7 +2030,7 @@ async fn playlist_remove<'a>(
 ) -> Result<Response<Body>, anyhow::Error> {
 	match PLAYLISTS.write().playlist_remove(params.playlist.into()) {
 		Some(v) => Ok(resp::result(serde_json::json!({ "len": v.len(), "entries": v }), id)),
-		None    => Ok(resp::result(rpc::resp::PlaylistRemove { len: None, entries: None }, id)),
+		None    => Ok(resp::error(ERR_PLAYLIST.0, ERR_PLAYLIST.1, id)),
 	}
 }
 
