@@ -10,7 +10,11 @@ This marks that the output of this API may have additions in the future.
 The existing inputs/outputs **will not change**, however, additional output may appear.
 
 ## 🔴 Unstable
-This marks that this API may completely change in the future.
+This marks that this API may in the future:
+- Have additions to input/output
+- Have subtractions to input/output
+- Be renamed
+- Be completely removed
 
 It should not be relied across different `festivald` versions.
 

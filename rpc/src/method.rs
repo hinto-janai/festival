@@ -55,6 +55,9 @@ pub enum Method {
 	DaemonSave,
 	DaemonRemoveCache,
 	DaemonShutdown,
+	DaemonMethods,
+	DaemonNoAuthRpc,
+	DaemonNoAuthRest,
 
 	// State retrieval.
 	StateAudio,
@@ -162,7 +165,7 @@ pub enum Method {
 	PlaylistSingle,
 	PlaylistBrief,
 	PlaylistFull,
-}
+ }
 
 impl Method {
 	/// Print each method, separated by a newline.
@@ -197,6 +200,9 @@ pub enum Rpc {
 	DaemonSave(crate::param::DaemonSave),
 	DaemonRemoveCache(crate::param::DaemonRemoveCache),
 	DaemonShutdown(crate::param::DaemonShutdown),
+	DaemonMethods(crate::param::DaemonMethods),
+	DaemonNoAuthRpc(crate::param::DaemonNoAuthRpc),
+	DaemonNoAuthRest(crate::param::DaemonNoAuthRest),
 
 	StateAudio(crate::param::StateAudio),
 	StateConfig(crate::param::StateConfig),

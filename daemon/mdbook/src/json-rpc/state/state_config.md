@@ -1,7 +1,7 @@
 # state_config
 
-#### 🟡 Incomplete
-This API may have [additions](/api-stability/marker.md) in the future.
+#### 🔴 Unstable
+This API may be [changed](/api-stability/marker.md) in the future.
 
 ---
 
@@ -10,6 +10,8 @@ Retrieve the active configuration of `festivald`.
 The output is almost a mirror of the configuration file.
 
 See the [`Config`](/config.md) chapter to see the full description of these fields.
+
+The reason why this method is `🔴 Unstable` is because it will output _all_ `JSON-RPC` methods & `REST` resources, even `🔴 Unstable` ones, which may not exist in the future.
 
 #### Inputs
 

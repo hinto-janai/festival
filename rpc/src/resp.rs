@@ -35,6 +35,7 @@ use std::{
 	collections::{
 		VecDeque,
 		HashSet,
+		BTreeSet,
 	},
 };
 
@@ -145,6 +146,24 @@ impl_struct_lt! {
 	total_requests: u64,
 	total_connections: u64
 }
+impl_struct_lt! {
+	DaemonMethods,
+	len: usize,
+	#[serde(borrow)]
+	methods: Cow<'a, BTreeSet<Cow<'a, str>>>
+}
+impl_struct_lt! {
+	DaemonNoAuthRpc,
+	len: usize,
+	#[serde(borrow)]
+	rpc: Cow<'a, BTreeSet<Cow<'a, str>>>
+}
+impl_struct_lt! {
+	DaemonNoAuthRest,
+	len: usize,
+	#[serde(borrow)]
+	rest: Cow<'a, BTreeSet<Cow<'a, str>>>
+}
 
 //---------------------------------------------------------------------------------------------------- State
 impl_struct! {
@@ -159,7 +178,7 @@ impl_struct_lt! {
 	port:                u16,
 	max_connections:     Option<u64>,
 	#[serde(borrow)]
-	exclusive_ips:       Option<Cow<'a, HashSet<Ipv4Addr>>>,
+	exclusive_ips:       Option<Cow<'a, BTreeSet<Ipv4Addr>>>,
 	sleep_on_fail:       Option<u64>,
 	#[serde(borrow)]
 	collection_paths:    Cow<'a, [PathBuf]>,
@@ -180,9 +199,9 @@ impl_struct_lt! {
 	authorization:       bool,
 	confirm_no_tls_auth: bool,
 	#[serde(borrow)]
-	no_auth_rpc:         Option<Cow<'a, HashSet<crate::method::Method>>>,
+	no_auth_rpc:         Option<Cow<'a, BTreeSet<Cow<'a, str>>>>,
 	#[serde(borrow)]
-	no_auth_rest:        Option<Cow<'a, HashSet<crate::resource::Resource>>>,
+	no_auth_rest:        Option<Cow<'a, BTreeSet<Cow<'a, str>>>>,
 	no_auth_docs:        bool
 }
 impl_struct_lt! {

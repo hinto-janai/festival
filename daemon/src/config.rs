@@ -24,7 +24,7 @@ use std::net::{
 	Ipv4Addr,
 	SocketAddrV4,
 };
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 use std::path::PathBuf;
 use once_cell::sync::OnceCell;
 use shukusai::constants::DASH;
@@ -54,7 +54,7 @@ pub struct ConfigBuilder {
 	pub ip:                  Option<Ipv4Addr>,
 	pub port:                Option<u16>,
 	pub max_connections:     Option<u64>,
-	pub exclusive_ips:       Option<HashSet<Ipv4Addr>>,
+	pub exclusive_ips:       Option<BTreeSet<Ipv4Addr>>,
 	pub sleep_on_fail:       Option<u64>,
 	pub collection_paths:    Option<Vec<PathBuf>>,
 	pub tls:                 Option<bool>,
@@ -71,8 +71,8 @@ pub struct ConfigBuilder {
 	pub media_controls:      Option<bool>,
 	pub authorization:	     Option<String>,
 	pub confirm_no_tls_auth: Option<bool>,
-	pub no_auth_rpc:         Option<HashSet<rpc::Method>>,
-	pub no_auth_rest:        Option<HashSet<rpc::resource::Resource>>,
+	pub no_auth_rpc:         Option<BTreeSet<rpc::Method>>,
+	pub no_auth_rest:        Option<BTreeSet<rpc::resource::Resource>>,
 	pub no_auth_docs:        Option<bool>,
 }
 
@@ -164,7 +164,7 @@ impl ConfigBuilder {
 			ip:                  get!(ip,                  "ip",                  Ipv4Addr::LOCALHOST),
 			port:                get!(port,                "port",                FESTIVALD_PORT),
 			max_connections:     sum!(max_connections,     "max_connections",     None::<u64>),
-			exclusive_ips:       sum!(exclusive_ips,       "exclusive_ips",       None::<HashSet<Ipv4Addr>>),
+			exclusive_ips:       sum!(exclusive_ips,       "exclusive_ips",       None::<BTreeSet<Ipv4Addr>>),
 			sleep_on_fail:       sum!(sleep_on_fail,       "sleep_on_fail",       Some(3000)),
 			collection_paths:    get!(collection_paths,    "collection_paths",    if let Some(p) = dirs::audio_dir() { vec![p] } else { Vec::<PathBuf>::with_capacity(0) }),
 			tls:                 get!(tls,                 "tls",                 false),
@@ -180,8 +180,8 @@ impl ConfigBuilder {
 			cache_time:          get!(cache_time,          "cache_time",          3600),
 			media_controls:      get!(media_controls,      "media_controls",      true),
 			confirm_no_tls_auth: get!(confirm_no_tls_auth, "confirm_no_tls_auth", false),
-			no_auth_rpc:         sum!(no_auth_rpc,         "no_auth_rpc",         None::<HashSet<rpc::Method>>),
-			no_auth_rest:        sum!(no_auth_rest,        "no_auth_rest",        None::<HashSet<rpc::resource::Resource>>),
+			no_auth_rpc:         sum!(no_auth_rpc,         "no_auth_rpc",         None::<BTreeSet<rpc::Method>>),
+			no_auth_rest:        sum!(no_auth_rest,        "no_auth_rest",        None::<BTreeSet<rpc::resource::Resource>>),
 			no_auth_docs:        get!(no_auth_docs,        "no_auth_docs",        false),
 		};
 
@@ -357,7 +357,7 @@ pub struct Config {
 	pub ip:                  std::net::Ipv4Addr,
 	pub port:                u16,
 	pub max_connections:     Option<u64>,
-	pub exclusive_ips:       Option<HashSet<Ipv4Addr>>,
+	pub exclusive_ips:       Option<BTreeSet<Ipv4Addr>>,
 	pub sleep_on_fail:       Option<u64>,
 	pub collection_paths:    Vec<PathBuf>,
 	pub tls:                 bool,
@@ -373,8 +373,8 @@ pub struct Config {
 	pub cache_time:          u64,
 	pub media_controls:      bool,
 	pub confirm_no_tls_auth: bool,
-	pub no_auth_rpc:         Option<HashSet<rpc::Method>>,
-	pub no_auth_rest:        Option<HashSet<rpc::resource::Resource>>,
+	pub no_auth_rpc:         Option<BTreeSet<rpc::Method>>,
+	pub no_auth_rest:        Option<BTreeSet<rpc::resource::Resource>>,
 	pub no_auth_docs:        bool,
 }
 

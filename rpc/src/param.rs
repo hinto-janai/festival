@@ -105,6 +105,21 @@ impl_rpc! {
 	"daemon/daemon_shutdown",
 	DaemonShutdown => Method::DaemonShutdown
 }
+impl_rpc! {
+	"Retrieve all JSON-RPC methods this `festivald` knows about",
+	"daemon/daemon_methods",
+	DaemonMethods => Method::DaemonMethods
+}
+impl_rpc! {
+	"Retrieve all no_auth_rpc JSON-RPC methods this `festivald` allows",
+	"daemon/daemon_no_auth_rpc",
+	DaemonNoAuthRpc => Method::DaemonNoAuthRpc
+}
+impl_rpc! {
+	"Retrieve all no_auth_rest REST resources this `festivald` allows",
+	"daemon/daemon_no_auth_rest",
+	DaemonNoAuthRest => Method::DaemonNoAuthRest
+}
 
 //---------------------------------------------------------------------------------------------------- State
 impl_rpc! {

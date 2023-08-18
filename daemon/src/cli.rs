@@ -708,22 +708,33 @@ impl Cli {
 
 		// Special-case conversions.
 		macro_rules! vec_to_some_hashset {
-			($vec:expr) => {
+			($vec:expr, $t:ty) => {
 				if let Some(vec) = $vec.take() {
-					let mut hashset = std::collections::HashSet::with_capacity(vec.len());
-					for entry in vec {
-						hashset.insert(entry);
-					}
-					Some(hashset)
+					let mut set: std::collections::HashSet<$t> = vec
+						.into_iter()
+						.collect();
+					Some(set)
+				} else {
+					None
+				}
+			}
+		}
+		macro_rules! vec_to_some_btreeset {
+			($vec:expr, $t:ty) => {
+				if let Some(vec) = $vec.take() {
+					let mut set: std::collections::BTreeSet<$t> = vec
+						.into_iter()
+						.collect();
+					Some(set)
 				} else {
 					None
 				}
 			}
 		}
 
-		let mut exclusive_ips = vec_to_some_hashset!(self.exclusive_ip);
-		let mut no_auth_rpc   = vec_to_some_hashset!(self.no_auth_rpc);
-		let mut no_auth_rest  = vec_to_some_hashset!(self.no_auth_rest);
+		let mut exclusive_ips = vec_to_some_btreeset!(self.exclusive_ip, std::net::Ipv4Addr);
+		let mut no_auth_rpc   = vec_to_some_btreeset!(self.no_auth_rpc, rpc::Method);
+		let mut no_auth_rest  = vec_to_some_btreeset!(self.no_auth_rest, rpc::resource::Resource);
 
 		let mut collection_paths = if self.collection_path.is_empty() {
 			None

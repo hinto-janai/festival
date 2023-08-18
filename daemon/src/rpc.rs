@@ -69,6 +69,7 @@ use json_rpc::{
 	Id,
 };
 use disk::{Bincode2,Empty};
+use std::collections::BTreeSet;
 
 //---------------------------------------------------------------------------------------------------- Custom Method Error Codes/Messages
 macro_rules! impl_err {
@@ -435,6 +436,9 @@ pub async fn handle(
 		DaemonSave        => lac!(method, request, daemon_save, TO_KERNEL).await,
 		DaemonRemoveCache => lac!(method, request, daemon_remove_cache).await,
 		DaemonShutdown    => lac!(method, request, daemon_shutdown, TO_ROUTER_S).await,
+		DaemonMethods     => lac!(method, request, daemon_methods).await,
+		DaemonNoAuthRpc   => lac!(method, request, daemon_no_auth_rpc).await,
+		DaemonNoAuthRest  => lac!(method, request, daemon_no_auth_rest).await,
 
 		//-------------------------------------------------- State
 		StateAudio      => lac!(method, request, state_audio, collection.arc()).await,
@@ -819,30 +823,30 @@ async fn state_audio<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Res
 async fn state_config<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
 	let c = config();
 
-	let resp = rpc::resp::StateConfig {
-		ip:                  c.ip,
-		port:                c.port,
-		max_connections:     c.max_connections,
-		exclusive_ips:       c.exclusive_ips.as_ref().map(|h| Cow::Borrowed(h)),
-		sleep_on_fail:       c.sleep_on_fail.clone(),
-		collection_paths:    Cow::Borrowed(&c.collection_paths),
-		tls:                 c.tls,
-		certificate:         c.certificate.as_ref().map(|p| Cow::Borrowed(p.as_path())),
-		key:                 c.key.as_ref().map(|p| Cow::Borrowed(p.as_path())),
-		rest:                c.rest,
-		docs:                c.docs,
-		direct_download:     c.direct_download,
-		filename_separator:  Cow::Borrowed(&c.filename_separator),
-		log_level:           c.log_level.clone(),
-		watch:               c.watch,
-		cache_time:          c.cache_time,
-		media_controls:      c.media_controls,
-		authorization:       AUTH.get().is_some(),
-		confirm_no_tls_auth: c.confirm_no_tls_auth,
-		no_auth_rpc:         c.no_auth_rpc.as_ref().map(|h| Cow::Borrowed(h)),
-		no_auth_rest:        c.no_auth_rest.as_ref().map(|h| Cow::Borrowed(h)),
-		no_auth_docs:        c.no_auth_docs,
-	};
+	let resp = serde_json::json!({
+		"ip":                  c.ip,
+		"port":                c.port,
+		"max_connections":     c.max_connections,
+		"exclusive_ips":       c.exclusive_ips.as_ref().map(|h| Cow::Borrowed(h)),
+		"sleep_on_fail":       c.sleep_on_fail.clone(),
+		"collection_paths":    Cow::Borrowed(&c.collection_paths),
+		"tls":                 c.tls,
+		"certificate":         c.certificate.as_ref().map(|p| Cow::Borrowed(p.as_path())),
+		"key":                 c.key.as_ref().map(|p| Cow::Borrowed(p.as_path())),
+		"rest":                c.rest,
+		"docs":                c.docs,
+		"direct_download":     c.direct_download,
+		"filename_separator":  Cow::Borrowed(&c.filename_separator),
+		"log_level":           c.log_level.clone(),
+		"watch":               c.watch,
+		"cache_time":          c.cache_time,
+		"media_controls":      c.media_controls,
+		"authorization":       AUTH.get().is_some(),
+		"confirm_no_tls_auth": c.confirm_no_tls_auth,
+		"no_auth_rpc":         c.no_auth_rpc.as_ref().map(|h| Cow::Borrowed(h)),
+		"no_auth_rest":        c.no_auth_rest.as_ref().map(|h| Cow::Borrowed(h)),
+		"no_auth_docs":        c.no_auth_docs,
+	});
 
 	Ok(resp::result(resp, id))
 }
@@ -1054,6 +1058,51 @@ async fn daemon_shutdown<'a>(
 		},
 		Err(_) => Ok(resp::internal_error(id)),
 	}
+}
+
+async fn daemon_methods<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	use strum::{EnumCount,VariantNames};
+
+	let resp = serde_json::json!({
+		"len": rpc::Method::COUNT,
+		"methods": rpc::Method::VARIANTS,
+	});
+
+	Ok(resp::result(resp, id))
+}
+
+async fn daemon_no_auth_rpc<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	let rpc = &config().no_auth_rpc;
+	let len = match rpc {
+		Some(r) => r.len(),
+		None    => 0,
+	};
+
+	let btree = BTreeSet::new();
+
+	let resp = serde_json::json!({
+		"len": len,
+		"rpc": rpc.as_ref().unwrap_or_else(|| &btree),
+	});
+
+	Ok(resp::result(resp, id))
+}
+
+async fn daemon_no_auth_rest<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	let rest = &config().no_auth_rest;
+	let len = match rest {
+		Some(r) => r.len(),
+		None    => 0,
+	};
+
+	let btree = BTreeSet::new();
+
+	let resp = serde_json::json!({
+		"len": len,
+		"rest": rest.as_ref().unwrap_or_else(|| &btree),
+	});
+
+	Ok(resp::result(resp, id))
 }
 
 //---------------------------------------------------------------------------------------------------- Key (exact key)

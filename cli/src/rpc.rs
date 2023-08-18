@@ -117,6 +117,9 @@ pub fn request(config: Config, debug: bool, dry_run: bool, rpc: Rpc) -> ! {
 		DaemonSave(x)        => req_resp!(x, debug, rpc::resp::Status),
 		DaemonRemoveCache(x) => req_resp!(x, debug, rpc::resp::DaemonRemoveCache),
 		DaemonShutdown(x)    => req_resp!(x, debug, rpc::resp::DaemonShutdown),
+		DaemonMethods(x)     => req_resp!(x, debug, rpc::resp::DaemonMethods),
+		DaemonNoAuthRpc(x)   => req_resp!(x, debug, rpc::resp::DaemonNoAuthRpc),
+		DaemonNoAuthRest(x)  => req_resp!(x, debug, rpc::resp::DaemonNoAuthRest),
 
 		StateAudio(x)      => req_resp!(x, debug, rpc::resp::StateAudio),
 		StateConfig(x)     => req_resp!(x, debug, rpc::resp::StateConfig),
