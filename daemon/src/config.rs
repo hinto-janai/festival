@@ -254,13 +254,13 @@ impl ConfigBuilder {
 			} else if s.split_once(":").is_none() {
 				crate::exit!("[authorization] field is not in `USERNAME:PASSWORD` format");
 			// Reject if TLS is not enabled.
-			} else if !c.confirm_no_tls_auth && (!c.tls || c.certificate.is_none() || c.key.is_none()) {
+			} else if !c.confirm_no_tls_auth && c.ip != Ipv4Addr::LOCALHOST && (!c.tls || c.certificate.is_none() || c.key.is_none()) {
+				crate::exit!("[authorization] field was provided but TLS is not enabled, exiting for safety");
+			} else {
 				if c.ip == Ipv4Addr::LOCALHOST {
 					info!("[authorization] is enabled, TLS is not, but we're binding on [localhost], allowing");
-				} else {
-					crate::exit!("[authorization] field was provided but TLS is not enabled, exiting for safety");
 				}
-			} else {
+
 				// Base64 encode before hashing.
 				// This means we don't parse + decode every HTTP input,
 				// instead, we just hash it assuming it is in the correct
