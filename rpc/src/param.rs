@@ -128,17 +128,37 @@ impl_rpc! {
 	StateIp => Method::StateIp
 }
 impl_rpc! {
-	"Retrieve state of the queue",
-	"state/state_queue",
-	StateQueue => Method::StateQueue
+	"Retrieve state of the queue as Keys",
+	"state/state_queue_key",
+	StateQueueKey => Method::StateQueueKey
 }
 impl_rpc! {
-	"Retrieve state of the queue as entries",
+	"Retrieve state of the queue as Song objects",
+	"state/state_queue_song",
+	StateQueueSong => Method::StateQueueSong
+}
+impl_rpc! {
+	"Retrieve state of the queue as Entry objects",
 	"state/state_queue_entry",
 	StateQueueEntry => Method::StateQueueEntry
 }
 impl_rpc! {
-	"Retrieve the volume level",
+	"Retrieve the current playback status",
+	"state/state_playing",
+	StatePlaying => Method::StatePlaying
+}
+impl_rpc! {
+	"Retrieve the currently set Repeat mode",
+	"state/state_repeat",
+	StateRepeat => Method::StateRepeat
+}
+impl_rpc! {
+	"Retrieve the elapsed runtime & total runtime of the currently set Song",
+	"state/state_runtime",
+	StateRuntime => Method::StateRuntime
+}
+impl_rpc! {
+	"Retrieve the current volume level",
 	"state/state_volume",
 	StateVolume => Method::StateVolume
 }

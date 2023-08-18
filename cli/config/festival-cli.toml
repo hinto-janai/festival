@@ -83,8 +83,8 @@ id = "festival-cli"
 # in `festivald`, see here for more info:
 # <https://docs.festival.pm/daemon/authorization/authorization.html>
 #
-# A `festivald` with HTTPS must be used or `festival-cli`
-# will refuse to start.
+# A `festivald` with `HTTPS` or `.onion` must be
+# used or `festival-cli` will refuse to start.
 #
 # An empty string disables this feature.
 #

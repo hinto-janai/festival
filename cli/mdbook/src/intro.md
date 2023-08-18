@@ -1,7 +1,7 @@
 # Intro
-`festival-cli` is a `JSON-RPC` client for [`festivald`](https://docs.festival.pm/daemon).
+`festival-cli` is a [`JSON-RPC 2.0`](https://www.jsonrpc.org/specification) client for [`festivald`](https://docs.festival.pm/daemon).
 
-`festivald` is a music server that plays on the device it is running on, while allowing remote control via clients.
+`festivald` is a music server that plays on the device it is running on, and is remotely controlled via clients.
 
 `festival-cli` is a client that reduces the verbosity of `JSON-RPC` requests, so instead of:
 ```bash
@@ -13,18 +13,14 @@ festival-cli collection_new
 ```
 
 The typical invocation of `festival-cli`:
-1. Reads the config file
-2. Reads the command-line options
+1. Reads the [config](/config.md) file
+2. Reads the [command-line](/command-line.md) options
 3. Connects and sends a request to `festivald`
-4. Prints out `JSON` response
+4. Prints out the `JSON` response
 
-There is a public instance of `festivald` you can use test the API with at:
+A public instance of `festivald` with [`Creative Commons`](https://creativecommons.org/licenses/by-nc-nd/4.0/) licensed music is available at:
 ```http
 https://daemon.festival.pm
-```
-or its [`Onion Address`](https://docs.festival.pm/daemon/tor.html):
-```http
-http://omjo63yjj66ga7jlvhqib4z4qgx6y6oigjcpjcr5ehhfdugfuami3did.onion
 ```
 
 For a general quick start, see the next section: [Quick Start](quick-start.md).

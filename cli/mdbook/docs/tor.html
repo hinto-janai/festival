@@ -172,19 +172,25 @@
                         <h1 id="tor"><a class="header" href="#tor">Tor</a></h1>
 <p>Like other web services, <code>festivald</code> can be set-up &amp; accessed via <a href="https://torproject.org">Tor</a>.</p>
 <p>See <a href="https://docs.festival.pm/daemon/tor.html">here</a> to see how to set <code>festivald</code> up with Tor.</p>
-<p><code>festival-cli</code> has support for <code>HTTP</code>, <code>SOCKS4</code>, and <code>SOCKS5</code> proxies, which will allow you to connect to <code>festivald</code>'s running as <a href="https://community.torproject.org/onion-services/">Tor Onion Services</a>.</p>
+<p><code>festival-cli</code> has support for <code>HTTP</code>, <code>SOCKS4</code>, and <code>SOCKS5</code> proxies, which will allow you to connect to <code>festivald</code>'s running as <a href="https://community.torproject.org/onion-services/">Onion Services</a>.</p>
+<p>A public instance of <code>festivald</code> with <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/"><code>Creative Commons</code></a> licensed music is available at:</p>
+<pre><code class="language-http">https://daemon.festival.pm
+</code></pre>
+<p>and its <a href="https://community.torproject.org/onion-services"><code>Onion Service</code></a> is available at:</p>
+<pre><code class="language-http">http://omjo63yjj66ga7jlvhqib4z4qgx6y6oigjcpjcr5ehhfdugfuami3did.onion
+</code></pre>
 <h3 id="json-rpc"><a class="header" href="#json-rpc">JSON-RPC</a></h3>
-<p>To connect to <code>festivald</code> over a Tor onion service, you can use <code>--proxy</code>:</p>
-<pre><code class="language-bash">ONION=&quot;http://2gzyxa5ihm7nsggfxnu52rck2vv4rvmdlkiu3zzui5du4xyclen53wid.onion&quot;
+<p>To connect to <code>festivald</code> over an <code>Onion Service</code>, you can use <code>--proxy</code>:</p>
+<pre><code class="language-bash">ONION=&quot;http://omjo63yjj66ga7jlvhqib4z4qgx6y6oigjcpjcr5ehhfdugfuami3did.onion&quot;
 
 festival-cli
 	--proxy socks5://127.0.0.1:9050 \ # The Tor SOCKS5 proxy.
-	$ONION \                          # The onion address mapped at `festivald`
+	--festivald $ONION \              # The onion address mapped at `festivald`
 	state_daemon                      # Method
 
 </code></pre>
 <p>or wrap <code>festival-cli</code> with <a href="https://support.torproject.org/glossary/torsocks"><code>torsocks</code></a>:</p>
-<pre><code class="language-bash">torsocks festival-cli $ONION state_daemon
+<pre><code class="language-bash">torsocks festival-cli -f $ONION state_daemon
 </code></pre>
 <h3 id="authentication"><a class="header" href="#authentication">Authentication</a></h3>
 <p>Since <a href="https://community.torproject.org/onion-services/overview/">Onion Service's</a> are end-to-end encrypted, <code>HTTPS</code> is not required.</p>
@@ -218,6 +224,22 @@ festival-cli
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 

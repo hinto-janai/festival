@@ -122,8 +122,12 @@ pub fn request(config: Config, debug: bool, dry_run: bool, rpc: Rpc) -> ! {
 		StateConfig(x)     => req_resp!(x, debug, rpc::resp::StateConfig),
 		StateDaemon(x)     => req_resp!(x, debug, rpc::resp::StateDaemon),
 		StateIp(x)         => req_resp!(x, debug, rpc::resp::StateIp),
-		StateQueue(x)      => req_resp!(x, debug, rpc::resp::StateQueue),
+		StateQueueKey(x)   => req_resp!(x, debug, rpc::resp::StateQueueKey),
+		StateQueueSong(x)  => req_resp!(x, debug, rpc::resp::StateQueueSong),
 		StateQueueEntry(x) => req_resp!(x, debug, rpc::resp::StateQueueEntry),
+		StatePlaying(x)    => req_resp!(x, debug, rpc::resp::StatePlaying),
+		StateRepeat(x)     => req_resp!(x, debug, rpc::resp::StateRepeat),
+		StateRuntime(x)    => req_resp!(x, debug, rpc::resp::StateRuntime),
 		StateVolume(x)     => req_resp!(x, debug, rpc::resp::StateVolume),
 
 		KeyArtist(x)        => req_resp!(x, debug, rpc::resp::KeyArtist),

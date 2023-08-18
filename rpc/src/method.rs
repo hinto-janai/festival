@@ -61,8 +61,12 @@ pub enum Method {
 	StateConfig,
 	StateDaemon,
 	StateIp,
-	StateQueue,
+	StateQueueKey,
+	StateQueueSong,
 	StateQueueEntry,
+	StatePlaying,
+	StateRepeat,
+	StateRuntime,
 	StateVolume,
 
 	// Key (exact key)
@@ -198,8 +202,12 @@ pub enum Rpc {
 	StateConfig(crate::param::StateConfig),
 	StateDaemon(crate::param::StateDaemon),
 	StateIp(crate::param::StateIp),
-	StateQueue(crate::param::StateQueue),
+	StateQueueKey(crate::param::StateQueueKey),
+	StateQueueSong(crate::param::StateQueueSong),
 	StateQueueEntry(crate::param::StateQueueEntry),
+	StatePlaying(crate::param::StatePlaying),
+	StateRepeat(crate::param::StateRepeat),
+	StateRuntime(crate::param::StateRuntime),
 	StateVolume(crate::param::StateVolume),
 
 	KeyArtist(crate::param::KeyArtist),

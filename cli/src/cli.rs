@@ -28,7 +28,7 @@ pub const BIN: &str = "festival-cli.exe";
 pub const BIN: &str = "festival-cli";
 
 const USAGE: &str = formatcp!(
-r#"{BIN} [OPTIONS] [METHOD] [--PARAM <ARG>]
+r#"{BIN} [--OPTIONS] <METHOD> [--PARAM <VALUE>]
 
 Arguments passed to `festival-cli` will always take
 priority over configuration options read from disk."#);
@@ -81,8 +81,8 @@ pub struct Cli {
 	/// in `festivald`, see here for more info:
 	/// <https://docs.festival.pm/daemon/authorization/authorization.html>
 	///
-	/// A `festivald` with HTTPS must be used or `festival-cli`
-	/// will refuse to start.
+	/// A `festivald` with `HTTPS` or `.onion` must be
+	/// used or `festival-cli` will refuse to start.
 	///
 	/// An empty string disables this feature.
 	///

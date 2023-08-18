@@ -172,37 +172,37 @@
                         <h1 id="json-rpc"><a class="header" href="#json-rpc">JSON-RPC</a></h1>
 <p><code>festival-cli</code>'s main purpose is to send and receive <a href="https://www.jsonrpc.org/specification"><code>JSON-RPC 2.0</code></a> messages from/to a <code>festivald</code>.</p>
 <p>The way to send a method to <code>festival</code> using <code>festival-cli</code> is always the same:</p>
-<pre><code class="language-bash">festival-cli &lt;METHOD&gt; [--PARAM &lt;VALUE&gt;]
+<pre><code class="language-bash">festival-cli [--OPTIONAL-FLAGS] &lt;METHOD&gt; [--PARAM &lt;VALUE&gt;]
 </code></pre>
-<p>The <code>&lt;METHOD&gt;</code> will always be a method name as <a href="https://docs.festival.pm/daemon/json-rpc/json-rpc.html">documented in <code>festivald</code></a>, and parameters are represented by <code>--flags &lt;value&gt;</code>. If a parameter is <em>optional</em>, then not passing the <code>--flag</code> would be the same as not including the parameter.</p>
+<p>The <code>&lt;METHOD&gt;</code> will always be a method name as <a href="https://docs.festival.pm/daemon/json-rpc/json-rpc.html">documented in <code>festivald</code></a>, and parameters are represented by <code>--param-name &lt;value&gt;</code>. If a parameter is <em>optional</em> (maybe-null), then not passing the <code>--flag</code> would be the same as not including the parameter.</p>
 <p>For example, to send the <a href="https://docs.festival.pm/daemon/json-rpc/collection/collection_new.html"><code>collection_new</code></a> method to create a new <code>Collection</code>, you would run:</p>
 <pre><code class="language-bash">festival-cli collection_new
 </code></pre>
 <p>This method also has an optional parameter, <code>paths</code>, which can be specified like this:</p>
-<pre><code class="language-bash">festival-cli collection_new --path /first/path --path /second/path
+<pre><code class="language-bash">festival-cli collection_new --paths /first/path --paths /second/path
 </code></pre>
 <p>Methods without parameters do not need (and don't have) any associated command flags:</p>
 <pre><code class="language-bash">festival-cli collection_full
 </code></pre>
-<h3 id="output"><a class="header" href="#output">Output</a></h3>
-<p><code>festival-cli</code> sends output to <code>STDOUT</code> and <code>STDERR</code>.</p>
-<p>The <em>only</em> output sent to <code>STDOUT</code> is the actual <code>JSON-RPC</code> method response, <em>everything else</em> is sent to <code>STDERR</code>.</p>
-<p>This means you can do:</p>
-<pre><code class="language-bash">festival-cli --debug collection_full | jq
-</code></pre>
-<p>and the debug information will be printed, but <code>jq</code> (or any other program/redirection) will only see the <code>JSON-RPC</code> response.</p>
 <h3 id="pre-flags"><a class="header" href="#pre-flags">Pre-flags</a></h3>
-<p>Before specifying a <code>method</code>, you can insert some command-lines that alter various things.</p>
+<p>Before specifying a <code>method</code>, you can insert some <code>--flags</code> that alter various things.</p>
 <p>For example, to connect to a different <code>festivald</code>:</p>
 <pre><code class="language-bash">festival-cli --festivald https://festivald.pm:18425 collection_full
 </code></pre>
 <p>To print the configuration that <em>would</em> have been used, but without connecting to anything:</p>
 <pre><code class="language-bash">festival-cli --dry-run collection_full
 </code></pre>
-<p>To set a connection timeout</p>
+<p>To set a connection timeout:</p>
 <pre><code class="language-bash">festival-cli --timeout 5 collection_full
 </code></pre>
 <p>These pre-flags must come <em>before</em> the method name, because every <code>--flag</code> that comes <em>after</em> <code>&lt;METHOD&gt;</code> will be assumed to be a <code>--parameter</code>.</p>
+<h3 id="output"><a class="header" href="#output">Output</a></h3>
+<p><code>festival-cli</code> splits output between <code>STDOUT</code>/<code>STDERR</code>.</p>
+<p>The <em>only</em> output sent to <code>STDOUT</code> is the actual <code>JSON-RPC</code> method response, <em>everything else</em> is sent to <code>STDERR</code>.</p>
+<p>This means you can do:</p>
+<pre><code class="language-bash">festival-cli --debug collection_full | jq
+</code></pre>
+<p>and the debug information will be printed, but <code>jq</code> (or any other program/redirection) will only see the <code>JSON-RPC</code> response.</p>
 <h3 id="help"><a class="header" href="#help">Help</a></h3>
 <p>To list all available methods:</p>
 <pre><code class="language-bash">festival-cli --methods
@@ -218,7 +218,7 @@
 <p>To view the <code>festivald</code> documentation proper:</p>
 <ul>
 <li>View it at <a href="https://docs.festival.pm/daemon"><code>https://docs.festival.pm/daemon</code></a>, or</li>
-<li>View it locally with <code>festivald data --docs</code>, or</li>
+<li>View it locally with <code>festivald --docs</code>, or</li>
 <li>Serve/view it yourself at <code>http://localhost:18425</code> after starting <code>festivald</code></li>
 </ul>
 <p>All method documentation will include what inputs it needs, what output to expect, and examples.</p>
@@ -254,6 +254,22 @@
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 

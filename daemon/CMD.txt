@@ -64,8 +64,9 @@ Options:
           used, then every RPC call/REST endpoint _NOT_ in those lists
           will require this authorization.
           
-          TLS must be enabled for this feature to work
-          or `festivald` will refuse to start.
+          TLS must be enabled or `festivald` must be started
+          on `localhost` for this feature to work or `festivald`
+          will refuse to start.
           
           To set authorization EVEN IF TLS IS DISABLED,
           See `--confirm-no-tls-auth`.
@@ -220,14 +221,27 @@ Options:
           Artist Name/Album Title.zip
           ```
           or left empty "" for no separator at all.
+          
+          This cannot include a slash: `/`
+          as that is the legal PATH separator in ZIP files.
 
-      --cache-time <SECONDS>
-          Set the `REST` API cache time limit
+      --disable-cache-clean
+          Enable/disable cleaning up cache
           
           When serving `ZIP` files via the REST API, `festivald`
           will first write them to disk, then serve those files
           instead of directly storing everything in memory,
           as to not get OOM-killed on more than a few requests.
+          
+          Setting this to `false` will make `festivald`
+          never clean those files up, ever.
+          
+          This will make `cache_time` not do anything and will
+          also prevent `festivald` from the usual startup/shutdown
+          cache cleaning that it does.
+
+      --cache-time <SECONDS>
+          Set the REST API cache time limit
           
           This option sets the time limit on how many seconds
           `festivald` will hold onto this cache for.
@@ -235,20 +249,20 @@ Options:
           Once the time limit is up, `festivald` will remove the
           file. This cache is also reset on startup and shutdown.
           
-          Default is 3600 seconds (1 hour).
+          This does nothing if `--disable-cache-clean` is passed.
 
       --disable-watch
           Disable watching the filesystem for signals
           
           The way a newly launched `festivald` communicates to
-          an already existing one (e.g, `festivald --play`) is
+          an already existing one (e.g, `festivald signal --play`) is
           by creating a file in `festivald`'s `signal` directory.
           
-          `festivald --FLAG` just creates a file in that directory,
+          `festivald signal --FLAG` just creates a file in that directory,
           which an existing `festivald` will notice and do the appropriate task.
           
           Using `--disable-watch` will disable that part of the system so that
-          filesystem signals won't work, e.g, `festivald --play` will not work.
+          filesystem signals won't work, e.g, `festivald signal --play` will not work.
 
       --disable-media-controls
           Disable OS media controls
@@ -309,6 +323,11 @@ Options:
           Reset the current `festivald.toml` config file to the default
           
           Exits with `0` if everything went ok, otherwise shows error.
+
+      --reset-cache
+          Reset the `festivald` cache folder
+          
+          This deletes all currently existing `REST` resource cache.
 
       --delete
           Delete all `festivald` files that are on disk

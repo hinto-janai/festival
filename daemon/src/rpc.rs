@@ -441,8 +441,12 @@ pub async fn handle(
 		StateConfig     => lac!(method, request, state_config).await,
 		StateDaemon     => lac!(method, request, state_daemon).await,
 		StateIp         => lac!(method, request, state_ip).await,
-		StateQueue      => lac!(method, request, state_queue, collection.arc()).await,
+		StateQueueKey   => lac!(method, request, state_queue_key, collection.arc()).await,
+		StateQueueSong  => lac!(method, request, state_queue_song, collection.arc()).await,
 		StateQueueEntry => lac!(method, request, state_queue_entry, collection.arc()).await,
+		StatePlaying    => lac!(method, request, state_playing).await,
+		StateRepeat     => lac!(method, request, state_repeat).await,
+		StateRuntime    => lac!(method, request, state_runtime).await,
 		StateVolume     => lac!(method, request, state_volume).await,
 
 		//-------------------------------------------------- Key
@@ -539,6 +543,21 @@ pub async fn handle(
 		PlaylistSingle       => ppacor!(method, request, playlist_single, rpc::param::PlaylistSingle, collection.arc()).await,
 		PlaylistBrief        => lac!(method, request, playlist_brief).await,
 		PlaylistFull         => lac!(method, request, playlist_full).await,
+	}
+}
+
+//---------------------------------------------------------------------------------------------------- AUDIO_STATE Lock
+// Some tasks aren't too important, and it's much
+// more important that `Audio` has quick access to
+// `AUDIO_STATE`, so this function is for accessing
+// it in a more low priority way.
+async fn audio_state_low_priority_lock() -> std::sync::RwLockReadGuard<'static, shukusai::state::AudioState> {
+	loop {
+		if let Ok(lock) = AUDIO_STATE.try_read() {
+			return lock;
+		}
+
+		tokio::time::sleep(Duration::from_millis(1)).await;
 	}
 }
 
@@ -771,7 +790,7 @@ async fn state_audio<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Res
 		runtime,
 		repeat,
 		volume,
-	} = AUDIO_STATE.read().clone();
+	} = audio_state_low_priority_lock().await.clone();
 
 	let song_key = song;
 	let song = if let Some(key) = song_key {
@@ -866,8 +885,19 @@ async fn state_ip<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Erro
 	Ok(resp::result(resp, id))
 }
 
-async fn state_queue<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
-	let queue = AUDIO_STATE.read().queue.clone();
+async fn state_queue_key<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+	let queue = audio_state_low_priority_lock().await.queue.clone();
+
+	let resp = serde_json::json!({
+		"len": queue.len(),
+		"keys": queue,
+	});
+
+	Ok(resp::result(resp, id))
+}
+
+async fn state_queue_song<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
+	let queue = audio_state_low_priority_lock().await.queue.clone();
 
 	let vec: Vec<&Song> = queue
 		.iter()
@@ -883,7 +913,7 @@ async fn state_queue<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Res
 }
 
 async fn state_queue_entry<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
-	let queue = AUDIO_STATE.read().queue.clone();
+	let queue = audio_state_low_priority_lock().await.queue.clone();
 
 	let vec: Vec<shukusai::collection::EntryJson> = queue
 		.iter()
@@ -905,6 +935,38 @@ async fn state_queue_entry<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) 
 		"len": vec.len(),
 		"entries": vec,
 	});
+
+	Ok(resp::result(resp, id))
+}
+
+async fn state_playing<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	let resp = rpc::resp::StatePlaying {
+		playing: audio_state_low_priority_lock().await.playing,
+	};
+
+	Ok(resp::result(resp, id))
+}
+
+async fn state_repeat<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	let resp = rpc::resp::StateRepeat {
+		mode: audio_state_low_priority_lock().await.repeat,
+	};
+
+	Ok(resp::result(resp, id))
+}
+
+async fn state_runtime<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	let lock = audio_state_low_priority_lock().await;
+	let elapsed = lock.elapsed;
+	let runtime = lock.runtime;
+	drop(lock);
+
+	let resp = rpc::resp::StateRuntime {
+		elapsed: elapsed.inner(),
+		runtime: runtime.inner(),
+		elapsed_readable: Cow::Borrowed(elapsed.as_str()),
+		runtime_readable: Cow::Borrowed(runtime.as_str()),
+	};
 
 	Ok(resp::result(resp, id))
 }
@@ -1351,7 +1413,7 @@ async fn current_artist<'a>(
 	id:         Option<Id<'a>>,
 	collection: Arc<Collection>,
 ) -> Result<Response<Body>, anyhow::Error> {
-	let song = AUDIO_STATE.read().song.clone();
+	let song = audio_state_low_priority_lock().await.song.clone();
 
 	if let Some(key) = song {
 		let (r, _) = collection.artist_from_song(key);
@@ -1365,7 +1427,7 @@ async fn current_album<'a>(
 	id:         Option<Id<'a>>,
 	collection: Arc<Collection>,
 ) -> Result<Response<Body>, anyhow::Error> {
-	let song = AUDIO_STATE.read().song.clone();
+	let song = audio_state_low_priority_lock().await.song.clone();
 
 	if let Some(key) = song {
 		let (r, _) = collection.album_from_song(key);
@@ -1379,7 +1441,7 @@ async fn current_song<'a>(
 	id:         Option<Id<'a>>,
 	collection: Arc<Collection>,
 ) -> Result<Response<Body>, anyhow::Error> {
-	let song = AUDIO_STATE.read().song.clone();
+	let song = audio_state_low_priority_lock().await.song.clone();
 
 	if let Some(key) = song {
 		let r = &collection.songs[key];
@@ -1393,7 +1455,7 @@ async fn current_entry<'a>(
 	id:         Option<Id<'a>>,
 	collection: Arc<Collection>,
 ) -> Result<Response<Body>, anyhow::Error> {
-	let song = AUDIO_STATE.read().song.clone();
+	let song = audio_state_low_priority_lock().await.song.clone();
 
 	if let Some(key) = song {
 		let r = &collection.songs[key];
@@ -1620,7 +1682,7 @@ async fn clear<'a>(
 	id:        Option<Id<'a>>,
 	TO_KERNEL: &Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
-	let len = AUDIO_STATE.read().queue.len();
+	let len = audio_state_low_priority_lock().await.queue.len();
 	let resp = rpc::resp::Clear { len };
 	if len != 0 {
 		send!(TO_KERNEL, FrontendToKernel::Clear(params.playback));
@@ -1632,7 +1694,7 @@ async fn stop<'a>(
 	id:        Option<Id<'a>>,
 	TO_KERNEL: &Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
-	let len = AUDIO_STATE.read().queue.len();
+	let len = audio_state_low_priority_lock().await.queue.len();
 	let resp = rpc::resp::Stop { len };
 	if len != 0 {
 		send!(TO_KERNEL, FrontendToKernel::Stop);
@@ -1673,7 +1735,7 @@ async fn repeat<'a>(
 	TO_KERNEL: &Sender<FrontendToKernel>
 ) -> Result<Response<Body>, anyhow::Error> {
 	let current  = params.mode;
-	let previous = AUDIO_STATE.read().repeat;
+	let previous = audio_state_low_priority_lock().await.repeat;
 	let resp = rpc::resp::Repeat {
 		previous,
 		current,
@@ -1986,7 +2048,7 @@ async fn queue_set_index<'a>(
 	id:        Option<Id<'a>>,
 	TO_KERNEL: &Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
-	let queue_len = AUDIO_STATE.read().queue.len();
+	let queue_len = audio_state_low_priority_lock().await.queue.len();
 
 	if params.index >= queue_len {
 		Ok(resp::result(rpc::resp::QueueSetIndex { out_of_bounds: true, index: params.index, queue_len, }, id))
@@ -2001,7 +2063,7 @@ async fn queue_remove_range<'a>(
 	id:        Option<Id<'a>>,
 	TO_KERNEL: &Sender<FrontendToKernel>,
 ) -> Result<Response<Body>, anyhow::Error> {
-	let queue_len = AUDIO_STATE.read().queue.len();
+	let queue_len = audio_state_low_priority_lock().await.queue.len();
 
 	if params.start > params.end ||  params.start >= queue_len || params.end > queue_len {
 		Ok(resp::result(rpc::resp::QueueRemoveRange { out_of_bounds: true, start: params.start, end: params.end, queue_len }, id))

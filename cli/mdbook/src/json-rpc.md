@@ -3,9 +3,9 @@
 
 The way to send a method to `festival` using `festival-cli` is always the same:
 ```bash
-festival-cli <METHOD> [--PARAM <VALUE>]
+festival-cli [--OPTIONAL-FLAGS] <METHOD> [--PARAM <VALUE>]
 ```
-The `<METHOD>` will always be a method name as [documented in `festivald`](https://docs.festival.pm/daemon/json-rpc/json-rpc.html), and parameters are represented by `--flags <value>`. If a parameter is _optional_, then not passing the `--flag` would be the same as not including the parameter.
+The `<METHOD>` will always be a method name as [documented in `festivald`](https://docs.festival.pm/daemon/json-rpc/json-rpc.html), and parameters are represented by `--param-name <value>`. If a parameter is _optional_ (maybe-null), then not passing the `--flag` would be the same as not including the parameter.
 
 For example, to send the [`collection_new`](https://docs.festival.pm/daemon/json-rpc/collection/collection_new.html) method to create a new `Collection`, you would run:
 ```bash
@@ -13,7 +13,7 @@ festival-cli collection_new
 ```
 This method also has an optional parameter, `paths`, which can be specified like this:
 ```bash
-festival-cli collection_new --path /first/path --path /second/path
+festival-cli collection_new --paths /first/path --paths /second/path
 ```
 
 Methods without parameters do not need (and don't have) any associated command flags:
@@ -21,19 +21,8 @@ Methods without parameters do not need (and don't have) any associated command f
 festival-cli collection_full
 ```
 
-### Output
-`festival-cli` sends output to `STDOUT` and `STDERR`.
-
-The _only_ output sent to `STDOUT` is the actual `JSON-RPC` method response, _everything else_ is sent to `STDERR`.
-
-This means you can do:
-```bash
-festival-cli --debug collection_full | jq
-```
-and the debug information will be printed, but `jq` (or any other program/redirection) will only see the `JSON-RPC` response.
-
 ### Pre-flags
-Before specifying a `method`, you can insert some command-lines that alter various things.
+Before specifying a `method`, you can insert some `--flags` that alter various things.
 
 For example, to connect to a different `festivald`:
 ```bash
@@ -43,12 +32,23 @@ To print the configuration that _would_ have been used, but without connecting t
 ```bash
 festival-cli --dry-run collection_full
 ```
-To set a connection timeout
+To set a connection timeout:
 ```bash
 festival-cli --timeout 5 collection_full
 ```
 
 These pre-flags must come _before_ the method name, because every `--flag` that comes _after_ `<METHOD>` will be assumed to be a `--parameter`.
+
+### Output
+`festival-cli` splits output between `STDOUT`/`STDERR`.
+
+The _only_ output sent to `STDOUT` is the actual `JSON-RPC` method response, _everything else_ is sent to `STDERR`.
+
+This means you can do:
+```bash
+festival-cli --debug collection_full | jq
+```
+and the debug information will be printed, but `jq` (or any other program/redirection) will only see the `JSON-RPC` response.
 
 ### Help
 To list all available methods:
@@ -69,7 +69,7 @@ will output markdown text equivalent to the `festivald` documentation for that m
 
 To view the `festivald` documentation proper:
 - View it at [`https://docs.festival.pm/daemon`](https://docs.festival.pm/daemon), or
-- View it locally with `festivald data --docs`, or
+- View it locally with `festivald --docs`, or
 - Serve/view it yourself at `http://localhost:18425` after starting `festivald`
 
 All method documentation will include what inputs it needs, what output to expect, and examples.

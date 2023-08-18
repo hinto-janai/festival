@@ -37,7 +37,7 @@ festival-cli
 	state_daemon                      # Method
 
 # or with `torsocks`
-torsocks festival-cli $ONION state_daemon
+torsocks festival-cli -f $ONION state_daemon
 ```
 ```bash
 ONION="http://omjo63yjj66ga7jlvhqib4z4qgx6y6oigjcpjcr5ehhfdugfuami3did.onion"

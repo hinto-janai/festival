@@ -3,7 +3,7 @@
 
 If enabled, `festival-cli` must also use `--authorization` or setup the [`authorization`](config.md) config option to connect to it.
 
-`festival-cli` must connect to `festivald` over `HTTPS` if authorization is enabled or `festival-cli` will refuse to start.
+`festival-cli` must connect to `festivald` over `HTTPS` or [`.onion`](/tor.md) if authorization is enabled or `festival-cli` will refuse to start.
 
 ## Syntax
 The username & password syntax is specified [here](https://en.wikipedia.org/wiki/Basic_access_authentication).

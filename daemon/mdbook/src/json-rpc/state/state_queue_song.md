@@ -1,4 +1,4 @@
-# state_queue
+# state_queue_song
 
 #### 🟡 Incomplete
 This API may have [additions](/api-stability/marker.md) in the future.
@@ -24,10 +24,10 @@ Returned `Song`'s are in order of what will be played next.
 
 #### Example Request
 ```bash
-festival-cli state_queue
+festival-cli state_queue_song
 ```
 ```bash
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"state_queue"}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"state_queue_song"}'
 ```
 
 #### Example Response

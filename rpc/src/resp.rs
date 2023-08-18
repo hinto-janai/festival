@@ -221,7 +221,12 @@ impl_struct_lt! {
 	song:      Option<SongJson<'a>>
 }
 impl_struct_lt! {
-	StateQueue,
+	StateQueueKey,
+	len: usize,
+	keys: Cow<'a, [SongKey]>
+}
+impl_struct_lt! {
+	StateQueueSong,
 	len: usize,
 	#[serde(borrow)]
 	songs: Cow<'a, [SongJson<'a>]>
@@ -231,6 +236,23 @@ impl_struct_lt! {
 	len: usize,
 	#[serde(borrow)]
 	entries: Cow<'a, [shukusai::collection::EntryJson<'a>]>
+}
+impl_struct! {
+	StatePlaying,
+	playing: bool
+}
+impl_struct! {
+	StateRepeat,
+	mode: shukusai::audio::Repeat
+}
+impl_struct_lt! {
+	StateRuntime,
+	elapsed: u32,
+	runtime: u32,
+	#[serde(borrow)]
+	elapsed_readable: Cow<'a, str>,
+	#[serde(borrow)]
+	runtime_readable: Cow<'a, str>
 }
 impl_struct! {
 	StateVolume,
