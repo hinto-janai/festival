@@ -528,7 +528,8 @@ pub async fn handle(
 		PlaylistNew          => ppacor!(method, request, playlist_new, rpc::param::PlaylistNew, collection.arc()).await,
 		PlaylistRemove       => ppacor!(method, request, playlist_remove, rpc::param::PlaylistRemove, collection.arc()).await,
 		PlaylistClone        => ppacor!(method, request, playlist_clone, rpc::param::PlaylistClone, collection.arc()).await,
-		PlaylistRemoveEntry  => ppacor!(method, request, playlist_remove_entry, rpc::param::PlaylistRemoveEntry, collection.arc()).await,
+		PlaylistGetIndex     => ppacor!(method, request, playlist_get_index, rpc::param::PlaylistGetIndex, collection.arc()).await,
+		PlaylistRemoveIndex  => ppacor!(method, request, playlist_remove_index, rpc::param::PlaylistRemoveIndex, collection.arc()).await,
 		PlaylistAddKeyArtist => ppacor!(method, request, playlist_add_key_artist, rpc::param::PlaylistAddKeyArtist, collection.arc()).await,
 		PlaylistAddKeyAlbum  => ppacor!(method, request, playlist_add_key_album, rpc::param::PlaylistAddKeyAlbum, collection.arc()).await,
 		PlaylistAddKeySong   => ppacor!(method, request, playlist_add_key_song, rpc::param::PlaylistAddKeySong, collection.arc()).await,
@@ -2017,8 +2018,8 @@ async fn playlist_new<'a>(
 	collection:  Arc<Collection>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	match PLAYLISTS.write().playlist_new(&params.playlist) {
-		Some(v) => Ok(resp::result(serde_json::json!({ "entries": v }), id)),
-		None    => Ok(resp::result(rpc::resp::PlaylistNew { entries: None }, id)),
+		Some(v) => Ok(resp::result(serde_json::json!({ "len": v.len(), "entries": v }), id)),
+		None    => Ok(resp::result(rpc::resp::PlaylistNew { len: None, entries: None }, id)),
 	}
 }
 
@@ -2028,8 +2029,8 @@ async fn playlist_remove<'a>(
 	collection:  Arc<Collection>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	match PLAYLISTS.write().playlist_remove(params.playlist.into()) {
-		Some(v) => Ok(resp::result(serde_json::json!({ "entries": v }), id)),
-		None    => Ok(resp::result(rpc::resp::PlaylistRemove { entries: None }, id)),
+		Some(v) => Ok(resp::result(serde_json::json!({ "len": v.len(), "entries": v }), id)),
+		None    => Ok(resp::result(rpc::resp::PlaylistRemove { len: None, entries: None }, id)),
 	}
 }
 
@@ -2039,20 +2040,32 @@ async fn playlist_clone<'a>(
 	collection:  Arc<Collection>,
 ) -> Result<Response<Body>, anyhow::Error> {
 	match PLAYLISTS.write().playlist_clone(params.from.into(), &params.to) {
-		Ok(Some(v)) => Ok(resp::result(serde_json::json!({ "entries": v }), id)),
-		Ok(None)    => Ok(resp::result(rpc::resp::PlaylistClone { entries: None }, id)),
+		Ok(Some(v)) => Ok(resp::result(serde_json::json!({ "len": v.len(), "entries": v }), id)),
+		Ok(None)    => Ok(resp::result(rpc::resp::PlaylistClone { len: None, entries: None }, id)),
 		Err(_)      => Ok(resp::error(ERR_PLAYLIST.0, ERR_PLAYLIST.1, id)),
 	}
 }
 
-async fn playlist_remove_entry<'a>(
-	params:      rpc::param::PlaylistRemoveEntry<'a>,
+async fn playlist_get_index<'a>(
+	params:      rpc::param::PlaylistGetIndex<'a>,
 	id:          Option<Id<'a>>,
 	collection:  Arc<Collection>,
 ) -> Result<Response<Body>, anyhow::Error> {
-	match PLAYLISTS.write().playlist_remove_entry(params.index, params.playlist.into()) {
+	match PLAYLISTS.read().playlist_get_index(params.index, params.playlist.into()) {
 		Ok(Some(v)) => Ok(resp::result(serde_json::json!({ "entry": v }), id)),
-		Ok(None)    => Ok(resp::result(rpc::resp::PlaylistRemoveEntry { entry: None }, id)),
+		Ok(None)    => Ok(resp::error(ERR_INDEX_PLAYLIST.0, ERR_INDEX_PLAYLIST.1, id)),
+		Err(_)      => Ok(resp::error(ERR_PLAYLIST.0, ERR_PLAYLIST.1, id)),
+	}
+}
+
+async fn playlist_remove_index<'a>(
+	params:      rpc::param::PlaylistRemoveIndex<'a>,
+	id:          Option<Id<'a>>,
+	collection:  Arc<Collection>,
+) -> Result<Response<Body>, anyhow::Error> {
+	match PLAYLISTS.write().playlist_remove_index(params.index, params.playlist.into()) {
+		Ok(Some(v)) => Ok(resp::result(serde_json::json!({ "entry": v }), id)),
+		Ok(None)    => Ok(resp::error(ERR_INDEX_PLAYLIST.0, ERR_INDEX_PLAYLIST.1, id)),
 		Err(_)      => Ok(resp::error(ERR_PLAYLIST.0, ERR_PLAYLIST.1, id)),
 	}
 }
@@ -2094,8 +2107,8 @@ async fn playlist_add_key_artist<'a>(
 
 	let append = get_append_playlist!(params, id, p, playlist);
 
-	let existed = p.playlist_add_artist(playlist, key, append, &collection);
-	Ok(resp::result(rpc::resp::PlaylistAddKeyArtist { existed }, id))
+	let (existed, old_len, new_len) = p.playlist_add_artist(playlist, key, append, &collection);
+	Ok(resp::result(rpc::resp::PlaylistAddKeyArtist { existed, old_len, new_len }, id))
 }
 
 async fn playlist_add_key_album<'a>(
@@ -2113,8 +2126,8 @@ async fn playlist_add_key_album<'a>(
 
 	let append = get_append_playlist!(params, id, p, playlist);
 
-	let existed = p.playlist_add_album(playlist, key, append, &collection);
-	Ok(resp::result(rpc::resp::PlaylistAddKeyAlbum { existed }, id))
+	let (existed, old_len, new_len) = p.playlist_add_album(playlist, key, append, &collection);
+	Ok(resp::result(rpc::resp::PlaylistAddKeyAlbum { existed, old_len, new_len }, id))
 }
 
 async fn playlist_add_key_song<'a>(
@@ -2132,8 +2145,8 @@ async fn playlist_add_key_song<'a>(
 
 	let append = get_append_playlist!(params, id, p, playlist);
 
-	let existed = p.playlist_add_song(playlist, key, append, &collection);
-	Ok(resp::result(rpc::resp::PlaylistAddKeySong { existed }, id))
+	let (existed, old_len, new_len) = p.playlist_add_song(playlist, key, append, &collection);
+	Ok(resp::result(rpc::resp::PlaylistAddKeySong { existed, old_len, new_len }, id))
 }
 
 async fn playlist_add_map_artist<'a>(
@@ -2150,8 +2163,8 @@ async fn playlist_add_map_artist<'a>(
 
 	let append = get_append_playlist!(params, id, p, playlist);
 
-	let existed = p.playlist_add_artist(playlist, key, append, &collection);
-	Ok(resp::result(rpc::resp::PlaylistAddMapArtist { existed }, id))
+	let (existed, old_len, new_len) = p.playlist_add_artist(playlist, key, append, &collection);
+	Ok(resp::result(rpc::resp::PlaylistAddMapArtist { existed, old_len, new_len }, id))
 }
 
 async fn playlist_add_map_album<'a>(
@@ -2168,8 +2181,8 @@ async fn playlist_add_map_album<'a>(
 
 	let append = get_append_playlist!(params, id, p, playlist);
 
-	let existed = p.playlist_add_album(playlist, key, append, &collection);
-	Ok(resp::result(rpc::resp::PlaylistAddMapAlbum { existed }, id))
+	let (existed, old_len, new_len) = p.playlist_add_album(playlist, key, append, &collection);
+	Ok(resp::result(rpc::resp::PlaylistAddMapAlbum { existed, old_len, new_len }, id))
 }
 
 async fn playlist_add_map_song<'a>(
@@ -2186,8 +2199,8 @@ async fn playlist_add_map_song<'a>(
 
 	let append = get_append_playlist!(params, id, p, playlist);
 
-	let existed = p.playlist_add_song(playlist, song.key, append, &collection);
-	Ok(resp::result(rpc::resp::PlaylistAddMapSong { existed }, id))
+	let (existed, old_len, new_len) = p.playlist_add_song(playlist, song.key, append, &collection);
+	Ok(resp::result(rpc::resp::PlaylistAddMapSong { existed, old_len, new_len }, id))
 }
 
 async fn playlist_single<'a>(

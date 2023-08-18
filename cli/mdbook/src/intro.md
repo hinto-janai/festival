@@ -18,6 +18,15 @@ The typical invocation of `festival-cli`:
 3. Connects and sends a request to `festivald`
 4. Prints out `JSON` response
 
+There is a public instance of `festivald` you can use test the API with at:
+```http
+https://daemon.festival.pm
+```
+or its [`Onion Address`](https://docs.festival.pm/daemon/tor.html):
+```http
+http://omjo63yjj66ga7jlvhqib4z4qgx6y6oigjcpjcr5ehhfdugfuami3did.onion
+```
+
 For a general quick start, see the next section: [Quick Start](quick-start.md).
 
 ### Purpose

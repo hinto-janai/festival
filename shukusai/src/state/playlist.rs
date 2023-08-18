@@ -238,12 +238,25 @@ impl Playlists {
 		}
 	}
 
+	/// Get the [`Entry`] with index `index` within the playlist `playlist`.
+	///
+	/// `Ok(Some(_))` => playlist existed, song existed
+	/// `Ok(None)`    => playlist existed, song did not exist
+	/// `Err(())`     => playlist did not exist
+	pub fn playlist_get_index(&self, index: usize, playlist: Arc<str>) -> Result<Option<&Entry>, ()> {
+		if let Some(p) = self.get(&playlist) {
+			Ok(p.get(index))
+		} else {
+			Err(())
+		}
+	}
+
 	/// Remove the [`Entry`] with index `index` within the playlist `playlist`.
 	///
 	/// `Ok(Some(_))` => playlist existed, song was removed
 	/// `Ok(None)`    => playlist existed, song did not exist
 	/// `Err(())`     => playlist did not exist, nothing was removed
-	pub fn playlist_remove_entry(&mut self, index: usize, playlist: Arc<str>) -> Result<Option<Entry>, ()> {
+	pub fn playlist_remove_index(&mut self, index: usize, playlist: Arc<str>) -> Result<Option<Entry>, ()> {
 		if let Some(p) = self.get_mut(&playlist) {
 			Ok(p.remove(index))
 		} else {
@@ -256,23 +269,27 @@ impl Playlists {
 	/// Creates playlist if it did not exist.
 	///
 	/// # Return
-	/// - `true`  => playlist existed
-	/// - `false` => playlist did not exist
+	/// - `bool`  => did the playlist already existed?
+	/// - `usize` => playlist old length
+	/// - `usize` => playlist new length
 	///
 	/// # INVARIANT
 	/// - Assumes `Append` index is not out-of-bounds
 	/// - Assumes key is not out-of-bounds
-	pub fn playlist_add_artist(&mut self, playlist: Arc<str>, key: ArtistKey, append: Append, collection: &Arc<Collection>) -> bool {
+	pub fn playlist_add_artist(&mut self, playlist: Arc<str>, key: ArtistKey, append: Append, collection: &Arc<Collection>) -> (bool, usize, usize) {
 		let keys: Box<[SongKey]> = collection.all_songs(key);
 		let iter = keys.iter();
 
 		let mut existed = true;
+
 		let v = self
 			.entry(playlist)
 			.or_insert_with(|| {
 				existed = false;
 				VecDeque::with_capacity(keys.len())
 			});
+
+		let old_len = v.len();
 
 		match append {
 			Append::Back => iter.for_each(|k| {
@@ -314,7 +331,7 @@ impl Playlists {
 			}),
 		}
 
-		existed
+		(existed, old_len, v.len())
 	}
 
 	/// Add this album to this playlist.
@@ -322,13 +339,14 @@ impl Playlists {
 	/// Creates playlist if it did not exist.
 	///
 	/// # Return
-	/// - `true`  => playlist existed
-	/// - `false` => playlist did not exist
+	/// - `bool`  => did the playlist already existed?
+	/// - `usize` => playlist old length
+	/// - `usize` => playlist new length
 	///
 	/// # INVARIANT
 	/// - Assumes `Append` index is not out-of-bounds
 	/// - Assumes key is not out-of-bounds
-	pub fn playlist_add_album(&mut self, playlist: Arc<str>, key: AlbumKey, append: Append, collection: &Arc<Collection>) -> bool {
+	pub fn playlist_add_album(&mut self, playlist: Arc<str>, key: AlbumKey, append: Append, collection: &Arc<Collection>) -> (bool, usize, usize) {
 		let keys = &collection.albums[key].songs;
 		let iter = keys.iter();
 
@@ -339,6 +357,8 @@ impl Playlists {
 				existed = false;
 				VecDeque::with_capacity(keys.len())
 			});
+
+		let old_len = v.len();
 
 		let album  = &collection.albums[key];
 		let artist = &collection.artists[album.artist];
@@ -380,7 +400,7 @@ impl Playlists {
 			}),
 		}
 
-		existed
+		(existed, old_len, v.len())
 	}
 
 	/// Add this song to this playlist.
@@ -388,13 +408,14 @@ impl Playlists {
 	/// Creates playlist if it did not exist.
 	///
 	/// # Return
-	/// - `true`  => playlist existed
-	/// - `false` => playlist did not exist
+	/// - `bool`  => did the playlist already existed?
+	/// - `usize` => playlist old length
+	/// - `usize` => playlist new length
 	///
 	/// # INVARIANT
 	/// - Assumes `Append` index is not out-of-bounds
 	/// - Assumes key is not out-of-bounds
-	pub fn playlist_add_song(&mut self, playlist: Arc<str>, key: SongKey, append: Append, collection: &Arc<Collection>) -> bool {
+	pub fn playlist_add_song(&mut self, playlist: Arc<str>, key: SongKey, append: Append, collection: &Arc<Collection>) -> (bool, usize, usize) {
 		let (artist, album, song) = collection.walk(key);
 
 		let entry = Entry::Valid {
@@ -414,13 +435,15 @@ impl Playlists {
 				VecDeque::with_capacity(8)
 			});
 
+		let old_len = v.len();
+
 		match append {
 			Append::Back     => v.push_back(entry),
 			Append::Front    => v.push_front(entry),
 			Append::Index(i) => v.insert(i, entry),
 		}
 
-		existed
+		(existed, old_len, v.len())
 	}
 
 	//-------------------------------------------------- Misc.

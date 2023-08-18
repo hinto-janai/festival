@@ -783,11 +783,21 @@ impl_rpc_param! {
 	"The name of the new playlist",
 	to: String
 }
-impl_struct_lt!(PlaylistRemoveEntry, #[serde(borrow)] playlist: Cow<'a, str>, index: usize);
+impl_struct_lt!(PlaylistGetIndex, #[serde(borrow)] playlist: Cow<'a, str>, index: usize);
 impl_rpc_param! {
-	"Remove an entry in a playlist",
-	"playlist/playlist_remove_entry",
-	PlaylistRemoveEntryOwned => Method::PlaylistRemoveEntry,
+	"Get a Playlist Entry in a Playlist, using its index number",
+	"playlist/playlist_get_index",
+	PlaylistGetIndexOwned => Method::PlaylistGetIndex,
+	"The name of the playlist",
+	playlist: String,
+	"The index of the entry in the playlist",
+	index: usize
+}
+impl_struct_lt!(PlaylistRemoveIndex, #[serde(borrow)] playlist: Cow<'a, str>, index: usize);
+impl_rpc_param! {
+	"Remove a Playlist Entry in a Playlist, using its index number",
+	"playlist/playlist_remove_index",
+	PlaylistRemoveIndexOwned => Method::PlaylistRemoveIndex,
 	"The name of the playlist",
 	playlist: String,
 	"The index of the entry in the playlist",

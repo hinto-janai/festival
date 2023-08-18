@@ -9,18 +9,18 @@ Add a [`Song`](/common-objects/song.md) to a [`Playlist`](/common-objects/playli
 
 If the specified playlist does not already exist, it will be created.
 
+This method errors if there was an `index` error.
+
 #### Inputs
 | Field    | Type                                        | Description |
 |----------|---------------------------------------------|-------------|
 | playlist | string                                      | The name of the `Playlist`
-| key      | Song key (unsigned integer)                 | `Song` key
-| append   | string, one of `front`, `back` or `index`   | In which way should we add to the playlist? `front` means to the front of the playlist. `back` means to the back. `index` means at an exact playlist index. Playlist index starts at `0`, so to mimic `front`, you would provide `0`.
+| key      | `Song` key (unsigned integer)               | `Song` key
+| append   | string, one of `front`, `back` or `index`   | See [`Playlist/Append`](/json-rpc/playlist/playlist.md#append)
 | index    | optional (maybe-null) unsigned integer      | If the `index` append is chosen, this will be the index used
 
 
 #### Outputs
-This method errors if there was a `index` error.
-
 | Field   | Type    | Description |
 |---------|---------|-------------|
 | existed | boolean | If `playlist` already existed or not

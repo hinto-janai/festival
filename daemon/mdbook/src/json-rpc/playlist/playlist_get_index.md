@@ -1,11 +1,13 @@
-# playlist_remove_entry
+# playlist_get_index
 
 #### 🟢 Stable
 This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Remove an [`Entry`](/common-objects/playlist.md) from a [`Playlist`](/common-objects/playlist.md).
+Retrieve a single [`Playlist Entry`](/common-objects/playlist.md) from a [`Playlist`](/common-objects/playlist.md), using its index number.
+
+This method errors if the `playlist` does not exist or if `index` is out-of-bounds.
 
 #### Inputs
 | Field    | Type             | Description |
@@ -14,19 +16,17 @@ Remove an [`Entry`](/common-objects/playlist.md) from a [`Playlist`](/common-obj
 | index    | unsigned integer | The index of the entry in the playlist
 
 #### Outputs
-This method errors if the `playlist` does not exist.
-
-| Field | Type                                          | Description |
-|-------|-----------------------------------------------|-------------|
-| entry | optional (maybe-null) `Playlist Entry` object | If the `Entry` at `index` existed it is returned, else if it didn't exist, `null`
+| Field | Type                    | Description |
+|-------|-------------------------|-------------|
+| entry | `Playlist Entry` object | The `Playlist Entry` that was at `index`
 
 #### Example Request
-Remove the 1st entry in playlist "Hello"
+Retrieve the 1st entry in playlist "Hello"
 ```bash
-festival-cli playlist_remove_entry --playlist Hello --index 0 
+festival-cli playlist_get_index --playlist Hello --index 0 
 ```
 ```bash
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"playlist_remove_entry","params":{"playlist":"Hello","index":0}}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"playlist_get_index","params":{"playlist":"Hello","index":0}}'
 ```
 
 #### Example Response

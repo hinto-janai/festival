@@ -505,16 +505,17 @@ impl_struct!(QueueSetIndex, out_of_bounds: bool, index: usize, queue_len: usize)
 impl_struct!(QueueRemoveRange, out_of_bounds: bool, start: usize, end: usize, queue_len: usize);
 
 //---------------------------------------------------------------------------------------------------- Playlist
-impl_struct_lt!(PlaylistNew, #[serde(borrow)] entries: Option<Cow<'a, [EntryJson<'a>]>>);
-impl_struct_lt!(PlaylistRemove, #[serde(borrow)] entries: Option<Cow<'a, [EntryJson<'a>]>>);
-impl_struct_lt!(PlaylistClone, #[serde(borrow)] entries: Option<Cow<'a, [EntryJson<'a>]>>);
-impl_struct_lt!(PlaylistRemoveEntry, #[serde(borrow)] entry: Option<Cow<'a, EntryJson<'a>>>);
-impl_struct!(PlaylistAddKeyArtist, existed: bool);
-impl_struct!(PlaylistAddKeyAlbum, existed: bool);
-impl_struct!(PlaylistAddKeySong, existed: bool);
-impl_struct!(PlaylistAddMapArtist, existed: bool);
-impl_struct!(PlaylistAddMapAlbum, existed: bool);
-impl_struct!(PlaylistAddMapSong, existed: bool);
+impl_struct_lt!(PlaylistNew, len: Option<usize>, #[serde(borrow)] entries: Option<Cow<'a, [EntryJson<'a>]>>);
+impl_struct_lt!(PlaylistRemove, len: Option<usize>, #[serde(borrow)] entries: Option<Cow<'a, [EntryJson<'a>]>>);
+impl_struct_lt!(PlaylistClone, len: Option<usize>, #[serde(borrow)] entries: Option<Cow<'a, [EntryJson<'a>]>>);
+impl_struct_lt!(PlaylistGetIndex, #[serde(borrow)] entry: Option<Cow<'a, EntryJson<'a>>>);
+impl_struct_lt!(PlaylistRemoveIndex, #[serde(borrow)] entry: Option<Cow<'a, EntryJson<'a>>>);
+impl_struct!(PlaylistAddKeyArtist, existed: bool, old_len: usize, new_len: usize);
+impl_struct!(PlaylistAddKeyAlbum, existed: bool, old_len: usize, new_len: usize);
+impl_struct!(PlaylistAddKeySong, existed: bool, old_len: usize, new_len: usize);
+impl_struct!(PlaylistAddMapArtist, existed: bool, old_len: usize, new_len: usize);
+impl_struct!(PlaylistAddMapAlbum, existed: bool, old_len: usize, new_len: usize);
+impl_struct!(PlaylistAddMapSong, existed: bool, old_len: usize, new_len: usize);
 impl_struct_lt! {
 	PlaylistSingle,
 	#[serde(borrow)]
