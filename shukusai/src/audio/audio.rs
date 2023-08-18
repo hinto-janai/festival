@@ -674,8 +674,7 @@ impl Audio {
 		self.state.playing = keep_playing;
 
 		if !keep_playing {
-			state.queue_idx = None;
-			state.song      = None;
+			state.finish();
 			self.seek       = None;
 			self.current    = None;
 			if let Some(media_controls) = &mut self.media_controls {
