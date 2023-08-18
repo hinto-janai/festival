@@ -3,16 +3,14 @@
 #### 🟢 Stable
 This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
-(However, the [`collection_full`](/json-rpc/collection/collection_full.md) output is `🟡 Incomplete`).
-
 ---
 
-Download _the entire_ [`Collection`](../common-objects/collection.md).
+Download _the entire_ [`Collection`](/common-objects/collection.md).
 
 ## Warning
-This is the heaviest `REST` endpoint and will cause `festivald` to use at least the same amount of disk space your `Collection`'s `Song` files take up.
+This will cause `festivald` to use at least the same amount of disk space your `Collection`'s audio & art files take up.
 
-For example, if all your `Song`'s combined are `100GB` in size, `festivald` will use at least `100GB` in disk space when receiving this request. Further same requests will not further disk usage, depending on your [`cache_time`](../config.md) configuration.
+For example, if all your `Song`'s combined are `100GB` in size, `festivald` will use at least `100GB` in disk space when receiving this request. Further same requests will not further disk usage, depending on your [`cache_time`](/config.md) configuration.
 
 `festivald` may also take a while to respond to the client, as it is copying, organizing, and archiving the _entire_ `Collection`.
 
@@ -24,10 +22,9 @@ For example, if all your `Song`'s combined are `100GB` in size, `festivald` will
 #### Output
 
 Archive including:
-- A copy of [`collection_full`](../json-rpc/collection/collection_full.md) output in `JSON`
-- All [`Artist`](../common-objects/artist.md)'s
-- All [`Album`](../common-objects/album.md)'s (including art if found)
-- All [`Song`](../common-objects/song.md)'s
+- All [`Artist`](/common-objects/artist.md)'s
+- All [`Album`](/common-objects/album.md)'s (including art if found)
+- All [`Song`](/common-objects/song.md)'s
 
 #### Example Input
 ```http
@@ -36,8 +33,8 @@ http://localhost:18425/collection
 
 #### Example Output
 File:
-```plaintext
-Collection ${FILENAME_SEPARATOR} ${CREATION_UNIX_TIMESTAMP}.zip
+```bash
+Collection${FILENAME_SEPARATOR}${CREATION_UNIX_TIMESTAMP}.zip
 ```
 E.g:
 ```plaintext
@@ -47,7 +44,6 @@ Collection - 1690812809.zip
 Extracted:
 ```plaintext
 Collection - 1690812809/
-  ├─ collection_full.json
   │
   │
   ├─ Artist Name 1/

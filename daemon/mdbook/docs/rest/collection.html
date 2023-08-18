@@ -172,12 +172,11 @@
                         <h1 id="collection"><a class="header" href="#collection">/collection</a></h1>
 <h4 id="-stable"><a class="header" href="#-stable">🟢 Stable</a></h4>
 <p>This API is <a href="/api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
-<p>(However, the <a href="/json-rpc/collection/collection_full.html"><code>collection_full</code></a> output is <code>🟡 Incomplete</code>).</p>
 <hr />
-<p>Download <em>the entire</em> <a href="../common-objects/collection.html"><code>Collection</code></a>.</p>
+<p>Download <em>the entire</em> <a href="/common-objects/collection.html"><code>Collection</code></a>.</p>
 <h2 id="warning"><a class="header" href="#warning">Warning</a></h2>
-<p>This is the heaviest <code>REST</code> endpoint and will cause <code>festivald</code> to use at least the same amount of disk space your <code>Collection</code>'s <code>Song</code> files take up.</p>
-<p>For example, if all your <code>Song</code>'s combined are <code>100GB</code> in size, <code>festivald</code> will use at least <code>100GB</code> in disk space when receiving this request. Further same requests will not further disk usage, depending on your <a href="../config.html"><code>cache_time</code></a> configuration.</p>
+<p>This will cause <code>festivald</code> to use at least the same amount of disk space your <code>Collection</code>'s audio &amp; art files take up.</p>
+<p>For example, if all your <code>Song</code>'s combined are <code>100GB</code> in size, <code>festivald</code> will use at least <code>100GB</code> in disk space when receiving this request. Further same requests will not further disk usage, depending on your <a href="/config.html"><code>cache_time</code></a> configuration.</p>
 <p><code>festivald</code> may also take a while to respond to the client, as it is copying, organizing, and archiving the <em>entire</em> <code>Collection</code>.</p>
 <hr />
 <h4 id="input"><a class="header" href="#input">Input</a></h4>
@@ -185,24 +184,22 @@
 <h4 id="output"><a class="header" href="#output">Output</a></h4>
 <p>Archive including:</p>
 <ul>
-<li>A copy of <a href="../json-rpc/collection/collection_full.html"><code>collection_full</code></a> output in <code>JSON</code></li>
-<li>All <a href="../common-objects/artist.html"><code>Artist</code></a>'s</li>
-<li>All <a href="../common-objects/album.html"><code>Album</code></a>'s (including art if found)</li>
-<li>All <a href="../common-objects/song.html"><code>Song</code></a>'s</li>
+<li>All <a href="/common-objects/artist.html"><code>Artist</code></a>'s</li>
+<li>All <a href="/common-objects/album.html"><code>Album</code></a>'s (including art if found)</li>
+<li>All <a href="/common-objects/song.html"><code>Song</code></a>'s</li>
 </ul>
 <h4 id="example-input"><a class="header" href="#example-input">Example Input</a></h4>
 <pre><code class="language-http">http://localhost:18425/collection
 </code></pre>
 <h4 id="example-output"><a class="header" href="#example-output">Example Output</a></h4>
 <p>File:</p>
-<pre><code class="language-plaintext">Collection ${FILENAME_SEPARATOR} ${CREATION_UNIX_TIMESTAMP}.zip
+<pre><code class="language-bash">Collection${FILENAME_SEPARATOR}${CREATION_UNIX_TIMESTAMP}.zip
 </code></pre>
 <p>E.g:</p>
 <pre><code class="language-plaintext">Collection - 1690812809.zip
 </code></pre>
 <p>Extracted:</p>
 <pre><code class="language-plaintext">Collection - 1690812809/
-  ├─ collection_full.json
   │
   │
   ├─ Artist Name 1/

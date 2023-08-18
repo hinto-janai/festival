@@ -5,7 +5,7 @@ This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Download the `Album` of the currently set `Song` (including art if found), wrapped in an archive format.
+Download the `Album` of the currently set `Song` (including art if found).
 
 #### Input
 `None`

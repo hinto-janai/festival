@@ -184,8 +184,11 @@ direct_download = false
 # ```
 # or left empty "" for no separator at all.
 #
+# This cannot include a slash: `/`
+# as that is the legal PATH separator in ZIP files.
+#
 # DEFAULT | " - "
-# EXAMPLE | "/", " --- ", "_", ""
+# EXAMPLE | " --- ", "_", ""
 # TYPE    | string
 filename_separator = " - "
 

@@ -172,9 +172,10 @@
                         <h1 id="json-rpc"><a class="header" href="#json-rpc">JSON-RPC</a></h1>
 <p><a href="/json-rpc/json-rpc.html"><code>JSON-RPC</code></a>-specific API stability notes.</p>
 <h3 id="ordering"><a class="header" href="#ordering">Ordering</a></h3>
-<p>The <em>ordering</em> of <a href="/api-stability/marker.html">non-stable</a> output/object fields should not be relied upon.</p>
+<p>The ordering of <a href="/api-stability/marker.html">non-stable</a> output/object fields is <a href="/api-stability/marker.html"><code>🔴 Unstable</code></a>.</p>
+<p>The ordering of <a href="/api-stability/marker.html"><code>🟢 Stable</code></a> output/object fields is <a href="/api-stability/marker.html"><code>🟢 Stable</code></a>.</p>
 <p>Old <code>v1.0.0</code> JSON-RPC example:</p>
-<pre><code class="language-json">// Response
+<pre><code class="language-json">// 🟡 Incomplete Response
 {
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {
@@ -183,15 +184,35 @@
   },
   &quot;id&quot;: 0,
 }
-</code></pre>
-<p>New <code>v1.1.0</code> JSON-RPC example:</p>
-<pre><code class="language-json">// Response
+
+// 🟢 Stable Response
 {
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {
-    &quot;field3&quot;: &quot;Output field 3&quot;,
-    &quot;field1&quot;: &quot;Output field 1&quot;,
-    &quot;field4&quot;: &quot;Output field 4&quot;,
+    &quot;field1&quot;: &quot;Output field 1&quot;, // Will always be 1, then 2.
+    &quot;field2&quot;: &quot;Output field 2&quot;
+  },
+  &quot;id&quot;: 0,
+}
+</code></pre>
+<p>New <code>v1.1.0</code> JSON-RPC example:</p>
+<pre><code class="language-json">// 🟡 Incomplete Response
+{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;result&quot;: {
+    &quot;field3&quot;: &quot;Output field 3&quot;, // Ordering may
+    &quot;field1&quot;: &quot;Output field 1&quot;, // shift around
+    &quot;field4&quot;: &quot;Output field 4&quot;, // on incomplete
+    &quot;field2&quot;: &quot;Output field 2&quot;  // methods.
+  },
+  &quot;id&quot;: 0,
+}
+
+// 🟢 Stable Response
+{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;result&quot;: {
+    &quot;field1&quot;: &quot;Output field 1&quot;, // Still 1, 2.
     &quot;field2&quot;: &quot;Output field 2&quot;
   },
   &quot;id&quot;: 0,

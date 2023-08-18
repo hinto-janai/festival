@@ -5,13 +5,13 @@ This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Download a random `Album` (including art if found), wrapped in an archive format.
+Download a random `Album`.
 
 #### Input
 `None`
 
 #### Output
-Album in archive (including art if found).
+Album in `ZIP` (including art if found).
 
 #### Example Input
 ```http

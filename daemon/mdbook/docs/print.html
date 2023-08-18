@@ -525,8 +525,11 @@ direct_download = false
 # ```
 # or left empty &quot;&quot; for no separator at all.
 #
+# This cannot include a slash: `/`
+# as that is the legal PATH separator in ZIP files.
+#
 # DEFAULT | &quot; - &quot;
-# EXAMPLE | &quot;/&quot;, &quot; --- &quot;, &quot;_&quot;, &quot;&quot;
+# EXAMPLE | &quot; --- &quot;, &quot;_&quot;, &quot;&quot;
 # TYPE    | string
 filename_separator = &quot; - &quot;
 
@@ -1558,9 +1561,10 @@ curl https://localhost:18425/rand/album -u user:pass
 <div style="break-before: page; page-break-before: always;"></div><h1 id="json-rpc-3"><a class="header" href="#json-rpc-3">JSON-RPC</a></h1>
 <p><a href="api-stability//json-rpc/json-rpc.html"><code>JSON-RPC</code></a>-specific API stability notes.</p>
 <h3 id="ordering"><a class="header" href="#ordering">Ordering</a></h3>
-<p>The <em>ordering</em> of <a href="api-stability//api-stability/marker.html">non-stable</a> output/object fields should not be relied upon.</p>
+<p>The ordering of <a href="api-stability//api-stability/marker.html">non-stable</a> output/object fields is <a href="api-stability//api-stability/marker.html"><code>🔴 Unstable</code></a>.</p>
+<p>The ordering of <a href="api-stability//api-stability/marker.html"><code>🟢 Stable</code></a> output/object fields is <a href="api-stability//api-stability/marker.html"><code>🟢 Stable</code></a>.</p>
 <p>Old <code>v1.0.0</code> JSON-RPC example:</p>
-<pre><code class="language-json">// Response
+<pre><code class="language-json">// 🟡 Incomplete Response
 {
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {
@@ -1569,15 +1573,35 @@ curl https://localhost:18425/rand/album -u user:pass
   },
   &quot;id&quot;: 0,
 }
-</code></pre>
-<p>New <code>v1.1.0</code> JSON-RPC example:</p>
-<pre><code class="language-json">// Response
+
+// 🟢 Stable Response
 {
   &quot;jsonrpc&quot;: &quot;2.0&quot;,
   &quot;result&quot;: {
-    &quot;field3&quot;: &quot;Output field 3&quot;,
-    &quot;field1&quot;: &quot;Output field 1&quot;,
-    &quot;field4&quot;: &quot;Output field 4&quot;,
+    &quot;field1&quot;: &quot;Output field 1&quot;, // Will always be 1, then 2.
+    &quot;field2&quot;: &quot;Output field 2&quot;
+  },
+  &quot;id&quot;: 0,
+}
+</code></pre>
+<p>New <code>v1.1.0</code> JSON-RPC example:</p>
+<pre><code class="language-json">// 🟡 Incomplete Response
+{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;result&quot;: {
+    &quot;field3&quot;: &quot;Output field 3&quot;, // Ordering may
+    &quot;field1&quot;: &quot;Output field 1&quot;, // shift around
+    &quot;field4&quot;: &quot;Output field 4&quot;, // on incomplete
+    &quot;field2&quot;: &quot;Output field 2&quot;  // methods.
+  },
+  &quot;id&quot;: 0,
+}
+
+// 🟢 Stable Response
+{
+  &quot;jsonrpc&quot;: &quot;2.0&quot;,
+  &quot;result&quot;: {
+    &quot;field1&quot;: &quot;Output field 1&quot;, // Still 1, 2.
     &quot;field2&quot;: &quot;Output field 2&quot;
   },
   &quot;id&quot;: 0,
@@ -1585,7 +1609,44 @@ curl https://localhost:18425/rand/album -u user:pass
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="rest-3"><a class="header" href="#rest-3">REST</a></h1>
 <p><a href="api-stability//rest/rest.html"><code>REST</code></a>-specific API stability notes.</p>
-<h2 id="file-format--names"><a class="header" href="#file-format--names">File Format &amp; Names</a></h2>
+<h3 id="zip"><a class="header" href="#zip">ZIP</a></h3>
+<ol>
+<li>For <code>REST</code> endpoints that serve large collections of files, the <code>ZIP</code> format will be used</li>
+<li>There is no compression applied to the files, they are stored as-is</li>
+<li>These ZIPs can be found the in <a href="api-stability//disk.html"><code>Cache</code></a> folder with the exact same name as sent to the client</li>
+</ol>
+<p>These points are all <a href="api-stability//api-stability/marker.html"><code>🟢 Stable</code></a>.</p>
+<h3 id="zip-"><a class="header" href="#zip-">ZIP <code>/</code></a></h3>
+<p>ZIP files cannot have internal filenames with <code>/</code>, as that is the legal PATH separator, so all:</p>
+<ul>
+<li>File names</li>
+<li><code>Playlist</code> names</li>
+<li><code>Artist</code> names</li>
+<li><code>Album</code> titles</li>
+<li><code>Song</code> titles</li>
+</ul>
+<p>inside ZIPs that contain <code>/</code> will always be replaced with a single dash with no spaces: <code>-</code></p>
+<p>This also applies to the <a href="api-stability//config.html"><code>filename_separator</code></a>, it cannot include <code>/</code>.</p>
+<p>Example:</p>
+<pre><code class="language-bash">Artist/With/Slash.zip # This is fine, the actual ZIP filename will be quoted.
+  │
+  ├─Artist/With/Slash # This will be turned into `Artist-With-Slash`
+      │
+      ├─ Album With//Slashes # This will be turned into `Album With--Slashes`
+           │
+           ├─ Song With/A Slash # This will be turned into `Song With-A Slash`
+</code></pre>
+<p>This is <a href="api-stability//api-stability/marker.html"><code>🟢 Stable</code></a>.</p>
+<h3 id="duplicate-filenames"><a class="header" href="#duplicate-filenames">Duplicate Filenames</a></h3>
+<p>When packaging <code>Song</code>'s into ZIPs, if there a multiple <code>Song</code>'s with the same name in the same <code>Album</code>, it will be suffixed with an incrementing number in parentheses starting from <code>1</code>.</p>
+<p>For example:</p>
+<pre><code class="language-plaintext">My Song.flac
+My Song (1).flac
+My Song (2).flac
+My Song (3).flac
+</code></pre>
+<p>This is <a href="api-stability//api-stability/marker.html"><code>🟢 Stable</code></a>.</p>
+<h3 id="file-format--names"><a class="header" href="#file-format--names">File Format &amp; Names</a></h3>
 <p>The file format type and names of those files<sup class="footnote-reference"><a href="#1">1</a></sup> in the <code>REST</code> API are both <a href="api-stability//api-stability/marker.html"><code>🟢 Stable</code></a>.</p>
 <p>(<sup class="footnote-reference"><a href="#1">1</a></sup> The filenames depend on the user-specified <a href="api-stability//config.html"><code>filename_separator</code></a>, but the general formatting of them is stable)</p>
 <p>The below example uses the default <code>-</code> as the <code>filename_separator</code>.</p>
@@ -1598,7 +1659,7 @@ curl https://localhost:18425/rand/album -u user:pass
 <tr><td><code>art</code></td><td>Original image format (<code>png</code>, <code>jpg</code>, etc)</td><td><code>${ARTIST_NAME} - ${ALBUM_TITLE}.${IMAGE_FORMAT}</code></td></tr>
 </tbody></table>
 </div>
-<h2 id="zip-file-hierarchy"><a class="header" href="#zip-file-hierarchy">ZIP File Hierarchy</a></h2>
+<h3 id="zip-file-hierarchy"><a class="header" href="#zip-file-hierarchy">ZIP File Hierarchy</a></h3>
 <p>The file hierarchy within ZIPs, and the internal file/folder names are both <a href="api-stability//api-stability/marker.html"><code>🟢 Stable</code></a>.</p>
 <p>This below example will be the same for the rest of <code>festivald v1.x.x</code>:</p>
 <pre><code class="language-plaintext"># Input
@@ -6004,7 +6065,7 @@ Entry 76 (Song key 76),
 <p>If you know the <em>exact</em> <code>string</code> for a <code>Song</code>, <code>Album</code>, or <code>Artist</code>, consider using the <a href="json-rpc/search//json-rpc/map/map.html"><code>Map</code></a> methods instead for a direct lookup.</p>
 <p>If you know the <em>exact</em> <a href="json-rpc/search//common-objects/key.html"><code>key</code></a>, use the <a href="json-rpc/search//json-rpc/key/key.html"><code>Key</code></a> methods instead.</p>
 <h3 id="kind"><a class="header" href="#kind">Kind</a></h3>
-<p>These are different &quot;kinds&quot; of searchs you can do, affecting the result output.</p>
+<p>These are different &quot;kinds&quot; of searches you can do, affecting the result output.</p>
 <p>Each <code>search</code> method requires one of these as input.</p>
 <p>All of these return objects sorted from most-to-least similar.</p>
 <div class="table-wrapper"><table><thead><tr><th>Kind</th><th>Description</th></tr></thead><tbody>
@@ -8079,19 +8140,19 @@ index 5 | song_6
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="rest-4"><a class="header" href="#rest-4">REST</a></h1>
-<p><code>festivald</code> (by default) exposes <code>REST</code> endpoints for <a href="rest//common-objects/collection.html"><code>Collection</code></a>-related resources that can be accessed via GET HTTP requests.</p>
+<p><code>festivald</code> (by default) exposes <code>REST</code> endpoints for accessing the underlying resources associated with the <a href="rest//common-objects/collection.html"><code>Collection</code></a> via <code>HTTP GET</code> requests.</p>
 <p>A simple way to access these files is via a browser, e.g, opening this link:</p>
 <pre><code class="language-http">http://localhost:18425/art/Artist Name/Album Title
 </code></pre>
-<p>This will make the art of the album <code>Album Title</code>, owned by the artist <code>Artist Name</code> open directly in the browser (or make it download the image, if the <code>direct_download</code> configuration setting is enabled).</p>
+<p>This will make the art of the album <code>Album Title</code>, owned by the artist <code>Artist Name</code> open directly in the browser (or make it download the image, if the <a href="rest//config.html"><code>direct_download</code></a> configuration setting is enabled).</p>
 <p>Opening something like:</p>
 <pre><code class="language-http">http://localhost:18425/map/Artist Name/Album Title/Song Title
 </code></pre>
 <p>will directly open that song in the browser and show a simple player, if your browser supports it (all modern browsers do). Again, you can change the behavior so that browsers directly download these resources by changing the <code>direct_download</code> <a href="rest/config.html">config</a> option.</p>
-<p>If a file is downloaded that is nested, the <code>filename_separator</code> <a href="rest/config.html">config</a> option will control what the separator will be. By default, this is <code>-</code>, so the filename of an archive of an artist will look like:</p>
+<p>If a file downloaded has a nested filename, the <code>filename_separator</code> <a href="rest/config.html">config</a> option will control what the separator will be. By default, this is <code>-</code>, so the filename of an archive of an <code>Artist</code> will look like:</p>
 <pre><code class="language-plaintext">Artist Name - Album Title.zip
 </code></pre>
-<h2 id="resource"><a class="header" href="#resource">Resource</a></h2>
+<h3 id="resource"><a class="header" href="#resource">Resource</a></h3>
 <p>The <code>REST</code> endpoint resources are in loosely grouped based on what type of data they are and what format they are outputted as.</p>
 <p>These &quot;groups&quot; are referenced in <a href="rest//authorization/rest.html"><code>authorization</code></a> &amp; <a href="rest//api-stability/rest.html"><code>API Stability</code></a>.</p>
 <div class="table-wrapper"><table><thead><tr><th><code>REST</code> resource</th><th>File Format Type</th><th>Description</th><th>Example Endpoint</th><th>Filename Formatting</th></tr></thead><tbody>
@@ -8103,65 +8164,60 @@ index 5 | song_6
 <tr><td><code>art</code></td><td>Original image format (<code>png</code>, <code>jpg</code>, etc)</td><td>Individual <code>Album</code> art</td><td><a href="rest//rest/current/art.html"><code>/current/art</code></a></td><td><code>${ARTIST_NAME} - ${ALBUM_TITLE}.${IMAGE_FORMAT}</code></td></tr>
 </tbody></table>
 </div>
-<h2 id="missing-resource-1"><a class="header" href="#missing-resource-1">Missing Resource</a></h2>
-<p>If the underlying file for a resource is missing from the filesystem, <code>festivald</code> will respond to <code>REST</code> requests with an error.</p>
+<h3 id="missing-resource-1"><a class="header" href="#missing-resource-1">Missing Resource</a></h3>
+<p>If the underlying file for a resource is missing from the filesystem, <code>festivald</code> will respond to <code>REST</code> requests with an <code>HTTP</code> error.</p>
 <p>For example, if an <code>Artist</code> is requested:</p>
 <pre><code class="language-http">http://localhost:18425/map/Artist
 </code></pre>
 <p>And <em>any</em> underlying PATH is missing/moved/renamed from when the <code>Collection</code> was created:</p>
 <pre><code class="language-bash">mv &quot;Song Title&quot; &quot;Song_Title&quot;
 </code></pre>
-<p><code>festivald</code> will now have a reference to a non-existent PATH and will not be able to find the file(s), so it will respond with:</p>
-<pre><code class="language-plaintext">File not found
+<p><code>festivald</code> will now have a reference to a non-existent PATH and will not be able to find the file(s), so it will respond with something along the lines of:</p>
+<pre><code class="language-plaintext">Song file error: ${ARTIST_NAME} - ${ALBUM_TITLE} - Song Title.flac
 </code></pre>
-<p>You can re-create the <code>Collection</code> with <a href="rest/json-rpc/collection/collection_new.html"><code>collection_new</code></a> to re-link these PATHs.</p>
-<h2 id="duplicate-files"><a class="header" href="#duplicate-files">Duplicate Files</a></h2>
-<p>Within an <code>Album</code>, if there a multiple <code>Song</code>'s with the same name and an additional one is found, it will be suffixed with an incrementing number in parentheses starting from <code>1</code>.</p>
-<p>For example:</p>
-<pre><code class="language-plaintext">My Song.flac
-My Song (1).flac
-My Song (2).flac
-My Song (3).flac
-</code></pre>
-<h2 id="zip"><a class="header" href="#zip">ZIP</a></h2>
-<p>For <code>REST</code> endpoints that serve large collections of files, the <code>ZIP</code> format will be used.</p>
-<p>There is no compression applied to the files, they are stored as-is.</p>
-<h2 id="disk-cache"><a class="header" href="#disk-cache">Disk Cache</a></h2>
+<p>You can re-create the <code>Collection</code> with <a href="rest//json-rpc/collection/collection_new.html"><code>collection_new</code></a> to re-link these PATHs.</p>
+<h3 id="disk-cache"><a class="header" href="#disk-cache">Disk Cache</a></h3>
 <p><code>festivald</code> exclusively uses the <a href="rest//disk.html"><code>Disk</code></a> when operating with potentially heavy data.</p>
-<p>All heavy files are both streamed and <a href="https://en.wikipedia.org/wiki/Mmap"><code>memory-mapped</code></a> from disk, so none of them take up full space in physical memory.</p>
+<p>All heavy files are streamed from disk, so none of them take up full space in physical memory.</p>
 <p>Practically, what this means is that when serving files, <code>festivald</code> can get by with very little memory, although the <a href="rest//disk.html"><code>Cache</code></a> folder may get quite heavy.</p>
 <p>The cache behavior can be configured in the <a href="rest//config.html"><code>config</code></a> or via <a href="rest//command-line/command-line.html"><code>command-line</code></a> options.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="rest-quick-start"><a class="header" href="#rest-quick-start"><code>REST</code> Quick Start</a></h1>
 <p>A quick start to using <code>festivald</code>'s <code>REST</code> API.</p>
-<h3 id="view-random-album-art-in-a-web-browser-with-randart"><a class="header" href="#view-random-album-art-in-a-web-browser-with-randart">View random <a href="rest/../common-objects/album.html"><code>Album</code></a> art in a web browser with <a href="rest/rand/art.html"><code>/rand/art</code></a></a></h3>
+<h3 id="view-random-album-art-in-a-web-browser-with-randart"><a class="header" href="#view-random-album-art-in-a-web-browser-with-randart">View random <a href="rest//common-objects/album.html"><code>Album</code></a> art in a web browser with <a href="rest//rest/rand/art.html"><code>/rand/art</code></a></a></h3>
 <pre><code class="language-http">http://localhost:18425/rand/art
 </code></pre>
-<h3 id="open-a-mini-player-of-a-random-song-in-a-web-browser-with-randsong"><a class="header" href="#open-a-mini-player-of-a-random-song-in-a-web-browser-with-randsong">Open a mini-player of a random <a href="rest/../common-objects/song.html"><code>Song</code></a> in a web browser with <a href="rest/rand/song.html"><code>/rand/song</code></a></a></h3>
+<h3 id="open-a-mini-player-of-a-random-song-in-a-web-browser-with-randsong"><a class="header" href="#open-a-mini-player-of-a-random-song-in-a-web-browser-with-randsong">Open a mini-player of a random <a href="rest//common-objects/song.html"><code>Song</code></a> in a web browser with <a href="rest//rest/rand/song.html"><code>/rand/song</code></a></a></h3>
 <pre><code class="language-http">http://localhost:18425/rand/song
 </code></pre>
-<h3 id="download-a-random-album-in-the-zip-format-with-randalbum"><a class="header" href="#download-a-random-album-in-the-zip-format-with-randalbum">Download a random <a href="rest/../common-objects/album.html"><code>Album</code></a> in the <code>ZIP</code> format with <a href="rest/rand/album.html"><code>/rand/album</code></a></a></h3>
+<h3 id="download-a-random-album-in-the-zip-format-with-randalbum"><a class="header" href="#download-a-random-album-in-the-zip-format-with-randalbum">Download a random <a href="rest//common-objects/album.html"><code>Album</code></a> in the <code>ZIP</code> format with <a href="rest//rest/rand/album.html"><code>/rand/album</code></a></a></h3>
 <pre><code class="language-http">http://localhost:18425/rand/album
 </code></pre>
-<h3 id="download-a-specific-artist-in-the-zip-format-with-mapartist_name"><a class="header" href="#download-a-specific-artist-in-the-zip-format-with-mapartist_name">Download a <em>specific</em> <a href="rest/../common-objects/artist.html"><code>Artist</code></a> in the <code>ZIP</code> format with <a href="rest/map/artist.html"><code>/map/$ARTIST_NAME</code></a></a></h3>
+<h3 id="download-a-specific-artist-in-the-zip-format-with-mapartist_name"><a class="header" href="#download-a-specific-artist-in-the-zip-format-with-mapartist_name">Download a <em>specific</em> <a href="rest//common-objects/artist.html"><code>Artist</code></a> in the <code>ZIP</code> format with <a href="rest//rest/map/artist.html"><code>/map/$ARTIST_NAME</code></a></a></h3>
 <pre><code class="language-http">http://localhost:18425/map/Artist Name
 </code></pre>
-<h3 id="download-the-currently-set-song-with-currentsong"><a class="header" href="#download-the-currently-set-song-with-currentsong">Download the currently set <a href="rest/../common-objects/song.html"><code>Song</code></a> with <a href="rest/current/song.html"><code>/current/song</code></a></a></h3>
+<h3 id="download-a-specific-album-by-specific-artist-in-the-zip-format-with-mapartist_name"><a class="header" href="#download-a-specific-album-by-specific-artist-in-the-zip-format-with-mapartist_name">Download a <em>specific</em> <a href="rest//common-objects/album.html"><code>Album</code></a> by <em>specific</em> <a href="rest//common-objects/artist.html"><code>Artist</code></a> in the <code>ZIP</code> format with <a href="rest//rest/map/artist.html"><code>/map/$ARTIST_NAME</code></a></a></h3>
+<pre><code class="language-http">http://localhost:18425/map/Artist Name/Album Title
+</code></pre>
+<h3 id="download-the-currently-set-song-with-currentsong"><a class="header" href="#download-the-currently-set-song-with-currentsong">Download the currently set <a href="rest//common-objects/song.html"><code>Song</code></a> with <a href="rest//rest/current/song.html"><code>/current/song</code></a></a></h3>
 <pre><code class="language-http">http://localhost:18425/current/song
 </code></pre>
-<h3 id="view-the-art-of-the-currently-set-song-with-currentart"><a class="header" href="#view-the-art-of-the-currently-set-song-with-currentart">View the art of the currently set <a href="rest/../common-objects/song.html"><code>Song</code></a> with <a href="rest/current/art.html"><code>/current/art</code></a></a></h3>
+<h3 id="view-the-art-of-the-currently-set-song-with-currentart"><a class="header" href="#view-the-art-of-the-currently-set-song-with-currentart">View the art of the currently set <a href="rest//common-objects/song.html"><code>Song</code></a> with <a href="rest//rest/current/art.html"><code>/current/art</code></a></a></h3>
 <pre><code class="language-http">http://localhost:18425/current/art
 </code></pre>
-<h3 id="download-all-the-art-belonging-to-an-artist-with-artartist_name"><a class="header" href="#download-all-the-art-belonging-to-an-artist-with-artartist_name">Download <em>all</em> the art belonging to an <a href="rest/../common-objects/artist.html"><code>Artist</code></a> with <a href="rest/art/artist.html"><code>/art/$ARTIST_NAME</code></a></a></h3>
+<h3 id="download-all-the-art-belonging-to-an-artist-with-artartist_name"><a class="header" href="#download-all-the-art-belonging-to-an-artist-with-artartist_name">Download <em>all</em> the art belonging to an <a href="rest//common-objects/artist.html"><code>Artist</code></a> with <a href="rest//rest/art/artist.html"><code>/art/$ARTIST_NAME</code></a></a></h3>
 <pre><code class="language-http">http://localhost:18425/art/Artist Name
 </code></pre>
+<h3 id="download-all-the-songs-in-a-playlist-in-the-zip-format-with-playlistplaylist_name"><a class="header" href="#download-all-the-songs-in-a-playlist-in-the-zip-format-with-playlistplaylist_name">Download <em>all</em> the <a href="rest//common-objects/song.html"><code>Song</code></a>'s in a <a href="rest//common-objects/playlist.html"><code>Playlist</code></a> in the <code>ZIP</code> format with <a href="rest/playlist.html"><code>/playlist/$PLAYLIST_NAME</code></a></a></h3>
+<pre><code class="language-http">http://localhost:18425/playlist/My Playlist 1
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="key-2"><a class="header" href="#key-2">/key</a></h1>
-<p>Access audio files and/or art via a [<code>key</code>/common-objects/key.md).</p>
-<p>This endpoint expects 2 more endpoints:</p>
+<p>Access audio files and/or art via a <a href="rest/key//common-objects/key.html"><code>key</code></a>.</p>
+<p>This endpoint expects 2 more endpoints/inputs:</p>
 <ul>
 <li><a href="rest/key//common-objects/common-objects.html"><code>${COMMON_OBJECT}</code></a></li>
 <li><a href="rest/key//common-objects/key.html"><code>${KEY}</code></a></li>
 </ul>
-<p>The <code>${COMMON_OBJECT}</code> must be one of:</p>
+<p>Where <code>${COMMON_OBJECT}</code> is one of:</p>
 <ul>
 <li><code>artist</code></li>
 <li><code>album</code></li>
@@ -8174,14 +8230,14 @@ My Song (3).flac
 <h4 id="-stable-68"><a class="header" href="#-stable-68">🟢 Stable</a></h4>
 <p>This API is <a href="rest/key//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
-<p>Download all the <code>Album</code>'s owned by this <code>Artist</code>, 1 directory per album (including art if found), wrapped in an archive format, using an <a href="rest/key//common-objects/key.html"><code>Artist key</code></a>.</p>
+<p>Download an <code>Artist</code>, using an <a href="rest/key//common-objects/key.html"><code>Artist key</code></a>.</p>
 <h4 id="input"><a class="header" href="#input">Input</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Input</th><th>Type</th></tr></thead><tbody>
-<tr><td>Artist key</td><td>unsigned integer</td></tr>
+<tr><td><code>Artist</code> key</td><td>unsigned integer</td></tr>
 </tbody></table>
 </div>
 <h4 id="output"><a class="header" href="#output">Output</a></h4>
-<p>Archive of all artist's albums (including art if found).</p>
+<p><code>ZIP</code> of all artist's albums (including art if found).</p>
 <h4 id="example-input"><a class="header" href="#example-input">Example Input</a></h4>
 <pre><code class="language-http">http://localhost:18425/key/artist/123
 </code></pre>
@@ -8191,35 +8247,35 @@ My Song (3).flac
 </code></pre>
 <p>Extracted:</p>
 <pre><code class="language-plaintext">Artist Name/
-    ├─ Album Name 1/
-    │    ├─ Album Name 1.jpg
-    │    ├─ Song Name 1.mp3
-    │    ├─ Song Name 2.flac
-    │    ├─ Song Name 3.ogg
+    ├─ Album Title 1/
+    │    ├─ Album Title 1.jpg
+    │    ├─ Song Title 1.mp3
+    │    ├─ Song Title 2.flac
+    │    ├─ Song Title 3.ogg
     │
-    │─ Album Name 2/
-    │    ├─ Album Name 2.png
-    │    ├─ Song Name 4.mp3
-    │    ├─ Song Name 5.flac
-    │    ├─ Song Name 6.ogg
+    │─ Album Title 2/
+    │    ├─ Album Title 2.png
+    │    ├─ Song Title 4.mp3
+    │    ├─ Song Title 5.flac
+    │    ├─ Song Title 6.ogg
     │
-    ├─ Album Name 3/
-         ├─ Song Name 7.mp3
-         ├─ Song Name 8.flac
-         ├─ Song Name 9.ogg
+    ├─ Album Title 3/
+         ├─ Song Title 7.mp3
+         ├─ Song Title 8.flac
+         ├─ Song Title 9.ogg
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="keyalbumalbum_key"><a class="header" href="#keyalbumalbum_key">/key/album/$ALBUM_KEY</a></h1>
 <h4 id="-stable-69"><a class="header" href="#-stable-69">🟢 Stable</a></h4>
 <p>This API is <a href="rest/key//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
-<p>Download an <code>Album</code> (including art if found), wrapped in an archive format, using an <a href="rest/key//common-objects/key.html"><code>Album key</code></a>.</p>
+<p>Download an <code>Album</code> using an <a href="rest/key//common-objects/key.html"><code>Album key</code></a>.</p>
 <h4 id="input-1"><a class="header" href="#input-1">Input</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Input</th><th>Type</th></tr></thead><tbody>
 <tr><td>Album key</td><td>unsigned integer</td></tr>
 </tbody></table>
 </div>
 <h4 id="output-1"><a class="header" href="#output-1">Output</a></h4>
-<p>Album in archive (including art if found).</p>
+<p>Album in <code>ZIP</code> (including art if found).</p>
 <h4 id="example-input-1"><a class="header" href="#example-input-1">Example Input</a></h4>
 <pre><code class="language-http">http://localhost:18425/key/album/123
 </code></pre>
@@ -8229,19 +8285,19 @@ My Song (3).flac
 </code></pre>
 <p>Extracted:</p>
 <pre><code class="language-plaintext">Artist Name - Album Title/
-  ├─ Album Name.jpg
-  ├─ Song Name 1.mp3
-  ├─ Song Name 2.flac
-  ├─ Song Name 3.ogg
+  ├─ Album Title.jpg
+  ├─ Song Title 1.mp3
+  ├─ Song Title 2.flac
+  ├─ Song Title 3.ogg
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="keysongsong_key"><a class="header" href="#keysongsong_key">/key/song/$SONG_KEY</a></h1>
 <h4 id="-stable-70"><a class="header" href="#-stable-70">🟢 Stable</a></h4>
 <p>This API is <a href="rest/key//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
-<p>Download this <code>Song</code> in the original format, using a <a href="rest/key//common-objects/key.html"><code>Song key</code></a>.</p>
+<p>Download a <code>Song</code> using a <a href="rest/key//common-objects/key.html"><code>Song key</code></a>.</p>
 <h4 id="input-2"><a class="header" href="#input-2">Input</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Input</th><th>Type</th></tr></thead><tbody>
-<tr><td>Song key</td><td>unsigned integer</td></tr>
+<tr><td><code>Song</code> key</td><td>unsigned integer</td></tr>
 </tbody></table>
 </div>
 <h4 id="output-2"><a class="header" href="#output-2">Output</a></h4>
@@ -8256,10 +8312,10 @@ My Song (3).flac
 <h4 id="-stable-71"><a class="header" href="#-stable-71">🟢 Stable</a></h4>
 <p>This API is <a href="rest/key//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
-<p>Download this <code>Album</code>'s art in the image's original format, using an <a href="rest/key//common-objects/key.html"><code>Album key</code></a>.</p>
+<p>Download this <code>Album</code>'s art, using an <a href="rest/key//common-objects/key.html"><code>Album key</code></a>.</p>
 <h4 id="input-3"><a class="header" href="#input-3">Input</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Input</th><th>Type</th></tr></thead><tbody>
-<tr><td>Album key</td><td>unsigned integer</td></tr>
+<tr><td><code>Album</code> key</td><td>unsigned integer</td></tr>
 </tbody></table>
 </div>
 <h4 id="output-3"><a class="header" href="#output-3">Output</a></h4>
@@ -8274,9 +8330,9 @@ My Song (3).flac
 <div style="break-before: page; page-break-before: always;"></div><h1 id="map-1"><a class="header" href="#map-1">/map</a></h1>
 <p>This is the same as the <a href="rest/map/../key/key.html"><code>/key</code></a> endpoint, but instead of numbers, you can directly use:</p>
 <ul>
-<li>Artist names</li>
-<li>Album titles</li>
-<li>Song titles</li>
+<li><code>Artist</code> names</li>
+<li><code>Album</code> titles</li>
+<li><code>Song</code> titles</li>
 </ul>
 <p>So instead of:</p>
 <pre><code>http://localhost:18425/key/song/123
@@ -8307,14 +8363,14 @@ My Song (3).flac
 <h4 id="-stable-72"><a class="header" href="#-stable-72">🟢 Stable</a></h4>
 <p>This API is <a href="rest/map//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
-<p>Download all the <code>Album</code>'s owned by this <code>Artist</code>, 1 directory per album (including art if found), wrapped in an archive format, using the <a href="rest/map//common-objects/artist.html"><code>Artist</code></a>'s name.</p>
+<p>Download an <code>Artist</code>, using the <a href="rest/map//common-objects/artist.html"><code>Artist</code></a>'s name.</p>
 <h4 id="input-4"><a class="header" href="#input-4">Input</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Input</th><th>Type</th></tr></thead><tbody>
-<tr><td>Artist name</td><td>string</td></tr>
+<tr><td><code>Artist</code> name</td><td>string</td></tr>
 </tbody></table>
 </div>
 <h4 id="output-4"><a class="header" href="#output-4">Output</a></h4>
-<p>Archive of all artist's albums (including art if found).</p>
+<p><code>ZIP</code> of all artist's albums (including art if found).</p>
 <h4 id="example-input-4"><a class="header" href="#example-input-4">Example Input</a></h4>
 <pre><code class="language-http">http://localhost:18425/map/Artist Name
 </code></pre>
@@ -8324,36 +8380,36 @@ My Song (3).flac
 </code></pre>
 <p>Extracted:</p>
 <pre><code class="language-plaintext">Artist Name/
-    ├─ Album Name 1/
-    │    ├─ Album Name 1.jpg
-    │    ├─ Song Name 1.mp3
-    │    ├─ Song Name 2.flac
-    │    ├─ Song Name 3.ogg
+    ├─ Album Title 1/
+    │    ├─ Album Title 1.jpg
+    │    ├─ Song Title 1.mp3
+    │    ├─ Song Title 2.flac
+    │    ├─ Song Title 3.ogg
     │
-    │─ Album Name 2/
-    │    ├─ Album Name 2.png
-    │    ├─ Song Name 4.mp3
-    │    ├─ Song Name 5.flac
-    │    ├─ Song Name 6.ogg
+    │─ Album Title 2/
+    │    ├─ Album Title 2.png
+    │    ├─ Song Title 4.mp3
+    │    ├─ Song Title 5.flac
+    │    ├─ Song Title 6.ogg
     │
-    ├─ Album Name 3/
-         ├─ Song Name 7.mp3
-         ├─ Song Name 8.flac
-         ├─ Song Name 9.ogg
+    ├─ Album Title 3/
+         ├─ Song Title 7.mp3
+         ├─ Song Title 8.flac
+         ├─ Song Title 9.ogg
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="mapartist_namealbum_title"><a class="header" href="#mapartist_namealbum_title">/map/$ARTIST_NAME/$ALBUM_TITLE</a></h1>
 <h4 id="-stable-73"><a class="header" href="#-stable-73">🟢 Stable</a></h4>
 <p>This API is <a href="rest/map//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
-<p>Download an <code>Album</code> (including art if found), wrapped in an archive format, using the <a href="rest/map//common-objects/artist.html"><code>Artist</code></a>'s name, and <a href="rest/map//common-objects/album.html"><code>Album</code></a> title.</p>
+<p>Download an <code>Album</code> using the <a href="rest/map//common-objects/artist.html"><code>Artist</code></a>'s name, and <a href="rest/map//common-objects/album.html"><code>Album</code></a> title.</p>
 <h4 id="input-5"><a class="header" href="#input-5">Input</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Input</th><th>Type</th></tr></thead><tbody>
-<tr><td>Artist name</td><td>string</td></tr>
-<tr><td>Album title</td><td>string</td></tr>
+<tr><td><code>Artist</code> name</td><td>string</td></tr>
+<tr><td><code>Album</code> title</td><td>string</td></tr>
 </tbody></table>
 </div>
 <h4 id="output-5"><a class="header" href="#output-5">Output</a></h4>
-<p>Album in archive (including art if found).</p>
+<p>Album in <code>ZIP</code> (including art if found).</p>
 <h4 id="example-input-5"><a class="header" href="#example-input-5">Example Input</a></h4>
 <pre><code class="language-http">http://localhost:18425/map/Artist Name/Album Title
 </code></pre>
@@ -8363,21 +8419,21 @@ My Song (3).flac
 </code></pre>
 <p>Extracted:</p>
 <pre><code class="language-plaintext">Artist Name - Album Title/
-  ├─ Album Name.jpg
-  ├─ Song Name 1.mp3
-  ├─ Song Name 2.flac
-  ├─ Song Name 3.ogg
+  ├─ Album Title.jpg
+  ├─ Song Title 1.mp3
+  ├─ Song Title 2.flac
+  ├─ Song Title 3.ogg
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="mapartist_namealbum_titlesong_title"><a class="header" href="#mapartist_namealbum_titlesong_title">/map/$ARTIST_NAME/$ALBUM_TITLE/$SONG_TITLE</a></h1>
 <h4 id="-stable-74"><a class="header" href="#-stable-74">🟢 Stable</a></h4>
 <p>This API is <a href="rest/map//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
-<p>Download this <code>Song</code> in the original format, using the <a href="rest/map//common-objects/artist.html"><code>Artist</code></a>'s name, <a href="rest/map//common-objects/album.html"><code>Album</code></a> title, and <a href="rest/map//common-objects/song.html"><code>Song</code></a> title.</p>
+<p>Download a <code>Song</code>, using the <a href="rest/map//common-objects/artist.html"><code>Artist</code></a>'s name, <a href="rest/map//common-objects/album.html"><code>Album</code></a> title, and <a href="rest/map//common-objects/song.html"><code>Song</code></a> title.</p>
 <h4 id="input-6"><a class="header" href="#input-6">Input</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Input</th><th>Type</th></tr></thead><tbody>
-<tr><td>Artist name</td><td>string</td></tr>
-<tr><td>Album title</td><td>string</td></tr>
-<tr><td>Song title</td><td>string</td></tr>
+<tr><td><code>Artist</code> name</td><td>string</td></tr>
+<tr><td><code>Album</code> title</td><td>string</td></tr>
+<tr><td><code>Song</code> title</td><td>string</td></tr>
 </tbody></table>
 </div>
 <h4 id="output-6"><a class="header" href="#output-6">Output</a></h4>
@@ -8393,16 +8449,16 @@ My Song (3).flac
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="current-1"><a class="header" href="#current-1">/current</a></h1>
 <p>Download the currently set <code>Artist</code>, <code>Album</code>, <code>Song</code>, or art.</p>
-<p>Returns a 404 error if no <a href="rest/current//common-objects/song.html"><code>Song</code></a> is currently set.</p>
+<p>Returns an <code>HTTP</code> error if no <a href="rest/current//common-objects/song.html"><code>Song</code></a> is currently <a href="rest/current//json-rpc/state/state_audio.html">set</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="currentartist"><a class="header" href="#currentartist">/current/artist</a></h1>
 <h4 id="-stable-75"><a class="header" href="#-stable-75">🟢 Stable</a></h4>
 <p>This API is <a href="rest/current//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
-<p>Download all the <code>Album</code>'s owned by this <code>Artist</code> of the currently set <code>Song</code>, 1 directory per album (including art if found), wrapped in an archive format.</p>
+<p>Download the <code>Artist</code> of the currently set <code>Song</code>.</p>
 <h4 id="input-7"><a class="header" href="#input-7">Input</a></h4>
 <p><code>None</code></p>
 <h4 id="output-7"><a class="header" href="#output-7">Output</a></h4>
-<p>Archive of all artist's albums (including art if found).</p>
+<p><code>ZIP</code> of all artist's albums (including art if found).</p>
 <h4 id="example-input-7"><a class="header" href="#example-input-7">Example Input</a></h4>
 <pre><code class="language-http">http://localhost:18425/current/artist
 </code></pre>
@@ -8433,7 +8489,7 @@ My Song (3).flac
 <h4 id="-stable-76"><a class="header" href="#-stable-76">🟢 Stable</a></h4>
 <p>This API is <a href="rest/current//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
-<p>Download the <code>Album</code> of the currently set <code>Song</code> (including art if found), wrapped in an archive format.</p>
+<p>Download the <code>Album</code> of the currently set <code>Song</code> (including art if found).</p>
 <h4 id="input-8"><a class="header" href="#input-8">Input</a></h4>
 <p><code>None</code></p>
 <h4 id="output-8"><a class="header" href="#output-8">Output</a></h4>
@@ -8456,7 +8512,7 @@ My Song (3).flac
 <h4 id="-stable-77"><a class="header" href="#-stable-77">🟢 Stable</a></h4>
 <p>This API is <a href="rest/current//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
-<p>Download the currently set <code>Song</code> in the original format.</p>
+<p>Download the currently set <code>Song</code>.</p>
 <h4 id="input-9"><a class="header" href="#input-9">Input</a></h4>
 <p><code>None</code></p>
 <h4 id="output-9"><a class="header" href="#output-9">Output</a></h4>
@@ -8471,8 +8527,8 @@ My Song (3).flac
 <h4 id="-stable-78"><a class="header" href="#-stable-78">🟢 Stable</a></h4>
 <p>This API is <a href="rest/current//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
-<p>Download the <code>Album</code> art of the currently set <code>Song</code>, in the original format.</p>
-<p>If no art was found, the response will be a 404 error.</p>
+<p>Download the <code>Album</code> art of the currently set <code>Song</code>.</p>
+<p>If no art was found, this will respond with an <code>HTTP</code> error.</p>
 <h4 id="input-10"><a class="header" href="#input-10">Input</a></h4>
 <p><code>None</code></p>
 <h4 id="output-10"><a class="header" href="#output-10">Output</a></h4>
@@ -8485,17 +8541,17 @@ My Song (3).flac
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="rand-1"><a class="header" href="#rand-1">/rand</a></h1>
 <p>Download a random <code>Artist</code>, <code>Album</code>, <code>Song</code> or art.</p>
-<p>This will return a 404 error if the <a href="rest/rand//common-objects/collection.html"><code>Collection</code></a> is empty.</p>
+<p>This will return an <code>HTTP</code> error if the <a href="rest/rand//common-objects/collection.html"><code>Collection</code></a> is empty.</p>
 <p>Repeating is allowed, so you may encounter the same object multiple times in a row.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="randartist"><a class="header" href="#randartist">/rand/artist</a></h1>
 <h4 id="-stable-79"><a class="header" href="#-stable-79">🟢 Stable</a></h4>
 <p>This API is <a href="rest/rand//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
-<p>Download all the <code>Album</code>'s by a random <code>Artist</code>, 1 directory per album (including art if found), wrapped in an archive format.</p>
+<p>Download a random <code>Artist</code>.</p>
 <h4 id="input-11"><a class="header" href="#input-11">Input</a></h4>
 <p><code>None</code></p>
 <h4 id="output-11"><a class="header" href="#output-11">Output</a></h4>
-<p>Archive of all artist's albums (including art if found).</p>
+<p><code>ZIP</code> of all artist's albums (including art if found).</p>
 <h4 id="example-input-11"><a class="header" href="#example-input-11">Example Input</a></h4>
 <pre><code class="language-http">http://localhost:18425/rand/artist
 </code></pre>
@@ -8526,11 +8582,11 @@ My Song (3).flac
 <h4 id="-stable-80"><a class="header" href="#-stable-80">🟢 Stable</a></h4>
 <p>This API is <a href="rest/rand//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
-<p>Download a random <code>Album</code> (including art if found), wrapped in an archive format.</p>
+<p>Download a random <code>Album</code>.</p>
 <h4 id="input-12"><a class="header" href="#input-12">Input</a></h4>
 <p><code>None</code></p>
 <h4 id="output-12"><a class="header" href="#output-12">Output</a></h4>
-<p>Album in archive (including art if found).</p>
+<p>Album in <code>ZIP</code> (including art if found).</p>
 <h4 id="example-input-12"><a class="header" href="#example-input-12">Example Input</a></h4>
 <pre><code class="language-http">http://localhost:18425/rand/album
 </code></pre>
@@ -8549,7 +8605,7 @@ My Song (3).flac
 <h4 id="-stable-81"><a class="header" href="#-stable-81">🟢 Stable</a></h4>
 <p>This API is <a href="rest/rand//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
-<p>Download a random <code>Song</code> in the original format.</p>
+<p>Download a random <code>Song</code>.</p>
 <h4 id="input-13"><a class="header" href="#input-13">Input</a></h4>
 <p><code>None</code></p>
 <h4 id="output-13"><a class="header" href="#output-13">Output</a></h4>
@@ -8564,8 +8620,8 @@ My Song (3).flac
 <h4 id="-stable-82"><a class="header" href="#-stable-82">🟢 Stable</a></h4>
 <p>This API is <a href="rest/rand//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
-<p>Download a random <code>Album</code> art, in the original format.</p>
-<p>If no art was found, the response will be a 404 error.</p>
+<p>Download a random <code>Album</code> art.</p>
+<p>If no art was found, the response will be an <code>HTTP</code> error.</p>
 <h4 id="input-14"><a class="header" href="#input-14">Input</a></h4>
 <p><code>None</code></p>
 <h4 id="output-14"><a class="header" href="#output-14">Output</a></h4>
@@ -8582,14 +8638,14 @@ My Song (3).flac
 <h4 id="-stable-83"><a class="header" href="#-stable-83">🟢 Stable</a></h4>
 <p>This API is <a href="rest/art//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
-<p>Download all the <code>Album</code> art owned by this <code>Artist</code>, wrapped in an archive format, using the <a href="rest/art//common-objects/artist.html"><code>Artist</code></a>'s name.</p>
+<p>Download all the <code>Album</code> art owned by this <code>Artist</code>, using the <a href="rest/art//common-objects/artist.html"><code>Artist</code></a>'s name.</p>
 <h4 id="input-15"><a class="header" href="#input-15">Input</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Input</th><th>Type</th></tr></thead><tbody>
-<tr><td>Artist name</td><td>string</td></tr>
+<tr><td><code>Artist</code> name</td><td>string</td></tr>
 </tbody></table>
 </div>
 <h4 id="output-15"><a class="header" href="#output-15">Output</a></h4>
-<p>Archive of all the art owned by this <code>Artist</code>.</p>
+<p><code>ZIP</code> of all the art owned by this <code>Artist</code>.</p>
 <h4 id="example-input-15"><a class="header" href="#example-input-15">Example Input</a></h4>
 <pre><code class="language-http">http://localhost:18425/art/Artist Name
 </code></pre>
@@ -8610,8 +8666,8 @@ My Song (3).flac
 <p>Download an <code>Album</code>'s art, using the <a href="rest/art//common-objects/artist.html"><code>Artist</code></a>'s name, and <a href="rest/art//common-objects/album.html"><code>Album</code></a> title</p>
 <h4 id="input-16"><a class="header" href="#input-16">Input</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Input</th><th>Type</th></tr></thead><tbody>
-<tr><td>Artist name</td><td>string</td></tr>
-<tr><td>Album title</td><td>string</td></tr>
+<tr><td><code>Artist</code> name</td><td>string</td></tr>
+<tr><td><code>Album</code> title</td><td>string</td></tr>
 </tbody></table>
 </div>
 <h4 id="output-16"><a class="header" href="#output-16">Output</a></h4>
@@ -8626,8 +8682,8 @@ My Song (3).flac
 <h4 id="-stable-85"><a class="header" href="#-stable-85">🟢 Stable</a></h4>
 <p>This API is <a href="rest//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
-<p>Download all the <a href="rest//common-objects/song.html"><code>Song</code></a>'s from a <a href="rest//common-objects/playlist.html"><code>Playlist</code></a>.</p>
-<p><a href="rest//common-objects/playlist.html"><code>Invalid Entry</code></a>'s will be ignored.</p>
+<p>Download all the <a href="rest//common-objects/song.html"><code>Song</code></a>'s in a <a href="rest//common-objects/playlist.html"><code>Playlist</code></a>.</p>
+<p><a href="rest//common-objects/playlist.html#playlist-entry"><code>Invalid Entry</code></a>'s will be ignored.</p>
 <p>Each <code>Song</code> file will be prefixed with its index in the playlist.</p>
 <p>The formatting is as such:</p>
 <pre><code class="language-bash">${INDEX}${SEPARATOR}${ARTIST_NAME}${SEPARATOR}${ALBUM_TITLE}${SEPARATOR}${SONG_TITLE}.${SONG_EXTENSION}
@@ -8638,11 +8694,11 @@ My Song (3).flac
 <p>Index starts at <code>0</code>.</p>
 <h4 id="input-17"><a class="header" href="#input-17">Input</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Input</th><th>Type</th></tr></thead><tbody>
-<tr><td>Playlist name</td><td>string</td></tr>
+<tr><td><code>Playlist</code> name</td><td>string</td></tr>
 </tbody></table>
 </div>
 <h4 id="output-17"><a class="header" href="#output-17">Output</a></h4>
-<p>Playlist (valid <code>Song</code> files) in archive.</p>
+<p>Playlist (valid <code>Song</code> files only) in <code>ZIP</code>.</p>
 <h4 id="example-input-17"><a class="header" href="#example-input-17">Example Input</a></h4>
 <pre><code class="language-http">http://localhost:18425/playlist/My Playlist 2
 </code></pre>
@@ -8659,12 +8715,11 @@ My Song (3).flac
 <div style="break-before: page; page-break-before: always;"></div><h1 id="collection-3"><a class="header" href="#collection-3">/collection</a></h1>
 <h4 id="-stable-86"><a class="header" href="#-stable-86">🟢 Stable</a></h4>
 <p>This API is <a href="rest//api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
-<p>(However, the <a href="rest//json-rpc/collection/collection_full.html"><code>collection_full</code></a> output is <code>🟡 Incomplete</code>).</p>
 <hr />
-<p>Download <em>the entire</em> <a href="rest/../common-objects/collection.html"><code>Collection</code></a>.</p>
+<p>Download <em>the entire</em> <a href="rest//common-objects/collection.html"><code>Collection</code></a>.</p>
 <h2 id="warning-2"><a class="header" href="#warning-2">Warning</a></h2>
-<p>This is the heaviest <code>REST</code> endpoint and will cause <code>festivald</code> to use at least the same amount of disk space your <code>Collection</code>'s <code>Song</code> files take up.</p>
-<p>For example, if all your <code>Song</code>'s combined are <code>100GB</code> in size, <code>festivald</code> will use at least <code>100GB</code> in disk space when receiving this request. Further same requests will not further disk usage, depending on your <a href="rest/../config.html"><code>cache_time</code></a> configuration.</p>
+<p>This will cause <code>festivald</code> to use at least the same amount of disk space your <code>Collection</code>'s audio &amp; art files take up.</p>
+<p>For example, if all your <code>Song</code>'s combined are <code>100GB</code> in size, <code>festivald</code> will use at least <code>100GB</code> in disk space when receiving this request. Further same requests will not further disk usage, depending on your <a href="rest//config.html"><code>cache_time</code></a> configuration.</p>
 <p><code>festivald</code> may also take a while to respond to the client, as it is copying, organizing, and archiving the <em>entire</em> <code>Collection</code>.</p>
 <hr />
 <h4 id="input-18"><a class="header" href="#input-18">Input</a></h4>
@@ -8672,24 +8727,22 @@ My Song (3).flac
 <h4 id="output-18"><a class="header" href="#output-18">Output</a></h4>
 <p>Archive including:</p>
 <ul>
-<li>A copy of <a href="rest/../json-rpc/collection/collection_full.html"><code>collection_full</code></a> output in <code>JSON</code></li>
-<li>All <a href="rest/../common-objects/artist.html"><code>Artist</code></a>'s</li>
-<li>All <a href="rest/../common-objects/album.html"><code>Album</code></a>'s (including art if found)</li>
-<li>All <a href="rest/../common-objects/song.html"><code>Song</code></a>'s</li>
+<li>All <a href="rest//common-objects/artist.html"><code>Artist</code></a>'s</li>
+<li>All <a href="rest//common-objects/album.html"><code>Album</code></a>'s (including art if found)</li>
+<li>All <a href="rest//common-objects/song.html"><code>Song</code></a>'s</li>
 </ul>
 <h4 id="example-input-18"><a class="header" href="#example-input-18">Example Input</a></h4>
 <pre><code class="language-http">http://localhost:18425/collection
 </code></pre>
 <h4 id="example-output-18"><a class="header" href="#example-output-18">Example Output</a></h4>
 <p>File:</p>
-<pre><code class="language-plaintext">Collection ${FILENAME_SEPARATOR} ${CREATION_UNIX_TIMESTAMP}.zip
+<pre><code class="language-bash">Collection${FILENAME_SEPARATOR}${CREATION_UNIX_TIMESTAMP}.zip
 </code></pre>
 <p>E.g:</p>
 <pre><code class="language-plaintext">Collection - 1690812809.zip
 </code></pre>
 <p>Extracted:</p>
 <pre><code class="language-plaintext">Collection - 1690812809/
-  ├─ collection_full.json
   │
   │
   ├─ Artist Name 1/

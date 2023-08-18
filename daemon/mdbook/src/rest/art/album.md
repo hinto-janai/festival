@@ -8,10 +8,10 @@ This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 Download an `Album`'s art, using the [`Artist`](/common-objects/artist.md)'s name, and [`Album`](/common-objects/album.md) title
 
 #### Input
-| Input       | Type   |
-|-------------|--------|
-| Artist name | string |
-| Album title | string |
+| Input         | Type   |
+|---------------|--------|
+| `Artist` name | string |
+| `Album` title | string |
 
 #### Output
 Album art in original format.

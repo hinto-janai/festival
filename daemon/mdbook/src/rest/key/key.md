@@ -1,11 +1,11 @@
 # /key
-Access audio files and/or art via a [`key`/common-objects/key.md).
+Access audio files and/or art via a [`key`](/common-objects/key.md).
 
-This endpoint expects 2 more endpoints:
+This endpoint expects 2 more endpoints/inputs:
 - [`${COMMON_OBJECT}`](/common-objects/common-objects.md)
 - [`${KEY}`](/common-objects/key.md)
 
-The `${COMMON_OBJECT}` must be one of:
+Where `${COMMON_OBJECT}` is one of:
 - `artist`
 - `album`
 - `song`

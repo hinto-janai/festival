@@ -162,6 +162,20 @@ pub fn server_err(msg: &'static str) -> Response<Body> {
 		.unwrap()
 }
 
+// Internal server error (500) (takes a `String`)
+pub fn server_err_dyn(msg: String) -> Response<Body> {
+	match Builder::new()
+		.status(StatusCode::INTERNAL_SERVER_ERROR)
+		.header(SERVER, FESTIVALD_SERVER)
+		.header(CONTENT_TYPE, TEXT_PLAIN_UTF_8.essence_str())
+		.header(CONTENT_LENGTH, msg.len())
+		.body(Body::from(msg))
+	{
+		Ok(r)  => r,
+		Err(e) => server_err("Internal server error"),
+	}
+}
+
 // We're in the middle of a `Collection` reset.
 pub fn resetting_rest() -> Response<Body> {
 	const MSG: &str = "Currently resetting the Collection";

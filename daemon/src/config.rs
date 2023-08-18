@@ -193,6 +193,10 @@ impl ConfigBuilder {
 			c.sleep_on_fail = None;
 		}
 
+		if c.filename_separator.contains("/") {
+			crate::exit!("[filename_separator] cannot contain '/', it is the PATH separator for ZIPs");
+		}
+
 		// FIXME TODO: testing.
 //		c.tls = true;
 //		c.certificate = Some(PathBuf::from("../../assets/tls/cert.pem"));

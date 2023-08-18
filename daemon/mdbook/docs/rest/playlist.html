@@ -173,8 +173,8 @@
 <h4 id="-stable"><a class="header" href="#-stable">🟢 Stable</a></h4>
 <p>This API is <a href="/api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
-<p>Download all the <a href="/common-objects/song.html"><code>Song</code></a>'s from a <a href="/common-objects/playlist.html"><code>Playlist</code></a>.</p>
-<p><a href="/common-objects/playlist.html"><code>Invalid Entry</code></a>'s will be ignored.</p>
+<p>Download all the <a href="/common-objects/song.html"><code>Song</code></a>'s in a <a href="/common-objects/playlist.html"><code>Playlist</code></a>.</p>
+<p><a href="/common-objects/playlist.html#playlist-entry"><code>Invalid Entry</code></a>'s will be ignored.</p>
 <p>Each <code>Song</code> file will be prefixed with its index in the playlist.</p>
 <p>The formatting is as such:</p>
 <pre><code class="language-bash">${INDEX}${SEPARATOR}${ARTIST_NAME}${SEPARATOR}${ALBUM_TITLE}${SEPARATOR}${SONG_TITLE}.${SONG_EXTENSION}
@@ -185,11 +185,11 @@
 <p>Index starts at <code>0</code>.</p>
 <h4 id="input"><a class="header" href="#input">Input</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Input</th><th>Type</th></tr></thead><tbody>
-<tr><td>Playlist name</td><td>string</td></tr>
+<tr><td><code>Playlist</code> name</td><td>string</td></tr>
 </tbody></table>
 </div>
 <h4 id="output"><a class="header" href="#output">Output</a></h4>
-<p>Playlist (valid <code>Song</code> files) in archive.</p>
+<p>Playlist (valid <code>Song</code> files only) in <code>ZIP</code>.</p>
 <h4 id="example-input"><a class="header" href="#example-input">Example Input</a></h4>
 <pre><code class="language-http">http://localhost:18425/playlist/My Playlist 2
 </code></pre>

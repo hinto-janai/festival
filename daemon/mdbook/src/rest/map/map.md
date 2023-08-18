@@ -1,8 +1,8 @@
 # /map
 This is the same as the [`/key`](../key/key.md) endpoint, but instead of numbers, you can directly use:
-- Artist names
-- Album titles
-- Song titles
+- `Artist` names
+- `Album` titles
+- `Song` titles
 
 So instead of:
 ```

@@ -77,6 +77,15 @@ async fn rest_auth_ok(
 	None
 }
 
+//---------------------------------------------------------------------------------------------------- `/` filename check
+fn slash(s: String) -> String {
+	if s.contains('/') {
+		s.replace('/', "-")
+	} else {
+		s
+	}
+}
+
 //---------------------------------------------------------------------------------------------------- REST Handler
 pub async fn handle(
 	parts:  Parts,
@@ -398,7 +407,7 @@ async fn impl_artist_inner(
 	for album_key in &artist.albums {
 		let album = &collection.albums[album_key];
 
-		if let Some(r) = impl_album_inner(zip, options, album, &collection, &format!("{folder}/{}", album.title)).await {
+		if let Some(r) = impl_album_inner(zip, options, album, &collection, &format!("{folder}/{}", slash(album.title.to_string()))).await {
 			return Some(r);
 		}
 	}
@@ -437,19 +446,22 @@ async fn impl_album_inner(
 
 		// Keep adding to PATH if we've seen this file.
 		let mut attempt = 1_usize;
-		let mut file_path: Arc<str> = format!("{folder}/{}.{}", song.title, song.extension).into();
+		let song_title = slash(song.title.to_string());
+		let mut file_path: Arc<str> = format!("{folder}/{}.{}", song_title, song.extension).into();
 		while !seen.insert(Arc::clone(&file_path)) {
-			file_path = format!("{folder}/{} ({attempt}).{}", song.title, song.extension).into();
+			file_path = format!("{folder}/{} ({attempt}).{}", song_title, song.extension).into();
 			attempt += 1;
 		};
 
 		let r = tokio::task::block_in_place(|| {
 			if zip.start_file_from_path(&PathBuf::from(&*file_path), options).is_err() {
-				return Some(resp::server_err(ERR_SONG));
+				let (artist, album, song) = collection.walk(song_key);
+				return Some(resp::server_err_dyn(format!("Song file error: {} - {} - {}", artist.name, album.title, song.title)));
 			}
 
 			if zip.write(&*mmap).is_err() {
-				return Some(resp::server_err(ERR_SONG));
+				let (artist, album, song) = collection.walk(song_key);
+				return Some(resp::server_err_dyn(format!("Zip file error: {} - {} - {}", artist.name, album.title, song.title)));
 			}
 
 			None
@@ -475,14 +487,16 @@ async fn impl_album_inner(
 			Err(r) => return Some(r),
 		};
 
-		let file_path = format!("{folder}/{}{}{}.{}", artist.name, config().filename_separator, album.title, extension);
+		let artist_name = slash(artist.name.to_string());
+		let album_title = slash(album.title.to_string());
+		let file_path = format!("{folder}/{artist_name}{}{album_title}.{}", config().filename_separator, extension);
 
 		if zip.start_file_from_path(&PathBuf::from(file_path), options).is_err() {
-			return Some(resp::server_err(ERR_SONG));
+			return Some(resp::server_err_dyn(format!("Art file error: {} - {}", artist.name, album.title)));
 		}
 
 		if zip.write(&*mmap).is_err() {
-			return Some(resp::server_err(ERR_SONG));
+			return Some(resp::server_err_dyn(format!("Art file error: {} - {}", artist.name, album.title)));
 		}
 	}
 
@@ -520,7 +534,8 @@ async fn impl_artist(artist: &Artist, collection: &Arc<Collection>) -> Result<Re
 	let mut zip = zip::ZipWriter::new(file);
 	let options = zip::write::FileOptions::default().compression_method(zip::CompressionMethod::Stored);
 
-	if let Some(r) = impl_artist_inner(&mut zip, options, artist, collection, &artist.name).await {
+	let artist_name = slash(artist.name.to_string());
+	if let Some(r) = impl_artist_inner(&mut zip, options, artist, collection, &artist_name).await {
 		return Ok(r);
 	}
 
@@ -549,7 +564,9 @@ async fn impl_album(album: &Album, collection: &Arc<Collection>) -> Result<Respo
 
 	let artist = &collection.artists[album.artist];
 
-	let artist_album = format!("{}{}{}", artist.name, config().filename_separator, album.title);
+	let artist_name = slash(artist.name.to_string());
+	let album_title = slash(album.title.to_string());
+	let artist_album = format!("{artist_name}{}{album_title}", config().filename_separator);
 
 	// Zip name.
 	let zip_name = format!("{artist_album}.zip");
@@ -606,15 +623,6 @@ async fn impl_album(album: &Album, collection: &Arc<Collection>) -> Result<Respo
 async fn impl_song(song: &Song, collection: &Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
 	trace!("REST - impl_song(): {}", song.title);
 
-	// Open the file.
-	let Ok(file) = tokio::fs::File::open(&song.path).await else {
-		return Ok(resp::not_found(ERR_SONG));
-	};
-
-	let len    = file_len(&file).await;
-	let stream = FramedRead::new(file, BytesCodec::new());
-	let body   = Body::wrap_stream(stream);
-
 	// Format the file name.
 	let (artist, album, _) = collection.walk(song.key);
 	let name = format!(
@@ -627,23 +635,24 @@ async fn impl_song(song: &Song, collection: &Arc<Collection>) -> Result<Response
 		song.extension,
 	);
 
+	// Open the file.
+	let Ok(file) = tokio::fs::File::open(&song.path).await else {
+		return Ok(resp::server_err_dyn(format!("Song file error: {name}")));
+	};
+
+	let len    = file_len(&file).await;
+	let stream = FramedRead::new(file, BytesCodec::new());
+	let body   = Body::wrap_stream(stream);
+
 	Ok(resp::rest_stream(body, &name, &song.mime, len))
 }
 
 async fn impl_art(album: &Album, collection: &Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
 	// If art exists...
 	let Art::Known { path, mime, len, extension } = &album.art  else {
-		return Ok(resp::not_found("No album art available"));
+		let artist = &collection.artists[album.artist];
+		return Ok(resp::server_err_dyn(format!("Album art not available for: {} - {}", artist.name, album.title)));
 	};
-
-	// Open the file.
-	let Ok(file) = tokio::fs::File::open(&path).await else {
-		return Ok(resp::not_found("Album art not found on filesystem"));
-	};
-
-	let len    = file_len(&file).await;
-	let stream = FramedRead::new(file, BytesCodec::new());
-	let body   = Body::wrap_stream(stream);
 
 	// Format the file name.
 	let artist = &collection.artists[album.artist];
@@ -654,6 +663,15 @@ async fn impl_art(album: &Album, collection: &Arc<Collection>) -> Result<Respons
 		album.title,
 		extension,
 	);
+
+	// Open the file.
+	let Ok(file) = tokio::fs::File::open(&path).await else {
+		return Ok(resp::server_err_dyn(format!("Album art error: {name}")));
+	};
+
+	let len    = file_len(&file).await;
+	let stream = FramedRead::new(file, BytesCodec::new());
+	let body   = Body::wrap_stream(stream);
 
 	Ok(resp::rest_stream(body, &name, mime, len))
 }
@@ -714,15 +732,18 @@ async fn impl_playlist(
 		};
 
 		let s = config().filename_separator.as_str();
-		let file_path = format!("{index}{}{s}{}{s}{}{s}.{}", artist.name, album.title, song.title, song.extension);
+		let artist_name = slash(artist.name.to_string());
+		let album_title = slash(album.title.to_string());
+		let song_title  = slash(song.title.to_string());
+		let file_path = format!("{index}{s}{artist_name}{s}{album_title}{s}{song_title}{s}.{}", song.extension);
 
 		let r = tokio::task::block_in_place(|| {
-			if zip.start_file_from_path(&PathBuf::from(&file_path), options).is_err() {
-				return Some(resp::server_err(ERR_SONG));
+			if zip.start_file(file_path, options).is_err() {
+				return Some(resp::server_err_dyn(format!("Song file error: {} - {} - {}", artist.name, album.title, song.title)));
 			}
 
 			if zip.write(&*mmap).is_err() {
-				return Some(resp::server_err(ERR_SONG));
+				return Some(resp::server_err_dyn(format!("Zip file error: {} - {} - {}", artist.name, album.title, song.title)));
 			}
 
 			None
@@ -961,7 +982,8 @@ pub async fn art_artist(artist: &str, collection: Arc<Collection>) -> Result<Res
 				Err(r) => return Ok(resp::not_found("Album art was not found")),
 			};
 
-			let file_path = format!("{}.{}", album.title, extension);
+			let album_title = slash(album.title.to_string());
+			let file_path = format!("{album_title}.{extension}");
 
 			let r = tokio::task::block_in_place(|| {
 				if zip.start_file_from_path(&PathBuf::from(file_path), options).is_err() {
@@ -1050,22 +1072,10 @@ pub async fn collection_fn(collection: Arc<Collection>) -> Result<Response<Body>
 	let options = zip::write::FileOptions::default().compression_method(zip::CompressionMethod::Stored);
 
 	for artist in collection.artists.iter() {
-		let fp = format!("{file_path}/{}", artist.name);
+		let fp = format!("{file_path}/{}", slash(artist.name.to_string()));
 		if let Some(r) = impl_artist_inner(&mut zip, options, artist, &collection, &fp).await {
 			return Ok(r);
 		}
-	}
-
-	let Ok(state_collection_full) = serde_json::to_vec_pretty(&collection) else {
-		return Ok(resp::server_err(ERR_ZIP));
-	};
-
-	if zip.start_file_from_path(&PathBuf::from(format!("{file_path}/state_collection_full.json")), options).is_err() {
-		return Ok(resp::server_err(ERR_ZIP));
-	}
-
-	if zip.write(&state_collection_full).is_err() {
-		return Ok(resp::server_err(ERR_ZIP));
 	}
 
 	if zip.finish().is_err() {

@@ -5,9 +5,9 @@ This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Download the `Album` art of the currently set `Song`, in the original format.
+Download the `Album` art of the currently set `Song`.
 
-If no art was found, the response will be a 404 error.
+If no art was found, this will respond with an `HTTP` error.
 
 #### Input
 `None`

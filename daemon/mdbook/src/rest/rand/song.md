@@ -5,7 +5,7 @@ This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Download a random `Song` in the original format.
+Download a random `Song`.
 
 #### Input
 `None`

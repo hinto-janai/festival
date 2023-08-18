@@ -268,6 +268,9 @@ pub struct Cli {
 	/// Artist Name/Album Title.zip
 	/// ```
 	/// or left empty "" for no separator at all.
+	///
+	/// This cannot include a slash: `/`
+	/// as that is the legal PATH separator in ZIP files.
 	filename_separator: Option<String>,
 
 	#[arg(long, verbatim_doc_comment, default_value_t = false)]

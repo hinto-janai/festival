@@ -173,14 +173,14 @@
 <h4 id="-stable"><a class="header" href="#-stable">🟢 Stable</a></h4>
 <p>This API is <a href="/api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
-<p>Download an <code>Album</code> (including art if found), wrapped in an archive format, using an <a href="/common-objects/key.html"><code>Album key</code></a>.</p>
+<p>Download an <code>Album</code> using an <a href="/common-objects/key.html"><code>Album key</code></a>.</p>
 <h4 id="input"><a class="header" href="#input">Input</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Input</th><th>Type</th></tr></thead><tbody>
 <tr><td>Album key</td><td>unsigned integer</td></tr>
 </tbody></table>
 </div>
 <h4 id="output"><a class="header" href="#output">Output</a></h4>
-<p>Album in archive (including art if found).</p>
+<p>Album in <code>ZIP</code> (including art if found).</p>
 <h4 id="example-input"><a class="header" href="#example-input">Example Input</a></h4>
 <pre><code class="language-http">http://localhost:18425/key/album/123
 </code></pre>
@@ -190,10 +190,10 @@
 </code></pre>
 <p>Extracted:</p>
 <pre><code class="language-plaintext">Artist Name - Album Title/
-  ├─ Album Name.jpg
-  ├─ Song Name 1.mp3
-  ├─ Song Name 2.flac
-  ├─ Song Name 3.ogg
+  ├─ Album Title.jpg
+  ├─ Song Title 1.mp3
+  ├─ Song Title 2.flac
+  ├─ Song Title 3.ogg
 </code></pre>
 
                     </main>

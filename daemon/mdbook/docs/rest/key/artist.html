@@ -173,14 +173,14 @@
 <h4 id="-stable"><a class="header" href="#-stable">🟢 Stable</a></h4>
 <p>This API is <a href="/api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
-<p>Download all the <code>Album</code>'s owned by this <code>Artist</code>, 1 directory per album (including art if found), wrapped in an archive format, using an <a href="/common-objects/key.html"><code>Artist key</code></a>.</p>
+<p>Download an <code>Artist</code>, using an <a href="/common-objects/key.html"><code>Artist key</code></a>.</p>
 <h4 id="input"><a class="header" href="#input">Input</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Input</th><th>Type</th></tr></thead><tbody>
-<tr><td>Artist key</td><td>unsigned integer</td></tr>
+<tr><td><code>Artist</code> key</td><td>unsigned integer</td></tr>
 </tbody></table>
 </div>
 <h4 id="output"><a class="header" href="#output">Output</a></h4>
-<p>Archive of all artist's albums (including art if found).</p>
+<p><code>ZIP</code> of all artist's albums (including art if found).</p>
 <h4 id="example-input"><a class="header" href="#example-input">Example Input</a></h4>
 <pre><code class="language-http">http://localhost:18425/key/artist/123
 </code></pre>
@@ -190,22 +190,22 @@
 </code></pre>
 <p>Extracted:</p>
 <pre><code class="language-plaintext">Artist Name/
-    ├─ Album Name 1/
-    │    ├─ Album Name 1.jpg
-    │    ├─ Song Name 1.mp3
-    │    ├─ Song Name 2.flac
-    │    ├─ Song Name 3.ogg
+    ├─ Album Title 1/
+    │    ├─ Album Title 1.jpg
+    │    ├─ Song Title 1.mp3
+    │    ├─ Song Title 2.flac
+    │    ├─ Song Title 3.ogg
     │
-    │─ Album Name 2/
-    │    ├─ Album Name 2.png
-    │    ├─ Song Name 4.mp3
-    │    ├─ Song Name 5.flac
-    │    ├─ Song Name 6.ogg
+    │─ Album Title 2/
+    │    ├─ Album Title 2.png
+    │    ├─ Song Title 4.mp3
+    │    ├─ Song Title 5.flac
+    │    ├─ Song Title 6.ogg
     │
-    ├─ Album Name 3/
-         ├─ Song Name 7.mp3
-         ├─ Song Name 8.flac
-         ├─ Song Name 9.ogg
+    ├─ Album Title 3/
+         ├─ Song Title 7.mp3
+         ├─ Song Title 8.flac
+         ├─ Song Title 9.ogg
 </code></pre>
 
                     </main>

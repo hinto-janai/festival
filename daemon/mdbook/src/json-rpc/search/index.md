@@ -8,7 +8,7 @@ If you know the _exact_ `string` for a `Song`, `Album`, or `Artist`, consider us
 If you know the _exact_ [`key`](/common-objects/key.md), use the [`Key`](/json-rpc/key/key.md) methods instead.
 
 ### Kind
-These are different "kinds" of searchs you can do, affecting the result output.
+These are different "kinds" of searches you can do, affecting the result output.
 
 Each `search` method requires one of these as input.
 

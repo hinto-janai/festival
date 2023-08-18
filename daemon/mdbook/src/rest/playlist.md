@@ -5,9 +5,9 @@ This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Download all the [`Song`](/common-objects/song.md)'s from a [`Playlist`](/common-objects/playlist.md).
+Download all the [`Song`](/common-objects/song.md)'s in a [`Playlist`](/common-objects/playlist.md).
 
-[`Invalid Entry`](/common-objects/playlist.md)'s will be ignored.
+[`Invalid Entry`](/common-objects/playlist.html#playlist-entry)'s will be ignored.
 
 Each `Song` file will be prefixed with its index in the playlist.
 
@@ -23,12 +23,12 @@ For example, if the [`filename_separator`](/config.md) was left as the default `
 Index starts at `0`.
 
 #### Input
-| Input         | Type   |
-|---------------|--------|
-| Playlist name | string |
+| Input           | Type   |
+|-----------------|--------|
+| `Playlist` name | string |
 
 #### Output
-Playlist (valid `Song` files) in archive.
+Playlist (valid `Song` files only) in `ZIP`.
 
 #### Example Input
 ```http

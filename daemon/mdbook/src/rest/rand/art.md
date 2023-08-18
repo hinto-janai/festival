@@ -5,9 +5,9 @@ This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Download a random `Album` art, in the original format.
+Download a random `Album` art.
 
-If no art was found, the response will be a 404 error.
+If no art was found, the response will be an `HTTP` error.
 
 #### Input
 `None`

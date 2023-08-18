@@ -5,13 +5,13 @@ This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Download all the `Album`'s by a random `Artist`, 1 directory per album (including art if found), wrapped in an archive format.
+Download a random `Artist`.
 
 #### Input
 `None`
 
 #### Output
-Archive of all artist's albums (including art if found).
+`ZIP` of all artist's albums (including art if found).
 
 #### Example Input
 ```http

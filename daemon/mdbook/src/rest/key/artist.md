@@ -5,15 +5,15 @@ This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Download all the `Album`'s owned by this `Artist`, 1 directory per album (including art if found), wrapped in an archive format, using an [`Artist key`](/common-objects/key.md).
+Download an `Artist`, using an [`Artist key`](/common-objects/key.md).
 
 #### Input
-| Input      | Type             |
-|------------|------------------|
-| Artist key | unsigned integer |
+| Input        | Type             |
+|--------------|------------------|
+| `Artist` key | unsigned integer |
 
 #### Output
-Archive of all artist's albums (including art if found).
+`ZIP` of all artist's albums (including art if found).
 
 #### Example Input
 ```http
@@ -29,20 +29,20 @@ Artist Name.zip
 Extracted:
 ```plaintext
 Artist Name/
-    ├─ Album Name 1/
-    │    ├─ Album Name 1.jpg
-    │    ├─ Song Name 1.mp3
-    │    ├─ Song Name 2.flac
-    │    ├─ Song Name 3.ogg
+    ├─ Album Title 1/
+    │    ├─ Album Title 1.jpg
+    │    ├─ Song Title 1.mp3
+    │    ├─ Song Title 2.flac
+    │    ├─ Song Title 3.ogg
     │
-    │─ Album Name 2/
-    │    ├─ Album Name 2.png
-    │    ├─ Song Name 4.mp3
-    │    ├─ Song Name 5.flac
-    │    ├─ Song Name 6.ogg
+    │─ Album Title 2/
+    │    ├─ Album Title 2.png
+    │    ├─ Song Title 4.mp3
+    │    ├─ Song Title 5.flac
+    │    ├─ Song Title 6.ogg
     │
-    ├─ Album Name 3/
-         ├─ Song Name 7.mp3
-         ├─ Song Name 8.flac
-         ├─ Song Name 9.ogg
+    ├─ Album Title 3/
+         ├─ Song Title 7.mp3
+         ├─ Song Title 8.flac
+         ├─ Song Title 9.ogg
 ```

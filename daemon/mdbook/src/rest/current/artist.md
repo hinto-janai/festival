@@ -5,13 +5,13 @@ This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Download all the `Album`'s owned by this `Artist` of the currently set `Song`, 1 directory per album (including art if found), wrapped in an archive format.
+Download the `Artist` of the currently set `Song`.
 
 #### Input
 `None`
 
 #### Output
-Archive of all artist's albums (including art if found).
+`ZIP` of all artist's albums (including art if found).
 
 #### Example Input
 ```http

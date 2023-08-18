@@ -5,7 +5,7 @@ This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Download an `Album` (including art if found), wrapped in an archive format, using an [`Album key`](/common-objects/key.md).
+Download an `Album` using an [`Album key`](/common-objects/key.md).
 
 #### Input
 | Input     | Type             |
@@ -13,7 +13,7 @@ Download an `Album` (including art if found), wrapped in an archive format, usin
 | Album key | unsigned integer |
 
 #### Output
-Album in archive (including art if found).
+Album in `ZIP` (including art if found).
 
 #### Example Input
 ```http
@@ -29,8 +29,8 @@ Artist Name - Album Title.zip
 Extracted:
 ```plaintext
 Artist Name - Album Title/
-  ├─ Album Name.jpg
-  ├─ Song Name 1.mp3
-  ├─ Song Name 2.flac
-  ├─ Song Name 3.ogg
+  ├─ Album Title.jpg
+  ├─ Song Title 1.mp3
+  ├─ Song Title 2.flac
+  ├─ Song Title 3.ogg
 ```

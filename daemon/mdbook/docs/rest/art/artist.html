@@ -173,14 +173,14 @@
 <h4 id="-stable"><a class="header" href="#-stable">🟢 Stable</a></h4>
 <p>This API is <a href="/api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
-<p>Download all the <code>Album</code> art owned by this <code>Artist</code>, wrapped in an archive format, using the <a href="/common-objects/artist.html"><code>Artist</code></a>'s name.</p>
+<p>Download all the <code>Album</code> art owned by this <code>Artist</code>, using the <a href="/common-objects/artist.html"><code>Artist</code></a>'s name.</p>
 <h4 id="input"><a class="header" href="#input">Input</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Input</th><th>Type</th></tr></thead><tbody>
-<tr><td>Artist name</td><td>string</td></tr>
+<tr><td><code>Artist</code> name</td><td>string</td></tr>
 </tbody></table>
 </div>
 <h4 id="output"><a class="header" href="#output">Output</a></h4>
-<p>Archive of all the art owned by this <code>Artist</code>.</p>
+<p><code>ZIP</code> of all the art owned by this <code>Artist</code>.</p>
 <h4 id="example-input"><a class="header" href="#example-input">Example Input</a></h4>
 <pre><code class="language-http">http://localhost:18425/art/Artist Name
 </code></pre>
