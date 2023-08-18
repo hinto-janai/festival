@@ -27,6 +27,8 @@ pub use metadata::metadata;
 pub(crate) mod v0;
 #[cfg(feature = "gui")]
 pub(crate) mod v1;
+#[cfg(feature = "gui")]
+pub(crate) mod v2;
 
 /// `struct` representations for JSON output
 pub mod json;

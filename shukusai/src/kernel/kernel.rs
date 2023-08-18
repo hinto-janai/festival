@@ -194,6 +194,7 @@ impl Kernel {
 		let collection = Collection::from_versions(&[
 			// SAFETY: memmap is used.
 			(COLLECTION_VERSION, || unsafe { Collection::from_file_memmap() }),
+			(2, crate::collection::v2::Collection::disk_into),
 			(1, crate::collection::v1::Collection::disk_into),
 			(0, crate::collection::v0::Collection::disk_into),
 		]);

@@ -1070,9 +1070,9 @@ mod tests {
 	use readable::{Runtime, Date};
 
 	// Empty new `Collection`.
-	const C1: Lazy<Collection> = Lazy::new(|| Collection::from_path("../assets/shukusai/state/collection2_new.bin").unwrap());
+	const C1: Lazy<Collection> = Lazy::new(|| Collection::from_path("../assets/shukusai/state/collection3_new.bin").unwrap());
 	// Filled, user `Collection`.
-	const C2: Lazy<Collection> = Lazy::new(|| Collection::from_path("../assets/shukusai/state/collection2_real.bin").unwrap());
+	const C2: Lazy<Collection> = Lazy::new(|| Collection::from_path("../assets/shukusai/state/collection3_real.bin").unwrap());
 
 	#[test]
 	// Tests functions that depend on the correctness of the `Map`.
@@ -1235,11 +1235,11 @@ mod tests {
 		const ART_SIZE: usize = 144;
 
 		#[cfg(target_os = "linux")]
-		const SONG_SIZE: usize = 120;
+		const SONG_SIZE: usize = 152;
 		#[cfg(target_os = "macos")]
-		const SONG_SIZE: usize = 120;
+		const SONG_SIZE: usize = 152;
 		#[cfg(target_os = "windows")]
-		const SONG_SIZE: usize = 128;
+		const SONG_SIZE: usize = 160;
 
 		crate::assert_size_of! {
 			// Collection
