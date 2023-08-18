@@ -14,10 +14,12 @@ use strum::{
 //---------------------------------------------------------------------------------------------------- Sort Constants
 /// [`SearchKind::All`]
 pub const ALL:    &str = "View all the results, sorted from most similar to least";
+/// [`SearchKind::Sim60`]
+pub const SIM_60: &str = "View only the results that are at least 60% similar";
 /// [`SearchKind::Sim70`]
 pub const SIM_70: &str = "View only the results that are at least 70% similar";
-/// [`SearchKind::Sim90`]
-pub const SIM_90: &str = "View only the results that are at least 90% similar";
+/// [`SearchKind::Sim80`]
+pub const SIM_80: &str = "View only the results that are at least 80% similar";
 /// [`SearchKind::Top25`]
 pub const TOP_25: &str = "View only the top 25 similar results";
 /// [`SearchKind::Top5`]
@@ -35,11 +37,13 @@ pub enum SearchKind {
 	/// String similarity, returns all calculated keys
 	/// in order from most similar to least.
 	All,
+	/// [`Self::All`], but only returns the results that are at least 60% similar
+	Sim60,
 	#[default]
 	/// [`Self::All`], but only returns the results that are at least 70% similar
 	Sim70,
-	/// [`Self::All`], but only returns the results that are at least 90% similar
-	Sim90,
+	/// [`Self::All`], but only returns the results that are at least 80% similar
+	Sim80,
 	/// [`Self::All`], but only returns the top 25 results
 	Top25,
 	/// [`Self::All`], but only returns the top 5 results
@@ -53,6 +57,7 @@ impl SearchKind {
 	/// Returns formatted, human readable versions.
 	pub const fn human(&self) -> &'static str {
 		match self {
+			Self::Sim60 => SIM_60,
 			Self::Sim70 => SIM_70,
 			Self::Sim90 => SIM_90,
 			Self::Top25 => TOP_25,
@@ -67,9 +72,10 @@ impl SearchKind {
 	/// This returns the _first_ if at the _last_.
 	pub fn next(&self) -> Self {
 		match self {
-			Self::All   => Self::Sim70,
-			Self::Sim70 => Self::Sim90,
-			Self::Sim90 => Self::Top25,
+			Self::All   => Self::Sim60,
+			Self::Sim60 => Self::Sim70,
+			Self::Sim70 => Self::Sim80,
+			Self::Sim80 => Self::Top25,
 			Self::Top25 => Self::Top5,
 			Self::Top5  => Self::Top1,
 			Self::Top1  => Self::All,
@@ -82,9 +88,10 @@ impl SearchKind {
 	pub fn previous(&self) -> Self {
 		match self {
 			Self::All   => Self::Top1,
-			Self::Sim70 => Self::All,
-			Self::Sim90 => Self::Sim70,
-			Self::Top25 => Self::Sim90,
+			Self::Sim60 => Self::All,
+			Self::Sim70 => Self::Sim60,
+			Self::Sim80 => Self::Sim70,
+			Self::Top25 => Self::Sim80,
 			Self::Top5  => Self::Top25,
 			Self::Top1  => Self::Top5,
 		}

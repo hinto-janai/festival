@@ -43,8 +43,9 @@ pub(crate) struct Search {
 	cache_t1:    HashMap<String, Keychain>, // Search index cache (Top1),
 	cache_t5:    HashMap<String, Keychain>, // Search index cache (Top5),
 	cache_t25:   HashMap<String, Keychain>, // Search index cache (Top25),
+	cache_s60:   HashMap<String, Keychain>, // Search index cache (Sim60),
 	cache_s70:   HashMap<String, Keychain>, // Search index cache (Sim70),
-	cache_s90:   HashMap<String, Keychain>, // Search index cache (Sim90),
+	cache_s80:   HashMap<String, Keychain>, // Search index cache (Sim80),
 	collection:  Arc<Collection>,           // Pointer to `Collection`
 	total_count: usize,                     // Local cache of all total `Collection` objects
 	to_kernel:   Sender<SearchToKernel>,    // Channel TO `Kernel`
@@ -65,8 +66,9 @@ impl Search {
 			cache_t1:  HashMap::with_capacity(DEFAULT_CACHE_SIZE),
 			cache_t5:  HashMap::with_capacity(DEFAULT_CACHE_SIZE),
 			cache_t25: HashMap::with_capacity(DEFAULT_CACHE_SIZE),
+			cache_s60: HashMap::with_capacity(DEFAULT_CACHE_SIZE),
 			cache_s70: HashMap::with_capacity(DEFAULT_CACHE_SIZE),
-			cache_s90: HashMap::with_capacity(DEFAULT_CACHE_SIZE),
+			cache_s80: HashMap::with_capacity(DEFAULT_CACHE_SIZE),
 			collection,
 			total_count: DEFAULT_CACHE_SIZE,
 			to_kernel,
@@ -214,7 +216,8 @@ impl Search {
 	fn check_cache(&mut self, kind: SearchKind) {
 		let cache = match kind {
 			SearchKind::Sim70 => &mut self.cache_s70,
-			SearchKind::Sim90 => &mut self.cache_s90,
+			SearchKind::Sim60 => &mut self.cache_s60,
+			SearchKind::Sim80 => &mut self.cache_s80,
 			SearchKind::Top25 => &mut self.cache_t25,
 			SearchKind::Top5  => &mut self.cache_t5,
 			SearchKind::Top1  => &mut self.cache_t1,
@@ -232,7 +235,8 @@ impl Search {
 	fn get_cache(&self, input: &str, kind: SearchKind) -> Option<Keychain> {
 		match kind {
 			SearchKind::Sim70 => &self.cache_s70,
-			SearchKind::Sim90 => &self.cache_s90,
+			SearchKind::Sim60 => &self.cache_s60,
+			SearchKind::Sim80 => &self.cache_s80,
 			SearchKind::Top25 => &self.cache_t25,
 			SearchKind::Top5  => &self.cache_t5,
 			SearchKind::Top1  => &self.cache_t1,
@@ -244,7 +248,8 @@ impl Search {
 	fn insert_cache(&mut self, input: String, keychain: Keychain, kind: SearchKind) {
 		match kind {
 			SearchKind::Sim70 => self.cache_s70.insert(input, keychain),
-			SearchKind::Sim90 => self.cache_s90.insert(input, keychain),
+			SearchKind::Sim60 => self.cache_s60.insert(input, keychain),
+			SearchKind::Sim80 => self.cache_s80.insert(input, keychain),
 			SearchKind::Top25 => self.cache_t25.insert(input, keychain),
 			SearchKind::Top5  => self.cache_t5.insert(input, keychain),
 			SearchKind::Top1  => self.cache_t1.insert(input, keychain),
@@ -265,7 +270,8 @@ impl Search {
 			None => {
 				let k = match kind {
 					SearchKind::Sim70 => self.search_sim(&input, 0.7),
-					SearchKind::Sim90 => self.search_sim(&input, 0.9),
+					SearchKind::Sim60 => self.search_sim(&input, 0.6),
+					SearchKind::Sim80 => self.search_sim(&input, 0.8),
 					SearchKind::Top25 => self.search_top::<25>(&input),
 					SearchKind::Top5  => self.search_top::<5>(&input),
 					SearchKind::Top1  => self.search_top::<1>(&input),

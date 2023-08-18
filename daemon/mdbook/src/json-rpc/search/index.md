@@ -17,8 +17,9 @@ All of these return objects sorted from most-to-least similar.
 | Kind    | Description |
 |---------|-------------|
 | `all`   | ALL objects will be returned
+| `sim60` | Only objects `60%` similar
 | `sim70` | Only objects `70%` similar
-| `sim90` | Only objects `90%` similar
+| `sim80` | Only objects `80%` similar
 | `top25` | Only the top 25 results
 | `top5`  | Only the top 5 results
 | `top1`  | Only the top result

@@ -9,10 +9,10 @@ Input a `string`, retrieve an array of [`Album`](/common-objects/album.md)'s, so
 
 #### Inputs
 
-| Field | Type                                                            | Description |
-|-------|-----------------------------------------------------------------|-------------|
-| input | string                                                          | The string to match against, to use as input
-| kind  | string, one of `all`, `sim70`, `sim90`, `top25`, `top5`, `top1` | See [`Search/Kind`](/json-rpc/search/index.md#Kind)
+| Field | Type                                                                     | Description |
+|-------|--------------------------------------------------------------------------|-------------|
+| input | string                                                                   | The string to match against, to use as input
+| kind  | string, one of `all`, `sim60`, `sim70`, `sim80`, `top25`, `top5`, `top1` | See [`Search/Kind`](/json-rpc/search/index.md#Kind)
 
 #### Outputs
 
