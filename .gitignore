@@ -11,8 +11,3 @@ target/
 /assets/albums/*
 /utils/Festival*AppImage
 /utils/*.dmg
-
-# FIXME
-# Remove later after v1.0.0.
-daemon/mdbook/docs.zip
-cli/mdbook/docs.zip
