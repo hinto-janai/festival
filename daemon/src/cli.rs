@@ -687,34 +687,18 @@ impl Cli {
 		let mut cb = ConfigBuilder::default();
 		let mut diff = false;
 
-		fn if_true_some(b: bool) -> Option<bool> {
-			if b {
-				Some(!b)
-			} else {
-				None
-			}
-		}
-
-		let mut tls                 = if_true_some(self.tls);
-		let mut direct_download     = if_true_some(self.direct_download);
-		let mut confirm_no_tls_auth = if_true_some(self.confirm_no_tls_auth);
-		let mut no_auth_docs        = if_true_some(self.no_auth_docs);
-
-		fn if_true_negate_some(b: bool) -> Option<bool> {
-			if b {
-				Some(!b)
-			} else {
-				None
-			}
-		}
+		let mut tls                 = self.tls.then_some(self.tls);
+		let mut direct_download     = self.direct_download.then_some(self.direct_download);
+		let mut confirm_no_tls_auth = self.confirm_no_tls_auth.then_some(self.confirm_no_tls_auth);
+		let mut no_auth_docs        = self.no_auth_docs.then_some(self.no_auth_docs);
 
 		// `disable_*` negation.
-		let mut docs           = if_true_negate_some(self.disable_docs);
-		let mut restore_audio_state = if_true_negate_some(self.disable_restore_audio_state);
-		let mut media_controls = if_true_negate_some(self.disable_media_controls);
-		let mut rest           = if_true_negate_some(self.disable_rest);
-		let mut watch          = if_true_negate_some(self.disable_watch);
-		let mut cache_clean    = if_true_negate_some(self.disable_cache_clean);
+		let mut docs                = self.disable_docs.then_some(!self.disable_docs);
+		let mut restore_audio_state = self.disable_restore_audio_state.then_some(!self.disable_restore_audio_state);
+		let mut media_controls      = self.disable_media_controls.then_some(!self.disable_media_controls);
+		let mut rest                = self.disable_rest.then_some(!self.disable_rest);
+		let mut watch               = self.disable_watch.then_some(!self.disable_watch);
+		let mut cache_clean         = self.disable_cache_clean.then_some(!self.disable_cache_clean);
 
 		// Special-case conversions.
 		macro_rules! vec_to_some_hashset {

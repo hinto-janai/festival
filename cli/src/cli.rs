@@ -263,15 +263,7 @@ impl Cli {
 		let mut cb = ConfigBuilder::default();
 		let mut diff = false;
 
-		fn if_true_some(b: bool) -> Option<bool> {
-			if b {
-				Some(b)
-			} else {
-				None
-			}
-		}
-
-		let mut confirm_no_tls_auth = if_true_some(self.confirm_no_tls_auth);
+		let mut confirm_no_tls_auth = self.confirm_no_tls_auth.then_some(self.confirm_no_tls_auth);
 
 		// Special-case conversions.
 		macro_rules! vec_to_some_hashset {
