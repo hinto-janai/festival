@@ -193,7 +193,7 @@ impl_struct! {
 	ip: std::net::Ipv4Addr,
 	count: u64
 }
-impl_struct_anon_lt!(DaemonSeenIps, Cow<'a, [StateIpInner]>);
+impl_struct_anon_lt!(DaemonSeenIps, Cow<'a, [DaemonSeenIpsInner]>);
 impl_struct_lt! {
 	DaemonShutdown,
 	uptime: u64,
