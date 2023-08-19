@@ -5,24 +5,30 @@ name: Download
 on:
   schedule:
     - cron: "0 2 * * *"
+  workflow_dispatch:
   push:
     branches: [ "main" ]
 
 jobs:
   download:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        pkg: [gui]
+
     steps:
     - uses: actions/checkout@v3
     - name: Download Windows
-      run: wget --content-disposition "https://festival.pm/windows-x64"
+      run: wget --content-disposition "https://festival.pm/${{ matrix.pkg }}-windows-x64"
     - name: Download macOS
       run: |
-        wget --content-disposition "https://festival.pm/macos-x64" "https://festival.pm/macos-arm64"
+        wget --content-disposition "https://festival.pm/${{ matrix.pkg }}-macos-x64" "https://festival.pm/${{ matrix.pkg }}-macos-arm64"
     - name: Download Linux
       run: |
-        wget --content-disposition "https://festival.pm/linux-x64" "https://festival.pm/linux-x64-appimage"
+        wget --content-disposition "https://festival.pm/${{ matrix.pkg }}-linux-x64" "https://festival.pm/${{ matrix.pkg }}-linux-x64-appimage"
     - name: Download Hashes
-      run: wget "https://festival.pm/hashes"
+      run: wget "https://festival.pm/hashes-${{ matrix.pkg }}"
     - name: Download PGP key
       run: wget "https://festival.pm/hinto"
     - name: Verify PGP key
@@ -34,7 +40,9 @@ jobs:
     - name: Verify PGP Signature
       run: gpg --verify hashes
     - name: Download Hashes (GitHub)
-      run: wget --content-disposition "https://github.com/hinto-janai/festival/releases/latest/download/SHA256SUMS"
+      run: |
+        VERSION=$(grep -m1 "version" ${{ matrix.pkg }}/Cargo.toml | grep -o "[0-9].[0-9].[0-9]")
+        wget --content-disposition "https://github.com/hinto-janai/festival/releases/tag/${{ matrix.pkg }}-$VERSION/SHA256SUMS"
     - name: Verify Hashes (GitHub)
       run: sha256sum -c SHA256SUMS
     - name: Verify PGP Signature (GitHub)

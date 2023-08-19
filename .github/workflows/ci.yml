@@ -118,10 +118,10 @@ jobs:
 
         if [ "$RUNNER_OS" == "Linux" ]; then
           # Tar
-          cp daemon/festival.service target/release/
+          cp daemon/config/festivald.service target/release/
           cp LICENSE target/release/
           cd target/release
-          tar -czpf "festivald-v${VERSION}-linux-x64.tar.gz" festivald LICENSE festival.service
+          tar -czpf "festivald-v${VERSION}-linux-x64.tar.gz" festivald LICENSE festivald.service
           mv "festivald-v${VERSION}-linux-x64.tar.gz" ../../OUTPUT/
         elif [ "$RUNNER_OS" == "macOS" ]; then
           # x64

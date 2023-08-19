@@ -70,18 +70,25 @@ cargo build --release --package festivald
 
 The pre-compiled Linux binaries are built on Ubuntu 20.04, you'll need these packages to build:
 ```
-sudo apt install libgtk-3-dev libasound2-dev libjack-dev libpulse-dev
+# Shared packages.
+sudo apt install build-essential pkg-config libdbus-1-dev libasound2-dev libjack-dev libpulse-dev
+
+# Only for `festival-gui`.
+sudo apt install libgtk-3-dev
+
+# Only for `festivald` & `festival-cli`.
+sudo apt install libssl-dev
 ```
 
-To build `festival-gui`:
+To build [`festival-gui`](https://github.com/hinto-janai/festival/tree/main/gui):
 ```
 cargo build --release --package festival-gui
 ```
-To build `festivald`:
+To build [`festivald`](https://github.com/hinto-janai/festival/tree/main/daemon):
 ```
 cargo build --release --package festivald
 ```
-To build `festival-cli`:
+To build [`festival-cli`](https://github.com/hinto-janai/festival/tree/main/cli):
 ```
 cargo build --release --package festival-cli
 ```
@@ -95,15 +102,15 @@ cargo build --release --package festival-cli
 
 ---
 
-To build `festival-gui`:
+To build [`festival-gui`](https://github.com/hinto-janai/festival/tree/main/gui):
 ```
 cargo build --release --package festival-gui
 ```
-To build `festivald`:
+To build [`festivald`](https://github.com/hinto-janai/festival/tree/main/daemon):
 ```
 cargo build --release --package festivald
 ```
-To build `festival-cli`:
+To build [`festival-cli`](https://github.com/hinto-janai/festival/tree/main/cli):
 ```
 cargo build --release --package festival-cli
 ```
@@ -117,7 +124,7 @@ cargo build --release --package festival-cli
 
 ---
 
-To build `festival-gui`:
+To build [`festival-gui`](https://github.com/hinto-janai/festival/tree/main/gui):
 ```
 cargo build --release --package festival-gui
 ```
@@ -127,11 +134,11 @@ There is a [`build.rs`](https://github.com/hinto-janai/festival/blob/main/gui/bu
 2. It sets some miscellaneous metadata
 3. It statically links `VCRUNTIME140.dll` (the binary will not be portable without this)
 
-To build `festivald`:
+To build [`festivald`](https://github.com/hinto-janai/festival/tree/main/daemon):
 ```
 cargo build --release --package festivald
 ```
-To build `festival-cli`:
+To build [`festival-cli`](https://github.com/hinto-janai/festival/tree/main/cli):
 ```
 cargo build --release --package festival-cli
 ```
