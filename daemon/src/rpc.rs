@@ -433,18 +433,18 @@ pub async fn handle(
 		CollectionResourceSize => lac!(method, request, collection_resource_size, collection.arc()).await,
 
 		//-------------------------------------------------- Daemon
-		DaemonSave        => lac!(method, request, daemon_save, TO_KERNEL).await,
-		DaemonRemoveCache => lac!(method, request, daemon_remove_cache).await,
-		DaemonShutdown    => lac!(method, request, daemon_shutdown, TO_ROUTER_S).await,
+		DaemonConfig      => lac!(method, request, daemon_config).await,
 		DaemonMethods     => lac!(method, request, daemon_methods).await,
 		DaemonNoAuthRpc   => lac!(method, request, daemon_no_auth_rpc).await,
 		DaemonNoAuthRest  => lac!(method, request, daemon_no_auth_rest).await,
+		DaemonRemoveCache => lac!(method, request, daemon_remove_cache).await,
+		DaemonSave        => lac!(method, request, daemon_save, TO_KERNEL).await,
+		DaemonSeenIps     => lac!(method, request, daemon_seen_ips).await,
+		DaemonShutdown    => lac!(method, request, daemon_shutdown, TO_ROUTER_S).await,
+		DaemonState       => lac!(method, request, daemon_state).await,
 
 		//-------------------------------------------------- State
 		StateAudio      => lac!(method, request, state_audio, collection.arc()).await,
-		StateConfig     => lac!(method, request, state_config).await,
-		StateDaemon     => lac!(method, request, state_daemon).await,
-		StateIp         => lac!(method, request, state_ip).await,
 		StateQueueKey   => lac!(method, request, state_queue_key, collection.arc()).await,
 		StateQueueSong  => lac!(method, request, state_queue_song, collection.arc()).await,
 		StateQueueEntry => lac!(method, request, state_queue_entry, collection.arc()).await,
@@ -820,77 +820,6 @@ async fn state_audio<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Res
 	Ok(resp::result(resp, id))
 }
 
-async fn state_config<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
-	let c = config();
-
-	let resp = serde_json::json!({
-		"ip":                  c.ip,
-		"port":                c.port,
-		"max_connections":     c.max_connections,
-		"exclusive_ips":       c.exclusive_ips.as_ref().map(|h| Cow::Borrowed(h)),
-		"sleep_on_fail":       c.sleep_on_fail.clone(),
-		"collection_paths":    Cow::Borrowed(&c.collection_paths),
-		"tls":                 c.tls,
-		"certificate":         c.certificate.as_ref().map(|p| Cow::Borrowed(p.as_path())),
-		"key":                 c.key.as_ref().map(|p| Cow::Borrowed(p.as_path())),
-		"rest":                c.rest,
-		"docs":                c.docs,
-		"direct_download":     c.direct_download,
-		"filename_separator":  Cow::Borrowed(&c.filename_separator),
-		"log_level":           c.log_level.clone(),
-		"watch":               c.watch,
-		"cache_clean":         c.cache_clean,
-		"cache_time":          c.cache_time,
-		"restore_audio_state": c.restore_audio_state,
-		"media_controls":      c.media_controls,
-		"authorization":       AUTH.get().is_some(),
-		"confirm_no_tls_auth": c.confirm_no_tls_auth,
-		"no_auth_rpc":         c.no_auth_rpc.as_ref().map(|h| Cow::Borrowed(h)),
-		"no_auth_rest":        c.no_auth_rest.as_ref().map(|h| Cow::Borrowed(h)),
-		"no_auth_docs":        c.no_auth_docs,
-	});
-
-	Ok(resp::result(resp, id))
-}
-
-async fn state_daemon<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
-	let resp = rpc::resp::StateDaemon {
-		uptime:              shukusai::logger::uptime(),
-		uptime_readable:     Cow::Owned(readable::Time::from(shukusai::logger::uptime()).into_string()),
-		saving:              shukusai::state::saving(),
-		total_requests:      atomic_load!(TOTAL_REQUESTS),
-		total_connections:   atomic_load!(TOTAL_CONNECTIONS),
-		current_connections: crate::statics::connections(),
-		rest:                config().rest,
-		docs:                config().docs,
-		direct_download:     config().direct_download,
-		authorization:       AUTH.get().is_some(),
-		version:             Cow::Borrowed(FESTIVALD_VERSION),
-		commit:              Cow::Borrowed(COMMIT),
-		os:                  Cow::Borrowed(OS_ARCH),
-	};
-
-	Ok(resp::result(resp, id))
-}
-
-async fn state_ip<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
-	let seen = crate::seen::SEEN_IPS.read().await.clone();
-
-	let mut vec = Vec::with_capacity(seen.len());
-
-	for (ip, count) in seen.into_iter() {
-		let inner = rpc::resp::StateIpInner {
-			ip,
-			count,
-		};
-		vec.push(inner);
-	}
-
-	let resp = rpc::resp::StateIp(Cow::Owned(vec));
-
-	Ok(resp::result(resp, id))
-}
-
 async fn state_queue_key<'a>(id: Option<Id<'a>>, collection: Arc<Collection>) -> Result<Response<Body>, anyhow::Error> {
 	let queue = audio_state_low_priority_lock().await.queue.clone();
 
@@ -986,6 +915,39 @@ async fn state_volume<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::
 }
 
 //---------------------------------------------------------------------------------------------------- Daemon
+async fn daemon_config<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	let c = config();
+
+	let resp = serde_json::json!({
+		"ip":                  c.ip,
+		"port":                c.port,
+		"max_connections":     c.max_connections,
+		"exclusive_ips":       c.exclusive_ips.as_ref().map(|h| Cow::Borrowed(h)),
+		"sleep_on_fail":       c.sleep_on_fail.clone(),
+		"collection_paths":    Cow::Borrowed(&c.collection_paths),
+		"tls":                 c.tls,
+		"certificate":         c.certificate.as_ref().map(|p| Cow::Borrowed(p.as_path())),
+		"key":                 c.key.as_ref().map(|p| Cow::Borrowed(p.as_path())),
+		"rest":                c.rest,
+		"docs":                c.docs,
+		"direct_download":     c.direct_download,
+		"filename_separator":  Cow::Borrowed(&c.filename_separator),
+		"log_level":           c.log_level.clone(),
+		"watch":               c.watch,
+		"cache_clean":         c.cache_clean,
+		"cache_time":          c.cache_time,
+		"restore_audio_state": c.restore_audio_state,
+		"media_controls":      c.media_controls,
+		"authorization":       AUTH.get().is_some(),
+		"confirm_no_tls_auth": c.confirm_no_tls_auth,
+		"no_auth_rpc":         c.no_auth_rpc.as_ref().map(|h| Cow::Borrowed(h)),
+		"no_auth_rest":        c.no_auth_rest.as_ref().map(|h| Cow::Borrowed(h)),
+		"no_auth_docs":        c.no_auth_docs,
+	});
+
+	Ok(resp::result(resp, id))
+}
+
 async fn daemon_save<'a>(
 	id:        Option<Id<'a>>,
 	TO_KERNEL: &'static Sender<FrontendToKernel>
@@ -1060,6 +1022,44 @@ async fn daemon_shutdown<'a>(
 		},
 		Err(_) => Ok(resp::internal_error(id)),
 	}
+}
+
+async fn daemon_state<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	let resp = rpc::resp::DaemonState {
+		uptime:              shukusai::logger::uptime(),
+		uptime_readable:     Cow::Owned(readable::Time::from(shukusai::logger::uptime()).into_string()),
+		saving:              shukusai::state::saving(),
+		total_requests:      atomic_load!(TOTAL_REQUESTS),
+		total_connections:   atomic_load!(TOTAL_CONNECTIONS),
+		current_connections: crate::statics::connections(),
+		rest:                config().rest,
+		docs:                config().docs,
+		direct_download:     config().direct_download,
+		authorization:       AUTH.get().is_some(),
+		version:             Cow::Borrowed(FESTIVALD_VERSION),
+		commit:              Cow::Borrowed(COMMIT),
+		os:                  Cow::Borrowed(OS_ARCH),
+	};
+
+	Ok(resp::result(resp, id))
+}
+
+async fn daemon_seen_ips<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {
+	let seen = crate::seen::SEEN_IPS.read().await.clone();
+
+	let mut vec = Vec::with_capacity(seen.len());
+
+	for (ip, count) in seen.into_iter() {
+		let inner = rpc::resp::DaemonSeenIpsInner {
+			ip,
+			count,
+		};
+		vec.push(inner);
+	}
+
+	let resp = rpc::resp::DaemonSeenIps(Cow::Owned(vec));
+
+	Ok(resp::result(resp, id))
 }
 
 async fn daemon_methods<'a>(id: Option<Id<'a>>) -> Result<Response<Body>, anyhow::Error> {

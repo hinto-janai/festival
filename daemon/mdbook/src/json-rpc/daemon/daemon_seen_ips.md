@@ -1,4 +1,4 @@
-# state_ip
+# daemon_seen_ips
 
 #### 🟢 Stable
 This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
@@ -21,10 +21,10 @@ The output is an un-named array containing:
 
 #### Example Request
 ```bash
-festival-cli state_ip
+festival-cli daemon_seen_ips
 ```
 ```bash
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"state_ip"}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"daemon_seen_ips"}'
 ```
 
 #### Example Response

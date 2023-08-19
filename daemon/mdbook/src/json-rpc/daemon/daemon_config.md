@@ -1,4 +1,4 @@
-# state_config
+# daemon_config
 
 #### 🔴 Unstable
 This API may be [changed](../../api-stability/marker.md) in the future.
@@ -48,10 +48,10 @@ The reason why this method is `🔴 Unstable` is because it will output _all_ `J
 
 #### Example Request
 ```bash
-festival-cli state_config
+festival-cli daemon_config
 ```
 ```bash
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"state_config"}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"daemon_config"}'
 ```
 
 #### Example Response

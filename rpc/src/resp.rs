@@ -131,49 +131,7 @@ impl_struct! {
 
 //---------------------------------------------------------------------------------------------------- Daemon
 impl_struct_lt! {
-	DaemonRemoveCacheInner,
-	#[serde(borrow)]
-	path: Cow<'a, Path>,
-	bytes: u64
-}
-impl_struct_anon_lt!(DaemonRemoveCache, Cow<'a, [DaemonRemoveCacheInner<'a>]>);
-
-impl_struct_lt! {
-	DaemonShutdown,
-	uptime: u64,
-	#[serde(borrow)]
-	uptime_readable: Cow<'a, str>,
-	total_requests: u64,
-	total_connections: u64
-}
-impl_struct_lt! {
-	DaemonMethods,
-	len: usize,
-	#[serde(borrow)]
-	methods: Cow<'a, BTreeSet<Cow<'a, str>>>
-}
-impl_struct_lt! {
-	DaemonNoAuthRpc,
-	len: usize,
-	#[serde(borrow)]
-	rpc: Cow<'a, BTreeSet<Cow<'a, str>>>
-}
-impl_struct_lt! {
-	DaemonNoAuthRest,
-	len: usize,
-	#[serde(borrow)]
-	rest: Cow<'a, BTreeSet<Cow<'a, str>>>
-}
-
-//---------------------------------------------------------------------------------------------------- State
-impl_struct! {
-	StateIpInner,
-	ip: std::net::Ipv4Addr,
-	count: u64
-}
-impl_struct_anon_lt!(StateIp, Cow<'a, [StateIpInner]>);
-impl_struct_lt! {
-	StateConfig,
+	DaemonConfig,
 	ip:                  std::net::Ipv4Addr,
 	port:                u16,
 	max_connections:     Option<u64>,
@@ -206,7 +164,46 @@ impl_struct_lt! {
 	no_auth_docs:        bool
 }
 impl_struct_lt! {
-	StateDaemon,
+	DaemonMethods,
+	len: usize,
+	#[serde(borrow)]
+	methods: Cow<'a, BTreeSet<Cow<'a, str>>>
+}
+impl_struct_lt! {
+	DaemonNoAuthRpc,
+	len: usize,
+	#[serde(borrow)]
+	rpc: Cow<'a, BTreeSet<Cow<'a, str>>>
+}
+impl_struct_lt! {
+	DaemonNoAuthRest,
+	len: usize,
+	#[serde(borrow)]
+	rest: Cow<'a, BTreeSet<Cow<'a, str>>>
+}
+impl_struct_lt! {
+	DaemonRemoveCacheInner,
+	#[serde(borrow)]
+	path: Cow<'a, Path>,
+	bytes: u64
+}
+impl_struct_anon_lt!(DaemonRemoveCache, Cow<'a, [DaemonRemoveCacheInner<'a>]>);
+impl_struct! {
+	DaemonSeenIpsInner,
+	ip: std::net::Ipv4Addr,
+	count: u64
+}
+impl_struct_anon_lt!(DaemonSeenIps, Cow<'a, [StateIpInner]>);
+impl_struct_lt! {
+	DaemonShutdown,
+	uptime: u64,
+	#[serde(borrow)]
+	uptime_readable: Cow<'a, str>,
+	total_requests: u64,
+	total_connections: u64
+}
+impl_struct_lt! {
+	DaemonState,
 	uptime:              u64,
 	#[serde(borrow)]
 	uptime_readable:     Cow<'a, str>,
@@ -225,6 +222,8 @@ impl_struct_lt! {
 	#[serde(borrow)]
 	os: Cow<'a, str>
 }
+
+//---------------------------------------------------------------------------------------------------- State
 impl_struct_lt! {
 	StateAudio,
 	#[serde(borrow)]

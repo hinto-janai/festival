@@ -91,19 +91,9 @@ impl_rpc! {
 
 //---------------------------------------------------------------------------------------------------- Daemon
 impl_rpc! {
-	"Save `festivald` data to disk",
-	"daemon/daemon_save",
-	DaemonSave => Method::DaemonSave
-}
-impl_rpc! {
-	"Remove `festivald` cache from disk",
-	"daemon/daemon_remove_cache",
-	DaemonRemoveCache => Method::DaemonRemoveCache
-}
-impl_rpc! {
-	"Shutdown `festivald`",
-	"daemon/daemon_shutdown",
-	DaemonShutdown => Method::DaemonShutdown
+	"Retrieve the active configuration of `festivald`",
+	"daemon/daemon_config",
+	DaemonConfig => Method::DaemonConfig
 }
 impl_rpc! {
 	"Retrieve all JSON-RPC methods this `festivald` knows about",
@@ -120,27 +110,37 @@ impl_rpc! {
 	"daemon/daemon_no_auth_rest",
 	DaemonNoAuthRest => Method::DaemonNoAuthRest
 }
+impl_rpc! {
+	"Remove `festivald` cache from disk",
+	"daemon/daemon_remove_cache",
+	DaemonRemoveCache => Method::DaemonRemoveCache
+}
+impl_rpc! {
+	"Save `festivald` data to disk",
+	"daemon/daemon_save",
+	DaemonSave => Method::DaemonSave
+}
+impl_rpc! {
+	"Retrieve an array of the IP addresses `festivald` has seen",
+	"daemon/daemon_seen_ips",
+	DaemonSeenIps => Method::DaemonSeenIps
+}
+impl_rpc! {
+	"Shutdown `festivald`",
+	"daemon/daemon_shutdown",
+	DaemonShutdown => Method::DaemonShutdown
+}
+impl_rpc! {
+	"Retrieve brief state of `festivald`",
+	"daemon/daemon_state",
+	DaemonState => Method::DaemonState
+}
 
 //---------------------------------------------------------------------------------------------------- State
 impl_rpc! {
 	"Retrieve audio state",
 	"state/state_audio",
 	StateAudio => Method::StateAudio
-}
-impl_rpc! {
-	"Retrieve the active configuration of festivald",
-	"state/state_config",
-	StateConfig => Method::StateConfig
-}
-impl_rpc! {
-	"Retrieve state about the status of festivald itself",
-	"state/state_daemon",
-	StateDaemon => Method::StateDaemon
-}
-impl_rpc! {
-	"Retrieve an array of the IP addresses festivald has seen",
-	"state/state_ip",
-	StateIp => Method::StateIp
 }
 impl_rpc! {
 	"Retrieve state of the queue as Keys",

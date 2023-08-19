@@ -1,4 +1,4 @@
-# state_daemon
+# daemon_state
 
 #### 🟡 Incomplete
 This API may have [additions](../../api-stability/marker.md) in the future.
@@ -34,7 +34,7 @@ Retrieve state about the status of `festivald` itself.
 festival-cli search_daemon
 ```
 ```bash
-curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"state_daemon"}'
+curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"daemon_state"}'
 ```
 
 #### Example Response
