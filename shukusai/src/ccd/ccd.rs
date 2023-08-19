@@ -627,7 +627,9 @@ mod tests {
 		crate::frontend::gui::GUI_CONTEXT.set(egui::Context::default());
 		let old = Collection::new();
 		let old = Arc::new(old);
-		let paths = vec![PathBuf::from("../assets")];
+		let paths = vec![PathBuf::from("../assets").canonicalize().unwrap()];
+
+		paths.iter().for_each(|p| { println!("{p:#?}") });
 
 		// Spawn `CCD`.
 		std::thread::spawn(move || {

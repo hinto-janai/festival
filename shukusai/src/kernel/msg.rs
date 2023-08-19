@@ -68,8 +68,8 @@ pub enum FrontendToKernel {
 	QueueAddAlbum((AlbumKey, Append, bool, bool, usize)),
 	/// - [`ArtistKey`]: add all the songs by this `Artist` to the queue.
 	/// - [`Append`]: in which way should we append to the queue?
-	/// - [`bool`]: start playing?
 	/// - [`bool`]: should we clear the queue before appending?
+	/// - [`bool`]: start playing?
 	/// - [`usize`]: Within this `Artist`, should we start at an offset?
 	///   e.g, starting at the first `Song` would be 0, starting at the 3rd
 	///   `Song` would be offset 2, etc.

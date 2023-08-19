@@ -59,7 +59,7 @@ impl SearchKind {
 		match self {
 			Self::Sim60 => SIM_60,
 			Self::Sim70 => SIM_70,
-			Self::Sim90 => SIM_90,
+			Self::Sim80 => SIM_80,
 			Self::Top25 => TOP_25,
 			Self::Top5  => TOP_5,
 			Self::Top1  => TOP_1,
