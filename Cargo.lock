@@ -1969,7 +1969,7 @@ dependencies = [
 
 [[package]]
 name = "festival-cli"
-version = "0.0.0"
+version = "1.0.0"
 dependencies = [
  "anyhow",
  "base64 0.21.2",
@@ -1995,6 +1995,7 @@ dependencies = [
  "serde_json",
  "shukusai",
  "strum",
+ "toml_edit",
  "ureq",
  "urlencoding",
  "zeroize",
@@ -2036,7 +2037,7 @@ dependencies = [
 
 [[package]]
 name = "festivald"
-version = "0.0.0"
+version = "1.0.0"
 dependencies = [
  "anyhow",
  "benri",
@@ -2067,6 +2068,7 @@ dependencies = [
  "tokio",
  "tokio-native-tls",
  "tokio-util",
+ "toml_edit",
  "urlencoding",
  "walkdir",
  "zeroize",

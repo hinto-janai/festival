@@ -1237,6 +1237,14 @@ Options:
           
           This does nothing if `--disable-cache-clean` is passed.
 
+      --disable-restore-audio-state
+          Disable audio state restoration
+          
+          Upon startup, `festivald` (by default) will recover
+          audio state (volume, exact position in song, queue, etc).
+          
+          Using this option disables this.
+
       --disable-watch
           Disable watching the filesystem for signals
           
@@ -6457,8 +6465,9 @@ Entry 76 (Song key 76),
 <p>All of these return objects sorted from most-to-least similar.</p>
 <div class="table-wrapper"><table><thead><tr><th>Kind</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>all</code></td><td>ALL objects will be returned</td></tr>
+<tr><td><code>sim60</code></td><td>Only objects <code>60%</code> similar</td></tr>
 <tr><td><code>sim70</code></td><td>Only objects <code>70%</code> similar</td></tr>
-<tr><td><code>sim90</code></td><td>Only objects <code>90%</code> similar</td></tr>
+<tr><td><code>sim80</code></td><td>Only objects <code>80%</code> similar</td></tr>
 <tr><td><code>top25</code></td><td>Only the top 25 results</td></tr>
 <tr><td><code>top5</code></td><td>Only the top 5 results</td></tr>
 <tr><td><code>top1</code></td><td>Only the top result</td></tr>
@@ -6482,7 +6491,7 @@ Entry 76 (Song key 76),
 <h4 id="inputs-62"><a class="header" href="#inputs-62">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>input</td><td>string</td><td>The string to match against, to use as input</td></tr>
-<tr><td>kind</td><td>string, one of <code>all</code>, <code>sim70</code>, <code>sim90</code>, <code>top25</code>, <code>top5</code>, <code>top1</code></td><td>See <a href="json-rpc/search//json-rpc/search/index.html#Kind"><code>Search/Kind</code></a></td></tr>
+<tr><td>kind</td><td>string, one of <code>all</code>, <code>sim60</code>, <code>sim70</code>, <code>sim80</code>, <code>top25</code>, <code>top5</code>, <code>top1</code></td><td>See <a href="json-rpc/search//json-rpc/search/index.html#Kind"><code>Search/Kind</code></a></td></tr>
 </tbody></table>
 </div>
 <h4 id="outputs-62"><a class="header" href="#outputs-62">Outputs</a></h4>
@@ -6557,7 +6566,7 @@ Entry 76 (Song key 76),
 <h4 id="inputs-63"><a class="header" href="#inputs-63">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>input</td><td>string</td><td>The string to match against, to use as input</td></tr>
-<tr><td>kind</td><td>string, one of <code>all</code>, <code>sim70</code>, <code>sim90</code>, <code>top25</code>, <code>top5</code>, <code>top1</code></td><td>See <a href="json-rpc/search//json-rpc/search/index.html#Kind"><code>Search/Kind</code></a></td></tr>
+<tr><td>kind</td><td>string, one of <code>all</code>, <code>sim60</code>, <code>sim70</code>, <code>sim80</code>, <code>top25</code>, <code>top5</code>, <code>top1</code></td><td>See <a href="json-rpc/search//json-rpc/search/index.html#Kind"><code>Search/Kind</code></a></td></tr>
 </tbody></table>
 </div>
 <h4 id="outputs-63"><a class="header" href="#outputs-63">Outputs</a></h4>
@@ -6599,7 +6608,7 @@ Entry 76 (Song key 76),
 <h4 id="inputs-64"><a class="header" href="#inputs-64">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>input</td><td>string</td><td>The string to match against, to use as input</td></tr>
-<tr><td>kind</td><td>string, one of <code>all</code>, <code>sim70</code>, <code>sim90</code>, <code>top25</code>, <code>top5</code>, <code>top1</code></td><td>See <a href="json-rpc/search//json-rpc/search/index.html#Kind"><code>Search/Kind</code></a></td></tr>
+<tr><td>kind</td><td>string, one of <code>all</code>, <code>sim60</code>, <code>sim70</code>, <code>sim80</code>, <code>top25</code>, <code>top5</code>, <code>top1</code></td><td>See <a href="json-rpc/search//json-rpc/search/index.html#Kind"><code>Search/Kind</code></a></td></tr>
 </tbody></table>
 </div>
 <h4 id="outputs-64"><a class="header" href="#outputs-64">Outputs</a></h4>
@@ -6646,7 +6655,7 @@ Entry 76 (Song key 76),
 <h4 id="inputs-65"><a class="header" href="#inputs-65">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>input</td><td>string</td><td>The string to match against, to use as input</td></tr>
-<tr><td>kind</td><td>string, one of <code>all</code>, <code>sim70</code>, <code>sim90</code>, <code>top25</code>, <code>top5</code>, <code>top1</code></td><td>See <a href="json-rpc/search//json-rpc/search/index.html#Kind"><code>Search/Kind</code></a></td></tr>
+<tr><td>kind</td><td>string, one of <code>all</code>, <code>sim60</code>, <code>sim70</code>, <code>sim80</code>, <code>top25</code>, <code>top5</code>, <code>top1</code></td><td>See <a href="json-rpc/search//json-rpc/search/index.html#Kind"><code>Search/Kind</code></a></td></tr>
 </tbody></table>
 </div>
 <h4 id="outputs-65"><a class="header" href="#outputs-65">Outputs</a></h4>
@@ -6688,7 +6697,7 @@ Entry 76 (Song key 76),
 <h4 id="inputs-66"><a class="header" href="#inputs-66">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td>input</td><td>string</td><td>The string to match against, to use as input</td></tr>
-<tr><td>kind</td><td>string, one of <code>all</code>, <code>sim70</code>, <code>sim90</code>, <code>top25</code>, <code>top5</code>, <code>top1</code></td><td>See <a href="json-rpc/search//json-rpc/search/index.html#Kind"><code>Search/Kind</code></a></td></tr>
+<tr><td>kind</td><td>string, one of <code>all</code>, <code>sim60</code>, <code>sim70</code>, <code>sim80</code>, <code>top25</code>, <code>top5</code>, <code>top1</code></td><td>See <a href="json-rpc/search//json-rpc/search/index.html#Kind"><code>Search/Kind</code></a></td></tr>
 </tbody></table>
 </div>
 <h4 id="outputs-66"><a class="header" href="#outputs-66">Outputs</a></h4>

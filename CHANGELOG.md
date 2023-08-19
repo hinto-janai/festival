@@ -15,6 +15,8 @@ Types of changes:
 
 
 # Festival GUI Unreleased
+# `festivald` Unreleased
+# `festival-cli` Unreleased
 
 
 ---

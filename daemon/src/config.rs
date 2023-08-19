@@ -85,13 +85,13 @@ impl Default for ConfigBuilder {
 		Self {
 			ip:                  Some(Ipv4Addr::LOCALHOST),
 			port:                Some(FESTIVALD_PORT),
-			max_connections:     None,
-			exclusive_ips:       None,
+			max_connections:     Some(0),
+			exclusive_ips:       Some(BTreeSet::new()),
 			sleep_on_fail:       Some(3000),
 			collection_paths:    Some(vec![]),
 			tls:                 Some(false),
-			certificate:         None,
-			key:                 None,
+			certificate:         Some(PathBuf::from("")),
+			key:                 Some(PathBuf::from("")),
 			rest:                Some(true),
 			docs:                Some(true),
 			direct_download:     Some(false),
@@ -102,10 +102,10 @@ impl Default for ConfigBuilder {
 			cache_clean:         Some(true),
 			cache_time:          Some(3600),
 			media_controls:      Some(true),
-			authorization:       None,
+			authorization:       Some("".to_string()),
 			confirm_no_tls_auth: Some(false),
-			no_auth_rpc:         None,
-			no_auth_rest:        None,
+			no_auth_rpc:         Some(BTreeSet::new()),
+			no_auth_rest:        Some(BTreeSet::new()),
 			no_auth_docs:        Some(false),
 		}
 	}
@@ -412,9 +412,25 @@ mod tests {
 
 	#[test]
 	fn default() {
-		let t1: ConfigBuilder = toml_edit::de::from_str(&FESTIVALD_CONFIG).unwrap();
-		let t1 = t1.build_and_set();
-		let t2 = config();
+		let t1: ConfigBuilder = toml_edit::de::from_str(FESTIVALD_CONFIG).unwrap();
+		let t2 = ConfigBuilder::default();
+
+		println!("t1: {t1:#?}");
+		println!("t2: {t2:#?}");
+
+		assert_eq!(t1, t2);
+	}
+
+	#[test]
+	fn default_version() {
+		let v = format!("src/config/v{}.toml", env!("CARGO_PKG_VERSION"));
+		let v = std::fs::read_to_string(v).unwrap();
+
+		let t1: ConfigBuilder = toml_edit::de::from_str(&v).unwrap();
+		let t2 = ConfigBuilder::default();
+
+		println!("t1: {t1:#?}");
+		println!("t2: {t2:#?}");
 
 		assert_eq!(t1, t2);
 	}

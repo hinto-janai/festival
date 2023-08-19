@@ -63,9 +63,9 @@ impl Default for ConfigBuilder {
 		Self {
 			festivald:           Some(DEFAULT_URL.into()),
 			timeout:             Some(0.0),
-			proxy:               None,
+			proxy:               Some("".to_string()),
 			id:                  Some(DEFAULT_ID.into()),
-			authorization:       None,
+			authorization:       Some("".to_string()),
 			confirm_no_tls_auth: Some(false),
 		}
 	}
@@ -302,9 +302,25 @@ mod tests {
 
 	#[test]
 	fn default() {
-		let t1: ConfigBuilder = toml_edit::de::from_str(&FESTIVAL_CLI_CONFIG).unwrap();
-		let t1 = t1.build_and_set();
-		let t2 = config();
+		let t1: ConfigBuilder = toml_edit::de::from_str(FESTIVAL_CLI_CONFIG).unwrap();
+		let t2 = ConfigBuilder::default();
+
+		println!("t1: {t1:#?}");
+		println!("t2: {t2:#?}");
+
+		assert_eq!(t1, t2);
+	}
+
+	#[test]
+	fn default_version() {
+		let v = format!("src/config/v{}.toml", env!("CARGO_PKG_VERSION"));
+		let v = std::fs::read_to_string(v).unwrap();
+
+		let t1: ConfigBuilder = toml_edit::de::from_str(&v).unwrap();
+		let t2 = ConfigBuilder::default();
+
+		println!("t1: {t1:#?}");
+		println!("t2: {t2:#?}");
 
 		assert_eq!(t1, t2);
 	}

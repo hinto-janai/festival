@@ -1,6 +1,6 @@
 [package]
 name           = "festivald"
-version        = "0.0.0"
+version        = "1.0.0"
 edition        = "2021"
 authors        = ["hinto.janai <hinto.janai@protonmail.com>"]
 homepage       = "https://festival.pm"
@@ -39,6 +39,7 @@ strum        = { workspace = true }
 once_cell    = { workspace = true }
 open         = { workspace = true }
 walkdir      = { workspace = true }
+toml_edit    = { workspace = true }
 zeroize      = { workspace = true }
 zip          = { workspace = true }
 

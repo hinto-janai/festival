@@ -1,0 +1,123 @@
+#===================#
+# festival-cli.toml #
+#================================================================#
+# This is `festival-cli`'s config file.                          #
+# It is in the TOML (https://en.wikipedia.org/wiki/TOML) format. #
+#                                                                #
+# Values will be loaded from this file on startup.               #
+# If overlapping `--command-flags` are provided,                 #
+# they will be used instead.                                     #
+#                                                                #
+# For full documentation on config options, see:                 #
+# <https://docs.festival.pm/cli/config.html>                     #
+#================================================================#
+
+
+#----------------------------------------------------------#
+#                         NETWORK                          #
+#----------------------------------------------------------#
+# The protocol, IPv4 address, and port of the
+# `festivald` that `festival-cli` will connect
+# to by default.
+#
+# Protocol must be:
+#   - http
+#   - https
+#
+# IP address must be IPv4.
+#
+# DEFAULT | "http://127.0.0.1:18425"
+# EXAMPLE | "https://192.168.2.10:8080", "http://185.199.110.153:80"
+# TYPE    | string
+festivald = "http://127.0.0.1:18425"
+
+# Set a timeout for a non-responding `festivald`
+#
+# If the request & response time to/from `festivald`
+# takes up more than this amount of seconds,
+# `festival-cli` will disconnect.
+#
+# 0 means never disconnect.
+#
+# DEFAULT | 0
+# VALUES  | 2.5, 5, 10.111, 60
+# TYPE    | integer or non-negative float
+timeout = 0
+
+# Route connections through a proxy
+#
+# Requests/responses will be routed via this proxy.
+#
+# Supported proxies are: `HTTP`, `SOCKS4`, and `SOCKS5`.
+#
+# The input must be:
+#   - Proxy protocol (`http://`, `socks4://`, `socks5://`)
+#   - Proxy IP
+#   - Proxy port
+#
+# DEFAULT | "" (disabled)
+# EXAMPLE | "socks5://127.0.0.1:9050", "http://127.0.0.1:9049"
+# TYPE    | string (URL)
+proxy = ""
+
+
+#----------------------------------------------------------#
+#                        JSON-RPC                          #
+#----------------------------------------------------------#
+# The `JSON-RPC 2.0` ID to send to `festivald`.
+# See below for more info:
+# <https://jsonrpc.org/specification>
+#
+# DEFAULT | "festival-cli"
+# VALUES  | 0, 1, "1", "Hello"
+# TYPE    | unsigned integer, string, or null (commented out)
+id = "festival-cli"
+
+
+#----------------------------------------------------------#
+#                      AUTHORIZATION                       #
+#----------------------------------------------------------#
+# Authorization sent to `festivald`.
+#
+# This matches the `authorization` config
+# in `festivald`, see here for more info:
+# <https://docs.festival.pm/daemon/authorization/authorization.html>
+#
+# A `festivald` with `HTTPS` or `.onion` must be
+# used or `festival-cli` will refuse to start.
+#
+# An empty string disables this feature.
+#
+# Alternatively, you can input an absolute PATH to a file
+# `festival-cli` can access, containing the string, e.g:
+# ```
+# authorization = "/path/to/user_and_pass.txt"
+# ```
+#
+# In this case, `festival-cli` will read the file and attempt
+# to parse it with the same syntax, i.e, the file should contain:
+# ```
+# my_user:my_pass
+# ```
+#
+# DEFAULT | "" (disabled)
+# EXAMPLE | "my_username:my_password", "my_username:aoig2A%^$AWS^%", "/path/to/file"
+# TYPE    | string or PATH to file
+authorization = ""
+
+# Allow authorization even without TLS
+#
+# This will let you set the authorization
+# setting even if TLS is disabled.
+#
+# This means your `user:pass` will be sent in clear-text HTTP,
+# unless you are wrapping HTTP in something else, like SSH
+# port forwarding, or Tor.
+#
+# This setting is automatically enabled if connecting
+# to a `festivald` via an `.onion` service.
+#
+# DEFAULT | false
+# VALUES  | true, false
+# TYPE    | boolean
+confirm_no_tls_auth = false

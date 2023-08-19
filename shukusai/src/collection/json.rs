@@ -263,8 +263,8 @@ r#"{
   "sample_rate": 0,
   "track": null,
   "disc": null,
-  "mime": "audio/flac",
-  "extension": "audio/flac"
+  "mime": "",
+  "extension": ""
 }"#;
 
 	fn serde_json_collection() {

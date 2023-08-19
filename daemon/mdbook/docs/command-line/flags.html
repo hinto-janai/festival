@@ -423,6 +423,14 @@ Options:
           
           This does nothing if `--disable-cache-clean` is passed.
 
+      --disable-restore-audio-state
+          Disable audio state restoration
+          
+          Upon startup, `festivald` (by default) will recover
+          audio state (volume, exact position in song, queue, etc).
+          
+          Using this option disables this.
+
       --disable-watch
           Disable watching the filesystem for signals
           

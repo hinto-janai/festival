@@ -1,4 +1,4 @@
-Usage: festival-cli [OPTIONS] [METHOD] [--PARAM <ARG>]
+Usage: festival-cli [--OPTIONS] <METHOD> [--PARAM <VALUE>]
 
 Arguments passed to `festival-cli` will always take
 priority over configuration options read from disk.
@@ -7,46 +7,85 @@ Commands:
   collection_new            Create a new Collection (and replace the current one)
   collection_brief          Retrieve some brief metadata about the current Collection
   collection_full           Retrieve full metadata about the current Collection
-  collection_relation       Retrieve an array of every Song in the current Collection, with its relational data
-  collection_relation_full  Retrieve an array of every Song in the current Collection, with its relational data
+  collection_brief_artists  Retrieve an array of every Artist name in the current Collection
+  collection_brief_albums   Retrieve an array of every Album title in the current Collection
+  collection_brief_songs    Retrieve an array of every Song title in the current Collection
+  collection_full_artists   Retrieve an array of every Artist in the current Collection
+  collection_full_albums    Retrieve an array of every Album in the current Collection
+  collection_full_songs     Retrieve an array of every Song in the current Collection
+  collection_entries        Retrieve an array of every Song in the current Collection, with its relational data
   collection_perf           View some performance stats about the latest Collection construction
+  collection_health         View the health of the Collection (underlying files)
   collection_resource_size  View the size of the current Collection's underlying resources (audio files and art)
-  state_ip                  Retrieve an array of the IP addresses festivald has seen
+  daemon_save               Save `festivald` data to disk
+  daemon_remove_cache       Remove `festivald` cache from disk
+  daemon_shutdown           Shutdown `festivald`
+  daemon_methods            Retrieve all JSON-RPC methods this `festivald` knows about
+  daemon_no_auth_rpc        Retrieve all no_auth_rpc JSON-RPC methods this `festivald` allows
+  daemon_no_auth_rest       Retrieve all no_auth_rest REST resources this `festivald` allows
+  state_audio               Retrieve audio state
   state_config              Retrieve the active configuration of festivald
   state_daemon              Retrieve state about the status of festivald itself
-  state_audio               Retrieve audio state
-  state_reset               Retrieve the current state of a Collection reset
+  state_ip                  Retrieve an array of the IP addresses festivald has seen
+  state_queue_key           Retrieve state of the queue as Keys
+  state_queue_song          Retrieve state of the queue as Song objects
+  state_queue_entry         Retrieve state of the queue as Entry objects
+  state_playing             Retrieve the current playback status
+  state_repeat              Retrieve the currently set Repeat mode
+  state_runtime             Retrieve the elapsed runtime & total runtime of the currently set Song
+  state_volume              Retrieve the current volume level
   key_artist                Input an Artist key, retrieve an Artist
   key_album                 Input an Album key, retrieve an Album
-  key_song                  Input a Song key, retrieve an Song
+  key_song                  Input a Song key, retrieve a Song
+  key_entry                 Input a Song key, retrieve an Entry
+  key_artist_albums         Input an Artist key, retrieve all their Albums
+  key_artist_songs          Input an Artist key, retrieve all their Songs
+  key_artist_entries        Input an Artist key, retrieve all their Songs in Entry form
+  key_album_artist          Input an Album key, retrieve its Artist
+  key_album_songs           Input an Album key, retrieve all its Songs
+  key_album_entries         Input an Album key, retrieve all its Songs in Entry form
+  key_song_artist           Input an Song key, retrieve its Artist
+  key_song_album            Input an Song key, retrieve its Album
+  key_other_albums          Input an Album key, retrieve all Albums by the same Artist
+  key_other_songs           Input an Song key, retrieve all Songs by the same Artist
+  key_other_entries         Input an Song key, retrieve all Songs by the same Artist in Entry form
   map_artist                Input an Artist name, retrieve an Artist
   map_album                 Input an Artist name and Album title, retrieve an Album
   map_song                  Input an Artist name, Album title, and Song title, retrieve a Song
+  map_entry                 Input an Artist name, Album title, and Song title, retrieve an Entry
+  map_artist_albums         Input an Artist name, retrieve all their Albums
+  map_artist_songs          Input an Artist name, retrieve all their Songs
+  map_artist_entries        Input an Artist name, retrieve all their Songs in Entry form
+  map_album_songs           Input an Artist name and Album title, retrieve all its Songs
+  map_album_entries         Input an Artist name and Album title, retrieve all its Songs in Entry form
   current_artist            Access the Artist of the currently set Song
   current_album             Access the Album of the currently set Song
   current_song              Access the currently set Song
+  current_entry             Access the currently set Song, as an Entry
   rand_artist               Access a random Artist
   rand_album                Access a random Album
   rand_song                 Access a random Song
+  rand_entry                Access a random Song, as an Entry
   search                    Input a string, retrieve arrays of Artist's, Album's, and Song's, sorted by how similar their names/titles are to the input
   search_artist             Input a string, retrieve an array of Artist's, sorted by how similar their names are to the input
   search_album              Input a string, retrieve an array of Album's, sorted by how similar their titles are to the input
   search_song               Input a string, retrieve an array of Song's, sorted by how similar their titles are to the input
+  search_entry              Input a string, retrieve an array of Song's (in Entry form), sorted by how similar their titles are to the input
   toggle                    Toggle playback
   play                      Start playback
   pause                     Pause playback
   next                      Skip to the next song in the queue
   stop                      Clear the queue and stop playback
-  shuffle                   Shuffle the current queue, then start playing from the 1st Song in the queue
-  repeat_off                Turn off repeating
-  repeat_song               Turn on song repeating
-  repeat_queue              Turn on queue repeating
   previous                  Set the current Song to the previous in the queue
-  volume                    Set the playback volume
   clear                     Clear the queue
   seek                      Seek forwards/backwards or to an absolute second in the current Song
   skip                      Skip forwards a variable amount of Song's in the current queue
   back                      Go backwards a variable amount of Song's in the current queue
+  shuffle                   Shuffle the current queue, then start playing from the 1st Song in the queue
+  repeat                    Set a repeat mode
+  volume                    Set the playback volume
+  volume_up                 Raise the playback volume
+  volume_down               Lower the playback volume
   queue_add_key_artist      Add an Artist to the queue with an Artist key
   queue_add_key_album       Add an Album to the queue with an Album key
   queue_add_key_song        Add an Song to the queue with an Song key
@@ -56,23 +95,24 @@ Commands:
   queue_add_rand_artist     Add a random Artist to the queue
   queue_add_rand_album      Add a random Album to the queue
   queue_add_rand_song       Add a random Song to the queue
+  queue_add_rand_entry      Add a random Song to the queue, receive it back in Entry form
   queue_add_playlist        Add a playlist to the queue
   queue_set_index           Set the current Song to a queue index
   queue_remove_range        Remove a range of queue indices
   playlist_new              Create a new empty playlist
   playlist_remove           Remove a playlist
   playlist_clone            Clone a playlist into a new one
-  playlist_remove_entry     Remove a song in a playlist
+  playlist_get_index        Get a Playlist Entry in a Playlist, using its index number
+  playlist_remove_index     Remove a Playlist Entry in a Playlist, using its index number
   playlist_add_key_artist   Add an artist to a playlist
   playlist_add_key_album    Add an album to a playlist
   playlist_add_key_song     Add a song to a playlist
   playlist_add_map_artist   Add an artist to a playlist
   playlist_add_map_album    Add an album to a playlist
   playlist_add_map_song     Add a song to a playlist
-  playlist_names            Retrieve all playlist names
-  playlist_count            Retrieve how many playlists there are
   playlist_single           Retrieve a single playlist
-  playlist_all              Retrieve all playlists
+  playlist_brief            Retrieve all playlist names
+  playlist_full             Retrieve full data of all playlists
   help                      Print this message or the help of the given subcommand(s)
 
 Options:
@@ -113,8 +153,8 @@ Options:
           in `festivald`, see here for more info:
           <https://docs.festival.pm/daemon/authorization/authorization.html>
           
-          A `festivald` with HTTPS must be used or `festival-cli`
-          will refuse to start.
+          A `festivald` with `HTTPS` or `.onion` must be
+          used or `festival-cli` will refuse to start.
           
           An empty string disables this feature.
           
@@ -183,7 +223,7 @@ Options:
           Exits with `0` if everything went ok, otherwise shows error.
 
   -m, --methods
-          Print all the methods available
+          Print all the JSON-RPC methods available
 
   -v, --version
           Print version
