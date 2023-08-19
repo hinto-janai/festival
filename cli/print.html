@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>festival-cli v0.0.0</title>
+        <title>festival-cli v1.0.0</title>
         <meta name="robots" content="noindex" />
 
 
@@ -84,7 +84,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="intro.html">Intro</a></li><li class="chapter-item expanded "><a href="disk.html"><strong aria-hidden="true">1.</strong> Disk</a></li><li class="chapter-item expanded "><a href="config.html"><strong aria-hidden="true">2.</strong> Config</a></li><li class="chapter-item expanded "><a href="command-line.html"><strong aria-hidden="true">3.</strong> Command Line</a></li><li class="chapter-item expanded "><a href="authorization.html"><strong aria-hidden="true">4.</strong> Authorization</a></li><li class="chapter-item expanded "><a href="json-rpc.html"><strong aria-hidden="true">5.</strong> JSON-RPC</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="intro.html">Intro</a></li><li class="chapter-item expanded "><a href="disk.html"><strong aria-hidden="true">1.</strong> Disk</a></li><li class="chapter-item expanded "><a href="config.html"><strong aria-hidden="true">2.</strong> Config</a></li><li class="chapter-item expanded "><a href="command-line.html"><strong aria-hidden="true">3.</strong> Command Line</a></li><li class="chapter-item expanded "><a href="authorization.html"><strong aria-hidden="true">4.</strong> Authorization</a></li><li class="chapter-item expanded "><a href="json-rpc.html"><strong aria-hidden="true">5.</strong> JSON-RPC</a></li><li class="chapter-item expanded "><a href="tor.html"><strong aria-hidden="true">6.</strong> Tor</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -135,7 +135,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">festival-cli v0.0.0</h1>
+                    <h1 class="menu-title">festival-cli v1.0.0</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -171,8 +171,8 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="intro"><a class="header" href="#intro">Intro</a></h1>
-<p><code>festival-cli</code> is a <code>JSON-RPC</code> client for <a href="https://docs.festival.pm/daemon"><code>festivald</code></a>.</p>
-<p><code>festivald</code> is a music server that plays on the device it is running on, while allowing remote control via clients.</p>
+<p><code>festival-cli</code> is a <a href="https://www.jsonrpc.org/specification"><code>JSON-RPC 2.0</code></a> client for <a href="https://docs.festival.pm/daemon"><code>festivald</code></a>.</p>
+<p><code>festivald</code> is a music server that plays on the device it is running on, and is remotely controlled by clients.</p>
 <p><code>festival-cli</code> is a client that reduces the verbosity of <code>JSON-RPC</code> requests, so instead of:</p>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;collection_new&quot;,&quot;params&quot;:{&quot;paths&quot;:null}}'
 </code></pre>
@@ -181,11 +181,14 @@
 </code></pre>
 <p>The typical invocation of <code>festival-cli</code>:</p>
 <ol>
-<li>Reads the config file</li>
-<li>Reads the command-line options</li>
+<li>Reads the <a href="config.html">config</a> file</li>
+<li>Reads the <a href="command-line.html">command-line</a> options</li>
 <li>Connects and sends a request to <code>festivald</code></li>
-<li>Prints out <code>JSON</code> response</li>
+<li>Prints out the <code>JSON</code> response</li>
 </ol>
+<p>A public instance of <code>festivald</code> with <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/"><code>Creative Commons</code></a> licensed music is available at:</p>
+<pre><code class="language-http">https://daemon.festival.pm
+</code></pre>
 <p>For a general quick start, see the next section: <a href="quick-start.html">Quick Start</a>.</p>
 <h3 id="purpose"><a class="header" href="#purpose">Purpose</a></h3>
 <p><code>festival-cli</code> is solely for connecting to, sending requests, and receiving <code>JSON-RPC 2.0</code> responses from a <code>festivald</code>.</p>
@@ -238,7 +241,7 @@
 <div style="break-before: page; page-break-before: always;"></div><h1 id="config-1"><a class="header" href="#config-1">Config</a></h1>
 <p><code>festival-cli</code> reads and loads its configuration file, <code>festival-cli.toml</code>, on startup. It controls various behaviors of <code>festival-cli</code>.</p>
 <p>Exactly where this file is depends on the OS, more details in the <a href="disk.html"><code>Disk</code></a> section.</p>
-<p><a href="command-line/command-line.html"><code>Command Line</code></a> flags will override any overlapping config values.</p>
+<p><a href="command-line.html"><code>Command Line</code></a> flags will override any overlapping config values.</p>
 <h2 id="festival-clitoml"><a class="header" href="#festival-clitoml"><code>festival-cli.toml</code></a></h2>
 <p>This is the default configuration file <code>festival-cli</code> creates and uses.</p>
 <p>If <code>festival-cli</code> is started with no <code>--flags</code>, e.g:</p>
@@ -278,7 +281,6 @@
 # TYPE    | string
 festivald = &quot;http://127.0.0.1:18425&quot;
 
-
 # Set a timeout for a non-responding `festivald`
 #
 # If the request &amp; response time to/from `festivald`
@@ -288,9 +290,25 @@ festivald = &quot;http://127.0.0.1:18425&quot;
 # 0 means never disconnect.
 #
 # DEFAULT | 0
-# VALUES  | 5, 10, 60
-# TYPE    | unsigned integer
+# VALUES  | 2.5, 5, 10.111, 60
+# TYPE    | integer or non-negative float
 timeout = 0
+
+# Route connections through a proxy
+#
+# Requests/responses will be routed via this proxy.
+#
+# Supported proxies are: `HTTP`, `SOCKS4`, and `SOCKS5`.
+#
+# The input must be:
+#   - Proxy protocol (`http://`, `socks4://`, `socks5://`)
+#   - Proxy IP
+#   - Proxy port
+#
+# DEFAULT | &quot;&quot; (disabled)
+# EXAMPLE | &quot;socks5://127.0.0.1:9050&quot;, &quot;http://127.0.0.1:9049&quot;
+# TYPE    | string (URL)
+proxy = &quot;&quot;
 
 
 #----------------------------------------------------------#
@@ -315,8 +333,8 @@ id = &quot;festival-cli&quot;
 # in `festivald`, see here for more info:
 # &lt;https://docs.festival.pm/daemon/authorization/authorization.html&gt;
 #
-# A `festivald` with HTTPS must be used or `festival-cli`
-# will refuse to start.
+# A `festivald` with `HTTPS` or `.onion` must be
+# used or `festival-cli` will refuse to start.
 #
 # An empty string disables this feature.
 #
@@ -336,12 +354,28 @@ id = &quot;festival-cli&quot;
 # EXAMPLE | &quot;my_username:my_password&quot;, &quot;my_username:aoig2A%^$AWS^%&quot;, &quot;/path/to/file&quot;
 # TYPE    | string or PATH to file
 authorization = &quot;&quot;
+
+# Allow authorization even without TLS
+#
+# This will let you set the authorization
+# setting even if TLS is disabled.
+#
+# This means your `user:pass` will be sent in clear-text HTTP,
+# unless you are wrapping HTTP in something else, like SSH
+# port forwarding, or Tor.
+#
+# This setting is automatically enabled if connecting
+# to a `festivald` via an `.onion` service.
+#
+# DEFAULT | false
+# VALUES  | true, false
+# TYPE    | boolean
+confirm_no_tls_auth = false
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="command-line"><a class="header" href="#command-line">Command Line</a></h1>
-<p><code>festival-cli</code> takes in <code>--flags</code> for many purposes.</p>
-<p>Arguments passed to <code>festival-cli</code> will always take priority over the same <a href="../config.html">configuration</a> options read from disk.</p>
+<p>Arguments passed to <code>festival-cli</code> will always take priority over the same <a href="config.html">configuration</a> options read from disk.</p>
 <p>See <a href="json-rpc.html"><code>JSON-RPC</code></a> for method command-line syntax.</p>
-<pre><code class="language-plaintext">Usage: festival-cli [OPTIONS] [METHOD] [--PARAM &lt;ARG&gt;]
+<pre><code class="language-plaintext">Usage: festival-cli [--OPTIONS] &lt;METHOD&gt; [--PARAM &lt;VALUE&gt;]
 
 Arguments passed to `festival-cli` will always take
 priority over configuration options read from disk.
@@ -350,46 +384,85 @@ Commands:
   collection_new            Create a new Collection (and replace the current one)
   collection_brief          Retrieve some brief metadata about the current Collection
   collection_full           Retrieve full metadata about the current Collection
-  collection_relation       Retrieve an array of every Song in the current Collection, with its relational data
-  collection_relation_full  Retrieve an array of every Song in the current Collection, with its relational data
+  collection_brief_artists  Retrieve an array of every Artist name in the current Collection
+  collection_brief_albums   Retrieve an array of every Album title in the current Collection
+  collection_brief_songs    Retrieve an array of every Song title in the current Collection
+  collection_full_artists   Retrieve an array of every Artist in the current Collection
+  collection_full_albums    Retrieve an array of every Album in the current Collection
+  collection_full_songs     Retrieve an array of every Song in the current Collection
+  collection_entries        Retrieve an array of every Song in the current Collection, with its relational data
   collection_perf           View some performance stats about the latest Collection construction
+  collection_health         View the health of the Collection (underlying files)
   collection_resource_size  View the size of the current Collection's underlying resources (audio files and art)
-  state_ip                  Retrieve an array of the IP addresses festivald has seen
-  state_config              Retrieve the active configuration of festivald
-  state_daemon              Retrieve state about the status of festivald itself
+  daemon_config             Retrieve the active configuration of `festivald`
+  daemon_methods            Retrieve all JSON-RPC methods this `festivald` knows about
+  daemon_no_auth_rpc        Retrieve all no_auth_rpc JSON-RPC methods this `festivald` allows
+  daemon_no_auth_rest       Retrieve all no_auth_rest REST resources this `festivald` allows
+  daemon_remove_cache       Remove `festivald` cache from disk
+  daemon_save               Save `festivald` data to disk
+  daemon_seen_ips           Retrieve an array of the IP addresses `festivald` has seen
+  daemon_shutdown           Shutdown `festivald`
+  daemon_state              Retrieve brief state of `festivald`
   state_audio               Retrieve audio state
-  state_reset               Retrieve the current state of a Collection reset
+  state_queue_key           Retrieve state of the queue as Keys
+  state_queue_song          Retrieve state of the queue as Song objects
+  state_queue_entry         Retrieve state of the queue as Entry objects
+  state_playing             Retrieve the current playback status
+  state_repeat              Retrieve the currently set Repeat mode
+  state_runtime             Retrieve the elapsed runtime &amp; total runtime of the currently set Song
+  state_volume              Retrieve the current volume level
   key_artist                Input an Artist key, retrieve an Artist
   key_album                 Input an Album key, retrieve an Album
-  key_song                  Input a Song key, retrieve an Song
+  key_song                  Input a Song key, retrieve a Song
+  key_entry                 Input a Song key, retrieve an Entry
+  key_artist_albums         Input an Artist key, retrieve all their Albums
+  key_artist_songs          Input an Artist key, retrieve all their Songs
+  key_artist_entries        Input an Artist key, retrieve all their Songs in Entry form
+  key_album_artist          Input an Album key, retrieve its Artist
+  key_album_songs           Input an Album key, retrieve all its Songs
+  key_album_entries         Input an Album key, retrieve all its Songs in Entry form
+  key_song_artist           Input an Song key, retrieve its Artist
+  key_song_album            Input an Song key, retrieve its Album
+  key_other_albums          Input an Album key, retrieve all Albums by the same Artist
+  key_other_songs           Input an Song key, retrieve all Songs by the same Artist
+  key_other_entries         Input an Song key, retrieve all Songs by the same Artist in Entry form
   map_artist                Input an Artist name, retrieve an Artist
   map_album                 Input an Artist name and Album title, retrieve an Album
   map_song                  Input an Artist name, Album title, and Song title, retrieve a Song
+  map_entry                 Input an Artist name, Album title, and Song title, retrieve an Entry
+  map_artist_albums         Input an Artist name, retrieve all their Albums
+  map_artist_songs          Input an Artist name, retrieve all their Songs
+  map_artist_entries        Input an Artist name, retrieve all their Songs in Entry form
+  map_album_songs           Input an Artist name and Album title, retrieve all its Songs
+  map_album_entries         Input an Artist name and Album title, retrieve all its Songs in Entry form
   current_artist            Access the Artist of the currently set Song
   current_album             Access the Album of the currently set Song
   current_song              Access the currently set Song
+  current_entry             Access the currently set Song, as an Entry
   rand_artist               Access a random Artist
   rand_album                Access a random Album
   rand_song                 Access a random Song
+  rand_entry                Access a random Song, as an Entry
   search                    Input a string, retrieve arrays of Artist's, Album's, and Song's, sorted by how similar their names/titles are to the input
   search_artist             Input a string, retrieve an array of Artist's, sorted by how similar their names are to the input
   search_album              Input a string, retrieve an array of Album's, sorted by how similar their titles are to the input
   search_song               Input a string, retrieve an array of Song's, sorted by how similar their titles are to the input
+  search_entry              Input a string, retrieve an array of Song's (in Entry form), sorted by how similar their titles are to the input
   toggle                    Toggle playback
   play                      Start playback
   pause                     Pause playback
   next                      Skip to the next song in the queue
   stop                      Clear the queue and stop playback
-  shuffle                   Shuffle the current queue, then start playing from the 1st Song in the queue
-  repeat_off                Turn off repeating
-  repeat_song               Turn on song repeating
-  repeat_queue              Turn on queue repeating
   previous                  Set the current Song to the previous in the queue
-  volume                    Set the playback volume
   clear                     Clear the queue
   seek                      Seek forwards/backwards or to an absolute second in the current Song
   skip                      Skip forwards a variable amount of Song's in the current queue
   back                      Go backwards a variable amount of Song's in the current queue
+  shuffle                   Shuffle the current queue, then start playing from the 1st Song in the queue
+  repeat                    Set a repeat mode
+  volume                    Set the playback volume
+  volume_up                 Raise the playback volume
+  volume_down               Lower the playback volume
   queue_add_key_artist      Add an Artist to the queue with an Artist key
   queue_add_key_album       Add an Album to the queue with an Album key
   queue_add_key_song        Add an Song to the queue with an Song key
@@ -399,27 +472,28 @@ Commands:
   queue_add_rand_artist     Add a random Artist to the queue
   queue_add_rand_album      Add a random Album to the queue
   queue_add_rand_song       Add a random Song to the queue
+  queue_add_rand_entry      Add a random Song to the queue, receive it back in Entry form
   queue_add_playlist        Add a playlist to the queue
   queue_set_index           Set the current Song to a queue index
   queue_remove_range        Remove a range of queue indices
   playlist_new              Create a new empty playlist
   playlist_remove           Remove a playlist
   playlist_clone            Clone a playlist into a new one
-  playlist_remove_entry     Remove a song in a playlist
+  playlist_get_index        Get a Playlist Entry in a Playlist, using its index number
+  playlist_remove_index     Remove a Playlist Entry in a Playlist, using its index number
   playlist_add_key_artist   Add an artist to a playlist
   playlist_add_key_album    Add an album to a playlist
   playlist_add_key_song     Add a song to a playlist
   playlist_add_map_artist   Add an artist to a playlist
   playlist_add_map_album    Add an album to a playlist
   playlist_add_map_song     Add a song to a playlist
-  playlist_names            Retrieve all playlist names
-  playlist_count            Retrieve how many playlists there are
   playlist_single           Retrieve a single playlist
-  playlist_all              Retrieve all playlists
+  playlist_brief            Retrieve all playlist names
+  playlist_full             Retrieve full data of all playlists
   help                      Print this message or the help of the given subcommand(s)
 
 Options:
-      --festivald &lt;URL&gt;
+  -f, --festivald &lt;URL&gt;
           URL of the `festivald` to connect to
           
           The protocol, IPv4 address, and port of the
@@ -434,7 +508,7 @@ Options:
           
           Default is: `http://127.0.0.1:18425`
 
-      --timeout &lt;SECONDS&gt;
+  -t, --timeout &lt;SECONDS&gt;
           Set a timeout for a non-responding `festivald`
           
           If `festivald` does not respond with _at least_
@@ -443,21 +517,21 @@ Options:
           
           0 means never disconnect.
 
-      --id &lt;ID&gt;
+  -i, --id &lt;ID&gt;
           The `JSON-RPC 2.0` ID to send to `festivald`.
           
           See below for more info:
           &lt;https://jsonrpc.org/specification&gt;
 
-      --authorization &lt;USER:PASS or FILE&gt;
+  -a, --authorization &lt;USER:PASS or FILE&gt;
           Authorization sent to `festivald`
           
           This matches the `authorization` config
           in `festivald`, see here for more info:
           &lt;https://docs.festival.pm/daemon/authorization/authorization.html&gt;
           
-          A `festivald` with HTTPS must be used or `festival-cli`
-          will refuse to start.
+          A `festivald` with `HTTPS` or `.onion` must be
+          used or `festival-cli` will refuse to start.
           
           An empty string disables this feature.
           
@@ -473,22 +547,40 @@ Options:
           my_user:my_pass
           ```
 
+  -p, --proxy &lt;PROXY&gt;
+          Route connections through a proxy
+          
+          Requests/responses will be routed via this proxy.
+          
+          Supported proxies are: `HTTP`, `SOCKS4`, and `SOCKS5`.
+          
+          The input must be:
+            - Proxy protocol (`http://`, `socks4://`, `socks5://`)
+            - Proxy IP
+            - Proxy port
+          
+          For example: `festival-cli --proxy socks5://127.0.0.1:9050`
+
+  -d, --debug
+          Print debug information about the config/request/response
+
+      --confirm-no-tls-auth
+          Allow `--authorization` even without TLS
+          
+          This will let you set the authorization
+          setting even if TLS is disabled.
+          
+          This means your `user:pass` will be sent in clear-text HTTP,
+          unless you are wrapping HTTP in something else, like SSH
+          port forwarding, or Tor.
+
       --dry-run
-          Print the options that would be used, but don't actually connect to `festivald`
+          Print debug information, but don't actually connect to `festivald`
+          
+          This implies `--debug`.
 
       --docs
           Open `festival-cli` documentation locally in browser
-
-      --path
-          Print the PATHs used by `festival-cli`
-          
-          All data saved by `festival-cli` is saved in these directories.
-          For more information, see: &lt;https://docs.festival.pm/cli/disk.html&gt;
-
-      --reset-config
-          Reset the current `festival-cli.toml` config file to the default
-          
-          Exits with `0` if everything went ok, otherwise shows error.
 
       --delete
           Delete all `festival-cli` files that are on disk
@@ -496,8 +588,19 @@ Options:
           This deletes all `cli` Festival folders.
           The PATHs deleted will be printed on success.
 
-      --methods
-          Print all the methods available
+      --path
+          Print the PATHs used by `festival-cli`
+          
+          All data saved by `festival-cli` is saved in these directories.
+          For more information, see: &lt;https://docs.festival.pm/cli/disk.html&gt;
+
+  -r, --reset-config
+          Reset the current `festival-cli.toml` config file to the default
+          
+          Exits with `0` if everything went ok, otherwise shows error.
+
+  -m, --methods
+          Print all the JSON-RPC methods available
 
   -v, --version
           Print version
@@ -508,7 +611,7 @@ Options:
 <div style="break-before: page; page-break-before: always;"></div><h1 id="authorization"><a class="header" href="#authorization">Authorization</a></h1>
 <p><code>festivald</code> has a <a href="https://en.wikipedia.org/wiki/Basic_access_authentication"><code>Basic access authentication</code></a> option, with a username + password setup.</p>
 <p>If enabled, <code>festival-cli</code> must also use <code>--authorization</code> or setup the <a href="config.html"><code>authorization</code></a> config option to connect to it.</p>
-<p><code>festival-cli</code> must connect to <code>festivald</code> over <code>HTTPS</code> if authorization is enabled or <code>festival-cli</code> will refuse to start.</p>
+<p><code>festival-cli</code> must connect to <code>festivald</code> over <code>HTTPS</code> or <a href="tor.html"><code>.onion</code></a> if authorization is enabled or <code>festival-cli</code> will refuse to start.</p>
 <h2 id="syntax"><a class="header" href="#syntax">Syntax</a></h2>
 <p>The username &amp; password syntax is specified <a href="https://en.wikipedia.org/wiki/Basic_access_authentication">here</a>.</p>
 <p>The &quot;authorization&quot; value must be:</p>
@@ -532,30 +635,37 @@ Options:
 <div style="break-before: page; page-break-before: always;"></div><h1 id="json-rpc"><a class="header" href="#json-rpc">JSON-RPC</a></h1>
 <p><code>festival-cli</code>'s main purpose is to send and receive <a href="https://www.jsonrpc.org/specification"><code>JSON-RPC 2.0</code></a> messages from/to a <code>festivald</code>.</p>
 <p>The way to send a method to <code>festival</code> using <code>festival-cli</code> is always the same:</p>
-<pre><code class="language-bash">festival-cli &lt;METHOD&gt; [--PARAM &lt;VALUE&gt;]
+<pre><code class="language-bash">festival-cli [--OPTIONAL-FLAGS] &lt;METHOD&gt; [--PARAM &lt;VALUE&gt;]
 </code></pre>
-<p>The <code>&lt;METHOD&gt;</code> will always be a method name as <a href="https://docs.festival.pm/daemon/json-rpc/json-rpc.html">documented in <code>festivald</code></a>, and parameters are represented by <code>--flags &lt;value&gt;</code>. If a parameter is <em>optional</em>, then not passing the <code>--flag</code> would be the same as not including the parameter.</p>
+<p>The <code>&lt;METHOD&gt;</code> will always be a method name as <a href="https://docs.festival.pm/daemon/json-rpc/json-rpc.html">documented in <code>festivald</code></a>, and parameters are represented by <code>--param-name &lt;value&gt;</code>. If a parameter is <em>optional</em> (maybe-null), then not passing the <code>--flag</code> would be the same as not including the parameter.</p>
 <p>For example, to send the <a href="https://docs.festival.pm/daemon/json-rpc/collection/collection_new.html"><code>collection_new</code></a> method to create a new <code>Collection</code>, you would run:</p>
 <pre><code class="language-bash">festival-cli collection_new
 </code></pre>
 <p>This method also has an optional parameter, <code>paths</code>, which can be specified like this:</p>
-<pre><code class="language-bash">festival-cli collection_new --path /first/path --path /second/path
+<pre><code class="language-bash">festival-cli collection_new --paths /first/path --paths /second/path
 </code></pre>
 <p>Methods without parameters do not need (and don't have) any associated command flags:</p>
 <pre><code class="language-bash">festival-cli collection_full
 </code></pre>
 <h3 id="pre-flags"><a class="header" href="#pre-flags">Pre-flags</a></h3>
-<p>Before specifying a <code>method</code>, you can insert some command-lines that alter various things.</p>
+<p>Before specifying a <code>method</code>, you can insert some <code>--flags</code> that alter various things.</p>
 <p>For example, to connect to a different <code>festivald</code>:</p>
 <pre><code class="language-bash">festival-cli --festivald https://festivald.pm:18425 collection_full
 </code></pre>
 <p>To print the configuration that <em>would</em> have been used, but without connecting to anything:</p>
 <pre><code class="language-bash">festival-cli --dry-run collection_full
 </code></pre>
-<p>To set a connection timeout</p>
+<p>To set a connection timeout:</p>
 <pre><code class="language-bash">festival-cli --timeout 5 collection_full
 </code></pre>
 <p>These pre-flags must come <em>before</em> the method name, because every <code>--flag</code> that comes <em>after</em> <code>&lt;METHOD&gt;</code> will be assumed to be a <code>--parameter</code>.</p>
+<h3 id="output"><a class="header" href="#output">Output</a></h3>
+<p><code>festival-cli</code> splits output between <code>STDOUT</code>/<code>STDERR</code>.</p>
+<p>The <em>only</em> output sent to <code>STDOUT</code> is the actual <code>JSON-RPC</code> method response, <em>everything else</em> is sent to <code>STDERR</code>.</p>
+<p>This means you can do:</p>
+<pre><code class="language-bash">festival-cli --debug collection_full | jq
+</code></pre>
+<p>and the debug information will be printed, but <code>jq</code> (or any other program/redirection) will only see the <code>JSON-RPC</code> response.</p>
 <h3 id="help"><a class="header" href="#help">Help</a></h3>
 <p>To list all available methods:</p>
 <pre><code class="language-bash">festival-cli --methods
@@ -571,12 +681,43 @@ Options:
 <p>To view the <code>festivald</code> documentation proper:</p>
 <ul>
 <li>View it at <a href="https://docs.festival.pm/daemon"><code>https://docs.festival.pm/daemon</code></a>, or</li>
-<li>View it locally with <code>festivald data --docs</code>, or</li>
+<li>View it locally with <code>festivald --docs</code>, or</li>
 <li>Serve/view it yourself at <code>http://localhost:18425</code> after starting <code>festivald</code></li>
 </ul>
 <p>All method documentation will include what inputs it needs, what output to expect, and examples.</p>
 <h3 id="examples"><a class="header" href="#examples">Examples</a></h3>
 <p>Each method in <a href="https://docs.festival.pm/daemon/json-rpc/json-rpc.html"><code>festivald</code>'s documentation</a> has a <code>festival-cli</code> example.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="tor"><a class="header" href="#tor">Tor</a></h1>
+<p>Like other web services, <code>festivald</code> can be set-up &amp; accessed via <a href="https://torproject.org">Tor</a>.</p>
+<p>See <a href="https://docs.festival.pm/daemon/tor.html">here</a> to see how to set <code>festivald</code> up with Tor.</p>
+<p><code>festival-cli</code> has support for <code>HTTP</code>, <code>SOCKS4</code>, and <code>SOCKS5</code> proxies, which will allow you to connect to <code>festivald</code>'s running as <a href="https://community.torproject.org/onion-services/">Onion Services</a>.</p>
+<p>A public instance of <code>festivald</code> with <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/"><code>Creative Commons</code></a> licensed music is available at:</p>
+<pre><code class="language-http">https://daemon.festival.pm
+</code></pre>
+<p>and its <a href="https://community.torproject.org/onion-services"><code>Onion Service</code></a> is available at:</p>
+<pre><code class="language-http">http://omjo63yjj66ga7jlvhqib4z4qgx6y6oigjcpjcr5ehhfdugfuami3did.onion
+</code></pre>
+<h3 id="json-rpc-1"><a class="header" href="#json-rpc-1">JSON-RPC</a></h3>
+<p>To connect to <code>festivald</code> over an <code>Onion Service</code>, you can use <code>--proxy</code>:</p>
+<pre><code class="language-bash">ONION=&quot;http://omjo63yjj66ga7jlvhqib4z4qgx6y6oigjcpjcr5ehhfdugfuami3did.onion&quot;
+
+festival-cli
+	--proxy socks5://127.0.0.1:9050 \ # The Tor SOCKS5 proxy.
+	--festivald $ONION \              # The onion address mapped at `festivald`
+	state_daemon                      # Method
+
+</code></pre>
+<p>or wrap <code>festival-cli</code> with <a href="https://support.torproject.org/glossary/torsocks"><code>torsocks</code></a>:</p>
+<pre><code class="language-bash">torsocks festival-cli -f $ONION state_daemon
+</code></pre>
+<h3 id="authentication"><a class="header" href="#authentication">Authentication</a></h3>
+<p>Since <a href="https://community.torproject.org/onion-services/overview/">Onion Service's</a> are end-to-end encrypted, <code>HTTPS</code> is not required.</p>
+<p>Thus, <code>festivald</code> and <code>festival-cli</code> can freely pass <a href="config.html"><code>authentication</code></a> tokens around when used with <code>onion</code> addresses.</p>
+<p>For <code>festivald</code>, since it cannot know if an <code>onion</code> address is being mapped to it, you must pass:</p>
+<pre><code class="language-bash">festivald --confirm-no-tls-auth
+</code></pre>
+<p>to confirm that you allow authentication without TLS.</p>
+<p>For <code>festival-cli</code>, it will automatically detect if you're connecting to an onion address and will allow authentication.</p>
 
                     </main>
 

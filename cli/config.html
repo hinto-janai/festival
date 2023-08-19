@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Config - festival-cli v0.0.0</title>
+        <title>Config - festival-cli v1.0.0</title>
 
 
         <!-- Custom HTML head -->
@@ -83,7 +83,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="intro.html">Intro</a></li><li class="chapter-item expanded "><a href="disk.html"><strong aria-hidden="true">1.</strong> Disk</a></li><li class="chapter-item expanded "><a href="config.html" class="active"><strong aria-hidden="true">2.</strong> Config</a></li><li class="chapter-item expanded "><a href="command-line.html"><strong aria-hidden="true">3.</strong> Command Line</a></li><li class="chapter-item expanded "><a href="authorization.html"><strong aria-hidden="true">4.</strong> Authorization</a></li><li class="chapter-item expanded "><a href="json-rpc.html"><strong aria-hidden="true">5.</strong> JSON-RPC</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="intro.html">Intro</a></li><li class="chapter-item expanded "><a href="disk.html"><strong aria-hidden="true">1.</strong> Disk</a></li><li class="chapter-item expanded "><a href="config.html" class="active"><strong aria-hidden="true">2.</strong> Config</a></li><li class="chapter-item expanded "><a href="command-line.html"><strong aria-hidden="true">3.</strong> Command Line</a></li><li class="chapter-item expanded "><a href="authorization.html"><strong aria-hidden="true">4.</strong> Authorization</a></li><li class="chapter-item expanded "><a href="json-rpc.html"><strong aria-hidden="true">5.</strong> JSON-RPC</a></li><li class="chapter-item expanded "><a href="tor.html"><strong aria-hidden="true">6.</strong> Tor</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -134,7 +134,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">festival-cli v0.0.0</h1>
+                    <h1 class="menu-title">festival-cli v1.0.0</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -172,7 +172,7 @@
                         <h1 id="config"><a class="header" href="#config">Config</a></h1>
 <p><code>festival-cli</code> reads and loads its configuration file, <code>festival-cli.toml</code>, on startup. It controls various behaviors of <code>festival-cli</code>.</p>
 <p>Exactly where this file is depends on the OS, more details in the <a href="disk.html"><code>Disk</code></a> section.</p>
-<p><a href="command-line/command-line.html"><code>Command Line</code></a> flags will override any overlapping config values.</p>
+<p><a href="command-line.html"><code>Command Line</code></a> flags will override any overlapping config values.</p>
 <h2 id="festival-clitoml"><a class="header" href="#festival-clitoml"><code>festival-cli.toml</code></a></h2>
 <p>This is the default configuration file <code>festival-cli</code> creates and uses.</p>
 <p>If <code>festival-cli</code> is started with no <code>--flags</code>, e.g:</p>
@@ -212,7 +212,6 @@
 # TYPE    | string
 festivald = &quot;http://127.0.0.1:18425&quot;
 
-
 # Set a timeout for a non-responding `festivald`
 #
 # If the request &amp; response time to/from `festivald`
@@ -222,9 +221,25 @@ festivald = &quot;http://127.0.0.1:18425&quot;
 # 0 means never disconnect.
 #
 # DEFAULT | 0
-# VALUES  | 5, 10, 60
-# TYPE    | unsigned integer
+# VALUES  | 2.5, 5, 10.111, 60
+# TYPE    | integer or non-negative float
 timeout = 0
+
+# Route connections through a proxy
+#
+# Requests/responses will be routed via this proxy.
+#
+# Supported proxies are: `HTTP`, `SOCKS4`, and `SOCKS5`.
+#
+# The input must be:
+#   - Proxy protocol (`http://`, `socks4://`, `socks5://`)
+#   - Proxy IP
+#   - Proxy port
+#
+# DEFAULT | &quot;&quot; (disabled)
+# EXAMPLE | &quot;socks5://127.0.0.1:9050&quot;, &quot;http://127.0.0.1:9049&quot;
+# TYPE    | string (URL)
+proxy = &quot;&quot;
 
 
 #----------------------------------------------------------#
@@ -249,8 +264,8 @@ id = &quot;festival-cli&quot;
 # in `festivald`, see here for more info:
 # &lt;https://docs.festival.pm/daemon/authorization/authorization.html&gt;
 #
-# A `festivald` with HTTPS must be used or `festival-cli`
-# will refuse to start.
+# A `festivald` with `HTTPS` or `.onion` must be
+# used or `festival-cli` will refuse to start.
 #
 # An empty string disables this feature.
 #
@@ -270,6 +285,23 @@ id = &quot;festival-cli&quot;
 # EXAMPLE | &quot;my_username:my_password&quot;, &quot;my_username:aoig2A%^$AWS^%&quot;, &quot;/path/to/file&quot;
 # TYPE    | string or PATH to file
 authorization = &quot;&quot;
+
+# Allow authorization even without TLS
+#
+# This will let you set the authorization
+# setting even if TLS is disabled.
+#
+# This means your `user:pass` will be sent in clear-text HTTP,
+# unless you are wrapping HTTP in something else, like SSH
+# port forwarding, or Tor.
+#
+# This setting is automatically enabled if connecting
+# to a `festivald` via an `.onion` service.
+#
+# DEFAULT | false
+# VALUES  | true, false
+# TYPE    | boolean
+confirm_no_tls_auth = false
 </code></pre>
 
                     </main>

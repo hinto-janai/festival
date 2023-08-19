@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Authorization - festival-cli v0.0.0</title>
+        <title>Authorization - festival-cli v1.0.0</title>
 
 
         <!-- Custom HTML head -->
@@ -83,7 +83,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="intro.html">Intro</a></li><li class="chapter-item expanded "><a href="disk.html"><strong aria-hidden="true">1.</strong> Disk</a></li><li class="chapter-item expanded "><a href="config.html"><strong aria-hidden="true">2.</strong> Config</a></li><li class="chapter-item expanded "><a href="command-line.html"><strong aria-hidden="true">3.</strong> Command Line</a></li><li class="chapter-item expanded "><a href="authorization.html" class="active"><strong aria-hidden="true">4.</strong> Authorization</a></li><li class="chapter-item expanded "><a href="json-rpc.html"><strong aria-hidden="true">5.</strong> JSON-RPC</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="intro.html">Intro</a></li><li class="chapter-item expanded "><a href="disk.html"><strong aria-hidden="true">1.</strong> Disk</a></li><li class="chapter-item expanded "><a href="config.html"><strong aria-hidden="true">2.</strong> Config</a></li><li class="chapter-item expanded "><a href="command-line.html"><strong aria-hidden="true">3.</strong> Command Line</a></li><li class="chapter-item expanded "><a href="authorization.html" class="active"><strong aria-hidden="true">4.</strong> Authorization</a></li><li class="chapter-item expanded "><a href="json-rpc.html"><strong aria-hidden="true">5.</strong> JSON-RPC</a></li><li class="chapter-item expanded "><a href="tor.html"><strong aria-hidden="true">6.</strong> Tor</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -134,7 +134,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">festival-cli v0.0.0</h1>
+                    <h1 class="menu-title">festival-cli v1.0.0</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -172,7 +172,7 @@
                         <h1 id="authorization"><a class="header" href="#authorization">Authorization</a></h1>
 <p><code>festivald</code> has a <a href="https://en.wikipedia.org/wiki/Basic_access_authentication"><code>Basic access authentication</code></a> option, with a username + password setup.</p>
 <p>If enabled, <code>festival-cli</code> must also use <code>--authorization</code> or setup the <a href="config.html"><code>authorization</code></a> config option to connect to it.</p>
-<p><code>festival-cli</code> must connect to <code>festivald</code> over <code>HTTPS</code> if authorization is enabled or <code>festival-cli</code> will refuse to start.</p>
+<p><code>festival-cli</code> must connect to <code>festivald</code> over <code>HTTPS</code> or <a href="tor.html"><code>.onion</code></a> if authorization is enabled or <code>festival-cli</code> will refuse to start.</p>
 <h2 id="syntax"><a class="header" href="#syntax">Syntax</a></h2>
 <p>The username &amp; password syntax is specified <a href="https://en.wikipedia.org/wiki/Basic_access_authentication">here</a>.</p>
 <p>The &quot;authorization&quot; value must be:</p>
