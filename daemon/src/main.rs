@@ -58,6 +58,13 @@ fn main() {
 	let TO_KERNEL:   &'static crossbeam::channel::Sender<shukusai::kernel::FrontendToKernel>   = Box::leak(Box::new(to_kernel));
 	let FROM_KERNEL: &'static crossbeam::channel::Receiver<shukusai::kernel::KernelToFrontend> = Box::leak(Box::new(from_kernel));
 
+	// Tell `Kernel` to cache directories.
+	benri::send!(TO_KERNEL, shukusai::kernel::FrontendToKernel::CachePath(CONFIG.collection_paths.clone()));
+	// Tell `Kernel` to restore audio state.
+	if CONFIG.restore_audio_state {
+		benri::send!(TO_KERNEL, shukusai::kernel::FrontendToKernel::RestoreAudioState);
+	}
+
 	// Create documentation.
 	if CONFIG.docs {
 		match crate::docs::Docs::create() {
@@ -70,13 +77,6 @@ fn main() {
 		}
 	} else {
 		log::info!("festivald ... Skipping docs");
-	}
-
-	// Tell `Kernel` to cache directories.
-	benri::send!(TO_KERNEL, shukusai::kernel::FrontendToKernel::CachePath(CONFIG.collection_paths.clone()));
-	// Tell `Kernel` to restore audio state.
-	if CONFIG.restore_audio_state {
-		benri::send!(TO_KERNEL, shukusai::kernel::FrontendToKernel::RestoreAudioState);
 	}
 
 	// Cleanup cache.
