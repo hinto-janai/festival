@@ -1,11 +1,11 @@
 # /key/art/$ALBUM_KEY
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Download this `Album`'s art, using an [`Album key`](/common-objects/key.md).
+Download this `Album`'s art, using an [`Album key`](../../common-objects/key.md).
 
 #### Input
 | Input       | Type             |

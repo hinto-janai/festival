@@ -1,7 +1,7 @@
 # repeat
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
@@ -10,7 +10,7 @@ Set the playback repeat mode.
 #### Inputs
 | Field | Type                                  | Description |
 |-------|---------------------------------------|-------------|
-| mode  | string, one of `off`, `song`, `queue` | The repeat mode to set. `off` turns off repeating, `song` turns on [`Song`](/common-objects/song.md) repeating, `queue` turns on [`queue`](/json-rpc/queue/queue.md) repeating.
+| mode  | string, one of `off`, `song`, `queue` | The repeat mode to set. `off` turns off repeating, `song` turns on [`Song`](../../common-objects/song.md) repeating, `queue` turns on [`queue`](../queue/queue.md) repeating.
 
 #### Outputs
 | Field    | Type                                  | Description |

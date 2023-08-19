@@ -1,11 +1,11 @@
 # map_album_entries
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Input an [`Artist`](/common-objects/artist.md) name and [`Album`](/common-objects/album.md) title, retrieve all the [`Song`](/common-objects/song.md)'s in that `Album` in [`Entry`](/common-objects/entry.md) form.
+Input an [`Artist`](../../common-objects/artist.md) name and [`Album`](../../common-objects/album.md) title, retrieve all the [`Song`](../../common-objects/song.md)'s in that `Album` in [`Entry`](../../common-objects/entry.md) form.
 
 The `Entry`'s are sorted by `Track + Disc order`.
 
@@ -21,7 +21,7 @@ The `Entry`'s are sorted by `Track + Disc order`.
 | Field   | Type                     | Description |
 |---------|--------------------------|-------------|
 | len     | unsigned integer         | How many `Entry`'s there are
-| entries | array of `Entry` objects | See [`Entry`](/common-objects/entry.md)
+| entries | array of `Entry` objects | See [`Entry`](../../common-objects/entry.md)
 
 #### Example Request
 ```bash

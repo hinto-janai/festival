@@ -181,8 +181,8 @@
 </code></pre>
 <p>The typical invocation of <code>festival-cli</code>:</p>
 <ol>
-<li>Reads the <a href="/config.html">config</a> file</li>
-<li>Reads the <a href="/command-line.html">command-line</a> options</li>
+<li>Reads the <a href="config.html">config</a> file</li>
+<li>Reads the <a href="command-line.html">command-line</a> options</li>
 <li>Connects and sends a request to <code>festivald</code></li>
 <li>Prints out the <code>JSON</code> response</li>
 </ol>
@@ -240,8 +240,8 @@
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="config-1"><a class="header" href="#config-1">Config</a></h1>
 <p><code>festival-cli</code> reads and loads its configuration file, <code>festival-cli.toml</code>, on startup. It controls various behaviors of <code>festival-cli</code>.</p>
-<p>Exactly where this file is depends on the OS, more details in the <a href="/disk.html"><code>Disk</code></a> section.</p>
-<p><a href="/command-line/command-line.html"><code>Command Line</code></a> flags will override any overlapping config values.</p>
+<p>Exactly where this file is depends on the OS, more details in the <a href="disk.html"><code>Disk</code></a> section.</p>
+<p><a href="command-line.html"><code>Command Line</code></a> flags will override any overlapping config values.</p>
 <h2 id="festival-clitoml"><a class="header" href="#festival-clitoml"><code>festival-cli.toml</code></a></h2>
 <p>This is the default configuration file <code>festival-cli</code> creates and uses.</p>
 <p>If <code>festival-cli</code> is started with no <code>--flags</code>, e.g:</p>
@@ -373,8 +373,8 @@ authorization = &quot;&quot;
 confirm_no_tls_auth = false
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="command-line"><a class="header" href="#command-line">Command Line</a></h1>
-<p>Arguments passed to <code>festival-cli</code> will always take priority over the same <a href="../config.html">configuration</a> options read from disk.</p>
-<p>See <a href="/json-rpc.html"><code>JSON-RPC</code></a> for method command-line syntax.</p>
+<p>Arguments passed to <code>festival-cli</code> will always take priority over the same <a href="config.html">configuration</a> options read from disk.</p>
+<p>See <a href="json-rpc.html"><code>JSON-RPC</code></a> for method command-line syntax.</p>
 <pre><code class="language-plaintext">Usage: festival-cli [--OPTIONS] &lt;METHOD&gt; [--PARAM &lt;VALUE&gt;]
 
 Arguments passed to `festival-cli` will always take
@@ -611,7 +611,7 @@ Options:
 <div style="break-before: page; page-break-before: always;"></div><h1 id="authorization"><a class="header" href="#authorization">Authorization</a></h1>
 <p><code>festivald</code> has a <a href="https://en.wikipedia.org/wiki/Basic_access_authentication"><code>Basic access authentication</code></a> option, with a username + password setup.</p>
 <p>If enabled, <code>festival-cli</code> must also use <code>--authorization</code> or setup the <a href="config.html"><code>authorization</code></a> config option to connect to it.</p>
-<p><code>festival-cli</code> must connect to <code>festivald</code> over <code>HTTPS</code> or <a href="/tor.html"><code>.onion</code></a> if authorization is enabled or <code>festival-cli</code> will refuse to start.</p>
+<p><code>festival-cli</code> must connect to <code>festivald</code> over <code>HTTPS</code> or <a href="tor.html"><code>.onion</code></a> if authorization is enabled or <code>festival-cli</code> will refuse to start.</p>
 <h2 id="syntax"><a class="header" href="#syntax">Syntax</a></h2>
 <p>The username &amp; password syntax is specified <a href="https://en.wikipedia.org/wiki/Basic_access_authentication">here</a>.</p>
 <p>The &quot;authorization&quot; value must be:</p>

@@ -1,11 +1,11 @@
 # seek
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Seek forwards/backwards or to an absolute second in the current [`Song`](/common-objects/song.md).
+Seek forwards/backwards or to an absolute second in the current [`Song`](../../common-objects/song.md).
 
 Seeking forwards pass the remaining `Song` length will finish the `Song`.
 

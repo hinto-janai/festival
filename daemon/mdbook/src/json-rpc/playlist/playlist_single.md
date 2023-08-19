@@ -1,11 +1,11 @@
 # playlist_single
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Retrieve a single [`Playlist`](/common-objects/playlist.md).
+Retrieve a single [`Playlist`](../../common-objects/playlist.md).
 
 This method errors if `playlist` does not exist.
 
@@ -22,7 +22,7 @@ This method errors if `playlist` does not exist.
 | entry_len   | unsigned integer                                                 | How many `Playlist Entry`'s there are in this `Playlist`
 | valid_len   | unsigned integer                                                 | How many `Playlist Entry`'s are `valid`
 | invalid_len | unsigned integer                                                 | How many `Playlist Entry'`s are `invalid`
-| entries     | array of [`Playlist Entry`](/common-objects/playlist.md) objects | The `Playlist Entry`'s of the `Playlist`
+| entries     | array of [`Playlist Entry`](../../common-objects/playlist.md) objects | The `Playlist Entry`'s of the `Playlist`
 
 #### Example Request
 ```bash

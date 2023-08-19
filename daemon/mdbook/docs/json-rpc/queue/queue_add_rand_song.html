@@ -171,12 +171,12 @@
                     <main>
                         <h1 id="queue_add_rand_song"><a class="header" href="#queue_add_rand_song">queue_add_rand_song</a></h1>
 <h4 id="-incomplete"><a class="header" href="#-incomplete">🟡 Incomplete</a></h4>
-<p>This API may have <a href="/api-stability/marker.html">additions</a> in the future.</p>
+<p>This API may have <a href="../../api-stability/marker.html">additions</a> in the future.</p>
 <hr />
-<p>Add a random <a href="/common-objects/song.html"><code>Song</code></a> to the queue.</p>
+<p>Add a random <a href="../../common-objects/song.html"><code>Song</code></a> to the queue.</p>
 <h4 id="inputs"><a class="header" href="#inputs">Inputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td>append</td><td><code>string</code>, one of <code>front</code>, <code>back</code> or <code>index</code></td><td>See <a href="/json-rpc/queue/queue.html#append"><code>Queue/Append</code></a></td></tr>
+<tr><td>append</td><td><code>string</code>, one of <code>front</code>, <code>back</code> or <code>index</code></td><td>See <a href="../queue/queue.html#append"><code>Queue/Append</code></a></td></tr>
 <tr><td>clear</td><td>optional (maybe-null) boolean</td><td>Should the queue be cleared before adding? <code>null</code> or no field at all is equal to <code>false</code>.</td></tr>
 <tr><td>play</td><td>optional (maybe-null) boolean</td><td>Should we start playing? <code>null</code> or no field at all is equal to <code>false</code>.</td></tr>
 <tr><td>index</td><td>optional (maybe-null) unsigned integer</td><td>If the <code>index</code> append is chosen, this will be the index used</td></tr>
@@ -184,7 +184,7 @@
 </div>
 <h4 id="outputs"><a class="header" href="#outputs">Outputs</a></h4>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td>song</td><td><a href="/common-objects/song.html"><code>Song</code></a> object</td><td>The <code>Song</code> that was added to the queue</td></tr>
+<tr><td>song</td><td><a href="../../common-objects/song.html"><code>Song</code></a> object</td><td>The <code>Song</code> that was added to the queue</td></tr>
 </tbody></table>
 </div>
 <h4 id="example-request-1"><a class="header" href="#example-request-1">Example Request 1</a></h4>

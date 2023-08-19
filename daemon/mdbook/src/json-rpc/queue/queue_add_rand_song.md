@@ -1,17 +1,17 @@
 # queue_add_rand_song
 
 #### 🟡 Incomplete
-This API may have [additions](/api-stability/marker.md) in the future.
+This API may have [additions](../../api-stability/marker.md) in the future.
 
 ---
 
-Add a random [`Song`](/common-objects/song.md) to the queue.
+Add a random [`Song`](../../common-objects/song.md) to the queue.
 
 #### Inputs
 
 | Field  | Type                                        | Description |
 |--------|---------------------------------------------|-------------|
-| append | `string`, one of `front`, `back` or `index` | See [`Queue/Append`](/json-rpc/queue/queue.md#append)
+| append | `string`, one of `front`, `back` or `index` | See [`Queue/Append`](../queue/queue.md#append)
 | clear  | optional (maybe-null) boolean               | Should the queue be cleared before adding? `null` or no field at all is equal to `false`.
 | play   | optional (maybe-null) boolean               | Should we start playing? `null` or no field at all is equal to `false`.
 | index  | optional (maybe-null) unsigned integer      | If the `index` append is chosen, this will be the index used
@@ -19,7 +19,7 @@ Add a random [`Song`](/common-objects/song.md) to the queue.
 #### Outputs
 | Field | Type                                          | Description |
 |-------|-----------------------------------------------|-------------|
-| song  | [`Song`](/common-objects/song.md) object | The `Song` that was added to the queue
+| song  | [`Song`](../../common-objects/song.md) object | The `Song` that was added to the queue
 
 #### Example Request 1
 Add to back of the queue.

@@ -1,17 +1,17 @@
 # daemon_save
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
 Save `festivald` data to disk.
 
 Currently this saves:
-- [Audio state](/json-rpc/state/state_audio.md)
-- [Playlists](/common-objects/playlist.md)
+- [Audio state](../state/state_audio.md)
+- [Playlists](../../common-objects/playlist.md)
 
-The [`Collection`](/common-objects/collection.md) is always saved automatically after creation.
+The [`Collection`](../../common-objects/collection.md) is always saved automatically after creation.
 
 #### Inputs
 `None`

@@ -1,16 +1,16 @@
 # skip
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Skip forward a variable amount of [`Song`](/common-objects/song.md)'s in the [queue](/json-rpc/queue/queue.md).
+Skip forward a variable amount of [`Song`](../../common-objects/song.md)'s in the [queue](../queue/queue.md).
 
 #### Inputs
 | Field | Type             | Description |
 |-------|------------------|-------------|
-| skip  | unsigned integer | How many `Song`'s to skip. If greater than the rest of the `Song`'s in the queue, the queue will end (unless a [`repeat`](/json-rpc/playback/repeat.md) mode is on).
+| skip  | unsigned integer | How many `Song`'s to skip. If greater than the rest of the `Song`'s in the queue, the queue will end (unless a [`repeat`](../playback/repeat.md) mode is on).
 
 
 #### Outputs

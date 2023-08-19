@@ -1,11 +1,11 @@
 # map_song
 
 #### 🟡 Incomplete
-This API may have [additions](/api-stability/marker.md) in the future.
+This API may have [additions](../../api-stability/marker.md) in the future.
 
 ---
 
-Input an [`Artist`](/common-objects/artist.md) name, [`Album`](/common-objects/album.md) title, and [`Song`](/common-objects/song.md) title, retrieve a `Song` object.
+Input an [`Artist`](../../common-objects/artist.md) name, [`Album`](../../common-objects/album.md) title, and [`Song`](../../common-objects/song.md) title, retrieve a `Song` object.
 
 #### Inputs
 
@@ -19,7 +19,7 @@ Input an [`Artist`](/common-objects/artist.md) name, [`Album`](/common-objects/a
 
 | Field | Type          | Description |
 |-------|---------------|-------------|
-| song  | `Song` object | See [`Song`](/common-objects/song.md)
+| song  | `Song` object | See [`Song`](../../common-objects/song.md)
 
 #### Example Request
 ```bash

@@ -1,20 +1,20 @@
 # Playlist
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
 `Playlist`'s are objects where
 - The key _is_ the playlist name (`string`)
-- The value is an array of [`Entry`](/common-objects/entry.md)-like objects, `Playlist Entries`
+- The value is an array of [`Entry`](entry.md)-like objects, `Playlist Entries`
 
 | Field          | Type                        | Description |
 |----------------|-----------------------------|-------------|
 | $PLAYLIST_NAME | array of `Playlist Entry`'s | The name of the playlist as the key, and the `Song` entries in an array
 
 ## Playlist Entry
-The `Entry` object in the context of playlists is similar to [`Entry`](/common-objects/entry.md), except it does not have the `path` field.
+The `Entry` object in the context of playlists is similar to [`Entry`](entry.md), except it does not have the `path` field.
 
 The `Playlist Entry` takes 2 forms: `valid` & `invalid`:
 
@@ -23,7 +23,7 @@ The `Playlist Entry` takes 2 forms: `valid` & `invalid`:
 | `valid`               | This is a valid `Song`; it exists within the current `Collection`
 | `invalid`             | This `Song` does _NOT_ exist in the current `Collection`, although it did in a previous one (it may have been lost in-between `Collection` resets)
 
-These objects will appear in playlist-related methods, like [`playlist_full`](/json-rpc/playlist/playlist_full.md) & [`playlist_single`](/json-rpc/playlist/playlist_single.md).
+These objects will appear in playlist-related methods, like [`playlist_full`](../json-rpc/playlist/playlist_full.md) & [`playlist_single`](../json-rpc/playlist/playlist_single.md).
 
 Example:
 ```json
@@ -57,16 +57,16 @@ Example:
 ### `valid`
 The data definition for `valid` playlist entry types.
 
-Exact same as [`Entry`](/common-objects/entry.md) but does not have `path`.
+Exact same as [`Entry`](entry.md) but does not have `path`.
 
 | Field      | Type                          | Description |
 |------------|-------------------------------|-------------|
-| key_artist | Artist key (unsigned integer) | This entry's [`Artist key`](/common-objects/key.md)
-| key_album  | Album key (unsigned integer)  | This entry's [`Album key`](/common-objects/key.md)
-| key_song   | Song key (unsigned integer)   | This entry's [`Song key`](/common-objects/key.md)
-| artist     | string                        | The [`Artist` name](/common-objects/artist.md)
-| album      | string                        | The [`Album` title](/common-objects/album.md)
-| song       | string                        | The [`Song` title](/common-objects/song.md)
+| key_artist | Artist key (unsigned integer) | This entry's [`Artist key`](key.md)
+| key_album  | Album key (unsigned integer)  | This entry's [`Album key`](key.md)
+| key_song   | Song key (unsigned integer)   | This entry's [`Song key`](key.md)
+| artist     | string                        | The [`Artist` name](artist.md)
+| album      | string                        | The [`Album` title](album.md)
+| song       | string                        | The [`Song` title](song.md)
 
 Example:
 ```json
@@ -85,9 +85,9 @@ The data definition for `invalid` playlist entry types is the same as `valid`, b
 
 | Field  | Type                          | Description |
 |--------|-------------------------------|-------------|
-| artist | string                        | The [`Artist` name](/common-objects/artist.md)
-| album  | string                        | The [`Album` title](/common-objects/album.md)
-| song   | string                        | The [`Song` title](/common-objects/song.md)
+| artist | string                        | The [`Artist` name](artist.md)
+| album  | string                        | The [`Album` title](album.md)
+| song   | string                        | The [`Song` title](song.md)
 
 Example:
 ```json
@@ -99,7 +99,7 @@ Example:
 ```
 
 ## Validation
-Upon a [`Collection`](/common-objects/collection.md) reset, it is not guaranteed that the same [`Song`](/common-objects/song.md)'s will even exist at all.
+Upon a [`Collection`](collection.md) reset, it is not guaranteed that the same [`Song`](song.md)'s will even exist at all.
 
 This is a problem since existing `Playlist`'s may now be referencing `Song`'s that don't exist anymore.
 

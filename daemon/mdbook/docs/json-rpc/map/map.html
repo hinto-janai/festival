@@ -170,20 +170,20 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="map"><a class="header" href="#map">Map</a></h1>
-<p>These methods are the same as the <a href="../key/key.html"><code>key_*</code></a> methods, but instead of <a href="/common-objects/key.html"><code>key</code></a>'s, you can directly use:</p>
+<p>These methods are the same as the <a href="../key/key.html"><code>key_*</code></a> methods, but instead of <a href="../../common-objects/key.html"><code>key</code></a>'s, you can directly use:</p>
 <ul>
-<li><a href="/common-objects/artist.html"><code>Artist</code></a> name</li>
-<li><a href="/common-objects/album.html"><code>Album</code></a> title</li>
-<li><a href="/common-objects/song.html"><code>Song</code></a> title</li>
+<li><a href="../../common-objects/artist.html"><code>Artist</code></a> name</li>
+<li><a href="../../common-objects/album.html"><code>Album</code></a> title</li>
+<li><a href="../../common-objects/song.html"><code>Song</code></a> title</li>
 </ul>
-<p><code>strings</code> to lookup <a href="/common-objects/common-objects.html"><code>Common Objects</code></a>.</p>
+<p><code>strings</code> to lookup <a href="../../common-objects/common-objects.html"><code>Common Objects</code></a>.</p>
 <p>So instead of:</p>
 <pre><code class="language-bash">festival-cli key_artist --key 100
 </code></pre>
 <p>you can use:</p>
 <pre><code class="language-bash">festival-cli map_artist --artist 'カネコアヤノ'
 </code></pre>
-<p>If the input is invalid, a JSON-RPC <a href="/json-rpc/json-rpc.html#example-json-rpc-20-failed-response"><code>error</code></a> will be returned.</p>
+<p>If the input is invalid, a JSON-RPC <a href="../json-rpc.html#example-json-rpc-20-failed-response"><code>error</code></a> will be returned.</p>
 <h3 id="warning"><a class="header" href="#warning">Warning</a></h3>
 <p>Inputs are case-sensitive and must be exactly correct.</p>
 <p>If you have an <code>Album</code> called <code>Hello World</code>, none of these inputs will work:</p>
@@ -196,19 +196,19 @@
 </ul>
 <p>The input must be <em>exactly</em> <code>Hello World</code>.</p>
 <h3 id="collisions"><a class="header" href="#collisions">Collisions</a></h3>
-<p>When using <a href="/json-rpc/map/map_album.html"><code>map_album</code></a> you must specify:</p>
+<p>When using <a href="../map/map_album.html"><code>map_album</code></a> you must specify:</p>
 <ul>
 <li><code>Artist</code> name</li>
 <li><code>Album</code> title</li>
 </ul>
-<p>and when using <a href="/json-rpc/map/map_song.html"><code>map_song</code></a> you must specify:</p>
+<p>and when using <a href="../map/map_song.html"><code>map_song</code></a> you must specify:</p>
 <ul>
 <li><code>Artist</code> name</li>
 <li><code>Album</code> title</li>
 <li><code>Song</code> title</li>
 </ul>
 <p>The reason these have to be specified is to prevent collisions.</p>
-<p>If there's 2 <code>Song</code>'s in your <a href="/common-objects/collection.html"><code>Collection</code></a> called: <code>Hello World</code>, <code>festivald</code> cannot know which one you want.</p>
+<p>If there's 2 <code>Song</code>'s in your <a href="../../common-objects/collection.html"><code>Collection</code></a> called: <code>Hello World</code>, <code>festivald</code> cannot know which one you want.</p>
 <p>Since <code>Artist</code> names are unique, and <code>Album</code> titles within <code>Artist</code>'s are unique, they serve as an identifier.</p>
 <h3 id="duplicate-song-names"><a class="header" href="#duplicate-song-names">Duplicate <code>Song</code> Names</a></h3>
 <p>An uncommon &quot;bug&quot; you may encounter when using:</p>
@@ -235,7 +235,7 @@
       ├─ Interlude # &lt;------------- same name
       ├─ Song 5.flac
 </code></pre>
-<p>The workaround is by using <a href="/common-objects/key.html"><code>Song key</code></a>'s to retrieve these instead, as they are unique per <em>file</em>, regardless of metadata.</p>
+<p>The workaround is by using <a href="../../common-objects/key.html"><code>Song key</code></a>'s to retrieve these instead, as they are unique per <em>file</em>, regardless of metadata.</p>
 
                     </main>
 

@@ -1,7 +1,7 @@
 # Collection
 
 #### 🟡 Incomplete
-This API may have [additions](/api-stability/marker.md) in the future.
+This API may have [additions](../api-stability/marker.md) in the future.
 
 ---
 
@@ -11,7 +11,7 @@ It is _the_ central component, and almost all other methods/endpoints use it in 
 
 It does not contain actual audio/image data, but rather metadata and links to where those resources can be found.
 
-The `Collection` contains many nested objects, including the [common 3](/common-objects/common-objects.md):
+The `Collection` contains many nested objects, including the [common 3](common-objects.md):
 - [`Artist`](artist.md)
 - [`Album`](album.md)
 - [`Song`](song.md)

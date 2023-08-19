@@ -1,11 +1,11 @@
 # previous
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Set the current [`Song`](/common-objects/song.md) to the previous in the [queue](/json-rpc/queue/queue.md).
+Set the current [`Song`](../../common-objects/song.md) to the previous in the [queue](../queue/queue.md).
 
 #### Inputs
 | Field     | Type             | Description |

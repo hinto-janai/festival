@@ -1,11 +1,11 @@
 # collection_brief_artists
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Retrieve an array of every [`Artist`](/common-objects/artist.md) name in the current [`Collection`](/common-objects/collection.md).
+Retrieve an array of every [`Artist`](../../common-objects/artist.md) name in the current [`Collection`](../../common-objects/collection.md).
 
 The returned array of `string`'s is in [`lexicographical`](https://en.wikipedia.org/wiki/Lexicographic_order) order.
 

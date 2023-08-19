@@ -1,11 +1,11 @@
 # collection_full_albums
 
 #### 🟡 Incomplete
-This API may have [additions](/api-stability/marker.md) in the future.
+This API may have [additions](../../api-stability/marker.md) in the future.
 
 ---
 
-Retrieve an array of every [`Album`](/common-objects/album.md) object in the current [`Collection`](/common-objects/collection.md).
+Retrieve an array of every [`Album`](../../common-objects/album.md) object in the current [`Collection`](../../common-objects/collection.md).
 
 The returned array is in incrementing key order, as in:
 ```

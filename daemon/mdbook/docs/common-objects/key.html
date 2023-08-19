@@ -171,7 +171,7 @@
                     <main>
                         <h1 id="key"><a class="header" href="#key">Key</a></h1>
 <h4 id="-stable"><a class="header" href="#-stable">🟢 Stable</a></h4>
-<p>This API is <a href="/api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
+<p>This API is <a href="../api-stability/marker.html">stable</a> since <code>festivald v1.0.0</code>.</p>
 <hr />
 <p><a href="common-objects.html"><code>Common Objects</code></a> all have an unsigned integer associated with them:</p>
 <ul>
@@ -185,7 +185,7 @@
 </code></pre>
 <p><code>Key</code>'s start at <code>0</code> and are unique <em>per</em> object group, meaning there is an <code>Artist</code> 0 key AND <code>Album</code> 0 key AND <code>Song</code> 0 key.</p>
 <p>The actual number value of <code>Key</code>'s aren't significant, and should be treated as random.</p>
-<p>Thus, the <code>songs</code> field in <a href="/common-objects/album.html"><code>Album</code></a> won't necessarily be incrementing by 1, e.g, <code>[0, 1, 2, ...]</code>. It could be <code>[0, 6, 112, 3, ...]</code>. Same with <code>Album</code> keys within <code>Artist</code>'s.</p>
+<p>Thus, the <code>songs</code> field in <a href="album.html"><code>Album</code></a> won't necessarily be incrementing by 1, e.g, <code>[0, 1, 2, ...]</code>. It could be <code>[0, 6, 112, 3, ...]</code>. Same with <code>Album</code> keys within <code>Artist</code>'s.</p>
 <h2 id="where"><a class="header" href="#where">Where</a></h2>
 <p><code>Key</code>'s can be found in multiple <code>JSON-RPC</code> methods, such as <a href="../json-rpc/map/map_artist.html"><code>map_artist</code></a>, <a href="../json-rpc/search/search_album.html"><code>search_album</code></a>, etc.</p>
 <p>Each object contains its own key within itself as well, and there are links in-between them:</p>
@@ -214,8 +214,8 @@
 <li>Accessing <code>Song</code>'s with the <em>same</em> title in the same <code>Album</code> by the same <code>Artist</code> is impossible with <code>string</code>'s, however, each one of those <code>Song</code>'s will have a unique <code>Key</code>, which it makes it possible to access them that way</li>
 </ul>
 <h2 id="why-not"><a class="header" href="#why-not">Why NOT</a></h2>
-<p><code>Key</code>'s can only be relied upon as long as the <a href="/common-objects/collection.html"><code>Collection</code></a> has not been <a href="/json-rpc/collection/collection_new.html">reset</a>.</p>
-<p>When the <code>Collection</code> is reset, it is not guaranteed that the same key will map to the same object. Using <a href="/json-rpc/map/map.html"><code>map_*</code></a> and <a href="/json-rpc/search/index.html"><code>search_*</code></a> methods as the main way to retrieve information may be more convenient so that <code>Artist</code> names, <code>Album</code> and <code>Song</code> titles can be used as inputs instead.</p>
+<p><code>Key</code>'s can only be relied upon as long as the <a href="collection.html"><code>Collection</code></a> has not been <a href="../json-rpc/collection/collection_new.html">reset</a>.</p>
+<p>When the <code>Collection</code> is reset, it is not guaranteed that the same key will map to the same object. Using <a href="../json-rpc/map/map.html"><code>map_*</code></a> and <a href="../json-rpc/search/index.html"><code>search_*</code></a> methods as the main way to retrieve information may be more convenient so that <code>Artist</code> names, <code>Album</code> and <code>Song</code> titles can be used as inputs instead.</p>
 <h2 id="example"><a class="header" href="#example">Example</a></h2>
 <p>Let's search for a song that has a title similar to: &quot;hello&quot;</p>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;search_song&quot;,&quot;params&quot;:{&quot;input&quot;:&quot;hello&quot;,&quot;kind&quot;:&quot;top1&quot;}}'

@@ -1,13 +1,13 @@
 # state_queue_song
 
 #### 🟡 Incomplete
-This API may have [additions](/api-stability/marker.md) in the future.
+This API may have [additions](../../api-stability/marker.md) in the future.
 
 ---
 
 Retrieve state about the queue.
 
-This returns the queue as full [`Song`](/common-objects/song.md) objects.
+This returns the queue as full [`Song`](../../common-objects/song.md) objects.
 
 Returned `Song`'s are in order of what will be played next.
 

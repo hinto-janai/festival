@@ -220,11 +220,11 @@ curl --socks5-hostname $SOCKS -JO $ONION/map/Artist%20Name/Artist%20Title/Song%2
 </code></pre>
 <h3 id="authentication"><a class="header" href="#authentication">Authentication</a></h3>
 <p>Since <a href="https://community.torproject.org/onion-services/overview/">Onion Service's</a> are end-to-end encrypted, <code>HTTPS</code> is not required.</p>
-<p>Thus, <code>festivald</code> can freely pass <a href="/config.html"><code>authentication</code></a> tokens around when used as an <code>Onion Service</code>.</p>
+<p>Thus, <code>festivald</code> can freely pass <a href="config.html"><code>authentication</code></a> tokens around when used as an <code>Onion Service</code>.</p>
 <p>Although, since <code>festivald</code> cannot know if an <code>onion</code> address is being mapped to it, you must pass:</p>
 <pre><code class="language-bash">festivald --confirm-no-tls-auth
 </code></pre>
-<p>or set the <a href="/config.html"><code>confirm_no_tls_auth</code></a> configuration to confirm that you allow authentication without TLS.</p>
+<p>or set the <a href="config.html"><code>confirm_no_tls_auth</code></a> configuration to confirm that you allow authentication without TLS.</p>
 <p>For <code>festival-cli</code>, it will automatically detect if you're connecting to an onion address and will allow authentication.</p>
 
                     </main>

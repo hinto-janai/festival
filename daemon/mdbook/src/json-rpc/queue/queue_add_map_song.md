@@ -1,11 +1,11 @@
 # queue_add_map_song
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Add a [`Song`](/common-objects/song.md) to the queue with an [`Artist`](/common-objects/artist.md) name [`Album`](/common-objects/album.md) title, and `Song` title.
+Add a [`Song`](../../common-objects/song.md) to the queue with an [`Artist`](../../common-objects/artist.md) name [`Album`](../../common-objects/album.md) title, and `Song` title.
 
 #### Inputs
 
@@ -14,7 +14,7 @@ Add a [`Song`](/common-objects/song.md) to the queue with an [`Artist`](/common-
 | artist | `string`                                    | `Artist` name
 | album  | `string`                                    | `Album` title
 | song   | `string`                                    | `Song` title
-| append | `string`, one of `front`, `back` or `index` | See [`Queue/Append`](/json-rpc/queue/queue.md#append)
+| append | `string`, one of `front`, `back` or `index` | See [`Queue/Append`](../queue/queue.md#append)
 | clear  | optional (maybe-null) boolean               | Should the queue be cleared before adding? `null` or no field at all is equal to `false`.
 | play   | optional (maybe-null) boolean               | Should we start playing? `null` or no field at all is equal to `false`.
 | index  | optional (maybe-null) unsigned integer      | If the `index` append is chosen, this will be the index used

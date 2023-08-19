@@ -1,7 +1,7 @@
 # Command Line
 `festivald` takes in `--flags` for many purposes.
 
-Arguments passed to `festivald` will always take priority over the same [configuration](/config.md) options read from disk.
+Arguments passed to `festivald` will always take priority over the same [configuration](../config.md) options read from disk.
 
 `festivald` also has a `signal` sub-command. For example, to send a signal to a `festivald` running on the same local machine, you can run:
 ```bash

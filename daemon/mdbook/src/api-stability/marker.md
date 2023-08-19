@@ -1,5 +1,5 @@
 # Marker
-In the documentation for all [`Objects`](/common-objects/common-objects.md), [`JSON-RPC` methods](/json-rpc/json-rpc.md), and [`REST` endpoints](/rest/rest.md) there will be a "marker" defining the stability of that API. It will be 1 of the 4 listed markers here.
+In the documentation for all [`Objects`](../common-objects/common-objects.md), [`JSON-RPC` methods](../json-rpc/json-rpc.md), and [`REST` endpoints](../rest/rest.md) there will be a "marker" defining the stability of that API. It will be 1 of the 4 listed markers here.
 
 ## 🟢 Stable
 This marks that this API's input/output will never change, and can be relied upon.

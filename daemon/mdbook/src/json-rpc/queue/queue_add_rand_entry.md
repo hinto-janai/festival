@@ -1,19 +1,19 @@
 # queue_add_rand_entry
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Add a random [`Song`](/common-objects/song.md) to the queue, receive it back in [`Entry`](/common-objects/entry.md) form.
+Add a random [`Song`](../../common-objects/song.md) to the queue, receive it back in [`Entry`](../../common-objects/entry.md) form.
 
-This is the same as [`queue_add_rand_song`](/json-rpc/queue/queue_add_rand_song.md) but returns an `Entry`.
+This is the same as [`queue_add_rand_song`](../queue/queue_add_rand_song.md) but returns an `Entry`.
 
 #### Inputs
 
 | Field  | Type                                        | Description |
 |--------|---------------------------------------------|-------------|
-| append | `string`, one of `front`, `back` or `index` | See [`Queue/Append`](/json-rpc/queue/queue.md#append)
+| append | `string`, one of `front`, `back` or `index` | See [`Queue/Append`](../queue/queue.md#append)
 | clear  | optional (maybe-null) boolean               | Should the queue be cleared before adding? `null` or no field at all is equal to `false`.
 | play   | optional (maybe-null) boolean               | Should we start playing? `null` or no field at all is equal to `false`.
 | index  | optional (maybe-null) unsigned integer      | If the `index` append is chosen, this will be the index used
@@ -21,7 +21,7 @@ This is the same as [`queue_add_rand_song`](/json-rpc/queue/queue_add_rand_song.
 #### Outputs
 | Field | Type                                       | Description |
 |-------|--------------------------------------------|-------------|
-| entry | [`Entry`](/common-objects/entry.md) object | The `Song` that was added to the queue, in `Entry` form
+| entry | [`Entry`](../../common-objects/entry.md) object | The `Song` that was added to the queue, in `Entry` form
 
 #### Example Request 1
 Add to back of the queue.

@@ -1,16 +1,16 @@
 # clear
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Clear the [queue](/json-rpc/queue/queue.md).
+Clear the [queue](../queue/queue.md).
 
 #### Inputs
 | Field    | Type    | Description |
 |----------|---------|-------------|
-| playback | boolean | If there is a [`Song`](/common-objects/song.md) currently set and playing, should we continue playback?
+| playback | boolean | If there is a [`Song`](../../common-objects/song.md) currently set and playing, should we continue playback?
 
 #### Outputs
 | Field | Type             | Description |

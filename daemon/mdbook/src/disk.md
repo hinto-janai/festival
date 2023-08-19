@@ -72,7 +72,7 @@ The `Config` sub-directories/files, and their purpose:
 ```
 
 ## Data
-Where `festivald`'s main data is saved (the [`Collection`](common-objects/common-objects.md), audio state, etc).
+Where `festivald`'s main data is saved (the [`Collection`](common-objects/collection.md), audio state, etc).
 
 | Platform | Value                                                                    | Example                                                 |
 |----------|--------------------------------------------------------------------------|---------------------------------------------------------|

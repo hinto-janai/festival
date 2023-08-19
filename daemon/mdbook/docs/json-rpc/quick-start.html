@@ -173,47 +173,47 @@
 <p>A quick start to using <code>festivald</code>'s <code>JSON-RPC 2.0</code> API.</p>
 <h2 id="create-the-collection-and-start-playing-an-artist"><a class="header" href="#create-the-collection-and-start-playing-an-artist">Create the <code>Collection</code> and start playing an <code>Artist</code></a></h2>
 <ol>
-<li>First, scan the default <code>Music</code> directory on <code>festivald</code>'s filesystem, and create a <code>Collection</code> with <a href="/json-rpc/collection/collection_new.html"><code>collection_new</code></a>:</li>
+<li>First, scan the default <code>Music</code> directory on <code>festivald</code>'s filesystem, and create a <code>Collection</code> with <a href="collection/collection_new.html"><code>collection_new</code></a>:</li>
 </ol>
 <pre><code class="language-bash">festival-cli collection_new
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;collection_new&quot;,&quot;params&quot;:{&quot;paths&quot;:null}}'
 </code></pre>
 <ol start="2">
-<li>Add the <code>Artist</code> &quot;LUCKY TAPES&quot; to the queue with <a href="/json-rpc/queue/queue_add_map_artist.html"><code>queue_add_map_artist</code></a>:</li>
+<li>Add the <code>Artist</code> &quot;LUCKY TAPES&quot; to the queue with <a href="queue/queue_add_map_artist.html"><code>queue_add_map_artist</code></a>:</li>
 </ol>
 <pre><code class="language-bash">festival-cli queue_add_map_artist --artist &quot;LUCKY TAPES&quot;
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;queue_add_map_artist&quot;,&quot;params&quot;:{&quot;artist&quot;:&quot;LUCKY TAPES&quot;}}'
 </code></pre>
 <ol start="3">
-<li>Start playing with <a href="/json-rpc/playback/play.html"><code>play</code></a>:</li>
+<li>Start playing with <a href="playback/play.html"><code>play</code></a>:</li>
 </ol>
 <pre><code class="language-bash">festival-cli play
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;play&quot;}'
 </code></pre>
-<h2 id="view-state-of-current-audio-playback-with-state_audio"><a class="header" href="#view-state-of-current-audio-playback-with-state_audio">View state of current audio playback with <a href="/json-rpc/state/state_audio.html"><code>state_audio</code></a></a></h2>
+<h2 id="view-state-of-current-audio-playback-with-state_audio"><a class="header" href="#view-state-of-current-audio-playback-with-state_audio">View state of current audio playback with <a href="state/state_audio.html"><code>state_audio</code></a></a></h2>
 <pre><code class="language-bash">festival-cli state_audio
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;state_audio&quot;}'
 </code></pre>
-<h2 id="set-the-volume-to-10-with-volume"><a class="header" href="#set-the-volume-to-10-with-volume">Set the volume to 10% with <a href="/json-rpc/playback/volume.html"><code>volume</code></a></a></h2>
+<h2 id="set-the-volume-to-10-with-volume"><a class="header" href="#set-the-volume-to-10-with-volume">Set the volume to 10% with <a href="playback/volume.html"><code>volume</code></a></a></h2>
 <pre><code class="language-bash">festival-cli volume --volume 10
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;volume&quot;,&quot;params&quot;:{&quot;volume&quot;:10}}'
 </code></pre>
-<h2 id="view-the-current-album-with-current_album"><a class="header" href="#view-the-current-album-with-current_album">View the current <code>Album</code> with <a href="/json-rpc/current/current_album.html"><code>current_album</code></a></a></h2>
+<h2 id="view-the-current-album-with-current_album"><a class="header" href="#view-the-current-album-with-current_album">View the current <code>Album</code> with <a href="current/current_album.html"><code>current_album</code></a></a></h2>
 <pre><code class="language-bash">festival-cli current_album
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;current_album&quot;}'
 </code></pre>
-<h2 id="clear-the-queue-and-stop-playback-with-stop"><a class="header" href="#clear-the-queue-and-stop-playback-with-stop">Clear the queue and stop playback with <a href="/json-rpc/playback/stop.html"><code>stop</code></a></a></h2>
+<h2 id="clear-the-queue-and-stop-playback-with-stop"><a class="header" href="#clear-the-queue-and-stop-playback-with-stop">Clear the queue and stop playback with <a href="playback/stop.html"><code>stop</code></a></a></h2>
 <pre><code class="language-bash">festival-cli stop
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;stop&quot;}'
 </code></pre>
-<h2 id="create-and-add-an-artist-to-a-playlist-with-playlist_add_map_artist"><a class="header" href="#create-and-add-an-artist-to-a-playlist-with-playlist_add_map_artist">Create and add an <code>Artist</code> to a playlist with <a href="/json-rpc/playlist/playlist_add_map_artist.html"><code>playlist_add_map_artist</code></a></a></h2>
+<h2 id="create-and-add-an-artist-to-a-playlist-with-playlist_add_map_artist"><a class="header" href="#create-and-add-an-artist-to-a-playlist-with-playlist_add_map_artist">Create and add an <code>Artist</code> to a playlist with <a href="playlist/playlist_add_map_artist.html"><code>playlist_add_map_artist</code></a></a></h2>
 <pre><code class="language-bash">festival-cli playlist_add_map_artist --playlist &quot;Playlist Name&quot; --artist &quot;Artist Name&quot; --append back
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;playlist_add_map_artist&quot;,&quot;params&quot;:{&quot;playlist&quot;:&quot;Playlist Name&quot;,&quot;artist&quot;:&quot;Artist Name&quot;,&quot;append&quot;:&quot;back&quot;,&quot;clear&quot;:false}}'

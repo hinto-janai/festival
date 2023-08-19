@@ -1,11 +1,11 @@
 # rand_artist
 
 #### 🟡 Incomplete
-This API may have [additions](/api-stability/marker.md) in the future.
+This API may have [additions](../../api-stability/marker.md) in the future.
 
 ---
 
-Access a random [`Artist`](/common-objects/artist.md) in your [`Collection`](/common-objects/collection.md).
+Access a random [`Artist`](../../common-objects/artist.md) in your [`Collection`](../../common-objects/collection.md).
 
 #### Inputs
 
@@ -15,7 +15,7 @@ Access a random [`Artist`](/common-objects/artist.md) in your [`Collection`](/co
 
 | Field  | Type            | Description |
 |--------|-----------------|-------------|
-| artist | `Artist` object | See [`Artist`](/common-objects/artist.md)
+| artist | `Artist` object | See [`Artist`](../../common-objects/artist.md)
 
 #### Example Request
 ```bash

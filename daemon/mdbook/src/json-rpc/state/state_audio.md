@@ -1,7 +1,7 @@
 # state_audio
 
 #### 🟡 Incomplete
-This API may have [additions](/api-stability/marker.md) in the future.
+This API may have [additions](../../api-stability/marker.md) in the future.
 
 ---
 
@@ -15,7 +15,7 @@ Retrieve the current audio state.
 
 | Field     | Type                                                | Description |
 |-----------|-----------------------------------------------------|-------------|
-| queue     | array of [`Song`](/common-objects/song.md) [keys](/common-objects/key.md) (unsigned integers)            | Array of `Song` keys that are in the queue, in order of what will be played next
+| queue     | array of [`Song`](../../common-objects/song.md) [keys](../../common-objects/key.md) (unsigned integers)            | Array of `Song` keys that are in the queue, in order of what will be played next
 | queue_idx | optional (maybe-null) unsigned integer              | The queue index `festivald` is currently on, `null` if no `Song` is set
 | playing   | boolean                                             | If `festivald` is currently playing
 | song_key  | optional (maybe-null) `Song` key (unsigned integer) | The key of current `Song`, `null` if no `Song` is set

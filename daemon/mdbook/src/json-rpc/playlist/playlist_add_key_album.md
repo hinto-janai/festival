@@ -1,11 +1,11 @@
 # playlist_add_key_album
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Add an [`Album`](/common-objects/album.md) to a [`Playlist`](/json-rpc/playlist/playlist.md) with a [`Key`](/common-objects/key.md).
+Add an [`Album`](../../common-objects/album.md) to a [`Playlist`](../playlist/playlist.md) with a [`Key`](../../common-objects/key.md).
 
 If the specified playlist does not already exist, it will be created.
 
@@ -16,7 +16,7 @@ This method errors if there was an `index` error.
 |----------|---------------------------------------------|-------------|
 | key      | `Album` key (unsigned integer)              | `Album` key of the `Album` to add
 | playlist | string                                      | The name of the `Playlist`
-| append   | string, one of `front`, `back` or `index`   | See [`Playlist/Append`](/json-rpc/playlist/playlist.md#append)
+| append   | string, one of `front`, `back` or `index`   | See [`Playlist/Append`](../playlist/playlist.md#append)
 | index    | optional (maybe-null) unsigned integer      | If the `index` append is chosen, this will be the index used
 
 

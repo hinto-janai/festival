@@ -1,11 +1,11 @@
 # collection_new
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Create a new [`Collection`](/common-objects/collection.md) (and replace the current one).
+Create a new [`Collection`](../../common-objects/collection.md) (and replace the current one).
 
 While this method is in progress, other `JSON-RPC/REST` requests will be rejected.
 
@@ -22,7 +22,7 @@ While this method is in progress, other `JSON-RPC/REST` requests will be rejecte
 | Field        | Type             | Description |
 |--------------|------------------|-------------|
 | time         | float            | How many seconds it took `festivald` to reset AND respond
-| empty        | boolean          | If the `Collection` does NOT have any [`Artist`](/common-objects/artist.md)'s, [`Album`](/common-objects/album.md)'s, or [`Song`](/common-objects/song.md)'s
+| empty        | boolean          | If the `Collection` does NOT have any [`Artist`](../../common-objects/artist.md)'s, [`Album`](../../common-objects/album.md)'s, or [`Song`](../../common-objects/song.md)'s
 | timestamp    | unsigned integer | The UNIX timestamp of when this `Collection` was created
 | count_artist | unsigned integer | How many unique `Artist`'s there are in this `Collection`
 | count_album  | unsigned integer | How many unique `Album`'s there are in this `Collection`

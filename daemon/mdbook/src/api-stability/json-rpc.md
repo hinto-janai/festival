@@ -1,10 +1,10 @@
 # JSON-RPC
-[`JSON-RPC`](/json-rpc/json-rpc.md)-specific API stability notes.
+[`JSON-RPC`](../json-rpc/json-rpc.md)-specific API stability notes.
 
 ### Ordering
-The ordering of [non-stable](/api-stability/marker.md) output/object fields is [`🔴 Unstable`](/api-stability/marker.md).
+The ordering of [non-stable](marker.md) output/object fields is [`🔴 Unstable`](marker.md).
 
-The ordering of [`🟢 Stable`](/api-stability/marker.md) output/object fields is [`🟢 Stable`](/api-stability/marker.md).
+The ordering of [`🟢 Stable`](marker.md) output/object fields is [`🟢 Stable`](marker.md).
 
 Old `v1.0.0` JSON-RPC example:
 ```json

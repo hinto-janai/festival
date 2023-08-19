@@ -1,11 +1,11 @@
 # stop
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Clear the [queue](/json-rpc/queue/queue.md) and stop playback.
+Clear the [queue](../queue/queue.md) and stop playback.
 
 #### Inputs
 `None`

@@ -1,11 +1,11 @@
 # state_runtime
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Retrieve the elapsed runtime & total runtime of the currently set [`Song`](/common-objects/key.md).
+Retrieve the elapsed runtime & total runtime of the currently set [`Song`](../../common-objects/key.md).
 
 This will return `0` values (`0:00`) if there is no `Song` set.
 

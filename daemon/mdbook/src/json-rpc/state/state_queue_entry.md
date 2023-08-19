@@ -1,13 +1,13 @@
 # state_queue_entry
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
 Retrieve state about the queue.
 
-This is the same as [`state_queue`](/json-rpc/state/state_queue.md) except it returns [`Entry`](/common-objects/entry.md)'s instead of [`Song`](/common-objects/song.md)'s.
+This is the same as [`state_queue`](../state/state_queue.md) except it returns [`Entry`](../../common-objects/entry.md)'s instead of [`Song`](../../common-objects/song.md)'s.
 
 Returned `Entry`'s are in order of what will be played next.
 

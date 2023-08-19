@@ -1,11 +1,11 @@
 # map_entry
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Input an [`Artist`](/common-objects/artist.md) name, [`Album`](/common-objects/album.md) title, and [`Song`](/common-objects/song.md) title, retrieve an [`Entry`](/common-objects/entry.md) object.
+Input an [`Artist`](../../common-objects/artist.md) name, [`Album`](../../common-objects/album.md) title, and [`Song`](../../common-objects/song.md) title, retrieve an [`Entry`](../../common-objects/entry.md) object.
 
 #### Inputs
 
@@ -19,7 +19,7 @@ Input an [`Artist`](/common-objects/artist.md) name, [`Album`](/common-objects/a
 
 | Field | Type           | Description |
 |-------|----------------|-------------|
-| entry | `Entry` object | See [`Entry`](/common-objects/entry.md)
+| entry | `Entry` object | See [`Entry`](../../common-objects/entry.md)
 
 #### Example Request
 ```bash

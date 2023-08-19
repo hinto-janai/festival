@@ -1,14 +1,14 @@
 # Entry
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
 An "absolute" key to:
-- a particular [`Song`](/common-object/song.md)
-- in a particular [`Album`](/common-object/album.md)
-- by a particular [`Artist`](/common-object/artist.md)
+- a particular [`Song`](song.md)
+- in a particular [`Album`](album.md)
+- by a particular [`Artist`](artist.md)
 
 This object contains all the relational data of a `Song`, along with its filesystem PATH.
 

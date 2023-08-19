@@ -1,11 +1,11 @@
 # current_entry
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Access the currently set [`Song`](/common-objects/song.md), in [`Entry`](/common-objects/entry.md) form.
+Access the currently set [`Song`](../../common-objects/song.md), in [`Entry`](../../common-objects/entry.md) form.
 
 #### Inputs
 
@@ -15,7 +15,7 @@ Access the currently set [`Song`](/common-objects/song.md), in [`Entry`](/common
 
 | Field | Type           | Description |
 |-------|----------------|-------------|
-| entry | `Entry` object | See [`Entry`](/common-objects/entry.md)
+| entry | `Entry` object | See [`Entry`](../../common-objects/entry.md)
 
 #### Example Request
 ```bash

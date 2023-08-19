@@ -17,7 +17,7 @@ A public instance of `festivald` with [`Creative Commons`](https://creativecommo
 https://daemon.festival.pm
 ```
 
-For a general quick start, see the next chapter: [Quick Start](/quick-start.md).
+For a general quick start, see the next chapter: [Quick Start](quick-start.md).
 
 ### Clients
 To interact with `festivald`, you need a client.
@@ -45,7 +45,7 @@ The equivalent `festival-cli` command:
 festival-cli toggle
 ```
 
-For a quick start on the `JSON-RPC` API, see [`JSON-RPC/Quick Start`](/json-rpc/quick-start.md).
+For a quick start on the `JSON-RPC` API, see [`JSON-RPC/Quick Start`](json-rpc/quick-start.md).
 
 ### REST
 For the `REST` API, you could use anything that can handle `HTTP(s)`, like a web browser:
@@ -64,9 +64,9 @@ The equivalent `wget` command:
 wget --content-disposition "http://localhost:18425/map/Artist Name/Artist Title/Song Title"
 ```
 
-For a quick start on the `REST` API, see [`REST/Quick Start`](/rest/quick-start.md).
+For a quick start on the `REST` API, see [`REST/Quick Start`](rest/quick-start.md).
 
-To disable the `REST` API, set the [config](/config.md) option `rest` to `false` OR pass `--disable-rest` via [command line](/command-line/command-line.md) on start up.
+To disable the `REST` API, set the [config](config.md) option `rest` to `false` OR pass `--disable-rest` via [command line](command-line/command-line.md) on start up.
 
 ### Documentation
 `festivald` will also serve _this_ documentation.
@@ -80,4 +80,4 @@ Or you can open the files locally with:
 festivald --docs
 ```
 
-To disable serving documentation, set the [config](/config.md) option `docs` to `false` OR pass `--disable-docs` via [command line](/command-line/command-line.md) on start up.
+To disable serving documentation, set the [config](config.md) option `docs` to `false` OR pass `--disable-docs` via [command line](command-line/command-line.md) on start up.

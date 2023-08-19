@@ -171,31 +171,31 @@
                     <main>
                         <h1 id="rest-quick-start"><a class="header" href="#rest-quick-start"><code>REST</code> Quick Start</a></h1>
 <p>A quick start to using <code>festivald</code>'s <code>REST</code> API.</p>
-<h3 id="view-random-album-art-in-a-web-browser-with-randart"><a class="header" href="#view-random-album-art-in-a-web-browser-with-randart">View random <a href="/common-objects/album.html"><code>Album</code></a> art in a web browser with <a href="/rest/rand/art.html"><code>/rand/art</code></a></a></h3>
+<h3 id="view-random-album-art-in-a-web-browser-with-randart"><a class="header" href="#view-random-album-art-in-a-web-browser-with-randart">View random <a href="../common-objects/album.html"><code>Album</code></a> art in a web browser with <a href="rand/art.html"><code>/rand/art</code></a></a></h3>
 <pre><code class="language-http">http://localhost:18425/rand/art
 </code></pre>
-<h3 id="open-a-mini-player-of-a-random-song-in-a-web-browser-with-randsong"><a class="header" href="#open-a-mini-player-of-a-random-song-in-a-web-browser-with-randsong">Open a mini-player of a random <a href="/common-objects/song.html"><code>Song</code></a> in a web browser with <a href="/rest/rand/song.html"><code>/rand/song</code></a></a></h3>
+<h3 id="open-a-mini-player-of-a-random-song-in-a-web-browser-with-randsong"><a class="header" href="#open-a-mini-player-of-a-random-song-in-a-web-browser-with-randsong">Open a mini-player of a random <a href="../common-objects/song.html"><code>Song</code></a> in a web browser with <a href="rand/song.html"><code>/rand/song</code></a></a></h3>
 <pre><code class="language-http">http://localhost:18425/rand/song
 </code></pre>
-<h3 id="download-a-random-album-in-the-zip-format-with-randalbum"><a class="header" href="#download-a-random-album-in-the-zip-format-with-randalbum">Download a random <a href="/common-objects/album.html"><code>Album</code></a> in the <code>ZIP</code> format with <a href="/rest/rand/album.html"><code>/rand/album</code></a></a></h3>
+<h3 id="download-a-random-album-in-the-zip-format-with-randalbum"><a class="header" href="#download-a-random-album-in-the-zip-format-with-randalbum">Download a random <a href="../common-objects/album.html"><code>Album</code></a> in the <code>ZIP</code> format with <a href="rand/album.html"><code>/rand/album</code></a></a></h3>
 <pre><code class="language-http">http://localhost:18425/rand/album
 </code></pre>
-<h3 id="download-a-specific-artist-in-the-zip-format-with-mapartist_name"><a class="header" href="#download-a-specific-artist-in-the-zip-format-with-mapartist_name">Download a <em>specific</em> <a href="/common-objects/artist.html"><code>Artist</code></a> in the <code>ZIP</code> format with <a href="/rest/map/artist.html"><code>/map/$ARTIST_NAME</code></a></a></h3>
+<h3 id="download-a-specific-artist-in-the-zip-format-with-mapartist_name"><a class="header" href="#download-a-specific-artist-in-the-zip-format-with-mapartist_name">Download a <em>specific</em> <a href="../common-objects/artist.html"><code>Artist</code></a> in the <code>ZIP</code> format with <a href="map/artist.html"><code>/map/$ARTIST_NAME</code></a></a></h3>
 <pre><code class="language-http">http://localhost:18425/map/Artist Name
 </code></pre>
-<h3 id="download-a-specific-album-by-specific-artist-in-the-zip-format-with-mapartist_name"><a class="header" href="#download-a-specific-album-by-specific-artist-in-the-zip-format-with-mapartist_name">Download a <em>specific</em> <a href="/common-objects/album.html"><code>Album</code></a> by <em>specific</em> <a href="/common-objects/artist.html"><code>Artist</code></a> in the <code>ZIP</code> format with <a href="/rest/map/artist.html"><code>/map/$ARTIST_NAME</code></a></a></h3>
+<h3 id="download-a-specific-album-by-specific-artist-in-the-zip-format-with-mapartist_name"><a class="header" href="#download-a-specific-album-by-specific-artist-in-the-zip-format-with-mapartist_name">Download a <em>specific</em> <a href="../common-objects/album.html"><code>Album</code></a> by <em>specific</em> <a href="../common-objects/artist.html"><code>Artist</code></a> in the <code>ZIP</code> format with <a href="map/artist.html"><code>/map/$ARTIST_NAME</code></a></a></h3>
 <pre><code class="language-http">http://localhost:18425/map/Artist Name/Album Title
 </code></pre>
-<h3 id="download-the-currently-set-song-with-currentsong"><a class="header" href="#download-the-currently-set-song-with-currentsong">Download the currently set <a href="/common-objects/song.html"><code>Song</code></a> with <a href="/rest/current/song.html"><code>/current/song</code></a></a></h3>
+<h3 id="download-the-currently-set-song-with-currentsong"><a class="header" href="#download-the-currently-set-song-with-currentsong">Download the currently set <a href="../common-objects/song.html"><code>Song</code></a> with <a href="current/song.html"><code>/current/song</code></a></a></h3>
 <pre><code class="language-http">http://localhost:18425/current/song
 </code></pre>
-<h3 id="view-the-art-of-the-currently-set-song-with-currentart"><a class="header" href="#view-the-art-of-the-currently-set-song-with-currentart">View the art of the currently set <a href="/common-objects/song.html"><code>Song</code></a> with <a href="/rest/current/art.html"><code>/current/art</code></a></a></h3>
+<h3 id="view-the-art-of-the-currently-set-song-with-currentart"><a class="header" href="#view-the-art-of-the-currently-set-song-with-currentart">View the art of the currently set <a href="../common-objects/song.html"><code>Song</code></a> with <a href="current/art.html"><code>/current/art</code></a></a></h3>
 <pre><code class="language-http">http://localhost:18425/current/art
 </code></pre>
-<h3 id="download-all-the-art-belonging-to-an-artist-with-artartist_name"><a class="header" href="#download-all-the-art-belonging-to-an-artist-with-artartist_name">Download <em>all</em> the art belonging to an <a href="/common-objects/artist.html"><code>Artist</code></a> with <a href="/rest/art/artist.html"><code>/art/$ARTIST_NAME</code></a></a></h3>
+<h3 id="download-all-the-art-belonging-to-an-artist-with-artartist_name"><a class="header" href="#download-all-the-art-belonging-to-an-artist-with-artartist_name">Download <em>all</em> the art belonging to an <a href="../common-objects/artist.html"><code>Artist</code></a> with <a href="art/artist.html"><code>/art/$ARTIST_NAME</code></a></a></h3>
 <pre><code class="language-http">http://localhost:18425/art/Artist Name
 </code></pre>
-<h3 id="download-all-the-songs-in-a-playlist-in-the-zip-format-with-playlistplaylist_name"><a class="header" href="#download-all-the-songs-in-a-playlist-in-the-zip-format-with-playlistplaylist_name">Download <em>all</em> the <a href="/common-objects/song.html"><code>Song</code></a>'s in a <a href="/common-objects/playlist.html"><code>Playlist</code></a> in the <code>ZIP</code> format with <a href="playlist.html"><code>/playlist/$PLAYLIST_NAME</code></a></a></h3>
+<h3 id="download-all-the-songs-in-a-playlist-in-the-zip-format-with-playlistplaylist_name"><a class="header" href="#download-all-the-songs-in-a-playlist-in-the-zip-format-with-playlistplaylist_name">Download <em>all</em> the <a href="../common-objects/song.html"><code>Song</code></a>'s in a <a href="../common-objects/playlist.html"><code>Playlist</code></a> in the <code>ZIP</code> format with <a href="playlist.html"><code>/playlist/$PLAYLIST_NAME</code></a></a></h3>
 <pre><code class="language-http">http://localhost:18425/playlist/My Playlist 1
 </code></pre>
 

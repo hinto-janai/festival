@@ -1,11 +1,11 @@
 # state_repeat
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Retrieve the currently set [`repeat`](/json-rpc/playback/repeat.md) mode.
+Retrieve the currently set [`repeat`](../playback/repeat.md) mode.
 
 #### Inputs
 
@@ -15,7 +15,7 @@ Retrieve the currently set [`repeat`](/json-rpc/playback/repeat.md) mode.
 
 | Field | Type                                  | Description |
 |-------|---------------------------------------|-------------|
-| mode  | string, one of `off`, `song`, `queue` | The currently set repeat mode. `off` mean repeat is off, `song` means [`Song`](/common-objects/song.md) repeating, `queue` means [`queue`](/json-rpc/queue/queue.md) repeating.
+| mode  | string, one of `off`, `song`, `queue` | The currently set repeat mode. `off` mean repeat is off, `song` means [`Song`](../../common-objects/song.md) repeating, `queue` means [`queue`](../queue/queue.md) repeating.
 
 #### Example Request
 ```bash

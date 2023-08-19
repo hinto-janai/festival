@@ -1,11 +1,11 @@
 # Search
-Fuzzy similarity searches for [`Song`](/common-objects/song.md)'s, [`Album`](/common-objects/album.md)'s, [`Artist`](/common-objects/artist.md)'s, and [`Entry`](/common-objects/entry.md)'s.
+Fuzzy similarity searches for [`Song`](../../common-objects/song.md)'s, [`Album`](../../common-objects/album.md)'s, [`Artist`](../../common-objects/artist.md)'s, and [`Entry`](../../common-objects/entry.md)'s.
 
 In general: input a `string`, receive some objects that are similar to the input.
 
-If you know the _exact_ `string` for a `Song`, `Album`, or `Artist`, consider using the [`Map`](/json-rpc/map/map.md) methods instead for a direct lookup.
+If you know the _exact_ `string` for a `Song`, `Album`, or `Artist`, consider using the [`Map`](../map/map.md) methods instead for a direct lookup.
 
-If you know the _exact_ [`key`](/common-objects/key.md), use the [`Key`](/json-rpc/key/key.md) methods instead.
+If you know the _exact_ [`key`](../../common-objects/key.md), use the [`Key`](../key/key.md) methods instead.
 
 ### Kind
 These are different "kinds" of searches you can do, affecting the result output.
@@ -25,7 +25,7 @@ All of these return objects sorted from most-to-least similar.
 | `top1`  | Only the top result
 
 ### Warning
-The output array may return empty given no matches or an empty [`Collection`](/common-objects/collection.md):
+The output array may return empty given no matches or an empty [`Collection`](../../common-objects/collection.md):
 ```json
 {
   "jsonrpc": "2.0",

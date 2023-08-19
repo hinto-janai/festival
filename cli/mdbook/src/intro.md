@@ -13,8 +13,8 @@ festival-cli collection_new
 ```
 
 The typical invocation of `festival-cli`:
-1. Reads the [config](/config.md) file
-2. Reads the [command-line](/command-line.md) options
+1. Reads the [config](config.md) file
+2. Reads the [command-line](command-line.md) options
 3. Connects and sends a request to `festivald`
 4. Prints out the `JSON` response
 

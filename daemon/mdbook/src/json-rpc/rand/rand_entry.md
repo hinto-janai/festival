@@ -1,11 +1,11 @@
 # rand_entry
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Access a random [`Entry`](/common-objects/entry.md) in your [`Collection`](/common-objects/collection.md).
+Access a random [`Entry`](../../common-objects/entry.md) in your [`Collection`](../../common-objects/collection.md).
 
 #### Inputs
 
@@ -15,7 +15,7 @@ Access a random [`Entry`](/common-objects/entry.md) in your [`Collection`](/comm
 
 | Field | Type           | Description |
 |-------|----------------|-------------|
-| entry | `Entry` object | See [`Entry`](/common-objects/entry.md)
+| entry | `Entry` object | See [`Entry`](../../common-objects/entry.md)
 
 #### Example Request
 ```bash

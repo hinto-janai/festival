@@ -1,15 +1,15 @@
 # Album
 
 #### 🟡 Incomplete
-This API may have [additions](/api-stability/marker.md) in the future.
+This API may have [additions](../api-stability/marker.md) in the future.
 
 ---
 
-A unique `Album` owned by an [`Artist`](/common-objects/artist.md).
+A unique `Album` owned by an [`Artist`](artist.md).
 
 Uniqueness is defined by the `Album`'s `title`.
 
-`Album` objects hold [keys](/common-objects/key.md) to all of its [`Song`](/common-object/song.md)'s, acting as a relation link.
+`Album` objects hold [keys](key.md) to all of its [`Song`](song.md)'s, acting as a relation link.
 
 The keys inside `songs` is sorted by `Track + Disc order`.
 

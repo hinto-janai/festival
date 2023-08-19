@@ -1,13 +1,13 @@
 # collection_full_songs
 
 #### 🟡 Incomplete
-This API may have [additions](/api-stability/marker.md) in the future.
+This API may have [additions](../../api-stability/marker.md) in the future.
 
 ---
 
-Retrieve an array of every [`Song`](/common-objects/song.md) object in the current [`Collection`](/common-objects/collection.md).
+Retrieve an array of every [`Song`](../../common-objects/song.md) object in the current [`Collection`](../../common-objects/collection.md).
 
-The returned array is in incrementing [key](/common-objects/key.md) order, as in:
+The returned array is in incrementing [key](../../common-objects/key.md) order, as in:
 ```
 Song 0,
 Song 1,

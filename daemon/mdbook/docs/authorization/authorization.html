@@ -170,13 +170,13 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="authorization"><a class="header" href="#authorization">Authorization</a></h1>
-<p><code>festivald</code> has a <a href="https://en.wikipedia.org/wiki/Basic_access_authentication"><code>Basic access authentication</code></a> option in its <a href="/config.html">configuration</a>, with a username + password setup.</p>
+<p><code>festivald</code> has a <a href="https://en.wikipedia.org/wiki/Basic_access_authentication"><code>Basic access authentication</code></a> option in its <a href="../config.html">configuration</a>, with a username + password setup.</p>
 <p>An optional bypass is available on specified <a href="json-rpc.html"><code>JSON-RPC</code> methods</a>, <a href="../rest/rest.html"><code>REST</code> resources</a>, and documentation.</p>
 <p>If <code>authorization</code> is enabled, <code>festivald</code> will only process connections to it that have the &quot;authorization&quot; HTTP header with this username and password (unless specified in the bypass options).</p>
 <p>TLS must be enabled for this feature to work or <code>festivald</code> will refuse to start.</p>
-<p>However, there are cases where <code>authorization</code> without TLS is okay (reverse proxy, <a href="/tor.html"><code>Tor Onion Service</code></a>, etc). In these cases, the <a href="/config.html"><code>confirm_no_tls_auth</code></a> option will allow <code>authorization</code> without TLS.</p>
+<p>However, there are cases where <code>authorization</code> without TLS is okay (reverse proxy, <a href="../tor.html"><code>Tor Onion Service</code></a>, etc). In these cases, the <a href="../config.html"><code>confirm_no_tls_auth</code></a> option will allow <code>authorization</code> without TLS.</p>
 <p>If <code>festivald</code> is started on <code>localhost</code> (<code>127.0.0.1</code>), it will allow <code>authorization</code> without TLS as well.</p>
-<p><code>authorization</code> can either be set in the <a href="/config.html">config</a> file or passed via a <a href="../command-line/command-line.html">command-line flag</a>.</p>
+<p><code>authorization</code> can either be set in the <a href="../config.html">config</a> file or passed via a <a href="../command-line/command-line.html">command-line flag</a>.</p>
 <h2 id="syntax"><a class="header" href="#syntax">Syntax</a></h2>
 <p>The username &amp; password syntax is specified in <a href="https://en.wikipedia.org/wiki/Basic_access_authentication">RFC 7617</a>.</p>
 <p>The &quot;authorization&quot; value must be:</p>

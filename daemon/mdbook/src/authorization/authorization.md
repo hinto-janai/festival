@@ -1,5 +1,5 @@
 # Authorization
-`festivald` has a [`Basic access authentication`](https://en.wikipedia.org/wiki/Basic_access_authentication) option in its [configuration](/config.md), with a username + password setup.
+`festivald` has a [`Basic access authentication`](https://en.wikipedia.org/wiki/Basic_access_authentication) option in its [configuration](../config.md), with a username + password setup.
 
 An optional bypass is available on specified [`JSON-RPC` methods](json-rpc.md), [`REST` resources](../rest/rest.md), and documentation.
 
@@ -7,11 +7,11 @@ If `authorization` is enabled, `festivald` will only process connections to it t
 
 TLS must be enabled for this feature to work or `festivald` will refuse to start.
 
-However, there are cases where `authorization` without TLS is okay (reverse proxy, [`Tor Onion Service`](/tor.md), etc). In these cases, the [`confirm_no_tls_auth`](/config.md) option will allow `authorization` without TLS.
+However, there are cases where `authorization` without TLS is okay (reverse proxy, [`Tor Onion Service`](../tor.md), etc). In these cases, the [`confirm_no_tls_auth`](../config.md) option will allow `authorization` without TLS.
 
 If `festivald` is started on `localhost` (`127.0.0.1`), it will allow `authorization` without TLS as well.
 
-`authorization` can either be set in the [config](/config.md) file or passed via a [command-line flag](../command-line/command-line.md).
+`authorization` can either be set in the [config](../config.md) file or passed via a [command-line flag](../command-line/command-line.md).
 
 ## Syntax
 The username & password syntax is specified in [RFC 7617](https://en.wikipedia.org/wiki/Basic_access_authentication).

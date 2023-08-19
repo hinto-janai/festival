@@ -178,18 +178,18 @@
 <li>What output to expect</li>
 <li>Examples</li>
 </ul>
-<p>The title of the section itself is the method name, for example, <a href="/json-rpc/collection/collection_new.html"><code>collection_new</code></a> <em>is</em> the method name.</p>
+<p>The title of the section itself is the method name, for example, <a href="collection/collection_new.html"><code>collection_new</code></a> <em>is</em> the method name.</p>
 <p>All method names, parameter names, and field names are in <code>lower_case_snake_case</code>.</p>
-<p>For a quick start on using the <code>JSON-RPC</code> API, see the next section: <a href="/json-rpc/quick-start.html">Quick Start</a>.</p>
+<p>For a quick start on using the <code>JSON-RPC</code> API, see the next section: <a href="quick-start.html">Quick Start</a>.</p>
 <h3 id="missing-resource"><a class="header" href="#missing-resource">Missing resource</a></h3>
 <p>If a <code>JSON-RPC</code> method is interacting with an underlying resource and that resource is missing from the filesystem, <code>festivald</code> will <em>not</em> respond to the client with an error, however, it will log an error message on the machine it is running on.</p>
-<p>For example, if a <a href="/json-rpc/queue/queue_add_key_song.html"><code>queue_add_key_song</code></a> method is sent, and <em>that</em> <code>Song</code>'s underlying PATH is missing/moved/renamed from when the <code>Collection</code> was created:</p>
+<p>For example, if a <a href="queue/queue_add_key_song.html"><code>queue_add_key_song</code></a> method is sent, and <em>that</em> <code>Song</code>'s underlying PATH is missing/moved/renamed from when the <code>Collection</code> was created:</p>
 <pre><code class="language-bash">mv &quot;Song Title&quot; &quot;Song_Title&quot;
 </code></pre>
 <p><code>festivald</code> will now have a reference to a non-existent PATH and will not be able to find the file, so it will log an error that looks something like:</p>
 <pre><code class="language-plaintext">Audio - PATH error: No such file or directory (os error 2) ... /path/to/unknown/song.mp3
 </code></pre>
-<p>You can re-create the <code>Collection</code> with <a href="/json-rpc/collection/collection_new.html"><code>collection_new</code></a> to re-link these PATHs.</p>
+<p>You can re-create the <code>Collection</code> with <a href="collection/collection_new.html"><code>collection_new</code></a> to re-link these PATHs.</p>
 <h3 id="example-json-rpc-20-request"><a class="header" href="#example-json-rpc-20-request">Example <code>JSON-RPC 2.0</code> <em>request</em>:</a></h3>
 <pre><code class="language-json">{
   &quot;jsonrpc&quot;: &quot;2.0&quot;,   // JSON-RPC version. MUST be exactly &quot;2.0&quot;

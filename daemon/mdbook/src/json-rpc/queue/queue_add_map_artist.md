@@ -1,22 +1,22 @@
 # queue_add_map_artist
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Add an [`Artist`](/common-objects/artist.md) to the queue with an `Artist` name.
+Add an [`Artist`](../../common-objects/artist.md) to the queue with an `Artist` name.
 
 #### Inputs
 
 | Field  | Type                                        | Description |
 |--------|---------------------------------------------|-------------|
 | artist | `string`                                    | `Artist` name
-| append | `string`, one of `front`, `back` or `index` | See [`Queue/Append`](/json-rpc/queue/queue.md#append)
+| append | `string`, one of `front`, `back` or `index` | See [`Queue/Append`](../queue/queue.md#append)
 | clear  | optional (maybe-null) boolean               | Should the queue be cleared before adding? `null` or no field at all is equal to `false`.
 | play   | optional (maybe-null) boolean               | Should we start playing? `null` or no field at all is equal to `false`.
 | index  | optional (maybe-null) unsigned integer      | If the `index` append is chosen, this will be the index used
-| offset | optional (maybe-null) unsigned integer      | See [`Queue/offset`](/json-rpc/queue/queue.md#offset)
+| offset | optional (maybe-null) unsigned integer      | See [`Queue/offset`](../queue/queue.md#offset)
 
 #### Outputs
 `result: null` if everything went ok.

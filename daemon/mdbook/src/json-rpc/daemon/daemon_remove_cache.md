@@ -1,11 +1,11 @@
 # daemon_remove_cache
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Remove all the cached [`REST resource`](/rest/rest.md) files on disk.
+Remove all the cached [`REST resource`](../../rest/rest.md) files on disk.
 
 Warning: If there is a connection currently using this cache, it will error.
 

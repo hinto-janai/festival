@@ -1,15 +1,15 @@
 # daemon_no_auth_rest
 
 #### 🔴 Unstable
-This API may be [changed](/api-stability/marker.md) in the future.
+This API may be [changed](../../api-stability/marker.md) in the future.
 
 ---
 
-Retrieve all [`REST` resources](/rest/rest.md) this `festivald` allows [without authorization](/authorization/rest.md), set in the [`no_auth_rest`](/config.md) option
+Retrieve all [`REST` resources](../../rest/rest.md) this `festivald` allows [without authorization](../../authorization/rest.md), set in the [`no_auth_rest`](../../config.md) option
 
 The reason why this method is `🔴 Unstable` is because it will output _all_ `REST` resources, even `🔴 Unstable` ones, which may not exist in the future.
 
-Ordering of the resource names [should not be relied upon](/api-stability/rest.md).
+Ordering of the resource names [should not be relied upon](../../api-stability/rest.md).
 
 #### Inputs
 `None`

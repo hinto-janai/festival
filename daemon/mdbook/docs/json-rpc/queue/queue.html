@@ -170,7 +170,7 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="queue"><a class="header" href="#queue">Queue</a></h1>
-<p>Methods for adding/removing <a href="/common-objects/song.html"><code>Songs</code></a> to/from the queue.</p>
+<p>Methods for adding/removing <a href="../../common-objects/song.html"><code>Songs</code></a> to/from the queue.</p>
 <h3 id="append"><a class="header" href="#append">Append</a></h3>
 <p>These are different way you can append to the <code>queue</code>.</p>
 <p>All <code>queue</code> methods involving appending requires one of these as input.</p>
@@ -206,9 +206,9 @@ Song B
 <p>All <code>queue</code> methods involving appending multiple <code>Song</code>'s has an optional input: <code>offset</code>.</p>
 <p>If the method happens to set the current <code>Song</code> (added to empty queue, added to front, etc), this field lets you <em>start</em> at a particular <code>Song</code> offset in the <code>Artist/Album/Playlist</code>.</p>
 <p>The <code>Song</code>'s before the offset will still be added, but the <em>current</em> <code>Song</code> set will be the one at the offset.</p>
-<p>The exact ordering of the <a href="/common-objects/artist.html"><code>Artist</code></a>'s songs and what the offsets are relative to is the same as the <a href="/common-objects/artist.html">object's</a> internal ordering: <a href="/common-objects/album.html"><code>Album</code></a> in release order, then <a href="/common-objects/song.html"><code>Song</code></a> track order.</p>
-<p>Ordering for an <a href="/common-objects/album.html"><code>Album</code></a>'s songs is by <code>Track + Disc order</code>.</p>
-<p>Ordering for <a href="/common-objects/playlist.html"><code>Playlist</code></a> is just their regular array order.</p>
+<p>The exact ordering of the <a href="../../common-objects/artist.html"><code>Artist</code></a>'s songs and what the offsets are relative to is the same as the <a href="../../common-objects/artist.html">object's</a> internal ordering: <a href="../../common-objects/album.html"><code>Album</code></a> in release order, then <a href="../../common-objects/song.html"><code>Song</code></a> track order.</p>
+<p>Ordering for an <a href="../../common-objects/album.html"><code>Album</code></a>'s songs is by <code>Track + Disc order</code>.</p>
+<p>Ordering for <a href="../../common-objects/playlist.html"><code>Playlist</code></a> is just their regular array order.</p>
 <p>For example, given <code>&quot;offset&quot;: 3</code>:</p>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {

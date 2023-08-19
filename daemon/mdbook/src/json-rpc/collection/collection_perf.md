@@ -1,11 +1,11 @@
 # collection_perf
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-View some performance stats about the latest [`Collection`](/common-objects/collection.md) [reset](/json-rpc/collection/collection_new.md).
+View some performance stats about the latest [`Collection`](../../common-objects/collection.md) [reset](collection_new.md).
 
 #### Inputs
 

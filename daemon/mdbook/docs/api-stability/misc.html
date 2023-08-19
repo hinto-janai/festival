@@ -173,7 +173,7 @@
 <p>Miscellaneous parts of <code>festivald</code> that <em>can</em> or <em>cannot</em> be relied on.</p>
 <h3 id="festival-cli"><a class="header" href="#festival-cli"><code>festival-cli</code></a></h3>
 <p><code>festivald</code> and <code>festival-cli</code>'s versions are tied together to represent their compatibility.</p>
-<p><code>festivald</code> will be able to respond to any <a href="/api-stability/marker.html"><code>🟢 Stable</code></a> <code>festival-cli</code> request as long as <code>festivald</code>'s:</p>
+<p><code>festivald</code> will be able to respond to any <a href="marker.html"><code>🟢 Stable</code></a> <code>festival-cli</code> request as long as <code>festivald</code>'s:</p>
 <ul>
 <li>Major version is the same</li>
 <li>Minor version is the same or greater</li>
@@ -188,43 +188,43 @@
 <p>Note that <code>festivald</code> will still be able to communicate with newer/older <code>festival-cli</code>'s, however:</p>
 <ul>
 <li>If a new <code>festival-cli</code> is requesting a method unknown to an old <code>festivald</code>, or</li>
-<li>If a new <code>festivald</code> has additional output unknown to an old <code>festival-cli</code> (use of <a href="/api-stability/marker.html"><code>non-stable</code></a> API)</li>
+<li>If a new <code>festivald</code> has additional output unknown to an old <code>festival-cli</code> (use of <a href="marker.html"><code>non-stable</code></a> API)</li>
 </ul>
 <p>there will be communication issues.</p>
 <h3 id="config"><a class="header" href="#config">Config</a></h3>
 <ul>
-<li><a href="/config.html"><code>config</code></a> names are <a href="/api-stability/marker.html"><code>🟢 Stable</code></a> (<code>max_connections</code> will always be named <code>max_connections</code>)</li>
-<li>Their expected inputs are <a href="/api-stability/marker.html"><code>🟢 Stable</code></a> (<code>max_connections</code> will always want an unsigned integer)</li>
-<li>Their expected behavior is <a href="/api-stability/marker.html"><code>🟢 Stable</code></a> (<code>max_connections</code> will always control the max amount of connections)</li>
+<li><a href="../config.html"><code>config</code></a> names are <a href="marker.html"><code>🟢 Stable</code></a> (<code>max_connections</code> will always be named <code>max_connections</code>)</li>
+<li>Their expected inputs are <a href="marker.html"><code>🟢 Stable</code></a> (<code>max_connections</code> will always want an unsigned integer)</li>
+<li>Their expected behavior is <a href="marker.html"><code>🟢 Stable</code></a> (<code>max_connections</code> will always control the max amount of connections)</li>
 <li>Default config values <em>may</em> be changed (default <code>port</code> value may not always be <code>18425</code>)</li>
 <li>Additional fields <em>may</em> be added in the future</li>
 </ul>
-<p>Referencing any <code>JSON-RPC</code> methods and/or <code>REST</code> resources that are <a href="/api-stability/marker.html"><code>🔴 Unstable</code></a> in options like <code>no_auth_rpc</code> &amp; <code>no_auth_rest</code> will also make your configuration <a href="/api-stability/marker.html"><code>🔴 Unstable</code></a>.</p>
+<p>Referencing any <code>JSON-RPC</code> methods and/or <code>REST</code> resources that are <a href="marker.html"><code>🔴 Unstable</code></a> in options like <code>no_auth_rpc</code> &amp; <code>no_auth_rest</code> will also make your configuration <a href="marker.html"><code>🔴 Unstable</code></a>.</p>
 <h3 id="command-line"><a class="header" href="#command-line">Command Line</a></h3>
 <ul>
-<li><a href="/command-line/command-line.html"><code>--flags</code></a> and sub-command names are <a href="/api-stability/marker.html"><code>🟢 Stable</code></a> (<code>festivald --path</code> will always be <code>festivald --path</code>)</li>
-<li>Their expected inputs/outputs are <a href="/api-stability/marker.html"><code>🟢 Stable</code></a></li>
+<li><a href="../command-line/command-line.html"><code>--flags</code></a> and sub-command names are <a href="marker.html"><code>🟢 Stable</code></a> (<code>festivald --path</code> will always be <code>festivald --path</code>)</li>
+<li>Their expected inputs/outputs are <a href="marker.html"><code>🟢 Stable</code></a></li>
 <li>Additional flags and/or sub-commands <em>may</em> be added in the future</li>
 </ul>
 <h3 id="disk"><a class="header" href="#disk">Disk</a></h3>
-<p>All locations and filenames of all files written to disk by <code>festivald</code> are <a href="/api-stability/marker.html"><code>🟢 Stable</code></a>.</p>
+<p>All locations and filenames of all files written to disk by <code>festivald</code> are <a href="marker.html"><code>🟢 Stable</code></a>.</p>
 <div class="table-wrapper"><table><thead><tr><th>Type</th><th>Example</th></tr></thead><tbody>
-<tr><td><a href="/disk.html#cache"><code>Cache</code></a></td><td><code>Artist</code> ZIP cache is always at <code>~/.cache/festival/daemon/zip/artist</code></td></tr>
-<tr><td><a href="/disk.html#config"><code>Config</code></a></td><td><code>Config</code> file is always at <code>~/.config/festival/daemon/festivald.toml</code></td></tr>
-<tr><td><a href="/disk.html#data"><code>Data</code></a></td><td><code>Collection</code> file is always at <code>~/.local/share/festival/daemon/state/collection.bin</code></td></tr>
+<tr><td><a href="../disk.html#cache"><code>Cache</code></a></td><td><code>Artist</code> ZIP cache is always at <code>~/.cache/festival/daemon/zip/artist</code></td></tr>
+<tr><td><a href="../disk.html#config"><code>Config</code></a></td><td><code>Config</code> file is always at <code>~/.config/festival/daemon/festivald.toml</code></td></tr>
+<tr><td><a href="../disk.html#data"><code>Data</code></a></td><td><code>Collection</code> file is always at <code>~/.local/share/festival/daemon/state/collection.bin</code></td></tr>
 </tbody></table>
 </div>
 <h3 id="documentation"><a class="header" href="#documentation">Documentation</a></h3>
-<p><a href="/api-stability/marker.html"><code>🔴 Unstable</code></a>.</p>
+<p><a href="marker.html"><code>🔴 Unstable</code></a>.</p>
 <p>Do not rely on the exact name or position of something within this documentation.</p>
-<p>For example, this section <a href="/api-stability/api-stability.html"><code>API Stability</code></a> may be renamed to <code>API Reliability</code> and/or moved to a different chapter.</p>
+<p>For example, this section <a href="api-stability.html"><code>API Stability</code></a> may be renamed to <code>API Reliability</code> and/or moved to a different chapter.</p>
 <p>Documentation may change at any given moment to provide the most accurate information.</p>
 <h3 id="errors"><a class="header" href="#errors">Errors</a></h3>
-<p><a href="/api-stability/marker.html"><code>🔴 Unstable</code></a>.</p>
+<p><a href="marker.html"><code>🔴 Unstable</code></a>.</p>
 <p>Do not rely on the <em>details</em> of the <code>JSON-RPC</code> &amp; <code>REST</code> API errors.</p>
 <p>You can rely that an input that leads to OK/ERROR will always be the same.</p>
 <h3 id="logs"><a class="header" href="#logs">Logs</a></h3>
-<p><a href="/api-stability/marker.html"><code>🔴 Unstable</code></a>.</p>
+<p><a href="marker.html"><code>🔴 Unstable</code></a>.</p>
 <p>Do not rely on the log output of <code>festivald</code>.</p>
 <h3 id="protocol"><a class="header" href="#protocol">Protocol</a></h3>
 <ul>

@@ -1,11 +1,11 @@
 # playlist_new
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Create a new empty [`Playlist`](/common-objects/playlist.md), overwriting an existing one.
+Create a new empty [`Playlist`](../../common-objects/playlist.md), overwriting an existing one.
 
 #### Inputs
 | Field    | Type   | Description |
@@ -15,8 +15,8 @@ Create a new empty [`Playlist`](/common-objects/playlist.md), overwriting an exi
 #### Outputs
 | Field   | Type                                                    | Description |
 |---------|---------------------------------------------------------|-------------|
-| len     | optional (maybe-null) unsigned integer                  | If the `Playlist` existed (and thus, overwritten), the amount of [`Playlist Entry`](/common-objects/playlist.md)'s it had is returned, else if it didn't exist, `null`
-| entries | optional (maybe-null) array of `Playlist Entry` objects | If the `Playlist` existed (and thus, overwritten), its [`Playlist Entry`](/common-objects/playlist.md)'s are returned, else if it didn't exist, `null`
+| len     | optional (maybe-null) unsigned integer                  | If the `Playlist` existed (and thus, overwritten), the amount of [`Playlist Entry`](../../common-objects/playlist.md)'s it had is returned, else if it didn't exist, `null`
+| entries | optional (maybe-null) array of `Playlist Entry` objects | If the `Playlist` existed (and thus, overwritten), its [`Playlist Entry`](../../common-objects/playlist.md)'s are returned, else if it didn't exist, `null`
 
 #### Example Request
 ```bash

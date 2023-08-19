@@ -170,18 +170,18 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="rest"><a class="header" href="#rest">REST</a></h1>
-<p>The <a href="/config.html"><code>no_auth_rest</code></a> config option or <a href="/command-line/command-line.html"><code>--no-auth-rest</code></a> command-line flag will allow specified <code>REST</code> resources without authorization, while still requiring authorization for everything else.</p>
-<p>If a <a href="/rest/rest.html">REST resource</a> is listed in these options <code>festivald</code> will allow any client to access it, regardless of authorization.</p>
+<p>The <a href="../config.html"><code>no_auth_rest</code></a> config option or <a href="../command-line/command-line.html"><code>--no-auth-rest</code></a> command-line flag will allow specified <code>REST</code> resources without authorization, while still requiring authorization for everything else.</p>
+<p>If a <a href="../rest/rest.html">REST resource</a> is listed in these options <code>festivald</code> will allow any client to access it, regardless of authorization.</p>
 <p>This allows you to have <code>authorization</code> enabled across the board, but allow specific <code>REST</code> resources for public usage.</p>
 <h2 id="usage"><a class="header" href="#usage">Usage</a></h2>
 <p>The specified <code>REST</code> resources must be one of these <code>string</code>'s:</p>
 <div class="table-wrapper"><table><thead><tr><th><code>REST</code> resource</th><th>Allows</th><th>Example endpoint</th></tr></thead><tbody>
-<tr><td><code>collection</code></td><td>Access to downloading the whole <code>Collection</code></td><td><a href="/rest/collection.html"><code>/collection</code></a></td></tr>
-<tr><td><code>playlist</code></td><td>Access to downloading <code>Playlist</code> ZIPs</td><td><a href="/rest/playlist.html"><code>/playlist</code></a></td></tr>
-<tr><td><code>artist</code></td><td>Access to downloading <code>Artist</code> ZIPs</td><td><a href="/rest/current/artist.html"><code>/current/artist</code></a>, <a href="/rest/map/artist.html"><code>/map/artist</code></a></td></tr>
-<tr><td><code>album</code></td><td>Access to downloading <code>Album</code> ZIPs</td><td><a href="/rest/current/album.html"><code>/current/album</code></a>, <a href="/rest/map/album.html"><code>/map/album</code></a></td></tr>
-<tr><td><code>song</code></td><td>Access to downloading <code>Song</code> files</td><td><a href="/rest/current/song.html"><code>/current/song</code></a>, <a href="/rest/map/song.html"><code>/map/song</code></a></td></tr>
-<tr><td><code>art</code></td><td>Access to downloading <code>Art</code> ZIPs &amp; files</td><td><a href="/rest/current/art.html"><code>/current/art</code></a>, <a href="/rest/art/artist.html"><code>/art/artist</code></a></td></tr>
+<tr><td><code>collection</code></td><td>Access to downloading the whole <code>Collection</code></td><td><a href="../rest/collection.html"><code>/collection</code></a></td></tr>
+<tr><td><code>playlist</code></td><td>Access to downloading <code>Playlist</code> ZIPs</td><td><a href="../rest/playlist.html"><code>/playlist</code></a></td></tr>
+<tr><td><code>artist</code></td><td>Access to downloading <code>Artist</code> ZIPs</td><td><a href="../rest/current/artist.html"><code>/current/artist</code></a>, <a href="../rest/map/artist.html"><code>/map/artist</code></a></td></tr>
+<tr><td><code>album</code></td><td>Access to downloading <code>Album</code> ZIPs</td><td><a href="../rest/current/album.html"><code>/current/album</code></a>, <a href="../rest/map/album.html"><code>/map/album</code></a></td></tr>
+<tr><td><code>song</code></td><td>Access to downloading <code>Song</code> files</td><td><a href="../rest/current/song.html"><code>/current/song</code></a>, <a href="../rest/map/song.html"><code>/map/song</code></a></td></tr>
+<tr><td><code>art</code></td><td>Access to downloading <code>Art</code> ZIPs &amp; files</td><td><a href="../rest/current/art.html"><code>/current/art</code></a>, <a href="../rest/art/artist.html"><code>/art/artist</code></a></td></tr>
 </tbody></table>
 </div>
 <p>If a specified <code>REST</code> resource name is incorrect, <code>festivald</code> will not start.</p>

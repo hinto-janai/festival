@@ -1,11 +1,11 @@
 # playlist_full
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Retrieve full data of all [`Playlist`](/common-objects/playlist.md)'s.
+Retrieve full data of all [`Playlist`](../../common-objects/playlist.md)'s.
 
 Playlists are sorted by their names in [lexicographical order](https://en.wikipedia.org/wiki/Lexicographic_order).
 
@@ -15,12 +15,12 @@ Playlists are sorted by their names in [lexicographical order](https://en.wikipe
 #### Outputs
 | Field         | Type                                     | Description |
 |---------------|------------------------------------------|-------------|
-| all_valid     | boolean                                  | If every [`Playlist Entry`](/common-objects/playlist.md) is valid
+| all_valid     | boolean                                  | If every [`Playlist Entry`](../../common-objects/playlist.md) is valid
 | playlist_len  | unsigned integer                         | How many `Playlist`'s there are
 | entry_len     | unsigned integer                         | How many total `Playlist Entry`'s there are
 | valid_len     | unsigned integer                         | How many `Playlist Entry`'s are `valid`
 | invalid_len   | unsigned integer                         | How many `Playlist Entry'`s are `invalid`
-| playlists     | map of [`Playlist`](/common-objects/playlist.md) objects | The map's field keys are `string`'s, the playlist names themselves
+| playlists     | map of [`Playlist`](../../common-objects/playlist.md) objects | The map's field keys are `string`'s, the playlist names themselves
 
 #### Example Request
 ```bash

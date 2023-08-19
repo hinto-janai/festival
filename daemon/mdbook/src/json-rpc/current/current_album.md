@@ -1,11 +1,11 @@
 # current_album
 
 #### 🟡 Incomplete
-This API may have [additions](/api-stability/marker.md) in the future.
+This API may have [additions](../../api-stability/marker.md) in the future.
 
 ---
 
-Access the [`Album`](/common-objects/album.md) of the currently set [`Song`](/common-objects/song.md).
+Access the [`Album`](../../common-objects/album.md) of the currently set [`Song`](../../common-objects/song.md).
 
 #### Inputs
 
@@ -15,7 +15,7 @@ Access the [`Album`](/common-objects/album.md) of the currently set [`Song`](/co
 
 | Field | Type           | Description |
 |-------|----------------|-------------|
-| album | `Album` object | See [`Album`](/common-objects/album.md)
+| album | `Album` object | See [`Album`](../../common-objects/album.md)
 
 #### Example Request
 ```bash

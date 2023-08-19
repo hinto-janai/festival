@@ -1,13 +1,13 @@
 # Song
 
 #### 🟡 Incomplete
-This API may have [additions](/api-stability/marker.md) in the future.
+This API may have [additions](../api-stability/marker.md) in the future.
 
 ---
 
-A `Song` inside an [`Album`](/common-objects/album.md), owned by an [`Artist`](/common-objects/artist.md).
+A `Song` inside an [`Album`](album.md), owned by an [`Artist`](artist.md).
 
-`Song` objects hold [keys](/common-objects/key.md) to the `Album` it is in, acting as a relation link.
+`Song` objects hold [keys](key.md) to the `Album` it is in, acting as a relation link.
 
 | Field       | Type                                   | Description |
 |-------------|----------------------------------------|-------------|

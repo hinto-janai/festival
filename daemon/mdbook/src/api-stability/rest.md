@@ -1,12 +1,12 @@
 # REST
-[`REST`](/rest/rest.md)-specific API stability notes.
+[`REST`](../rest/rest.md)-specific API stability notes.
 
 ### ZIP
 1. For `REST` endpoints that serve large collections of files, the `ZIP` format will be used
 2. There is no compression applied to the files, they are stored as-is
-3. These ZIPs can be found the in [`Cache`](/disk.md) folder with the exact same name as sent to the client
+3. These ZIPs can be found the in [`Cache`](../disk.md) folder with the exact same name as sent to the client
 
-These points are all [`🟢 Stable`](/api-stability/marker.md).
+These points are all [`🟢 Stable`](marker.md).
 
 ### ZIP `/`
 ZIP files cannot have internal filenames with `/`, as that is the legal PATH separator, so all:
@@ -18,7 +18,7 @@ ZIP files cannot have internal filenames with `/`, as that is the legal PATH sep
 
 inside ZIPs that contain `/` will always be replaced with a single dash with no spaces: `-`
 
-This also applies to the [`filename_separator`](/config.md), it cannot include `/`.
+This also applies to the [`filename_separator`](../config.md), it cannot include `/`.
 
 Example:
 ```bash
@@ -31,7 +31,7 @@ Artist/With/Slash.zip # This is fine, the actual ZIP filename will be quoted.
            ├─ Song With/A Slash # This will be turned into `Song With-A Slash`
 ```
 
-This is [`🟢 Stable`](/api-stability/marker.md).
+This is [`🟢 Stable`](marker.md).
 
 ### Duplicate Filenames
 When packaging `Song`'s into ZIPs, if there a multiple `Song`'s with the same name in the same `Album`, it will be suffixed with an incrementing number in parentheses starting from `1`.
@@ -44,12 +44,12 @@ My Song (2).flac
 My Song (3).flac
 ```
 
-This is [`🟢 Stable`](/api-stability/marker.md).
+This is [`🟢 Stable`](marker.md).
 
 ### File Format & Names
-The file format type and names of those files[^1] in the `REST` API are both [`🟢 Stable`](/api-stability/marker.md).
+The file format type and names of those files[^1] in the `REST` API are both [`🟢 Stable`](marker.md).
 
-([^1] The filenames depend on the user-specified [`filename_separator`](/config.md), but the general formatting of them is stable)
+([^1] The filenames depend on the user-specified [`filename_separator`](../config.md), but the general formatting of them is stable)
 
 The below example uses the default ` - ` as the `filename_separator`.
 
@@ -63,7 +63,7 @@ The below example uses the default ` - ` as the `filename_separator`.
 | `art`           | Original image format (`png`, `jpg`, etc)  | `${ARTIST_NAME} - ${ALBUM_TITLE}.${IMAGE_FORMAT}`
 
 ### ZIP File Hierarchy
-The file hierarchy within ZIPs, and the internal file/folder names are both [`🟢 Stable`](/api-stability/marker.md).
+The file hierarchy within ZIPs, and the internal file/folder names are both [`🟢 Stable`](marker.md).
 
 This below example will be the same for the rest of `festivald v1.x.x`:
 ```plaintext

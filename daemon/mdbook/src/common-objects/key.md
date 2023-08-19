@@ -1,7 +1,7 @@
 # Key
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
@@ -22,7 +22,7 @@ http://localhost:18425/key/art/123
 
 The actual number value of `Key`'s aren't significant, and should be treated as random.
 
-Thus, the `songs` field in [`Album`](/common-objects/album.md) won't necessarily be incrementing by 1, e.g, `[0, 1, 2, ...]`. It could be `[0, 6, 112, 3, ...]`. Same with `Album` keys within `Artist`'s.
+Thus, the `songs` field in [`Album`](album.md) won't necessarily be incrementing by 1, e.g, `[0, 1, 2, ...]`. It could be `[0, 6, 112, 3, ...]`. Same with `Album` keys within `Artist`'s.
 
 ## Where
 `Key`'s can be found in multiple `JSON-RPC` methods, such as [`map_artist`](../json-rpc/map/map_artist.md), [`search_album`](../json-rpc/search/search_album.md), etc.
@@ -55,9 +55,9 @@ Reasons why key's exist:
 - Accessing `Song`'s with the _same_ title in the same `Album` by the same `Artist` is impossible with `string`'s, however, each one of those `Song`'s will have a unique `Key`, which it makes it possible to access them that way
 
 ## Why NOT
-`Key`'s can only be relied upon as long as the [`Collection`](/common-objects/collection.md) has not been [reset](/json-rpc/collection/collection_new.md).
+`Key`'s can only be relied upon as long as the [`Collection`](collection.md) has not been [reset](../json-rpc/collection/collection_new.md).
 
-When the `Collection` is reset, it is not guaranteed that the same key will map to the same object. Using [`map_*`](/json-rpc/map/map.md) and [`search_*`](/json-rpc/search/index.md) methods as the main way to retrieve information may be more convenient so that `Artist` names, `Album` and `Song` titles can be used as inputs instead.
+When the `Collection` is reset, it is not guaranteed that the same key will map to the same object. Using [`map_*`](../json-rpc/map/map.md) and [`search_*`](../json-rpc/search/index.md) methods as the main way to retrieve information may be more convenient so that `Artist` names, `Album` and `Song` titles can be used as inputs instead.
 
 ## Example
 Let's search for a song that has a title similar to: "hello"

@@ -1,5 +1,5 @@
 # Queue
-Methods for adding/removing [`Songs`](/common-objects/song.md) to/from the queue.
+Methods for adding/removing [`Songs`](../../common-objects/song.md) to/from the queue.
 
 
 ### Append
@@ -43,11 +43,11 @@ If the method happens to set the current `Song` (added to empty queue, added to 
 
 The `Song`'s before the offset will still be added, but the _current_ `Song` set will be the one at the offset.
 
-The exact ordering of the [`Artist`](/common-objects/artist.md)'s songs and what the offsets are relative to is the same as the [object's](/common-objects/artist.md) internal ordering: [`Album`](/common-objects/album.md) in release order, then [`Song`](/common-objects/song.md) track order.
+The exact ordering of the [`Artist`](../../common-objects/artist.md)'s songs and what the offsets are relative to is the same as the [object's](../../common-objects/artist.md) internal ordering: [`Album`](../../common-objects/album.md) in release order, then [`Song`](../../common-objects/song.md) track order.
 
-Ordering for an [`Album`](/common-objects/album.md)'s songs is by `Track + Disc order`.
+Ordering for an [`Album`](../../common-objects/album.md)'s songs is by `Track + Disc order`.
 
-Ordering for [`Playlist`](/common-objects/playlist.md) is just their regular array order.
+Ordering for [`Playlist`](../../common-objects/playlist.md) is just their regular array order.
 
 For example, given `"offset": 3`:
 ```rust

@@ -1,11 +1,11 @@
 # map_album_songs
 
 #### 🟡 Incomplete
-This API may have [additions](/api-stability/marker.md) in the future.
+This API may have [additions](../../api-stability/marker.md) in the future.
 
 ---
 
-Input an [`Artist`](/common-objects/artist.md) name and [`Album`](/common-objects/album.md) title, retrieve all the [`Song`](/common-objects/song.md)'s in that `Album`.
+Input an [`Artist`](../../common-objects/artist.md) name and [`Album`](../../common-objects/album.md) title, retrieve all the [`Song`](../../common-objects/song.md)'s in that `Album`.
 
 The `Song`'s are sorted by `Track + Disc order`.
 
@@ -21,7 +21,7 @@ The `Song`'s are sorted by `Track + Disc order`.
 | Field | Type                    | Description |
 |-------|-------------------------|-------------|
 | len   | unsigned integer        | How many `Song`'s there are
-| songs | array of `Song` objects | See [`Song`](/common-objects/song.md)
+| songs | array of `Song` objects | See [`Song`](../../common-objects/song.md)
 
 #### Example Request
 ```bash

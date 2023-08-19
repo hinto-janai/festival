@@ -1,11 +1,11 @@
 # key_other_albums
 
 #### 🟡 Incomplete
-This API may have [additions](/api-stability/marker.md) in the future.
+This API may have [additions](../../api-stability/marker.md) in the future.
 
 ---
 
-Input an [`Album`](/common-objects/album.md) [key](/common-objects/key.md), retrieve all [`Album`](/common-objects/album.md)'s by the same [`Artist`](/common-objects/artist.md).
+Input an [`Album`](../../common-objects/album.md) [key](../../common-objects/key.md), retrieve all [`Album`](../../common-objects/album.md)'s by the same [`Artist`](../../common-objects/artist.md).
 
 The `Album`'s are sorted by `Release date`.
 
@@ -13,14 +13,14 @@ The `Album`'s are sorted by `Release date`.
 
 | Field | Type                           | Description |
 |-------|--------------------------------|-------------|
-| key   | `Album` key (unsigned integer) | See [`Key`](/common-objects/key.md)
+| key   | `Album` key (unsigned integer) | See [`Key`](../../common-objects/key.md)
 
 #### Outputs
 
 | Field  | Type                     | Description |
 |--------|--------------------------|-------------|
 | len    | unsigned integer         | How many `Album`'s there are
-| albums | array of `Album` objects | See [`Album`](/common-objects/album.md)
+| albums | array of `Album` objects | See [`Album`](../../common-objects/album.md)
 
 #### Example Request
 ```bash

@@ -1,11 +1,11 @@
 # key_album_songs
 
 #### 🟡 Incomplete
-This API may have [additions](/api-stability/marker.md) in the future.
+This API may have [additions](../../api-stability/marker.md) in the future.
 
 ---
 
-Input an [`Album`](/common-objects/album.md) [key](/common-objects/key.md), retrieve all of its [`Song`](/common-objects/song.md)'s.
+Input an [`Album`](../../common-objects/album.md) [key](../../common-objects/key.md), retrieve all of its [`Song`](../../common-objects/song.md)'s.
 
 The `Song`'s are sorted by `Track + Disc order`.
 
@@ -13,14 +13,14 @@ The `Song`'s are sorted by `Track + Disc order`.
 
 | Field | Type                                           | Description |
 |-------|------------------------------------------------|-------------|
-| key   | `Artist` key (unsigned integer)                | See [`Key`](/common-objects/key.md)
+| key   | `Artist` key (unsigned integer)                | See [`Key`](../../common-objects/key.md)
 
 #### Outputs
 
 | Field | Type                    | Description |
 |-------|-------------------------|-------------|
 | len   | unsigned integer        | How many `Song`'s there are
-| songs | array of `Song` objects | See [`Song`](/common-objects/song.md)
+| songs | array of `Song` objects | See [`Song`](../../common-objects/song.md)
 
 #### Example Request
 ```bash

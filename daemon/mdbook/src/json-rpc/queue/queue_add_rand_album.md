@@ -1,26 +1,26 @@
 # queue_add_rand_album
 
 #### 🟡 Incomplete
-This API may have [additions](/api-stability/marker.md) in the future.
+This API may have [additions](../../api-stability/marker.md) in the future.
 
 ---
 
-Add a random [`Album`](/common-objects/album.md) to the queue.
+Add a random [`Album`](../../common-objects/album.md) to the queue.
 
 #### Inputs
 
 | Field  | Type                                        | Description |
 |--------|---------------------------------------------|-------------|
-| append | `string`, one of `front`, `back` or `index` | See [`Queue/Append`](/json-rpc/queue/queue.md#append)
+| append | `string`, one of `front`, `back` or `index` | See [`Queue/Append`](../queue/queue.md#append)
 | clear  | optional (maybe-null) boolean               | Should the queue be cleared before adding? `null` or no field at all is equal to `false`.
 | play   | optional (maybe-null) boolean               | Should we start playing? `null` or no field at all is equal to `false`.
 | index  | optional (maybe-null) unsigned integer      | If the `index` append is chosen, this will be the index used
-| offset | optional (maybe-null) unsigned integer      | See [`Queue/offset`](/json-rpc/queue/queue.md#offset)
+| offset | optional (maybe-null) unsigned integer      | See [`Queue/offset`](../queue/queue.md#offset)
 
 #### Outputs
 | Field         | Type                                       | Description |
 |---------------|--------------------------------------------|-------------|
-| album         | [`Album`](/common-objects/album.md) object | The `Album` that was added to the queue
+| album         | [`Album`](../../common-objects/album.md) object | The `Album` that was added to the queue
 
 #### Example Request 1
 Add to back of the queue.

@@ -1,15 +1,15 @@
 # daemon_methods
 
 #### 🔴 Unstable
-This API may be [changed](/api-stability/marker.md) in the future.
+This API may be [changed](../../api-stability/marker.md) in the future.
 
 ---
 
-Retrieve all [`JSON-RPC` methods](/json-rpc/json-rpc.md) this `festivald` knows about.
+Retrieve all [`JSON-RPC` methods](../json-rpc.md) this `festivald` knows about.
 
 The reason why this method is `🔴 Unstable` is because it will output _all_ methods, even `🔴 Unstable` ones, which may not exist in the future.
 
-Ordering of the method names [should not be relied upon](/api-stability/json-rpc.md).
+Ordering of the method names [should not be relied upon](../../api-stability/json-rpc.md).
 
 #### Inputs
 `None`

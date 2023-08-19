@@ -1,11 +1,11 @@
 # playlist_remove_index
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Remove a single [`Playlist Entry`](/common-objects/playlist.md) from a [`Playlist`](/common-objects/playlist.md), using its index number.
+Remove a single [`Playlist Entry`](../../common-objects/playlist.md) from a [`Playlist`](../../common-objects/playlist.md), using its index number.
 
 This method errors if the `playlist` does not exist or if `index` is out-of-bounds.
 

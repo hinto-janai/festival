@@ -1,18 +1,18 @@
 # search_song
 
 #### 🟡 Incomplete
-This API may have [additions](/api-stability/marker.md) in the future.
+This API may have [additions](../../api-stability/marker.md) in the future.
 
 ---
 
-Input a `string`, retrieve an array of [`Song`](/common-objects/song.md)'s, sorted by how similar their titles are to the input.
+Input a `string`, retrieve an array of [`Song`](../../common-objects/song.md)'s, sorted by how similar their titles are to the input.
 
 #### Inputs
 
 | Field | Type                                                                     | Description |
 |-------|--------------------------------------------------------------------------|-------------|
 | input | string                                                                   | The string to match against, to use as input
-| kind  | string, one of `all`, `sim60`, `sim70`, `sim80`, `top25`, `top5`, `top1` | See [`Search/Kind`](/json-rpc/search/index.md#Kind)
+| kind  | string, one of `all`, `sim60`, `sim70`, `sim80`, `top25`, `top5`, `top1` | See [`Search/Kind`](../search/index.md#Kind)
 
 #### Outputs
 

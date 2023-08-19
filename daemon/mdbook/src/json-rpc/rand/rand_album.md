@@ -1,11 +1,11 @@
 # rand_album
 
 #### 🟡 Incomplete
-This API may have [additions](/api-stability/marker.md) in the future.
+This API may have [additions](../../api-stability/marker.md) in the future.
 
 ---
 
-Access a random [`Album`](/common-objects/album.md) in your [`Collection`](/common-objects/collection.md).
+Access a random [`Album`](../../common-objects/album.md) in your [`Collection`](../../common-objects/collection.md).
 
 #### Inputs
 
@@ -15,7 +15,7 @@ Access a random [`Album`](/common-objects/album.md) in your [`Collection`](/comm
 
 | Field | Type           | Description |
 |-------|----------------|-------------|
-| album | `Album` object | See [`Album`](/common-objects/album.md)
+| album | `Album` object | See [`Album`](../../common-objects/album.md)
 
 #### Example Request
 ```bash

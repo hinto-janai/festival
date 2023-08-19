@@ -1,11 +1,11 @@
 # rand_song
 
 #### 🟡 Incomplete
-This API may have [additions](/api-stability/marker.md) in the future.
+This API may have [additions](../../api-stability/marker.md) in the future.
 
 ---
 
-Access a random [`Song`](/common-objects/song.md) in your [`Collection`](/common-objects/collection.md).
+Access a random [`Song`](../../common-objects/song.md) in your [`Collection`](../../common-objects/collection.md).
 
 #### Inputs
 
@@ -15,7 +15,7 @@ Access a random [`Song`](/common-objects/song.md) in your [`Collection`](/common
 
 | Field | Type          | Description |
 |-------|---------------|-------------|
-| song  | `Song` object | See [`Song`](/common-objects/song.md)
+| song  | `Song` object | See [`Song`](../../common-objects/song.md)
 
 #### Example Request
 ```bash

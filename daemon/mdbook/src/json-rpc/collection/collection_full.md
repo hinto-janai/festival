@@ -1,17 +1,17 @@
 # collection_full
 
 #### 🟡 Incomplete
-This API may have [additions](/api-stability/marker.md) in the future.
+This API may have [additions](../../api-stability/marker.md) in the future.
 
 ---
 
-Retrieve full metadata about the current [`Collection`](/common-objects/collection.md).
+Retrieve full metadata about the current [`Collection`](../../common-objects/collection.md).
 
 #### Inputs
 `None`
 
 #### Outputs
-The output of this method will be a full [`Collection`](/common-objects/collection.md) object.
+The output of this method will be a full [`Collection`](../../common-objects/collection.md) object.
 
 #### Example Request
 ```bash

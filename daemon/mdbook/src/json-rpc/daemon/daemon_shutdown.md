@@ -1,7 +1,7 @@
 # daemon_shutdown
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
@@ -9,9 +9,9 @@ Send a shutdown signal to `festivald`.
 
 `festivald` will:
 - Reject future connections
-- Wait for a [`Collection`](/common-objects/collection.md) [reset](/json-rpc/collection/collection_new.md) to finish if occurring
-- [Clean cache](/json-rpc/daemon/daemon_remove_cache.md)
-- [Save](/json-rpc/daemon/daemon_save.md) state to disk
+- Wait for a [`Collection`](../../common-objects/collection.md) [reset](../collection/collection_new.md) to finish if occurring
+- [Clean cache](../daemon/daemon_remove_cache.md)
+- [Save](../daemon/daemon_save.md) state to disk
 
 Then shutdown.
 

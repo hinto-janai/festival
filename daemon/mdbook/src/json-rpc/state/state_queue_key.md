@@ -1,13 +1,13 @@
 # state_queue_key
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
 Retrieve state about the queue.
 
-This returns the queue as [`Song`](/common-objects/song.md) [`key`](/common-objects/key.md)'s.
+This returns the queue as [`Song`](../../common-objects/song.md) [`key`](../../common-objects/key.md)'s.
 
 Returned `key`'s are in order of what will be played next.
 

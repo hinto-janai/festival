@@ -1,7 +1,7 @@
 # state_config
 
 #### 🔴 Unstable
-This API may be [changed](/api-stability/marker.md) in the future.
+This API may be [changed](../../api-stability/marker.md) in the future.
 
 ---
 
@@ -9,7 +9,7 @@ Retrieve the active configuration of `festivald`.
 
 The output is almost a mirror of the configuration file.
 
-See the [`Config`](/config.md) chapter to see the full description of these fields.
+See the [`Config`](../../config.md) chapter to see the full description of these fields.
 
 The reason why this method is `🔴 Unstable` is because it will output _all_ `JSON-RPC` methods & `REST` resources, even `🔴 Unstable` ones, which may not exist in the future.
 
@@ -42,8 +42,8 @@ The reason why this method is `🔴 Unstable` is because it will output _all_ `J
 | media_controls      | boolean
 | authorization       | boolean
 | confirm_no_tls_auth | boolean
-| no_auth_rpc         | optional (maybe-null) array of [`JSON-RPC Method`](/json-rpc/json-rpc.md) names
-| no_auth_rest        | optional (maybe-null) array of [`REST Resource`](/authorization/rest.md) names
+| no_auth_rpc         | optional (maybe-null) array of [`JSON-RPC Method`](../json-rpc.md) names
+| no_auth_rest        | optional (maybe-null) array of [`REST Resource`](../../authorization/rest.md) names
 | no_auth_docs        | boolean
 
 #### Example Request

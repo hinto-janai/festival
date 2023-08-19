@@ -1,11 +1,11 @@
 # shuffle
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Shuffle the current [queue](/json-rpc/queue/queue.md), then set the current `Song` to the 1st `Song` in the queue.
+Shuffle the current [queue](../queue/queue.md), then set the current `Song` to the 1st `Song` in the queue.
 
 #### Inputs
 `None`

@@ -1,24 +1,24 @@
 # search_entry
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Input a `string`, retrieve an array of [`Song`](/common-objects/song.md)'s (in [`Entry`](/common-objects/entry.md) form), sorted by how similar their titles are to the input.
+Input a `string`, retrieve an array of [`Song`](../../common-objects/song.md)'s (in [`Entry`](../../common-objects/entry.md) form), sorted by how similar their titles are to the input.
 
 #### Inputs
 
 | Field | Type                                                                     | Description |
 |-------|--------------------------------------------------------------------------|-------------|
 | input | string                                                                   | The string to match against, to use as input
-| kind  | string, one of `all`, `sim60`, `sim70`, `sim80`, `top25`, `top5`, `top1` | See [`Search/Kind`](/json-rpc/search/index.md#Kind)
+| kind  | string, one of `all`, `sim60`, `sim70`, `sim80`, `top25`, `top5`, `top1` | See [`Search/Kind`](../search/index.md#Kind)
 
 #### Outputs
 
 | Field   | Type           | Description |
 |---------|----------------|-------------|
-| entries | `Entry` object | See [`Entry`](/common-objects/entry.md)
+| entries | `Entry` object | See [`Entry`](../../common-objects/entry.md)
 
 #### Example Request
 ```bash

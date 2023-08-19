@@ -1,11 +1,11 @@
 # /art/$ARTIST_NAME
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Download all the `Album` art owned by this `Artist`, using the [`Artist`](/common-objects/artist.md)'s name.
+Download all the `Album` art owned by this `Artist`, using the [`Artist`](../../common-objects/artist.md)'s name.
 
 #### Input
 | Input         | Type   |

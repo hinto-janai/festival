@@ -1,11 +1,11 @@
 # playlist_add_map_artist
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Add an [`Artist`](/common-objects/artist.md) to a [`Playlist`](/common-objects/playlist.md).
+Add an [`Artist`](../../common-objects/artist.md) to a [`Playlist`](../../common-objects/playlist.md).
 
 If the specified playlist does not already exist, it will be created.
 
@@ -16,7 +16,7 @@ This method errors if there was an `index` error.
 |----------|---------------------------------------------|-------------|
 | artist   | string                                      | `Artist` name
 | playlist | string                                      | The name of the `Playlist`
-| append   | string, one of `front`, `back` or `index`   | See [`Playlist/Append`](/json-rpc/playlist/playlist.md#append)
+| append   | string, one of `front`, `back` or `index`   | See [`Playlist/Append`](../playlist/playlist.md#append)
 | index    | optional (maybe-null) unsigned integer      | If the `index` append is chosen, this will be the index used
 
 

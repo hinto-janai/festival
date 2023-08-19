@@ -1,16 +1,16 @@
 # /collection
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Download _the entire_ [`Collection`](/common-objects/collection.md).
+Download _the entire_ [`Collection`](../common-objects/collection.md).
 
 ## Warning
 This will cause `festivald` to use at least the same amount of disk space your `Collection`'s audio & art files take up.
 
-For example, if all your `Song`'s combined are `100GB` in size, `festivald` will use at least `100GB` in disk space when receiving this request. Further same requests will not further disk usage, depending on your [`cache_time`](/config.md) configuration.
+For example, if all your `Song`'s combined are `100GB` in size, `festivald` will use at least `100GB` in disk space when receiving this request. Further same requests will not further disk usage, depending on your [`cache_time`](../config.md) configuration.
 
 `festivald` may also take a while to respond to the client, as it is copying, organizing, and archiving the _entire_ `Collection`.
 
@@ -22,9 +22,9 @@ For example, if all your `Song`'s combined are `100GB` in size, `festivald` will
 #### Output
 
 Archive including:
-- All [`Artist`](/common-objects/artist.md)'s
-- All [`Album`](/common-objects/album.md)'s (including art if found)
-- All [`Song`](/common-objects/song.md)'s
+- All [`Artist`](../common-objects/artist.md)'s
+- All [`Album`](../common-objects/album.md)'s (including art if found)
+- All [`Song`](../common-objects/song.md)'s
 
 #### Example Input
 ```http

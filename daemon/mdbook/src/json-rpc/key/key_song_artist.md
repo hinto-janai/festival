@@ -1,23 +1,23 @@
 # key_song_artist
 
 #### 🟡 Incomplete
-This API may have [additions](/api-stability/marker.md) in the future.
+This API may have [additions](../../api-stability/marker.md) in the future.
 
 ---
 
-Input a [`Song`](/common-objects/song.md) [key](/common-objects/key.md), retrieve its [`Artist`](/common-objects/artist.md).
+Input a [`Song`](../../common-objects/song.md) [key](../../common-objects/key.md), retrieve its [`Artist`](../../common-objects/artist.md).
 
 #### Inputs
 
 | Field | Type                                         | Description |
 |-------|----------------------------------------------|-------------|
-| key   | `Song` key (unsigned integer)                | See [`Key`](/common-objects/key.md)
+| key   | `Song` key (unsigned integer)                | See [`Key`](../../common-objects/key.md)
 
 #### Outputs
 
 | Field  | Type            | Description |
 |--------|-----------------|-------------|
-| artist | `Artist` object | See [`Artist`](/common-objects/artist.md)
+| artist | `Artist` object | See [`Artist`](../../common-objects/artist.md)
 
 #### Example Request
 ```bash

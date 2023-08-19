@@ -170,14 +170,14 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="rest"><a class="header" href="#rest">REST</a></h1>
-<p><a href="/rest/rest.html"><code>REST</code></a>-specific API stability notes.</p>
+<p><a href="../rest/rest.html"><code>REST</code></a>-specific API stability notes.</p>
 <h3 id="zip"><a class="header" href="#zip">ZIP</a></h3>
 <ol>
 <li>For <code>REST</code> endpoints that serve large collections of files, the <code>ZIP</code> format will be used</li>
 <li>There is no compression applied to the files, they are stored as-is</li>
-<li>These ZIPs can be found the in <a href="/disk.html"><code>Cache</code></a> folder with the exact same name as sent to the client</li>
+<li>These ZIPs can be found the in <a href="../disk.html"><code>Cache</code></a> folder with the exact same name as sent to the client</li>
 </ol>
-<p>These points are all <a href="/api-stability/marker.html"><code>🟢 Stable</code></a>.</p>
+<p>These points are all <a href="marker.html"><code>🟢 Stable</code></a>.</p>
 <h3 id="zip-"><a class="header" href="#zip-">ZIP <code>/</code></a></h3>
 <p>ZIP files cannot have internal filenames with <code>/</code>, as that is the legal PATH separator, so all:</p>
 <ul>
@@ -188,7 +188,7 @@
 <li><code>Song</code> titles</li>
 </ul>
 <p>inside ZIPs that contain <code>/</code> will always be replaced with a single dash with no spaces: <code>-</code></p>
-<p>This also applies to the <a href="/config.html"><code>filename_separator</code></a>, it cannot include <code>/</code>.</p>
+<p>This also applies to the <a href="../config.html"><code>filename_separator</code></a>, it cannot include <code>/</code>.</p>
 <p>Example:</p>
 <pre><code class="language-bash">Artist/With/Slash.zip # This is fine, the actual ZIP filename will be quoted.
   │
@@ -198,7 +198,7 @@
            │
            ├─ Song With/A Slash # This will be turned into `Song With-A Slash`
 </code></pre>
-<p>This is <a href="/api-stability/marker.html"><code>🟢 Stable</code></a>.</p>
+<p>This is <a href="marker.html"><code>🟢 Stable</code></a>.</p>
 <h3 id="duplicate-filenames"><a class="header" href="#duplicate-filenames">Duplicate Filenames</a></h3>
 <p>When packaging <code>Song</code>'s into ZIPs, if there a multiple <code>Song</code>'s with the same name in the same <code>Album</code>, it will be suffixed with an incrementing number in parentheses starting from <code>1</code>.</p>
 <p>For example:</p>
@@ -207,10 +207,10 @@ My Song (1).flac
 My Song (2).flac
 My Song (3).flac
 </code></pre>
-<p>This is <a href="/api-stability/marker.html"><code>🟢 Stable</code></a>.</p>
+<p>This is <a href="marker.html"><code>🟢 Stable</code></a>.</p>
 <h3 id="file-format--names"><a class="header" href="#file-format--names">File Format &amp; Names</a></h3>
-<p>The file format type and names of those files<sup class="footnote-reference"><a href="#1">1</a></sup> in the <code>REST</code> API are both <a href="/api-stability/marker.html"><code>🟢 Stable</code></a>.</p>
-<p>(<sup class="footnote-reference"><a href="#1">1</a></sup> The filenames depend on the user-specified <a href="/config.html"><code>filename_separator</code></a>, but the general formatting of them is stable)</p>
+<p>The file format type and names of those files<sup class="footnote-reference"><a href="#1">1</a></sup> in the <code>REST</code> API are both <a href="marker.html"><code>🟢 Stable</code></a>.</p>
+<p>(<sup class="footnote-reference"><a href="#1">1</a></sup> The filenames depend on the user-specified <a href="../config.html"><code>filename_separator</code></a>, but the general formatting of them is stable)</p>
 <p>The below example uses the default <code>-</code> as the <code>filename_separator</code>.</p>
 <div class="table-wrapper"><table><thead><tr><th><code>REST</code> resource</th><th>File Format Type</th><th>Filename Formatting</th></tr></thead><tbody>
 <tr><td><code>collection</code></td><td><code>zip</code></td><td><code>Collection - ${CREATION_UNIX_TIMESTAMP}.zip</code></td></tr>
@@ -222,7 +222,7 @@ My Song (3).flac
 </tbody></table>
 </div>
 <h3 id="zip-file-hierarchy"><a class="header" href="#zip-file-hierarchy">ZIP File Hierarchy</a></h3>
-<p>The file hierarchy within ZIPs, and the internal file/folder names are both <a href="/api-stability/marker.html"><code>🟢 Stable</code></a>.</p>
+<p>The file hierarchy within ZIPs, and the internal file/folder names are both <a href="marker.html"><code>🟢 Stable</code></a>.</p>
 <p>This below example will be the same for the rest of <code>festivald v1.x.x</code>:</p>
 <pre><code class="language-plaintext"># Input
 https://localhost:18425/collection

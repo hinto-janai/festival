@@ -1,15 +1,15 @@
 # Artist
 
 #### 🟡 Incomplete
-This API may have [additions](/api-stability/marker.md) in the future.
+This API may have [additions](../api-stability/marker.md) in the future.
 
 ---
 
-A unique "artist" inside your [`Collection`](/common-objects/collection.md).
+A unique "artist" inside your [`Collection`](collection.md).
 
 Uniqueness is defined by the `Artist`'s `name`.
 
-`Artist` objects hold [keys](/common-objects/key.md) to all of their [`Album`](/common-object/album.md)'s and [`Song`](/common-object/song.md)'s, acting as a relation link.
+`Artist` objects hold [keys](key.md) to all of their [`Album`](album.md)'s and [`Song`](song.md)'s, acting as a relation link.
 
 The keys inside `albums` is sorted by `Release date`.
 

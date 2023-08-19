@@ -1,11 +1,11 @@
 # current_artist
 
 #### 🟡 Incomplete
-This API may have [additions](/api-stability/marker.md) in the future.
+This API may have [additions](../../api-stability/marker.md) in the future.
 
 ---
 
-Access the [`Artist`](/common-objects/artist.md) of the currently set [`Song`](/common-objects/song.md).
+Access the [`Artist`](../../common-objects/artist.md) of the currently set [`Song`](../../common-objects/song.md).
 
 #### Inputs
 
@@ -15,7 +15,7 @@ Access the [`Artist`](/common-objects/artist.md) of the currently set [`Song`](/
 
 | Field  | Type            | Description |
 |--------|-----------------|-------------|
-| artist | `Artist` object | See [`Artist`](/common-objects/artist.md)
+| artist | `Artist` object | See [`Artist`](../../common-objects/artist.md)
 
 #### Example Request
 ```bash

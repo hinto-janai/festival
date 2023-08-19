@@ -1,11 +1,11 @@
 # back
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Go backwards a variable amount of [`Song`](/common-objects/song.md)'s in the [queue](/json-rpc/queue/queue.md).
+Go backwards a variable amount of [`Song`](../../common-objects/song.md)'s in the [queue](../queue/queue.md).
 
 #### Inputs
 | Field | Type             | Description |

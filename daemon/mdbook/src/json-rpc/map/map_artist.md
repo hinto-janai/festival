@@ -1,11 +1,11 @@
 # map_artist
 
 #### 🟡 Incomplete
-This API may have [additions](/api-stability/marker.md) in the future.
+This API may have [additions](../../api-stability/marker.md) in the future.
 
 ---
 
-Input an [`Artist`](/common-objects/artist.md) name, retrieve an `Artist` object.
+Input an [`Artist`](../../common-objects/artist.md) name, retrieve an `Artist` object.
 
 #### Inputs
 
@@ -17,7 +17,7 @@ Input an [`Artist`](/common-objects/artist.md) name, retrieve an `Artist` object
 
 | Field  | Type            | Description |
 |--------|-----------------|-------------|
-| artist | `Artist` object | See [`Artist`](/common-objects/artist.md)
+| artist | `Artist` object | See [`Artist`](../../common-objects/artist.md)
 
 #### Example Request
 ```bash

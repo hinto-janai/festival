@@ -170,28 +170,28 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="rest"><a class="header" href="#rest">REST</a></h1>
-<p><code>festivald</code> (by default) exposes <code>REST</code> endpoints for accessing the underlying resources associated with the <a href="/common-objects/collection.html"><code>Collection</code></a> via <code>HTTP GET</code> requests.</p>
+<p><code>festivald</code> (by default) exposes <code>REST</code> endpoints for accessing the underlying resources associated with the <a href="../common-objects/collection.html"><code>Collection</code></a> via <code>HTTP GET</code> requests.</p>
 <p>A simple way to access these files is via a browser, e.g, opening this link:</p>
 <pre><code class="language-http">http://localhost:18425/art/Artist Name/Album Title
 </code></pre>
-<p>This will make the art of the album <code>Album Title</code>, owned by the artist <code>Artist Name</code> open directly in the browser (or make it download the image, if the <a href="/config.html"><code>direct_download</code></a> configuration setting is enabled).</p>
+<p>This will make the art of the album <code>Album Title</code>, owned by the artist <code>Artist Name</code> open directly in the browser (or make it download the image, if the <a href="../config.html"><code>direct_download</code></a> configuration setting is enabled).</p>
 <p>Opening something like:</p>
 <pre><code class="language-http">http://localhost:18425/map/Artist Name/Album Title/Song Title
 </code></pre>
-<p>will directly open that song in the browser and show a simple player, if your browser supports it (all modern browsers do). Again, you can change the behavior so that browsers directly download these resources by changing the <code>direct_download</code> <a href="config.html">config</a> option.</p>
-<p>If a file downloaded has a nested filename, the <code>filename_separator</code> <a href="config.html">config</a> option will control what the separator will be. By default, this is <code>-</code>, so the filename of an archive of an <code>Artist</code> will look like:</p>
+<p>will directly open that song in the browser and show a simple player, if your browser supports it (all modern browsers do). Again, you can change the behavior so that browsers directly download these resources by changing the <code>direct_download</code> <a href="../config.html">config</a> option.</p>
+<p>If a file downloaded has a nested filename, the <code>filename_separator</code> <a href="../config.html">config</a> option will control what the separator will be. By default, this is <code>-</code>, so the filename of an archive of an <code>Artist</code> will look like:</p>
 <pre><code class="language-plaintext">Artist Name - Album Title.zip
 </code></pre>
 <h3 id="resource"><a class="header" href="#resource">Resource</a></h3>
 <p>The <code>REST</code> endpoint resources are in loosely grouped based on what type of data they are and what format they are outputted as.</p>
-<p>These &quot;groups&quot; are referenced in <a href="/authorization/rest.html"><code>authorization</code></a> &amp; <a href="/api-stability/rest.html"><code>API Stability</code></a>.</p>
+<p>These &quot;groups&quot; are referenced in <a href="../authorization/rest.html"><code>authorization</code></a> &amp; <a href="../api-stability/rest.html"><code>API Stability</code></a>.</p>
 <div class="table-wrapper"><table><thead><tr><th><code>REST</code> resource</th><th>File Format Type</th><th>Description</th><th>Example Endpoint</th><th>Filename Formatting</th></tr></thead><tbody>
-<tr><td><code>collection</code></td><td><code>zip</code></td><td>The whole <code>Collection</code></td><td><a href="/rest/collection.html"><code>/collection</code></a></td><td><code>Collection - ${CREATION_UNIX_TIMESTAMP}.zip</code></td></tr>
-<tr><td><code>playlist</code></td><td><code>zip</code></td><td>Individual <code>Playlist</code>'s</td><td><a href="/rest/playlist.html"><code>/playlist</code></a></td><td><code>Playlist - ${PLAYLIST_NAME}.zip</code></td></tr>
-<tr><td><code>artist</code></td><td><code>zip</code></td><td>Individual <code>Artist</code>'s</td><td><a href="/rest/map/artist.html"><code>/map/artist</code></a></td><td><code>${ARTIST_NAME}.zip</code></td></tr>
-<tr><td><code>album</code></td><td><code>zip</code></td><td>Individual <code>Album</code>'s</td><td><a href="/rest/current/album.html"><code>/current/album</code></a></td><td><code>${ARTIST_NAME} - ${ALBUM_TITLE}.zip</code></td></tr>
-<tr><td><code>song</code></td><td>Original audio format (<code>flac</code>, <code>mp3</code>, etc)</td><td>Individual <code>Song</code>'s</td><td><a href="/rest/rand/song.html"><code>/rand/song</code></a></td><td><code>${ARTIST_NAME} - ${ALBUM_TITLE} - ${SONG_TITLE}.${AUDIO_FORMAT}</code></td></tr>
-<tr><td><code>art</code></td><td>Original image format (<code>png</code>, <code>jpg</code>, etc)</td><td>Individual <code>Album</code> art</td><td><a href="/rest/current/art.html"><code>/current/art</code></a></td><td><code>${ARTIST_NAME} - ${ALBUM_TITLE}.${IMAGE_FORMAT}</code></td></tr>
+<tr><td><code>collection</code></td><td><code>zip</code></td><td>The whole <code>Collection</code></td><td><a href="collection.html"><code>/collection</code></a></td><td><code>Collection - ${CREATION_UNIX_TIMESTAMP}.zip</code></td></tr>
+<tr><td><code>playlist</code></td><td><code>zip</code></td><td>Individual <code>Playlist</code>'s</td><td><a href="playlist.html"><code>/playlist</code></a></td><td><code>Playlist - ${PLAYLIST_NAME}.zip</code></td></tr>
+<tr><td><code>artist</code></td><td><code>zip</code></td><td>Individual <code>Artist</code>'s</td><td><a href="map/artist.html"><code>/map/artist</code></a></td><td><code>${ARTIST_NAME}.zip</code></td></tr>
+<tr><td><code>album</code></td><td><code>zip</code></td><td>Individual <code>Album</code>'s</td><td><a href="current/album.html"><code>/current/album</code></a></td><td><code>${ARTIST_NAME} - ${ALBUM_TITLE}.zip</code></td></tr>
+<tr><td><code>song</code></td><td>Original audio format (<code>flac</code>, <code>mp3</code>, etc)</td><td>Individual <code>Song</code>'s</td><td><a href="rand/song.html"><code>/rand/song</code></a></td><td><code>${ARTIST_NAME} - ${ALBUM_TITLE} - ${SONG_TITLE}.${AUDIO_FORMAT}</code></td></tr>
+<tr><td><code>art</code></td><td>Original image format (<code>png</code>, <code>jpg</code>, etc)</td><td>Individual <code>Album</code> art</td><td><a href="current/art.html"><code>/current/art</code></a></td><td><code>${ARTIST_NAME} - ${ALBUM_TITLE}.${IMAGE_FORMAT}</code></td></tr>
 </tbody></table>
 </div>
 <h3 id="missing-resource"><a class="header" href="#missing-resource">Missing Resource</a></h3>
@@ -205,12 +205,12 @@
 <p><code>festivald</code> will now have a reference to a non-existent PATH and will not be able to find the file(s), so it will respond with something along the lines of:</p>
 <pre><code class="language-plaintext">Song file error: ${ARTIST_NAME} - ${ALBUM_TITLE} - Song Title.flac
 </code></pre>
-<p>You can re-create the <code>Collection</code> with <a href="/json-rpc/collection/collection_new.html"><code>collection_new</code></a> to re-link these PATHs.</p>
+<p>You can re-create the <code>Collection</code> with <a href="../json-rpc/collection/collection_new.html"><code>collection_new</code></a> to re-link these PATHs.</p>
 <h3 id="disk-cache"><a class="header" href="#disk-cache">Disk Cache</a></h3>
-<p><code>festivald</code> exclusively uses the <a href="/disk.html"><code>Disk</code></a> when operating with potentially heavy data.</p>
+<p><code>festivald</code> exclusively uses the <a href="../disk.html"><code>Disk</code></a> when operating with potentially heavy data.</p>
 <p>All heavy files are streamed from disk, so none of them take up full space in physical memory.</p>
-<p>Practically, what this means is that when serving files, <code>festivald</code> can get by with very little memory, although the <a href="/disk.html"><code>Cache</code></a> folder may get quite heavy.</p>
-<p>The cache behavior can be configured in the <a href="/config.html"><code>config</code></a> or via <a href="/command-line/command-line.html"><code>command-line</code></a> options.</p>
+<p>Practically, what this means is that when serving files, <code>festivald</code> can get by with very little memory, although the <a href="../disk.html"><code>Cache</code></a> folder may get quite heavy.</p>
+<p>The cache behavior can be configured in the <a href="../config.html"><code>config</code></a> or via <a href="../command-line/command-line.html"><code>command-line</code></a> options.</p>
 
                     </main>
 

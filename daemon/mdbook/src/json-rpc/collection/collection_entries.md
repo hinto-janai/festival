@@ -1,13 +1,13 @@
 # collection_entries
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Retrieve an array of [`Entry`](/common-objects/entry.md)'s of every `Song` in the current [`Collection`](/common-objects/collection.md).
+Retrieve an array of [`Entry`](../../common-objects/entry.md)'s of every `Song` in the current [`Collection`](../../common-objects/collection.md).
 
-The returned array is in incrementing [key](/common-objects/key.md) order, as in:
+The returned array is in incrementing [key](../../common-objects/key.md) order, as in:
 ```
 Entry 0 (Song key 0),
 Entry 1 (Song key 1),

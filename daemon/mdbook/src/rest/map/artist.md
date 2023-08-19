@@ -1,11 +1,11 @@
 # /map/$ARTIST_NAME
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Download an `Artist`, using the [`Artist`](/common-objects/artist.md)'s name.
+Download an `Artist`, using the [`Artist`](../../common-objects/artist.md)'s name.
 
 #### Input
 | Input         | Type   |

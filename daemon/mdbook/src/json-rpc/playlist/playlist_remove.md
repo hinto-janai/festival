@@ -1,11 +1,11 @@
 # playlist_remove
 
 #### 🟢 Stable
-This API is [stable](/api-stability/marker.md) since `festivald v1.0.0`.
+This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
 
 ---
 
-Remove a [`Playlist`](/common-objects/playlist.md).
+Remove a [`Playlist`](../../common-objects/playlist.md).
 
 This method errors if `playlist` does not exist.
 
@@ -17,8 +17,8 @@ This method errors if `playlist` does not exist.
 #### Outputs
 | Field   | Type                                                    | Description |
 |---------|---------------------------------------------------------|-------------|
-| len     | unsigned integer                  | The amount of [`Playlist Entry`](/common-objects/playlist.md)'s this removed `Playlist` had
-| entries | array of `Playlist Entry` objects | The [`Playlist Entry`](/common-objects/playlist.md)'s of the remove `Playlist`
+| len     | unsigned integer                  | The amount of [`Playlist Entry`](../../common-objects/playlist.md)'s this removed `Playlist` had
+| entries | array of `Playlist Entry` objects | The [`Playlist Entry`](../../common-objects/playlist.md)'s of the remove `Playlist`
 
 #### Example Request
 ```bash
