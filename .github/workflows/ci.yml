@@ -19,7 +19,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-2019, macos-11, ubuntu-20.04]
-        pkg: [festival-gui]
+        pkg: [festival-gui, festivald, festival-cli]
 
     steps:
     - name: Checkout
@@ -59,11 +59,18 @@ jobs:
         fi
         cargo build --release --package ${{ matrix.pkg }}
 
-    - name: Compress
+    - name: Compress (GUI)
+      if: matrix.pkg == 'festival-gui'
       shell: bash
       run: |
         mkdir OUTPUT
-        VERSION="$(grep -m1 "version" gui/Cargo.toml | grep -o "[0-9].[0-9].[0-9]")"
+        VERSION=$(grep -m1 "version" gui/Cargo.toml | grep -o "[0-9].[0-9].[0-9]")
+        DOCS=$(grep -m1 "title" gui/mdbook/book.toml | grep -o "[0-9].[0-9].[0-9]")
+
+        if [ "$VERSION" != "$DOCS" ]; then
+          echo "CARGO $VERSION != DOCS TITLE $DOCS"
+          exit 1
+        fi
 
         if [ "$RUNNER_OS" == "Linux" ]; then
           # AppImage
@@ -94,6 +101,81 @@ jobs:
           cd target/release
           powershell Compress-Archive -LiteralPath Festival.exe -DestinationPath "Festival-v${VERSION}-windows-x64.zip"
           mv "Festival-v${VERSION}-windows-x64.zip" ../../OUTPUT/
+        fi
+
+    - name: Compress (daemon)
+      if: matrix.pkg == 'festivald'
+      shell: bash
+      run: |
+        mkdir OUTPUT
+        VERSION="$(grep -m1 "version" daemon/Cargo.toml | grep -o "[0-9].[0-9].[0-9]")"
+        DOCS=$(grep -m1 "title" daemon/mdbook/book.toml | grep -o "[0-9].[0-9].[0-9]")
+
+        if [ "$VERSION" != "$DOCS" ]; then
+          echo "CARGO $VERSION != DOCS TITLE $DOCS"
+          exit 1
+        fi
+
+        if [ "$RUNNER_OS" == "Linux" ]; then
+          # Tar
+          cp daemon/festival.service target/release/
+          cp LICENSE target/release/
+          cd target/release
+          tar -czpf "festivald-v${VERSION}-linux-x64.tar.gz" festivald LICENSE festival.service
+          mv "festivald-v${VERSION}-linux-x64.tar.gz" ../../OUTPUT/
+        elif [ "$RUNNER_OS" == "macOS" ]; then
+          # x64
+          cp LICENSE target/release/
+          cd target/release
+          tar -czpf "festivald-v${VERSION}-macos-x64.tar.gz" festivald LICENSE
+          mv "festivald-v${VERSION}-macos-x64.tar.gz" ../../OUTPUT/
+
+          # ARM64
+          mv target/aarch64-apple-darwin/release/festivald target/release/
+          tar -czpf "festivald-v${VERSION}-macos-arm64.tar.gz" festivald LICENSE
+          mv "festivald-v${VERSION}-macos-arm64.tar.gz" OUTPUT/
+        elif [ "$RUNNER_OS" == "Windows" ]; then
+          # Zip
+          cd target/release
+          powershell Compress-Archive -LiteralPath festivald.exe -DestinationPath "festivald-v${VERSION}-windows-x64.zip"
+          mv "festivald-v${VERSION}-windows-x64.zip" ../../OUTPUT/
+        fi
+
+    - name: Compress (cli)
+      if: matrix.pkg == 'festival-cli'
+      shell: bash
+      run: |
+        mkdir OUTPUT
+        VERSION="$(grep -m1 "version" cli/Cargo.toml | grep -o "[0-9].[0-9].[0-9]")"
+        DOCS=$(grep -m1 "title" cli/mdbook/book.toml | grep -o "[0-9].[0-9].[0-9]")
+
+        if [ "$VERSION" != "$DOCS" ]; then
+          echo "CARGO $VERSION != DOCS TITLE $DOCS"
+          exit 1
+        fi
+
+        if [ "$RUNNER_OS" == "Linux" ]; then
+          # Tar
+          cp LICENSE target/release/
+          cd target/release
+          tar -czpf "festival-cli-v${VERSION}-linux-x64.tar.gz" festival-cli LICENSE
+          mv "festival-cli-v${VERSION}-linux-x64.tar.gz" ../../OUTPUT/
+        elif [ "$RUNNER_OS" == "macOS" ]; then
+          # x64
+          cp LICENSE target/release/
+          cd target/release
+          tar -czpf "festival-cli-v${VERSION}-macos-x64.tar.gz" festival-cli LICENSE
+          mv "festival-cli-v${VERSION}-macos-x64.tar.gz" ../../OUTPUT/
+
+          # ARM64
+          mv target/aarch64-apple-darwin/release/festival-cli target/release/
+          tar -czpf "festival-cli-v${VERSION}-macos-arm64.tar.gz" festival-cli LICENSE
+          mv "festival-cli-v${VERSION}-macos-arm64.tar.gz" OUTPUT/
+        elif [ "$RUNNER_OS" == "Windows" ]; then
+          # Zip
+          cd target/release
+          powershell Compress-Archive -LiteralPath festival-cli.exe -DestinationPath "festival-cli-v${VERSION}-windows-x64.zip"
+          mv "festival-cli-v${VERSION}-windows-x64.zip" ../../OUTPUT/
         fi
 
     - name: Archive

@@ -14,13 +14,11 @@ https://github.com/hinto-janai/festival/assets/101352116/586e37e7-762d-4dc6-a9c4
 ## Frontends
 Festival comes in few different forms.
 
-Currently, the most full frontend implementation is [`festival-gui`](https://github.com/hinto-janai/festival/tree/main/gui) (or just called `Festival`).
-
-| Frontend                    | Description | Released | Documentation |
-|-----------------------------|-------------|----------|---------------|
+| Frontend | Description | Released | Documentation |
+|----------|-------------|----------|---------------|
 | [`festival-gui`](https://github.com/hinto-janai/festival/tree/main/gui) | GUI            | 🟢 2023-06-28 | https://docs.festival.pm/gui
-| [`festivald`](https://github.com/hinto-janai/festival/tree/main/daemon) | Daemon         | 🔴            | https://docs.festival.pm/daemon
-| [`festival-cli`](https://github.com/hinto-janai/festival/tree/main/cli) | CLI client     | 🔴            | https://docs.festival.pm/cli
+| [`festivald`](https://github.com/hinto-janai/festival/tree/main/daemon) | Daemon         | 🟢            | https://docs.festival.pm/daemon
+| [`festival-cli`](https://github.com/hinto-janai/festival/tree/main/cli) | CLI client     | 🟢            | https://docs.festival.pm/cli
 | [`festival-tui`](https://github.com/hinto-janai/festival/tree/main/tui) | Standalone TUI | 🔴            | https://docs.festival.pm/tui
 | [`festival-web`](https://github.com/hinto-janai/festival/tree/main/web) | Web server     | 🔴            | https://docs.festival.pm/web
 
@@ -79,6 +77,14 @@ To build `festival-gui`:
 ```
 cargo build --release --package festival-gui
 ```
+To build `festivald`:
+```
+cargo build --release --package festivald
+```
+To build `festival-cli`:
+```
+cargo build --release --package festival-cli
+```
 
 ---
 
@@ -92,6 +98,14 @@ cargo build --release --package festival-gui
 To build `festival-gui`:
 ```
 cargo build --release --package festival-gui
+```
+To build `festivald`:
+```
+cargo build --release --package festivald
+```
+To build `festival-cli`:
+```
+cargo build --release --package festival-cli
 ```
 
 ---
@@ -107,11 +121,20 @@ To build `festival-gui`:
 ```
 cargo build --release --package festival-gui
 ```
-
 There is a [`build.rs`](https://github.com/hinto-janai/festival/blob/main/gui/build.rs) file in `gui/` solely for Windows-specific things:
 
 1. It sets the icon in `File Explorer`
-2. It statically links `VCRUNTIME140.dll` (the binary will not be portable without this)
+2. It sets some miscellaneous metadata
+3. It statically links `VCRUNTIME140.dll` (the binary will not be portable without this)
+
+To build `festivald`:
+```
+cargo build --release --package festivald
+```
+To build `festival-cli`:
+```
+cargo build --release --package festival-cli
+```
 
 ---
 

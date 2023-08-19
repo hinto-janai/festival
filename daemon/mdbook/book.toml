@@ -3,7 +3,7 @@ authors      = ["hinto-janai"]
 language     =  "en"
 multilingual = false
 src          = "src"
-title        = "festivald v0.0.0"
+title        = "festivald v1.0.0"
 
 [build]
 build-dir = "docs"

@@ -1,2 +1,2 @@
 # Config
-Archives of `festivald`'s configuration over different version, for (de)serialziation testing.
+Archives of `festivald`'s configuration over different version, for (de)serialization testing.

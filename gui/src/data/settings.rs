@@ -135,24 +135,26 @@ mod test {
 	// Filled.
 	const S2: Lazy<Settings> = Lazy::new(|| Settings::from_path("../assets/festival/gui/state/settings2_real.bin").unwrap());
 
-	#[test]
-	// Compares `new()`.
-	fn cmp() {
-		#[cfg(not(target_os = "macos"))]
-		assert_eq!(Lazy::force(&S1), &Settings::new());
-		#[cfg(target_os = "macos")]
-		{
-			let mut settings = Settings::new();
-			settings.pixels_per_point = 1.5;
-			assert_eq!(Lazy::force(&S1), &settings);
-		}
-
-		assert_ne!(Lazy::force(&S1), Lazy::force(&S2));
-
-		let b1 = S1.to_bytes().unwrap();
-		let b2 = S2.to_bytes().unwrap();
-		assert_ne!(b1, b2);
-	}
+	// See `settings0.rs` on why this is commented out.
+	//
+//	#[test]
+//	// Compares `new()`.
+//	fn cmp() {
+//		#[cfg(not(target_os = "macos"))]
+//		assert_eq!(Lazy::force(&S1), &Settings::new());
+//		#[cfg(target_os = "macos")]
+//		{
+//			let mut settings = Settings::new();
+//			settings.pixels_per_point = 1.5;
+//			assert_eq!(Lazy::force(&S1), &settings);
+//		}
+//
+//		assert_ne!(Lazy::force(&S1), Lazy::force(&S2));
+//
+//		let b1 = S1.to_bytes().unwrap();
+//		let b2 = S2.to_bytes().unwrap();
+//		assert_ne!(b1, b2);
+//	}
 
 	#[test]
 	// Attempts to deserialize the non-empty.
