@@ -73,7 +73,7 @@ fn main() {
 				crate::docs::DOCS_PATH.set(path).unwrap();
 				benri::ok!("festivald ... Docs");
 			}
-			Err(e) => log::warn!("festivald ... Could not create docs: {e}"),
+			Err(e) => crate::exit!("Could not create docs: {e}"),
 		}
 	} else {
 		log::info!("festivald ... Skipping docs");

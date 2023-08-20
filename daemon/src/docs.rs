@@ -20,7 +20,7 @@ impl Docs {
 	pub fn create() -> Result<PathBuf, anyhow::Error> {
 		let mut path = Self::base_path()?;
 
-		let _ = std::fs::remove_dir(&path);
+		std::fs::remove_dir_all(&path)?;
 
 		let mut zip = zip::ZipArchive::new(std::io::Cursor::new(DOCS_ZIP))?;
 

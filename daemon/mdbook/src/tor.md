@@ -76,4 +76,6 @@ festivald --confirm-no-tls-auth
 ```
 or set the [`confirm_no_tls_auth`](config.md) configuration to confirm that you allow authentication without TLS.
 
+If the IP `festivald` is binding to is `localhost/127.0.0.1`, this setting will be enabled by default.
+
 For `festival-cli`, it will automatically detect if you're connecting to an onion address and will allow authentication.

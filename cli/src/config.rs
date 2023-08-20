@@ -151,7 +151,7 @@ impl ConfigBuilder {
 			Ok(uri) => uri,
 			Err(_)  => crate::exit!("invalid [festivald] URL: {}", c.festivald),
 		};
-		let (festivald, protocol, onion) = {
+		let (festivald, ip, protocol, onion) = {
 			let protocol = match uri.scheme_str() {
 				Some("http")  => "http",
 				Some("https") => "https",
@@ -172,7 +172,7 @@ impl ConfigBuilder {
 				debug_print!("missing [festivald] URL Port, defaulting to [{FESTIVAL_CLI_PORT}]");
 				FESTIVAL_CLI_PORT
 			});
-			(format!("{protocol}://{ip}:{port}"), protocol, onion)
+			(format!("{protocol}://{ip}:{port}"), ip, protocol, onion)
 		};
 
 		// FIXME TODO: testing.
@@ -210,8 +210,8 @@ impl ConfigBuilder {
 			}
 		}
 
-		if onion {
-			debug_print!("onion address detected, enabling [confirm_no_tls_auth]");
+		if onion || ip == "localhost" || ip == "127.0.0.1" {
+			debug_print!("local/onion address detected, enabling [confirm_no_tls_auth]");
 			c.confirm_no_tls_auth = true;
 		}
 

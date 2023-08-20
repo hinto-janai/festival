@@ -328,7 +328,7 @@ async fn http(
 		.serve_connection(stream, service_fn(|r| route(r, addr, COLLECTION_PTR, TO_KERNEL, FROM_KERNEL, TO_ROUTER_S, TO_ROUTER_C)))
 		.await
 	{
-		error!("Task - HTTP error for [{}]: {e}", addr.ip());
+		error!("Router - HTTP error for [{}]: {e}", addr.ip());
 	}
 }
 
@@ -359,7 +359,7 @@ async fn https(
 		.serve_connection(stream, service_fn(|r| route(r, addr, COLLECTION_PTR, TO_KERNEL, FROM_KERNEL, TO_ROUTER_S, TO_ROUTER_C)))
 		.await
 	{
-		error!("Task - HTTPS error for [{}]: {e}", addr.ip());
+		error!("Router - HTTPS error for [{}]: {e}", addr.ip());
 	}
 }
 
@@ -379,11 +379,11 @@ async fn route(
 	//-------------------------------------------------- Only accept IPv4
 	let addr = match addr {
 		std::net::SocketAddr::V4(addr) => {
-			debug!("Task - New connection: [{}]", addr.ip());
+			debug!("Router - New connection: [{}]", addr.ip());
 			addr
 		},
 		std::net::SocketAddr::V6(addr) => {
-			warn!("Task - Skipping IPv6 connection: [{}]", addr.ip());
+			warn!("Router - Skipping IPv6 connection: [{}]", addr.ip());
 			sleep_on_fail().await;
 			return Ok(resp::server_err("IPv4 not supported"));
 		},
@@ -391,11 +391,13 @@ async fn route(
 
 	crate::seen::add(&addr).await;
 
+	trace!("Router - HTTP Request: {req:#?}");
+
 	//-------------------------------------------------- Exclusive IP list
 	let ip = addr.ip();
 	if let Some(ips) = &config().exclusive_ips {
 		if !ips.contains(ip) {
-			info!("Task - IP not in exclusive list, skipping [{ip}]");
+			info!("Router - IP not in exclusive list, skipping [{ip}]");
 			sleep_on_fail().await;
 			return Ok(resp::forbidden("IP not in exclusive list"));
 		}
@@ -403,12 +405,6 @@ async fn route(
 
 	//-------------------------------------------------- Authorization
 	let (mut parts, body) = req.into_parts();
-
-	#[cfg(debug_assertions)]
-	{
-		println!("{parts:#?}");
-		println!("{body:#?}");
-	}
 
 	//-------------------------------------------------- JSON-RPC
 	if parts.method == hyper::Method::POST {
@@ -499,7 +495,7 @@ pub async fn sleep_on_fail() {
 
 	if let Some(end) = config().sleep_on_fail {
 		let millis = thread_rng().gen_range(0..end);
-		trace!("Task - Sleeping for {millis} millis");
+		trace!("Router - Sleeping for {millis} millis");
 		tokio::time::sleep(std::time::Duration::from_millis(millis)).await;
 	}
 }

@@ -208,16 +208,16 @@
       &quot;collection_perf&quot;,
       &quot;collection_health&quot;,
       &quot;collection_resource_size&quot;,
-      &quot;daemon_save&quot;,
-      &quot;daemon_remove_cache&quot;,
-      &quot;daemon_shutdown&quot;,
+      &quot;daemon_config&quot;,
       &quot;daemon_methods&quot;,
       &quot;daemon_no_auth_rpc&quot;,
       &quot;daemon_no_auth_rest&quot;,
+      &quot;daemon_remove_cache&quot;,
+      &quot;daemon_save&quot;,
+      &quot;daemon_seen_ips&quot;,
+      &quot;daemon_shutdown&quot;,
+      &quot;daemon_state&quot;,
       &quot;state_audio&quot;,
-      &quot;state_config&quot;,
-      &quot;state_daemon&quot;,
-      &quot;state_ip&quot;,
       &quot;state_queue_key&quot;,
       &quot;state_queue_song&quot;,
       &quot;state_queue_entry&quot;,
@@ -339,6 +339,22 @@
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 

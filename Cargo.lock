@@ -4332,7 +4332,7 @@ dependencies = [
 
 [[package]]
 name = "rpc"
-version = "0.0.0"
+version = "1.0.0"
 dependencies = [
  "anyhow",
  "base64 0.21.2",
