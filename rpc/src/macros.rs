@@ -2,7 +2,7 @@
 #[macro_export]
 /// Implement a named map of JSON.
 macro_rules! impl_struct {
-	($struct:ident, $($field:ident: $type:ty),*) => {
+	($struct:ident, $($field:ident: $type:ty),* $(,)?) => {
 		#[derive(Clone,Debug,PartialEq,Serialize,Deserialize)]
 		pub struct $struct {
 			$(
@@ -15,7 +15,7 @@ macro_rules! impl_struct {
 #[macro_export]
 /// Implement an anonymous map of JSON.
 macro_rules! impl_struct_anon {
-	($struct:ident, $type:ty) => {
+	($struct:ident, $type:ty $(,)?) => {
 		#[derive(Clone,Debug,PartialEq,Serialize,Deserialize)]
 		#[serde(transparent)]
 		#[repr(transparent)]
@@ -26,7 +26,7 @@ macro_rules! impl_struct_anon {
 #[macro_export]
 /// Implement a named map of JSON with a lifetime: `'a`.
 macro_rules! impl_struct_lt {
-	($struct:ident, $($( #[$attrs:meta] )* $field:ident: $type:ty),*) => {
+	($struct:ident, $($( #[$attrs:meta] )* $field:ident: $type:ty),* $(,)?) => {
 		#[derive(Clone,Debug,PartialEq,Eq,Serialize,Deserialize)]
 		pub struct $struct<'a> {
 			$(
@@ -40,7 +40,7 @@ macro_rules! impl_struct_lt {
 #[macro_export]
 /// Implement an anonymous map of JSON with a lifetime: `'a`.
 macro_rules! impl_struct_anon_lt {
-	($struct:ident, $type:ty) => {
+	($struct:ident, $type:ty $(,)?) => {
 		#[derive(Clone,Debug,PartialEq,Serialize,Deserialize)]
 		#[serde(transparent)]
 		#[repr(transparent)]
@@ -65,7 +65,7 @@ pub fn markdown(s: &'static str) -> String {
 
 #[macro_export]
 macro_rules! impl_rpc {
-	($method_doc:literal, $method_link:literal, $method_name:ident => $method_enum:expr) => {
+	($method_doc:literal, $method_link:literal, $method_name:ident => $method_enum:expr $(,)?) => {
 		#[derive(Clone,Debug,PartialEq,Serialize,Deserialize)]
         #[derive(clap::Args)]
 		#[command(about = $method_doc, long_about = $crate::macros::markdown(include_str!(concat!("../../daemon/mdbook/src/json-rpc/", $method_link, ".md"))))]
@@ -85,7 +85,7 @@ macro_rules! impl_rpc {
 
 #[macro_export]
 macro_rules! impl_rpc_param {
-	($method_doc:literal, $method_link:literal, $method_name:ident => $method_enum:expr, $($param_doc:literal, $( #[$attrs:meta] )* $param:ident: $param_type:ty),*) => {
+	($method_doc:literal, $method_link:literal, $method_name:ident => $method_enum:expr, $($param_doc:literal, $( #[$attrs:meta] )* $param:ident: $param_type:ty),* $(,)?) => {
 		#[derive(Clone,Debug,PartialEq,Serialize,Deserialize)]
         #[derive(clap::Args)]
 		#[command(about = $method_doc, long_about = $crate::macros::markdown(include_str!(concat!("../../daemon/mdbook/src/json-rpc/", $method_link, ".md"))))]

@@ -589,23 +589,25 @@ impl_struct_lt! {
 mod tests {
 	use super::*;
 
-	//------------------------------------- Serde sanity tests.
-	// Testing function.
-	fn t<T>(value: &T, expected: &'static str)
-		where
-			T: Serialize + serde::de::DeserializeOwned + PartialEq + std::fmt::Debug,
-	{
-		let string = serde_json::to_string(value).unwrap();
-		assert_eq!(string, expected);
-		let t: T = serde_json::from_str(&string).unwrap();
-		assert_eq!(t, *value);
-		let e: T = serde_json::from_str(expected).unwrap();
-		assert_eq!(e, *value);
-	}
+	// Responses are tested in `/cli/src/rpc.rs`.
 
-	#[test]
-	fn status() {
-		t(&Status { ok: true  }, r#"{"ok":true}"#);
-		t(&Status { ok: false }, r#"{"ok":false}"#);
-	}
+//	//------------------------------------- Serde sanity tests.
+//	// Testing function.
+//	fn t<T>(value: &T, expected: &'static str)
+//		where
+//			T: Serialize + serde::de::DeserializeOwned + PartialEq + std::fmt::Debug,
+//	{
+//		let string = serde_json::to_string(value).unwrap();
+//		assert_eq!(string, expected);
+//		let t: T = serde_json::from_str(&string).unwrap();
+//		assert_eq!(t, *value);
+//		let e: T = serde_json::from_str(expected).unwrap();
+//		assert_eq!(e, *value);
+//	}
+//
+//	#[test]
+//	fn status() {
+//		t(&Status { ok: true  }, r#"{"ok":true}"#);
+//		t(&Status { ok: false }, r#"{"ok":false}"#);
+//	}
 }

@@ -23,7 +23,7 @@ help() {
 	echo "./x.sh [ARG]"
 	echo ""
 	echo "Lint/test/build all packages in the Festival repo."
-	echo "All processes are done with --release mode."
+	echo "Builds are done with --release mode."
 	echo ""
 	echo "Arguments:"
 	echo "    c | clippy    lint all packages"
@@ -65,11 +65,7 @@ test() {
 	done
 
 	# Special cases
-	for i in {\
-		'rpc',\
-		'festival-gui -- --ignored --exact watch::watch::tests::signals',\
-		'festival-cli -- --ignored',\
-	}; do
+	for i in {'rpc','festival-gui -- --ignored --exact watch::watch::tests::signals','festival-cli -- --ignored'}; do
 		title "Test [${i}]"
 		if cargo test -r -p ${i}; then
 			ok "Test [${i}] OK"

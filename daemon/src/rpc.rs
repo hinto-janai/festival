@@ -2206,7 +2206,7 @@ macro_rules! get_append_playlist {
 }
 
 async fn playlist_add_key_artist<'a>(
-	params:      rpc::param::PlaylistAddKeyArtist,
+	params:      rpc::param::PlaylistAddKeyArtist<'a>,
 	id:          Option<Id<'a>>,
 	collection:  Arc<Collection>,
 ) -> Result<Response<Body>, anyhow::Error> {
@@ -2225,7 +2225,7 @@ async fn playlist_add_key_artist<'a>(
 }
 
 async fn playlist_add_key_album<'a>(
-	params:      rpc::param::PlaylistAddKeyAlbum,
+	params:      rpc::param::PlaylistAddKeyAlbum<'a>,
 	id:          Option<Id<'a>>,
 	collection:  Arc<Collection>,
 ) -> Result<Response<Body>, anyhow::Error> {
@@ -2244,7 +2244,7 @@ async fn playlist_add_key_album<'a>(
 }
 
 async fn playlist_add_key_song<'a>(
-	params:      rpc::param::PlaylistAddKeySong,
+	params:      rpc::param::PlaylistAddKeySong<'a>,
 	id:          Option<Id<'a>>,
 	collection:  Arc<Collection>,
 ) -> Result<Response<Body>, anyhow::Error> {

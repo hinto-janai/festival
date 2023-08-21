@@ -589,14 +589,14 @@ impl_rpc_param! {
 	"In which way should we add to the queue?",
 	#[arg(value_name = "front|back|index")]
 	append: Append2,
-	"If the `index` append option was picked, this will be index used",
-	index: Option<usize>,
-	"Should we start at an offset within the Artist?",
-	offset: Option<usize>,
 	"Should the queue be cleared before adding?",
 	clear: Option<bool>,
 	"Should we start playing?",
-	play: Option<bool>
+	play: Option<bool>,
+	"If the `index` append option was picked, this will be index used",
+	index: Option<usize>,
+	"Should we start at an offset within the Artist?",
+	offset: Option<usize>
 }
 impl_rpc_param! {
 	"Add an Album to the queue with an Album key",
@@ -607,14 +607,14 @@ impl_rpc_param! {
 	"In which way should we add to the queue?",
 	#[arg(value_name = "front|back|index")]
 	append: Append2,
-	"If the `index` append option was picked, this will be index used",
-	index: Option<usize>,
-	"Should we start at an offset within the Album?",
-	offset: Option<usize>,
 	"Should the queue be cleared before adding?",
 	clear: Option<bool>,
 	"Should we start playing?",
-	play: Option<bool>
+	play: Option<bool>,
+	"If the `index` append option was picked, this will be index used",
+	index: Option<usize>,
+	"Should we start at an offset within the Album?",
+	offset: Option<usize>
 }
 impl_rpc_param! {
 	"Add an Song to the queue with an Song key",
@@ -625,16 +625,16 @@ impl_rpc_param! {
 	"In which way should we add to the queue?",
 	#[arg(value_name = "front|back|index")]
 	append: Append2,
-	"If the `index` append option was picked, this will be index used",
-	index: Option<usize>,
 	"Should the queue be cleared before adding?",
 	clear: Option<bool>,
 	"Should we start playing?",
-	play: Option<bool>
+	play: Option<bool>,
+	"If the `index` append option was picked, this will be index used",
+	index: Option<usize>
 }
-impl_struct_lt!(QueueAddMapArtist, #[serde(borrow)] artist: Cow<'a, str>, append: Append2, index: Option<usize>, offset: Option<usize>, clear: Option<bool>, play: Option<bool>);
-impl_struct_lt!(QueueAddMapAlbum, #[serde(borrow)] artist: Cow<'a, str>, #[serde(borrow)] album: Cow<'a, str>, append: Append2, index: Option<usize>, offset: Option<usize>, clear: Option<bool>, play: Option<bool>);
-impl_struct_lt!(QueueAddMapSong, #[serde(borrow)] artist: Cow<'a, str>, #[serde(borrow)] album: Cow<'a, str>, #[serde(borrow)] song: Cow<'a, str>, append: Append2, index: Option<usize>, clear: Option<bool>, play: Option<bool>);
+impl_struct_lt!(QueueAddMapArtist, #[serde(borrow)] artist: Cow<'a, str>, append: Append2, clear: Option<bool>, play: Option<bool>, index: Option<usize>, offset: Option<usize>);
+impl_struct_lt!(QueueAddMapAlbum, #[serde(borrow)] artist: Cow<'a, str>, #[serde(borrow)] album: Cow<'a, str>, append: Append2, clear: Option<bool>, play: Option<bool>, index: Option<usize>, offset: Option<usize>);
+impl_struct_lt!(QueueAddMapSong, #[serde(borrow)] artist: Cow<'a, str>, #[serde(borrow)] album: Cow<'a, str>, #[serde(borrow)] song: Cow<'a, str>, append: Append2, clear: Option<bool>, play: Option<bool>, index: Option<usize>);
 impl_rpc_param! {
 	"Add an Artist to the queue with an Artist name",
 	"queue/queue_add_map_artist",
@@ -644,14 +644,14 @@ impl_rpc_param! {
 	"In which way should we add to the queue?",
 	#[arg(value_name = "front|back|index")]
 	append: Append2,
-	"If the `index` append option was picked, this will be index used",
-	index: Option<usize>,
-	"Should we start at an offset within the Artist?",
-	offset: Option<usize>,
 	"Should the queue be cleared before adding?",
 	clear: Option<bool>,
 	"Should we start playing?",
-	play: Option<bool>
+	play: Option<bool>,
+	"If the `index` append option was picked, this will be index used",
+	index: Option<usize>,
+	"Should we start at an offset within the Artist?",
+	offset: Option<usize>
 }
 impl_rpc_param! {
 	"Add an Album to the queue with an Artist name and Album title",
@@ -664,14 +664,14 @@ impl_rpc_param! {
 	"In which way should we add to the queue?",
 	#[arg(value_name = "front|back|index")]
 	append: Append2,
-	"If the `index` append option was picked, this will be index used",
-	index: Option<usize>,
-	"Should we start at an offset within the Album?",
-	offset: Option<usize>,
 	"Should the queue be cleared before adding?",
 	clear: Option<bool>,
 	"Should we start playing?",
-	play: Option<bool>
+	play: Option<bool>,
+	"If the `index` append option was picked, this will be index used",
+	index: Option<usize>,
+	"Should we start at an offset within the Album?",
+	offset: Option<usize>
 }
 impl_rpc_param! {
 	"Add a Song to the queue with an Artist name Album title, and Song title",
@@ -686,12 +686,12 @@ impl_rpc_param! {
 	"In which way should we add to the queue?",
 	#[arg(value_name = "front|back|index")]
 	append: Append2,
-	"If the `index` append option was picked, this will be index used",
-	index: Option<usize>,
 	"Should the queue be cleared before adding?",
 	clear: Option<bool>,
 	"Should we start playing?",
-	play: Option<bool>
+	play: Option<bool>,
+	"If the `index` append option was picked, this will be index used",
+	index: Option<usize>
 }
 impl_rpc_param! {
 	"Add a random Artist to the queue",
@@ -700,14 +700,14 @@ impl_rpc_param! {
 	"In which way should we add to the queue?",
 	#[arg(value_name = "front|back|index")]
 	append: Append2,
-	"If the `index` append option was picked, this will be index used",
-	index: Option<usize>,
-	"Should we start at an offset within the Artist?",
-	offset: Option<usize>,
 	"Should the queue be cleared before adding?",
 	clear: Option<bool>,
 	"Should we start playing?",
-	play: Option<bool>
+	play: Option<bool>,
+	"If the `index` append option was picked, this will be index used",
+	index: Option<usize>,
+	"Should we start at an offset within the Artist?",
+	offset: Option<usize>
 }
 impl_rpc_param! {
 	"Add a random Album to the queue",
@@ -716,14 +716,14 @@ impl_rpc_param! {
 	"In which way should we add to the queue?",
 	#[arg(value_name = "front|back|index")]
 	append: Append2,
-	"If the `index` append option was picked, this will be index used",
-	index: Option<usize>,
-	"Should we start at an offset within the Album?",
-	offset: Option<usize>,
 	"Should the queue be cleared before adding?",
 	clear: Option<bool>,
 	"Should we start playing?",
-	play: Option<bool>
+	play: Option<bool>,
+	"If the `index` append option was picked, this will be index used",
+	index: Option<usize>,
+	"Should we start at an offset within the Album?",
+	offset: Option<usize>
 }
 impl_rpc_param! {
 	"Add a random Song to the queue",
@@ -732,12 +732,12 @@ impl_rpc_param! {
 	"In which way should we add to the queue?",
 	#[arg(value_name = "front|back|index")]
 	append: Append2,
-	"If the `index` append option was picked, this will be index used",
-	index: Option<usize>,
 	"Should the queue be cleared before adding?",
 	clear: Option<bool>,
 	"Should we start playing?",
-	play: Option<bool>
+	play: Option<bool>,
+	"If the `index` append option was picked, this will be index used",
+	index: Option<usize>
 }
 impl_rpc_param! {
 	"Add a random Song to the queue, receive it back in Entry form",
@@ -746,14 +746,14 @@ impl_rpc_param! {
 	"In which way should we add to the queue?",
 	#[arg(value_name = "front|back|index")]
 	append: Append2,
-	"If the `index` append option was picked, this will be index used",
-	index: Option<usize>,
 	"Should the queue be cleared before adding?",
 	clear: Option<bool>,
 	"Should we start playing?",
-	play: Option<bool>
+	play: Option<bool>,
+	"If the `index` append option was picked, this will be index used",
+	index: Option<usize>
 }
-impl_struct_lt!(QueueAddPlaylist, #[serde(borrow)] playlist: Cow<'a, str>, append: Append2, index: Option<usize>, offset: Option<usize>, clear: Option<bool>, play: Option<bool>);
+impl_struct_lt!(QueueAddPlaylist, #[serde(borrow)] playlist: Cow<'a, str>, append: Append2, clear: Option<bool>, play: Option<bool>, index: Option<usize>, offset: Option<usize>);
 impl_rpc_param! {
 	"Add a playlist to the queue",
 	"queue/queue_add_playlist",
@@ -763,14 +763,14 @@ impl_rpc_param! {
 	"In which way should we add to the queue?",
 	#[arg(value_name = "front|back|index")]
 	append: Append2,
-	"If the `index` append option was picked, this will be index used",
-	index: Option<usize>,
-	"Should we start at an offset within the playlist?",
-	offset: Option<usize>,
 	"Should the queue be cleared before adding?",
 	clear: Option<bool>,
 	"Should we start playing?",
-	play: Option<bool>
+	play: Option<bool>,
+	"If the `index` append option was picked, this will be index used",
+	index: Option<usize>,
+	"Should we start at an offset within the playlist?",
+	offset: Option<usize>
 }
 impl_rpc_param! {
 	"Set the current Song to a queue index",
@@ -838,10 +838,11 @@ impl_rpc_param! {
 	"The index of the entry in the playlist",
 	index: usize
 }
+impl_struct_lt!(PlaylistAddKeyArtist, #[serde(borrow)] playlist: Cow<'a, str>, key: usize, append: Append2, index: Option<usize>);
 impl_rpc_param! {
 	"Add an artist to a playlist",
 	"playlist/playlist_add_key_artist",
-	PlaylistAddKeyArtist => Method::PlaylistAddKeyArtist,
+	PlaylistAddKeyArtistOwned => Method::PlaylistAddKeyArtist,
 	"The name of the playlist",
 	playlist: String,
 	"The artist key",
@@ -852,10 +853,11 @@ impl_rpc_param! {
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>
 }
+impl_struct_lt!(PlaylistAddKeyAlbum, #[serde(borrow)] playlist: Cow<'a, str>, key: usize, append: Append2, index: Option<usize>);
 impl_rpc_param! {
 	"Add an album to a playlist",
 	"playlist/playlist_add_key_album",
-	PlaylistAddKeyAlbum => Method::PlaylistAddKeyAlbum,
+	PlaylistAddKeyAlbumOwned => Method::PlaylistAddKeyAlbum,
 	"The name of the playlist",
 	playlist: String,
 	"The album key",
@@ -866,10 +868,11 @@ impl_rpc_param! {
 	"If the `index` append option was picked, this will be index used",
 	index: Option<usize>
 }
+impl_struct_lt!(PlaylistAddKeySong, #[serde(borrow)] playlist: Cow<'a, str>, key: usize, append: Append2, index: Option<usize>);
 impl_rpc_param! {
 	"Add a song to a playlist",
 	"playlist/playlist_add_key_song",
-	PlaylistAddKeySong => Method::PlaylistAddKeySong,
+	PlaylistAddKeySongOwned => Method::PlaylistAddKeySong,
 	"The name of the playlist",
 	playlist: String,
 	"The song key",
@@ -957,138 +960,610 @@ mod tests {
 
 	//------------------------------------- Serde sanity tests.
 	// Testing function.
-	fn t<T>(value: &T, expected: &'static str)
+	fn t<T>(value: T, expected: &'static str)
 		where
 			T: Serialize + serde::de::DeserializeOwned + PartialEq + std::fmt::Debug,
 	{
-		let string = serde_json::to_string(value).unwrap();
+		let string = serde_json::to_string(&value).unwrap();
 		assert_eq!(string, expected);
 		let t: T = serde_json::from_str(&string).unwrap();
-		assert_eq!(t, *value);
+		assert_eq!(t, value);
 		let e: T = serde_json::from_str(expected).unwrap();
-		assert_eq!(e, *value);
+		assert_eq!(e, value);
+	}
+
+	//---------------------------------------------------------------------------------------------------- Collection
+	#[test]
+	fn collection_new() {
+		t(CollectionNew { paths: vec![PathBuf::from("/path_1"), PathBuf::from("/path_2")].into() }, r#"{"paths":["/path_1","/path_2"]}"#);
+	}
+
+	//---------------------------------------------------------------------------------------------------- Key
+	#[test]
+	fn key_artist() {
+		t(KeyArtist { key: usize::MAX }, r#"{"key":18446744073709551615}"#);
+		t(KeyArtist { key: 0 }, r#"{"key":0}"#);
 	}
 
 	#[test]
-	fn previous() {
-		t(&Previous { threshold: Some(u32::MAX) }, r#"{"threshold":4294967295}"#);
-		t(&Previous { threshold: Some(0) },        r#"{"threshold":0}"#);
-		t(&Previous { threshold: None },           r#"{"threshold":null}"#);
+	fn key_album() {
+		t(KeyAlbum { key: usize::MAX }, r#"{"key":18446744073709551615}"#);
+		t(KeyAlbum { key: 0 }, r#"{"key":0}"#);
 	}
 
 	#[test]
-	fn volume() {
-		t(&Volume { volume: u8::MAX }, r#"{"volume":255}"#);
-		t(&Volume { volume: 0 },       r#"{"volume":0}"#);
+	fn key_song() {
+		t(KeySong { key: usize::MAX }, r#"{"key":18446744073709551615}"#);
+		t(KeySong { key: 0 }, r#"{"key":0}"#);
 	}
 
 	#[test]
-	fn clear() {
-		t(&Clear { playback: true }, r#"{"playback":true}"#);
-		t(&Clear { playback: false }, r#"{"playback":false}"#);
+	fn key_entry() {
+		t(KeyEntry { key: usize::MAX }, r#"{"key":18446744073709551615}"#);
+		t(KeyEntry { key: 0 }, r#"{"key":0}"#);
 	}
 
 	#[test]
-	fn skip() {
-		t(&Skip { skip: usize::MAX }, r#"{"skip":18446744073709551615}"#);
-		t(&Skip { skip: 0 },          r#"{"skip":0}"#);
+	fn key_artist_albums() {
+		t(KeyArtistAlbums { key: usize::MAX }, r#"{"key":18446744073709551615}"#);
+		t(KeyArtistAlbums { key: 0 }, r#"{"key":0}"#);
 	}
 
 	#[test]
-	fn back() {
-		t(&Back { back: usize::MAX }, r#"{"back":18446744073709551615}"#);
-		t(&Back { back: 0 },          r#"{"back":0}"#);
+	fn key_artist_songs() {
+		t(KeyArtistSongs { key: usize::MAX }, r#"{"key":18446744073709551615}"#);
+		t(KeyArtistSongs { key: 0 }, r#"{"key":0}"#);
 	}
 
 	#[test]
-	fn set_queue_index() {
-		t(&SetQueueIndex { index: usize::MAX }, r#"{"index":18446744073709551615}"#);
-		t(&SetQueueIndex { index: 0 },          r#"{"index":0}"#);
+	fn key_artist_entries() {
+		t(KeyArtistEntries { key: usize::MAX }, r#"{"key":18446744073709551615}"#);
+		t(KeyArtistEntries { key: 0 }, r#"{"key":0}"#);
 	}
 
 	#[test]
-	fn remove_queue_range() {
-		t(&RemoveQueueRange { start: usize::MAX, end: usize::MAX, skip: true }, r#"{"start":18446744073709551615,"end":18446744073709551615,"skip":true}"#);
-		t(&RemoveQueueRange { start: 0, end: 0, skip: false },                  r#"{"start":0,"end":0,"skip":false}"#);
+	fn key_album_artist() {
+		t(KeyAlbumArtist { key: usize::MAX }, r#"{"key":18446744073709551615}"#);
+		t(KeyAlbumArtist { key: 0 }, r#"{"key":0}"#);
 	}
 
 	#[test]
-	fn add_queue_song() {
-		t(&QueueAddSong { key: SongKey::from(0_u8), append: shukusai::audio::Append::Front, clear: true }, r#"{"key":0,"append":"front","clear":true}"#);
-		t(&QueueAddSong { key: SongKey::from(1_u8), append: shukusai::audio::Append::Back, clear: false }, r#"{"key":1,"append":"back","clear":false}"#);
-		t(&QueueAddSong { key: SongKey::from(2_u8), append: shukusai::audio::Append::Index(0), clear: true }, r#"{"key":2,"append":{"index":0},"clear":true}"#);
+	fn key_album_songs() {
+		t(KeyAlbumSongs { key: usize::MAX }, r#"{"key":18446744073709551615}"#);
+		t(KeyAlbumSongs { key: 0 }, r#"{"key":0}"#);
 	}
 
 	#[test]
-	fn add_queue_album() {
-		t(&QueueAddAlbum { key: AlbumKey::from(0_u8), append: shukusai::audio::Append::Front, clear: true, offset: 0 }, r#"{"key":0,"append":"front","clear":true,"offset":0}"#);
-		t(&QueueAddAlbum { key: AlbumKey::from(1_u8), append: shukusai::audio::Append::Back, clear: false, offset: 1 }, r#"{"key":1,"append":"back","clear":false,"offset":1}"#);
-		t(&QueueAddAlbum { key: AlbumKey::from(2_u8), append: shukusai::audio::Append::Index(0), clear: true, offset: 2 }, r#"{"key":2,"append":{"index":0},"clear":true,"offset":2}"#);
+	fn key_album_entries() {
+		t(KeyAlbumEntries { key: usize::MAX }, r#"{"key":18446744073709551615}"#);
+		t(KeyAlbumEntries { key: 0 }, r#"{"key":0}"#);
 	}
 
 	#[test]
-	fn add_queue_artist() {
-		t(&QueueAddArtist { key: ArtistKey::from(0_u8), append: shukusai::audio::Append::Front, clear: true, offset: 0 }, r#"{"key":0,"append":"front","clear":true,"offset":0}"#);
-		t(&QueueAddArtist { key: ArtistKey::from(1_u8), append: shukusai::audio::Append::Back, clear: false, offset: 1 }, r#"{"key":1,"append":"back","clear":false,"offset":1}"#);
-		t(&QueueAddArtist { key: ArtistKey::from(2_u8), append: shukusai::audio::Append::Index(0), clear: true, offset: 2 }, r#"{"key":2,"append":{"index":0},"clear":true,"offset":2}"#);
+	fn key_song_artist() {
+		t(KeySongArtist { key: usize::MAX }, r#"{"key":18446744073709551615}"#);
+		t(KeySongArtist { key: 0 }, r#"{"key":0}"#);
 	}
 
 	#[test]
-	fn seek() {
-		t(&Seek { seek: shukusai::audio::Seek::Forward, second: 0 }, r#"{"seek":"forward","second":0}"#);
-		t(&Seek { seek: shukusai::audio::Seek::Backward, second: 1 }, r#"{"seek":"backward","second":1}"#);
-		t(&Seek { seek: shukusai::audio::Seek::Absolute, second: 2 }, r#"{"seek":"absolute","second":2}"#);
+	fn key_song_album() {
+		t(KeySongAlbum { key: usize::MAX }, r#"{"key":18446744073709551615}"#);
+		t(KeySongAlbum { key: 0 }, r#"{"key":0}"#);
 	}
 
 	#[test]
-	fn search() {
-		t(&Search { input: "hello1".into(), kind: shukusai::search::SearchKind::All }, r#"{"input":"hello1","kind":"all"}"#);
-		t(&Search { input: "hello2".into(), kind: shukusai::search::SearchKind::Sim70 }, r#"{"input":"hello2","kind":"sim70"}"#);
-		t(&Search { input: "hello3".into(), kind: shukusai::search::SearchKind::Top25 }, r#"{"input":"hello3","kind":"top25"}"#);
-		t(&Search { input: "hello4".into(), kind: shukusai::search::SearchKind::Top1 }, r#"{"input":"hello4","kind":"top1"}"#);
+	fn key_other_albums() {
+		t(KeyOtherAlbums { key: usize::MAX }, r#"{"key":18446744073709551615}"#);
+		t(KeyOtherAlbums { key: 0 }, r#"{"key":0}"#);
 	}
 
 	#[test]
-	fn search_artist() {
-		t(&SearchArtist { input: "hello1".into(), kind: shukusai::search::SearchKind::All }, r#"{"input":"hello1","kind":"all"}"#);
-		t(&SearchArtist { input: "hello2".into(), kind: shukusai::search::SearchKind::Sim70 }, r#"{"input":"hello2","kind":"sim70"}"#);
-		t(&SearchArtist { input: "hello3".into(), kind: shukusai::search::SearchKind::Top25 }, r#"{"input":"hello3","kind":"top25"}"#);
-		t(&SearchArtist { input: "hello4".into(), kind: shukusai::search::SearchKind::Top1 }, r#"{"input":"hello4","kind":"top1"}"#);
+	fn key_other_songs() {
+		t(KeyOtherSongs { key: usize::MAX }, r#"{"key":18446744073709551615}"#);
+		t(KeyOtherSongs { key: 0 }, r#"{"key":0}"#);
 	}
 
 	#[test]
-	fn search_album() {
-		t(&SearchAlbum { input: "hello1".into(), kind: shukusai::search::SearchKind::All }, r#"{"input":"hello1","kind":"all"}"#);
-		t(&SearchAlbum { input: "hello2".into(), kind: shukusai::search::SearchKind::Sim70 }, r#"{"input":"hello2","kind":"sim70"}"#);
-		t(&SearchAlbum { input: "hello3".into(), kind: shukusai::search::SearchKind::Top25 }, r#"{"input":"hello3","kind":"top25"}"#);
-		t(&SearchAlbum { input: "hello4".into(), kind: shukusai::search::SearchKind::Top1 }, r#"{"input":"hello4","kind":"top1"}"#);
+	fn key_other_entries() {
+		t(KeyOtherEntries { key: usize::MAX }, r#"{"key":18446744073709551615}"#);
+		t(KeyOtherEntries { key: 0 }, r#"{"key":0}"#);
 	}
 
-	#[test]
-	fn search_song() {
-		t(&SearchSong { input: "hello1".into(), kind: shukusai::search::SearchKind::All }, r#"{"input":"hello1","kind":"all"}"#);
-		t(&SearchSong { input: "hello2".into(), kind: shukusai::search::SearchKind::Sim70 }, r#"{"input":"hello2","kind":"sim70"}"#);
-		t(&SearchSong { input: "hello3".into(), kind: shukusai::search::SearchKind::Top25 }, r#"{"input":"hello3","kind":"top25"}"#);
-		t(&SearchSong { input: "hello4".into(), kind: shukusai::search::SearchKind::Top1 }, r#"{"input":"hello4","kind":"top1"}"#);
-	}
-
+	//---------------------------------------------------------------------------------------------------- Map
 	#[test]
 	fn map_artist() {
-		t(&MapArtist { artist: "hello".into() }, r#"{"artist":"hello"}"#);
+		t(MapArtistOwned { artist: "hello".into() }, r#"{"artist":"hello"}"#);
 	}
 
 	#[test]
 	fn map_album() {
-		t(&MapAlbum { artist: "hello".into(), album: "hello2".into() }, r#"{"artist":"hello","album":"hello2"}"#);
+		t(MapAlbumOwned { artist: "hello".into(), album: "hello2".into() }, r#"{"artist":"hello","album":"hello2"}"#);
 	}
 
 	#[test]
 	fn map_song() {
-		t(&MapSong { artist: "hello".into(), album: "hello2".into(), song: "hello3".into() }, r#"{"artist":"hello","album":"hello2","song":"hello3"}"#);
+		t(MapSongOwned { artist: "hello".into(), album: "hello2".into(), song: "hello3".into() }, r#"{"artist":"hello","album":"hello2","song":"hello3"}"#);
 	}
 
 	#[test]
-	fn new_collection() {
-		t(&CollectionNew { paths: vec![PathBuf::from("/path_1"), PathBuf::from("/path_2")] }, r#"{"paths":["/path_1","/path_2"]}"#);
+	fn map_entry() {
+		t(MapEntryOwned { artist: "hello".into(), album: "hello2".into(), song: "hello3".into() }, r#"{"artist":"hello","album":"hello2","song":"hello3"}"#);
+	}
+
+	#[test]
+	fn map_artist_albums() {
+		t(MapArtistAlbumsOwned { artist: "hello".into() }, r#"{"artist":"hello"}"#);
+	}
+
+	#[test]
+	fn map_artist_songs() {
+		t(MapArtistSongsOwned { artist: "hello".into() }, r#"{"artist":"hello"}"#);
+	}
+
+	#[test]
+	fn map_artist_entries() {
+		t(MapArtistEntriesOwned { artist: "hello".into() }, r#"{"artist":"hello"}"#);
+	}
+
+	#[test]
+	fn map_album_songs() {
+		t(MapAlbumSongsOwned { artist: "hello".into(), album: "hello2".into() }, r#"{"artist":"hello","album":"hello2"}"#);
+	}
+
+	#[test]
+	fn map_album_entries() {
+		t(MapAlbumEntriesOwned { artist: "hello".into(), album: "hello2".into() }, r#"{"artist":"hello","album":"hello2"}"#);
+	}
+
+	//---------------------------------------------------------------------------------------------------- Search
+	#[test]
+	fn search() {
+		t(SearchOwned { input: "hello1".into(), kind: shukusai::search::SearchKind::All }, r#"{"input":"hello1","kind":"all"}"#);
+		t(SearchOwned { input: "hello2".into(), kind: shukusai::search::SearchKind::Sim70 }, r#"{"input":"hello2","kind":"sim70"}"#);
+		t(SearchOwned { input: "hello3".into(), kind: shukusai::search::SearchKind::Top25 }, r#"{"input":"hello3","kind":"top25"}"#);
+		t(SearchOwned { input: "hello4".into(), kind: shukusai::search::SearchKind::Top1 }, r#"{"input":"hello4","kind":"top1"}"#);
+	}
+
+	#[test]
+	fn search_artist() {
+		t(SearchArtistOwned { input: "hello1".into(), kind: shukusai::search::SearchKind::All }, r#"{"input":"hello1","kind":"all"}"#);
+		t(SearchArtistOwned { input: "hello2".into(), kind: shukusai::search::SearchKind::Sim70 }, r#"{"input":"hello2","kind":"sim70"}"#);
+		t(SearchArtistOwned { input: "hello3".into(), kind: shukusai::search::SearchKind::Top25 }, r#"{"input":"hello3","kind":"top25"}"#);
+		t(SearchArtistOwned { input: "hello4".into(), kind: shukusai::search::SearchKind::Top1 }, r#"{"input":"hello4","kind":"top1"}"#);
+	}
+
+	#[test]
+	fn search_album() {
+		t(SearchAlbumOwned { input: "hello1".into(), kind: shukusai::search::SearchKind::All }, r#"{"input":"hello1","kind":"all"}"#);
+		t(SearchAlbumOwned { input: "hello2".into(), kind: shukusai::search::SearchKind::Sim70 }, r#"{"input":"hello2","kind":"sim70"}"#);
+		t(SearchAlbumOwned { input: "hello3".into(), kind: shukusai::search::SearchKind::Top25 }, r#"{"input":"hello3","kind":"top25"}"#);
+		t(SearchAlbumOwned { input: "hello4".into(), kind: shukusai::search::SearchKind::Top1 }, r#"{"input":"hello4","kind":"top1"}"#);
+	}
+
+	#[test]
+	fn search_song() {
+		t(SearchSongOwned { input: "hello1".into(), kind: shukusai::search::SearchKind::All }, r#"{"input":"hello1","kind":"all"}"#);
+		t(SearchSongOwned { input: "hello2".into(), kind: shukusai::search::SearchKind::Sim70 }, r#"{"input":"hello2","kind":"sim70"}"#);
+		t(SearchSongOwned { input: "hello3".into(), kind: shukusai::search::SearchKind::Top25 }, r#"{"input":"hello3","kind":"top25"}"#);
+		t(SearchSongOwned { input: "hello4".into(), kind: shukusai::search::SearchKind::Top1 }, r#"{"input":"hello4","kind":"top1"}"#);
+	}
+
+	//---------------------------------------------------------------------------------------------------- Playback
+	#[test]
+	fn repeat() {
+		t(Repeat { mode: shukusai::audio::Repeat::Off }, r#"{"mode":"off"}"#);
+		t(Repeat { mode: shukusai::audio::Repeat::Song }, r#"{"mode":"song"}"#);
+		t(Repeat { mode: shukusai::audio::Repeat::Queue }, r#"{"mode":"queue"}"#);
+	}
+
+	#[test]
+	fn previous() {
+		t(Previous { threshold: Some(u32::MAX) }, r#"{"threshold":4294967295}"#);
+		t(Previous { threshold: Some(0) },        r#"{"threshold":0}"#);
+		t(Previous { threshold: None },           r#"{"threshold":null}"#);
+	}
+
+	#[test]
+	fn volume() {
+		t(Volume { volume: u8::MAX }, r#"{"volume":255}"#);
+		t(Volume { volume: 0 },       r#"{"volume":0}"#);
+	}
+
+	#[test]
+	fn volume_up() {
+		t(VolumeUp { up: u8::MAX }, r#"{"up":255}"#);
+		t(VolumeUp { up: 0 },       r#"{"up":0}"#);
+	}
+
+	#[test]
+	fn volume_down() {
+		t(VolumeDown { down: u8::MAX }, r#"{"down":255}"#);
+		t(VolumeDown { down: 0 },       r#"{"down":0}"#);
+	}
+
+	#[test]
+	fn clear() {
+		t(Clear { playback: true }, r#"{"playback":true}"#);
+		t(Clear { playback: false }, r#"{"playback":false}"#);
+	}
+
+	#[test]
+	fn seek() {
+		t(Seek { kind: shukusai::audio::Seek::Forward, second: 0 }, r#"{"kind":"forward","second":0}"#);
+		t(Seek { kind: shukusai::audio::Seek::Backward, second: 1 }, r#"{"kind":"backward","second":1}"#);
+		t(Seek { kind: shukusai::audio::Seek::Absolute, second: u64::MAX }, r#"{"kind":"absolute","second":18446744073709551615}"#);
+	}
+
+	#[test]
+	fn skip() {
+		t(Skip { skip: usize::MAX }, r#"{"skip":18446744073709551615}"#);
+		t(Skip { skip: 0 },          r#"{"skip":0}"#);
+	}
+
+	#[test]
+	fn back() {
+		t(Back { back: usize::MAX }, r#"{"back":18446744073709551615}"#);
+		t(Back { back: 0 },          r#"{"back":0}"#);
+	}
+
+	//---------------------------------------------------------------------------------------------------- Queue
+	#[test]
+	fn queue_add_key_artist() {
+		t(QueueAddKeyArtist { key: 0, append: shukusai::audio::Append2::Back, clear: None, play: None, index: None, offset: None },
+			r#"{"key":0,"append":"back","clear":null,"play":null,"index":null,"offset":null}"#
+		);
+		t(QueueAddKeyArtist { key: 0, append: shukusai::audio::Append2::Back, clear: Some(false), play: Some(false), index: None, offset: Some(0) },
+			r#"{"key":0,"append":"back","clear":false,"play":false,"index":null,"offset":0}"#
+		);
+		t(QueueAddKeyArtist { key: 0, append: shukusai::audio::Append2::Back, clear: Some(true), play: Some(true), index: None, offset: Some(1) },
+			r#"{"key":0,"append":"back","clear":true,"play":true,"index":null,"offset":1}"#
+		);
+	}
+
+	#[test]
+	fn queue_add_key_album() {
+		t(QueueAddKeyAlbum { key: 0, append: shukusai::audio::Append2::Back, clear: None, play: None, index: None, offset: None },
+			r#"{"key":0,"append":"back","clear":null,"play":null,"index":null,"offset":null}"#
+		);
+		t(QueueAddKeyAlbum { key: 0, append: shukusai::audio::Append2::Back, clear: Some(false), play: Some(false), index: None, offset: Some(0) },
+			r#"{"key":0,"append":"back","clear":false,"play":false,"index":null,"offset":0}"#
+		);
+		t(QueueAddKeyAlbum { key: 0, append: shukusai::audio::Append2::Back, clear: Some(true), play: Some(true), index: None, offset: Some(1) },
+			r#"{"key":0,"append":"back","clear":true,"play":true,"index":null,"offset":1}"#
+		);
+	}
+
+	#[test]
+	fn queue_add_key_song() {
+		t(QueueAddKeySong { key: 0, append: shukusai::audio::Append2::Back, clear: None, play: None, index: None },
+			r#"{"key":0,"append":"back","clear":null,"play":null,"index":null}"#
+		);
+		t(QueueAddKeySong { key: 0, append: shukusai::audio::Append2::Back, clear: Some(false), play: Some(false), index: None},
+			r#"{"key":0,"append":"back","clear":false,"play":false,"index":null}"#
+		);
+		t(QueueAddKeySong { key: 0, append: shukusai::audio::Append2::Back, clear: Some(true), play: Some(true), index: None},
+			r#"{"key":0,"append":"back","clear":true,"play":true,"index":null}"#
+		);
+	}
+
+	#[test]
+	fn queue_add_map_artist() {
+		t(QueueAddMapArtistOwned { artist: "hello".into(), append: shukusai::audio::Append2::Back, clear: None, play: None, index: None, offset: None },
+			r#"{"artist":"hello","append":"back","clear":null,"play":null,"index":null,"offset":null}"#
+		);
+		t(QueueAddMapArtistOwned { artist: "hello".into(), append: shukusai::audio::Append2::Back, clear: Some(false), play: Some(false), index: None, offset: Some(0) },
+			r#"{"artist":"hello","append":"back","clear":false,"play":false,"index":null,"offset":0}"#
+		);
+		t(QueueAddMapArtistOwned { artist: "hello".into(), append: shukusai::audio::Append2::Back, clear: Some(true), play: Some(true), index: None, offset: Some(1) },
+			r#"{"artist":"hello","append":"back","clear":true,"play":true,"index":null,"offset":1}"#
+		);
+	}
+
+	#[test]
+	fn queue_add_map_album() {
+		t(QueueAddMapAlbumOwned {
+			artist: "hello".into(),
+			album: "hello2".into(),
+			append: shukusai::audio::Append2::Back,
+			clear: None,
+			play: None,
+			index: None,
+			offset: None
+			},
+			r#"{"artist":"hello","album":"hello2","append":"back","clear":null,"play":null,"index":null,"offset":null}"#
+		);
+		t(QueueAddMapAlbumOwned {
+			artist: "hello".into(),
+			album: "hello2".into(),
+			append: shukusai::audio::Append2::Back,
+			clear: Some(false),
+			play: Some(false),
+			index: None,
+			offset: Some(0)
+			},
+			r#"{"artist":"hello","album":"hello2","append":"back","clear":false,"play":false,"index":null,"offset":0}"#
+		);
+		t(QueueAddMapAlbumOwned {
+			artist: "hello".into(),
+			album: "hello2".into(),
+			append: shukusai::audio::Append2::Back,
+			clear: Some(true),
+			play: Some(true),
+			index: None,
+			offset: Some(1)
+			},
+			r#"{"artist":"hello","album":"hello2","append":"back","clear":true,"play":true,"index":null,"offset":1}"#
+		);
+	}
+
+	#[test]
+	fn queue_add_map_song() {
+		t(QueueAddMapSongOwned {
+			artist: "hello".into(),
+			album: "hello2".into(),
+			song: "hello3".into(),
+			append: shukusai::audio::Append2::Back,
+			clear: None,
+			play: None,
+			index: None,
+			},
+			r#"{"artist":"hello","album":"hello2","song":"hello3","append":"back","clear":null,"play":null,"index":null}"#
+		);
+		t(QueueAddMapSongOwned {
+			artist: "hello".into(),
+			album: "hello2".into(),
+			song: "hello3".into(),
+			append: shukusai::audio::Append2::Back,
+			clear: Some(false),
+			play: Some(false),
+			index: None,
+			},
+			r#"{"artist":"hello","album":"hello2","song":"hello3","append":"back","clear":false,"play":false,"index":null}"#
+		);
+		t(QueueAddMapSongOwned {
+			artist: "hello".into(),
+			album: "hello2".into(),
+			song: "hello3".into(),
+			append: shukusai::audio::Append2::Back,
+			clear: Some(true),
+			play: Some(true),
+			index: None,
+			},
+			r#"{"artist":"hello","album":"hello2","song":"hello3","append":"back","clear":true,"play":true,"index":null}"#
+		);
+	}
+
+	#[test]
+	fn queue_add_rand_artist() {
+		t(QueueAddRandArtist { append: shukusai::audio::Append2::Back, clear: None, play: None, index: None, offset: None },
+			r#"{"append":"back","clear":null,"play":null,"index":null,"offset":null}"#
+		);
+		t(QueueAddRandArtist { append: shukusai::audio::Append2::Back, clear: Some(false), play: Some(false), index: None, offset: Some(0) },
+			r#"{"append":"back","clear":false,"play":false,"index":null,"offset":0}"#
+		);
+		t(QueueAddRandArtist { append: shukusai::audio::Append2::Back, clear: Some(true), play: Some(true), index: None, offset: Some(1) },
+			r#"{"append":"back","clear":true,"play":true,"index":null,"offset":1}"#
+		);
+	}
+
+	#[test]
+	fn queue_add_rand_album() {
+		t(QueueAddRandAlbum {
+			append: shukusai::audio::Append2::Back,
+			clear: None,
+			play: None,
+			index: None,
+			offset: None
+			},
+			r#"{"append":"back","clear":null,"play":null,"index":null,"offset":null}"#
+		);
+		t(QueueAddRandAlbum {
+			append: shukusai::audio::Append2::Back,
+			clear: Some(false),
+			play: Some(false),
+			index: None,
+			offset: Some(0)
+			},
+			r#"{"append":"back","clear":false,"play":false,"index":null,"offset":0}"#
+		);
+		t(QueueAddRandAlbum {
+			append: shukusai::audio::Append2::Back,
+			clear: Some(true),
+			play: Some(true),
+			index: None,
+			offset: Some(1)
+			},
+			r#"{"append":"back","clear":true,"play":true,"index":null,"offset":1}"#
+		);
+	}
+
+	#[test]
+	fn queue_add_rand_song() {
+		t(QueueAddRandSong {
+			append: shukusai::audio::Append2::Back,
+			clear: None,
+			play: None,
+			index: None,
+			},
+			r#"{"append":"back","clear":null,"play":null,"index":null}"#
+		);
+		t(QueueAddRandSong {
+			append: shukusai::audio::Append2::Back,
+			clear: Some(false),
+			play: Some(false),
+			index: None,
+			},
+			r#"{"append":"back","clear":false,"play":false,"index":null}"#
+		);
+		t(QueueAddRandSong {
+			append: shukusai::audio::Append2::Back,
+			clear: Some(true),
+			play: Some(true),
+			index: None,
+			},
+			r#"{"append":"back","clear":true,"play":true,"index":null}"#
+		);
+	}
+
+	#[test]
+	fn queue_add_rand_entry() {
+		t(QueueAddRandEntry {
+			append: shukusai::audio::Append2::Back,
+			clear: None,
+			play: None,
+			index: None,
+			},
+			r#"{"append":"back","clear":null,"play":null,"index":null}"#
+		);
+		t(QueueAddRandEntry {
+			append: shukusai::audio::Append2::Back,
+			clear: Some(false),
+			play: Some(false),
+			index: None,
+			},
+			r#"{"append":"back","clear":false,"play":false,"index":null}"#
+		);
+		t(QueueAddRandEntry {
+			append: shukusai::audio::Append2::Back,
+			clear: Some(true),
+			play: Some(true),
+			index: None,
+			},
+			r#"{"append":"back","clear":true,"play":true,"index":null}"#
+		);
+	}
+
+	#[test]
+	fn queue_add_map_playlist() {
+		t(QueueAddPlaylistOwned { playlist: "hello".into(), append: shukusai::audio::Append2::Back, clear: None, play: None, index: None, offset: None },
+			r#"{"playlist":"hello","append":"back","clear":null,"play":null,"index":null,"offset":null}"#
+		);
+		t(QueueAddPlaylistOwned { playlist: "hello".into(), append: shukusai::audio::Append2::Back, clear: Some(false), play: Some(false), index: None, offset: Some(0) },
+			r#"{"playlist":"hello","append":"back","clear":false,"play":false,"index":null,"offset":0}"#
+		);
+		t(QueueAddPlaylistOwned { playlist: "hello".into(), append: shukusai::audio::Append2::Back, clear: Some(true), play: Some(true), index: None, offset: Some(1) },
+			r#"{"playlist":"hello","append":"back","clear":true,"play":true,"index":null,"offset":1}"#
+		);
+	}
+
+	#[test]
+	fn queue_set_index() {
+		t(QueueSetIndex { index: usize::MAX }, r#"{"index":18446744073709551615}"#);
+		t(QueueSetIndex { index: 0 },          r#"{"index":0}"#);
+	}
+
+	#[test]
+	fn queue_remove_range() {
+		t(QueueRemoveRange { start: usize::MAX, end: usize::MAX, skip: true }, r#"{"start":18446744073709551615,"end":18446744073709551615,"skip":true}"#);
+		t(QueueRemoveRange { start: 0, end: 0, skip: false },                  r#"{"start":0,"end":0,"skip":false}"#);
+	}
+
+	//---------------------------------------------------------------------------------------------------- Queue
+	#[test]
+	fn playlist_new() {
+		t(PlaylistNewOwned { playlist: "hello".into() }, r#"{"playlist":"hello"}"#);
+	}
+
+	#[test]
+	fn playlist_remove() {
+		t(PlaylistRemoveOwned { playlist: "hello".into() }, r#"{"playlist":"hello"}"#);
+	}
+
+	#[test]
+	fn playlist_clone() {
+		t(PlaylistCloneOwned { from: "hello".into(), to: "hello2".into() }, r#"{"from":"hello","to":"hello2"}"#);
+	}
+
+	#[test]
+	fn playlist_get_index() {
+		t(PlaylistGetIndexOwned { playlist: "hello".into(), index: 0 }, r#"{"playlist":"hello","index":0}"#);
+	}
+
+	#[test]
+	fn playlist_remove_index() {
+		t(PlaylistRemoveIndexOwned { playlist: "hello".into(), index: 0 }, r#"{"playlist":"hello","index":0}"#);
+	}
+
+	#[test]
+	fn playlist_add_key_artist() {
+		t(PlaylistAddKeyArtistOwned { playlist: "hello".into(), key: 0, append: shukusai::audio::Append2::Back, index: None },
+			r#"{"playlist":"hello","key":0,"append":"back","index":null}"#
+		);
+		t(PlaylistAddKeyArtistOwned { playlist: "hello".into(), key: 0, append: shukusai::audio::Append2::Back, index: None },
+			r#"{"playlist":"hello","key":0,"append":"back","index":null}"#
+		);
+		t(PlaylistAddKeyArtistOwned { playlist: "hello".into(), key: 0, append: shukusai::audio::Append2::Back, index: None },
+			r#"{"playlist":"hello","key":0,"append":"back","index":null}"#
+		);
+	}
+
+	#[test]
+	fn playlist_add_key_album() {
+		t(PlaylistAddKeyAlbumOwned { playlist: "hello".into(), key: 0, append: shukusai::audio::Append2::Back, index: None },
+			r#"{"playlist":"hello","key":0,"append":"back","index":null}"#
+		);
+		t(PlaylistAddKeyAlbumOwned { playlist: "hello".into(), key: 0, append: shukusai::audio::Append2::Back, index: None },
+			r#"{"playlist":"hello","key":0,"append":"back","index":null}"#
+		);
+		t(PlaylistAddKeyAlbumOwned { playlist: "hello".into(), key: 0, append: shukusai::audio::Append2::Back, index: None },
+			r#"{"playlist":"hello","key":0,"append":"back","index":null}"#
+		);
+	}
+
+	#[test]
+	fn playlist_add_key_song() {
+		t(PlaylistAddKeySongOwned { playlist: "hello".into(), key: 0, append: shukusai::audio::Append2::Back, index: None },
+			r#"{"playlist":"hello","key":0,"append":"back","index":null}"#
+		);
+		t(PlaylistAddKeySongOwned { playlist: "hello".into(), key: 0, append: shukusai::audio::Append2::Back, index: None},
+			r#"{"playlist":"hello","key":0,"append":"back","index":null}"#
+		);
+		t(PlaylistAddKeySongOwned { playlist: "hello".into(), key: 0, append: shukusai::audio::Append2::Back, index: None},
+			r#"{"playlist":"hello","key":0,"append":"back","index":null}"#
+		);
+	}
+
+	#[test]
+	fn playlist_add_map_artist() {
+		t(PlaylistAddMapArtistOwned { playlist: "hello".into(), artist: "hello".into(), append: shukusai::audio::Append2::Back, index: None },
+			r#"{"playlist":"hello","artist":"hello","append":"back","index":null}"#
+		);
+		t(PlaylistAddMapArtistOwned { playlist: "hello".into(), artist: "hello".into(), append: shukusai::audio::Append2::Back, index: None },
+			r#"{"playlist":"hello","artist":"hello","append":"back","index":null}"#
+		);
+		t(PlaylistAddMapArtistOwned { playlist: "hello".into(), artist: "hello".into(), append: shukusai::audio::Append2::Back, index: None },
+			r#"{"playlist":"hello","artist":"hello","append":"back","index":null}"#
+		);
+	}
+
+	#[test]
+	fn playlist_add_map_album() {
+		t(PlaylistAddMapAlbumOwned { playlist: "hello".into(), artist: "hello".into(), album: "hello".into(), append: shukusai::audio::Append2::Back, index: None },
+			r#"{"playlist":"hello","artist":"hello","album":"hello","append":"back","index":null}"#
+		);
+		t(PlaylistAddMapAlbumOwned { playlist: "hello".into(), artist: "hello".into(), album: "hello".into(), append: shukusai::audio::Append2::Back, index: None },
+			r#"{"playlist":"hello","artist":"hello","album":"hello","append":"back","index":null}"#
+		);
+		t(PlaylistAddMapAlbumOwned { playlist: "hello".into(), artist: "hello".into(), album: "hello".into(), append: shukusai::audio::Append2::Back, index: None },
+			r#"{"playlist":"hello","artist":"hello","album":"hello","append":"back","index":null}"#
+		);
+	}
+
+	#[test]
+	fn playlist_add_map_song() {
+		t(PlaylistAddMapSongOwned { playlist: "hello".into(), artist: "hello".into(), album: "hello".into(), song: "hello".into(), append: shukusai::audio::Append2::Back, index: None },
+			r#"{"playlist":"hello","artist":"hello","album":"hello","song":"hello","append":"back","index":null}"#
+		);
+		t(PlaylistAddMapSongOwned { playlist: "hello".into(), artist: "hello".into(), album: "hello".into(), song: "hello".into(), append: shukusai::audio::Append2::Back, index: None},
+			r#"{"playlist":"hello","artist":"hello","album":"hello","song":"hello","append":"back","index":null}"#
+		);
+		t(PlaylistAddMapSongOwned { playlist: "hello".into(), artist: "hello".into(), album: "hello".into(), song: "hello".into(), append: shukusai::audio::Append2::Back, index: None},
+			r#"{"playlist":"hello","artist":"hello","album":"hello","song":"hello","append":"back","index":null}"#
+		);
+	}
+
+	#[test]
+	fn playlist_single() {
+		t(PlaylistSingleOwned { playlist: "hello".into() }, r#"{"playlist":"hello"}"#);
 	}
 }

@@ -88,18 +88,30 @@ mod tests {
 
 	#[test]
 	fn salt_rand() {
-		assert_ne!(PinBox::rand(), PinBox::rand());
+		if PinBox::rand() == PinBox::rand() {
+			panic!("salt_rand()");
+		}
 	}
 
 	#[test]
 	fn same() {
-		assert_eq!(h1(), h1());
-		assert_ne!(h1(), h2());
+		if h1() != h1() {
+			panic!("same(), h1() != h1");
+		}
+
+		if h1() == h2() {
+			panic!("same(), h1() == h2()");
+		}
 	}
 
 	#[test]
 	fn hash() {
-		assert!(h1().same("h1".into()));
-		assert!(h2().same("h2".into()));
+		if !h1().same("h1".into()) {
+			panic!(r#"!h1().same("h1".into())"#)
+		}
+
+		if !h2().same("h2".into()) {
+			panic!(r#"!h2().same("h2".into())"#)
+		}
 	}
 }

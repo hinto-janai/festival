@@ -16,16 +16,17 @@ resolver = "2"
 lto           = true
 strip         = "none"
 codegen-units = 1
+opt-level     = 3
 
 [profile.dev]
+lto       = false
 strip     = "none"
 opt-level = 1
 
-# Run tests in `--release` mode.
 #[profile.test]
-#lto           = true
-#strip         = "symbols"
-#codegen-units = 1
+#lto           = false
+#strip         = "none"
+#opt-level     = 1
 
 [workspace.dependencies]
 ### Personal.
