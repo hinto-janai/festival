@@ -32,7 +32,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: target
-        key: ${{ matrix.pkg }}-${ matrix.os }}-clippy
+        key: ${{ matrix.pkg }}-${{ matrix.os }}-clippy
 
     - name: Install dependencies
       run: |
@@ -56,6 +56,13 @@ jobs:
         else
           cargo test --release --package shukusai --package ${{ matrix.pkg }}
         fi
+
+    - name: Test (RPC)
+      if: matrix.pkg == 'festival-cli'
+      shell: bash
+      run: |
+        cargo test --release --package rpc
+        cargo test --release --package ${{ matrix.pkg }} -- --ignored --exact rpc::tests::rpc
 
     - name: Build
       shell: bash
