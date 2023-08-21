@@ -65,10 +65,10 @@ test() {
 	done
 
 	# Special cases
-	for i in {
-		"rpc",
-		'festival-gui -- --ignored --exact watch::watch::tests::signals',
-		'festival-cli -- --ignored',
+	for i in {\
+		'rpc',\
+		'festival-gui -- --ignored --exact watch::watch::tests::signals',\
+		'festival-cli -- --ignored',\
 	}; do
 		title "Test [${i}]"
 		if cargo test -r -p ${i}; then

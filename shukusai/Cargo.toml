@@ -12,6 +12,7 @@ readme         = "README.md"
 license        = "MIT"
 description    = "Festival (music player) internals"
 build          = "build.rs"
+rust-version   = "1.70"
 
 include = [
 	"src",

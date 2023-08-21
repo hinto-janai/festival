@@ -11,5 +11,6 @@ categories     = ["multimedia"]
 readme         = "README.md"
 license        = "MIT"
 description    = "Music player (web client)"
+rust-version   = "1.70"
 
 [dependencies]

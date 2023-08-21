@@ -11,6 +11,7 @@ categories     = ["multimedia"]
 readme         = "README.md"
 license        = "MIT"
 description    = "JSON-RPC 2.0 types for Festival"
+rust-version   = "1.70"
 
 [dependencies]
 ### Personal Libraries.

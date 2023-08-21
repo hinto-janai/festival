@@ -48,16 +48,14 @@ For example, to build `festival-gui`:
 ```bash
 cargo build --release --package festival-gui
 ```
-Due to some limitations, the build will error if you try to compile multiple frontends at the same time, i.e:
+
+The [`x.sh`](https://github.com/hinto-janai/festival/tree/main/x.sh) script at the repo root is a convenience script for linting/testing/building all `Festival` frontends.
+
+For example, to build all packages in `--release` mode:
 ```bash
-cargo build --release --package festival-gui --package festivald
+./x.sh build
 ```
-will not work because `festival-gui` & `festivald` rely on mutually exclusive features within `shukusai` to work, but `cargo` only supports _additive_ features, which means things will collide. To build all `Frontends`'s, build them one at a time:
-```bash
-cargo build --release --package festival-gui
-cargo build --release --package festivald
-[ ... etc ... ]
-```
+Use `./x.sh help` to see more options.
 
 ---
 
@@ -80,16 +78,21 @@ sudo apt install libgtk-3-dev
 sudo apt install libssl-dev
 ```
 
-To build [`festival-gui`](https://github.com/hinto-janai/festival/tree/main/gui):
+To build **all** packages:
+```bash
+./x.sh build
 ```
+
+To build [`festival-gui`](https://github.com/hinto-janai/festival/tree/main/gui):
+```bash
 cargo build --release --package festival-gui
 ```
 To build [`festivald`](https://github.com/hinto-janai/festival/tree/main/daemon):
-```
+```bash
 cargo build --release --package festivald
 ```
 To build [`festival-cli`](https://github.com/hinto-janai/festival/tree/main/cli):
-```
+```bash
 cargo build --release --package festival-cli
 ```
 
@@ -101,6 +104,11 @@ cargo build --release --package festival-cli
 <summary>macOS</summary>
 
 ---
+
+To build **all** packages:
+```bash
+./x.sh build
+```
 
 To build [`festival-gui`](https://github.com/hinto-janai/festival/tree/main/gui):
 ```
