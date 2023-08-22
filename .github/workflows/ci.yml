@@ -57,13 +57,6 @@ jobs:
           cargo test --release --package shukusai --package ${{ matrix.pkg }}
         fi
 
-    - name: Test (RPC)
-      if: matrix.pkg == 'festival-cli'
-      shell: bash
-      run: |
-        cargo test --release --package rpc
-        cargo test --release --package ${{ matrix.pkg }} -- --ignored --exact rpc::tests::rpc
-
     - name: Build
       shell: bash
       run: |
@@ -72,6 +65,13 @@ jobs:
           cargo build --release --package ${{ matrix.pkg }} --target aarch64-apple-darwin
         fi
         cargo build --release --package ${{ matrix.pkg }}
+
+    - name: Test (RPC)
+      if: matrix.pkg == 'festivald'
+      shell: bash
+      run: |
+        cargo test --release --package rpc
+        cargo test --release --package festival-cli -- --ignored --exact rpc::tests::rpc
 
     - name: Compress (GUI)
       if: matrix.pkg == 'festival-gui'
