@@ -1,5 +1,10 @@
 # JSON-RPC
-[`JSON-RPC`](../json-rpc/json-rpc.md)-specific API stability notes.
+[`JSON-RPC`](../json-rpc/json-rpc.md)-specific API stability edge cases.
+
+### Naming
+All method names, parameter names, and field names are in `lower_case_snake_case`.
+
+This is [`🟢 Stable`](marker.md).
 
 ### Ordering
 The ordering of [non-stable](marker.md) output/object fields is [`🔴 Unstable`](marker.md).

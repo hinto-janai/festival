@@ -14,17 +14,15 @@ It is located at:
 | Linux    | `/home/USER/.local/share/festival/daemon/festivald.toml`                 |
 
 # `systemd` service
-`festivald.service` is a `systemd` user-service file for `festivald`.
+`festivald.service` is a relatively hardened [`systemd`](https://en.wikipedia.org/wiki/Systemd) service file for `festivald`.
 
-It can be used as is assuming `festivald` is at `/usr/bin/festivald`.
+`${USER}` should be replaced by a user that has access to an audio server (like PulseAudio).
 
 It should be placed at:
 ```
-/home/$USER/.config/systemd/user/festivald.service
+/etc/systemd/system/festivald.service
 ```
 and launched with:
 ```bash
-systemctl --user start festivald
+sudo systemctl start festivald
 ```
-
-`festivald` will connect to and use the audio server that the user has access to (most likely `PulseAudio`).

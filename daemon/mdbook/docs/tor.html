@@ -182,7 +182,6 @@
 <p>After getting <code>festivald</code> setup normally, follow the <code>Onion Service</code> instructions <a href="https://community.torproject.org/onion-services/setup">here</a>.</p>
 <p>Your <code>torrc</code> should look something like:</p>
 <pre><code class="language-plaintext">HiddenServiceDir /var/lib/tor/festivald
-HiddenServicePort 18425 127.0.0.1:18425
 HiddenServicePort 80 127.0.0.1:18425
 </code></pre>
 <p>And in <code>/var/lib/tor/festivald</code>, you should have your onion service hostname, keys, etc.</p>
@@ -194,17 +193,17 @@ HiddenServicePort 80 127.0.0.1:18425
 festival-cli
 	--proxy socks5://127.0.0.1:9050 \ # The Tor SOCKS5 proxy.
 	--festivald $ONION \              # The onion address mapped to `festivald`
-	state_daemon                      # Method
+	daemon_state                      # Method
 
 # or with `torsocks`
-torsocks festival-cli -f $ONION state_daemon
+torsocks festival-cli -f $ONION daemon_state
 </code></pre>
 <pre><code class="language-bash">ONION=&quot;http://omjo63yjj66ga7jlvhqib4z4qgx6y6oigjcpjcr5ehhfdugfuami3did.onion&quot;
 
 curl \
 	--socks5-hostname 127.0.0.1:9050 \                    # The Tor SOCKS5 proxy.
 	--festivald $ONION \                                  # The onion address mapped to `festivald`
-	-d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;state_daemon&quot;}' # Method
+	-d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;daemon_state&quot;}' # Method
 </code></pre>
 <h3 id="rest"><a class="header" href="#rest">REST</a></h3>
 <p>For the <code>REST</code> API, it is the same: your HTTP client must connect over Tor.</p>
@@ -225,6 +224,7 @@ curl --socks5-hostname $SOCKS -JO $ONION/map/Artist%20Name/Artist%20Title/Song%2
 <pre><code class="language-bash">festivald --confirm-no-tls-auth
 </code></pre>
 <p>or set the <a href="config.html"><code>confirm_no_tls_auth</code></a> configuration to confirm that you allow authentication without TLS.</p>
+<p>If the IP <code>festivald</code> is binding to is <code>localhost/127.0.0.1</code>, this setting will be enabled by default.</p>
 <p>For <code>festival-cli</code>, it will automatically detect if you're connecting to an onion address and will allow authentication.</p>
 
                     </main>

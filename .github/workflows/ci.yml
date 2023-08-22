@@ -19,7 +19,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [windows-2019, macos-11, ubuntu-20.04]
+        os: [windows-2022, macos-11, ubuntu-20.04]
         pkg: [festival-gui, festivald, festival-cli]
 
     steps:
@@ -130,28 +130,30 @@ jobs:
           exit 1
         fi
 
+        cp LICENSE target/release/
+
         if [ "$RUNNER_OS" == "Linux" ]; then
           # Tar
           cp daemon/config/festivald.service target/release/
-          cp LICENSE target/release/
           cd target/release
           tar -czpf "festivald-v${VERSION}-linux-x64.tar.gz" festivald LICENSE festivald.service
           mv "festivald-v${VERSION}-linux-x64.tar.gz" ../../OUTPUT/
         elif [ "$RUNNER_OS" == "macOS" ]; then
           # x64
-          cp LICENSE target/release/
           cd target/release
           tar -czpf "festivald-v${VERSION}-macos-x64.tar.gz" festivald LICENSE
           mv "festivald-v${VERSION}-macos-x64.tar.gz" ../../OUTPUT/
 
           # ARM64
-          mv target/aarch64-apple-darwin/release/festivald target/release/
+          cd ../../
+          cd target/aarch64-apple-darwin/release/
+          cp ../../../LICENSE .
           tar -czpf "festivald-v${VERSION}-macos-arm64.tar.gz" festivald LICENSE
-          mv "festivald-v${VERSION}-macos-arm64.tar.gz" OUTPUT/
+          mv "festivald-v${VERSION}-macos-arm64.tar.gz" ../../../OUTPUT/
         elif [ "$RUNNER_OS" == "Windows" ]; then
           # Zip
-          cd target/release
-          powershell Compress-Archive -LiteralPath festivald.exe -DestinationPath "festivald-v${VERSION}-windows-x64.zip"
+          cp ../../LICENSE .
+          powershell Compress-Archive -Path "festivald.exe","LICENSE" -DestinationPath "festivald-v${VERSION}-windows-x64.zip"
           mv "festivald-v${VERSION}-windows-x64.zip" ../../OUTPUT/
         fi
 
@@ -168,27 +170,29 @@ jobs:
           exit 1
         fi
 
+        cp LICENSE target/release/
+
         if [ "$RUNNER_OS" == "Linux" ]; then
           # Tar
-          cp LICENSE target/release/
           cd target/release
           tar -czpf "festival-cli-v${VERSION}-linux-x64.tar.gz" festival-cli LICENSE
           mv "festival-cli-v${VERSION}-linux-x64.tar.gz" ../../OUTPUT/
         elif [ "$RUNNER_OS" == "macOS" ]; then
           # x64
-          cp LICENSE target/release/
-          cd target/release
+          cd target/release/
           tar -czpf "festival-cli-v${VERSION}-macos-x64.tar.gz" festival-cli LICENSE
           mv "festival-cli-v${VERSION}-macos-x64.tar.gz" ../../OUTPUT/
 
           # ARM64
-          mv target/aarch64-apple-darwin/release/festival-cli target/release/
+          cd ../../
+          cd target/aarch64-apple-darwin/release/
+          cp ../../../LICENSE .
           tar -czpf "festival-cli-v${VERSION}-macos-arm64.tar.gz" festival-cli LICENSE
-          mv "festival-cli-v${VERSION}-macos-arm64.tar.gz" OUTPUT/
+          mv "festival-cli-v${VERSION}-macos-arm64.tar.gz" ../../../OUTPUT/
         elif [ "$RUNNER_OS" == "Windows" ]; then
           # Zip
           cd target/release
-          powershell Compress-Archive -LiteralPath festival-cli.exe -DestinationPath "festival-cli-v${VERSION}-windows-x64.zip"
+          powershell Compress-Archive -Path "festival-cli.exe","LICENSE" -DestinationPath "festival-cli-v${VERSION}-windows-x64.zip"
           mv "festival-cli-v${VERSION}-windows-x64.zip" ../../OUTPUT/
         fi
 

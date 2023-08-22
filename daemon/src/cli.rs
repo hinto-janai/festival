@@ -426,7 +426,7 @@ pub enum Command {
 	/// if there's a `festivald` already running on the
 	/// same machine.
 	///
-	/// The flag `--disable-media-controls` disables this feature.
+	/// The flag `--disable-watch` disables this feature.
 	Signal(Signal),
 }
 

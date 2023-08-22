@@ -170,7 +170,7 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="disk"><a class="header" href="#disk">Disk</a></h1>
-<p><code>festivald</code> saves all of its files within various &quot;OS&quot; directories, owned by the user running it.</p>
+<p><code>festivald</code> saves all of its files within various &quot;User OS&quot; directories, owned by the user running it.</p>
 <p>You can list all the PATHs on your system with:</p>
 <pre><code class="language-bash">./festivald --path
 </code></pre>
@@ -186,8 +186,8 @@
 <h2 id="cache"><a class="header" href="#cache">Cache</a></h2>
 <p>Where <code>festivald</code>'s cache data is saved (<code>REST</code> ZIP cache, etc).</p>
 <div class="table-wrapper"><table><thead><tr><th>Platform</th><th>Value</th><th>Example</th></tr></thead><tbody>
-<tr><td>Windows</td><td><code>{FOLDERID_LocalAppData}\Festival\cache</code></td><td><code>C:\Users\Alice\AppData\Local\Festival\daemon\cache</code></td></tr>
-<tr><td>macOS</td><td><code>$HOME/Library/Caches/Festival</code></td><td><code>/Users/Alice/Library/Caches/Festival/daemon</code></td></tr>
+<tr><td>Windows</td><td><code>{FOLDERID_LocalAppData}\Festival\daemon\cache</code></td><td><code>C:\Users\Alice\AppData\Local\Festival\daemon\cache</code></td></tr>
+<tr><td>macOS</td><td><code>$HOME/Library/Caches/Festival/daemon</code></td><td><code>/Users/Alice/Library/Caches/Festival/daemon</code></td></tr>
 <tr><td>Linux</td><td><code>$HOME/.cache/festival/daemon</code></td><td><code>/home/alice/.cache/festival/daemon</code></td></tr>
 </tbody></table>
 </div>

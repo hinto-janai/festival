@@ -19,7 +19,6 @@ After getting `festivald` setup normally, follow the `Onion Service` instruction
 Your `torrc` should look something like:
 ```plaintext
 HiddenServiceDir /var/lib/tor/festivald
-HiddenServicePort 18425 127.0.0.1:18425
 HiddenServicePort 80 127.0.0.1:18425
 ```
 And in `/var/lib/tor/festivald`, you should have your onion service hostname, keys, etc.
@@ -34,10 +33,10 @@ ONION="http://omjo63yjj66ga7jlvhqib4z4qgx6y6oigjcpjcr5ehhfdugfuami3did.onion"
 festival-cli
 	--proxy socks5://127.0.0.1:9050 \ # The Tor SOCKS5 proxy.
 	--festivald $ONION \              # The onion address mapped to `festivald`
-	state_daemon                      # Method
+	daemon_state                      # Method
 
 # or with `torsocks`
-torsocks festival-cli -f $ONION state_daemon
+torsocks festival-cli -f $ONION daemon_state
 ```
 ```bash
 ONION="http://omjo63yjj66ga7jlvhqib4z4qgx6y6oigjcpjcr5ehhfdugfuami3did.onion"
@@ -45,7 +44,7 @@ ONION="http://omjo63yjj66ga7jlvhqib4z4qgx6y6oigjcpjcr5ehhfdugfuami3did.onion"
 curl \
 	--socks5-hostname 127.0.0.1:9050 \                    # The Tor SOCKS5 proxy.
 	--festivald $ONION \                                  # The onion address mapped to `festivald`
-	-d '{"jsonrpc":"2.0","id":0,"method":"state_daemon"}' # Method
+	-d '{"jsonrpc":"2.0","id":0,"method":"daemon_state"}' # Method
 ```
 
 ### REST

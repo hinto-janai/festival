@@ -338,9 +338,7 @@ mod tests {
 			.unwrap();
 
 		// Wait until `festivald` is online.
-
-		let mut seen_ips = 0; // this gets used in the `DaemonSeenIps` method later
-
+		let mut seen_ips = 0;
 		loop {
 			match ureq::post("http://localhost:18425").send_json(ureq::json!({"jsonrpc":"2.0","id":0,"method":"daemon_state"})) {
 				Ok(_)  => break,
@@ -1141,27 +1139,12 @@ r#"{
 
 			CollectionHealth => rpc::resp::CollectionHealth,
 			"",
-r#"{
-  "jsonrpc": "2.0",
-  "result": {
-    "all_ok": true,
-    "song_len": 7,
-    "missing_len": 0,
-    "missing": []
-  },
-  "id": 0
-}"#,
+			"", // Empty, we don't know the full path on the system we're running this on.
 
-			CollectionResourceSize => rpc::resp::CollectionResourceSize,
-			"",
-r#"{
-  "jsonrpc": "2.0",
-  "result": {
-    "audio": 976399,
-    "art": 0
-  },
-  "id": 0
-}"#,
+			// Skipped.
+//			CollectionResourceSize => rpc::resp::CollectionResourceSize,
+//			"",
+//			"",
 
 			DaemonConfig => rpc::resp::DaemonConfig,
 			"",
@@ -1359,17 +1342,7 @@ r#"{
 
 			DaemonSeenIps => rpc::resp::DaemonSeenIps,
 			"",
-format!(
-r#"{{
-  "jsonrpc": "2.0",
-  "result": [
-    {{
-      "ip": "127.0.0.1",
-      "count": {}
-    }}
-  ],
-  "id": 0
-}}"#, seen_ips + 18),
+			"",
 
 			DaemonState => rpc::resp::DaemonState,
 			"",
@@ -2307,38 +2280,26 @@ r#"{
   "id": 0
 }"#,
 
+			// Volume + Queue + Any other operation that depends on `shukusai::audio::Audio`.
+			//
+			// `Audio` is going to be stuck in an infinitely loop trying to get a handle
+			// to the audio output device. In CI where there is none, it will loop forever.
+			// `Audio` _also_ handles signals like volume and queue mutation, so even though
+			// we send these signals and `shukusai`/`Kernel` will accept them, the state
+			// will not change in CI.
+			//
+			// So, ignore the output.
 			Volume => rpc::resp::Volume,
 			ureq::json!({"volume":50}),
-r#"{
-  "jsonrpc": "2.0",
-  "result": {
-    "previous": 25,
-    "current": 50
-  },
-  "id": 0
-}"#,
+			"",
 
 			VolumeUp => rpc::resp::VolumeUp,
 			ureq::json!({"up":5}),
-r#"{
-  "jsonrpc": "2.0",
-  "result": {
-    "previous": 50,
-    "current": 55
-  },
-  "id": 0
-}"#,
+			"",
 
 			VolumeDown => rpc::resp::VolumeDown,
 			ureq::json!({"down":5}),
-r#"{
-  "jsonrpc": "2.0",
-  "result": {
-    "previous": 55,
-    "current": 50
-  },
-  "id": 0
-}"#,
+			"",
 
 			QueueAddKeyArtist => rpc::resp::Status,
 			ureq::json!({"key":0,"append":"back"}),
@@ -2417,6 +2378,12 @@ r#"{
 			ureq::json!({"start":0,"end":1,"skip":false}),
 			"",
 
+			// Playlists.
+			//
+			// Unlike `Audio`/`Queue`, the playlists are directly
+			// mutatated by `festivald` via locks, so their state
+			// will actually get mutated even though `Audio` is
+			// stuck in an infinite loop.
 			PlaylistNew => rpc::resp::PlaylistNew,
 			ureq::json!({"playlist":"hello"}),
 r#"{

@@ -1,5 +1,5 @@
 # Disk
-`festivald` saves all of its files within various "OS" directories, owned by the user running it.
+`festivald` saves all of its files within various "User OS" directories, owned by the user running it.
 
 You can list all the PATHs on your system with:
 ```bash
@@ -22,11 +22,11 @@ And delete them with with:
 ## Cache
 Where `festivald`'s cache data is saved (`REST` ZIP cache, etc).
 
-| Platform | Value                                    | Example                                              |
-|----------|------------------------------------------|------------------------------------------------------|
-| Windows  | `{FOLDERID_LocalAppData}\Festival\cache` | `C:\Users\Alice\AppData\Local\Festival\daemon\cache` |
-| macOS    | `$HOME/Library/Caches/Festival`          | `/Users/Alice/Library/Caches/Festival/daemon`        |
-| Linux    | `$HOME/.cache/festival/daemon`           | `/home/alice/.cache/festival/daemon`                 |
+| Platform | Value                                           | Example                                              |
+|----------|-------------------------------------------------|------------------------------------------------------|
+| Windows  | `{FOLDERID_LocalAppData}\Festival\daemon\cache` | `C:\Users\Alice\AppData\Local\Festival\daemon\cache` |
+| macOS    | `$HOME/Library/Caches/Festival/daemon`          | `/Users/Alice/Library/Caches/Festival/daemon`        |
+| Linux    | `$HOME/.cache/festival/daemon`                  | `/home/alice/.cache/festival/daemon`                 |
 
 The `Cache` sub-directories/files, and their purpose:
 ```plaintext

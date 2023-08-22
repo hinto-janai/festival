@@ -1,5 +1,7 @@
 # Config
-`festivald` reads and loads its configuration file, `festivald.toml`, on startup. It controls various behaviors of `festivald`.
+`festivald` reads and loads its configuration file `festivald.toml` on startup.
+
+It controls various behaviors of `festivald`.
 
 Exactly where this file is depends on the OS, more details in the [`Disk`](disk.md) section.
 

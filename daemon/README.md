@@ -1,14 +1,14 @@
 # `festivald`
 [`Festival`](https://festival.pm) [daemon](https://en.wikipedia.org/wiki/Daemon_(computing)).
 
-`festivald` is a music server that plays on the device it is running on, and is remotely controlled via clients.
+`festivald` is a music server that plays on the device it is running on, and is remotely controlled by clients.
 
-It can also serve music resources, such as song files, album art, and organized archives of whole artists.
+It can also serve music resources such as song files, album art, and organized archives of whole artists.
 
-The 3 APIs `festivald` exposes:
+The 3 main APIs `festivald` exposes:
 - [`JSON-RPC 2.0`](https://www.jsonrpc.org/specification) for state retrieval & control
 - [`REST`](https://en.wikipedia.org/wiki/Representational_state_transfer) endpoints for serving large resources (audio, art, etc)
-- [`Docs`](https://docs.festival.pm/daemon) - `festivald` serves its own documentation
+- [`Docs`](https://docs.festival.pm/daemon) - `festivald` serves the very docs you are reading right now
 
 The transport used is `HTTP(s)`.
 
@@ -29,7 +29,7 @@ General purpose `HTTP` clients like [`curl`](https://en.wikipedia.org/wiki/CURL)
 The documentation will use `festival-cli` & `curl` on the default `http://localhost:18425` for examples.
 
 ### JSON-RPC
-For the `JSON-RPC` API, anything that can transmit `JSON-RPC` over `HTTP(s)` can be a client, like `curl`:
+For the `JSON-RPC` API, anything that can transmit `JSON` over `HTTP(s)` can be a client, like `curl`:
 ```bash
 # Toggle playback.
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"toggle"}'
@@ -48,7 +48,7 @@ festival-cli toggle
 For a quick start on the `JSON-RPC` API, see [`JSON-RPC/Quick Start`](/json-rpc/quick-start.md).
 
 ### REST
-For the `REST` API, you could use anything that can handle `HTTP(s)`, like a web browser:
+For the `REST` API, you can use anything that can handle `HTTP(s)`, like a web browser:
 ```
 # Opening this link in a browser will show a small player for this song.
 http://localhost:18425/map/Artist Name/Artist Title/Song Title

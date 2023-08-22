@@ -1,5 +1,5 @@
 # Common Objects
-These objects often appear in many JSON-RPC call outputs.
+These objects often appear in the output of many `JSON-RPC` calls.
 
 The definitions of these objects will be here, instead of everywhere they appear in the documentation.
 

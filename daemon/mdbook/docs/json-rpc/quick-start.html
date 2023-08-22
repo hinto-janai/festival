@@ -171,7 +171,7 @@
                     <main>
                         <h1 id="json-rpc-quick-start"><a class="header" href="#json-rpc-quick-start"><code>JSON-RPC</code> Quick Start</a></h1>
 <p>A quick start to using <code>festivald</code>'s <code>JSON-RPC 2.0</code> API.</p>
-<h2 id="create-the-collection-and-start-playing-an-artist"><a class="header" href="#create-the-collection-and-start-playing-an-artist">Create the <code>Collection</code> and start playing an <code>Artist</code></a></h2>
+<h2 id="create-the-collection-and-start-playing-an-artist"><a class="header" href="#create-the-collection-and-start-playing-an-artist">Create the <a href="../common-objects/collection.html"><code>Collection</code></a> and start playing an <a href="../common-objects/artist.html"><code>Artist</code></a></a></h2>
 <ol>
 <li>First, scan the default <code>Music</code> directory on <code>festivald</code>'s filesystem, and create a <code>Collection</code> with <a href="collection/collection_new.html"><code>collection_new</code></a>:</li>
 </ol>
@@ -203,7 +203,7 @@
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;volume&quot;,&quot;params&quot;:{&quot;volume&quot;:10}}'
 </code></pre>
-<h2 id="view-the-current-album-with-current_album"><a class="header" href="#view-the-current-album-with-current_album">View the current <code>Album</code> with <a href="current/current_album.html"><code>current_album</code></a></a></h2>
+<h2 id="view-the-current-album-with-current_album"><a class="header" href="#view-the-current-album-with-current_album">View the current <a href="../common-objects/album.html"><code>Album</code></a> with <a href="current/current_album.html"><code>current_album</code></a></a></h2>
 <pre><code class="language-bash">festival-cli current_album
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;current_album&quot;}'

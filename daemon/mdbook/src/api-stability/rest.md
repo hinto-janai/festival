@@ -1,5 +1,5 @@
 # REST
-[`REST`](../rest/rest.md)-specific API stability notes.
+[`REST`](../rest/rest.md)-specific API stability edge cases.
 
 ### ZIP
 1. For `REST` endpoints that serve large collections of files, the `ZIP` format will be used

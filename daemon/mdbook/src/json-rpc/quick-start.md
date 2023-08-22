@@ -1,7 +1,7 @@
 # `JSON-RPC` Quick Start
 A quick start to using `festivald`'s `JSON-RPC 2.0` API.
 
-## Create the `Collection` and start playing an `Artist`
+## Create the [`Collection`](../common-objects/collection.md) and start playing an [`Artist`](../common-objects/artist.md)
 
 1. First, scan the default `Music` directory on `festivald`'s filesystem, and create a `Collection` with [`collection_new`](collection/collection_new.md):
 ```bash
@@ -44,7 +44,7 @@ festival-cli volume --volume 10
 curl http://localhost:18425 -d '{"jsonrpc":"2.0","id":0,"method":"volume","params":{"volume":10}}'
 ```
 
-## View the current `Album` with [`current_album`](current/current_album.md)
+## View the current [`Album`](../common-objects/album.md) with [`current_album`](current/current_album.md)
 ```bash
 festival-cli current_album
 ```

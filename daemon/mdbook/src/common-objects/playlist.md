@@ -9,9 +9,9 @@ This API is [stable](../api-stability/marker.md) since `festivald v1.0.0`.
 - The key _is_ the playlist name (`string`)
 - The value is an array of [`Entry`](entry.md)-like objects, `Playlist Entries`
 
-| Field          | Type                        | Description |
-|----------------|-----------------------------|-------------|
-| $PLAYLIST_NAME | array of `Playlist Entry`'s | The name of the playlist as the key, and the `Song` entries in an array
+| Field              | Type                        | Description |
+|--------------------|-----------------------------|-------------|
+| `${PLAYLIST_NAME}` | array of `Playlist Entry`'s | The name of the playlist as the key, and the `Song` entries in an array
 
 ## Playlist Entry
 The `Entry` object in the context of playlists is similar to [`Entry`](entry.md), except it does not have the `path` field.

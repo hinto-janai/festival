@@ -9,7 +9,7 @@ It should be placed at:
 ```
 and launched with:
 ```bash
-sudo systemctl --user start festivald
+sudo systemctl start festivald
 ```
 
 ## `festivald.service`

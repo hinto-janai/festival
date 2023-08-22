@@ -170,8 +170,8 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="quick-start"><a class="header" href="#quick-start">Quick Start</a></h1>
-<p>A quick start to using <code>festivald</code> and its <a href="json-rpc/json-rpc.html"><code>JSON-RPC 2.0</code></a> &amp; <a href="rest/rest.html"><code>REST</code></a> APIs.</p>
-<p>More JSON-RPC specific examples <a href="json-rpc/quick-start.html">here</a>, and more REST specific examples <a href="rest/quick-start.html">here</a>.</p>
+<p>A quick start to using <code>festivald</code> and its <a href="json-rpc/json-rpc.html"><code>JSON-RPC</code></a> &amp; <a href="rest/rest.html"><code>REST</code></a> APIs.</p>
+<p>More <code>JSON-RPC</code> specific examples <a href="json-rpc/quick-start.html">here</a>, and more <code>REST</code> specific examples <a href="rest/quick-start.html">here</a>.</p>
 <p>Important things to know:</p>
 <ol>
 <li>The main music library/database in <code>festivald</code> is called the <a href="common-objects/collection.html"><code>Collection</code></a></li>
@@ -201,7 +201,7 @@
 <p>Opening this link in a web browser will cause <code>festivald</code> to collect, organize, and archive all the <code>Album</code>'s of a random <code>Artist</code>, and send it over.</p>
 <pre><code class="language-http">http://localhost:18425/rand/artist
 </code></pre>
-<h3 id="view-metadata-about-an-album-with-the-json-rpc-method-map_artist"><a class="header" href="#view-metadata-about-an-album-with-the-json-rpc-method-map_artist">View metadata about an <code>Album</code> with the <code>JSON-RPC</code> method <a href="json-rpc/map/map_artist.html"><code>map_artist</code></a></a></h3>
+<h3 id="view-metadata-about-a-specific-album-with-the-json-rpc-method-map_album"><a class="header" href="#view-metadata-about-a-specific-album-with-the-json-rpc-method-map_album">View metadata about a specific <a href="common-objects/album.html"><code>Album</code></a> with the <code>JSON-RPC</code> method <a href="json-rpc/map/map_album.html"><code>map_album</code></a></a></h3>
 <p>This will retrieve the <code>Album</code> &quot;Cigarette &amp; Alcohol&quot; by the <code>Artist</code> &quot;LUCKY TAPES&quot;.</p>
 <pre><code class="language-bash">festival-cli map_album --artist &quot;LUCKY TAPES&quot; --album &quot;Cigarette &amp; Alcohol&quot;
 </code></pre>
@@ -237,7 +237,7 @@
   &quot;id&quot;: 0
 }
 </code></pre>
-<h3 id="search-for-an-artist-with-the-json-rpc-method-search_artist"><a class="header" href="#search-for-an-artist-with-the-json-rpc-method-search_artist">Search for an <code>Artist</code> with the <code>JSON-RPC</code> method <a href="json-rpc/search/search_artist.html"><code>search_artist</code></a></a></h3>
+<h3 id="search-for-an-artist-with-the-json-rpc-method-search_artist"><a class="header" href="#search-for-an-artist-with-the-json-rpc-method-search_artist">Search for an <a href="common-objects/artist.html"><code>Artist</code></a> with the <code>JSON-RPC</code> method <a href="json-rpc/search/search_artist.html"><code>search_artist</code></a></a></h3>
 <p>This will look up <em>all</em> <code>Artist</code>'s in the <code>Collection</code>, and return the one that is the most similar (lexicographically) to the input &quot;lUcKee TaPeZ&quot;:</p>
 <pre><code class="language-bash">festival-cli search_artist --input &quot;lUcKee TaPeZ&quot; --kind top1
 </code></pre>

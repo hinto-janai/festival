@@ -27,7 +27,7 @@ Here are some command-line usage examples.
 ./festivald --delete
 ```
 
-#### Set log level, disable everything except `JSON-RPC`
+#### Set log level, disable everything except [`JSON-RPC`](../json-rpc/json-rpc.md), start `festivald`
 ```bash
 ./festivald --log-level DEBUG --disable-watch --disable-media-controls --disable-rest --disable-docs
 ```

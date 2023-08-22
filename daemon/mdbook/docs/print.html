@@ -172,13 +172,13 @@
                     <main>
                         <h1 id="intro"><a class="header" href="#intro">Intro</a></h1>
 <p><a href="https://festival.pm"><code>Festival</code></a> <a href="https://en.wikipedia.org/wiki/Daemon_(computing)">daemon</a>.</p>
-<p><code>festivald</code> is a music server that plays on the device it is running on, and is remotely controlled via clients.</p>
-<p>It can also serve music resources, such as song files, album art, and organized archives of whole artists.</p>
-<p>The 3 APIs <code>festivald</code> exposes:</p>
+<p><code>festivald</code> is a music server that plays on the device it is running on, and is remotely controlled by clients.</p>
+<p>It can also serve music resources such as song files, album art, and organized archives of whole artists.</p>
+<p>The 3 main APIs <code>festivald</code> exposes:</p>
 <ul>
 <li><a href="https://www.jsonrpc.org/specification"><code>JSON-RPC 2.0</code></a> for state retrieval &amp; control</li>
 <li><a href="https://en.wikipedia.org/wiki/Representational_state_transfer"><code>REST</code></a> endpoints for serving large resources (audio, art, etc)</li>
-<li><a href="https://docs.festival.pm/daemon"><code>Docs</code></a> - <code>festivald</code> serves the very docs you are reading</li>
+<li><a href="https://docs.festival.pm/daemon"><code>Docs</code></a> - <code>festivald</code> serves the very docs you are reading right now</li>
 </ul>
 <p>The transport used is <code>HTTP(s)</code>.</p>
 <p>A public instance of <code>festivald</code> with <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/"><code>Creative Commons</code></a> licensed music is available at:</p>
@@ -191,7 +191,7 @@
 <p>General purpose <code>HTTP</code> clients like <a href="https://en.wikipedia.org/wiki/CURL"><code>curl</code></a>, <a href="https://en.wikipedia.org/wiki/Wget"><code>wget</code></a> or a web browser will also do.</p>
 <p>The documentation will use <code>festival-cli</code> &amp; <code>curl</code> on the default <code>http://localhost:18425</code> for examples.</p>
 <h3 id="json-rpc"><a class="header" href="#json-rpc">JSON-RPC</a></h3>
-<p>For the <code>JSON-RPC</code> API, anything that can transmit <code>JSON-RPC</code> over <code>HTTP(s)</code> can be a client, like <code>curl</code>:</p>
+<p>For the <code>JSON-RPC</code> API, anything that can transmit <code>JSON</code> over <code>HTTP(s)</code> can be a client, like <code>curl</code>:</p>
 <pre><code class="language-bash"># Toggle playback.
 curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;toggle&quot;}'
 </code></pre>
@@ -203,7 +203,7 @@ curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&qu
 </code></pre>
 <p>For a quick start on the <code>JSON-RPC</code> API, see <a href="json-rpc/quick-start.html"><code>JSON-RPC/Quick Start</code></a>.</p>
 <h3 id="rest"><a class="header" href="#rest">REST</a></h3>
-<p>For the <code>REST</code> API, you could use anything that can handle <code>HTTP(s)</code>, like a web browser:</p>
+<p>For the <code>REST</code> API, you can use anything that can handle <code>HTTP(s)</code>, like a web browser:</p>
 <pre><code class="language-http"># Opening this link in a browser will show a small player for this song.
 http://localhost:18425/map/Artist Name/Artist Title/Song Title
 </code></pre>
@@ -225,8 +225,8 @@ http://localhost:18425/map/Artist Name/Artist Title/Song Title
 </code></pre>
 <p>To disable serving documentation, set the <a href="config.html">config</a> option <code>docs</code> to <code>false</code> OR pass <code>--disable-docs</code> via <a href="command-line/command-line.html">command line</a> on start up.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="quick-start"><a class="header" href="#quick-start">Quick Start</a></h1>
-<p>A quick start to using <code>festivald</code> and its <a href="json-rpc/json-rpc.html"><code>JSON-RPC 2.0</code></a> &amp; <a href="rest/rest.html"><code>REST</code></a> APIs.</p>
-<p>More JSON-RPC specific examples <a href="json-rpc/quick-start.html">here</a>, and more REST specific examples <a href="rest/quick-start.html">here</a>.</p>
+<p>A quick start to using <code>festivald</code> and its <a href="json-rpc/json-rpc.html"><code>JSON-RPC</code></a> &amp; <a href="rest/rest.html"><code>REST</code></a> APIs.</p>
+<p>More <code>JSON-RPC</code> specific examples <a href="json-rpc/quick-start.html">here</a>, and more <code>REST</code> specific examples <a href="rest/quick-start.html">here</a>.</p>
 <p>Important things to know:</p>
 <ol>
 <li>The main music library/database in <code>festivald</code> is called the <a href="common-objects/collection.html"><code>Collection</code></a></li>
@@ -256,7 +256,7 @@ http://localhost:18425/map/Artist Name/Artist Title/Song Title
 <p>Opening this link in a web browser will cause <code>festivald</code> to collect, organize, and archive all the <code>Album</code>'s of a random <code>Artist</code>, and send it over.</p>
 <pre><code class="language-http">http://localhost:18425/rand/artist
 </code></pre>
-<h3 id="view-metadata-about-an-album-with-the-json-rpc-method-map_artist"><a class="header" href="#view-metadata-about-an-album-with-the-json-rpc-method-map_artist">View metadata about an <code>Album</code> with the <code>JSON-RPC</code> method <a href="json-rpc/map/map_artist.html"><code>map_artist</code></a></a></h3>
+<h3 id="view-metadata-about-a-specific-album-with-the-json-rpc-method-map_album"><a class="header" href="#view-metadata-about-a-specific-album-with-the-json-rpc-method-map_album">View metadata about a specific <a href="common-objects/album.html"><code>Album</code></a> with the <code>JSON-RPC</code> method <a href="json-rpc/map/map_album.html"><code>map_album</code></a></a></h3>
 <p>This will retrieve the <code>Album</code> &quot;Cigarette &amp; Alcohol&quot; by the <code>Artist</code> &quot;LUCKY TAPES&quot;.</p>
 <pre><code class="language-bash">festival-cli map_album --artist &quot;LUCKY TAPES&quot; --album &quot;Cigarette &amp; Alcohol&quot;
 </code></pre>
@@ -292,7 +292,7 @@ http://localhost:18425/map/Artist Name/Artist Title/Song Title
   &quot;id&quot;: 0
 }
 </code></pre>
-<h3 id="search-for-an-artist-with-the-json-rpc-method-search_artist"><a class="header" href="#search-for-an-artist-with-the-json-rpc-method-search_artist">Search for an <code>Artist</code> with the <code>JSON-RPC</code> method <a href="json-rpc/search/search_artist.html"><code>search_artist</code></a></a></h3>
+<h3 id="search-for-an-artist-with-the-json-rpc-method-search_artist"><a class="header" href="#search-for-an-artist-with-the-json-rpc-method-search_artist">Search for an <a href="common-objects/artist.html"><code>Artist</code></a> with the <code>JSON-RPC</code> method <a href="json-rpc/search/search_artist.html"><code>search_artist</code></a></a></h3>
 <p>This will look up <em>all</em> <code>Artist</code>'s in the <code>Collection</code>, and return the one that is the most similar (lexicographically) to the input &quot;lUcKee TaPeZ&quot;:</p>
 <pre><code class="language-bash">festival-cli search_artist --input &quot;lUcKee TaPeZ&quot; --kind top1
 </code></pre>
@@ -330,7 +330,8 @@ http://localhost:18425/map/Artist Name/Artist Title/Song Title
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="config"><a class="header" href="#config">Config</a></h1>
-<p><code>festivald</code> reads and loads its configuration file, <code>festivald.toml</code>, on startup. It controls various behaviors of <code>festivald</code>.</p>
+<p><code>festivald</code> reads and loads its configuration file <code>festivald.toml</code> on startup.</p>
+<p>It controls various behaviors of <code>festivald</code>.</p>
 <p>Exactly where this file is depends on the OS, more details in the <a href="disk.html"><code>Disk</code></a> section.</p>
 <p><a href="command-line/command-line.html"><code>Command Line</code></a> flags will override any overlapping config values.</p>
 <h2 id="festivaldtoml"><a class="header" href="#festivaldtoml"><code>festivald.toml</code></a></h2>
@@ -768,7 +769,7 @@ no_auth_docs = false
 <pre><code>/etc/systemd/system/festivald.service
 </code></pre>
 <p>and launched with:</p>
-<pre><code class="language-bash">sudo systemctl --user start festivald
+<pre><code class="language-bash">sudo systemctl start festivald
 </code></pre>
 <h2 id="festivaldservice"><a class="header" href="#festivaldservice"><code>festivald.service</code></a></h2>
 <pre><code class="language-toml">#===================#
@@ -817,7 +818,7 @@ ProtectSystem=strict
 WantedBy=default.target
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="disk"><a class="header" href="#disk">Disk</a></h1>
-<p><code>festivald</code> saves all of its files within various &quot;OS&quot; directories, owned by the user running it.</p>
+<p><code>festivald</code> saves all of its files within various &quot;User OS&quot; directories, owned by the user running it.</p>
 <p>You can list all the PATHs on your system with:</p>
 <pre><code class="language-bash">./festivald --path
 </code></pre>
@@ -833,8 +834,8 @@ WantedBy=default.target
 <h2 id="cache"><a class="header" href="#cache">Cache</a></h2>
 <p>Where <code>festivald</code>'s cache data is saved (<code>REST</code> ZIP cache, etc).</p>
 <div class="table-wrapper"><table><thead><tr><th>Platform</th><th>Value</th><th>Example</th></tr></thead><tbody>
-<tr><td>Windows</td><td><code>{FOLDERID_LocalAppData}\Festival\cache</code></td><td><code>C:\Users\Alice\AppData\Local\Festival\daemon\cache</code></td></tr>
-<tr><td>macOS</td><td><code>$HOME/Library/Caches/Festival</code></td><td><code>/Users/Alice/Library/Caches/Festival/daemon</code></td></tr>
+<tr><td>Windows</td><td><code>{FOLDERID_LocalAppData}\Festival\daemon\cache</code></td><td><code>C:\Users\Alice\AppData\Local\Festival\daemon\cache</code></td></tr>
+<tr><td>macOS</td><td><code>$HOME/Library/Caches/Festival/daemon</code></td><td><code>/Users/Alice/Library/Caches/Festival/daemon</code></td></tr>
 <tr><td>Linux</td><td><code>$HOME/.cache/festival/daemon</code></td><td><code>/home/alice/.cache/festival/daemon</code></td></tr>
 </tbody></table>
 </div>
@@ -918,7 +919,6 @@ WantedBy=default.target
 <p>After getting <code>festivald</code> setup normally, follow the <code>Onion Service</code> instructions <a href="https://community.torproject.org/onion-services/setup">here</a>.</p>
 <p>Your <code>torrc</code> should look something like:</p>
 <pre><code class="language-plaintext">HiddenServiceDir /var/lib/tor/festivald
-HiddenServicePort 18425 127.0.0.1:18425
 HiddenServicePort 80 127.0.0.1:18425
 </code></pre>
 <p>And in <code>/var/lib/tor/festivald</code>, you should have your onion service hostname, keys, etc.</p>
@@ -930,17 +930,17 @@ HiddenServicePort 80 127.0.0.1:18425
 festival-cli
 	--proxy socks5://127.0.0.1:9050 \ # The Tor SOCKS5 proxy.
 	--festivald $ONION \              # The onion address mapped to `festivald`
-	state_daemon                      # Method
+	daemon_state                      # Method
 
 # or with `torsocks`
-torsocks festival-cli -f $ONION state_daemon
+torsocks festival-cli -f $ONION daemon_state
 </code></pre>
 <pre><code class="language-bash">ONION=&quot;http://omjo63yjj66ga7jlvhqib4z4qgx6y6oigjcpjcr5ehhfdugfuami3did.onion&quot;
 
 curl \
 	--socks5-hostname 127.0.0.1:9050 \                    # The Tor SOCKS5 proxy.
 	--festivald $ONION \                                  # The onion address mapped to `festivald`
-	-d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;state_daemon&quot;}' # Method
+	-d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;daemon_state&quot;}' # Method
 </code></pre>
 <h3 id="rest-1"><a class="header" href="#rest-1">REST</a></h3>
 <p>For the <code>REST</code> API, it is the same: your HTTP client must connect over Tor.</p>
@@ -961,6 +961,7 @@ curl --socks5-hostname $SOCKS -JO $ONION/map/Artist%20Name/Artist%20Title/Song%2
 <pre><code class="language-bash">festivald --confirm-no-tls-auth
 </code></pre>
 <p>or set the <a href="config.html"><code>confirm_no_tls_auth</code></a> configuration to confirm that you allow authentication without TLS.</p>
+<p>If the IP <code>festivald</code> is binding to is <code>localhost/127.0.0.1</code>, this setting will be enabled by default.</p>
 <p>For <code>festival-cli</code>, it will automatically detect if you're connecting to an onion address and will allow authentication.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="command-line"><a class="header" href="#command-line">Command Line</a></h1>
 <p><code>festivald</code> takes in <code>--flags</code> for many purposes.</p>
@@ -980,7 +981,7 @@ curl --socks5-hostname $SOCKS -JO $ONION/map/Artist%20Name/Artist%20Title/Song%2
 <h4 id="delete-all-data-createdused-by-festivald"><a class="header" href="#delete-all-data-createdused-by-festivald">Delete all data created/used by <code>festivald</code></a></h4>
 <pre><code class="language-bash">./festivald --delete
 </code></pre>
-<h4 id="set-log-level-disable-everything-except-json-rpc"><a class="header" href="#set-log-level-disable-everything-except-json-rpc">Set log level, disable everything except <code>JSON-RPC</code></a></h4>
+<h4 id="set-log-level-disable-everything-except-json-rpc-start-festivald"><a class="header" href="#set-log-level-disable-everything-except-json-rpc-start-festivald">Set log level, disable everything except <a href="command-line/../json-rpc/json-rpc.html"><code>JSON-RPC</code></a>, start <code>festivald</code></a></h4>
 <pre><code class="language-bash">./festivald --log-level DEBUG --disable-watch --disable-media-controls --disable-rest --disable-docs
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="top-level-flags"><a class="header" href="#top-level-flags">Top-level flags</a></h1>
@@ -1346,7 +1347,7 @@ signal to an already running one. This only works
 if there's a `festivald` already running on the
 same machine.
 
-The flag `--disable-media-controls` disables this feature.
+The flag `--disable-watch` disables this feature.
 
 Usage: festivald signal OPTION [ARG]
 
@@ -1603,7 +1604,10 @@ curl https://localhost:18425/rand/album -u user:pass
 <p>This marks that this API has been superseded by a better one.</p>
 <p>The old API will continue to exist, but it is recommended to use the newer one.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="json-rpc-3"><a class="header" href="#json-rpc-3">JSON-RPC</a></h1>
-<p><a href="api-stability/../json-rpc/json-rpc.html"><code>JSON-RPC</code></a>-specific API stability notes.</p>
+<p><a href="api-stability/../json-rpc/json-rpc.html"><code>JSON-RPC</code></a>-specific API stability edge cases.</p>
+<h3 id="naming"><a class="header" href="#naming">Naming</a></h3>
+<p>All method names, parameter names, and field names are in <code>lower_case_snake_case</code>.</p>
+<p>This is <a href="api-stability/marker.html"><code>🟢 Stable</code></a>.</p>
 <h3 id="ordering"><a class="header" href="#ordering">Ordering</a></h3>
 <p>The ordering of <a href="api-stability/marker.html">non-stable</a> output/object fields is <a href="api-stability/marker.html"><code>🔴 Unstable</code></a>.</p>
 <p>The ordering of <a href="api-stability/marker.html"><code>🟢 Stable</code></a> output/object fields is <a href="api-stability/marker.html"><code>🟢 Stable</code></a>.</p>
@@ -1652,7 +1656,7 @@ curl https://localhost:18425/rand/album -u user:pass
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="rest-3"><a class="header" href="#rest-3">REST</a></h1>
-<p><a href="api-stability/../rest/rest.html"><code>REST</code></a>-specific API stability notes.</p>
+<p><a href="api-stability/../rest/rest.html"><code>REST</code></a>-specific API stability edge cases.</p>
 <h3 id="zip"><a class="header" href="#zip">ZIP</a></h3>
 <ol>
 <li>For <code>REST</code> endpoints that serve large collections of files, the <code>ZIP</code> format will be used</li>
@@ -1798,7 +1802,7 @@ Collection - ${CREATION_UNIX_TIMESTAMP}/
 <li><code>REST</code> and documentation will always require <code>HTTP GET</code> requests</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="common-objects"><a class="header" href="#common-objects">Common Objects</a></h1>
-<p>These objects often appear in many JSON-RPC call outputs.</p>
+<p>These objects often appear in the output of many <code>JSON-RPC</code> calls.</p>
 <p>The definitions of these objects will be here, instead of everywhere they appear in the documentation.</p>
 <h2 id="collection"><a class="header" href="#collection">Collection</a></h2>
 <p>The <a href="common-objects/collection.html"><code>Collection</code></a> is the main music library/database in <code>festivald</code>.</p>
@@ -2661,7 +2665,7 @@ Collection - ${CREATION_UNIX_TIMESTAMP}/
 <li>The value is an array of <a href="common-objects/entry.html"><code>Entry</code></a>-like objects, <code>Playlist Entries</code></li>
 </ul>
 <div class="table-wrapper"><table><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td>$PLAYLIST_NAME</td><td>array of <code>Playlist Entry</code>'s</td><td>The name of the playlist as the key, and the <code>Song</code> entries in an array</td></tr>
+<tr><td><code>${PLAYLIST_NAME}</code></td><td>array of <code>Playlist Entry</code>'s</td><td>The name of the playlist as the key, and the <code>Song</code> entries in an array</td></tr>
 </tbody></table>
 </div>
 <h2 id="playlist-entry"><a class="header" href="#playlist-entry">Playlist Entry</a></h2>
@@ -2820,7 +2824,7 @@ curl \
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="json-rpc-quick-start"><a class="header" href="#json-rpc-quick-start"><code>JSON-RPC</code> Quick Start</a></h1>
 <p>A quick start to using <code>festivald</code>'s <code>JSON-RPC 2.0</code> API.</p>
-<h2 id="create-the-collection-and-start-playing-an-artist"><a class="header" href="#create-the-collection-and-start-playing-an-artist">Create the <code>Collection</code> and start playing an <code>Artist</code></a></h2>
+<h2 id="create-the-collection-and-start-playing-an-artist"><a class="header" href="#create-the-collection-and-start-playing-an-artist">Create the <a href="json-rpc/../common-objects/collection.html"><code>Collection</code></a> and start playing an <a href="json-rpc/../common-objects/artist.html"><code>Artist</code></a></a></h2>
 <ol>
 <li>First, scan the default <code>Music</code> directory on <code>festivald</code>'s filesystem, and create a <code>Collection</code> with <a href="json-rpc/collection/collection_new.html"><code>collection_new</code></a>:</li>
 </ol>
@@ -2852,7 +2856,7 @@ curl \
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;volume&quot;,&quot;params&quot;:{&quot;volume&quot;:10}}'
 </code></pre>
-<h2 id="view-the-current-album-with-current_album"><a class="header" href="#view-the-current-album-with-current_album">View the current <code>Album</code> with <a href="json-rpc/current/current_album.html"><code>current_album</code></a></a></h2>
+<h2 id="view-the-current-album-with-current_album"><a class="header" href="#view-the-current-album-with-current_album">View the current <a href="json-rpc/../common-objects/album.html"><code>Album</code></a> with <a href="json-rpc/current/current_album.html"><code>current_album</code></a></a></h2>
 <pre><code class="language-bash">festival-cli current_album
 </code></pre>
 <pre><code class="language-bash">curl http://localhost:18425 -d '{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:0,&quot;method&quot;:&quot;current_album&quot;}'
