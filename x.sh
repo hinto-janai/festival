@@ -99,9 +99,9 @@ all() {
 
 # Subcommands.
 case $1 in
-	'h'|'help'|'') help;;
 	'a'|'all') all;;
 	'c'|'clippy') clippy;;
 	't'|'test') test;;
 	'b'|'build') build;;
+	*) help;;
 esac

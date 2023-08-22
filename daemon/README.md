@@ -13,7 +13,7 @@ The 3 APIs `festivald` exposes:
 The transport used is `HTTP(s)`.
 
 A public instance of `festivald` with [`Creative Commons`](https://creativecommons.org/licenses/by-nc-nd/4.0/) licensed music is available at:
-```http
+```
 https://daemon.festival.pm
 ```
 
@@ -49,7 +49,7 @@ For a quick start on the `JSON-RPC` API, see [`JSON-RPC/Quick Start`](/json-rpc/
 
 ### REST
 For the `REST` API, you could use anything that can handle `HTTP(s)`, like a web browser:
-```http
+```
 # Opening this link in a browser will show a small player for this song.
 http://localhost:18425/map/Artist Name/Artist Title/Song Title
 ```
@@ -72,7 +72,7 @@ To disable the `REST` API, set the [config](/config.md) option `rest` to `false`
 `festivald` will also serve its own documentation.
 
 To access it, start `festivald` and open the root link in a web browser:
-```http
+```
 http://localhost:18425
 ```
 Or you can open the files locally with:

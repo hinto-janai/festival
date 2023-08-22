@@ -1,4 +1,4 @@
 # `festival-web`
-`Festival` web client.
+`Festival` web server.
 
 Not yet implemented.

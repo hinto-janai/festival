@@ -14,6 +14,8 @@ https://github.com/hinto-janai/festival/assets/101352116/586e37e7-762d-4dc6-a9c4
 ## Frontends
 Festival comes in few different forms.
 
+Click on the frontend to see more information.
+
 | Frontend | Description | Released | Documentation |
 |----------|-------------|----------|---------------|
 | [`festival-gui`](https://github.com/hinto-janai/festival/tree/main/gui) | GUI            | 🟢 2023-06-28 | https://docs.festival.pm/gui
@@ -44,14 +46,15 @@ The repo is a workspace, with some packages shared between all `Frontend`'s, inc
 
 To build one of the `Frontend`'s, you must pass the `--package <FRONTEND>` option.
 
-For example, to build `festival-gui`:
+Each frontend's release has a git tag, so to build the latest _stable_ `festival-gui`:
 ```bash
+git checkout gui-v1.2.0
 cargo build --release --package festival-gui
 ```
 
 The [`x.sh`](https://github.com/hinto-janai/festival/tree/main/x.sh) script at the repo root is a convenience script for linting/testing/building all `Festival` frontends.
 
-For example, to build all packages in `--release` mode:
+For example, to build all packages in `--release` mode, from the current commit:
 ```bash
 ./x.sh build
 ```
@@ -78,21 +81,19 @@ sudo apt install libgtk-3-dev
 sudo apt install libssl-dev
 ```
 
-To build **all** packages:
-```bash
-./x.sh build
-```
-
 To build [`festival-gui`](https://github.com/hinto-janai/festival/tree/main/gui):
 ```bash
+git checkout gui-v1.2.0
 cargo build --release --package festival-gui
 ```
 To build [`festivald`](https://github.com/hinto-janai/festival/tree/main/daemon):
 ```bash
+git checkout daemon-v1.0.0
 cargo build --release --package festivald
 ```
 To build [`festival-cli`](https://github.com/hinto-janai/festival/tree/main/cli):
 ```bash
+git checkout cli-v1.0.0
 cargo build --release --package festival-cli
 ```
 
@@ -105,21 +106,19 @@ cargo build --release --package festival-cli
 
 ---
 
-To build **all** packages:
-```bash
-./x.sh build
-```
-
 To build [`festival-gui`](https://github.com/hinto-janai/festival/tree/main/gui):
-```
+```bash
+git checkout gui-v1.2.0
 cargo build --release --package festival-gui
 ```
 To build [`festivald`](https://github.com/hinto-janai/festival/tree/main/daemon):
-```
+```bash
+git checkout daemon-v1.0.0
 cargo build --release --package festivald
 ```
 To build [`festival-cli`](https://github.com/hinto-janai/festival/tree/main/cli):
-```
+```bash
+git checkout cli-v1.0.0
 cargo build --release --package festival-cli
 ```
 
@@ -133,9 +132,11 @@ cargo build --release --package festival-cli
 ---
 
 To build [`festival-gui`](https://github.com/hinto-janai/festival/tree/main/gui):
-```
+```bash
+git checkout gui-v1.2.0
 cargo build --release --package festival-gui
 ```
+
 There is a [`build.rs`](https://github.com/hinto-janai/festival/blob/main/gui/build.rs) file in `gui/` solely for Windows-specific things:
 
 1. It sets the icon in `File Explorer`
@@ -143,11 +144,13 @@ There is a [`build.rs`](https://github.com/hinto-janai/festival/blob/main/gui/bu
 3. It statically links `VCRUNTIME140.dll` (the binary will not be portable without this)
 
 To build [`festivald`](https://github.com/hinto-janai/festival/tree/main/daemon):
-```
+```bash
+git checkout daemon-v1.0.0
 cargo build --release --package festivald
 ```
 To build [`festival-cli`](https://github.com/hinto-janai/festival/tree/main/cli):
-```
+```bash
+git checkout cli-v1.0.0
 cargo build --release --package festival-cli
 ```
 

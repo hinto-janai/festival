@@ -25,6 +25,7 @@ use shukusai::constants::{
 	OS_ARCH,
 	COMMIT,
 	SHUKUSAI_NAME_VER,
+	PLAYLIST_VERSION,
 };
 use const_format::formatcp;
 
@@ -231,6 +232,7 @@ r#"{FESTIVAL_NAME_VER}
 {OS_ARCH}
 Collection v{COLLECTION_VERSION}
 Audio v{AUDIO_VERSION}
+Playlist v{PLAYLIST_VERSION}
 State v{STATE_VERSION}
 Settings v{SETTINGS_VERSION}
 {COMMIT}

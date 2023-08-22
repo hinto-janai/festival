@@ -1,4 +1,4 @@
 # Festival
-`Festival`, the GUI client and the reference implementation.
+`Festival`, the native desktop GUI client.
 
 View documentation at: https://docs.festival.pm/gui.
