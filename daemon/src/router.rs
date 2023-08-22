@@ -188,16 +188,18 @@ pub async fn init(
 					// We got `CTRL+C` in terminal.
 					_ = tokio::signal::ctrl_c() => {
 						debug!("Router - received CTRL+C");
+						let c = Arc::clone(&collection);
 						tokio::task::spawn(async move {
-							crate::shutdown::shutdown(TO_KERNEL, FROM_KERNEL).await;
+							crate::shutdown::shutdown(TO_KERNEL, FROM_KERNEL, c).await;
 						});
 					},
 
 					// We got `sys_shutdown`.
 					_ = FROM_TASK_SYS.recv() => {
 						debug!("Router - received `sys_shutdown`");
+						let c = Arc::clone(&collection);
 						tokio::task::spawn(async move {
-							crate::shutdown::shutdown(TO_KERNEL, FROM_KERNEL).await;
+							crate::shutdown::shutdown(TO_KERNEL, FROM_KERNEL, c).await;
 						});
 					},
 				}

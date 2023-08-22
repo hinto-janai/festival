@@ -22,6 +22,7 @@ use std::sync::Arc;
 pub async fn shutdown(
 	TO_KERNEL:   &'static Sender<FrontendToKernel>,
 	FROM_KERNEL: &'static Receiver<KernelToFrontend>,
+	collection: Arc<Collection>,
 ) -> ! {
 	// If this is the 2nd time, exit forcefully.
 	if crate::statics::shutting_down() {
@@ -88,6 +89,28 @@ r#"
 			println!("[FAIL] Kernel save ... Could not confirm exit result");
 		} else {
 			n += 1;
+		}
+	}
+
+	//-------------------------------------------------- Collection check.
+	// Wait a little while before forcefully closing connections.
+	let mut n = 0;
+	const MAX: usize = 15;
+	loop {
+		let sc = Arc::strong_count(&collection);
+		n += 1;
+
+		if n > MAX {
+			println!("[FAIL] Forcefully closing connections");
+			break;
+		}
+
+		if sc > 5 {
+			println!("[....] Connections alive ({}), waiting [{n}/{MAX}]", sc - 5);
+			tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+		} else {
+			println!("[ OK ] Connections closed");
+			break;
 		}
 	}
 
