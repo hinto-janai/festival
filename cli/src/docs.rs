@@ -18,7 +18,7 @@ pub static DOCS_PATH: OnceCell<PathBuf> = OnceCell::new();
 impl Docs {
 	pub fn create() -> Result<PathBuf, anyhow::Error> {
 		let mut path = Self::base_path()?;
-		std::fs::remove_dir(&path)?;
+		let _ = std::fs::remove_dir_all(&path);
 		Self::mkdir()?;
 
 		let mut zip = zip::ZipArchive::new(std::io::Cursor::new(DOCS_ZIP))?;

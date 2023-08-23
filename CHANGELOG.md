@@ -11,12 +11,47 @@ Types of changes:
 - `Fixed` for any bug fixes
 - `Security` in case of vulnerabilities
 
+
 ---
 
 
 # Festival GUI Unreleased
+
+
+---
+
+
 # `festivald` Unreleased
+
+
+---
+
+
 # `festival-cli` Unreleased
+
+
+---
+
+
+# `festivald` v1.0.0 - 2023-08-24
+Festival [daemon](https://github.com/hinto-janai/festival/tree/main/daemon).
+
+Serves `JSON-RPC` & `REST` APIs.
+
+See [`festival-cli`](https://docs.festival.pm/cli) for a simple to use `JSON-RPC` client.
+
+Full documentation available at: https://docs.festival.pm/daemon.
+
+Public instance available at: `https://daemon.festival.pm`.
+
+
+---
+
+
+# `festival-cli` v1.0.0 - 2023-08-24
+`JSON-RPC` client for [`festivald`](https://docs.festival.pm/daemon).
+
+Full documentation available at: https://docs.festival.pm/cli.
 
 
 ---

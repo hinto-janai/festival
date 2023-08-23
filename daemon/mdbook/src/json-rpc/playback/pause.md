@@ -1,7 +1,7 @@
 # pause
 
-#### 🟢 Stable
-This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
+#### 🟡 Incomplete
+This API's output may have [additions](../../api-stability/marker.md) in the future.
 
 ---
 

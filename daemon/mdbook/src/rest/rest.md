@@ -15,7 +15,7 @@ Opening something like:
 http://localhost:18425/map/Artist Name/Album Title/Song Title
 ```
 
-will directly open that song in the browser and show a simple player, if your browser supports it (all modern browsers do). Again, you can change the behavior so that browsers directly download these resources by changing the `direct_download` [config](../config.md) option.
+will download that song directly. In the future, the behavior of showing an inline player in browsers may be added to the `direct_download` [config](../config.md) option.
 
 If a file downloaded has a nested filename, the `filename_separator` [config](../config.md) option will control what the separator will be. By default, this is ` - `, so the filename of an archive of an `Artist` will look like:
 

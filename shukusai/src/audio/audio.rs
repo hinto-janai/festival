@@ -440,7 +440,7 @@ impl Audio {
 			},
 			Seek((seek, time)) => self.seek(seek, time, &mut AUDIO_STATE.write()),
 			Skip(skip)         => self.skip(skip, &mut AUDIO_STATE.write()),
-			Back(back)         => self.back(back, None, &mut AUDIO_STATE.write()),
+			Back(back)         => self.back(back, Some(0), &mut AUDIO_STATE.write()),
 
 			// Queue Index.
 			QueueSetIndex(idx)              => self.queue_set_index(idx),

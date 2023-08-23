@@ -17,16 +17,16 @@ Commands:
   collection_perf           View some performance stats about the latest Collection construction
   collection_health         View the health of the Collection (underlying files)
   collection_resource_size  View the size of the current Collection's underlying resources (audio files and art)
-  daemon_save               Save `festivald` data to disk
-  daemon_remove_cache       Remove `festivald` cache from disk
-  daemon_shutdown           Shutdown `festivald`
+  daemon_config             Retrieve the active configuration of `festivald`
   daemon_methods            Retrieve all JSON-RPC methods this `festivald` knows about
   daemon_no_auth_rpc        Retrieve all no_auth_rpc JSON-RPC methods this `festivald` allows
   daemon_no_auth_rest       Retrieve all no_auth_rest REST resources this `festivald` allows
+  daemon_remove_cache       Remove `festivald` cache from disk
+  daemon_save               Save `festivald` data to disk
+  daemon_seen_ips           Retrieve an array of the IP addresses `festivald` has seen
+  daemon_shutdown           Shutdown `festivald`
+  daemon_state              Retrieve brief state of `festivald`
   state_audio               Retrieve audio state
-  state_config              Retrieve the active configuration of festivald
-  state_daemon              Retrieve state about the status of festivald itself
-  state_ip                  Retrieve an array of the IP addresses festivald has seen
   state_queue_key           Retrieve state of the queue as Keys
   state_queue_song          Retrieve state of the queue as Song objects
   state_queue_entry         Retrieve state of the queue as Entry objects

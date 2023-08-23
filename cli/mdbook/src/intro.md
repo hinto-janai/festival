@@ -1,7 +1,7 @@
 # Intro
 `festival-cli` is a [`JSON-RPC 2.0`](https://www.jsonrpc.org/specification) client for [`festivald`](https://docs.festival.pm/daemon).
 
-`festivald` is a music server that plays on the device it is running on, and is remotely controlled via clients.
+`festivald` is a music server that plays on the device it is running on, and is remotely controlled by clients.
 
 `festival-cli` is a client that reduces the verbosity of `JSON-RPC` requests, so instead of:
 ```bash

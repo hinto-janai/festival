@@ -52,7 +52,6 @@ For the `REST` API, it is the same: your HTTP client must connect over Tor.
 
 Although you could just use [`Tor Browser`](https://www.torproject.org/download/).
 ```http
-# Opening this link in Tor Browser will show a small player for this song.
 http://omjo63yjj66ga7jlvhqib4z4qgx6y6oigjcpjcr5ehhfdugfuami3did.onion/map/Ludwig van Beethoven/Moonlight Sonata 1/Moonlight Sonata Op. 27, No. 2 In C Sharp Minor: Allegretto
 ```
 

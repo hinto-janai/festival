@@ -31,7 +31,7 @@ Artist/With/Slash.zip # This is fine, the actual ZIP filename will be quoted.
            ├─ Song With/A Slash # This will be turned into `Song With-A Slash`
 ```
 
-This is [`🟢 Stable`](marker.md).
+This is [`🔴 Unstable`](marker.md). The behavior may change in the future.
 
 ### Duplicate Filenames
 When packaging `Song`'s into ZIPs, if there a multiple `Song`'s with the same name in the same `Album`, it will be suffixed with an incrementing number in parentheses starting from `1`.
@@ -44,7 +44,7 @@ My Song (2).flac
 My Song (3).flac
 ```
 
-This is [`🟢 Stable`](marker.md).
+This is [`🔴 Unstable`](marker.md). The behavior may change in the future.
 
 ### File Format & Names
 The file format type and names of those files[^1] in the `REST` API are both [`🟢 Stable`](marker.md).

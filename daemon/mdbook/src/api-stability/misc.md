@@ -24,11 +24,15 @@ there will be communication issues.
 ### Config
 - [`config`](../config.md) names are [`🟢 Stable`](marker.md) (`max_connections` will always be named `max_connections`)
 - Their expected inputs are [`🟢 Stable`](marker.md) (`max_connections` will always want an unsigned integer)
-- Their expected behavior is [`🟢 Stable`](marker.md) (`max_connections` will always control the max amount of connections)
+- Their expected behavior is [`🟡 Incomplete`](marker.md) (`direct_download` may include song files someday)
 - Default config values _may_ be changed (default `port` value may not always be `18425`)
 - Additional fields _may_ be added in the future
 
 Referencing any `JSON-RPC` methods and/or `REST` resources that are [`🔴 Unstable`](marker.md) in options like `no_auth_rpc` & `no_auth_rest` will also make your configuration [`🔴 Unstable`](marker.md).
+
+In general, behavior for existing config options may be extended if it does not break current behavior too much.
+
+For example, `direct_download` will most likely support showing inline audio files eventually.
 
 ### Command Line
 - [`--flags`](../command-line/command-line.md) and sub-command names are [`🟢 Stable`](marker.md) (`festivald --path` will always be `festivald --path`)
@@ -38,8 +42,8 @@ Referencing any `JSON-RPC` methods and/or `REST` resources that are [`🔴 Unsta
 ### Disk
 All locations and filenames of all files written to disk by `festivald` are [`🟢 Stable`](marker.md).
 
-| Type                        | Example |
-|-----------------------------|---------|
+| Type                          | Example |
+|-------------------------------|---------|
 | [`Cache`](../disk.md#cache)   | `Artist` ZIP cache is always at `~/.cache/festival/daemon/zip/artist`
 | [`Config`](../disk.md#config) | `Config` file is always at `~/.config/festival/daemon/festivald.toml`
 | [`Data`](../disk.md#data)     | `Collection` file is always at `~/.local/share/festival/daemon/state/collection.bin`
@@ -64,6 +68,11 @@ You can rely that an input that leads to OK/ERROR will always be the same.
 [`🔴 Unstable`](marker.md).
 
 Do not rely on the log output of `festivald`.
+
+### HTTP Headers
+[`🔴 Unstable`](marker.md).
+
+Do not rely on the specific HTTP headers `festivald` returns, or their values.
 
 ### Protocol
 - Transports other than HTTP(s) may be supported in the future

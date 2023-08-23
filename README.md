@@ -18,11 +18,11 @@ Click on the frontend to see more information.
 
 | Frontend | Description | Released | Documentation |
 |----------|-------------|----------|---------------|
-| [`festival-gui`](https://github.com/hinto-janai/festival/tree/main/gui) | GUI            | 🟢 2023-06-28 | https://docs.festival.pm/gui
-| [`festivald`](https://github.com/hinto-janai/festival/tree/main/daemon) | Daemon         | 🟢            | https://docs.festival.pm/daemon
-| [`festival-cli`](https://github.com/hinto-janai/festival/tree/main/cli) | CLI client     | 🟢            | https://docs.festival.pm/cli
-| [`festival-tui`](https://github.com/hinto-janai/festival/tree/main/tui) | Standalone TUI | 🔴            | https://docs.festival.pm/tui
-| [`festival-web`](https://github.com/hinto-janai/festival/tree/main/web) | Web server     | 🔴            | https://docs.festival.pm/web
+| [`festival-gui`](https://github.com/hinto-janai/festival/tree/main/gui) | GUI        | 🟢 2023-06-28 | https://docs.festival.pm/gui
+| [`festivald`](https://github.com/hinto-janai/festival/tree/main/daemon) | Daemon     | 🟢 2023-08-24 | https://docs.festival.pm/daemon
+| [`festival-cli`](https://github.com/hinto-janai/festival/tree/main/cli) | CLI client | 🟢 2023-08-24 | https://docs.festival.pm/cli
+| [`festival-web`](https://github.com/hinto-janai/festival/tree/main/web) | Web server | 🔴            | https://docs.festival.pm/web
+| [`festival-tui`](https://github.com/hinto-janai/festival/tree/main/tui) | TUI        | 🔴            | https://docs.festival.pm/tui
 
 ## Comparison
 For a comparison between Festival and other music players, see [`comparison/`](https://github.com/hinto-janai/festival/tree/main/comparison/README.md).

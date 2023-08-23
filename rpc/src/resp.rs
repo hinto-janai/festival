@@ -154,6 +154,7 @@ impl_struct_lt! {
 	watch:               bool,
 	cache_time:          u64,
 	restore_audio_state: bool,
+	previous_threshold:  u32,
 	media_controls:      bool,
 	authorization:       bool,
 	confirm_no_tls_auth: bool,

@@ -5,6 +5,8 @@ In general - **things may be added, but never removed.**
 
 If something is unstable, it will be [`marked`](marker.md) as such.
 
+Anything that feels like an API but isn't _explicitly_ marked in `festivald`'s documentation should be assumed to be [`🔴 Unstable`](marker.md).
+
 ## Breaking Changes
 Breaking changes to the [`stable`](marker.md) API may occur in 3 situations:
 

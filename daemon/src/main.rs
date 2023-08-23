@@ -64,6 +64,8 @@ fn main() {
 	if CONFIG.restore_audio_state {
 		benri::send!(TO_KERNEL, shukusai::kernel::FrontendToKernel::RestoreAudioState);
 	}
+	// Set the default `previous` audio threshold.
+	benri::atomic_store!(shukusai::audio::PREVIOUS_THRESHOLD, CONFIG.previous_threshold);
 
 	// Create documentation.
 	if CONFIG.docs {

@@ -50,7 +50,7 @@ For a quick start on the `JSON-RPC` API, see [`JSON-RPC/Quick Start`](/json-rpc/
 ### REST
 For the `REST` API, you can use anything that can handle `HTTP(s)`, like a web browser:
 ```
-# Opening this link in a browser will show a small player for this song.
+# Download this exact song.
 http://localhost:18425/map/Artist Name/Artist Title/Song Title
 ```
 

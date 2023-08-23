@@ -24,7 +24,7 @@ Where `festivald`'s cache data is saved (`REST` ZIP cache, etc).
 
 | Platform | Value                                           | Example                                              |
 |----------|-------------------------------------------------|------------------------------------------------------|
-| Windows  | `{FOLDERID_LocalAppData}\Festival\daemon\cache` | `C:\Users\Alice\AppData\Local\Festival\daemon\cache` |
+| Windows  | `{FOLDERID_LocalAppData}\Festival\cache\daemon` | `C:\Users\Alice\AppData\Local\Festival\cache\daemon` |
 | macOS    | `$HOME/Library/Caches/Festival/daemon`          | `/Users/Alice/Library/Caches/Festival/daemon`        |
 | Linux    | `$HOME/.cache/festival/daemon`                  | `/home/alice/.cache/festival/daemon`                 |
 
@@ -74,8 +74,8 @@ The `Config` sub-directories/files, and their purpose:
 ## Data
 Where `festivald`'s main data is saved (the [`Collection`](common-objects/collection.md), audio state, etc).
 
-| Platform | Value                                                                    | Example                                                 |
-|----------|--------------------------------------------------------------------------|---------------------------------------------------------|
+| Platform | Value                                                                    | Example                                                    |
+|----------|--------------------------------------------------------------------------|------------------------------------------------------------|
 | Windows  | `{FOLDERID_RoamingAppData}\Festival\data\daemon`                         | `C:\Users\Alice\AppData\Roaming\Festival\data\daemon`      |
 | macOS    | `$HOME/Library/Application Support/Festival/daemon`                      | `/Users/Alice/Library/Application Support/Festival/daemon` |
 | Linux    | `$HOME/.local/share/festival/daemon`                                     | `/home/alice/.local/share/festival/daemon`                 |

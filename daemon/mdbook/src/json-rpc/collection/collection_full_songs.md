@@ -1,7 +1,7 @@
 # collection_full_songs
 
 #### 🟡 Incomplete
-This API may have [additions](../../api-stability/marker.md) in the future.
+This API's output may have [additions](../../api-stability/marker.md) in the future.
 
 ---
 

@@ -1171,6 +1171,7 @@ r#"{
     "cache_clean": true,
     "cache_time": 3600,
     "restore_audio_state": false,
+    "previous_threshold": 3,
     "media_controls": false,
     "authorization": false,
     "confirm_no_tls_auth": false,
@@ -2302,7 +2303,7 @@ r#"{
 			"",
 
 			QueueAddKeyArtist => rpc::resp::Status,
-			ureq::json!({"key":0,"append":"back"}),
+			ureq::json!({"key":0,"append":"back","clear":false,"play":false}),
 r#"{
   "jsonrpc": "2.0",
   "result": null,
@@ -2310,7 +2311,7 @@ r#"{
 }"#,
 
 			QueueAddKeyAlbum => rpc::resp::Status,
-			ureq::json!({"key":0,"append":"back"}),
+			ureq::json!({"key":0,"append":"back","clear":false,"play":false}),
 r#"{
   "jsonrpc": "2.0",
   "result": null,
@@ -2318,7 +2319,7 @@ r#"{
 }"#,
 
 			QueueAddKeySong => rpc::resp::Status,
-			ureq::json!({"key":0,"append":"back"}),
+			ureq::json!({"key":0,"append":"back","clear":false,"play":false}),
 r#"{
   "jsonrpc": "2.0",
   "result": null,
@@ -2326,7 +2327,7 @@ r#"{
 }"#,
 
 			QueueAddMapArtist => rpc::resp::Status,
-			ureq::json!({"artist":"artist_1","append":"back"}),
+			ureq::json!({"artist":"artist_1","append":"back","clear":false,"play":false}),
 r#"{
   "jsonrpc": "2.0",
   "result": null,
@@ -2334,7 +2335,7 @@ r#"{
 }"#,
 
 			QueueAddMapAlbum => rpc::resp::Status,
-			ureq::json!({"artist":"artist_1","album":"album_1","append":"back"}),
+			ureq::json!({"artist":"artist_1","album":"album_1","append":"back","clear":false,"play":false}),
 r#"{
   "jsonrpc": "2.0",
   "result": null,
@@ -2342,7 +2343,7 @@ r#"{
 }"#,
 
 			QueueAddMapSong => rpc::resp::Status,
-			ureq::json!({"artist":"artist_1","album":"album_1","song":"mp3","append":"back"}),
+			ureq::json!({"artist":"artist_1","album":"album_1","song":"mp3","append":"back","clear":false,"play":false}),
 r#"{
   "jsonrpc": "2.0",
   "result": null,
@@ -2350,24 +2351,24 @@ r#"{
 }"#,
 
 			QueueAddRandArtist => rpc::resp::QueueAddRandArtist,
-			ureq::json!({"append":"back"}),
+			ureq::json!({"append":"back","clear":false,"play":false}),
 			"",
 
 			QueueAddRandAlbum => rpc::resp::QueueAddRandAlbum,
-			ureq::json!({"append":"back"}),
+			ureq::json!({"append":"back","clear":false,"play":false}),
 			"",
 
 			QueueAddRandSong => rpc::resp::QueueAddRandSong,
-			ureq::json!({"append":"back"}),
+			ureq::json!({"append":"back","clear":false,"play":false}),
 			"",
 
 			QueueAddRandEntry => rpc::resp::QueueAddRandEntry,
-			ureq::json!({"append":"back"}),
+			ureq::json!({"append":"back","clear":false,"play":false}),
 			"",
 
 			// Skipped, no playlists object.
 //			QueueAddPlaylist => rpc::resp::Status,
-//			ureq::json!({"append":"back"}),
+//			ureq::json!({"append":"back","clear":false,"play":false}),
 //			"",
 
 			QueueSetIndex => rpc::resp::QueueSetIndex,

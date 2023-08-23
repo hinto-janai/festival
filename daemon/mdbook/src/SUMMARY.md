@@ -3,10 +3,11 @@
 [Intro](intro.md)
 
 * [Quick Start](quick-start.md)
+* [Audio](audio.md)
 * [Config](config.md)
-* [systemd](systemd.md)
 * [Disk](disk.md)
 * [Tor](tor.md)
+* [systemd](systemd.md)
 * [Command Line](command-line/command-line.md)
 	- [Top-level flags](command-line/flags.md)
 	- [Sub-command: `signal`](command-line/signal.md)

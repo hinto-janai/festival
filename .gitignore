@@ -8,6 +8,9 @@ target/
 /assets/images/art/g.jpg
 /assets/images/art/h.jpg
 /assets/images/art/i.jpg
-/assets/albums/*
+/assets/albums/
 /utils/Festival*AppImage
 /utils/*.dmg
+/gui/mdbook/docs/
+/daemon/mdbook/docs/
+/cli/mdbook/docs/

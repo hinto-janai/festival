@@ -243,14 +243,18 @@ pub struct Cli {
 	collection_path: Vec<PathBuf>,
 
 	#[arg(long, verbatim_doc_comment)]
-	/// Enable direct downloads via the REST API for browsers
+	/// Enable/disable inlined resources for the REST API.
 	///
-	/// By default, accessing the REST API via a browser
-	/// will open the resource in the browser (audio player,
-	/// image viewer, etc)
+	/// By default, accessing the REST API via a
+	/// browser will open the resource inlined within
+	/// the browser, if possible.
 	///
-	/// Using this flag will make browsers download
-	/// the file directly, without opening it.
+	/// Setting this to false will make browsers download
+	/// the file directly, instead of opening it.
+	///
+	/// Currently this only supports art, although in
+	/// the future it will most likely support song files
+	/// opening up as inline mini-players in the browser.
 	direct_download: bool,
 
 	#[arg(long, verbatim_doc_comment, value_name = "SEPARATOR")]
@@ -300,6 +304,31 @@ pub struct Cli {
 	///
 	/// This does nothing if `--disable-cache-clean` is passed.
 	cache_time: Option<u64>,
+
+	#[arg(long, verbatim_doc_comment)]
+	/// Reset threshold for the `previous` JSON-RPC method
+	///
+	/// The `previous` method comes with an optional
+	/// `threshold` parameter that specifies:
+	///
+	/// ```
+	/// If the current `Song` runtime (seconds) has passed this number,
+	/// this method will reset the current `Song` instead of skipping backwards.
+	/// Setting this to `0` will make this method always go to the previous `Song`.
+	/// ```
+	///
+	/// But if that parameter is `null`, this option
+	/// will be used instead. The default if not
+	/// specified here is 3 seconds.
+	///
+	/// For example:
+	///   - A song is 3+ seconds in
+	///   - A `previous` method was received
+	///   - It will reset the current song instead of going back
+	///
+	/// Setting this to `0` will make `previous`
+	/// always go back if `threshold` is not specified.
+	previous_threshold: Option<u32>,
 
 	#[arg(long, verbatim_doc_comment, default_value_t = false)]
 	/// Disable audio state restoration
@@ -770,6 +799,7 @@ impl Cli {
 			cache_clean             => cb.cache_clean,
 			self.cache_time         => cb.cache_time,
 			restore_audio_state     => cb.restore_audio_state,
+			self.previous_threshold => cb.previous_threshold,
 			media_controls          => cb.media_controls,
 			self.authorization      => cb.authorization,
 			confirm_no_tls_auth     => cb.confirm_no_tls_auth,

@@ -1,7 +1,7 @@
 # state_queue_song
 
 #### 🟡 Incomplete
-This API may have [additions](../../api-stability/marker.md) in the future.
+This API's output may have [additions](../../api-stability/marker.md) in the future.
 
 ---
 

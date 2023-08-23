@@ -155,14 +155,18 @@ rest = true
 # TYPE    | boolean
 docs = true
 
-# Enable/disable direct downloads via the REST API.
+# Enable/disable inlined resources for the REST API.
 #
-# By default, accessing the REST API via a browser
-# will open the resource in the browser (audio player,
-# image viewer, etc)
+# By default, accessing the REST API via a
+# browser will open the resource inlined within
+# the browser, if possible.
 #
 # Setting this to true will make browsers download
-# the file directly, without opening it.
+# the file directly, instead of opening it.
+#
+# Currently this only supports art, although in
+# the future it will most likely support song files
+# opening up as inline mini-players in the browser.
 #
 # DEFAULT | false
 # VALUES  | true, false
@@ -279,6 +283,34 @@ cache_time = 3600
 # VALUES  | true, false
 # TYPE    | boolean
 restore_audio_state = true
+
+# Reset threshold for the `previous` JSON-RPC method
+#
+# The `previous` method comes with an optional
+# `threshold` parameter that specifies:
+#
+# ```
+# If the current `Song` runtime (seconds) has passed this number,
+# this method will reset the current `Song` instead of skipping backwards.
+# Setting this to `0` will make this method always go to the previous `Song`.
+# ```
+#
+# But if that parameter is `null`, this option
+# will be used instead. The default if not
+# specified here is 3 seconds.
+#
+# For example:
+#   - A song is 3+ seconds in
+#   - A `previous` method was received
+#   - It will reset the current song instead of going back
+#
+# Setting this to `0` will make `previous`
+# always go back if `threshold` is not specified.
+#
+# DEFAULT | 3
+# VALUES  | 0, 3, 5, 100
+# TYPE    | unsigned integer
+previous_threshold = 3
 
 # Enable/disable OS media controls
 #

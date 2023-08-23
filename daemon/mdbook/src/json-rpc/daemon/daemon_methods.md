@@ -1,7 +1,7 @@
 # daemon_methods
 
 #### 🔴 Unstable
-This API may be [changed](../../api-stability/marker.md) in the future.
+This API's output may be [changed](../../api-stability/marker.md) in the future.
 
 ---
 

@@ -6,7 +6,7 @@ A quick start to using `festivald`'s `REST` API.
 http://localhost:18425/rand/art
 ```
 
-### Open a mini-player of a random [`Song`](../common-objects/song.md) in a web browser with [`/rand/song`](rand/song.md)
+### Download a random [`Song`](../common-objects/song.md) with [`/rand/song`](rand/song.md)
 ```http
 http://localhost:18425/rand/song
 ```

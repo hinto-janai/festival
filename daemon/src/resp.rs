@@ -28,20 +28,22 @@ use crate::constants::FESTIVALD_SERVER;
 
 //---------------------------------------------------------------------------------------------------- Constants
 // Tells browsers to view files.
-const VIEW_IN_BROWSER: &str = "inline";
+const INLINE: &str = "inline";
 // Tells browsers to download files.
-const DOWNLOAD_IN_BROWSER: &str = "attachment";
+const ATTACHMENT: &str = "attachment";
 // Zip file MIME.
 const MIME_ZIP: &str = "application/zip";
 
 //---------------------------------------------------------------------------------------------------- REST Responses
 pub fn rest_ok(bytes: Vec<u8>, name: &str, mime: &str) -> Response<Body> {
+	let content_disposition = format!(r#"{ATTACHMENT}; filename="{name}""#);
+
 	match Builder::new()
 		.status(StatusCode::OK)
 		.header(SERVER, FESTIVALD_SERVER)
 		.header(CONTENT_TYPE, mime)
 		.header(CONTENT_LENGTH, bytes.len())
-		.header(CONTENT_DISPOSITION, if config().direct_download { format!(r#"{DOWNLOAD_IN_BROWSER}; filename="{name}""#) } else { format!(r#"{VIEW_IN_BROWSER}; filename="{name}""#) })
+		.header(CONTENT_DISPOSITION, content_disposition)
 		.body(Body::from(bytes))
 	{
 		Ok(r)  => r,
@@ -51,11 +53,38 @@ pub fn rest_ok(bytes: Vec<u8>, name: &str, mime: &str) -> Response<Body> {
 
 // Streaming body.
 pub fn rest_stream(body: hyper::body::Body, name: &str, mime: &str, len: Option<u64>) -> Response<Body> {
+	let content_disposition = format!(r#"{ATTACHMENT}; filename="{name}""#,);
+
 	let mut b = Builder::new()
 		.status(StatusCode::OK)
 		.header(SERVER, FESTIVALD_SERVER)
 		.header(CONTENT_TYPE, mime)
-		.header(CONTENT_DISPOSITION, if config().direct_download { format!(r#"{DOWNLOAD_IN_BROWSER}; filename="{name}""#) } else { format!(r#"{VIEW_IN_BROWSER}; filename="{name}""#) });
+		.header(CONTENT_DISPOSITION, content_disposition);
+
+	let mut b = if let Some(len) = len {
+		b.header(CONTENT_LENGTH, len)
+	} else {
+		b
+	};
+
+	match b.body(body) {
+		Ok(r)  => r,
+		Err(e) => server_err("Internal server error"),
+	}
+}
+
+// Streaming body for art (inline/attachment)
+pub fn rest_stream_maybe_inline(body: hyper::body::Body, name: &str, mime: &str, len: Option<u64>) -> Response<Body> {
+	let content_disposition = match config().direct_download {
+		false => format!(r#"{INLINE}; filename="{name}""#,),
+		true => format!(r#"{ATTACHMENT}; filename="{name}""#),
+	};
+
+	let mut b = Builder::new()
+		.status(StatusCode::OK)
+		.header(SERVER, FESTIVALD_SERVER)
+		.header(CONTENT_TYPE, mime)
+		.header(CONTENT_DISPOSITION, content_disposition);
 
 	let mut b = if let Some(len) = len {
 		b.header(CONTENT_LENGTH, len)
@@ -74,7 +103,7 @@ pub fn rest_zip(body: hyper::body::Body, name: &str, len: Option<u64>) -> Respon
 	let mut b = Builder::new()
 		.status(StatusCode::OK)
 		.header(CONTENT_TYPE, MIME_ZIP)
-		.header(CONTENT_DISPOSITION, format!(r#"{DOWNLOAD_IN_BROWSER}; filename="{name}""#));
+		.header(CONTENT_DISPOSITION, format!(r#"{ATTACHMENT}; filename="{name}""#));
 
 	let mut b = if let Some(len) = len {
 		b.header(CONTENT_LENGTH, len)
@@ -95,7 +124,7 @@ pub fn rest_ok_msg(msg: &'static str) -> Response<Body> {
 		.header(SERVER, FESTIVALD_SERVER)
 		.header(CONTENT_TYPE, "text/html; charset=UTF-8")
 		.header(CONTENT_LENGTH, msg.len())
-		.header(CONTENT_DISPOSITION, VIEW_IN_BROWSER)
+		.header(CONTENT_DISPOSITION, INLINE)
 		.body(Body::from(msg))
 		.unwrap()
 }

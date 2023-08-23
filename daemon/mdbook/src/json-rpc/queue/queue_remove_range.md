@@ -1,7 +1,7 @@
 # queue_remove_range
 
-#### 🟢 Stable
-This API is [stable](../../api-stability/marker.md) since `festivald v1.0.0`.
+#### 🟡 Incomplete
+This API's output may have [additions](../../api-stability/marker.md) in the future.
 
 ---
 
@@ -38,7 +38,7 @@ index 5 | song_6
 | out_of_bounds | boolean          | If either `start` or `end` was out-of-bounds
 | start         | unsigned integer | The provided `start`
 | end           | unsigned integer | The provided `end`
-| queue_len     | unsigned integer | The queue length
+| queue_len     | unsigned integer | The queue length before removing
 
 #### Example Request 1
 Remove the 1st `Song` in the queue.

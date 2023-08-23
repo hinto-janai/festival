@@ -673,7 +673,7 @@ async fn impl_art(album: &Album, collection: &Arc<Collection>) -> Result<Respons
 	let stream = FramedRead::new(file, BytesCodec::new());
 	let body   = Body::wrap_stream(stream);
 
-	Ok(resp::rest_stream(body, &name, mime, len))
+	Ok(resp::rest_stream_maybe_inline(body, &name, mime, len))
 }
 
 async fn impl_playlist(

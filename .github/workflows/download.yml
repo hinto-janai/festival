@@ -3,11 +3,7 @@
 
 name: Download
 on:
-  schedule:
-    - cron: "0 2 * * *"
   workflow_dispatch:
-  push:
-    branches: [ "main" ]
 
 jobs:
   download:
@@ -15,7 +11,7 @@ jobs:
 
     strategy:
       matrix:
-        pkg: [gui]
+        pkg: [gui,daemon,cli]
 
     steps:
     - uses: actions/checkout@v3
@@ -30,19 +26,19 @@ jobs:
     - name: Download Hashes
       run: wget "https://festival.pm/hashes-${{ matrix.pkg }}"
     - name: Download PGP key
-      run: wget "https://festival.pm/hinto"
+      run: wget "https://pgp.festival.pm" -O hinto-janai.txt
     - name: Verify PGP key
-      run: bash -c "[[ $(sha256sum "hinto" | awk '{print $1}') == 02242a2c4b4dfb2f49d30a15630a301c72910e6e5c212d432c8b7ff438696b00 ]]"
+      run: bash -c "[[ $(sha256sum "hinto-janai.txt" | awk '{print $1}') == 02242a2c4b4dfb2f49d30a15630a301c72910e6e5c212d432c8b7ff438696b00 ]]"
     - name: Import PGP key
-      run: gpg --import hinto
+      run: gpg --import hinto-janai.txt
     - name: Verify Hashes
-      run: sha256sum -c hashes
+      run: sha256sum -c "hashes-${{ matrix.pkg }}"
     - name: Verify PGP Signature
-      run: gpg --verify hashes
+      run: gpg --verify "hashes-${{ matrix.pkg }}"
     - name: Download Hashes (GitHub)
       run: |
         VERSION=$(grep -m1 "version" ${{ matrix.pkg }}/Cargo.toml | grep -o "[0-9].[0-9].[0-9]")
-        wget --content-disposition "https://github.com/hinto-janai/festival/releases/tag/${{ matrix.pkg }}-$VERSION/SHA256SUMS"
+        wget --content-disposition "https://github.com/hinto-janai/festival/releases/download/${{ matrix.pkg }}-v${VERSION}/SHA256SUMS"
     - name: Verify Hashes (GitHub)
       run: sha256sum -c SHA256SUMS
     - name: Verify PGP Signature (GitHub)

@@ -71,7 +71,7 @@ jobs:
       shell: bash
       run: |
         cargo test --release --package rpc
-        cargo test --release --package festival-cli -- --ignored --exact rpc::tests::rpc
+        cargo test --release --package festival-cli -- --ignored
 
     - name: Compress (GUI)
       if: matrix.pkg == 'festival-gui'
