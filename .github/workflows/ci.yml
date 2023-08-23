@@ -19,7 +19,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [windows-2022, macos-11, ubuntu-20.04]
+        os: [windows-2022, macos-12, ubuntu-20.04]
         pkg: [festival-gui, festivald, festival-cli]
 
     steps:
@@ -32,7 +32,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: target
-        key: ${{ matrix.pkg }}-${{ matrix.os }}-clippy
+        key: ${{ matrix.pkg }}-${{ matrix.os }}
 
     - name: Install dependencies
       run: |
@@ -152,7 +152,7 @@ jobs:
           mv "festivald-v${VERSION}-macos-arm64.tar.gz" ../../../OUTPUT/
         elif [ "$RUNNER_OS" == "Windows" ]; then
           # Zip
-          cp ../../LICENSE .
+          cd target/release/
           powershell Compress-Archive -Path "festivald.exe","LICENSE" -DestinationPath "festivald-v${VERSION}-windows-x64.zip"
           mv "festivald-v${VERSION}-windows-x64.zip" ../../OUTPUT/
         fi
@@ -199,5 +199,5 @@ jobs:
     - name: Archive
       uses: actions/upload-artifact@v3
       with:
-        name: festival-${{ matrix.os }}
+        name: ${{ matrix.pkg }}-${{ matrix.os }}
         path: OUTPUT
