@@ -20,9 +20,11 @@ jobs:
     - name: Download macOS
       run: |
         wget --content-disposition "https://festival.pm/${{ matrix.pkg }}-macos-x64" "https://festival.pm/${{ matrix.pkg }}-macos-arm64"
+    - name: Download Linux (AppImage)
+      if: matrix.pkg == 'gui'
+      run: wget --content-disposition "https://festival.pm/${{ matrix.pkg }}-linux-x64-appimage"
     - name: Download Linux
-      run: |
-        wget --content-disposition "https://festival.pm/${{ matrix.pkg }}-linux-x64" "https://festival.pm/${{ matrix.pkg }}-linux-x64-appimage"
+      run: wget --content-disposition "https://festival.pm/${{ matrix.pkg }}-linux-x64"
     - name: Download Hashes
       run: wget "https://festival.pm/hashes-${{ matrix.pkg }}"
     - name: Download PGP key
