@@ -86,10 +86,31 @@ Configure which directories to scan in the [Settings] tab."#;
 pub const OPEN_PARENT_FOLDER: &str = "Open the directory containing this song";
 
 //---------------------------------------------------------------------------------------------------- Queue tab
-pub const UI_QUEUE_CLEAR:   &str = "⏹";
-pub const UI_QUEUE_SHUFFLE: &str = "🔀";
-pub const QUEUE_CLEAR:      &str = "Clear queue and stop playback";
-pub const QUEUE_SHUFFLE:    &str = "Shuffle the queue and reset to the first song";
+pub const UI_QUEUE_CLEAR:          &str = "⏹";
+pub const UI_QUEUE_SHUFFLE:        &str = "🔀";
+pub const UI_QUEUE_SHUFFLE_ARTIST: &str = "🔀 Artist";
+pub const UI_QUEUE_SHUFFLE_ALBUM:  &str = "🔀 Album";
+pub const UI_QUEUE_SHUFFLE_SONG:   &str = "🔀 Song";
+pub const QUEUE_CLEAR:             &str = "Clear queue and stop playback";
+pub const QUEUE_SHUFFLE:           &str = "Shuffle the queue and reset to the first song";
+pub const QUEUE_SHUFFLE_ARTIST:    &str =
+formatcp!(r#"Primary Mouse Click: Clear the queue and play a random Artist
+
+Secondary Mouse Click: Add a random Artist to the back of the queue
+
+{MOD}+Primary Mouse Click: Add a random Artist to a playlist"#);
+pub const QUEUE_SHUFFLE_ALBUM:    &str =
+formatcp!(r#"Primary Mouse Click: Clear the queue and play a random Album
+
+Secondary Mouse Click: Add a random Album to the back of the queue
+
+{MOD}+Primary Mouse Click: Add a random Album to a playlist"#);
+pub const QUEUE_SHUFFLE_SONG:    &str =
+formatcp!(r#"Primary Mouse Click: Clear the queue and play a random Song
+
+Secondary Mouse Click: Add a random Song to the back of the queue
+
+{MOD}+Primary Mouse Click: Add a random Song to a playlist"#);
 
 //---------------------------------------------------------------------------------------------------- Playlists Tab
 pub const PLAYLIST_TEXT_EMPTY:    &str = "Playlist name is empty";
