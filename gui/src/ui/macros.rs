@@ -505,6 +505,36 @@ macro_rules! artist_label {
 
 #[macro_export]
 /// Add UI functionality to the passed `$ui_resp` to:
+/// - Primary click: clear queue, add and play random `Song`
+/// - Secondary click: append random `Song` to back of queue
+/// - CTRL + Primary: add random `Song` to playlist
+macro_rules! song_rand {
+	($self:ident, $ui:ident, $ui_resp:expr) => {
+		let primary   = $ui_resp.clicked();
+		let secondary = $ui_resp.secondary_clicked();
+
+		if primary {
+			// SAFETY: ui should be greyed out if `Collection`
+			// is empty so that this never panics.
+			let key = $self.collection.rand_song(None).unwrap();
+			let song = &$self.collection.songs[key];
+			if $self.modifiers.command {
+				$self.playlist_add_screen = Some(shukusai::collection::KeyEnum::Song(key));
+			} else {
+				$crate::toast!($self, format!("Playing Song [{}]", song.title));
+				$crate::play_song!($self, key);
+			}
+		} else if secondary {
+			// SAFETY: same as above.
+			let key = $self.collection.rand_song(None).unwrap();
+			let song = &$self.collection.songs[key];
+			$crate::add_song!($self, &song.title, key);
+		}
+	}
+}
+
+#[macro_export]
+/// Add UI functionality to the passed `$ui_resp` to:
 /// - Primary click: clear queue, add and play random `Album`
 /// - Secondary click: append random `Album` to back of queue
 /// - CTRL + Primary: add random `Album` to playlist
