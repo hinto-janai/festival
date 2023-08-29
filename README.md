@@ -12,7 +12,7 @@ https://github.com/hinto-janai/festival/assets/101352116/586e37e7-762d-4dc6-a9c4
 </div>
 
 ## Frontends
-Festival comes in few different forms.
+Festival comes in a few different forms.
 
 Click on the frontend to see more information.
 
