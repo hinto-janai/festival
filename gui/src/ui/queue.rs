@@ -6,6 +6,9 @@ use crate::constants::{
 use crate::text::{
 	UI_QUEUE_CLEAR,UI_QUEUE_SHUFFLE,UI_MINUS,
 	QUEUE_CLEAR,QUEUE_SHUFFLE,SELECT_QUEUE,
+	UI_QUEUE_SHUFFLE_ARTIST,QUEUE_SHUFFLE_ARTIST,
+	UI_QUEUE_SHUFFLE_ALBUM,QUEUE_SHUFFLE_ALBUM,
+	UI_QUEUE_SHUFFLE_SONG,QUEUE_SHUFFLE_SONG,
 };
 use shukusai::kernel::{
 	FrontendToKernel,
@@ -37,16 +40,37 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: 
 		const SIZE2: f32 = SIZE * 2.0;
 
 		ui.horizontal(|ui| {
-			let width = (width / 3.0) - 10.0;
+			let width = (width / 6.0) - 10.0;
 
 			let button = Button::new(RichText::new(UI_QUEUE_CLEAR).size(SIZE));
 			if ui.add_sized([width, SIZE2], button).on_hover_text(QUEUE_CLEAR).clicked() {
 				crate::clear_stop!(self);
 			}
+
 			let button = Button::new(RichText::new(UI_QUEUE_SHUFFLE).size(SIZE));
 			if ui.add_sized([width, SIZE2], button).on_hover_text(QUEUE_SHUFFLE).clicked() {
 				send!(self.to_kernel, FrontendToKernel::Shuffle);
 			}
+
+			// INVARIANT:
+			// Below `*_rand` macros unwrap on the rand functions which
+			// return `Option` since the `Collection` might be empty.
+			// These UIs must be greyed out if it is empty.
+			ui.scope(|ui| {
+				ui.set_enabled(!self.collection.empty);
+
+				let button = Button::new(RichText::new(UI_QUEUE_SHUFFLE_ARTIST));
+				let resp = ui.add_sized([width, SIZE2], button).on_hover_text(QUEUE_SHUFFLE_ARTIST);
+				crate::artist_rand!(self, ui, resp);
+
+				let button = Button::new(RichText::new(UI_QUEUE_SHUFFLE_ALBUM));
+				let resp = ui.add_sized([width, SIZE2], button).on_hover_text(QUEUE_SHUFFLE_ALBUM);
+				crate::album_rand!(self, ui, resp);
+
+				let button = Button::new(RichText::new(UI_QUEUE_SHUFFLE_SONG));
+				let resp = ui.add_sized([width, SIZE2], button).on_hover_text(QUEUE_SHUFFLE_SONG);
+				crate::song_rand!(self, ui, resp);
+			});
 
 			let len = self.audio_state.queue.len();
 			let index = if len == 0 { 0 } else { self.audio_state.queue_idx.unwrap_or(0) + 1 };
