@@ -504,6 +504,34 @@ macro_rules! artist_label {
 }
 
 #[macro_export]
+/// Add UI functionality to the passed `$ui_resp` to:
+/// - Primary click: clear queue, add and play random `Artist`
+/// - Secondary click: append random `Artist` to back of queue
+/// - CTRL + Primary: add random `Artist` to playlist
+macro_rules! artist_rand {
+	($self:ident, $ui:ident, $ui_resp:expr) => {
+		let primary   = $ui_resp.clicked();
+		let secondary = $ui_resp.secondary_clicked();
+
+		if primary {
+			// SAFETY: ui should be greyed out if `Collection`
+			// is empty so that this never panics.
+			let key = $self.collection.rand_artist(None).unwrap();
+			if $self.modifiers.command {
+				$self.playlist_add_screen = Some(shukusai::collection::KeyEnum::Artist(key));
+			} else {
+				$crate::play_artist_offset!($self, key, 0);
+			}
+		} else if secondary {
+			// SAFETY: same as above.
+			let key = $self.collection.rand_artist(None).unwrap();
+			let artist = &$self.collection.artists[key];
+			$crate::add_artist!($self, artist, key);
+		}
+	}
+}
+
+#[macro_export]
 /// Add a clickable `Playlist` label that:
 /// - Primary click: sets it to `Playlist` tab view
 /// - Secondary click: adds `Playlist` to the queue
