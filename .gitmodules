@@ -7,3 +7,6 @@
 [submodule "external/Symphonia"]
 	path = external/Symphonia
 	url = https://github.com/hinto-janai/Symphonia
+[submodule "external/json-rpc"]
+	path = external/json-rpc
+	url = https://github.com/hinto-janai/json-rpc

@@ -2993,7 +2993,6 @@ dependencies = [
 [[package]]
 name = "json-rpc"
 version = "0.1.2"
-source = "git+https://github.com/hinto-janai/json-rpc#9feef777768e31dd8494fca57e8cc67e65675367"
 dependencies = [
  "serde",
  "serde_json",
