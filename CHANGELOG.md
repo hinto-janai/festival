@@ -16,15 +16,6 @@ Types of changes:
 
 
 # Festival GUI Unreleased
-## Added
-* Queue tab: random artist/album/song buttons ([#63](https://github.com/hinto-janai/festival/pull/63))
-* Queue tab: total queue runtime ([#64](https://github.com/hinto-janai/festival/pull/64))
-
-## Changed
-* Moved repeat button to the queue tab ([#63](https://github.com/hinto-janai/festival/pull/63))
-
-## Fixed
-* Small album art being slightly cutoff on the sides ([#65](https://github.com/hinto-janai/festival/pull/65))
 
 
 ---
@@ -37,6 +28,24 @@ Types of changes:
 
 
 # `festival-cli` Unreleased
+
+
+---
+
+
+---
+
+
+# Festival GUI v1.3.0 - 2023-09-04
+## Added
+* Queue tab: random artist/album/song buttons ([#63](https://github.com/hinto-janai/festival/pull/63))
+* Queue tab: total queue runtime ([#64](https://github.com/hinto-janai/festival/pull/64))
+
+## Changed
+* Moved repeat button to the queue tab ([#63](https://github.com/hinto-janai/festival/pull/63))
+
+## Fixed
+* Small album art being slightly cutoff on the sides ([#65](https://github.com/hinto-janai/festival/pull/65))
 
 
 ---

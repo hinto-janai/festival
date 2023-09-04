@@ -408,7 +408,7 @@ macro_rules! album_button {
 		// like it likes cutting off the right side when doing
 		// this.
 		//
-		// This is noticable in album art that has clear borders
+		// This is noticeable in album art that has clear borders
 		// so if the image is small enough, add some width to the `ui`.
 		//
 		// https://github.com/hinto-janai/festival/issues/62
