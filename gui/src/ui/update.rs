@@ -130,7 +130,8 @@ impl eframe::App for Gui {
 		};
 		// If the queue is different from ours,
 		// recalculate the total `queue_time`.
-		if self.kernel_returned && queue_diff {
+		if self.kernel_returned && queue_diff &&
+		/* needed to prevent panic */ !self.resetting_collection {
 			self.queue_time = self.audio_state
 				.queue
 				.iter()
