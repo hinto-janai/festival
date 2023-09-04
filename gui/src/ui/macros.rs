@@ -401,8 +401,25 @@ macro_rules! song_button {
 /// - CTRL + Secondary click: opens its directory in a file explorer
 macro_rules! album_button {
 	($self:ident, $album:expr, $key:expr, $ui:ident, $ctx:ident, $size:expr, $text:expr) => {
+		// HACK: this isn't a perfect fix but it mostly works.
+		//
+		// Upon very small images, egui will have to resize
+		// the image into a lower quality, although it seems
+		// like it likes cutting off the right side when doing
+		// this.
+		//
+		// This is noticable in album art that has clear borders
+		// so if the image is small enough, add some width to the `ui`.
+		//
+		// https://github.com/hinto-janai/festival/issues/62
+		let size = if $size < 200.0 {
+			$size + 1.0
+		} else {
+			$size
+		};
+
 		// ImageButton.
-		let img_button = egui::ImageButton::new($album.texture_id($ctx), egui::vec2($size, $size));
+		let img_button = egui::ImageButton::new($album.texture_id($ctx), egui::vec2(size, size));
 
 		// Should be compiled out.
 		let resp = if $text.is_empty() {

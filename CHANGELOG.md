@@ -23,6 +23,9 @@ Types of changes:
 ## Changed
 * Moved repeat button to the queue tab ([#63](https://github.com/hinto-janai/festival/pull/63))
 
+## Fixed
+* Small album art being slightly cutoff on the sides ([#65](https://github.com/hinto-janai/festival/pull/65))
+
 
 ---
 
