@@ -123,7 +123,22 @@ impl eframe::App for Gui {
 		}
 
 		// Acquire a local copy of the `AUDIO_STATE`.
-		AUDIO_STATE.read().if_copy(&mut self.audio_state);
+		let queue_diff = {
+			let lock = AUDIO_STATE.read();
+			let diff = lock.queue == self.audio_state.queue;
+			lock.if_copy(&mut self.audio_state);
+			diff
+		};
+		// If the queue is different from ours,
+		// recalculate the total `queue_runtime`.
+		if self.kernel_returned && queue_diff {
+			self.queue_runtime = self.audio_state
+				.queue
+				.iter()
+				.map(|k| self.collection.songs[k].runtime.inner())
+				.sum::<u32>()
+				.into();
+		}
 
 		// HACK:
 		// Unconditionally copy this.
