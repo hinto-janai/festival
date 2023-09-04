@@ -65,7 +65,6 @@ use crate::text::{
 	UI_PLAY,
 	UI_PAUSE,
 	UI_FORWARDS,
-	UI_REPEAT_SONG,UI_REPEAT,REPEAT_SONG,REPEAT_QUEUE,REPEAT_OFF,
 };
 use strum::*;
 use std::sync::Arc;
@@ -720,32 +719,12 @@ fn show_left(&mut self, ctx: &egui::Context, width: f32, height: f32) {
 				ui.separator();
 			}
 
-			// Repeat.
-			use shukusai::audio::Repeat;
-			let (icon, text, color) = match self.state.repeat {
-				Repeat::Song  => (UI_REPEAT_SONG, REPEAT_SONG, YELLOW),
-				Repeat::Queue => (UI_REPEAT, REPEAT_QUEUE, GREEN),
-				Repeat::Off   => (UI_REPEAT, REPEAT_OFF, MEDIUM_GRAY),
-			};
-			let button = Button::new(
-				RichText::new(icon)
-					.size(30.0)
-					.color(color)
-			);
-			if ui.add_sized([tab_width, tab_height], button).on_hover_text(text).clicked() {
-				self.audio_leeway = now!();
-				let next = self.state.repeat.next();
-				send!(self.to_kernel, FrontendToKernel::Repeat(next));
-				self.state.repeat = next;
-			}
-
 			// Volume slider
 			//
 			// This is subtracted by a magic number to allow
 			// for space for the number label below it.
 			let slider_height = ui.available_height() - 42.0;
 
-			ui.separator();
 			ui.add_space(2.5);
 
 			ui.spacing_mut().slider_width = slider_height;

@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------------------------------- Use
 use crate::constants::{
-	BONE,GRAY,
+	BONE,GRAY,YELLOW,GREEN,MEDIUM_GRAY,
 	QUEUE_ALBUM_ART_SIZE,
 };
 use crate::text::{
@@ -10,6 +10,7 @@ use crate::text::{
 	UI_QUEUE_SHUFFLE_ALBUM,QUEUE_SHUFFLE_ALBUM,
 	UI_QUEUE_SHUFFLE_SONG,QUEUE_SHUFFLE_SONG,
 	QUEUE_LENGTH,QUEUE_RUNTIME,
+	UI_REPEAT_SONG,UI_REPEAT,REPEAT_SONG,REPEAT_QUEUE,REPEAT_OFF,
 };
 use shukusai::kernel::{
 	FrontendToKernel,
@@ -18,7 +19,10 @@ use egui::{
 	ScrollArea,Label,RichText,
 	Sense,TextStyle,Button,
 };
-use benri::send;
+use benri::{
+	send,
+	now,
+};
 
 //---------------------------------------------------------------------------------------------------- Queue
 impl crate::data::Gui {
@@ -63,16 +67,39 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: 
 		});
 
 		ui.horizontal(|ui| {
-			let width = (width / 5.0) - 8.0;
+			let width = (width / 6.0) - 7.5;
 
+			// Stop.
 			let button = Button::new(RichText::new(UI_QUEUE_CLEAR).size(SIZE));
 			if ui.add_sized([width, SIZE2], button).on_hover_text(QUEUE_CLEAR).clicked() {
 				crate::clear_stop!(self);
 			}
 
+			// Shuffle.
 			let button = Button::new(RichText::new(UI_QUEUE_SHUFFLE).size(SIZE));
 			if ui.add_sized([width, SIZE2], button).on_hover_text(QUEUE_SHUFFLE).clicked() {
 				send!(self.to_kernel, FrontendToKernel::Shuffle);
+			}
+
+			// Repeat.
+			{
+				use shukusai::audio::Repeat;
+				let (icon, text, color) = match self.state.repeat {
+					Repeat::Song  => (UI_REPEAT_SONG, REPEAT_SONG, YELLOW),
+					Repeat::Queue => (UI_REPEAT, REPEAT_QUEUE, GREEN),
+					Repeat::Off   => (UI_REPEAT, REPEAT_OFF, MEDIUM_GRAY),
+				};
+				let button = Button::new(
+					RichText::new(icon)
+						.size(30.0)
+						.color(color)
+				);
+				if ui.add_sized([width, SIZE2], button).on_hover_text(text).clicked() {
+					self.audio_leeway = now!();
+					let next = self.state.repeat.next();
+					send!(self.to_kernel, FrontendToKernel::Repeat(next));
+					self.state.repeat = next;
+				}
 			}
 
 			// INVARIANT:

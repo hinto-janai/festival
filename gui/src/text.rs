@@ -91,7 +91,7 @@ pub const UI_QUEUE_SHUFFLE:        &str = "🔀";
 pub const UI_QUEUE_SHUFFLE_ARTIST: &str = "🔀 Artist";
 pub const UI_QUEUE_SHUFFLE_ALBUM:  &str = "🔀 Album";
 pub const UI_QUEUE_SHUFFLE_SONG:   &str = "🔀 Song";
-pub const QUEUE_CLEAR:             &str = "Clear queue and stop playback";
+pub const QUEUE_CLEAR:             &str = "Clear the queue and stop playback";
 pub const QUEUE_SHUFFLE:           &str = "Shuffle the queue and reset to the first song";
 pub const QUEUE_SHUFFLE_ARTIST:    &str =
 formatcp!(r#"Primary Mouse Click: Clear the queue and play a random Artist

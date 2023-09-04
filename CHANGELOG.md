@@ -20,6 +20,9 @@ Types of changes:
 * Queue tab: random artist/album/song buttons ([#63](https://github.com/hinto-janai/festival/pull/63))
 * Queue tab: total queue runtime ([#64](https://github.com/hinto-janai/festival/pull/64))
 
+## Changed
+* Moved repeat button to the queue tab ([#63](https://github.com/hinto-janai/festival/pull/63))
+
 
 ---
 
