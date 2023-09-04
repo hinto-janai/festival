@@ -9,6 +9,7 @@ use crate::text::{
 	UI_QUEUE_SHUFFLE_ARTIST,QUEUE_SHUFFLE_ARTIST,
 	UI_QUEUE_SHUFFLE_ALBUM,QUEUE_SHUFFLE_ALBUM,
 	UI_QUEUE_SHUFFLE_SONG,QUEUE_SHUFFLE_SONG,
+	QUEUE_LENGTH,QUEUE_RUNTIME,
 };
 use shukusai::kernel::{
 	FrontendToKernel,
@@ -40,7 +41,29 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: 
 		const SIZE2: f32 = SIZE * 2.0;
 
 		ui.horizontal(|ui| {
-			let width = (width / 6.0) - 10.0;
+			let width = (width / 4.0) - 5.0;
+
+			// Queue length `[xx/yy]`
+			let len = self.audio_state.queue.len();
+			let index = if len == 0 { 0 } else { self.audio_state.queue_idx.unwrap_or(0) + 1 };
+			let text = Label::new(
+				RichText::new(format!("[{index}/{len}]"))
+					.color(BONE)
+					.text_style(TextStyle::Name("25".into()))
+			);
+			ui.add_sized([width, SIZE2], text).on_hover_text(QUEUE_LENGTH);
+
+			// Total queue human time `3 minutes, 2 seconds`.
+			let text = Label::new(
+				RichText::new(self.queue_time.as_str())
+					.color(BONE)
+					.text_style(TextStyle::Monospace)
+			);
+			ui.add_sized([ui.available_width(), SIZE2], text).on_hover_text(QUEUE_RUNTIME);
+		});
+
+		ui.horizontal(|ui| {
+			let width = (width / 5.0) - 8.0;
 
 			let button = Button::new(RichText::new(UI_QUEUE_CLEAR).size(SIZE));
 			if ui.add_sized([width, SIZE2], button).on_hover_text(QUEUE_CLEAR).clicked() {
@@ -71,15 +94,6 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: 
 				let resp = ui.add_sized([width, SIZE2], button).on_hover_text(QUEUE_SHUFFLE_SONG);
 				crate::song_rand!(self, ui, resp);
 			});
-
-			let len = self.audio_state.queue.len();
-			let index = if len == 0 { 0 } else { self.audio_state.queue_idx.unwrap_or(0) + 1 };
-			let text = Label::new(
-				RichText::new(format!("[{index}/{len}]"))
-					.color(BONE)
-					.text_style(TextStyle::Name("30".into()))
-			);
-			ui.add_sized([ui.available_width(), SIZE2], text);
 		});
 
 		ui.add_space(5.0);

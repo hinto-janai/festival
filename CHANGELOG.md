@@ -17,7 +17,8 @@ Types of changes:
 
 # Festival GUI Unreleased
 ## Added
-* Queue tab - random artist/album/song buttons ([#63](https://github.com/hinto-janai/festival/pull/63))
+* Queue tab: random artist/album/song buttons ([#63](https://github.com/hinto-janai/festival/pull/63))
+* Queue tab: total queue runtime ([#64](https://github.com/hinto-janai/festival/pull/64))
 
 
 ---

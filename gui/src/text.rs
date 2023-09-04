@@ -111,6 +111,8 @@ formatcp!(r#"Primary Mouse Click: Clear the queue and play a random Song
 Secondary Mouse Click: Add a random Song to the back of the queue
 
 {MOD}+Primary Mouse Click: Add a random Song to a playlist"#);
+pub const QUEUE_LENGTH:  &str = "Current song index and total queue length";
+pub const QUEUE_RUNTIME: &str = "The total runtime of the queue";
 
 //---------------------------------------------------------------------------------------------------- Playlists Tab
 pub const PLAYLIST_TEXT_EMPTY:    &str = "Playlist name is empty";

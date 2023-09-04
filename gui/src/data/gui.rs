@@ -67,8 +67,8 @@ pub struct Gui {
 	/// A local copy of shukusai's `AUDIO_STATE`
 	/// so we don't have to lock it multiple times every loop.
 	pub audio_state: AudioState,
-	/// Total runtime of the queue.
-	pub queue_runtime: readable::Runtime,
+	/// Total runtime (time) of the queue.
+	pub queue_time: readable::Time,
 	/// A local copy of our seek time.
 	/// This is the thing we send `Kernel` when
 	/// we want to seek the audio.

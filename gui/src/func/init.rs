@@ -249,7 +249,7 @@ impl crate::data::Gui {
 
 			// AudioState.
 			audio_state: AudioState::new(),
-			queue_runtime: readable::Runtime::zero(),
+			queue_time: readable::Time::zero(),
 			audio_seek: 0,
 			audio_leeway: now!(),
 			last_song: None,
