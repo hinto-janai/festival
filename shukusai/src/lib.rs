@@ -23,7 +23,9 @@
 	future_incompatible,
 	break_with_label_and_loop,
 	coherence_leak_check,
-	deprecated,
+	// TODO: egui's `RetainedImage` was overhauled
+	// and is now deprecated. Lots of code to fix.
+//	deprecated,
 	duplicate_macro_attributes,
 	exported_private_dependencies,
 	for_loops_over_fallibles,

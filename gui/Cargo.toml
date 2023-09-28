@@ -25,10 +25,10 @@ disk     = { workspace = true }
 readable = { workspace = true }
 
 ### External patched libraries `external/`.
-egui        = { version = "0.22.0", path = "../external/egui/crates/egui",        features = ["default_fonts", "serde"], default-features = false }
-eframe      = { version = "0.22.0", path = "../external/egui/crates/eframe",      features = ["glow", "wgpu"],           default-features = false }
-egui_extras = { version = "0.22.0", path = "../external/egui/crates/egui_extras", features = ["image"],                  default-features = false }
-epaint      = { version = "0.22.0", path = "../external/egui/crates/epaint" }
+egui        = { version = "0.23.0", path = "../external/egui/crates/egui",        features = ["default_fonts", "serde"], default-features = false }
+eframe      = { version = "0.23.0", path = "../external/egui/crates/eframe",      features = ["glow", "wgpu"],           default-features = false }
+egui_extras = { version = "0.23.0", path = "../external/egui/crates/egui_extras", features = ["image"],                  default-features = false }
+epaint      = { version = "0.23.0", path = "../external/egui/crates/epaint" }
 egui-notify = { version = "0.7.0",  path = "../external/egui-notify" }
 
 ### Shared.
