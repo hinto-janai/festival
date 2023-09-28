@@ -419,7 +419,10 @@ macro_rules! album_button {
 		};
 
 		// ImageButton.
-		let img_button = egui::ImageButton::new($album.texture_id($ctx), egui::vec2(size, size));
+		let img_button = egui::ImageButton::new(egui::widgets::ImageSource::Texture(egui::load::SizedTexture {
+			id: $album.texture_id($ctx),
+			size: egui::vec2(size, size),
+		}));
 
 		// Should be compiled out.
 		let resp = if $text.is_empty() {
