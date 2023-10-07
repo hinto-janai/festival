@@ -36,7 +36,6 @@ jobs:
 
     - name: Install dependencies
       run: |
-        rustup update
         if [ "$RUNNER_OS" == "Linux" ]; then
           sudo apt update
           sudo apt install -y libgtk-3-dev libasound2-dev libjack-dev libpulse-dev
@@ -44,6 +43,20 @@ jobs:
           rustup target add aarch64-apple-darwin
         fi
       shell: bash
+
+    - name: Rust Toolchain
+      if: matrix.os != 'macos-12'
+      uses: dtolnay/rust-toolchain@1.70.0
+      with:
+        components: clippy, rust-src
+        targets: aarch64-apple-darwin,
+
+    - name: Rust Toolchain (macOS)
+      if: matrix.os == 'macos-12'
+      uses: dtolnay/rust-toolchain@1.70.0
+      with:
+        components: clippy, rust-src
+        targets: aarch64-apple-darwin
 
     - name: Clippy
       run: cargo clippy --release --package ${{ matrix.pkg }}
