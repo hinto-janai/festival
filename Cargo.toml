@@ -38,6 +38,7 @@ json-rpc = { version = "0.1.2", path = "external/json-rpc" }
 rpc      = { version = "1.0.0", path = "rpc/" }
 
 ### Regular libraries.
+audio_thread_priority = { version = "0.30.0" }
 anyhow       = { version = "1.0.71" }
 bincode      = { version = "2.0.0-rc.3", features = ["serde"] }
 clap         = { version = "4", features = ["derive"] }
