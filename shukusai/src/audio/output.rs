@@ -31,7 +31,7 @@ pub(crate) trait Output: Sized {
 	fn dummy() -> std::result::Result<Self, AudioOutputError> {
 		let spec = SignalSpec {
 			// INVARIANT: Must be non-zero.
-			rate: 48_000,
+			rate: 44_100,
 
 			// INVARIANT: Must be a valid entry in the below map `match`.
 			channels: Channels::FRONT_LEFT,
