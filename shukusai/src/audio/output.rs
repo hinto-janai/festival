@@ -110,7 +110,7 @@ mod output {
 			}
 
 			// Create PulseAudio buffer attribute.
-			const T_LENGTH: u32 = 16384;
+			const T_LENGTH: u32 = 8192;
 			let pa_buf_attr = pulse::def::BufferAttr {
 				// This reduces the audio buffer we hold.
 				//
@@ -119,7 +119,7 @@ mod output {
 				// via Festival since we flush the samples that
 				// haven't been played yet.
 				//
-				// This sets it to around 50ms~.
+				// This sets it to around 25ms~.
 				tlength: T_LENGTH,
 
 				maxlength: std::u32::MAX,
@@ -272,7 +272,7 @@ mod output {
 			};
 
 			// Create a ring buffer with a capacity for up-to 50ms of audio.
-			let ring_len = ((50 * config.sample_rate.0 as usize) / 1000) * num_channels;
+			let ring_len = ((25 * config.sample_rate.0 as usize) / 1000) * num_channels;
 
 			let ring_buf = SpscRb::new(ring_len);
 			let (ring_buf_producer, ring_buf_consumer) = (ring_buf.producer(), ring_buf.consumer());
