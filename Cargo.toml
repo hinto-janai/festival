@@ -32,36 +32,36 @@ opt-level = 1
 ### Personal.
 shukusai = { version = "0.0.6",  path = "shukusai" }
 benri    = { version = "0.1.12", features = ["log"] }
-disk     = { version = "0.1.20", features = ["bincode2", "empty", "toml", "plain", "json", "bytesize"] }
-readable = { version = "0.8.12",  features = ["ignore_nan_inf", "serde", "bincode"] }
+disk     = { version = "0.1.21", features = ["bincode2", "empty", "toml", "plain", "json", "bytesize"] }
+readable = { version = "0.8.13",  features = ["ignore_nan_inf", "serde", "bincode"] }
 json-rpc = { version = "0.1.2", path = "external/json-rpc" }
 rpc      = { version = "1.0.0", path = "rpc/" }
 
 ### Regular libraries.
-anyhow       = { version = "1.0.71" }
+anyhow       = { version = "1.0.75" }
 bincode      = { version = "2.0.0-rc.3", features = ["serde"] }
-clap         = { version = "4", features = ["derive"] }
+clap         = { version = "4.4.8", features = ["derive"] }
 crossbeam    = { version = "0.8.2", features = ["crossbeam-channel"] }
-const_format = { version = "0.2.31", features = ["rust_1_51", "assertcp", "rust_1_64"] }
-compact_str  = { version = "0.7.0" }
+const_format = { version = "0.2.32", features = ["rust_1_51", "assertcp", "rust_1_64"] }
+compact_str  = { version = "0.7.1" }
 dirs         = { version = "5.0.1" }
-env_logger   = { version = "0.10.0" }
-image        = { version = "0.24.6" }
-log          = { version = "0.4.18", features = ["serde"] }
-libc         = { version = "0.2.147" }
-memmap2      = { version = "0.6.2" }
+env_logger   = { version = "0.10.1" }
+image        = { version = "0.24.7" }
+log          = { version = "0.4.20", features = ["serde"] }
+libc         = { version = "0.2.150" }
+memmap2      = { version = "0.9.0" }
 once_cell    = { version = "1.18.0" }
-open         = { version = "4.2.0" }
-paste        = { version = "1.0.12" }
+open         = { version = "5.0.0" }
+paste        = { version = "1.0.14" }
 rand         = { version = "0.8.5", features = ["small_rng"] }
-serde        = { version = "1.0.163", features = ["derive", "rc"] }
-serde_bytes  = { version = "0.11.9" }
-serde_json   = { version = "1.0.100", features = ["preserve_order"] }
-seq-macro    = { version = "0.3.3" }
+serde        = { version = "1.0.192", features = ["derive", "rc"] }
+serde_bytes  = { version = "0.11.12" }
+serde_json   = { version = "1.0.108", features = ["preserve_order"] }
+seq-macro    = { version = "0.3.5" }
 strum        = { version = "0.25.0", features = ["derive"] }
-termimad     = { version = "0.23.2" }
-toml_edit    = { version = "0.19.14" }
-walkdir      = { version = "2.3.3" }
+termimad     = { version = "0.26.1" }
+toml_edit    = { version = "0.21.0", features = ["serde"] }
+walkdir      = { version = "2.4.0" }
 zeroize      = { version = "1.6.0", features = ["std", "zeroize_derive"] }
 zip          = { version = "0.6.6" }
 
