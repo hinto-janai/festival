@@ -50,7 +50,7 @@ use crate::frontend::gui::gui_request_update;
 //---------------------------------------------------------------------------------------------------- Constants
 // If the audio device is not connected, how many seconds
 // should we wait before trying to connect again?
-const RETRY_SECONDS: u64 = 5;
+const RETRY_SECONDS: u64 = 1;
 
 // In the audio packet demux/decode loop, how much time
 // should we spare to listen for `Kernel` messages?
@@ -59,7 +59,7 @@ const RETRY_SECONDS: u64 = 5;
 // fast enough and it will end up choppy.
 //
 // If too low, we will be spinning the CPU more.
-const RECV_TIMEOUT: Duration = Duration::from_millis(10);
+const RECV_TIMEOUT: Duration = Duration::from_millis(4);
 
 // If there are multiple messages in the queue, how
 // many additional ones should we process before continuing on?
@@ -70,7 +70,7 @@ const RECV_TIMEOUT: Duration = Duration::from_millis(10);
 //
 // These messages don't wait additional time with `RECV_TIMEOUT`,
 // they either are there or we break and continue with audio.
-const MSG_PROCESS_LIMIT: u8 = 3;
+const MSG_PROCESS_LIMIT: u8 = 6;
 
 /// When receiving a `Previous` signal, there is runtime
 /// threshold for the song to reach until we reset the
@@ -237,17 +237,17 @@ impl Audio {
 		// `Mc`     == `[1]`
 		let mut select = crossbeam::channel::Select::new();
 		let kernel = self.from_kernel.clone();
-		select.recv(&kernel);
 		let mc = self.from_mc.clone();
-		select.recv(&mc);
+		/* [0] */ assert_eq!(select.recv(&kernel), 0);
+		/* [1] */ assert_eq!(select.recv(&mc),     1);
 
 		loop {
 			//------ Kernel message.
 			// If we're playing something, only listen for messages for a few millis.
 			if self.state.playing {
-				if let Ok(i) = select.try_ready() {
+				match select.try_ready() {
 					// Kernel.
-					if i == 0 {
+					Ok(0) => {
 						self.kernel_msg(recv!(self.from_kernel));
 						// If there's more messages, process them before continuing on.
 						for _ in 0..MSG_PROCESS_LIMIT {
@@ -257,10 +257,12 @@ impl Audio {
 								break;
 							}
 						}
+					},
 					// Mc.
-					} else if self.media_controls.is_some() {
+					Ok(1) => if self.media_controls.is_some() {
 						self.mc_msg(recv!(self.from_mc));
-					}
+					},
+					_ => {},
 				}
 			// Else, sleep on `Kernel`.
 			} else {
@@ -274,15 +276,17 @@ impl Audio {
 
 				trace!("Audio - Pause [2/3]: waiting on message...");
 				match select.ready() {
-					i if i == 0 => {
+					0 => {
 						trace!("Audio - Pause [3/3]: woke up from Kernel message...!");
 						self.kernel_msg(recv!(self.from_kernel));
 					},
 
-					_ => {
+					1 => {
 						trace!("Audio - Pause [3/3]: woke up from MediaControls message...!");
 						self.mc_msg(recv!(self.from_mc));
 					},
+
+					_ => unreachable!(),
 				}
 			}
 
@@ -373,6 +377,13 @@ impl Audio {
 						buf.transform(|f| f * volume);
 
 						// Write to audio output device.
+						//
+						// This call blocks for as long as it takes
+						// for us to write the buffer to the audio
+						// device/server.
+						//
+						// If there already is a buffer of audio, this means
+						// we'll have to wait - around 0.05-0.08~ seconds per buffer.
 						self.output.write(buf.as_audio_buffer_ref()).unwrap();
 
 						// Set runtime timestamp.
