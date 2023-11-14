@@ -12,6 +12,7 @@ use egui::{
 };
 
 use egui::style::{
+	ScrollStyle,
 	Selection,
 	Widgets,
 	WidgetVisuals,
@@ -136,7 +137,10 @@ pub const ACCENT_COLOR: Color32 = Color32::from_rgb(
 //---------------------------------------------------------------------------------------------------- `egui` Spacing
 pub static SPACING: Lazy<Spacing> = Lazy::new(|| {
 	Spacing {
-		scroll_bar_width: 12.5,
+		scroll: ScrollStyle {
+			bar_width: 12.5,
+			..ScrollStyle::solid()
+		},
 		..Default::default()
 	}
 });
