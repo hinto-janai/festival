@@ -393,7 +393,13 @@ impl Audio {
 						//
 						// If there already is a buffer of audio, this means
 						// we'll have to wait - around 0.05-0.08~ seconds per buffer.
-						self.output.write(buf.as_audio_buffer_ref()).unwrap();
+						if let Err(e) = self.output.write(buf.as_audio_buffer_ref()) {
+							// Pause playback on write error.
+							self.state.playing          = false;
+							AUDIO_STATE.write().playing = false;
+							send!(self.to_kernel, AudioToKernel::PlayError(e.into_anyhow()));
+							continue;
+						}
 
 						// Set runtime timestamp.
 						let new_time = timebase.calc_time(packet.ts);
