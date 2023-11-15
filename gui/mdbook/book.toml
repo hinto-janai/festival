@@ -3,7 +3,7 @@ authors      = ["hinto-janai"]
 language     =  "en"
 multilingual = false
 src          = "src"
-title        = "Festival GUI v1.3.0"
+title        = "Festival GUI v1.3.1"
 
 [build]
 build-dir = "docs"

@@ -92,8 +92,8 @@ pub const BUILD: &str = if cfg!(debug_assertions) { "Debug" } else { "Release" }
 /// (questions 9-10), we must make modified MPL-2.0 code available,
 /// and inform users how they can obtain the source.
 pub const COPYRIGHT: &str =
-r#"Festival is licensed under the MIT License
-and it's dependency tree includes many other licenses.
+r#"Festival is licensed under the MIT License.
+Its dependency tree includes many other licenses.
 For more information on the project, see below:
 <https://github.com/hinto-janai/festival>"#;
 
