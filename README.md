@@ -161,7 +161,7 @@ cargo build --release --package festival-cli
 ## License
 Festival is licensed under the [MIT License](https://github.com/hinto-janai/festival/blob/main/LICENSE).
 
-[Symphonia](https://github.com/pdeljanov/Symphonia), the audio decoding/demuxing/metadata library used by Festival is licensed under MPL-2.0.
+However, its dependency tree includes many other licenses.
 
 ## FAQ
 <details>
