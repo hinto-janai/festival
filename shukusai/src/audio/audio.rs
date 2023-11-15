@@ -220,9 +220,14 @@ impl Audio {
 		};
 
 		// Set real-time thread priority.
+		//
+		// TODO: https://github.com/mozilla/audio_thread_priority/pull/23
+		//
+		// The sample rate be set to `96_000` eventually
+		// but anything higher than `85_880` will panic.
 		match audio_thread_priority::promote_current_thread_to_real_time(
 			0,      // audio buffer frames (0 == default sensible value)
-			96_000, // audio sample rate (assume 96Hz)
+			85_880, // audio sample rate (assume 96Hz)
 		) {
 			Ok(_)  => ok_debug!("Audio Init [3/3] ... realtime priority"),
 			Err(_) => fail!("Audio Init [3/3] ... realtime priority"),
