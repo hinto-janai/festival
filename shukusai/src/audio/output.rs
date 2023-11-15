@@ -12,8 +12,11 @@
 use symphonia::core::audio::*;
 use symphonia::core::units::Duration;
 use crate::constants::FESTIVAL;
+use crate::state::VOLUME;
 use benri::log::*;
+use benri::atomic_load;
 use anyhow::anyhow;
+use crate::audio::Volume;
 
 //---------------------------------------------------------------------------------------------------- Audio Output
 // This `Output` trait describes the functions
@@ -82,6 +85,7 @@ mod output {
 	pub(crate) struct AudioOutput {
 		pa: psimple::Simple,
 		sample_buf: RawSampleBuffer<f32>,
+		audio_buf: AudioBuffer<f32>,
 		pub(crate) spec: SignalSpec,
 		pub(crate) duration: Duration,
 	}
@@ -91,6 +95,7 @@ mod output {
 			// An interleaved buffer is required to send data to PulseAudio. Use a SampleBuffer to
 			// move data between Symphonia AudioBuffers and the byte buffers required by PulseAudio.
 			let sample_buf = RawSampleBuffer::<f32>::new(duration, spec);
+			let audio_buf = AudioBuffer::<f32>::new(duration, spec);
 
 			// Create a PulseAudio stream specification.
 			let pa_spec = pulse::sample::Spec {
@@ -141,7 +146,7 @@ mod output {
 			);
 
 			match pa_result {
-				Ok(pa) => Ok(AudioOutput { pa, sample_buf, spec, duration, }),
+				Ok(pa) => Ok(AudioOutput { pa, sample_buf, audio_buf, spec, duration, }),
 				Err(err) => Err(AudioOutputError::OpenStream(anyhow!("stream open error: {err}"))),
 			}
 		}
@@ -152,8 +157,14 @@ mod output {
 				return Ok(());
 			}
 
+			// Convert the buffer to `f32` and multiply
+			// it by `0.0..1.0` to set volume levels.
+			let volume = Volume::new(atomic_load!(VOLUME)).f32();
+			decoded.convert(&mut self.audio_buf);
+			self.audio_buf.transform(|f| f * volume);
+
 			// Interleave samples from the audio buffer into the sample buffer.
-			self.sample_buf.copy_interleaved_ref(decoded);
+			self.sample_buf.copy_interleaved_ref(self.audio_buf.as_audio_buffer_ref());
 
 			// Write interleaved samples to PulseAudio.
 			match self.pa.write(self.sample_buf.as_bytes()) {
@@ -234,6 +245,7 @@ mod output {
 		sample_buf: SampleBuffer<f32>,
 		stream: cpal::Stream,
 		resampler: Option<Resampler<f32>>,
+		samples: Vec<f32>,
 		pub(crate) spec: SignalSpec,
 		pub(crate) duration: Duration,
 	}
@@ -315,7 +327,9 @@ mod output {
 				None
 			};
 
-			Ok(Self { ring_buf_producer, sample_buf, stream, resampler, spec, duration })
+			let samples = Vec::with_capacity(num_channels * duration as usize);
+
+			Ok(Self { ring_buf_producer, sample_buf, samples, stream, resampler, spec, duration })
 		}
 
 		fn write(&mut self, decoded: AudioBufferRef<'_>) -> std::result::Result<(), AudioOutputError> {
@@ -324,26 +338,43 @@ mod output {
 				return Ok(());
 			}
 
-			let mut samples = if let Some(resampler) = &mut self.resampler {
+			let capacity = decoded.capacity();
+			let frames   = decoded.frames();
+
+			let samples = if let Some(resampler) = &mut self.resampler {
 				// Resampling is required. The resampler will return interleaved samples in the
 				// correct sample format.
 				match resampler.resample(decoded) {
 					Ok(resampled) => resampled,
 					Err(e) => {
 						trace!("Audio - write(): {e}");
-						return Ok(());
+						return Err(AudioOutputError::Resampler(e));
 					},
 				}
 			} else {
 				// Resampling is not required. Interleave the sample for cpal using a sample buffer.
 				self.sample_buf.copy_interleaved_ref(decoded);
-
 				self.sample_buf.samples()
 			};
 
+			// Apply volume transformation.
+			let volume = Volume::new(atomic_load!(VOLUME)).f32();
+
+			self.samples.clear();
+			self.samples[..samples.len()].copy_from_slice(samples);
+
+			// Taken from: https://docs.rs/symphonia-core/0.5.3/src/symphonia_core/audio.rs.html#680-692
+			for plane in self.samples.chunks_mut(capacity) {
+				for sample in &mut plane[0..frames] {
+					*sample = *sample * volume;
+				}
+			}
+
+			let mut samples = self.samples.as_mut_slice();
+
 			// Write all samples to the ring buffer.
 			while let Some(written) = self.ring_buf_producer.write_blocking(samples) {
-				samples = &samples[written..];
+				samples = &mut samples[written..];
 			}
 
 			Ok(())

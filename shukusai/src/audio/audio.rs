@@ -383,13 +383,6 @@ impl Audio {
 							}
 						}
 
-						// Convert the buffer to `f32` and multiply
-						// it by `0.0..1.0` to set volume levels.
-						let volume = Volume::new(atomic_load!(VOLUME)).f32();
-						let mut buf = AudioBuffer::<f32>::new(duration, spec);
-						decoded.convert(&mut buf);
-						buf.transform(|f| f * volume);
-
 						// Write to audio output device.
 						//
 						// This call blocks for as long as it takes
@@ -398,7 +391,9 @@ impl Audio {
 						//
 						// If there already is a buffer of audio, this means
 						// we'll have to wait - around 0.05-0.08~ seconds per buffer.
-						if let Err(e) = self.output.write(buf.as_audio_buffer_ref()) {
+						//
+						// Resampling + Volume is applied within `write()`.
+						if let Err(e) = self.output.write(decoded) {
 							// Pause playback on write error.
 							self.state.playing          = false;
 							AUDIO_STATE.write().playing = false;
