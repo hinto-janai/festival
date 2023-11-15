@@ -169,12 +169,12 @@ impl Audio {
 		let mut tries = 0_usize;
 		let output = loop {
 			 match AudioOutput::dummy() {
-				Ok(o) => { debug!("Audio Init [1/2] ... dummy output device"); break o; },
+				Ok(o) => { debug!("Audio Init [1/3] ... dummy output device"); break o; },
 				Err(e) => {
 					if tries == 5 {
-						warn!("Audio Init [1/2] ... output device error: {e:?} ... will continue to retry every {RETRY_SECONDS} seconds, but will only log when we succeed");
+						warn!("Audio Init [1/3] ... output device error: {e:?} ... will continue to retry every {RETRY_SECONDS} seconds, but will only log when we succeed");
 					} else if tries < 5 {
-						warn!("Audio Init [1/2] ... output device error: {e:?} ... retrying in {RETRY_SECONDS} seconds");
+						warn!("Audio Init [1/3] ... output device error: {e:?} ... retrying in {RETRY_SECONDS} seconds");
 					}
 					tries += 1;
 				},
@@ -187,16 +187,16 @@ impl Audio {
 		let media_controls = if media_controls {
 			match crate::audio::media_controls::init_media_controls(to_audio) {
 				Ok(mc) => {
-					debug!("Audio Init [2/2] ... media controls");
+					debug!("Audio Init [2/3] ... media controls");
 					Some(mc)
 				},
 				Err(e) => {
-					warn!("Audio Init [2/2] ... media controls failed: {e}");
+					warn!("Audio Init [2/3] ... media controls failed: {e}");
 					None
 				},
 			}
 		} else {
-			debug!("Audio Init [2/2] ... skipping media controls");
+			debug!("Audio Init [2/3] ... skipping media controls");
 			None
 		};
 
@@ -218,6 +218,20 @@ impl Audio {
 			to_kernel,
 			from_kernel,
 		};
+
+		// Set real-time thread priority.
+		//
+		// TODO: https://github.com/mozilla/audio_thread_priority/pull/23
+		//
+		// The sample rate be set to `96_000` eventually
+		// but anything higher than `85_880` will panic.
+		match audio_thread_priority::promote_current_thread_to_real_time(
+			0,      // audio buffer frames (0 == default sensible value)
+			85_880, // audio sample rate (assume 96Hz)
+		) {
+			Ok(_)  => ok_debug!("Audio Init [3/3] ... realtime priority"),
+			Err(_) => fail!("Audio Init [3/3] ... realtime priority"),
+		}
 
 		// Start `main()`.
 		Self::main(audio);
@@ -384,7 +398,13 @@ impl Audio {
 						//
 						// If there already is a buffer of audio, this means
 						// we'll have to wait - around 0.05-0.08~ seconds per buffer.
-						self.output.write(buf.as_audio_buffer_ref()).unwrap();
+						if let Err(e) = self.output.write(buf.as_audio_buffer_ref()) {
+							// Pause playback on write error.
+							self.state.playing          = false;
+							AUDIO_STATE.write().playing = false;
+							send!(self.to_kernel, AudioToKernel::PlayError(e.into_anyhow()));
+							continue;
+						}
 
 						// Set runtime timestamp.
 						let new_time = timebase.calc_time(packet.ts);
