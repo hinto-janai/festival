@@ -364,11 +364,15 @@ mod output {
 			self.samples.extend_from_slice(samples);
 
 			// Taken from: https://docs.rs/symphonia-core/0.5.3/src/symphonia_core/audio.rs.html#680-692
-			for plane in self.samples.chunks_mut(capacity) {
-				for sample in &mut plane[0..frames] {
-					*sample = *sample * volume;
-				}
-			}
+			//
+			// Changed to use iterators over indexing.
+			self.samples
+				.chunks_mut(capacity)
+				.for_each(|plane| {
+					plane
+						.iter_mut()
+						.for_each(|sample| *sample *= volume)
+				});
 
 			let mut samples = self.samples.as_mut_slice();
 
