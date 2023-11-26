@@ -60,7 +60,11 @@ where
 		// Interleave the planar samples from Rubato.
 		let num_channels = self.output.len();
 
-		self.interleaved.resize(num_channels * self.output[0].len(), T::MID);
+		let len = self.interleaved.len() / num_channels;
+		self.output
+			.iter_mut()
+			.filter(|channel| channel.len() < len)
+			.for_each(|channel| channel.resize(len, 0.0));
 
 		for (i, frame) in self.interleaved.chunks_exact_mut(num_channels).enumerate() {
 			for (ch, s) in frame.iter_mut().enumerate() {
