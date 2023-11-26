@@ -361,7 +361,7 @@ mod output {
 			let volume = Volume::new(atomic_load!(VOLUME)).f32();
 
 			self.samples.clear();
-			self.samples[..samples.len()].copy_from_slice(samples);
+			self.samples.extend_from_slice(samples);
 
 			// Taken from: https://docs.rs/symphonia-core/0.5.3/src/symphonia_core/audio.rs.html#680-692
 			for plane in self.samples.chunks_mut(capacity) {
