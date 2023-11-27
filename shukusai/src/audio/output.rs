@@ -296,7 +296,7 @@ mod output {
 					let written = ring_buf_consumer.read(data).unwrap_or(0);
 
 					// Mute any remaining samples.
-					data[written..].iter_mut().for_each(|s| *s = 0.0);
+					data[written..].fill(0.0);
 				},
 				move |err| warn!("Audio - audio output error: {err}"),
 				None,
@@ -318,7 +318,7 @@ mod output {
 			// resampler if this env variable is specified.
 			//
 			// Else, fallback to if we actually need it or not.
-			let resampler_needed = option_env!("SHUKUSAI_FORCE_RESAMPLER").is_some() || spec.rate != config;
+			let resampler_needed = option_env!("SHUKUSAI_FORCE_RESAMPLER").is_some() || spec.rate != config.sample_rate.0;
 
 			let resampler = if resampler_needed {
 				trace!("Audio - resampling {} Hz to {} Hz", spec.rate, config.sample_rate.0);
