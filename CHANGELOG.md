@@ -36,7 +36,7 @@ Types of changes:
 ## Festival GUI v1.3.2 - 2023-11-26
 ## Fixed
 * Crash on audio playback on Windows/macOS ([#76](https://github.com/hinto-janai/festival/pull/76))
-* Resampled audio fixes (#[77](https://github.com/hinto-janai/festival/pull/77))
+* Resampled audio fixes ([#77](https://github.com/hinto-janai/festival/pull/77))
 
 
 ---
