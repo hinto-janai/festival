@@ -314,7 +314,13 @@ mod output {
 
 			let sample_buf = SampleBuffer::<f32>::new(duration, spec);
 
-			let resampler = if spec.rate != config.sample_rate.0 {
+			// To make testing easier, always enable the
+			// resampler if this env variable is specified.
+			//
+			// Else, fallback to if we actually need it or not.
+			let resampler_needed = option_env!("SHUKUSAI_FORCE_RESAMPLER").is_some() || spec.rate != config;
+
+			let resampler = if resampler_needed {
 				trace!("Audio - resampling {} Hz to {} Hz", spec.rate, config.sample_rate.0);
 				match Resampler::new(spec, config.sample_rate.0 as usize, duration) {
 					Ok(r)  => Some(r),
