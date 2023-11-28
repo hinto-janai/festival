@@ -29,6 +29,8 @@ pub(crate) trait Output: Sized {
 	// Discard current audio samples.
 	fn flush(&mut self);
 	fn try_open(spec: SignalSpec, duration: Duration) -> std::result::Result<Self, AudioOutputError>;
+	fn play(&mut self) ->  std::result::Result<(), AudioOutputError>;
+	fn pause(&mut self) -> std::result::Result<(), AudioOutputError>;
 
 	// Open the audio device with dummy values.
 	fn dummy() -> std::result::Result<Self, AudioOutputError> {
@@ -91,6 +93,14 @@ mod output {
 	}
 
 	impl Output for AudioOutput {
+		fn pause(&mut self) -> std::result::Result<(), AudioOutputError> {
+			Ok(self.flush())
+		}
+
+		fn play(&mut self) -> std::result::Result<(), AudioOutputError> {
+			Ok(())
+		}
+
 		fn try_open(spec: SignalSpec, duration: Duration) -> std::result::Result<Self, AudioOutputError> {
 			// An interleaved buffer is required to send data to PulseAudio. Use a SampleBuffer to
 			// move data between Symphonia AudioBuffers and the byte buffers required by PulseAudio.
@@ -237,10 +247,11 @@ mod output {
 	use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 	use rb::*;
 
-	use log::{error, info, warn, trace};
+	use log::{error, info, warn, trace, debug};
 
 	// SOMEDAY: support i16/u16.
 	pub(crate) struct AudioOutput {
+		ring_buf: rb::SpscRb<f32>,
 		ring_buf_producer: rb::Producer<f32>,
 		sample_buf: SampleBuffer<f32>,
 		stream: cpal::Stream,
@@ -251,6 +262,16 @@ mod output {
 	}
 
 	impl Output for AudioOutput {
+
+		fn pause(&mut self) -> std::result::Result<(), AudioOutputError> {
+			self.flush();
+			self.stream.pause().map_err(|e| AudioOutputError::PlayStream(anyhow!("pause error")))
+		}
+
+		fn play(&mut self) -> std::result::Result<(), AudioOutputError> {
+			self.stream.play().map_err(|e| AudioOutputError::PlayStream(anyhow!("play error")))
+		}
+
 		fn try_open(spec: SignalSpec, duration: Duration) -> std::result::Result<Self, AudioOutputError> {
 			// Get default host.
 			let host = cpal::default_host();
@@ -318,10 +339,15 @@ mod output {
 			// resampler if this env variable is specified.
 			//
 			// Else, fallback to if we actually need it or not.
-			let resampler_needed = option_env!("SHUKUSAI_FORCE_RESAMPLER").is_some() || spec.rate != config.sample_rate.0;
+			let resampler_needed = if std::env::var_os("FESTIVAL_FORCE_RESAMPLE").is_some() {
+				info!("FESTIVAL_FORCE_RESAMPLE detected, creating resampler");
+				true
+			} else {
+				spec.rate != config.sample_rate.0
+			};
 
 			let resampler = if resampler_needed {
-				trace!("Audio - resampling {} Hz to {} Hz", spec.rate, config.sample_rate.0);
+				debug!("Audio - resampling {}Hz to {}Hz", spec.rate, config.sample_rate.0);
 				match Resampler::new(spec, config.sample_rate.0 as usize, duration) {
 					Ok(r)  => Some(r),
 					Err(e) => {
@@ -330,12 +356,13 @@ mod output {
 					},
 				}
 			} else {
+				debug!("Audio - no resampling needed for {}Hz", spec.rate);
 				None
 			};
 
 			let samples = Vec::with_capacity(num_channels * duration as usize);
 
-			Ok(Self { ring_buf_producer, sample_buf, samples, stream, resampler, spec, duration })
+			Ok(Self { ring_buf, ring_buf_producer, sample_buf, samples, stream, resampler, spec, duration })
 		}
 
 		fn write(&mut self, decoded: AudioBufferRef<'_>) -> std::result::Result<(), AudioOutputError> {
@@ -363,11 +390,11 @@ mod output {
 				self.sample_buf.samples()
 			};
 
-			// Apply volume transformation.
-			let volume = Volume::new(atomic_load!(VOLUME)).f32();
-
 			self.samples.clear();
 			self.samples.extend_from_slice(samples);
+
+			// Apply volume transformation.
+			let volume = Volume::new(atomic_load!(VOLUME)).f32();
 
 			// Taken from: https://docs.rs/symphonia-core/0.5.3/src/symphonia_core/audio.rs.html#680-692
 			//
@@ -380,33 +407,25 @@ mod output {
 						.for_each(|sample| *sample *= volume)
 				});
 
-			let mut samples = self.samples.as_mut_slice();
+			let mut samples = self.samples.as_slice();
 
 			// Write all samples to the ring buffer.
 			while let Some(written) = self.ring_buf_producer.write_blocking(samples) {
-				samples = &mut samples[written..];
+				samples = &samples[written..];
 			}
 
 			Ok(())
 		}
 
 		fn flush(&mut self) {
-			// If there is a resampler, then it may need to be
-			// flushed depending on the number of samples it has.
-			if let Some(resampler) = &mut self.resampler {
-				let Ok(mut remaining_samples) = resampler.flush() else {
-					return;
-				};
-
-				while let Some(written) = self.ring_buf_producer.write_blocking(remaining_samples) {
-					remaining_samples = &remaining_samples[written..];
-				}
+			// INVARIANT:
+			// The resampled samples all get written immediately
+			// after production, so there are no "old" samples
+			// left in `self.resampler`, all of them are in
+			// the ring_buffer, so just wait until it is empty.
+			while !self.ring_buf.is_empty() {
+				std::thread::sleep(std::time::Duration::from_millis(1));
 			}
-
-			// DO NOT USE: this hangs forever.
-			//
-//			// Flush is best-effort, ignore the returned result.
-//			drop(self.stream.pause());
 		}
 	}
 }

@@ -718,6 +718,7 @@ impl Audio {
 		&mut self,
 		state: &mut std::sync::RwLockWriteGuard<'_, AudioState>,
 	) {
+		let _ = self.output.play();
 		self.state.playing = true;
 		state.playing = true;
 		self.set_media_controls_progress(state);
@@ -752,6 +753,8 @@ impl Audio {
 	fn pause(&mut self) {
 		trace!("Audio - pause()");
 		if self.current.is_some() {
+			let _ = self.output.pause();
+
 			self.state.playing = false;
 
 			let mut state = AUDIO_STATE.write();
