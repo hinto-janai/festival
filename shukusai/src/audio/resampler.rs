@@ -98,6 +98,18 @@ where
 		convert_samples_any(&input, &mut self.input);
 
 		// Check if more samples are required.
+		//
+		// FIXME: This almost definitely makes audio
+		// clippy and makes "gapless playback" quite gappy
+		// as we're adding artificial silence in-between
+		// tracks with ending frames that have slightly
+		// less samples than the rest of the track.
+		//
+		// Realistically thogugh, this only affects windows
+		// users as macos/linux don't need resamplers.
+		//
+		// This code will be fixed... when sansan eventually
+		// gets finished and integrated in festival.
 		let len = self.input[0].len();
 		if len < self.duration {
 			let partial_len = len % self.duration;
@@ -107,27 +119,6 @@ where
 				for channel in self.input.iter_mut() {
 					channel.resize(len + (self.duration - partial_len), 0.0);
 				}
-			}
-		}
-
-		self.resample_inner()
-	}
-
-	/// Resample any remaining samples in the resample buffer.
-	pub(super) fn flush(&mut self) -> Result<&[T], Error> {
-		let len = self.input[0].len();
-
-		if len == 0 {
-			bail!("len == 0")
-		}
-
-		let partial_len = len % self.duration;
-
-		if partial_len != 0 {
-			// Fill each input channel buffer with silence to the next multiple of the resampler
-			// duration.
-			for channel in self.input.iter_mut() {
-				channel.resize(len + (self.duration - partial_len), 0.0);
 			}
 		}
 
