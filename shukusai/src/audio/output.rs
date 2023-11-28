@@ -394,7 +394,9 @@ mod output {
 			// If there is a resampler, then it may need to be
 			// flushed depending on the number of samples it has.
 			if let Some(resampler) = &mut self.resampler {
-				let mut remaining_samples = resampler.flush().unwrap_or_default();
+				let Ok(mut remaining_samples) = resampler.flush() else {
+					return;
+				};
 
 				while let Some(written) = self.ring_buf_producer.write_blocking(remaining_samples) {
 					remaining_samples = &remaining_samples[written..];
