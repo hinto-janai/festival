@@ -370,7 +370,10 @@ impl Audio {
 							// If the spec/duration is different, we must re-open a
 							// matching audio output device or audio will get weird.
 							match AudioOutput::try_open(spec, duration) {
-								Ok(o)  => self.output = o,
+								Ok(o) => {
+									self.output.flush();
+									self.output = o;
+								},
 
 								// And if we couldn't, pause playback.
 								Err(e) => {
