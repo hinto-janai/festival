@@ -98,8 +98,16 @@ where
 		convert_samples_any(&input, &mut self.input);
 
 		// Check if more samples are required.
-		if self.input[0].len() < self.duration {
-			bail!("input len < duration")
+		let len = self.input[0].len();
+		if len < self.duration {
+			let partial_len = len % self.duration;
+			if partial_len != 0 {
+				// Fill each input channel buffer with silence
+				// to the next multiple of the resampler duration.
+				for channel in self.input.iter_mut() {
+					channel.resize(len + (self.duration - partial_len), 0.0);
+				}
+			}
 		}
 
 		self.resample_inner()
@@ -119,7 +127,7 @@ where
 			// Fill each input channel buffer with silence to the next multiple of the resampler
 			// duration.
 			for channel in self.input.iter_mut() {
-				channel.resize(len + (self.duration - partial_len), f32::MID);
+				channel.resize(len + (self.duration - partial_len), 0.0);
 			}
 		}
 
