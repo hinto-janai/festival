@@ -54,8 +54,10 @@ elapsed | {} seconds
 
 {DASH} festival
 build    | {}
-commit   | {}version  | {}
+commit   | {}
+version  | {}
 shukusai | {}
+resample | {}
 
 {DASH} diff
 state    | {}
@@ -111,6 +113,7 @@ kernel_returned      | {}
 			COMMIT,
 			FESTIVAL_VERSION,
 			SHUKUSAI_VERSION,
+			std::env::var_os("FESTIVAL_FORCE_RESAMPLE").is_some(),
 			self.diff_state(),
 			self.diff_settings(),
 			atomic_load!(self.rfd_open),
