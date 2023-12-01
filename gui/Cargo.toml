@@ -1,6 +1,6 @@
 [package]
 name           = "festival-gui"
-version        = "1.3.2"
+version        = "1.3.3"
 edition        = "2021"
 authors        = ["hinto.janai <hinto.janai@protonmail.com>"]
 homepage       = "https://festival.pm"

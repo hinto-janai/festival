@@ -33,7 +33,7 @@ Types of changes:
 ---
 
 
-## Festival GUI v1.3.3 - 2023-11-30
+# Festival GUI v1.3.3 - 2023-11-30
 ## Changed
 * `FESTIVAL_FORCE_RESAMPLE` environment variable will force Festival to resample audio even if the sample rate the same as the audio output (Windows/macOS only)
 
@@ -44,7 +44,7 @@ Types of changes:
 ---
 
 
-## Festival GUI v1.3.2 - 2023-11-26
+# Festival GUI v1.3.2 - 2023-11-26
 ## Fixed
 * Crash on audio playback on Windows/macOS ([#76](https://github.com/hinto-janai/festival/pull/76))
 * Resampled audio fixes ([#77](https://github.com/hinto-janai/festival/pull/77))
@@ -53,7 +53,7 @@ Types of changes:
 ---
 
 
-## Festival GUI v1.3.1 - 2023-11-15
+# Festival GUI v1.3.1 - 2023-11-15
 ## Changed
 * Audio decoding/playback loop is tighter - more leeway during high CPU usage ([#73](https://github.com/hinto-janai/festival/pull/73))
 * Audio thread is now real-time across all platforms ([#74](https://github.com/hinto-janai/festival/pull/74))
