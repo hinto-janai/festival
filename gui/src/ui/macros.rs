@@ -478,11 +478,23 @@ macro_rules! song_label {
 #[macro_export]
 /// Same as `album_button!()` but a label.
 macro_rules! album_label {
-	($self:ident, $album:expr, $key:expr, $ui:ident, $label:expr) => {
+	(
+		$self:ident, // `self`
+		$album:expr, // Album object
+		$key:expr,   // AlbumKey
+		$ui:ident,   // egui's `ui`
+		$label:expr  // `Label` object for the album
+		$(,)?
+	) => {
 		let resp = $ui.add($label.sense(Sense::click()));
 
 		let primary   = resp.clicked();
 		let secondary = resp.secondary_clicked();
+
+		// Show art on label hover.
+		resp.on_hover_ui(|ui| {
+			$album.art_or().show_size(ui, egui::vec2(250.0, 250.0));
+		});
 
 		if primary {
 			if $self.modifiers.command {
