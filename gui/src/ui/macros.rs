@@ -297,6 +297,16 @@ macro_rules! clear_stop {
 }
 
 #[macro_export]
+/// Copy an input `String` to the clipboard and raise a toast.
+macro_rules! copy_text {
+	($self:ident, $ctx:expr, $text:expr) => {
+		let text = $text.to_string();
+		$crate::toast!($self, format!("Copied text [{text}]"));
+		$ctx.copy_text(text);
+	}
+}
+
+#[macro_export]
 /// Adds a clickable `Song` label button that:
 ///
 /// - Lists `track`, `runtime`, `title`
@@ -304,6 +314,7 @@ macro_rules! clear_stop {
 /// - Secondary click: adds it to the queue
 /// - CTRL + Primary click: adds to playlist
 /// - CTRL + Secondary click: opens its directory in a file explorer
+/// - Middle click: copy text
 ///
 /// HACK:
 /// This also takes in a optional `$artist`.
@@ -333,6 +344,7 @@ macro_rules! song_button {
 
 		let primary   = resp.clicked();
 		let secondary = resp.secondary_clicked();
+		let middle    = resp.middle_clicked();
 
 		if primary {
 			if $self.modifiers.command {
@@ -350,6 +362,8 @@ macro_rules! song_button {
 			} else {
 				$crate::add_song!($self, $song.title, $key);
 			}
+		} else if middle {
+			$crate::copy_text!($self, $ui.ctx(), $song.title);
 		}
 
 		// FIXME:
@@ -399,6 +413,7 @@ macro_rules! song_button {
 /// - Secondary click: adds it to the queue
 /// - CTRL + Primary click: adds to playlist
 /// - CTRL + Secondary click: opens its directory in a file explorer
+/// - Middle click: copy text
 macro_rules! album_button {
 	($self:ident, $album:expr, $key:expr, $ui:ident, $ctx:ident, $size:expr, $text:expr) => {
 		// HACK: this isn't a perfect fix but it mostly works.
@@ -433,6 +448,7 @@ macro_rules! album_button {
 
 		let primary   = resp.clicked();
 		let secondary = resp.secondary_clicked();
+		let middle    = resp.middle_clicked();
 
 		if primary {
 			if $self.modifiers.command {
@@ -446,6 +462,8 @@ macro_rules! album_button {
 			} else {
 				$crate::add_album!($self, $album.title, $key);
 			}
+		} else if middle {
+			$crate::copy_text!($self, $ui.ctx(), $album.title);
 		}
 	};
 }
@@ -458,6 +476,7 @@ macro_rules! song_label {
 
 		let primary   = resp.clicked();
 		let secondary = resp.secondary_clicked();
+		let middle    = resp.middle_clicked();
 
 		if primary {
 			if $self.modifiers.command {
@@ -471,6 +490,8 @@ macro_rules! song_label {
 			} else {
 				$crate::add_song!($self, $song.title, $key);
 			}
+		} else if middle {
+			$crate::copy_text!($self, $ui.ctx(), $song.title);
 		}
 	}
 }
@@ -490,6 +511,7 @@ macro_rules! album_label {
 
 		let primary   = resp.clicked();
 		let secondary = resp.secondary_clicked();
+		let middle    = resp.middle_clicked();
 
 		// Show art on label hover.
 		resp.on_hover_ui(|ui| {
@@ -508,6 +530,8 @@ macro_rules! album_label {
 			} else {
 				$crate::add_album!($self, $album.title, $key);
 			}
+		} else if middle {
+			$crate::copy_text!($self, $ui.ctx(), $album.title);
 		}
 	}
 }
@@ -517,11 +541,13 @@ macro_rules! album_label {
 /// - Primary click: sets it to `Artists` tab view
 /// - Secondary click: adds all `Album`'s by that `Artist` to the queue
 /// - CTRL + Primary click: adds to playlist
+/// - Middle click: copy text
 macro_rules! artist_label {
 	($self:ident, $artist:expr, $key:expr, $ui:ident, $label:expr) => {
 		let resp      = $ui.add($label.sense(Sense::click()));
 		let primary   = resp.clicked();
 		let secondary = resp.secondary_clicked();
+		let middle    = resp.middle_clicked();
 
 		if primary {
 			if $self.modifiers.command {
@@ -531,6 +557,8 @@ macro_rules! artist_label {
 			}
 		} else if secondary {
 			$crate::add_artist!($self, $artist, $key);
+		} else if middle {
+			$crate::copy_text!($self, $ui.ctx(), $artist.name);
 		}
 	}
 }
@@ -540,10 +568,12 @@ macro_rules! artist_label {
 /// - Primary click: clear queue, add and play random `Song`
 /// - Secondary click: append random `Song` to back of queue
 /// - CTRL + Primary: add random `Song` to playlist
+/// - Middle click: copy text
 macro_rules! song_rand {
 	($self:ident, $ui:ident, $ui_resp:expr) => {
 		let primary   = $ui_resp.clicked();
 		let secondary = $ui_resp.secondary_clicked();
+		let middle    = $ui_resp.middle_clicked();
 
 		if primary {
 			// SAFETY: ui should be greyed out if `Collection`
@@ -556,11 +586,15 @@ macro_rules! song_rand {
 				$crate::toast!($self, format!("Playing Song [{}]", song.title));
 				$crate::play_song!($self, key);
 			}
-		} else if secondary {
+		} else if secondary || middle {
 			// SAFETY: same as above.
 			let key = $self.collection.rand_song(None).unwrap();
 			let song = &$self.collection.songs[key];
-			$crate::add_song!($self, &song.title, key);
+			if secondary {
+				$crate::add_song!($self, &song.title, key);
+			} else if middle {
+				$crate::copy_text!($self, $ui.ctx(), song.title);
+			}
 		}
 	}
 }
@@ -574,6 +608,7 @@ macro_rules! album_rand {
 	($self:ident, $ui:ident, $ui_resp:expr) => {
 		let primary   = $ui_resp.clicked();
 		let secondary = $ui_resp.secondary_clicked();
+		let middle    = $ui_resp.middle_clicked();
 
 		if primary {
 			// SAFETY: ui should be greyed out if `Collection`
@@ -586,11 +621,15 @@ macro_rules! album_rand {
 				$crate::toast!($self, format!("Playing Album [{}]", album.title));
 				$crate::play_album_offset!($self, key, 0);
 			}
-		} else if secondary {
+		} else if secondary || middle {
 			// SAFETY: same as above.
 			let key = $self.collection.rand_album(None).unwrap();
 			let album = &$self.collection.albums[key];
-			$crate::add_album!($self, &album.title, key);
+			if secondary {
+				$crate::add_album!($self, &album.title, key);
+			} else if middle {
+				$crate::copy_text!($self, $ui.ctx(), album.title);
+			}
 		}
 	}
 }
@@ -600,10 +639,12 @@ macro_rules! album_rand {
 /// - Primary click: clear queue, add and play random `Artist`
 /// - Secondary click: append random `Artist` to back of queue
 /// - CTRL + Primary: add random `Artist` to playlist
+/// - Middle click: copy text
 macro_rules! artist_rand {
 	($self:ident, $ui:ident, $ui_resp:expr) => {
 		let primary   = $ui_resp.clicked();
 		let secondary = $ui_resp.secondary_clicked();
+		let middle    = $ui_resp.middle_clicked();
 
 		if primary {
 			// SAFETY: ui should be greyed out if `Collection`
@@ -616,11 +657,15 @@ macro_rules! artist_rand {
 				$crate::toast!($self, format!("Playing Artist [{}]", artist.name));
 				$crate::play_artist_offset!($self, key, 0);
 			}
-		} else if secondary {
+		} else if secondary || middle {
 			// SAFETY: same as above.
 			let key = $self.collection.rand_artist(None).unwrap();
 			let artist = &$self.collection.artists[key];
-			$crate::add_artist!($self, artist, key);
+			if secondary {
+				$crate::add_artist!($self, artist, key);
+			} else if middle {
+				$crate::copy_text!($self, $ui.ctx(), artist.name);
+			}
 		}
 	}
 }
@@ -632,11 +677,16 @@ macro_rules! artist_rand {
 macro_rules! playlist_label {
 	($self:ident, $playlist_name:expr, $ui:ident, $label:expr) => {
 		let resp = $ui.add($label.sense(Sense::click()));
+		let primary   = resp.clicked();
+		let secondary = resp.secondary_clicked();
+		let middle    = resp.middle_clicked();
 
-		if resp.clicked() {
+		if primary {
 			$crate::playlist!($self, $playlist_name);
-		} else if resp.secondary_clicked() {
+		} else if secondary {
 			$crate::add_playlist!($self, $playlist_name);
+		} else if middle {
+			$crate::copy_text!($self, $ui.ctx(), $playlist_name);
 		}
 	}
 }
