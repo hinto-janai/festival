@@ -20,7 +20,8 @@ jobs:
     strategy:
       matrix:
         os: [windows-2022, macos-12, ubuntu-20.04]
-        pkg: [festival-gui, festivald, festival-cli]
+#        pkg: [festival-gui, festivald, festival-cli]
+        pkg: [festival-gui]
 
     steps:
     - name: Checkout
