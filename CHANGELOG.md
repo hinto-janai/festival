@@ -16,6 +16,9 @@ Types of changes:
 
 
 # Festival GUI Unreleased
+## Added
+- Show art on album title label hover ([#83](https://github.com/hinto-janai/festival/pull/83))
+- `Auto Save` setting ([#84](https://github.com/hinto-janai/festival/pull/84))
 
 
 ---
