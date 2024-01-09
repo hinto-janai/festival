@@ -296,13 +296,65 @@ macro_rules! clear_stop {
 	}
 }
 
+
 #[macro_export]
-/// Copy an input `String` to the clipboard and raise a toast.
+/// Copy a `String` to the clipboard and raise a toast.
 macro_rules! copy_text {
 	($self:ident, $ctx:expr, $text:expr) => {
 		let text = $text.to_string();
 		$crate::toast!($self, format!("Copied text [{text}]"));
 		$ctx.copy_text(text);
+	}
+}
+
+#[macro_export]
+/// Copy a `Song` to the clipboard and raise a toast.
+macro_rules! copy_song {
+	($self:ident, $ctx:expr, $song:expr) => {
+		let (album, _) = $self.collection.album_from_song($song.key);
+		if $self.modifiers.command {
+			let text = album.path.to_string_lossy().into_owned();
+			$crate::toast!($self, format!("Copied PATH [{text}]"));
+			$ctx.copy_text(text);
+		} else {
+			let text = $song.title.to_string();
+			$crate::toast!($self, format!("Copied song title [{text}]"));
+			$ctx.copy_text(text);
+		}
+	}
+}
+
+#[macro_export]
+/// Copy an `Album` to the clipboard and raise a toast.
+macro_rules! copy_album {
+	($self:ident, $ctx:expr, $album:expr) => {
+		if $self.modifiers.command {
+			let text = $album.path.to_string_lossy().into_owned();
+			$crate::toast!($self, format!("Copied PATH [{text}]"));
+			$ctx.copy_text(text);
+		} else {
+			let text = $album.title.to_string();
+			$crate::toast!($self, format!("Copied album title [{text}]"));
+			$ctx.copy_text(text);
+		}
+	}
+}
+
+#[macro_export]
+/// Copy an `Artist` to the clipboard and raise a toast.
+macro_rules! copy_artist {
+	($self:ident, $ctx:expr, $artist:expr) => {
+		// INVARIANT: `Artist`'s always have at least 1 `Album`.
+		let album = &$self.collection.albums[$artist.albums[0]];
+		if $self.modifiers.command {
+			let text = album.path.to_string_lossy().into_owned();
+			$crate::toast!($self, format!("Copied PATH [{text}]"));
+			$ctx.copy_text(text);
+		} else {
+			let text = $artist.name.to_string();
+			$crate::toast!($self, format!("Copied artist name [{text}]"));
+			$ctx.copy_text(text);
+		}
 	}
 }
 
@@ -363,7 +415,7 @@ macro_rules! song_button {
 				$crate::add_song!($self, $song.title, $key);
 			}
 		} else if middle {
-			$crate::copy_text!($self, $ui.ctx(), $song.title);
+			$crate::copy_song!($self, $ui.ctx(), $song);
 		}
 
 		// FIXME:
@@ -463,7 +515,7 @@ macro_rules! album_button {
 				$crate::add_album!($self, $album.title, $key);
 			}
 		} else if middle {
-			$crate::copy_text!($self, $ui.ctx(), $album.title);
+			$crate::copy_album!($self, $ui.ctx(), $album);
 		}
 	};
 }
@@ -491,7 +543,7 @@ macro_rules! song_label {
 				$crate::add_song!($self, $song.title, $key);
 			}
 		} else if middle {
-			$crate::copy_text!($self, $ui.ctx(), $song.title);
+			$crate::copy_song!($self, $ui.ctx(), $song);
 		}
 	}
 }
@@ -531,7 +583,7 @@ macro_rules! album_label {
 				$crate::add_album!($self, $album.title, $key);
 			}
 		} else if middle {
-			$crate::copy_text!($self, $ui.ctx(), $album.title);
+			$crate::copy_album!($self, $ui.ctx(), $album);
 		}
 	}
 }
@@ -558,7 +610,7 @@ macro_rules! artist_label {
 		} else if secondary {
 			$crate::add_artist!($self, $artist, $key);
 		} else if middle {
-			$crate::copy_text!($self, $ui.ctx(), $artist.name);
+			$crate::copy_artist!($self, $ui.ctx(), $artist);
 		}
 	}
 }
@@ -593,7 +645,7 @@ macro_rules! song_rand {
 			if secondary {
 				$crate::add_song!($self, &song.title, key);
 			} else if middle {
-				$crate::copy_text!($self, $ui.ctx(), song.title);
+				$crate::copy_song!($self, $ui.ctx(), song);
 			}
 		}
 	}
@@ -628,7 +680,7 @@ macro_rules! album_rand {
 			if secondary {
 				$crate::add_album!($self, &album.title, key);
 			} else if middle {
-				$crate::copy_text!($self, $ui.ctx(), album.title);
+				$crate::copy_album!($self, $ui.ctx(), album);
 			}
 		}
 	}
@@ -664,7 +716,7 @@ macro_rules! artist_rand {
 			if secondary {
 				$crate::add_artist!($self, artist, key);
 			} else if middle {
-				$crate::copy_text!($self, $ui.ctx(), artist.name);
+				$crate::copy_artist!($self, $ui.ctx(), artist);
 			}
 		}
 	}
