@@ -194,7 +194,6 @@ If no folders are listed, the default Music directory is scanned."#);
 pub const EMPTY_AUTOPLAY:    &str = "Start playing automatically if songs are added to an empty queue";
 pub const STATS:             &str = "Stats about your current Collection";
 
-#[cfg(not(target_os = "macos"))]
 pub const HELP: &str =
 r#"*-------------------------------------------------------*
 |       Key/Mouse | Action                              |
@@ -214,34 +213,11 @@ r#"*-------------------------------------------------------*
 |            Left | Next Sub-Tab                        |
 |   Primary Mouse | Set Artist, Album, Song             |
 | Secondary Mouse | Add Artist, Album, Song to Queue    |
+|    Middle Mouse | Copy Artist, Album, Song text       |
 |    CTRL+Primary | Add Artist, Album, Song to Playlist |
 |  CTRL+Secondary | Open Album/Song Directory           |
+|     CTRL+Middle | Copy Artist/Album/Song PATH         |
 *-------------------------------------------------------*"#;
-
-// macOS doesn't have a middle click on the trackpad natively...
-#[cfg(target_os = "macos")]
-pub const HELP: &str =
-r#"*---------------------------------------------------------*
-|         Key/Mouse | Action                              |
-|---------------------------------------------------------|
-|       [A-Za-z0-9] | Jump to search tab                  |
-|         Command+S | Save Changes                        |
-|         Command+Z | Reset Changes                       |
-|         Command+C | Reset Collection                    |
-|         Command+A | Add Scan Directory                  |
-|         Command+W | Rotate Album Sort                   |
-|         Command+E | Rotate Artist Sort                  |
-|         Command+R | Rotate Song Sort                    |
-|         Command+D | Goto Last Tab                       |
-|                Up | Last Tab                            |
-|              Down | Next Tab                            |
-|             Right | Last Sub-Tab                        |
-|              Left | Next Sub-Tab                        |
-|     Primary Mouse | Set Artist, Album, Song             |
-|   Secondary Mouse | Add Artist, Album, Song to Queue    |
-|   Command+Primary | Add Artist, Album, Song to Playlist |
-| Command+Secondary | Open Album/Song Directory           |
-*---------------------------------------------------------*"#;
 
 /// - Festival name + version
 /// - OS + Arch
