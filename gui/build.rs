@@ -12,7 +12,7 @@ fn main() -> std::io::Result<()> {
 	// clicking it in the taskbar... for some reason.
 	res.set("FileDescription", "Festival");
 	res.set("ProductName",     "Festival");
-	res.set("LegalCopyright",  "Copyright (c) 2023 hinto-janai");
+	res.set("LegalCopyright",  "Copyright (c) 2023-2024 hinto-janai");
 	res.compile()
 }
 

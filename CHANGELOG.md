@@ -16,15 +16,6 @@ Types of changes:
 
 
 # Festival GUI Unreleased
-## Added
-- Show art on album title label hover ([#83](https://github.com/hinto-janai/festival/pull/83))
-- `Auto Save` setting ([#84](https://github.com/hinto-janai/festival/pull/84))
-- `Middle click` to copy Artist/Album/Song/Playlist text ([#85](https://github.com/hinto-janai/festival/pull/85))
-- `CTRL + Middle click` to copy Artist/Album/Song PATHs ([#85](https://github.com/hinto-janai/festival/pull/85))
-
-
-## Changed
-- State (Tabs, specific `Album/Artist`) are now maintained across `Collection` resets if possible ([#85](https://github.com/hinto-janai/festival/pull/85))
 
 
 ---
@@ -37,6 +28,22 @@ Types of changes:
 
 
 # `festival-cli` Unreleased
+
+
+---
+
+
+# Festival GUI v1.4.0 - 2024-01-09
+
+## Added
+- Show art on album title label hover ([#83](https://github.com/hinto-janai/festival/pull/83))
+- `Auto Save` setting ([#84](https://github.com/hinto-janai/festival/pull/84))
+- `Middle click` to copy Artist/Album/Song/Playlist text ([#87](https://github.com/hinto-janai/festival/pull/87))
+- `CTRL + Middle click` to copy Artist/Album/Song PATHs ([#87](https://github.com/hinto-janai/festival/pull/87))
+
+
+## Changed
+- State (Tabs, specific `Album/Artist`) are now maintained across `Collection` resets if possible ([#85](https://github.com/hinto-janai/festival/pull/85))
 
 
 ---

@@ -48,7 +48,7 @@ To build one of the `Frontend`'s, you must pass the `--package <FRONTEND>` optio
 
 Each frontend's release has a git tag, so to build the latest _stable_ `festival-gui`:
 ```bash
-git checkout gui-v1.3.3
+git checkout gui-v1.4.0
 cargo build --release --package festival-gui
 ```
 
@@ -83,7 +83,7 @@ sudo apt install libssl-dev
 
 To build [`festival-gui`](https://github.com/hinto-janai/festival/tree/main/gui):
 ```bash
-git checkout gui-v1.3.3
+git checkout gui-v1.4.0
 cargo build --release --package festival-gui
 ```
 To build [`festivald`](https://github.com/hinto-janai/festival/tree/main/daemon):
@@ -108,7 +108,7 @@ cargo build --release --package festival-cli
 
 To build [`festival-gui`](https://github.com/hinto-janai/festival/tree/main/gui):
 ```bash
-git checkout gui-v1.3.3
+git checkout gui-v1.4.0
 cargo build --release --package festival-gui
 ```
 To build [`festivald`](https://github.com/hinto-janai/festival/tree/main/daemon):
@@ -133,7 +133,7 @@ cargo build --release --package festival-cli
 
 To build [`festival-gui`](https://github.com/hinto-janai/festival/tree/main/gui):
 ```bash
-git checkout gui-v1.3.3
+git checkout gui-v1.4.0
 cargo build --release --package festival-gui
 ```
 
