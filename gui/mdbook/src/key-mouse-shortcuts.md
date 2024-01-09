@@ -17,7 +17,9 @@
 |            Left | Next Sub-Tab                        |
 |   Primary Mouse | Set Artist, Album, Song             |
 | Secondary Mouse | Add Artist, Album, Song to Queue    |
+|    Middle Mouse | Copy Artist, Album, Song text       |
 |    CTRL+Primary | Add Artist, Album, Song to Playlist |
 |  CTRL+Secondary | Open Album/Song Directory           |
+|     CTRL+Middle | Copy Artist/Album/Song PATH         |
 
 *Note: `CTRL` is `Control` on macOS.*
