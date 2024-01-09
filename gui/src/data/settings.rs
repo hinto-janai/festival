@@ -12,6 +12,7 @@ use crate::constants::{
 	ACCENT_COLOR,
 	SETTINGS_VERSION,
 	PIXELS_PER_POINT_DEFAULT,
+	AUTO_SAVE_INTERVAL_SECONDS,
 };
 use shukusai::{
 	constants::{
@@ -75,14 +76,14 @@ pub struct Settings {
 	/// instead of going to the previous?
 	pub previous_threshold: u32,
 
+	/// Auto-save the audio state to disk every `auto_save` seconds.
+	pub auto_save: u8,
+
 	/// Restore playback on re-open.
 	pub restore_state: bool,
 
 	/// Start playback if we added stuff to an empty queue.
 	pub empty_autoplay: bool,
-
-	/// Occasionally auto-save the audio state to disk.
-	pub auto_save: bool,
 
 	#[bincode(with_serde)]
 	/// Our accent color.
@@ -110,9 +111,9 @@ impl Settings {
 			album_pixel_size:   ALBUM_ART_SIZE_DEFAULT,
 			albums_per_row:     ALBUMS_PER_ROW_DEFAULT,
 			previous_threshold: PREVIOUS_THRESHOLD_DEFAULT,
+			auto_save:          AUTO_SAVE_INTERVAL_SECONDS,
 			restore_state:      true,
 			empty_autoplay:     true,
-			auto_save:          true,
 			accent_color:       ACCENT_COLOR,
 			collection_paths:   vec![],
 			pixels_per_point:   PIXELS_PER_POINT_DEFAULT,
@@ -152,9 +153,9 @@ mod test {
 		assert_eq!(S2.album_pixel_size,   227.0);
 		assert_eq!(S2.albums_per_row,     10);
 		assert_eq!(S2.previous_threshold, 10);
+		assert_eq!(S2.auto_save,          30);
 		assert_eq!(S2.restore_state,      false);
 		assert_eq!(S2.empty_autoplay,     false);
-		assert_eq!(S2.auto_save,          true);
 		assert_eq!(S2.accent_color,       egui::Color32::from_rgb(97,101,119));
 		assert_eq!(S2.collection_paths,   [PathBuf::from("/home/main/Music")]);
 		assert_eq!(S2.pixels_per_point.round(), 2.0);

@@ -232,8 +232,8 @@ pub const PIXELS_PER_POINT_UNIT_STR: &str = "0.1";
 pub const PIXELS_PER_POINT_MIN_STR:  &str = "0.1";
 pub const PIXELS_PER_POINT_MAX_STR:  &str = "3.0";
 
-// How many seconds in-between auto-saving?
-pub const SETTINGS_AUTO_SAVE_INTERVAL_SECS: u64 = 30;
+// Auto-save default interval.
+pub const AUTO_SAVE_INTERVAL_SECONDS: u8 = 30;
 
 //---------------------------------------------------------------------------------------------------- Fonts
 pub const FONT_SOURCECODE_PRO: &[u8] = include_bytes!("../../assets/fonts/SourceCodePro-Regular.otf");

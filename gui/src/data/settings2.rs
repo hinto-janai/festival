@@ -12,6 +12,7 @@ use crate::constants::{
 	ACCENT_COLOR,
 	SETTINGS_VERSION,
 	PIXELS_PER_POINT_DEFAULT,
+	AUTO_SAVE_INTERVAL_SECONDS,
 };
 use shukusai::{
 	constants::{
@@ -158,7 +159,7 @@ impl Into<Settings> for Settings2 {
 			pixels_per_point,
 
 			// New fields.
-			auto_save: true,
+			auto_save: AUTO_SAVE_INTERVAL_SECONDS,
 		}
 	}
 }

@@ -53,7 +53,6 @@ use crate::constants::{
 	BONE,BLACK,
 	YELLOW,GREEN,MEDIUM_GRAY,
 	RUNTIME_WIDTH,
-	SETTINGS_AUTO_SAVE_INTERVAL_SECS,
 };
 use crate::text::{
 	HELP,MOD,DRAG_AND_DROP,
@@ -141,7 +140,7 @@ impl eframe::App for Gui {
 		}
 		// Auto-save state.
 		if (self.kernel_returned && !self.resetting_collection) &&
-			self.settings.auto_save && secs!(self.auto_save) > SETTINGS_AUTO_SAVE_INTERVAL_SECS
+			self.settings.auto_save != 0 && secs!(self.auto_save) > self.settings.auto_save as u64
 		{
 			self.auto_save = now!();
 
