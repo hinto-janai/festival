@@ -20,6 +20,9 @@ Types of changes:
 - Show art on album title label hover ([#83](https://github.com/hinto-janai/festival/pull/83))
 - `Auto Save` setting ([#84](https://github.com/hinto-janai/festival/pull/84))
 
+## Changed
+- State (Tabs, specific `Album/Artist`) are now maintained across `Collection` resets if possible ([#85](https://github.com/hinto-janai/festival/pull/85))
+
 
 ---
 
