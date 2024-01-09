@@ -19,6 +19,9 @@ Types of changes:
 ## Added
 - Show art on album title label hover ([#83](https://github.com/hinto-janai/festival/pull/83))
 - `Auto Save` setting ([#84](https://github.com/hinto-janai/festival/pull/84))
+- `Middle click` to copy Artist/Album/Song/Playlist text ([#85](https://github.com/hinto-janai/festival/pull/85))
+- `CTRL + Middle click` to copy Artist/Album/Song PATHs ([#85](https://github.com/hinto-janai/festival/pull/85))
+
 
 ## Changed
 - State (Tabs, specific `Album/Artist`) are now maintained across `Collection` resets if possible ([#85](https://github.com/hinto-janai/festival/pull/85))
