@@ -160,6 +160,9 @@ impl Into<Settings> for Settings1 {
 			accent_color,
 			collection_paths,
 			pixels_per_point,
+
+			// New fields.
+			auto_save: true,
 		}
 	}
 }

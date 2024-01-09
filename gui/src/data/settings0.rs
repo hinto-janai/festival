@@ -181,6 +181,7 @@ impl Into<Settings> for Settings0 {
 
 			// New fields.
 			pixels_per_point: PIXELS_PER_POINT_DEFAULT,
+			auto_save: true,
 		}
 	}
 }

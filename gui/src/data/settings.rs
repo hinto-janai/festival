@@ -81,6 +81,9 @@ pub struct Settings {
 	/// Start playback if we added stuff to an empty queue.
 	pub empty_autoplay: bool,
 
+	/// Occasionally auto-save the audio state to disk.
+	pub auto_save: bool,
+
 	#[bincode(with_serde)]
 	/// Our accent color.
 	pub accent_color: egui::Color32,
@@ -109,6 +112,7 @@ impl Settings {
 			previous_threshold: PREVIOUS_THRESHOLD_DEFAULT,
 			restore_state:      true,
 			empty_autoplay:     true,
+			auto_save:          true,
 			accent_color:       ACCENT_COLOR,
 			collection_paths:   vec![],
 			pixels_per_point:   PIXELS_PER_POINT_DEFAULT,
@@ -131,30 +135,9 @@ mod test {
 	use disk::Bincode2;
 
 	// Empty.
-	const S1: Lazy<Settings> = Lazy::new(|| Settings::from_path("../assets/festival/gui/state/settings2_new.bin").unwrap());
+	const S1: Lazy<Settings> = Lazy::new(|| Settings::from_path("../assets/festival/gui/state/settings3_new.bin").unwrap());
 	// Filled.
-	const S2: Lazy<Settings> = Lazy::new(|| Settings::from_path("../assets/festival/gui/state/settings2_real.bin").unwrap());
-
-	// See `settings0.rs` on why this is commented out.
-	//
-//	#[test]
-//	// Compares `new()`.
-//	fn cmp() {
-//		#[cfg(not(target_os = "macos"))]
-//		assert_eq!(Lazy::force(&S1), &Settings::new());
-//		#[cfg(target_os = "macos")]
-//		{
-//			let mut settings = Settings::new();
-//			settings.pixels_per_point = 1.5;
-//			assert_eq!(Lazy::force(&S1), &settings);
-//		}
-//
-//		assert_ne!(Lazy::force(&S1), Lazy::force(&S2));
-//
-//		let b1 = S1.to_bytes().unwrap();
-//		let b2 = S2.to_bytes().unwrap();
-//		assert_ne!(b1, b2);
-//	}
+	const S2: Lazy<Settings> = Lazy::new(|| Settings::from_path("../assets/festival/gui/state/settings3_real.bin").unwrap());
 
 	#[test]
 	// Attempts to deserialize the non-empty.
@@ -171,6 +154,7 @@ mod test {
 		assert_eq!(S2.previous_threshold, 10);
 		assert_eq!(S2.restore_state,      false);
 		assert_eq!(S2.empty_autoplay,     false);
+		assert_eq!(S2.auto_save,          true);
 		assert_eq!(S2.accent_color,       egui::Color32::from_rgb(97,101,119));
 		assert_eq!(S2.collection_paths,   [PathBuf::from("/home/main/Music")]);
 		assert_eq!(S2.pixels_per_point.round(), 2.0);

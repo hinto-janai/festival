@@ -3,7 +3,7 @@
 //use log::{info,error,warn,trace,debug};
 use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
-
+use disk::Bincode2;
 use std::path::PathBuf;
 use crate::constants::{
 	GUI,
@@ -28,15 +28,17 @@ use shukusai::{
 	search::SearchKind,
 };
 use crate::data::{
+	Settings,
 	AlbumSizing,
 	SearchSort,
+	ArtistSubTab,
 	WindowTitle,
 };
 use const_format::formatcp;
 use std::marker::PhantomData;
 
 //---------------------------------------------------------------------------------------------------- Settings
-disk::bincode2!(Settings, disk::Dir::Data, FESTIVAL, formatcp!("{GUI}/{STATE_SUB_DIR}"), "settings", HEADER, 2);
+disk::bincode2!(Settings2, disk::Dir::Data, FESTIVAL, formatcp!("{GUI}/{STATE_SUB_DIR}"), "settings", HEADER, 2);
 #[derive(Clone,Debug,PartialEq,Serialize,Deserialize,Encode,Decode)]
 /// Version 2 of `GUI`'s settings.
 pub struct Settings2 {
@@ -154,6 +156,9 @@ impl Into<Settings> for Settings2 {
 			accent_color,
 			collection_paths,
 			pixels_per_point,
+
+			// New fields.
+			auto_save: true,
 		}
 	}
 }
