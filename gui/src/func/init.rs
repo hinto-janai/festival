@@ -15,6 +15,7 @@ use crate::data::{
 	State,
 	State0,
 	Settings,
+	Settings2,
 	Settings1,
 	Settings0,
 	DebugInfo,
@@ -171,6 +172,7 @@ impl crate::data::Gui {
 		// Read `Settings` from disk.
 		let settings = Settings::from_versions(&[
 			(SETTINGS_VERSION, Settings::from_file),
+			(2,                Settings2::disk_into),
 			(1,                Settings1::disk_into),
 			(0,                Settings0::disk_into),
 		]);
@@ -254,6 +256,7 @@ impl crate::data::Gui {
 			audio_leeway: now!(),
 			last_song: None,
 			runtime_width: RUNTIME_WIDTH,
+			auto_save: now!(),
 
 			reset_state: ResetState::new(),
 

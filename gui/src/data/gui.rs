@@ -84,6 +84,8 @@ pub struct Gui {
 	/// The pixel size needed for the `Runtime` in the bottom UI bar.
 	/// It depends on the length of the `Runtime` string.
 	pub runtime_width: f32,
+	/// AudioState auto-save interval.
+	pub auto_save: Instant,
 
 	/// Reset State.
 	///

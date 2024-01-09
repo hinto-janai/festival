@@ -161,7 +161,7 @@ pub const GUI: &str = "gui";
 pub const STATE_VERSION: u8 = 1;
 
 /// Current major version of `GUI`'s `Settings`
-pub const SETTINGS_VERSION: u8 = 2;
+pub const SETTINGS_VERSION: u8 = 3;
 
 //---------------------------------------------------------------------------------------------------- Resolution
 // 700.0 works on some `Album`'s in view tabs
@@ -231,6 +231,9 @@ pub const PIXELS_PER_POINT_MAX:  f32 = 3.0;
 pub const PIXELS_PER_POINT_UNIT_STR: &str = "0.1";
 pub const PIXELS_PER_POINT_MIN_STR:  &str = "0.1";
 pub const PIXELS_PER_POINT_MAX_STR:  &str = "3.0";
+
+// Auto-save default interval.
+pub const AUTO_SAVE_INTERVAL_SECONDS: u8 = 30;
 
 //---------------------------------------------------------------------------------------------------- Fonts
 pub const FONT_SOURCECODE_PRO: &[u8] = include_bytes!("../../assets/fonts/SourceCodePro-Regular.otf");

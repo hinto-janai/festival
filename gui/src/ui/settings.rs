@@ -400,6 +400,35 @@ pub fn show_tab_settings(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, widt
 		ui.separator();
 		ui.add_space(40.0);
 
+		//-------------------------------------------------- Auto-save
+		// Heading.
+		let label = Label::new(
+			RichText::new(format!("Auto Save ({})", self.settings.auto_save))
+			.color(BONE)
+			.text_style(TextStyle::Heading)
+		);
+		ui.add_sized([width, text], label).on_hover_text(AUTO_SAVE);
+
+		ui.scope(|ui| {
+			{
+				let v = &mut ui.visuals_mut().widgets;
+				v.inactive.fg_stroke = SLIDER_CIRCLE_INACTIVE;
+				v.hovered.fg_stroke  = SLIDER_CIRCLE_HOVERED;
+				v.active.fg_stroke   = SLIDER_CIRCLE_ACTIVE;
+			}
+			let slider = Slider::new(&mut self.settings.auto_save, 0..=u8::MAX);
+			let slider = slider
+				.step_by(1.0)
+				.thickness(text)
+				.show_value(false)
+				.trailing_fill(false);
+			ui.add_sized([width, text], slider);
+		});
+
+		ui.add_space(40.0);
+		ui.separator();
+		ui.add_space(40.0);
+
 		//-------------------------------------------------- Empty playback.
 		// Heading.
 		let label = Label::new(

@@ -161,6 +161,10 @@ pub const PREVIOUS_THRESHOLD:   &str =
 r#"If the current song runtime has passed this number, the [Previous] button will reset the current song instead of skipping backwards.
 
 Setting this to [0] will make the [Previous] button always go to the previous song."#;
+pub const AUTO_SAVE:         &str =
+r#"Auto-save all state, settings, and playlist changes every [x] seconds.
+
+This setting is disabled if set to [0]."#;
 pub const RESTORE_STATE:     &str = "Restore playback state from the last session when opening Festival";
 pub const WINDOW_TITLE:      &str = "Set Festival's window title when changing songs";
 pub const ACCENT_COLOR:      &str = formatcp!(
