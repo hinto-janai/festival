@@ -311,9 +311,8 @@ macro_rules! copy_text {
 /// Copy a `Song` to the clipboard and raise a toast.
 macro_rules! copy_song {
 	($self:ident, $ctx:expr, $song:expr) => {
-		let (album, _) = $self.collection.album_from_song($song.key);
 		if $self.modifiers.command {
-			let text = album.path.to_string_lossy().into_owned();
+			let text = $song.path.to_string_lossy().into_owned();
 			$crate::toast!($self, format!("Copied PATH [{text}]"));
 			$ctx.copy_text(text);
 		} else {
