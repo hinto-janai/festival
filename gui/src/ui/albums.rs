@@ -132,7 +132,10 @@ fn paint_albums(
 								// `0.0` will cause the text to expand
 								// the `ui` to however much space it needs.
 								// Album title.
-								ui.add_sized([pixel, 0.0], Label::new(RichText::new(album.title.head_dot(ALBUM_TITLE_LIMIT).as_str()).color(LESS_WHITE))).on_hover_text(&*album.title);
+								let label = Label::new(
+									RichText::new(album.title.head_dot(ALBUM_TITLE_LIMIT).as_str())
+								.color(LESS_WHITE));
+								let resp = ui.add_sized([pixel, 0.0], label).on_hover_text(&*album.title);
 
 								// Artist name.
 								let (artist, _) = &self.collection.artist_from_album(key);
@@ -148,6 +151,8 @@ fn paint_albums(
 									}
 								} else if resp.secondary_clicked() {
 									crate::add_artist!(self, artist, album.artist);
+								} else if resp.middle_clicked() {
+									crate::copy_artist!(self, ctx, artist);
 								}
 
 								ui.add_space(padding);
