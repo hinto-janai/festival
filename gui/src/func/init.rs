@@ -248,6 +248,7 @@ impl crate::data::Gui {
 			// `GUI` state.
 			og_state: state.clone(),
 			state,
+			state_restore: Default::default(),
 
 			// AudioState.
 			audio_state: AudioState::new(),

@@ -11,6 +11,7 @@ use crate::constants::{
 	PIXELS_PER_POINT_UNIT,
 };
 use crate::data::{
+	StateRestore,
 	AlbumSizing,
 };
 use shukusai::{
@@ -19,6 +20,7 @@ use shukusai::{
 		FrontendToKernel,
 	},
 	collection::{
+		Keychain,
 		Collection,
 	},
 	state::{AUDIO_STATE,PLAYLISTS},
@@ -85,6 +87,12 @@ impl Gui {
 
 		// Update audio state.
 		self.audio_state = AUDIO_STATE.read().clone();
+
+		// Update state.
+		//
+		// INVARIANT: this must be done to ensure our
+		// state keys are not referencing invalid keys.
+		self.state_restore.update_state(&mut self.state, &self.collection);
 	}
 
 	// Sets the [`egui::Ui`]'s `Visual` from our current `Settings`
@@ -221,10 +229,12 @@ impl Gui {
 		info!("GUI - Resetting Collection");
 
 		// INVARIANT:
-		// We _must_ clear our state because the code that runs after
-		// this function can use keys that no longer exist which will
-		// panic when used with this new empty `Collection`.
-		self.default_state();
+		// We must ensure our state does not reference invalid keys
+		// after the `Collection` reset or else index panic.
+		//
+		// This call must be combined when an eventual `into_state`
+		// when we receive the new `Collection`.
+		self.state_restore = StateRestore::from_state(&mut self.state, &self.collection);
 
 		// Drop our real `Collection`.
 		self.collection = Collection::dummy();

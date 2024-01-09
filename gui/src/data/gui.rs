@@ -1,6 +1,7 @@
 //---------------------------------------------------------------------------------------------------- Use
 use crate::data::{
 	State,
+	StateRestore,
 	Settings,
 	DebugInfo,
 };
@@ -56,6 +57,8 @@ pub struct Gui {
 	pub state: State,
 	/// `GUI` settings (old).
 	pub og_state: State,
+	/// In-between `Collection`-reset state to be potentially carried over.
+	pub state_restore: StateRestore,
 
 	//-------------------------------------------------- Ephemeral State.
 	// These are quick one-off fields that mostly

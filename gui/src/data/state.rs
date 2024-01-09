@@ -4,7 +4,7 @@
 use serde::{Serialize,Deserialize};
 use bincode::{Encode,Decode};
 use super::{
-	Tab,
+	Tab, album,
 };
 use crate::data::{
 	ArtistSubTab,
@@ -25,6 +25,7 @@ use shukusai::{
 		Repeat,
 	},
 	collection::{
+		Collection,
 		ArtistKey,
 		AlbumKey,
 		Keychain,
@@ -117,6 +118,61 @@ impl State {
 impl Default for State {
 	fn default() -> Self {
 		Self::new()
+	}
+}
+
+//---------------------------------------------------------------------------------------------------- StateRestore
+/// An "in-between Collection reset" representation of [`State`].
+///
+/// Keys are replaced with string variants, which are attempted
+/// to be converted after the `Collection` reset.
+///
+/// Similar to `shukusai::state::AudioStateRestore`.
+///
+/// This holds _some_ state such that we can restore without
+/// index panic'ing on invalid keys. Some misc state like
+/// search `Keychain`'s are cleared, only important things
+/// like `album: Option<AlbumKey>` are carried over.
+#[derive(Debug,Clone)]
+pub struct StateRestore {
+	//               artist    album
+	//                 v         v
+	pub album: Option<(Arc<str>, Arc<str>)>,
+	pub artist: Option<Arc<str>>,
+}
+
+impl Default for StateRestore {
+	fn default() -> Self {
+		Self {
+			album: None,
+			artist: None,
+		}
+	}
+}
+
+impl StateRestore {
+	// Convert Key's into Arc<str>.
+	pub fn from_state(state: &mut State, collection: &Collection) -> Self {
+		Self {
+			album: state.album.take().map(|key| {
+				let album  = &collection.albums[key];
+				let artist = &collection.artists[album.artist];
+				(artist.name.clone(), album.title.clone())
+			}),
+			artist: state.artist.take().map(|key| {
+				let artist = &collection.artists[key];
+				artist.name.clone()
+			})
+		}
+	}
+	// Convert Arc<str> back into the new Collection's Key's.
+	pub fn update_state(&mut self, state: &mut State, collection: &Collection) {
+		state.album = self.album.take().map(|(artist, album)| collection.album(artist, album).map(|(_, key)| key)).flatten();
+		state.artist = self.artist.take().map(|artist| collection.artist(artist).map(|(_, key)| key)).flatten();
+
+		// Erase some misc state.
+		state.search_string.clear();
+		state.search_result = Keychain::new();
 	}
 }
 
