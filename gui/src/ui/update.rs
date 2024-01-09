@@ -44,9 +44,7 @@ use benri::{
 	flip,
 	debug_panic,
 };
-use std::time::{
-	Instant,
-};
+use std::time::Instant;
 use crate::constants::{
 	SLIDER_CIRCLE_INACTIVE,
 	SLIDER_CIRCLE_HOVERED,
@@ -55,6 +53,7 @@ use crate::constants::{
 	BONE,BLACK,
 	YELLOW,GREEN,MEDIUM_GRAY,
 	RUNTIME_WIDTH,
+	SETTINGS_AUTO_SAVE_INTERVAL_SECS,
 };
 use crate::text::{
 	HELP,MOD,DRAG_AND_DROP,
@@ -122,11 +121,12 @@ impl eframe::App for Gui {
 		}
 
 		// Acquire a local copy of the `AUDIO_STATE`.
-		let queue_diff = {
+		let (queue_diff, audio_state_diff) = {
 			let lock = AUDIO_STATE.read();
-			let diff = lock.queue == self.audio_state.queue;
+			let audio_state_diff = *lock != self.audio_state;
+			let queue_diff = audio_state_diff && (lock.queue != self.audio_state.queue);
 			lock.if_copy(&mut self.audio_state);
-			diff
+			(queue_diff, audio_state_diff)
 		};
 		// If the queue is different from ours,
 		// recalculate the total `queue_time`.
@@ -138,6 +138,32 @@ impl eframe::App for Gui {
 				.map(|k| self.collection.songs[k].runtime.inner() as u64)
 				.sum::<u64>()
 				.into();
+		}
+		// Auto-save state.
+		if (self.kernel_returned && !self.resetting_collection) &&
+			self.settings.auto_save && secs!(self.auto_save) > SETTINGS_AUTO_SAVE_INTERVAL_SECS
+		{
+			self.auto_save = now!();
+
+			let settings  = self.diff_settings();
+			let state     = self.diff_state();
+			let playlists = self.diff_playlists();
+
+			if !audio_state_diff && !settings && !state && !playlists {
+				debug!("GUI - auto-save: no diffs, not saving");
+			} else {
+				use disk::Bincode2;
+				if audio_state_diff {
+					match self.audio_state.save_atomic() {
+						Ok(_)  => ok!("GUI - Auto-saved AudioState"),
+						Err(e) => fail!("GUI - AudioState auto-save: {e}"),
+					}
+				}
+
+				if settings  { self.save_settings();  }
+				if state     { self.save_state();     }
+				if playlists { self.save_playlists(); }
+			}
 		}
 
 		// HACK:

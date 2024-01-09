@@ -256,6 +256,7 @@ impl crate::data::Gui {
 			audio_leeway: now!(),
 			last_song: None,
 			runtime_width: RUNTIME_WIDTH,
+			auto_save: now!(),
 
 			reset_state: ResetState::new(),
 
