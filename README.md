@@ -72,7 +72,7 @@ Use `./x.sh help` to see more options.
 The pre-compiled Linux binaries are built on Ubuntu 20.04, you'll need these packages to build:
 ```
 # Shared packages.
-sudo apt install build-essential pkg-config libdbus-1-dev libasound2-dev libjack-dev libpulse-dev
+sudo apt install build-essential pkg-config libdbus-1-dev libpulse-dev
 
 # Only for `festival-gui`.
 sudo apt install libgtk-3-dev
