@@ -2,9 +2,6 @@
 members = [
 	"shukusai",
 	"gui",
-	"rpc",
-	"daemon",
-	"cli",
 ]
 exclude = [
 	"web",
@@ -34,8 +31,6 @@ shukusai = { version = "0.0.6",  path = "shukusai" }
 benri    = { version = "0.1.12", features = ["log"] }
 disk     = { version = "0.1.21", features = ["bincode2", "empty", "toml", "plain", "json", "bytesize"] }
 readable = { version = "0.8.13",  features = ["ignore_nan_inf", "serde", "bincode"] }
-json-rpc = { version = "0.1.2", path = "external/json-rpc" }
-rpc      = { version = "1.0.0", path = "rpc/" }
 
 ### Regular libraries.
 anyhow       = { version = "1.0.75" }
@@ -59,10 +54,8 @@ serde_bytes  = { version = "0.11.12" }
 serde_json   = { version = "1.0.108", features = ["preserve_order"] }
 seq-macro    = { version = "0.3.5" }
 strum        = { version = "0.25.0", features = ["derive"] }
-termimad     = { version = "0.26.1" }
 toml_edit    = { version = "0.21.0", features = ["serde"] }
 walkdir      = { version = "2.4.0" }
-zeroize      = { version = "1.6.0", features = ["std", "zeroize_derive"] }
 zip          = { version = "0.6.6" }
 
 ### HACK:
