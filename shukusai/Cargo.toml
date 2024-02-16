@@ -20,7 +20,7 @@ include = [
 ]
 
 [features]
-default = ["panic"]
+default = ["panic", "gui"]
 panic   = []
 gui     = ["egui", "egui_extras", "epaint"]
 daemon  = []
