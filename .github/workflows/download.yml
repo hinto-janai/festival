@@ -11,7 +11,7 @@ jobs:
 
     strategy:
       matrix:
-        pkg: [gui,daemon,cli]
+        pkg: [gui]
 
     steps:
     - uses: actions/checkout@v4
