@@ -38,7 +38,7 @@ jobs:
       run: |
         if [ "$RUNNER_OS" == "Linux" ]; then
           sudo apt update
-          sudo apt install -y libgtk-3-dev libasound2-dev libjack-dev libpulse-dev
+          sudo apt install -y libgtk-3-dev libasound2-dev libjack-dev libpulse-dev libfuse2
         elif [ "$RUNNER_OS" == "macOS" ]; then
           rustup target add aarch64-apple-darwin
         fi
