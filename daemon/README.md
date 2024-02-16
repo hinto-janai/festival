@@ -1,3 +1,8 @@
+# ⚠️ Unmaintained
+Starting from `2024-02-15`, `festivald` is no longer maintained.
+
+See https://github.com/hinto-janai/festival/pull/89 for more info.
+
 # `festivald`
 [`Festival`](https://festival.pm) [daemon](https://en.wikipedia.org/wiki/Daemon_(computing)).
 

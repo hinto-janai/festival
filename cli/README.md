@@ -1,3 +1,8 @@
+# ⚠️ Unmaintained
+Starting from `2024-02-15`, `festival-cli` is no longer maintained.
+
+See https://github.com/hinto-janai/festival/pull/89 for more info.
+
 # `festival-cli`
 `festival-cli` is a [`JSON-RPC 2.0`](https://www.jsonrpc.org/specification) client for [`festivald`](https://docs.festival.pm/daemon).
 
