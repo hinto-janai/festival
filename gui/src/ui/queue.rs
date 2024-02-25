@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------------------------------- Use
 use crate::constants::{
 	BONE,GRAY,YELLOW,GREEN,MEDIUM_GRAY,
-	QUEUE_ALBUM_ART_SIZE,
+	QUEUE_ALBUM_ART_SIZE,WHITE,
 };
 use crate::text::{
 	UI_QUEUE_CLEAR,UI_QUEUE_SHUFFLE,UI_MINUS,
@@ -11,6 +11,7 @@ use crate::text::{
 	UI_QUEUE_SHUFFLE_SONG,QUEUE_SHUFFLE_SONG,
 	QUEUE_LENGTH,QUEUE_RUNTIME,
 	UI_REPEAT_SONG,UI_REPEAT,REPEAT_SONG,REPEAT_QUEUE,REPEAT_OFF,
+	REPEAT_QUEUE_PAUSE,
 };
 use shukusai::kernel::{
 	FrontendToKernel,
@@ -87,6 +88,7 @@ pub fn show_tab_queue(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, width: 
 				let (icon, text, color) = match self.state.repeat {
 					Repeat::Song  => (UI_REPEAT_SONG, REPEAT_SONG, YELLOW),
 					Repeat::Queue => (UI_REPEAT, REPEAT_QUEUE, GREEN),
+					Repeat::QueuePause => (UI_REPEAT, REPEAT_QUEUE_PAUSE, WHITE),
 					Repeat::Off   => (UI_REPEAT, REPEAT_OFF, MEDIUM_GRAY),
 				};
 				let button = Button::new(

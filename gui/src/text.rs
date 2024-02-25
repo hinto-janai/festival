@@ -66,6 +66,7 @@ pub const VOLUME_SLIDER:        &str = "Increase/decrease audio volume";
 pub const SHUFFLE_OFF:          &str = "Shuffle is turned off";
 pub const REPEAT_SONG:          &str = "The current song will be repeated forever";
 pub const REPEAT_QUEUE:         &str = "The current queue will be repeated forever";
+pub const REPEAT_QUEUE_PAUSE:   &str = "The current queue will be repeated forever, but will start paused";
 pub const REPEAT_OFF:           &str = "Repeat is turned off";
 
 //---------------------------------------------------------------------------------------------------- Bottom Bar
