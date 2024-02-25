@@ -13,11 +13,13 @@ use strum::{
 
 //---------------------------------------------------------------------------------------------------- Constants
 /// [`Repeat::Song`]
-const REPEAT_SONG:  &str = "Repeat a single song after it finishes";
+const REPEAT_SONG: &str = "Repeat a single song after it finishes";
 /// [`Repeat::Queue`]
 const REPEAT_QUEUE: &str = "Repeat the entire queue after it finishes";
+/// [`Repeat::QueuePause`]
+const REPEAT_QUEUE_PAUSE: &str = "Repeat the entire queue after it finishes, but do not start immediately";
 /// [`Repeat::Off`]
-const REPEAT_OFF:   &str = "Turn off all repeating";
+const REPEAT_OFF: &str = "Turn off all repeating";
 
 //---------------------------------------------------------------------------------------------------- Repeat
 #[derive(Copy,Clone,Debug,Hash,Eq,Ord,PartialEq,PartialOrd,Serialize,Deserialize,Encode,Decode)]
@@ -31,6 +33,8 @@ pub enum Repeat {
 	Song,
 	/// When finishing the queue, repeat it, forever.
 	Queue,
+	/// When finishing the queue, repeat it, but paused.
+	QueuePause,
 	/// Turn off all repeating.
 	Off,
 }
@@ -48,6 +52,7 @@ impl Repeat {
 		match self {
 			Song        => REPEAT_SONG,
 			Queue       => REPEAT_QUEUE,
+			QueuePause  => REPEAT_QUEUE_PAUSE,
 			Off         => REPEAT_OFF,
 		}
 	}
@@ -58,7 +63,8 @@ impl Repeat {
 	pub const fn next(&self) -> Self {
 		match self {
 			Self::Song  => Self::Queue,
-			Self::Queue => Self::Off,
+			Self::Queue => Self::QueuePause,
+			Self::QueuePause => Self::Off,
 			Self::Off   => Self::Song,
 		}
 	}
@@ -70,7 +76,8 @@ impl Repeat {
 		match self {
 			Self::Song  => Self::Off,
 			Self::Queue => Self::Song,
-			Self::Off   => Self::Queue,
+			Self::QueuePause => Self::Queue,
+			Self::Off   => Self::QueuePause,
 		}
 	}
 }
