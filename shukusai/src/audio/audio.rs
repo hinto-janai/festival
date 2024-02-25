@@ -793,13 +793,17 @@ impl Audio {
 					self.set(next, state);
 				},
 				None => {
-					if state.repeat == Repeat::Queue {
+					if matches!(state.repeat, Repeat::Queue | Repeat::QueuePause) {
 						if !state.queue.is_empty() {
 							let key = state.queue[0];
 							trace!("Audio - repeating queue, setting: {key:?}");
 							self.set(key, state);
 							state.song      = Some(key);
 							state.queue_idx = Some(0);
+						}
+						if state.repeat == Repeat::QueuePause {
+							state.playing = false;
+							self.state.playing = false;
 						}
 					} else {
 						trace!("Audio - no songs left, calling state.finish()");
@@ -817,13 +821,17 @@ impl Audio {
 			let len       = state.queue.len();
 
 			// Repeat the queue if we're over bounds (and it's enabled).
-			if state.repeat == Repeat::Queue && new_index >= len {
+			if matches!(state.repeat, Repeat::Queue | Repeat::QueuePause) && new_index >= len {
 				if !state.queue.is_empty() {
 					let key = state.queue[0];
 					trace!("Audio - repeating queue, setting: {key:?}");
 					self.set(key, state);
 					state.song      = Some(key);
 					state.queue_idx = Some(0);
+				}
+				if state.repeat == Repeat::QueuePause {
+					state.playing = false;
+					self.state.playing = false;
 				}
 			} else if len > new_index {
 				let key = state.queue[new_index];
