@@ -40,9 +40,9 @@ pub enum Repeat {
 }
 
 impl Repeat {
-	/// Returns the default, [`Self::Off`].
+	/// Returns the default, [`Self::QueuePause`].
 	pub const fn new() -> Self {
-		Self::Off
+		Self::QueuePause
 	}
 
 	#[inline]
