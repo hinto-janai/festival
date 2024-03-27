@@ -16,18 +16,8 @@ Types of changes:
 
 
 # Festival GUI Unreleased
-
-
----
-
-
-# `festivald` Unreleased
-
-
----
-
-
-# `festival-cli` Unreleased
+## Added
+- `QueueRepeat` mode to repeat queue but start paused ([#90](https://github.com/hinto-janai/festival/pull/90))
 
 
 ---
