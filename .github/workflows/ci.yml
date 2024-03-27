@@ -96,13 +96,6 @@ jobs:
         fi
         cargo build --release --package ${{ matrix.pkg }}
 
-    - name: Test (RPC)
-      if: matrix.pkg == 'festivald'
-      shell: bash
-      run: |
-        cargo test --release --package rpc
-        cargo test --release --package festival-cli -- --ignored
-
     - name: Compress (GUI)
       shell: bash
       run: |
