@@ -94,13 +94,7 @@ impl eframe::App for Gui {
         if self.kernel_returned && queue_diff &&
 		/* needed to prevent panic */ !self.resetting_collection
         {
-            self.queue_time = self
-                .audio_state
-                .queue
-                .iter()
-                .map(|k| self.collection.songs[k].runtime.inner() as u64)
-                .sum::<u64>()
-                .into();
+            self.calculate_and_set_queue_time();
         }
         // Auto-save state.
         if (self.kernel_returned && !self.resetting_collection)

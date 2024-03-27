@@ -71,6 +71,9 @@ impl Gui {
         // state keys are not referencing invalid keys.
         self.state_restore
             .update_state(&mut self.state, &self.collection);
+
+        // Update queue time.
+        self.calculate_and_set_queue_time();
     }
 
     // Sets the [`egui::Ui`]'s `Visual` from our current `Settings`
@@ -393,5 +396,17 @@ impl Gui {
         } else {
             None
         }
+    }
+
+    /// Given the current [`AudioState`] queue, calculate the
+    /// total runtime and set the ephemeral state to reflect it.
+    pub fn calculate_and_set_queue_time(&mut self) {
+        self.queue_time = self
+            .audio_state
+            .queue
+            .iter()
+            .map(|k| self.collection.songs[k].runtime.inner() as u64)
+            .sum::<u64>()
+            .into();
     }
 }
