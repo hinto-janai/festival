@@ -17,7 +17,10 @@ Types of changes:
 
 # Festival GUI Unreleased
 ## Added
-- `QueueRepeat` mode to repeat queue but start paused ([#90](https://github.com/hinto-janai/festival/pull/90))
+- `QueueRepeat` mode that repeats the queue but starts paused ([#90](https://github.com/hinto-janai/festival/pull/90))
+
+## Fixed
+* Queue tab: total runtime being `0 seconds` on restart ([#96](https://github.com/hinto-janai/festival/pull/96))
 
 
 ---
