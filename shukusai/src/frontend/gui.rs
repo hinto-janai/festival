@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------------------------------- Use
-use std::sync::atomic::AtomicBool;
 use once_cell::sync::OnceCell;
+use std::sync::atomic::AtomicBool;
 
 //---------------------------------------------------------------------------------------------------- __NAME__
 /// `GUI` frontend should set this to `true` before
@@ -22,7 +22,7 @@ pub static GUI_CONTEXT: OnceCell<egui::Context> = OnceCell::new();
 /// This causes UB if [`GUI_CONTEXT`] is not initialized
 /// since `.get_unchecked()` is used.
 pub fn gui_context() -> &'static egui::Context {
-	unsafe { GUI_CONTEXT.get_unchecked() }
+    unsafe { GUI_CONTEXT.get_unchecked() }
 }
 
 /// Convenience function that requests the
@@ -32,7 +32,9 @@ pub fn gui_context() -> &'static egui::Context {
 /// This causes UB if [`GUI_CONTEXT`] is not initialized
 /// since `.get_unchecked()` is used.
 pub fn gui_request_update() {
-	unsafe { GUI_CONTEXT.get_unchecked().request_repaint(); }
+    unsafe {
+        GUI_CONTEXT.get_unchecked().request_repaint();
+    }
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS

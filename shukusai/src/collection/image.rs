@@ -1,16 +1,18 @@
 //---------------------------------------------------------------------------------------------------- Use
-use crate::constants::{
-	FESTIVAL,
-	FRONTEND_SUB_DIR,
-	IMAGE_SUB_DIR,
-};
+use crate::constants::{FESTIVAL, FRONTEND_SUB_DIR, IMAGE_SUB_DIR};
 
-use serde::{Serialize,Deserialize};
 use const_format::formatcp;
+use serde::{Deserialize, Serialize};
 
 //---------------------------------------------------------------------------------------------------- __NAME__
-disk::plain!(Image, disk::Dir::Data, FESTIVAL, formatcp!("{FRONTEND_SUB_DIR}/{IMAGE_SUB_DIR}"), "timestamp.txt");
-#[derive(Copy,Clone,Debug,Default,PartialEq,PartialOrd,Serialize,Deserialize)]
+disk::plain!(
+    Image,
+    disk::Dir::Data,
+    FESTIVAL,
+    formatcp!("{FRONTEND_SUB_DIR}/{IMAGE_SUB_DIR}"),
+    "timestamp.txt"
+);
+#[derive(Copy, Clone, Debug, Default, PartialEq, PartialOrd, Serialize, Deserialize)]
 /// File representing resized images from the `Collection`.
 ///
 /// This file holds the timestamp of the `Collection` the images in the same directory refer too.

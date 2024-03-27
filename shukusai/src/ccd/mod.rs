@@ -13,8 +13,8 @@ mod ccd;
 pub(crate) use ccd::*;
 
 //----- CCD internal functions.
-mod the_loop;
 mod sort;
+mod the_loop;
 mod walk;
 
 //----- Frontend specific.

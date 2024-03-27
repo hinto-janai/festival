@@ -6,19 +6,8 @@
 //! Regardless, it is somewhat documented (mostly for my future self).
 
 //---------------------------------------------------------------------------------------------------- Lints
-#![allow(
-	clippy::len_zero,
-	clippy::type_complexity,
-	clippy::module_inception,
-)]
-
-#![deny(
-	nonstandard_style,
-	unused_unsafe,
-	unused_mut,
-	missing_docs,
-)]
-
+#![allow(clippy::len_zero, clippy::type_complexity, clippy::module_inception)]
+#![deny(nonstandard_style, unused_unsafe, unused_mut, missing_docs)]
 #![forbid(
 	future_incompatible,
 	break_with_label_and_loop,
@@ -58,27 +47,30 @@
 #[cfg(not(any(target_pointer_width = "64", target_pointer_width = "32")))]
 compile_error!("shukusai is only compatible with 64-bit/32bit CPUs");
 
-#[cfg(not(any(
-	target_os = "windows",
-	target_os = "macos",
-	target_os = "linux",
-)))]
+#[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux",)))]
 compile_error!("shukusai is only tested on Window/macOS/Linux");
 
 #[cfg(any(
-    all(feature = "gui", any(feature = "daemon", feature = "web", feature = "tui")),
-    all(feature = "daemon", any(feature = "cli", feature = "web", feature = "tui")),
+    all(
+        feature = "gui",
+        any(feature = "daemon", feature = "web", feature = "tui")
+    ),
+    all(
+        feature = "daemon",
+        any(feature = "cli", feature = "web", feature = "tui")
+    ),
 ))]
 compile_error!(
-r#"Multiple frontend feature flags enabled. Cargo doesn't allow non-additive features.
+    r#"Multiple frontend feature flags enabled. Cargo doesn't allow non-additive features.
 
-Frontends must be built individually with `cargo build --package festival<FRONTEND_EXT>`"#);
+Frontends must be built individually with `cargo build --package festival<FRONTEND_EXT>`"#
+);
 
 //---------------------------------------------------------------------------------------------------- Private `shukusai` internals.
 mod ccd;
-mod watch;
 mod macros;
 mod serde;
+mod watch;
 pub(crate) use macros::*;
 
 //---------------------------------------------------------------------------------------------------- Hidden Re-exports.
@@ -89,7 +81,7 @@ pub use const_format::formatcp as const_format;
 
 //---------------------------------------------------------------------------------------------------- Public modules.
 /// Collection creation performance.
-pub use ccd::perf as perf;
+pub use ccd::perf;
 
 /// Panic.
 pub mod panic;

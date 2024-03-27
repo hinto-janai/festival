@@ -1,12 +1,8 @@
 //---------------------------------------------------------------------------------------------------- Use
+use crate::constants::{FESTIVAL, FRONTEND_SUB_DIR, SIGNAL_SUB_DIR};
 use anyhow::anyhow;
-use crate::constants::{
-	FESTIVAL,
-	FRONTEND_SUB_DIR,
-	SIGNAL_SUB_DIR,
-};
-use serde::{Serialize,Deserialize};
 use const_format::formatcp;
+use serde::{Deserialize, Serialize};
 
 //---------------------------------------------------------------------------------------------------- Signals
 macro_rules! impl_signal_empty {
@@ -56,44 +52,44 @@ macro_rules! impl_signal_content {
 }
 
 impl_signal_empty! {
-	Toggle,        "toggle",
-	Pause,         "pause",
-	Play,          "play",
-	Next,          "next",
-	Stop,          "stop",
-	Previous,      "previous",
-	Shuffle,       "shuffle",
-	RepeatSong,    "repeat_song",
-	RepeatQueue,   "repeat_queue",
-	RepeatOff,     "repeat_off",
+    Toggle,        "toggle",
+    Pause,         "pause",
+    Play,          "play",
+    Next,          "next",
+    Stop,          "stop",
+    Previous,      "previous",
+    Shuffle,       "shuffle",
+    RepeatSong,    "repeat_song",
+    RepeatQueue,   "repeat_queue",
+    RepeatOff,     "repeat_off",
 }
 
 impl_signal_content! {
-	Volume, crate::audio::Volume, "volume",
-	"Contents should be a [`Volume`]. Sets the volume to the given value.",
+    Volume, crate::audio::Volume, "volume",
+    "Contents should be a [`Volume`]. Sets the volume to the given value.",
 
-	Seek, u64, "seek",
-	"Contents should be a [`u64`] representing the absolute second to seek to in the current [`Song`]. Will skip if the value if larger than the current [`Song`]'s runtime.",
+    Seek, u64, "seek",
+    "Contents should be a [`u64`] representing the absolute second to seek to in the current [`Song`]. Will skip if the value if larger than the current [`Song`]'s runtime.",
 
-	SeekForward, u64, "seek_forward",
-	"Contents should be a [`u64`] representing how many seconds to seek forwards in the current [`Song`]. Will skip if the value if larger than the current [`Song`]'s runtime.",
+    SeekForward, u64, "seek_forward",
+    "Contents should be a [`u64`] representing how many seconds to seek forwards in the current [`Song`]. Will skip if the value if larger than the current [`Song`]'s runtime.",
 
-	SeekBackward, u64, "seek_backward",
-	"Contents should be a [`u64`] representing how many seconds to seek backwards in the current [`Song`]. Will reset the song if under-bounds",
+    SeekBackward, u64, "seek_backward",
+    "Contents should be a [`u64`] representing how many seconds to seek backwards in the current [`Song`]. Will reset the song if under-bounds",
 
-	Index, usize, "index",
-	"Contents should be a [`usize`]. This skips to an index in the queue starting from 1. Will end the queue if the index is out of bounds.",
+    Index, usize, "index",
+    "Contents should be a [`usize`]. This skips to an index in the queue starting from 1. Will end the queue if the index is out of bounds.",
 
-	Clear, bool, "clear",
-	"Contents should be a [`bool`], either `true` or `false`. This signal clears the queue. The [`bool`] represents if we should continue playback.",
+    Clear, bool, "clear",
+    "Contents should be a [`bool`], either `true` or `false`. This signal clears the queue. The [`bool`] represents if we should continue playback.",
 
-	Skip, usize, "skip",
-	"Contents should be a [`usize`]. This is similar to `Next`, although you can specify any amount of [`Song`]'s to skip in the queue.",
+    Skip, usize, "skip",
+    "Contents should be a [`usize`]. This is similar to `Next`, although you can specify any amount of [`Song`]'s to skip in the queue.",
 
-	Back, usize, "back",
-	"Contents should be a [`usize`]. This is the same as `Skip`, although it skips backwards.",
+    Back, usize, "back",
+    "Contents should be a [`usize`]. This is the same as `Skip`, although it skips backwards.",
 
-	// SOMEDAY
+    // SOMEDAY
 //	ArtistKey, usize, "artist_key",
 //	"Contents should be a [`usize`] representing an [`ArtistKey`]. This will add the [`Artist`]'s songs to the queue",
 //

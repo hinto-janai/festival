@@ -1,8 +1,5 @@
 //---------------------------------------------------------------------------------------------------- Use
-use std::sync::{
-	atomic::AtomicBool,
-	atomic::AtomicU8,
-};
+use std::sync::{atomic::AtomicBool, atomic::AtomicU8};
 
 //---------------------------------------------------------------------------------------------------- Shared state between `GUI` and the `Exit` thread.
 // How many seconds to wait for the `Collection`

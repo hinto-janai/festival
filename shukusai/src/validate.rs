@@ -1,8 +1,5 @@
 //---------------------------------------------------------------------------------------------------- Use
-use crate::collection::{
-	Collection,Keychain,Key,
-	ArtistKey,AlbumKey,SongKey,
-};
+use crate::collection::{AlbumKey, ArtistKey, Collection, Key, Keychain, SongKey};
 
 //---------------------------------------------------------------------------------------------------- Ancillary Collection data validation
 /// Check if a [`Key`] is a valid index into the [`Collection`]
@@ -10,7 +7,7 @@ use crate::collection::{
 /// - `true` == valid
 /// - `false` == invalid
 pub fn key<K: Into<Key>>(c: &Collection, key: K) -> bool {
-	c.get(key.into()).is_some()
+    c.get(key.into()).is_some()
 }
 
 /// Check if an [`ArtistKey`] is a valid index into the [`Collection`]
@@ -18,7 +15,7 @@ pub fn key<K: Into<Key>>(c: &Collection, key: K) -> bool {
 /// - `true` == valid
 /// - `false` == invalid
 pub fn artist<K: Into<ArtistKey>>(c: &Collection, key: K) -> bool {
-	c.artists.get(key.into()).is_some()
+    c.artists.get(key.into()).is_some()
 }
 
 /// Check if an [`AlbumKey`] is a valid index into the [`Collection`]
@@ -26,7 +23,7 @@ pub fn artist<K: Into<ArtistKey>>(c: &Collection, key: K) -> bool {
 /// - `true` == valid
 /// - `false` == invalid
 pub fn album<K: Into<AlbumKey>>(c: &Collection, key: K) -> bool {
-	c.albums.get(key.into()).is_some()
+    c.albums.get(key.into()).is_some()
 }
 
 /// Check if a [`SongKey`] is a valid index into the [`Collection`]
@@ -34,7 +31,7 @@ pub fn album<K: Into<AlbumKey>>(c: &Collection, key: K) -> bool {
 /// - `true` == valid
 /// - `false` == invalid
 pub fn song<K: Into<SongKey>>(c: &Collection, key: K) -> bool {
-	c.songs.get(key.into()).is_some()
+    c.songs.get(key.into()).is_some()
 }
 
 /// Check if a [`Keychain`] contains valid indices into the [`Collection`]
@@ -44,32 +41,28 @@ pub fn song<K: Into<SongKey>>(c: &Collection, key: K) -> bool {
 /// - `true` == valid
 /// - `false` == invalid
 pub fn keychain(c: &Collection, keychain: &Keychain) -> bool {
-	let artists_len = c.artists.len();
-	let albums_len  = c.albums.len();
-	let songs_len   = c.songs.len();
+    let artists_len = c.artists.len();
+    let albums_len = c.albums.len();
+    let songs_len = c.songs.len();
 
-	if artists_len == 0 || albums_len == 0 || songs_len == 0 {
-		return false;
-	}
+    if artists_len == 0 || albums_len == 0 || songs_len == 0 {
+        return false;
+    }
 
-	let artists_max = match keychain.artists.iter().max() {
-		Some(key) => key.inner(),
-		None => 0,
-	};
-	let albums_max = match keychain.albums.iter().max() {
-		Some(key) => key.inner(),
-		None => 0,
-	};
-	let songs_max = match keychain.songs.iter().max() {
-		Some(key) => key.inner(),
-		None => 0,
-	};
+    let artists_max = match keychain.artists.iter().max() {
+        Some(key) => key.inner(),
+        None => 0,
+    };
+    let albums_max = match keychain.albums.iter().max() {
+        Some(key) => key.inner(),
+        None => 0,
+    };
+    let songs_max = match keychain.songs.iter().max() {
+        Some(key) => key.inner(),
+        None => 0,
+    };
 
-	!(
-		artists_len < artists_max ||
-		albums_len  < albums_max  ||
-		songs_len   < songs_max
-	)
+    !(artists_len < artists_max || albums_len < albums_max || songs_len < songs_max)
 }
 
 ///// Check if a [`Queue`] contains valid indices into the [`Collection`]
@@ -88,35 +81,35 @@ pub fn keychain(c: &Collection, keychain: &Keychain) -> bool {
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
 mod tests {
-	use super::*;
+    use super::*;
 
-	#[test]
-	fn validate() {
-		let collection = Collection::new();
-		let c = &collection;
+    #[test]
+    fn validate() {
+        let collection = Collection::new();
+        let c = &collection;
 
-		assert_eq!(c.artists.len(), 0);
-		assert_eq!(c.albums.len(),  0);
-		assert_eq!(c.songs.len(),   0);
+        assert_eq!(c.artists.len(), 0);
+        assert_eq!(c.albums.len(), 0);
+        assert_eq!(c.songs.len(), 0);
 
-		let ar = ArtistKey::from(1_u8);
-		let al = AlbumKey::from(1_u8);
-		let s  = SongKey::from(1_u8);
-		let k  = Key::from_keys(ar, al, s);
+        let ar = ArtistKey::from(1_u8);
+        let al = AlbumKey::from(1_u8);
+        let s = SongKey::from(1_u8);
+        let k = Key::from_keys(ar, al, s);
 
-		assert!(!key(c, k));
-		assert!(!artist(c, ar));
-		assert!(!album(c, al));
-		assert!(!song(c, s));
+        assert!(!key(c, k));
+        assert!(!artist(c, ar));
+        assert!(!album(c, al));
+        assert!(!song(c, s));
 
-		let kc = Keychain {
-			artists: Box::new([ar]),
-			albums: Box::new([al]),
-			songs: Box::new([s]),
-		};
-		assert!(!keychain(c, &kc));
+        let kc = Keychain {
+            artists: Box::new([ar]),
+            albums: Box::new([al]),
+            songs: Box::new([s]),
+        };
+        assert!(!keychain(c, &kc));
 
-		let kc = Keychain::new();
-		assert!(!keychain(c, &kc));
-	}
+        let kc = Keychain::new();
+        assert!(!keychain(c, &kc));
+    }
 }

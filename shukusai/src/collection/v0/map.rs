@@ -1,20 +1,12 @@
 //---------------------------------------------------------------------------------------------------- Use
-use serde::{Serialize,Deserialize};
-use bincode::{Encode,Decode};
+use crate::collection::v0::{Album, Artist, Song};
+use crate::collection::{AlbumKey, ArtistKey, SongKey};
+use bincode::{Decode, Encode};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use crate::collection::v0::{
-	Artist,
-	Album,
-	Song,
-};
-use crate::collection::{
-	ArtistKey,
-	AlbumKey,
-	SongKey,
-};
 
 //---------------------------------------------------------------------------------------------------- Map
-#[derive(Clone,Debug,Default,Serialize,Deserialize,PartialEq,Encode,Decode)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Encode, Decode)]
 #[serde(transparent)]
 /// A [`HashMap`] that knows all [`Artist`]'s, [`Album`]'s and [`Song`]'s.
 ///
@@ -23,18 +15,18 @@ use crate::collection::{
 pub(crate) struct Map(pub(crate) HashMap<String, (ArtistKey, AlbumMap)>);
 
 impl Map {
-	#[inline(always)]
-	pub(crate) fn new() -> Self {
-		Self::default()
-	}
+    #[inline(always)]
+    pub(crate) fn new() -> Self {
+        Self::default()
+    }
 }
 
 //---------------------------------------------------------------------------------------------------- AlbumMap
-#[derive(Clone,Debug,Default,Serialize,Deserialize,PartialEq,Encode,Decode)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Encode, Decode)]
 #[serde(transparent)]
 pub(crate) struct AlbumMap(pub(crate) HashMap<String, (AlbumKey, SongMap)>);
 
 //---------------------------------------------------------------------------------------------------- SongMap
-#[derive(Clone,Debug,Default,Serialize,Deserialize,PartialEq,Encode,Decode)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Encode, Decode)]
 #[serde(transparent)]
 pub(crate) struct SongMap(pub(crate) HashMap<String, SongKey>);

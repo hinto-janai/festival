@@ -8,16 +8,22 @@ use crate::const_assert;
 ///
 /// It uses `CARGO_PKG_VERSION`, or `version` found in `Cargo.toml`.
 pub const SHUKUSAI_VERSION: &str = {
-	const_assert!(env!("CARGO_PKG_VERSION").len() != 0, "CARGO_PKG_VERSION is 0 length");
-	concat!("v", env!("CARGO_PKG_VERSION"))
+    const_assert!(
+        env!("CARGO_PKG_VERSION").len() != 0,
+        "CARGO_PKG_VERSION is 0 length"
+    );
+    concat!("v", env!("CARGO_PKG_VERSION"))
 };
 
 /// `shukusai` + version
 ///
 /// Just a string concatenating "shukusai" and the current version, e.g: `shukusai v0.0.1`
 pub const SHUKUSAI_NAME_VER: &str = {
-	const_assert!(env!("CARGO_PKG_VERSION").len() != 0, "CARGO_PKG_VERSION is 0 length");
-	concat!("shukusai v", env!("CARGO_PKG_VERSION"))
+    const_assert!(
+        env!("CARGO_PKG_VERSION").len() != 0,
+        "CARGO_PKG_VERSION is 0 length"
+    );
+    concat!("shukusai v", env!("CARGO_PKG_VERSION"))
 };
 
 #[cfg(not(target_os = "macos"))]
@@ -48,11 +54,17 @@ pub const FESTIVAL: &str = "Festival";
 /// The main sub-directory within the `festival`
 /// directory for each `Frontend`'s files.
 pub const FRONTEND_SUB_DIR: &str = {
-	if cfg!(feature = "gui")           { "gui"
-	} else if cfg!(feature = "daemon") { "daemon"
-	} else if cfg!(feature = "web")    { "web"
-	} else if cfg!(feature = "tui")    { "tui"
-	} else { panic!("missing frontend feature flag") }
+    if cfg!(feature = "gui") {
+        "gui"
+    } else if cfg!(feature = "daemon") {
+        "daemon"
+    } else if cfg!(feature = "web") {
+        "web"
+    } else if cfg!(feature = "tui") {
+        "tui"
+    } else {
+        panic!("missing frontend feature flag")
+    }
 };
 
 /// The sub-directory where state is saved.
@@ -81,7 +93,11 @@ pub const COMMIT: &str = env!("COMMIT");
 /// Build profile (debug/release)
 ///
 /// This is `Debug` is `debug_assertions` is detected, else it is `Release`.
-pub const BUILD: &str = if cfg!(debug_assertions) { "Debug" } else { "Release" };
+pub const BUILD: &str = if cfg!(debug_assertions) {
+    "Debug"
+} else {
+    "Release"
+};
 
 /// Festival's copyright notice.
 ///
@@ -91,8 +107,7 @@ pub const BUILD: &str = if cfg!(debug_assertions) { "Debug" } else { "Release" }
 /// Under these guidelines: `https://www.mozilla.org/en-US/MPL/2.0/FAQ/`
 /// (questions 9-10), we must make modified MPL-2.0 code available,
 /// and inform users how they can obtain the source.
-pub const COPYRIGHT: &str =
-r#"Festival is licensed under the MIT License.
+pub const COPYRIGHT: &str = r#"Festival is licensed under the MIT License.
 Its dependency tree includes many other licenses.
 For more information on the project, see below:
 <https://github.com/hinto-janai/festival>"#;
@@ -110,17 +125,17 @@ pub const DASH: &str = "--------------------------------------------";
 ///
 /// The next byte _should_ be our `VERSION`, then our actual data.
 pub const HEADER: [u8; 24] = [
-	45, 45, 45, 45, 45,             // -----
-	66, 69, 71, 73, 78,             // BEGIN
-	32,                             //
-	70, 69, 83, 84, 73, 86, 65, 76, // FESTIVAL
-	45, 45, 45, 45, 45              // -----
+    45, 45, 45, 45, 45, // -----
+    66, 69, 71, 73, 78, // BEGIN
+    32, //
+    70, 69, 83, 84, 73, 86, 65, 76, // FESTIVAL
+    45, 45, 45, 45, 45, // -----
 ];
 
 /// [`HEADER`] as a `&'static str`.
 pub const HEADER_STR: &str = match std::str::from_utf8(&HEADER) {
-	Ok(s)  => s,
-	Err(_) => panic!(),
+    Ok(s) => s,
+    Err(_) => panic!(),
 };
 
 /// Current major version of the [`Collection`]
@@ -152,28 +167,28 @@ pub const OS_ARCH: &str = "Linux x64";
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
 mod tests {
-	use crate::constants::*;
+    use crate::constants::*;
 
-	#[test]
-	fn version_is_semver() {
-		assert_eq!(SHUKUSAI_VERSION.len(), 6);
-	}
+    #[test]
+    fn version_is_semver() {
+        assert_eq!(SHUKUSAI_VERSION.len(), 6);
+    }
 
-	#[test]
-	fn git_commit_eq_or_gt_40_chars() {
-		assert!(COMMIT.len() >= 40);
-	}
+    #[test]
+    fn git_commit_eq_or_gt_40_chars() {
+        assert!(COMMIT.len() >= 40);
+    }
 
-	#[test]
-	fn header_is_valid() {
-		assert!(HEADER_STR                                  == "-----BEGIN FESTIVAL-----");
-		assert!(String::from_utf8(HEADER.to_vec()).unwrap() == "-----BEGIN FESTIVAL-----");
-	}
+    #[test]
+    fn header_is_valid() {
+        assert!(HEADER_STR == "-----BEGIN FESTIVAL-----");
+        assert!(String::from_utf8(HEADER.to_vec()).unwrap() == "-----BEGIN FESTIVAL-----");
+    }
 
-	#[test]
-	fn icon() {
-		let icon = image::load_from_memory(FESTIVAL_ICON).unwrap();
-		assert!(icon.width()  == FESTIVAL_ICON_SIZE);
-		assert!(icon.height() == FESTIVAL_ICON_SIZE);
-	}
+    #[test]
+    fn icon() {
+        let icon = image::load_from_memory(FESTIVAL_ICON).unwrap();
+        assert!(icon.width() == FESTIVAL_ICON_SIZE);
+        assert!(icon.height() == FESTIVAL_ICON_SIZE);
+    }
 }

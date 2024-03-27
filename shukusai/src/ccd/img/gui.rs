@@ -1,34 +1,21 @@
 //---------------------------------------------------------------------------------------------------- Use
-use anyhow::{bail};
-use fast_image_resize as fir;
-use fir::{
-	Image,
-	ResizeAlg,
-	PixelType,
-};
-use std::num::NonZeroU32;
-use crate::collection::{
-	Art,Album,
-	ALBUM_ART_SIZE,
-	ALBUM_ART_SIZE_U32,
-	ALBUM_ART_SIZE_U16,
-};
-use benri::{
-	ok_trace,
-	debug_panic,
-	sync::*,
-};
-use log::{warn, trace};
+use crate::collection::{Album, Art, ALBUM_ART_SIZE, ALBUM_ART_SIZE_U16, ALBUM_ART_SIZE_U32};
+use anyhow::bail;
 use benri::log::fail;
-use std::path::{Path,PathBuf};
+use benri::{debug_panic, ok_trace, sync::*};
+use fast_image_resize as fir;
+use fir::{Image, PixelType, ResizeAlg};
+use log::{trace, warn};
+use std::num::NonZeroU32;
+use std::path::{Path, PathBuf};
 
 #[cfg(feature = "gui")]
 use crate::frontend::gui::gui_context;
 
 //---------------------------------------------------------------------------------------------------- Album Art Constants.
 pub(crate) const ALBUM_ART_SIZE_NUM: NonZeroU32 = match NonZeroU32::new(ALBUM_ART_SIZE_U32) {
-	Some(n) => n,
-	None    => panic!(),
+    Some(n) => n,
+    None => panic!(),
 };
 
 //---------------------------------------------------------------------------------------------------- Image Manipulation Functions.
@@ -36,49 +23,50 @@ pub(crate) const ALBUM_ART_SIZE_NUM: NonZeroU32 = match NonZeroU32::new(ALBUM_AR
 // These 2 functions are just wrappers
 // on the "real" functions below.
 #[inline(always)]
-pub(crate) fn art_from_raw(bytes: Box<[u8]>, resizer: &mut fir::Resizer) -> Result<Box<[u8]>, anyhow::Error> {
-	// Attempt `zune-jpeg`.
-	if let Some((width, height, bytes)) = zune_jpg_decode(&bytes) {
-		if let Ok(bytes) = resize_image(width, height, bytes, resizer) {
-			return Ok(bytes);
-		}
-	}
+pub(crate) fn art_from_raw(
+    bytes: Box<[u8]>,
+    resizer: &mut fir::Resizer,
+) -> Result<Box<[u8]>, anyhow::Error> {
+    // Attempt `zune-jpeg`.
+    if let Some((width, height, bytes)) = zune_jpg_decode(&bytes) {
+        if let Ok(bytes) = resize_image(width, height, bytes, resizer) {
+            return Ok(bytes);
+        }
+    }
 
-//	// Attempt `zune-png`.
-//	if let Some((width, height, bytes)) = zune_png_decode(&bytes) {
-//		if let Ok(bytes) = resize_image(width, height, bytes, resizer) {
-//			return Ok(bytes);
-//		}
-//	}
+    //	// Attempt `zune-png`.
+    //	if let Some((width, height, bytes)) = zune_png_decode(&bytes) {
+    //		if let Ok(bytes) = resize_image(width, height, bytes, resizer) {
+    //			return Ok(bytes);
+    //		}
+    //	}
 
-	// Fallback to `image`.
-	match image_decode(bytes) {
-		Ok((w, h, bytes)) => resize_image(w, h, bytes, resizer),
-		Err(e)            => Err(e),
-	}
+    // Fallback to `image`.
+    match image_decode(bytes) {
+        Ok((w, h, bytes)) => resize_image(w, h, bytes, resizer),
+        Err(e) => Err(e),
+    }
 }
 
 #[inline(always)]
 pub(crate) fn art_from_known(bytes: Box<[u8]>) -> egui_extras::RetainedImage {
-	color_img_to_retained(
-		rgb_bytes_to_color_img(bytes)
-	)
+    color_img_to_retained(rgb_bytes_to_color_img(bytes))
 }
 
 //-------------------------- Real functions.
 #[inline(always)]
 pub(crate) fn create_resizer() -> fir::Resizer {
-	// Fastest but pixels are noticeably jagged.
-	fir::Resizer::new(ResizeAlg::Nearest)
+    // Fastest but pixels are noticeably jagged.
+    fir::Resizer::new(ResizeAlg::Nearest)
 
-	// Better quality when downscaling, same as `Nearest` when upscaling.
-//	fir::Resizer::new(ResizeAlg::Convolution(FilterType::Box))
+    // Better quality when downscaling, same as `Nearest` when upscaling.
+    //	fir::Resizer::new(ResizeAlg::Convolution(FilterType::Box))
 
-	// Sharper than `Box` when downscaling, bad when upscaling.
-//	fir::Resizer::new(ResizeAlg::Convolution(FilterType::Hamming))
+    // Sharper than `Box` when downscaling, bad when upscaling.
+    //	fir::Resizer::new(ResizeAlg::Convolution(FilterType::Hamming))
 
-	// Slowest, supposedly best but I don't think it's noticeable.
-//	fir::Resizer::new(ResizeAlg::Convolution(FilterType::Lanczos3))
+    // Slowest, supposedly best but I don't think it's noticeable.
+    //	fir::Resizer::new(ResizeAlg::Convolution(FilterType::Lanczos3))
 }
 
 #[inline(always)]
@@ -105,16 +93,16 @@ pub(crate) fn create_resizer() -> fir::Resizer {
 // so the output of this function _must_ go through
 // `fast_image_resize` regardless if the `width/height` are the same.
 fn zune_jpg_decode(bytes: &[u8]) -> Option<(u32, u32, Vec<u8>)> {
-	let options = zune_core::options::DecoderOptions::new_cmd()
-		.jpeg_set_out_colorspace(zune_core::colorspace::ColorSpace::RGB);
-	let mut decoder = zune_jpeg::JpegDecoder::new_with_options(options, &bytes);
-	if let Ok(bytes) = decoder.decode() {
-		if let Some(info) = decoder.info() {
-			return Some((info.width as u32, info.height as u32, bytes));
-		}
-	}
+    let options = zune_core::options::DecoderOptions::new_cmd()
+        .jpeg_set_out_colorspace(zune_core::colorspace::ColorSpace::RGB);
+    let mut decoder = zune_jpeg::JpegDecoder::new_with_options(options, &bytes);
+    if let Ok(bytes) = decoder.decode() {
+        if let Some(info) = decoder.info() {
+            return Some((info.width as u32, info.height as u32, bytes));
+        }
+    }
 
-	None
+    None
 }
 
 // This is slower than `image_decode()`.
@@ -141,57 +129,79 @@ fn zune_jpg_decode(bytes: &[u8]) -> Option<(u32, u32, Vec<u8>)> {
 // This the fallback used when the above `zune` fails, or
 // if the resizer failed on `zune`'s bytes.
 fn image_decode(bytes: Box<[u8]>) -> Result<(u32, u32, Vec<u8>), anyhow::Error> {
-	match image::load_from_memory(&bytes) {
-		Ok(img) => Ok((img.width(), img.height(), img.into_rgb8().into_raw())),
-		Err(e)  => {
-			use image::error::ImageError::*;
-			match e {
-				Decoding(e)    => { debug_panic!("{e}"); bail!(e); },
-				Encoding(e)    => { debug_panic!("{e}"); bail!(e); },
-				Parameter(e)   => { debug_panic!("{e}"); bail!(e); },
-				Limits(e)      => { debug_panic!("{e}"); bail!(e); },
-				IoError(e)     => { debug_panic!("{e}"); bail!(e); },
-				Unsupported(e) => { bail!(e); },
-			}
-		},
-	}
+    match image::load_from_memory(&bytes) {
+        Ok(img) => Ok((img.width(), img.height(), img.into_rgb8().into_raw())),
+        Err(e) => {
+            use image::error::ImageError::*;
+            match e {
+                Decoding(e) => {
+                    debug_panic!("{e}");
+                    bail!(e);
+                }
+                Encoding(e) => {
+                    debug_panic!("{e}");
+                    bail!(e);
+                }
+                Parameter(e) => {
+                    debug_panic!("{e}");
+                    bail!(e);
+                }
+                Limits(e) => {
+                    debug_panic!("{e}");
+                    bail!(e);
+                }
+                IoError(e) => {
+                    debug_panic!("{e}");
+                    bail!(e);
+                }
+                Unsupported(e) => {
+                    bail!(e);
+                }
+            }
+        }
+    }
 }
 
 #[inline(always)]
-fn resize_image(width: u32, height: u32, bytes: Vec<u8>, resizer: &mut fir::Resizer) -> Result<Box<[u8]>, anyhow::Error> {
-	// Make sure the image width/height is not 0.
-	debug_assert!(width != 0);
-	debug_assert!(height != 0);
+fn resize_image(
+    width: u32,
+    height: u32,
+    bytes: Vec<u8>,
+    resizer: &mut fir::Resizer,
+) -> Result<Box<[u8]>, anyhow::Error> {
+    // Make sure the image width/height is not 0.
+    debug_assert!(width != 0);
+    debug_assert!(height != 0);
 
-	let width = match NonZeroU32::new(width) {
-		Some(w) => w,
-		None    => bail!("Album art width was 0"),
-	};
-	let height = match NonZeroU32::new(height) {
-		Some(w) => w,
-		None    => bail!("Album art height was 0"),
-	};
+    let width = match NonZeroU32::new(width) {
+        Some(w) => w,
+        None => bail!("Album art width was 0"),
+    };
+    let height = match NonZeroU32::new(height) {
+        Some(w) => w,
+        None => bail!("Album art height was 0"),
+    };
 
-	// Convert image to RGB, then into a `fir::Image`.
-	let old_img = Image::from_vec_u8(width, height, bytes, PixelType::U8x3)?;
+    // Convert image to RGB, then into a `fir::Image`.
+    let old_img = Image::from_vec_u8(width, height, bytes, PixelType::U8x3)?;
 
-	// Create the image we'll resize into.
-	let mut new_img = Image::new(ALBUM_ART_SIZE_NUM, ALBUM_ART_SIZE_NUM, PixelType::U8x3);
+    // Create the image we'll resize into.
+    let mut new_img = Image::new(ALBUM_ART_SIZE_NUM, ALBUM_ART_SIZE_NUM, PixelType::U8x3);
 
-	// Get image view.
-	// Images might not always be perfect squares.
-	// This sets the resizer to crop a square out of
-	// the middle instead squashing the aspect ratio.
-	let mut old = old_img.view();
-	old.set_crop_box_to_fit_dst_size(ALBUM_ART_SIZE_NUM, ALBUM_ART_SIZE_NUM, Some((0.5, 0.5)));
+    // Get image view.
+    // Images might not always be perfect squares.
+    // This sets the resizer to crop a square out of
+    // the middle instead squashing the aspect ratio.
+    let mut old = old_img.view();
+    old.set_crop_box_to_fit_dst_size(ALBUM_ART_SIZE_NUM, ALBUM_ART_SIZE_NUM, Some((0.5, 0.5)));
 
-	// Resize old into new.
-	if let Err(e) = resizer.resize(&old, &mut new_img.view_mut()) {
-		fail!("CCD - Failed to resize art: {e}");
-		bail!(e);
-	}
+    // Resize old into new.
+    if let Err(e) = resizer.resize(&old, &mut new_img.view_mut()) {
+        fail!("CCD - Failed to resize art: {e}");
+        bail!(e);
+    }
 
-	Ok(new_img.into_vec().into_boxed_slice())
+    Ok(new_img.into_vec().into_boxed_slice())
 }
 
 #[inline(always)]
@@ -203,17 +213,20 @@ fn resize_image(width: u32, height: u32, bytes: Vec<u8>, resizer: &mut fir::Resi
 //
 // Original `egui` function has an `assert!()`.
 fn rgb_bytes_to_color_img(bytes: Box<[u8]>) -> egui::ColorImage {
-	debug_assert!(bytes.len() % 3 == 0);
+    debug_assert!(bytes.len() % 3 == 0);
 
-	egui::ColorImage {
-		size: [ALBUM_ART_SIZE; 2],
-		pixels: bytes.chunks_exact(3).map(|p| egui::Color32::from_rgb(p[0], p[1], p[2])).collect(),
-	}
+    egui::ColorImage {
+        size: [ALBUM_ART_SIZE; 2],
+        pixels: bytes
+            .chunks_exact(3)
+            .map(|p| egui::Color32::from_rgb(p[0], p[1], p[2]))
+            .collect(),
+    }
 }
 
 #[inline(always)]
 fn color_img_to_retained(img: egui::ColorImage) -> egui_extras::RetainedImage {
-	egui_extras::RetainedImage::from_color_image("", img)
+    egui_extras::RetainedImage::from_color_image("", img)
 }
 
 // The image must be turned into a `texture` before
@@ -243,26 +256,26 @@ fn color_img_to_retained(img: egui::ColorImage) -> egui_extras::RetainedImage {
 // makes it _alot_ better. There is still a tiny freeze but it's fine
 // for now, we won't show the spinner near the end.
 pub(crate) fn alloc_textures(albums: &crate::collection::Albums) {
-	// Get `Context`.
-	let ctx = gui_context();
+    // Get `Context`.
+    let ctx = gui_context();
 
-	// Wait until `GUI` has loaded at least 1 frame.
-	while !atomic_load!(crate::frontend::gui::GUI_UPDATING) {
-		std::hint::spin_loop();
-	}
+    // Wait until `GUI` has loaded at least 1 frame.
+    while !atomic_load!(crate::frontend::gui::GUI_UPDATING) {
+        std::hint::spin_loop();
+    }
 
-	// For each `Album`...
-	for album in albums.iter() {
-		// Continue only if this is a real `Art`.
-		if let crate::collection::Art::Known(art) = &album.art {
-			// INVARIANT:
-			// As of `egui_extras 0.21.0`, this function makes sure
-			// the inner image is allocated before returning the id.
-			//
-			// This behavior must exist for this to actually allocate the image.
-			_ = art.texture_id(ctx);
-		}
-	}
+    // For each `Album`...
+    for album in albums.iter() {
+        // Continue only if this is a real `Art`.
+        if let crate::collection::Art::Known(art) = &album.art {
+            // INVARIANT:
+            // As of `egui_extras 0.21.0`, this function makes sure
+            // the inner image is allocated before returning the id.
+            //
+            // This behavior must exist for this to actually allocate the image.
+            _ = art.texture_id(ctx);
+        }
+    }
 }
 
 // UPDATE: We aren't manually allocating anymore. The `TextureHandle`
@@ -284,105 +297,113 @@ static mut NEXT_TEXTURE_ID: u64 = 2;
 //
 // We also internally use `1` for `UNKNOWN_IMAGE`.
 pub(crate) fn free_textures(tex_manager: &mut epaint::TextureManager) {
-	// Increment our local number.
-	let current_texture_count = tex_manager.num_allocated() as u64;
+    // Increment our local number.
+    let current_texture_count = tex_manager.num_allocated() as u64;
 
-	// SAFETY: see above comment.
-	let (start, end) = unsafe {
-		let start = NEXT_TEXTURE_ID;
-		let end   = NEXT_TEXTURE_ID + current_texture_count;
-		NEXT_TEXTURE_ID += current_texture_count;
-		(start, end)
-	};
+    // SAFETY: see above comment.
+    let (start, end) = unsafe {
+        let start = NEXT_TEXTURE_ID;
+        let end = NEXT_TEXTURE_ID + current_texture_count;
+        NEXT_TEXTURE_ID += current_texture_count;
+        (start, end)
+    };
 
-	// Free them.
-	trace!("CCD - current_texture_count: {current_texture_count}, freeing: {start}..{end}");
-	for id in start..end {
-		tex_manager.free(epaint::TextureId::Managed(id));
-	}
+    // Free them.
+    trace!("CCD - current_texture_count: {current_texture_count}, freeing: {start}..{end}");
+    for id in start..end {
+        tex_manager.free(epaint::TextureId::Managed(id));
+    }
 }
 
 //---------------------------------------------------------------------------------------------------- Image()
 // These functions are for the images in `~/.local/share/festival/${FRONTEND}/image`.
 #[inline(always)]
 pub(crate) fn save_image(key: usize, album: Album, base_path: &Path) {
-	if let Art::Bytes(bytes) = album.art {
-		let mut path = PathBuf::from(base_path);
-		path.push(format!("{key}.jpg"));
+    if let Art::Bytes(bytes) = album.art {
+        let mut path = PathBuf::from(base_path);
+        path.push(format!("{key}.jpg"));
 
-		match std::fs::File::create(&path) {
-			Ok(file) => {
-				match jpeg_encoder::Encoder::new_file(&path, 90) {
-					Ok(e) => {
-						match e.encode(&bytes, ALBUM_ART_SIZE_U16, ALBUM_ART_SIZE_U16, jpeg_encoder::ColorType::Rgb) {
-							Ok(_)  => { ok_trace!("CCD ... Image: {}", path.display()); return; },
-							Err(e) => warn!("CCD ... Image {e}: {}", path.display()),
-						}
-					},
-					Err(e) => warn!("CCD ... Image: {e}"),
-				}
+        match std::fs::File::create(&path) {
+            Ok(file) => {
+                match jpeg_encoder::Encoder::new_file(&path, 90) {
+                    Ok(e) => {
+                        match e.encode(
+                            &bytes,
+                            ALBUM_ART_SIZE_U16,
+                            ALBUM_ART_SIZE_U16,
+                            jpeg_encoder::ColorType::Rgb,
+                        ) {
+                            Ok(_) => {
+                                ok_trace!("CCD ... Image: {}", path.display());
+                                return;
+                            }
+                            Err(e) => warn!("CCD ... Image {e}: {}", path.display()),
+                        }
+                    }
+                    Err(e) => warn!("CCD ... Image: {e}"),
+                }
 
-				// Fallback to `image` if we didn't `return`.
-				match image::save_buffer(
-					&path,
-					&bytes,
-					ALBUM_ART_SIZE_U32,
-					ALBUM_ART_SIZE_U32,
-					image::ColorType::Rgb8,
-				) {
-					Ok(_)  => ok_trace!("CCD ... Image: {}", path.display()),
-					Err(e) => warn!("CCD ... Image {e}: {}", path.display()),
-				}
-			},
-			Err(e) => warn!("CCD ... Image {e}: {}", path.display()),
-		}
-	}
+                // Fallback to `image` if we didn't `return`.
+                match image::save_buffer(
+                    &path,
+                    &bytes,
+                    ALBUM_ART_SIZE_U32,
+                    ALBUM_ART_SIZE_U32,
+                    image::ColorType::Rgb8,
+                ) {
+                    Ok(_) => ok_trace!("CCD ... Image: {}", path.display()),
+                    Err(e) => warn!("CCD ... Image {e}: {}", path.display()),
+                }
+            }
+            Err(e) => warn!("CCD ... Image {e}: {}", path.display()),
+        }
+    }
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
 // TODO: Add test for zune.
 #[cfg(test)]
 mod tests {
-	use super::*;
+    use super::*;
 
-	#[test]
-	// Assert we can:
-	// 1. Take in all image formats
-	// 2. Resize with `fir`
-	// 3. Convert to an `egui` image
-	fn art() {
-		let mut resizer = super::create_resizer();
+    #[test]
+    // Assert we can:
+    // 1. Take in all image formats
+    // 2. Resize with `fir`
+    // 3. Convert to an `egui` image
+    fn art() {
+        let mut resizer = super::create_resizer();
 
-		for ext in ["jpg", "png", "bmp", "ico", "tiff", "webp"] {
-			let img = std::fs::read(format!("../assets/images/test/512.{ext}")).unwrap();
-			let img = art_from_raw(img.into(), &mut resizer).unwrap();
-			assert!(!img.is_empty());
+        for ext in ["jpg", "png", "bmp", "ico", "tiff", "webp"] {
+            let img = std::fs::read(format!("../assets/images/test/512.{ext}")).unwrap();
+            let img = art_from_raw(img.into(), &mut resizer).unwrap();
+            assert!(!img.is_empty());
 
-			// Bytes of FIR Image should be in perfect `3` chunks (RGB).
-			assert_eq!(img.len() % 3, 0);
+            // Bytes of FIR Image should be in perfect `3` chunks (RGB).
+            assert_eq!(img.len() % 3, 0);
 
-			// Convert to `egui` image.
-			let retained = art_from_known(img);
-			assert_eq!(retained.width(), ALBUM_ART_SIZE);
-			assert_eq!(retained.height(), ALBUM_ART_SIZE);
-		}
-	}
+            // Convert to `egui` image.
+            let retained = art_from_known(img);
+            assert_eq!(retained.width(), ALBUM_ART_SIZE);
+            assert_eq!(retained.height(), ALBUM_ART_SIZE);
+        }
+    }
 
-	#[test]
-	// Assert `zune-jpeg` works.
-	fn zune_jpg() {
-		let img = std::fs::read(format!("../assets/images/test/512.jpg")).unwrap();
-		let (_, _, bytes) = zune_jpg_decode(&img).unwrap();
-		assert!(!bytes.is_empty());
-	}
+    #[test]
+    // Assert `zune-jpeg` works.
+    fn zune_jpg() {
+        let img = std::fs::read(format!("../assets/images/test/512.jpg")).unwrap();
+        let (_, _, bytes) = zune_jpg_decode(&img).unwrap();
+        assert!(!bytes.is_empty());
+    }
 
-	#[test]
-	// Assert `image` works.
-	fn image() {
-		for ext in ["jpg", "png", "bmp", "ico", "tiff", "webp"] {
-			let img = std::fs::read(format!("../assets/images/test/512.{ext}")).unwrap();
-			let (_, _, bytes) = image_decode(img.into()).unwrap();
-			assert!(!bytes.is_empty());
-		}
-	}
+    #[test]
+    // Assert `image` works.
+    fn image() {
+        for ext in ["jpg", "png", "bmp", "ico", "tiff", "webp"] {
+            let img = std::fs::read(format!("../assets/images/test/512.{ext}")).unwrap();
+            let (_, _, bytes) = image_decode(img.into()).unwrap();
+            assert!(!bytes.is_empty());
+        }
+    }
 }

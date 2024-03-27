@@ -1,11 +1,8 @@
 //---------------------------------------------------------------------------------------------------- Use
-use std::sync::atomic::{
-	AtomicBool,
-	AtomicU8,
-};
 use crate::audio::Volume;
-use benri::atomic_load;
 use crate::collection::AtomicSongKey;
+use benri::atomic_load;
+use std::sync::atomic::{AtomicBool, AtomicU8};
 
 //---------------------------------------------------------------------------------------------------- Saving.
 pub(crate) static SAVING: AtomicBool = AtomicBool::new(false);
@@ -22,7 +19,7 @@ pub(crate) static SAVING: AtomicBool = AtomicBool::new(false);
 /// (for a reasonable amount of time) if this returns `true`, waiting
 /// for the [`Collection`] to be saved to disk.
 pub fn saving() -> bool {
-	atomic_load!(SAVING)
+    atomic_load!(SAVING)
 }
 
 //---------------------------------------------------------------------------------------------------- Resetting.
@@ -31,7 +28,7 @@ pub(crate) static RESETTING: AtomicBool = AtomicBool::new(false);
 /// This [`bool`] represents if we are currently in
 /// the process of resetting the [`Collection`].
 pub fn resetting() -> bool {
-	atomic_load!(RESETTING)
+    atomic_load!(RESETTING)
 }
 
 //---------------------------------------------------------------------------------------------------- Volume.
@@ -69,60 +66,60 @@ pub(crate) static MEDIA_CONTROLS_RAISE: AtomicBool = AtomicBool::new(false);
 #[inline(always)]
 /// The user sent a signal via the OS Media Control's that the main window should be raised.
 pub fn media_controls_raise() -> bool {
-	atomic_load!(MEDIA_CONTROLS_RAISE)
+    atomic_load!(MEDIA_CONTROLS_RAISE)
 }
 
 pub(crate) static MEDIA_CONTROLS_SHOULD_EXIT: AtomicBool = AtomicBool::new(false);
 #[inline(always)]
 /// The user sent a signal via the OS Media Control's that we should exit (all of Festival).
 pub fn media_controls_should_exit() -> bool {
-	atomic_load!(MEDIA_CONTROLS_SHOULD_EXIT)
+    atomic_load!(MEDIA_CONTROLS_SHOULD_EXIT)
 }
 
 //---------------------------------------------------------------------------------------------------- TESTS
 #[cfg(test)]
 mod tests {
-	use super::*;
-	use std::sync::atomic::Ordering;
+    use super::*;
+    use std::sync::atomic::Ordering;
 
-	#[test]
-	// Asserts function corresponds with the static.
-	fn __saving() {
-		// CCD test might be alive, wait for it to end.
-		while saving() {
-			benri::sleep!(1);
-		}
+    #[test]
+    // Asserts function corresponds with the static.
+    fn __saving() {
+        // CCD test might be alive, wait for it to end.
+        while saving() {
+            benri::sleep!(1);
+        }
 
-		assert!(!SAVING.load(Ordering::SeqCst));
-		assert!(!saving());
+        assert!(!SAVING.load(Ordering::SeqCst));
+        assert!(!saving());
 
-		SAVING.store(true, Ordering::SeqCst);
+        SAVING.store(true, Ordering::SeqCst);
 
-		assert!(SAVING.load(Ordering::SeqCst));
-		assert!(saving());
-	}
+        assert!(SAVING.load(Ordering::SeqCst));
+        assert!(saving());
+    }
 
-	#[test]
-	// Asserts function corresponds with the static.
-	fn __media_controls_raise() {
-		assert!(!MEDIA_CONTROLS_RAISE.load(Ordering::SeqCst));
-		assert!(!media_controls_raise());
+    #[test]
+    // Asserts function corresponds with the static.
+    fn __media_controls_raise() {
+        assert!(!MEDIA_CONTROLS_RAISE.load(Ordering::SeqCst));
+        assert!(!media_controls_raise());
 
-		MEDIA_CONTROLS_RAISE.store(true, Ordering::SeqCst);
+        MEDIA_CONTROLS_RAISE.store(true, Ordering::SeqCst);
 
-		assert!(MEDIA_CONTROLS_RAISE.load(Ordering::SeqCst));
-		assert!(media_controls_raise());
-	}
+        assert!(MEDIA_CONTROLS_RAISE.load(Ordering::SeqCst));
+        assert!(media_controls_raise());
+    }
 
-	#[test]
-	// Asserts function corresponds with the static.
-	fn __media_controls_should_exit() {
-		assert!(!MEDIA_CONTROLS_SHOULD_EXIT.load(Ordering::SeqCst));
-		assert!(!media_controls_should_exit());
+    #[test]
+    // Asserts function corresponds with the static.
+    fn __media_controls_should_exit() {
+        assert!(!MEDIA_CONTROLS_SHOULD_EXIT.load(Ordering::SeqCst));
+        assert!(!media_controls_should_exit());
 
-		MEDIA_CONTROLS_SHOULD_EXIT.store(true, Ordering::SeqCst);
+        MEDIA_CONTROLS_SHOULD_EXIT.store(true, Ordering::SeqCst);
 
-		assert!(MEDIA_CONTROLS_SHOULD_EXIT.load(Ordering::SeqCst));
-		assert!(media_controls_should_exit());
-	}
+        assert!(MEDIA_CONTROLS_SHOULD_EXIT.load(Ordering::SeqCst));
+        assert!(media_controls_should_exit());
+    }
 }
