@@ -3,7 +3,7 @@
 # Festival
 <img src="assets/images/icon/512.png" width="10%"/>
 
-![CI](https://github.com/hinto-janai/festival/actions/workflows/ci.yml/badge.svg)
+[![CI](https://github.com/hinto-janai/festival/actions/workflows/ci.yml/badge.svg)](https://github.com/hinto-janai/festival/actions/workflows/ci.yml)
 
 Festival is a music player for local album collections.
 
